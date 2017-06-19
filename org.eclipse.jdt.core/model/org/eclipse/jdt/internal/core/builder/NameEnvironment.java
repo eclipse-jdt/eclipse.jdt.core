@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -122,6 +123,7 @@ private void computeClasspathLocations(
 		Object target = JavaModel.getTarget(path, true);
 		IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, javaProject.getProject(), true);
 		if (target == null) continue nextEntry;
+		boolean isOnModulePath = entry.isAutomaticModule();
 
 		switch(entry.getEntryKind()) {
 			case IClasspathEntry.CPE_SOURCE :
@@ -168,7 +170,7 @@ private void computeClasspathLocations(
 							: (IContainer) root.getFolder(prereqOutputPath);
 						if (binaryFolder.exists() && !seen.contains(binaryFolder)) {
 							seen.add(binaryFolder);
-							ClasspathLocation bLocation = ClasspathLocation.forBinaryFolder(binaryFolder, true, entry.getAccessRuleSet(), externalAnnotationPath, this, entry.isAutomaticModule());
+							ClasspathLocation bLocation = ClasspathLocation.forBinaryFolder(binaryFolder, true, entry.getAccessRuleSet(), externalAnnotationPath, this, isOnModulePath);
 							bLocations.add(bLocation);
 							projectLocations.add(bLocation);
 							if (binaryLocationsPerProject != null) { // normal builder mode
@@ -185,15 +187,21 @@ private void computeClasspathLocations(
 						}
 					}
 				}
-				if (moduleEntries != null && (mod = prereqJavaProject.getModuleDescription()) != null && projectLocations.size() > 0) {
+				if (moduleEntries != null && isOnModulePath && projectLocations.size() > 0) {
+					IModule info = null;
 					try {
-						SourceModule sourceModule = (SourceModule)mod;
-						ModuleDescriptionInfo info = (ModuleDescriptionInfo) sourceModule.getElementInfo();
-						ModulePathEntry projectEntry = new ModulePathEntry(prereqJavaProject.getPath(), info, projectLocations.toArray(new ClasspathLocation[projectLocations.size()]));
-						moduleEntries.put(sourceModule.getElementName(), projectEntry);
+						if ((mod = prereqJavaProject.getModuleDescription()) != null) {
+							SourceModule sourceModule = (SourceModule) mod;
+							info = (ModuleDescriptionInfo) sourceModule.getElementInfo();
+						}
 					} catch (JavaModelException jme) {
 						// do nothing, probably a non module project
 					}
+					if (info == null)
+						info = new AutoModule(prereqJavaProject.getElementName().toCharArray());
+					ModulePathEntry projectEntry = new ModulePathEntry(prereqJavaProject.getPath(), info,
+							projectLocations.toArray(new ClasspathLocation[projectLocations.size()]));
+					moduleEntries.put(String.valueOf(info.name()), projectEntry);
 				}
 				continue nextEntry;
 
@@ -207,14 +215,14 @@ private void computeClasspathLocations(
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-						bLocation = ClasspathLocation.forLibrary((IFile) resource, accessRuleSet, externalAnnotationPath, this, entry.isAutomaticModule());
+						bLocation = ClasspathLocation.forLibrary((IFile) resource, accessRuleSet, externalAnnotationPath, this, isOnModulePath);
 					} else if (resource instanceof IContainer) {
 						AccessRuleSet accessRuleSet =
 							(JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true))
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-						bLocation = ClasspathLocation.forBinaryFolder((IContainer) target, false, accessRuleSet, externalAnnotationPath, this, entry.isAutomaticModule());	 // is library folder not output folder
+						bLocation = ClasspathLocation.forBinaryFolder((IContainer) target, false, accessRuleSet, externalAnnotationPath, this, isOnModulePath);	 // is library folder not output folder
 					}
 					bLocations.add(bLocation);
 					// TODO: Ideally we need to do something like mapToModulePathEntry using the path and if it is indeed
@@ -225,8 +233,8 @@ private void computeClasspathLocations(
 							for (String moduleName : binaryModulePathEntry.getModuleNames()) {
 								moduleEntries.put(moduleName, binaryModulePathEntry);							
 							}
-						} else if (bLocation instanceof IModulePathEntry) {
-							IModulePathEntry binaryModulePathEntry = (IModulePathEntry) bLocation;
+						} else if (isOnModulePath) {
+							IModulePathEntry binaryModulePathEntry = new ModulePathEntry(path, bLocation);
 							IModule module = binaryModulePathEntry.getModule();
 							if (module != null)
 								moduleEntries.put(String.valueOf(module.name()), binaryModulePathEntry);
@@ -250,18 +258,16 @@ private void computeClasspathLocations(
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-					ClasspathLocation bLocation = ClasspathLocation.forLibrary(path.toOSString(), accessRuleSet, externalAnnotationPath, this, entry.isAutomaticModule());
+					ClasspathLocation bLocation = ClasspathLocation.forLibrary(path.toOSString(), accessRuleSet, externalAnnotationPath, this, isOnModulePath);
 					bLocations.add(bLocation);
-					// TODO: Ideally we need to do something like mapToModulePathEntry using the path and if it is indeed
-					// a module path entry, then add the corresponding entry here, but that would need the target platform
 					if (moduleEntries != null) {
 						if (bLocation instanceof IMultiModuleEntry) {
 							IMultiModuleEntry binaryModulePathEntry = (IMultiModuleEntry) bLocation;
 							for (String moduleName : binaryModulePathEntry.getModuleNames()) {
 								moduleEntries.put(moduleName, binaryModulePathEntry);							
 							}
-						} else if (bLocation instanceof IModulePathEntry) {
-							IModulePathEntry binaryModulePathEntry = (IModulePathEntry) bLocation;
+						} else if (isOnModulePath) {
+							IModulePathEntry binaryModulePathEntry = new ModulePathEntry(path, bLocation);
 							IModule module = binaryModulePathEntry.getModule();
 							if (module != null)
 								moduleEntries.put(String.valueOf(module.name()), binaryModulePathEntry);
@@ -531,7 +537,7 @@ public IModule getModule(char[] name) {
 public IModule[] getAllAutomaticModules() {
 	if (this.modulePathEntries == null)
 		return IModule.NO_MODULES;
-	Set<IModule> set = this.modulePathEntries.values().stream().map(e -> e.getModule()).filter(m -> m.isAutomatic())
+	Set<IModule> set = this.modulePathEntries.values().stream().filter(m -> m.isAutomaticModule()).map(e -> e.getModule())
 			.collect(Collectors.toSet());
 	return set.toArray(new IModule[set.size()]);
 }

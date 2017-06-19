@@ -30,7 +30,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -47,7 +46,7 @@ ZipFile annotationZipFile;
 String externalAnnotationPath;
 INameEnvironment env;
 
-ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env, boolean isAutomodule) {
+ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env, boolean isOnModulePath) {
 	this.binaryFolder = binaryFolder;
 	this.isOutputFolder = isOutputFolder || binaryFolder.getProjectRelativePath().isEmpty(); // if binaryFolder == project, then treat it as an outputFolder
 	this.directoryCache = new SimpleLookupTable(5);
@@ -55,14 +54,7 @@ ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSe
 	this.env = env;
 	if (externalAnnotationPath != null)
 		this.externalAnnotationPath = externalAnnotationPath.toOSString();
-	if (isAutomodule) {
-		setAutomaticModule();
-	}
-}
-
-void setAutomaticModule() {
-	this.isAutoModule = true;
-	acceptModule(new AutoModule(this.binaryFolder.getName().toCharArray()));
+	this.isOnModulePath = isOnModulePath;
 }
 
 public void cleanup() {
@@ -76,7 +68,7 @@ public void cleanup() {
 	this.directoryCache = null;
 }
 
-ClasspathDirectory initializeModule() {
+IModule initializeModule() {
 	IResource[] members = null;
 	try {
 		members = this.binaryFolder.members();
@@ -88,8 +80,8 @@ ClasspathDirectory initializeModule() {
 				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
 					if (name.equalsIgnoreCase(IModule.MODULE_INFO_CLASS)) {
 						try {
-							this.acceptModule( Util.newClassFileReader(m));
-							this.isAutoModule = false;
+							ClassFileReader cfr = Util.newClassFileReader(m);
+							return cfr.getModuleDeclaration();
 						} catch (ClassFormatException | IOException e) {
 							// TODO BETA_JAVA9 Auto-generated catch block
 							e.printStackTrace();
@@ -101,7 +93,7 @@ ClasspathDirectory initializeModule() {
 	} catch (CoreException e1) {
 		e1.printStackTrace();
 	}
-	return this;
+	return null;
 }
 String[] directoryList(String qualifiedPackageName) {
 	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
@@ -132,11 +124,6 @@ String[] directoryList(String qualifiedPackageName) {
 	}
 	this.directoryCache.put(qualifiedPackageName, this.missingPackageHolder);
 	return null;
-}
-void acceptModule(ClassFileReader classfile) {
-	if (classfile != null) {
-		acceptModule(classfile.getModuleDeclaration());
-	}
 }
 boolean doesFileExist(String fileName, String qualifiedPackageName, String qualifiedFullName) {
 	String[] dirList = directoryList(qualifiedPackageName);

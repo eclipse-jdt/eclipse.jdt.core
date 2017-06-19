@@ -15,10 +15,13 @@
 package org.eclipse.jdt.internal.core.builder;
 
 
+import java.io.File;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
+import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 
 /**
  * Represents a project on the module path.
@@ -28,12 +31,19 @@ public class ModulePathEntry implements IModulePathEntry {
 	private IPath path;
 	/*private*/ ClasspathLocation[] locations;
 	IModule module;
+	boolean isAutomaticModule;
 
 	ModulePathEntry(IPath path, IModule module, ClasspathLocation[] locations) {
 		this.path = path;
 		this.locations = locations;
 		this.module = module;
+		this.isAutomaticModule = module.isAutomatic();
 		initializeModule();
+	}
+	public ModulePathEntry(IPath path, ClasspathLocation location) {
+		this.path = path;
+		initModule(location);
+		this.locations = new ClasspathLocation[] {location};
 	}
 	public IPath getPath() {
 		return this.path;
@@ -46,6 +56,44 @@ public class ModulePathEntry implements IModulePathEntry {
 	public IModule getModule() {
 		//
 		return this.module;
+	}
+
+	public boolean isAutomaticModule() {
+		return this.isAutomaticModule;
+	}
+	public static char[] getAutomaticModuleName(ClasspathLocation location) {
+		String name = null;
+		if (location instanceof ClasspathJar) {
+			name = ((ClasspathJar) location).zipFilename;
+			int index = name.lastIndexOf('.');
+			if (index != -1)
+				name = name.substring(0, index);
+			index = name.lastIndexOf(File.separatorChar);
+			if (index == -1)
+				return name.toCharArray();
+			return name.substring(index + 1).toCharArray();
+			
+		}
+		if (location instanceof ClasspathDirectory) {
+			return ((ClasspathDirectory) location).binaryFolder.getName().toCharArray();
+		}
+		return null;
+	}
+	private void initModule(ClasspathLocation location) {
+		IModule mod = null;
+		if (location instanceof ClasspathJar) {
+			mod = ((ClasspathJar) location).initializeModule();
+		} else if (location instanceof ClasspathDirectory){
+			mod = ((ClasspathDirectory) location).initializeModule();
+		}
+		if (mod != null) {
+			this.module = mod;
+			this.isAutomaticModule = false;
+		} else {
+			this.module = new AutoModule(getAutomaticModuleName(location));
+			this.isAutomaticModule = true;
+		}
+		location.setModule(this.module);
 	}
 
 	// TODO: This is only needed because SourceFile.module() uses the module set on the location

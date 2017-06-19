@@ -467,7 +467,7 @@ void write(DataOutputStream out) throws IOException {
 			out.writeBoolean(cd.isOutputFolder);
 			writeRestriction(cd.accessRuleSet, out);
 			out.writeUTF(cd.externalAnnotationPath != null ? cd.externalAnnotationPath : ""); //$NON-NLS-1$
-			out.writeBoolean(cd.isAutomaticModule());
+			out.writeBoolean(cd.isOnModulePath);
 		} else if (c instanceof ClasspathJar) {
 			ClasspathJar jar = (ClasspathJar) c;
 			if (jar.resource == null) {
@@ -480,7 +480,7 @@ void write(DataOutputStream out) throws IOException {
 			}
 			writeRestriction(jar.accessRuleSet, out);
 			out.writeUTF(jar.externalAnnotationPath != null ? jar.externalAnnotationPath : ""); //$NON-NLS-1$
-			out.writeBoolean(jar.isAutomaticModule());
+			out.writeBoolean(jar.isOnModulePath);
 		} else {
 			ClasspathJrt jrt = (ClasspathJrt) c;
 			out.writeByte(EXTERNAL_JAR);

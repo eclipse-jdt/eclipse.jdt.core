@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -51,7 +52,10 @@ public class ModulePathContainer implements IClasspathContainer{
 				if (refRoot == null)
 					continue;
 				IPath path = refRoot.getPath();
-				entries.add(JavaCore.newProjectEntry(path, ref.isTransitive()));
+				IClasspathAttribute moduleAttribute = new ClasspathAttribute(IClasspathAttribute.AUTOMATIC_MODULE, "true"); //$NON-NLS-1$
+				entries.add(JavaCore.newProjectEntry(path, ClasspathEntry.NO_ACCESS_RULES,
+						false,
+						new IClasspathAttribute[] {moduleAttribute}, ref.isTransitive()));
 			}
 		} catch (JavaModelException e) {
 			// ignore

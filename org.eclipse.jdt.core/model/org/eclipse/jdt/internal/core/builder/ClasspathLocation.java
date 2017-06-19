@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class ClasspathLocation {
 
-	protected boolean isAutoModule;
+	protected boolean isOnModulePath;
 	protected IModule module;
 	abstract public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName);
 	abstract public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly);
@@ -43,6 +43,9 @@ public abstract class ClasspathLocation {
 	}
 	public void setModule (IModule mod) {
 		this.module = mod;
+	}
+	public IModule getModule() {
+		return this.module;
 	}
 	static ClasspathLocation forSourceFolder(IContainer sourceFolder, IContainer outputFolder,
 			char[][] inclusionPatterns, char[][] exclusionPatterns, boolean ignoreOptionalProblems,
@@ -64,7 +67,7 @@ static ClasspathLocation forLibrary(String libraryPathname,
 			new ClasspathJrt(libraryPathname, annotationsPath, env) :
 				Util.archiveFormat(libraryPathname) == Util.JMOD_FILE ?
 					new ClasspathJMod(libraryPathname, lastModified, accessRuleSet, annotationsPath, env) :
-			new ClasspathJar(libraryPathname, lastModified, accessRuleSet, annotationsPath, env, false);
+			new ClasspathJar(libraryPathname, lastModified, accessRuleSet, annotationsPath, env, autoModule);
 
 }
 
@@ -93,29 +96,11 @@ public void reset() {
 
 public abstract String debugPathString();
 
-void acceptModule(IModule mod) {
-	if (mod != null) {
-		this.module = mod;
-	}
-}
-public IModule getModule() {
-	return this.module;
-}
-
 public char[][] singletonModuleNameIf(boolean condition) {
 	if (!condition)
 		return null;
 	if (this.module != null)
 		return new char[][] { this.module.name() };
 	return new char[][] { ModuleBinding.UNNAMED };
-}
-
-/**
- * Specifies whether this entry represents an automatic module.
- * 
- * @return true if this is an automatic module, false otherwise
- */
-public boolean isAutomaticModule() {
-	return this.isAutoModule;
 }
 }

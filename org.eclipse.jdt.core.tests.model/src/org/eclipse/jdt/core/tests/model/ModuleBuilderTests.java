@@ -31,6 +31,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaModelMarker;
@@ -40,9 +41,12 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.core.ClasspathAttribute;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.util.Messages;
 
 import junit.framework.Test;
@@ -223,8 +227,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	private IJavaProject setupP2() throws CoreException {
 		IJavaProject project = createJava9Project("P2");
-		IClasspathEntry projectEntry = 
-				JavaCore.newProjectEntry(new Path("/P1"), true);
+		IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+		IClasspathEntry projectEntry = JavaCore.newProjectEntry(new Path("/P1"), null, false,
+			new IClasspathAttribute[] {modAttr},
+			true);
 		IClasspathEntry[] old = project.getRawClasspath();
 		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];
 		System.arraycopy(old, 0, newPath, 0, old.length);
@@ -378,8 +384,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	private IJavaProject setupP3() throws CoreException {
 		IJavaProject project = createJava9Project("P3");
-		IClasspathEntry projectEntry = 
-				JavaCore.newProjectEntry(new Path("/P2"), true);
+		IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+		IClasspathEntry projectEntry = JavaCore.newProjectEntry(new Path("/P2"), null, false,
+			new IClasspathAttribute[] {modAttr},
+			true);
 		IClasspathEntry[] old = project.getRawClasspath();
 		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];
 		System.arraycopy(old, 0, newPath, 0, old.length);
@@ -734,7 +742,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"}" 
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] { 
 					"src/module-info.java",
 					"module com.greetings {\n" +
@@ -772,7 +783,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"}" 
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] { 
 					"src/module-info.java",
 					"module com.greetings {\n" +
@@ -809,7 +823,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -852,7 +869,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -895,7 +915,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -938,7 +961,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -981,7 +1007,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -1029,7 +1058,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -1062,7 +1094,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -1226,7 +1261,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -1274,7 +1312,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -1340,7 +1381,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -1377,7 +1421,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -1504,7 +1551,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -1552,7 +1602,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}"
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -2227,7 +2280,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"}" 
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] { 
 					"src/module-info.java",
 					"import org.astro.World;\n" +
@@ -2278,7 +2334,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"}" 
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] { 
 					"src/module-info.java",
 					"import org.astro.World;\n" +
@@ -2652,7 +2711,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"public @interface Foo {}" 
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] { 
 					"src/module-info.java",
 					"import org.astro.Foo;\n" +
@@ -2699,7 +2761,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"public @interface Foo {}" 
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] { 
 					"src/module-info.java",
 					"import org.astro.Foo;\n" +
@@ -2747,7 +2812,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"public @interface Foo {}" 
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] { 
 					"src/module-info.java",
 					"import org.astro.Foo;\n" +
@@ -2798,7 +2866,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"public @interface Foo {}" 
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] { 
 					"src/module-info.java",
 					"import org.astro.Foo;\n" +
@@ -2848,7 +2919,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"public @interface Foo {}" 
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			String[] src = new String[] { 
 					"src/module-info.java",
 					"import org.astro.Foo;\n" +
@@ -2964,7 +3038,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 								"}\n"
 							};
 			IJavaProject p1 = setupModuleProject("mod.one", sources1);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 
 			String[] sources2 = {
@@ -3028,7 +3105,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 						"}\n"
 					};
 			IJavaProject p1 = setupModuleProject("mod.one", sources1);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 
 			String[] sources2 = {
@@ -3083,7 +3163,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"}\n"
 			};
 			IJavaProject p1 = setupModuleProject("mod.one", sources1);
-			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 
 			String[] sources2 = {
@@ -3397,8 +3480,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	}\n" +
 				"}"
 			};
-			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath());
-			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			IJavaProject p3 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep1, dep2 });
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -3446,7 +3534,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	}\n" +
 				"}"
 			};
-			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep1 });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -3495,8 +3586,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	}\n" +
 				"}"
 			};
-			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath());
-			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			IJavaProject p3 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep1, dep2 });
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -3548,8 +3644,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	}\n" +
 				"}"
 			};
-			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath());
-			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			IJavaProject p3 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep1, dep2 });
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -3597,8 +3698,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	}\n" +
 				"}"
 			};
-			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath());
-			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath());
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath(), null, false,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
 			IJavaProject p3 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep1, dep2 });
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -3630,6 +3736,417 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.deleteProject("jpms.test.b");
 			this.sourceWorkspacePath = null;
 			 JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	// basic test for automatic modules - external jars
+	public void testBug518280() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			String libPath = "externalLib/test.jar";
+			Util.createJar(
+					new String[] {
+						"test/src/org/astro/World.java", //$NON-NLS-1$
+						"package org.astro;\n" +
+						"public interface World {\n" +
+						"	public String name();\n" +
+						"}",
+					},
+					null,
+					new HashMap<>(),
+					null,
+					getExternalResourcePath(libPath));
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"module com.greetings {\n" +
+					"	requires test;\n" +
+					"	exports com.greetings;\n" +
+					"}",
+					"src/com/greetings/MyWorld.java",
+					"package com.greetings;\n" +
+					"import org.astro.World;\n"	+
+					"public class MyWorld implements World {\n" +
+					"	public String name() {\n" +
+					"		return \" My World!!\";\n" +
+					"	}\n" +
+					"}"
+			};
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null, ClasspathEntry.NO_ACCESS_RULES,
+					new IClasspathAttribute[] {modAttr},
+					false/*not exported*/);
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			deleteExternalResource("externalLib");
+			this.deleteProject("com.greetings");
+		}
+	}
+	// basic test for automatic modules - workspace jars
+	public void testBug518282() throws CoreException, IOException {
+		if (!isJRE9) return;
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		try {
+			setUpJavaProject("test_automodules", "9");
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			this.deleteProject("test_automodules");
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	// Only the project using a jar as an automatic module should be able to
+	// resolve one as such
+	public void testBug518282a() throws CoreException, IOException {
+		if (!isJRE9) return;
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		try {
+			IJavaProject p1 = setUpJavaProject("test_automodules", "9");
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"module com.greetings {\n" +
+					"	requires junit; // This should not be resolved\n" +
+					"	exports com.greetings;\n" +
+					"}",
+					"src/com/greetings/Test.java",
+					"package com.greetings;\n" +
+					"public class Test {\n" +
+					"	public String name() {\n" +
+					"		return \" My World!!\";\n" +
+					"	}\n" +
+					"}"
+			};
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "false");
+			IClasspathEntry dep = JavaCore.newLibraryEntry(p1.getProject().findMember("lib/junit.jar").getFullPath(), null, null,
+					ClasspathEntry.NO_ACCESS_RULES,
+					new IClasspathAttribute[] {modAttr},
+					false/*not exported*/);
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", 
+					"junit cannot be resolved to a module", markers);
+		} finally {
+			this.deleteProject("test_automodules");
+			this.deleteProject("com.greetings");
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	// A modular jar on the module path of a project should behave as a regular module and not
+	// as an automatic module
+	public void testBug518282b() throws CoreException, IOException {
+		if (!isJRE9) return;
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		String libPath = "externalLib/test.jar";
+		try {
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"module com.greetings {\n" +
+					"	exports com.greetings;\n" +
+					"}",
+					"src/com/greetings/Test.java",
+					"package com.greetings;\n" +
+					"public class Test {\n" +
+					"	public String name() {\n" +
+					"		return \" My World!!\";\n" +
+					"	}\n" +
+					"}"
+			};
+			IJavaProject p1 = setupModuleProject("test", src);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			File rootDir = new File(p1.getProject().findMember("bin").getLocation().toString());
+			Util.zip(rootDir, getExternalResourcePath(libPath));
+			src = new String[] { 
+					"src/module-info.java",
+					"module test_automodules {\n" +
+					"	requires com.greetings;\n" +
+					"}",
+					"src/test/Main.java",
+					"package test;\n" +
+					"import com.greetings.Test;\n" +
+					"public class Main {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.println(new Test().name());\n" +
+					"	}\n" +
+					"}"
+			};
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null,
+				ClasspathEntry.NO_ACCESS_RULES,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			IJavaProject p2 = setupModuleProject("test_automodules", src, new IClasspathEntry[] {dep});
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			this.deleteProject("test");
+			this.deleteProject("test_automodules");
+			deleteExternalResource(libPath);
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	// A modular jar on the class path of a module project - shouldn't be
+	// treated as a module and shouldn't be readable
+	public void testBug518282c() throws CoreException, IOException {
+		if (!isJRE9) return;
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		String libPath = "externalLib/test.jar";
+		try {
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"module test {\n" +
+					"	exports com.greetings;\n" +
+					"}",
+					"src/com/greetings/Test.java",
+					"package com.greetings;\n" +
+					"public class Test {\n" +
+					"	public String name() {\n" +
+					"		return \" My World!!\";\n" +
+					"	}\n" +
+					"}"
+			};
+			IJavaProject p1 = setupModuleProject("test", src);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			File rootDir = new File(p1.getProject().findMember("bin").getLocation().toString());
+			Util.zip(rootDir, getExternalResourcePath(libPath));
+			src = new String[] { 
+					"src/module-info.java",
+					"module test_automodules {\n" +
+					"	requires test;\n" +
+					"}",
+					"src/test/Main.java",
+					"package test;\n" +
+					"import com.greetings.Test;\n" +
+					"public class Main {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.println(new Test().name());\n" +
+					"	}\n" +
+					"}"
+			};
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "false");
+			IClasspathEntry dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null,
+				ClasspathEntry.NO_ACCESS_RULES,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			IJavaProject p2 = setupModuleProject("test_automodules", src, new IClasspathEntry[] {dep});
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertTrue("Compilation succeeds unexpectedly", markers.length > 0);
+		} finally {
+			this.deleteProject("test");
+			this.deleteProject("test_automodules");
+			deleteExternalResource(libPath);
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	// An automatic module grants implied readability to all other automatic modules
+	public void _testBug518282d() throws CoreException, IOException {
+		if (!isJRE9) return;
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		String libPath = "externalLib/test.jar";
+		try {
+			String[] src = new String[] { 
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", src);
+			src = new String[] { 
+				"src/com/greetings/Test.java",
+				"package com.greetings;\n" +
+				"import  org.astro.World;\n" +
+				"public class Test implements World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IJavaProject p2 = setupModuleProject("test", src, new IClasspathEntry[] {dep});
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			File rootDir = new File(p2.getProject().findMember("bin").getLocation().toString());
+			Util.zip(rootDir, getExternalResourcePath(libPath));
+			src = new String[] { 
+				"src/module-info.java",
+				"module test_automodules {\n" +
+				"	requires test;\n" +
+				"}",
+				"src/test/Main.java",
+				"package test;\n" +
+				"import com.greetings.Test;\n" +
+				"public class Main {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		org.astro.World world = new Test();\n" +
+				"		System.out.println(world.name());\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null,
+				ClasspathEntry.NO_ACCESS_RULES,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			IClasspathEntry dep2 = JavaCore.newLibraryEntry(p1.getProject().findMember("bin").getFullPath(), null, null,
+				ClasspathEntry.NO_ACCESS_RULES,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			IJavaProject p3 = setupModuleProject("test_automodules", src, new IClasspathEntry[] {dep, dep2});
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			this.deleteProject("test");
+			this.deleteProject("test_automodules");
+			this.deleteProject("org.astro");
+			deleteExternalResource(libPath);
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	// Automatic module should not allow access to other explicit modules without
+	// requires
+	public void testBug518282e() throws CoreException, IOException {
+		if (!isJRE9) return;
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		String libPath = "externalLib/test.jar";
+		try {
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"module org.astro {\n" +
+					"	exports org.astro;\n" +
+					"}",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", src);
+			src = new String[] { 
+				"src/com/greetings/Test.java",
+				"package com.greetings;\n" +
+				"import  org.astro.World;\n" +
+				"public class Test implements World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IJavaProject p2 = setupModuleProject("test", src, new IClasspathEntry[] {dep});
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			File rootDir = new File(p2.getProject().findMember("bin").getLocation().toString());
+			Util.zip(rootDir, getExternalResourcePath(libPath));
+			src = new String[] { 
+				"src/module-info.java",
+				"module test_automodules {\n" +
+				"	requires test;\n" +
+				"}",
+				"src/test/Main.java",
+				"package test;\n" +
+				"import com.greetings.Test;\n" +
+				"import org.astro.*;\n" +
+				"public class Main {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		World world = new Test();\n" +
+				"		System.out.println(world.name());\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null,
+				ClasspathEntry.NO_ACCESS_RULES,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep2 = JavaCore.newProjectEntry(p1.getPath(), null, true,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			IJavaProject p3 = setupModuleProject("test_automodules", src, new IClasspathEntry[] {dep, dep2});
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "World cannot be resolved to a type", markers);
+		} finally {
+			this.deleteProject("test");
+			this.deleteProject("test_automodules");
+			this.deleteProject("org.astro");
+			deleteExternalResource(libPath);
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	// An automatic module shouldn't allow access to classpath
+	public void testBug518282f() throws CoreException, IOException {
+		if (!isJRE9) return;
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		String libPath = "externalLib/test.jar";
+		try {
+			String[] src = new String[] { 
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", src);
+			src = new String[] { 
+				"src/com/greetings/Test.java",
+				"package com.greetings;\n" +
+				"import  org.astro.World;\n" +
+				"public class Test implements World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IJavaProject p2 = setupModuleProject("test", src, new IClasspathEntry[] {dep});
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			File rootDir = new File(p2.getProject().findMember("bin").getLocation().toString());
+			Util.zip(rootDir, getExternalResourcePath(libPath));
+			src = new String[] { 
+				"src/module-info.java",
+				"module test_automodules {\n" +
+				"	requires test;\n" +
+				"}",
+				"src/test/Main.java",
+				"package test;\n" +
+				"import com.greetings.Test;\n" +
+				"public class Main {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		org.astro.World world = new Test();\n" +
+				"		System.out.println(world.name());\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			dep = JavaCore.newLibraryEntry(new Path(getExternalResourcePath(libPath)), null, null,
+				ClasspathEntry.NO_ACCESS_RULES,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			modAttr = new ClasspathAttribute("module", "false");
+			IClasspathEntry dep2 = JavaCore.newLibraryEntry(p1.getProject().findMember("bin").getFullPath(), null, null,
+				ClasspathEntry.NO_ACCESS_RULES,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			IJavaProject p3 = setupModuleProject("test_automodules", src, new IClasspathEntry[] {dep, dep2});
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "org cannot be resolved to a type", markers);
+		} finally {
+			this.deleteProject("test");
+			this.deleteProject("test_automodules");
+			this.deleteProject("org.astro");
+			deleteExternalResource(libPath);
+			JavaCore.setOptions(javaCoreOptions);
 		}
 	}
 	protected void assertNoErrors() throws CoreException {
