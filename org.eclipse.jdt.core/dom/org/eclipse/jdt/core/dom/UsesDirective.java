@@ -24,7 +24,7 @@ import java.util.List;
  * </pre>
  *
  * @since 3.13 BETA_JAVA9
- * 
+ *
  * @noextend This class is not intended to be subclassed by clients.
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -32,10 +32,10 @@ import java.util.List;
 public class UsesDirective extends ModuleDirective {
 
 	/**
-	 * The "type" structural property of this node type (child type: {@link Name}).
+	 * The "name" structural property of this node type (child type: {@link Name}).
 	 */
-	public static final ChildPropertyDescriptor TYPE_PROPERTY =
-		new ChildPropertyDescriptor(UsesDirective.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor NAME_PROPERTY =
+		new ChildPropertyDescriptor(UsesDirective.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -47,7 +47,7 @@ public class UsesDirective extends ModuleDirective {
 	static {
 		List properyList = new ArrayList(2);
 		createPropertyList(UsesDirective.class, properyList);
-		addProperty(TYPE_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS_9_0 = reapPropertyList(properyList);
 	}
 
@@ -69,7 +69,7 @@ public class UsesDirective extends ModuleDirective {
 	 * The module name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private Type type = null;
+	private Name name = null;
 
 	/**
 	 * Creates a new AST node for an uses directive owned by the
@@ -94,11 +94,11 @@ public class UsesDirective extends ModuleDirective {
 
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
-		if (property == TYPE_PROPERTY) {
+		if (property == NAME_PROPERTY) {
 			if (get) {
-				return getType();
+				return getName();
 			} else {
-				setType((Type) child);
+				setName((Name) child);
 				return null;
 			}
 		}
@@ -116,7 +116,7 @@ public class UsesDirective extends ModuleDirective {
 	ASTNode clone0(AST target) {
 		UsesDirective result = new UsesDirective(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setType((Type) getType().clone(target));
+		result.setName((Name) getName().clone(target));
 		return result;
 	}
 
@@ -130,49 +130,50 @@ public class UsesDirective extends ModuleDirective {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			acceptChild(visitor, getType());
+			acceptChild(visitor, getName());
 		}
 		visitor.endVisit(this);
 	}
 
 
 	/**
-	 * Returns the type in this directive
+	 * Returns the name in this directive
 	 *
-	 * @return the type
+	 * @return the name
 	 */
-	public Type getType()  {
-		if (this.type == null) {
+	public Name getName()  {
+		if (this.name == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
-				if (this.type == null) {
+				if (this.name == null) {
 					preLazyInit();
-					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
-					postLazyInit(this.type, TYPE_PROPERTY);
+					this.name = this.ast.newQualifiedName(
+							new SimpleName(this.ast), new SimpleName(this.ast));
+					postLazyInit(this.name, NAME_PROPERTY);
 				}
 			}
 		}
-		return this.type;
+		return this.name;
 	}
 
 	/**
-	 * Sets the type in uses directive
+	 * Sets the name in uses directive
 	 *
-	 * @param type the new type in uses
+	 * @param name the new name in uses
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 */
-	public void setType(Type type) {
-		if (type == null) {
+	public void setName(Name name) {
+		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.type;
-		preReplaceChild(oldChild, type, TYPE_PROPERTY);
-		this.type = type;
-		postReplaceChild(oldChild, type, TYPE_PROPERTY);
+		ASTNode oldChild = this.name;
+		preReplaceChild(oldChild, name, NAME_PROPERTY);
+		this.name = name;
+		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 
 	@Override
@@ -184,7 +185,7 @@ public class UsesDirective extends ModuleDirective {
 	int treeSize() {
 		return
 			memSize()
-			+ (this.type == null ? 0 : getType().treeSize());
+			+ (this.name == null ? 0 : getName().treeSize());
 	}
 
 }

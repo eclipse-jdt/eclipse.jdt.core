@@ -1402,7 +1402,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		printIndent();
 		this.buffer.append("provides");//$NON-NLS-1$
 		this.buffer.append(" ");//$NON-NLS-1$
-		node.getType().accept(this);
+		node.getName().accept(this);
 		printTypes(node.implementations(), "with"); //$NON-NLS-1$
 		this.buffer.append(";\n");//$NON-NLS-1$
 		return false;
@@ -1945,7 +1945,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		printIndent();
 		this.buffer.append("uses");//$NON-NLS-1$
 		this.buffer.append(" ");//$NON-NLS-1$
-		node.getType().accept(this);
+		node.getName().accept(this);
 		this.buffer.append(";\n");//$NON-NLS-1$
 		return false;
 	}

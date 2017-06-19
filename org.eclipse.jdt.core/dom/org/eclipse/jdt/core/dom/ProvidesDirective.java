@@ -32,16 +32,16 @@ import java.util.List;
 public class ProvidesDirective extends ModuleDirective {
 
 	/**
-	 * The "interface type" structural property of this node type (child type: {@link Type}).
+	 * The "interface name" structural property of this node type (child type: {@link Name}).
 	 */
-	public static final ChildPropertyDescriptor TYPE_PROPERTY =
-		new ChildPropertyDescriptor(ProvidesDirective.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor SERVICES_PROPERTY =
+		new ChildPropertyDescriptor(ProvidesDirective.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "implementation type" structural property of this node type (element type: {@link Type}).
+	 * The "implementations name" structural property of this node type (element type: {@link Name}).
 	 */
 	public static final ChildListPropertyDescriptor IMPLEMENTATIONS_PROPERTY =
-			new ChildListPropertyDescriptor(ProvidesDirective.class, "implementations", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
+			new ChildListPropertyDescriptor(ProvidesDirective.class, "implementations", Name.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -53,7 +53,7 @@ public class ProvidesDirective extends ModuleDirective {
 	static {
 		List properyList = new ArrayList(3);
 		createPropertyList(ProvidesDirective.class, properyList);
-		addProperty(TYPE_PROPERTY, properyList);
+		addProperty(SERVICES_PROPERTY, properyList);
 		addProperty(IMPLEMENTATIONS_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS_9_0 = reapPropertyList(properyList);
 	}
@@ -76,10 +76,10 @@ public class ProvidesDirective extends ModuleDirective {
 	 * The interface name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
-	private Type type = null;
+	private Name name = null;
 
 	/**
-	 * The implementation names
+	 * The implementations names
 	 * (element type: {@link Name}).
 	 * Defaults to an empty list.
 	 */
@@ -109,11 +109,11 @@ public class ProvidesDirective extends ModuleDirective {
 
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
-		if (property == TYPE_PROPERTY) {
+		if (property == SERVICES_PROPERTY) {
 			if (get) {
-				return getType();
+				return getName();
 			} else {
-				setType((Type) child);
+				setName((Name) child);
 				return null;
 			}
 		}
@@ -140,7 +140,7 @@ public class ProvidesDirective extends ModuleDirective {
 	ASTNode clone0(AST target) {
 		ProvidesDirective result = new ProvidesDirective(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setType((Type) getType().clone(target));
+		result.setName((Name) getName().clone(target));
 		result.implementations().addAll(ASTNode.copySubtrees(target, implementations()));
 		return result;
 	}
@@ -155,7 +155,7 @@ public class ProvidesDirective extends ModuleDirective {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			acceptChild(visitor, getType());
+			acceptChild(visitor, getName());
 			acceptChildren(visitor, this.implementations);
 		}
 		visitor.endVisit(this);
@@ -163,42 +163,43 @@ public class ProvidesDirective extends ModuleDirective {
 
 
 	/**
-	 * Returns the type name in this directive.
+	 * Returns the name of the service in this directive.
 	 *
-	 * @return the type name
+	 * @return the services name
 	 */
-	public Type getType()  {
-		if (this.type == null) {
+	public Name getName()  {
+		if (this.name == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
-				if (this.type == null) {
+				if (this.name == null) {
 					preLazyInit();
-					this.type =this.ast.newPrimitiveType(PrimitiveType.INT);
-					postLazyInit(this.type, TYPE_PROPERTY);
+					this.name = this.ast.newQualifiedName(
+							new SimpleName(this.ast), new SimpleName(this.ast));
+					postLazyInit(this.name, SERVICES_PROPERTY);
 				}
 			}
 		}
-		return this.type;
+		return this.name;
 	}
 
 	/**
-	 * Sets the target module name in exports declaration to the given name.
+	 * Sets the name of the service.
 	 *
-	 * @param type the new target module name
+	 * @param name the new service name
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 */
-	public void setType(Type type) {
-		if (type == null) {
+	public void setName(Name name) {
+		if (name == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.type;
-		preReplaceChild(oldChild, type, TYPE_PROPERTY);
-		this.type = type;
-		postReplaceChild(oldChild, type, TYPE_PROPERTY);
+		ASTNode oldChild = this.name;
+		preReplaceChild(oldChild, name, SERVICES_PROPERTY);
+		this.name = name;
+		postReplaceChild(oldChild, name, SERVICES_PROPERTY);
 	}
 
 	/**
@@ -220,7 +221,7 @@ public class ProvidesDirective extends ModuleDirective {
 	int treeSize() {
 		return
 			memSize()
-			+ (this.type == null ? 0 : getType().treeSize())
+			+ (this.name == null ? 0 : getName().treeSize())
 			+ this.implementations.listSize();
 	}
 }

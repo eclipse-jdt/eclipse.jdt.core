@@ -179,20 +179,20 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		assertTrue(modules.size() == 2);
 		checkSourceRange(modules.get(0), "third", content);
 		checkSourceRange(modules.get(1), "fourth", content);
-		
+
 		UsesDirective u = (UsesDirective) stmts.get(2);
 		checkSourceRange(u, "uses NewType;", content);
-		Type type = u.getType();
-		checkSourceRange(type, "NewType", content);
-		
+		Name name = u.getName();
+		checkSourceRange(name, "NewType", content);
+
 		ProvidesDirective p = (ProvidesDirective) stmts.get(3);
 		checkSourceRange(p, "provides pack22.I22 with pack11.packinternal.Z11;", content);
-		type = p.getType();
-		checkSourceRange(type, "pack22.I22", content);
-		List<Type> impls = p.implementations();
+		name = p.getName();
+		checkSourceRange(name, "pack22.I22", content);
+		List<Name> impls = p.implementations();
 		assertTrue(impls.size() > 0);
-		type = impls.get(0);
-		checkSourceRange(type, "pack11.packinternal.Z11", content);		
+		name = impls.get(0);
+		checkSourceRange(name, "pack11.packinternal.Z11", content);
 	}
 
 	public void testBug512023_0001() throws Exception {

@@ -1907,7 +1907,7 @@ public class ASTMatcher {
 		}
 		ProvidesDirective o = (ProvidesDirective) other;
 		return (
-				safeSubtreeMatch(node.getType(), o.getType())
+				safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.implementations(), o.implementations()));
 	}
 
@@ -2628,7 +2628,7 @@ public class ASTMatcher {
 			return false;
 		}
 		UsesDirective o = (UsesDirective) other;
-		return safeSubtreeMatch(node.getType(), o.getType());
+		return safeSubtreeMatch(node.getName(), o.getName());
 	}
 
 	/**

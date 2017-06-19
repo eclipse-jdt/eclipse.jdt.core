@@ -113,8 +113,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				// uses MyType -> uses MyNewType;
 				UsesDirective usesStatement = (UsesDirective) moduleStatements.get(index++);
 				Name newName = ast.newSimpleName("MyNewType");
-				SimpleType type = ast.newSimpleType(newName);
-				rewrite.replace(usesStatement.getType(), type, null);
+				rewrite.replace(usesStatement.getName(), newName, null);
 
 				// uses Type.Remove - remove the uses
 				listRewrite.remove(moduleStatements.get(index++), null);
@@ -122,24 +121,20 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				// uses MyNewFoundType - add the uses
 				usesStatement = ast.newUsesDirective();
 				newName = ast.newSimpleName("MyNewFoundType");
-				type = ast.newSimpleType(newName);
-				usesStatement.setType(type);
+				usesStatement.setName(newName);
 				listRewrite.insertLast(usesStatement, null);
 			}
 			{
 				// provides pack22.I22 with pack11.packinternal.Z11 ->  provides pack22.INew22 with pack11.packinternal.NewZ11, pack11.Y11
 				ProvidesDirective providesStatement = (ProvidesDirective) moduleStatements.get(index++);
 				Name newName = ast.newName("pack22.INew22");
-				SimpleType type = ast.newSimpleType(newName);
-				rewrite.replace(providesStatement.getType(), type, null);
+				rewrite.replace(providesStatement.getName(), newName, null);
 				newName = ast.newName("pack11.packinternal.NewZ11");
-				type = ast.newSimpleType(newName);
 				ListRewrite pListRewrite = rewrite.getListRewrite(providesStatement, ProvidesDirective.IMPLEMENTATIONS_PROPERTY);
-				pListRewrite.replace((ASTNode) providesStatement.implementations().get(0), type ,null);
+				pListRewrite.replace((ASTNode) providesStatement.implementations().get(0), newName ,null);
 
 				newName = ast.newName("pack11.Y11");
-				type = ast.newSimpleType(newName);
-				pListRewrite.insertLast(type, null);
+				pListRewrite.insertLast(newName, null);
 				// provides pack23.I23 with pack11.Z23, pack12.ZZ23 -> provides pack23.I23 with pack12.ZZ23
 				providesStatement = (ProvidesDirective) moduleStatements.get(index++);
 				pListRewrite = rewrite.getListRewrite(providesStatement, ProvidesDirective.IMPLEMENTATIONS_PROPERTY);

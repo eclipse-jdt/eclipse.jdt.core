@@ -901,7 +901,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(ProvidesDirective node) {
 		this.result.append("provides "); //$NON-NLS-1$
-		getChildNode(node, ProvidesDirective.TYPE_PROPERTY).accept(this);
+		getChildNode(node, ProvidesDirective.SERVICES_PROPERTY).accept(this);
 		this.result.append(" with "); //$NON-NLS-1$
 		visitList(node, ProvidesDirective.IMPLEMENTATIONS_PROPERTY, Util.EMPTY_STRING, Util.COMMA_SEPARATOR, Util.EMPTY_STRING);
 		this.result.append(';');
@@ -1214,11 +1214,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		visitList(node, UnionType.TYPES_PROPERTY, " | ", Util.EMPTY_STRING, Util.EMPTY_STRING); //$NON-NLS-1$
 		return false;
 	}
-	
+
 	@Override
 	public boolean visit(UsesDirective node) {
 		this.result.append("uses "); //$NON-NLS-1$
-		getChildNode(node, UsesDirective.TYPE_PROPERTY).accept(this);
+		getChildNode(node, UsesDirective.NAME_PROPERTY).accept(this);
 		this.result.append(';');
 		return false;
 	}

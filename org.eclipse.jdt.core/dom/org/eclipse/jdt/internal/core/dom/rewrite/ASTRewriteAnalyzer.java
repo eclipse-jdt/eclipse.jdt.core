@@ -3294,7 +3294,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		int pos = rewriteRequiredNode(node, ProvidesDirective.TYPE_PROPERTY);
+		int pos = rewriteRequiredNode(node, ProvidesDirective.SERVICES_PROPERTY);
 		pos= rewriteNodeList(node, ProvidesDirective.IMPLEMENTATIONS_PROPERTY, pos, " with ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
 		return false;
 	}
@@ -3769,7 +3769,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		rewriteRequiredNode(node,UsesDirective.TYPE_PROPERTY);
+		rewriteRequiredNode(node,UsesDirective.NAME_PROPERTY);
 		return false;
 	}
 

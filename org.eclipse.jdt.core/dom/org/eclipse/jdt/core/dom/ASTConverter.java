@@ -3347,17 +3347,18 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.UsesStatement usesStatement = moduleDeclaration.uses[i];
 			UsesDirective stmt = new UsesDirective(this.ast);
 			TypeReference usesRef = usesStatement.serviceInterface;
-			stmt.setType(convertType(usesRef));
+			Name name = convert(usesRef);
+			stmt.setName(name);
 			stmt.setSourceRange(usesStatement.declarationSourceStart, usesStatement.declarationSourceEnd - usesStatement.declarationSourceStart + 1);			
 			tSet.add(stmt);
 		}
 		for (int i = 0; i < moduleDeclaration.servicesCount; ++i) {
 			org.eclipse.jdt.internal.compiler.ast.ProvidesStatement pStmt = moduleDeclaration.services[i];
 			ProvidesDirective stmt = new ProvidesDirective(this.ast);
-			stmt.setType(convertType(pStmt.serviceInterface));
+			stmt.setName(convert(pStmt.serviceInterface));
 			TypeReference[] impls = pStmt.implementations;
 			for (TypeReference impl : impls) {
-				stmt.implementations().add(convertType(impl));
+				stmt.implementations().add(convert(impl));
 			}
 			stmt.setSourceRange(pStmt.declarationSourceStart, pStmt.declarationSourceEnd - pStmt.declarationSourceStart + 1);
 			tSet.add(stmt);
@@ -3366,7 +3367,7 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(moduleDecl, moduleDeclaration);
 			recordNodes(moduleName, moduleDeclaration);
-			// moduleDecl.resolveBinding(); TODO: Implement resolveBinding
+			moduleDecl.resolveBinding();
 		}
 		stmts.addAll(tSet);
 		return moduleDecl;
