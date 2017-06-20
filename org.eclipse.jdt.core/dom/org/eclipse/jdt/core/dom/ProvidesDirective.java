@@ -32,13 +32,13 @@ import java.util.List;
 public class ProvidesDirective extends ModuleDirective {
 
 	/**
-	 * The "interface name" structural property of this node type (child type: {@link Name}).
+	 * The "name" structural property of this node type (child type: {@link Name}).
 	 */
-	public static final ChildPropertyDescriptor SERVICES_PROPERTY =
+	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		new ChildPropertyDescriptor(ProvidesDirective.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "implementations name" structural property of this node type (element type: {@link Name}).
+	 * The "implementations" structural property of this node type (element type: {@link Name}).
 	 */
 	public static final ChildListPropertyDescriptor IMPLEMENTATIONS_PROPERTY =
 			new ChildListPropertyDescriptor(ProvidesDirective.class, "implementations", Name.class, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -53,7 +53,7 @@ public class ProvidesDirective extends ModuleDirective {
 	static {
 		List properyList = new ArrayList(3);
 		createPropertyList(ProvidesDirective.class, properyList);
-		addProperty(SERVICES_PROPERTY, properyList);
+		addProperty(NAME_PROPERTY, properyList);
 		addProperty(IMPLEMENTATIONS_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS_9_0 = reapPropertyList(properyList);
 	}
@@ -109,7 +109,7 @@ public class ProvidesDirective extends ModuleDirective {
 
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
-		if (property == SERVICES_PROPERTY) {
+		if (property == NAME_PROPERTY) {
 			if (get) {
 				return getName();
 			} else {
@@ -175,7 +175,7 @@ public class ProvidesDirective extends ModuleDirective {
 					preLazyInit();
 					this.name = this.ast.newQualifiedName(
 							new SimpleName(this.ast), new SimpleName(this.ast));
-					postLazyInit(this.name, SERVICES_PROPERTY);
+					postLazyInit(this.name, NAME_PROPERTY);
 				}
 			}
 		}
@@ -197,9 +197,9 @@ public class ProvidesDirective extends ModuleDirective {
 			throw new IllegalArgumentException();
 		}
 		ASTNode oldChild = this.name;
-		preReplaceChild(oldChild, name, SERVICES_PROPERTY);
+		preReplaceChild(oldChild, name, NAME_PROPERTY);
 		this.name = name;
-		postReplaceChild(oldChild, name, SERVICES_PROPERTY);
+		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 
 	/**

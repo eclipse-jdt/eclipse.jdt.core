@@ -901,7 +901,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(ProvidesDirective node) {
 		this.result.append("provides "); //$NON-NLS-1$
-		getChildNode(node, ProvidesDirective.SERVICES_PROPERTY).accept(this);
+		getChildNode(node, ProvidesDirective.NAME_PROPERTY).accept(this);
 		this.result.append(" with "); //$NON-NLS-1$
 		visitList(node, ProvidesDirective.IMPLEMENTATIONS_PROPERTY, Util.EMPTY_STRING, Util.COMMA_SEPARATOR, Util.EMPTY_STRING);
 		this.result.append(';');

@@ -137,9 +137,9 @@ public class UsesDirective extends ModuleDirective {
 
 
 	/**
-	 * Returns the name in this directive
+	 * Returns the name of the service in this directive.
 	 *
-	 * @return the name
+	 * @return the name of the service
 	 */
 	public Name getName()  {
 		if (this.name == null) {
@@ -157,9 +157,9 @@ public class UsesDirective extends ModuleDirective {
 	}
 
 	/**
-	 * Sets the name in uses directive
+	 * Sets the name of the service in this directive.
 	 *
-	 * @param name the new name in uses
+	 * @param name the new name of the service
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
