@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -163,7 +163,7 @@ public static Test suite() {
 	since_9.add(GenericsRegressionTest_9.class);
 	since_9.add(InterfaceMethodsTest_9.class);
 	since_9.add(Deprecated9Test.class);
-
+	since_9.add(ModuleAttributeTests.class);
 	
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

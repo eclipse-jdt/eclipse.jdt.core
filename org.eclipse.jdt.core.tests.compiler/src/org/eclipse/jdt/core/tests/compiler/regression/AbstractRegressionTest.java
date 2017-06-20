@@ -759,6 +759,7 @@ protected static class JavacTestOptions {
 	public static final String LIB_DIR = Util.getOutputDirectory() + File.separator + "lib";
 
 	public final static String PACKAGE_INFO_NAME = new String(TypeConstants.PACKAGE_INFO_NAME);
+	public final static String MODULE_INFO_NAME = new String(TypeConstants.MODULE_INFO_NAME);
 
 	public static boolean SHIFT = false;
 
@@ -2716,6 +2717,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			// Compute class name by removing ".java" and replacing slashes with dots
 			String className = sourceFile.substring(0, sourceFile.length() - 5).replace('/', '.').replace('\\', '.');
 			if (className.endsWith(PACKAGE_INFO_NAME)) return;
+			if (className.endsWith(MODULE_INFO_NAME)) return;
 
 			if (vmArguments != null) {
 				if (this.verifier != null) {
