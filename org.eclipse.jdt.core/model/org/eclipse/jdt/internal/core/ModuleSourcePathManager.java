@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2016, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
@@ -53,7 +54,18 @@ public class ModuleSourcePathManager {
 		}
 		this.knownModules.put(moduleName, new ProjectEntry(project));
 	}
-	
+
+	public void removeEntry(JavaProject javaProject) {
+		Entry<String, IModulePathEntry> entry = this.knownModules.entrySet().stream()
+			.filter(e -> e.getValue().getLookupEnvironment().equals(javaProject))
+			.findFirst()
+			.orElse(null);
+
+		String key = entry != null ? entry.getKey() : null;
+		if (key != null) {
+			this.knownModules.remove(key);
+		}
+	}
 	interface IPrefixMatcherCharArray {
 		boolean matches(char[] prefix, char[] name);
 	}
