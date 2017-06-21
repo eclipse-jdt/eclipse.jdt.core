@@ -1735,14 +1735,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module some.mod {\n" +
-				"	requires transitive org.astro;\n" +
-				"}"
-			};
-			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
-			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
-			sources = new String[] {
-				"src/module-info.java",
 				"module org.astro {\n" +
 				"	exports org.astro;\n" + 
 				"}",
@@ -1752,7 +1744,15 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	public String name();\n" +
 				"}"
 			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			sources = new String[] {
+				"src/module-info.java",
+				"module some.mod {\n" +
+				"	requires transitive org.astro;\n" +
+				"}"
+			};
+			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -1896,17 +1896,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module some.mod {\n" +
-				"	requires org.astro;\n" +
-				"}"
-			};
-			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
-			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
-			sources = new String[] {
-				"src/module-info.java",
 				"module org.astro {\n" +
 				"	exports org.astro;\n" +
-				"	requires com.greetings;\n" +
 				"}",
 				"src/org/astro/World.java",
 				"package org.astro;\n" +
@@ -1914,7 +1905,15 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	public String name();\n" +
 				"}"
 			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			sources = new String[] {
+				"src/module-info.java",
+				"module some.mod {\n" +
+				"	requires org.astro;\n" +
+				"}"
+			};
+			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -1924,6 +1923,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			};
 			
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			editFile("org.astro/src/module-info.java", 
+					"module org.astro {\n" +
+					"	exports org.astro;\n" +
+					"	requires com.greetings;\n" +
+					"}");
+			waitForAutoBuild();
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertTrue("Should detect cycle", p2.hasClasspathCycle(null));
 		} finally {
 			deleteProject("org.astro");
@@ -1936,17 +1942,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
-				"module some.mod {\n" +
-				"	requires transitive org.astro;\n" +
-				"}"
-			};
-			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
-			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
-			sources = new String[] {
-				"src/module-info.java",
 				"module org.astro {\n" +
 				"	exports org.astro;\n" +
-				"	requires transitive com.greetings;\n" +
 				"}",
 				"src/org/astro/World.java",
 				"package org.astro;\n" +
@@ -1954,7 +1951,15 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	public String name();\n" +
 				"}"
 			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			sources = new String[] {
+				"src/module-info.java",
+				"module some.mod {\n" +
+				"	requires transitive org.astro;\n" +
+				"}"
+			};
+			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
 			String[] src = new String[] {
 				"src/module-info.java",
 				"module com.greetings {\n" +
@@ -1962,8 +1967,14 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	exports com.greetings;\n" +
 				"}"
 			};
-			
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			editFile("org.astro/src/module-info.java", 
+				"module org.astro {\n" +
+				"	exports org.astro;\n" +
+				"	requires transitive com.greetings;\n" +
+				"}");
+			waitForAutoBuild();
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertTrue("Should detect cycle", p2.hasClasspathCycle(null));
 		} finally {
 			deleteProject("org.astro");
