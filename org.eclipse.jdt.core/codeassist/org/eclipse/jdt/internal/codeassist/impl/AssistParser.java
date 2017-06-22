@@ -1212,6 +1212,7 @@ protected void consumeToken(int token) {
 	// register message send selector only if inside a method or if looking at a field initializer
 	// and if the current token is an open parenthesis
 	if (isInsideMethod() || isInsideFieldInitialization() || isInsideAttributeValue() || isInsideEnumConstantnitialization()) {
+		adjustBracket(token);
 		switch (token) {
 			case TokenNameLPAREN :
 				switch (this.previousToken) {
