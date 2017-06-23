@@ -5747,7 +5747,7 @@ protected void consumeProvidesInterface() {
 	ref.sourceEnd = siName.sourceEnd;
 	ref.declarationSourceEnd = ref.sourceEnd;
 	// recovery
-	if (this.currentElement != null){
+	if (this.currentElement instanceof RecoveredModule) {
 		this.lastCheckPoint = siName.sourceEnd + 1;
 		this.currentElement = this.currentElement.add(ref, 0);
 		this.lastIgnoredToken = -1;
@@ -5781,7 +5781,7 @@ protected void consumeProvidesStatement() {
 	ProvidesStatement ref = (ProvidesStatement) this.astStack[this.astPtr];
 	ref.declarationEnd = ref.declarationSourceEnd = this.endStatementPosition;
 	//recovery
-	if (this.currentElement != null) {
+	if (this.currentElement instanceof RecoveredModule) {
 		this.lastIgnoredToken = -1;
 		this.currentElement = this.currentElement.parent;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
@@ -5808,7 +5808,7 @@ protected void consumeWithClause() {
 	}
 	this.listLength = 0; // reset after having read super-interfaces
 	// recovery
-	if (this.currentElement != null) { // is recovering
+	if (this.currentElement instanceof RecoveredModule) { // is recovering
 		this.lastCheckPoint = service.declarationSourceEnd;
 	}
 }

@@ -551,4 +551,25 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+
+	// TODO behavior would change once restricted keywords support is in place
+	public void testBug518626() throws IOException {
+		String source = 
+				"module module.test {\n" +
+				"    provides X with Y;\n" +
+				"}\n";
+		String expectedErrorString = 
+				"----------\n" +
+				"1. ERROR in module-info (at line 1)\n" +
+				"	module module.test {\n" +
+				"	       ^^^^^^\n" +
+				"Syntax error on token \"module\", Identifier expected\n" +
+				"----------\n";
+		
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), expectedErrorString, "module-info", null, null, options);
+	}
 }
