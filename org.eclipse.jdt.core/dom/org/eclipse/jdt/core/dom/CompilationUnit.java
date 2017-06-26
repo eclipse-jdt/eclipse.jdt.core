@@ -1086,9 +1086,9 @@ public class CompilationUnit extends ASTNode {
 	 */
 	public void setModule(ModuleDeclaration module) {
 		ASTNode oldChild = this.module;
-		preReplaceChild(oldChild, module, PACKAGE_PROPERTY);
+		preReplaceChild(oldChild, module, MODULE_PROPERTY);
 		this.module = module;
-		postReplaceChild(oldChild, module, PACKAGE_PROPERTY);
+		postReplaceChild(oldChild, module, MODULE_PROPERTY);
 	}
 
 	/**
