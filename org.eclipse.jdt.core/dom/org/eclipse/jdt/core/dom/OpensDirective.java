@@ -32,12 +32,12 @@ import java.util.List;
 public class OpensDirective extends ModulePackageAccess {
 
 	/**
-	 * The "package" structural property of this node type (child type: {@link Name}).
+	 * The "name" structural property of this node type (child type: {@link Name}).
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		internalNamePropertyFactory(OpensDirective.class);
 	/**
-	 * The "target" structural property of this node type (element type: {@link Name}).
+	 * The "modules" structural property of this node type (element type: {@link Name}).
 	 */
 	public static final ChildListPropertyDescriptor MODULES_PROPERTY =
 			internalModulesPropertyFactory(OpensDirective.class);
