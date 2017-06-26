@@ -93,7 +93,7 @@ public interface IBinding {
 	public static final int MEMBER_VALUE_PAIR = 6;
 
 	/**
-	 * Kind constant (value 7) indicating a module binding.
+	 * Kind constant (value 7) indicating a module binding (added in JLS9 API).
 	 * Bindings of this kind can be safely cast to <code>IModuleBinding</code>.
 	 *
 	 * @see #getKind()

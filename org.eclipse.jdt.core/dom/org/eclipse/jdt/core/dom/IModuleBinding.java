@@ -17,7 +17,7 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * A module binding represents a module.
+ * A module binding represents a module (added in JLS9 API).
  *
  * @since 3.13 BETA_JAVA9
  * @noimplement This interface is not intended to be implemented by clients.
@@ -35,53 +35,62 @@ public interface IModuleBinding extends IBinding {
 	}
 
 	/**
-	 * answers whether the module is open or not
+	 * Returns whether this module is open or not.
+	 *
 	 * @return <code>true</code> if open, <code>false</code> otherwise
 	 */
 	public abstract boolean isOpen();
 
 	/**
-	 * All the required modules, transitive and otherwise
-	 * @return required modules
+	 * Returns all required modules.
+	 * 
+	 * @return all required modules
 	 */
 	public abstract IModuleBinding[] getRequiredModules();
 
 	/**
+	 * Returns all exported packages.
 	 *
 	 * @return array of exported package bindings
 	 */
 	public abstract IPackageBinding[] getExportedPackages();
 
 	/**
-	 * if targeted, returns the array of targeted modules, else returns an empty array.
-	 * @param packageBinding
+	 * If this module exports the given package to specific modules, returns the array of targeted module bindings,
+	 * otherwise returns an empty array.
+	 * 
+	 * @param packageBinding a package binding for which targeted modules are declared
 	 * @return array of targeted modules
 	 */
 	public abstract IModuleBinding[] getExportedTo(IPackageBinding packageBinding);
 
 	/**
+	 * Returns all opened packages.
 	 *
-	 * @return array of open package bindings
+	 * @return array of package bindings
 	 */
-	public abstract IPackageBinding[] getOpenPackages();
+	public abstract IPackageBinding[] getOpenedPackages();
 
 	/**
-	 * if targeted open, returns the array of targeted module bindings else empty array.
+	 * If this module opens the given package to specific modules, returns the array of targeted module bindings,
+	 * otherwise returns an empty array.
 	 *
-	 * @param packageBinding
+	 * @param packageBinding a package binding for which targeted modules are declared
 	 * @return array of targeted module bindings
 	 */
 	public abstract IModuleBinding[] getOpenedTo(IPackageBinding packageBinding);
 
 	/**
-	 *
-	 * @return array of uses type bindings
+	 * Returns the services used by this module.
+	 * 
+	 * @return array of type bindings
 	 */
 	public abstract ITypeBinding[] getUses();
 
 	/**
+	 * Returns the services provided by this module.
 	 *
-	 * @return array of service interfaces
+	 * @return array of services
 	 */
 	public abstract Service[] getServices();
 

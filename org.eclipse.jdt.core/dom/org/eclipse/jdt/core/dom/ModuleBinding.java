@@ -185,7 +185,7 @@ public class ModuleBinding implements IModuleBinding {
 	}
 
 	@Override
-	public IPackageBinding[] getOpenPackages() {
+	public IPackageBinding[] getOpenedPackages() {
 		if (this.openPackages != null) 
 			return this.openPackages;
 	
@@ -196,7 +196,7 @@ public class ModuleBinding implements IModuleBinding {
 
 	@Override
 	public IModuleBinding[] getOpenedTo(IPackageBinding packageBinding) {
-		getOpenPackages();
+		getOpenedPackages();
 		return this.openTargets;// TODO Auto-generated method stub
 	}
 
