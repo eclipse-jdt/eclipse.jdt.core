@@ -43,6 +43,7 @@ public interface IModuleBinding extends IBinding {
 
 	/**
 	 * Returns all required modules.
+	 * <p>The resulting bindings are in no particular order.</p>
 	 * 
 	 * @return all required modules
 	 */
@@ -50,6 +51,7 @@ public interface IModuleBinding extends IBinding {
 
 	/**
 	 * Returns all exported packages.
+	 * <p>The resulting bindings are in no particular order.</p>
 	 *
 	 * @return array of exported package bindings
 	 */
@@ -58,6 +60,7 @@ public interface IModuleBinding extends IBinding {
 	/**
 	 * If this module exports the given package to specific modules, returns the array of targeted module bindings,
 	 * otherwise returns an empty array.
+	 * <p>The resulting bindings are in no particular order.</p>
 	 * 
 	 * @param packageBinding a package binding for which targeted modules are declared
 	 * @return array of targeted modules
@@ -66,6 +69,7 @@ public interface IModuleBinding extends IBinding {
 
 	/**
 	 * Returns all opened packages.
+	 * <p>The resulting bindings are in no particular order.</p>
 	 *
 	 * @return array of package bindings
 	 */
@@ -74,6 +78,7 @@ public interface IModuleBinding extends IBinding {
 	/**
 	 * If this module opens the given package to specific modules, returns the array of targeted module bindings,
 	 * otherwise returns an empty array.
+	 * <p>The resulting bindings are in no particular order.</p>
 	 *
 	 * @param packageBinding a package binding for which targeted modules are declared
 	 * @return array of targeted module bindings
@@ -82,6 +87,7 @@ public interface IModuleBinding extends IBinding {
 
 	/**
 	 * Returns the services used by this module.
+	 * <p>The resulting bindings are in no particular order.</p>
 	 * 
 	 * @return array of type bindings
 	 */
@@ -89,6 +95,7 @@ public interface IModuleBinding extends IBinding {
 
 	/**
 	 * Returns the services provided by this module.
+	 * <p>The resulting services are in no particular order.</p>
 	 *
 	 * @return array of services
 	 */
