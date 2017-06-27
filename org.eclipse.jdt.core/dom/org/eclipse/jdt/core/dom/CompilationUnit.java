@@ -1082,9 +1082,11 @@ public class CompilationUnit extends ASTNode {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used below JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
 	public void setModule(ModuleDeclaration module) {
+		unsupportedBelow9();
 		ASTNode oldChild = this.module;
 		preReplaceChild(oldChild, module, MODULE_PROPERTY);
 		this.module = module;

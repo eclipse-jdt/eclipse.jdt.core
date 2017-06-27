@@ -74,7 +74,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * @since 3.13 BETA_JAVA9
 	 */
 	private static final int JLS8 = AST.JLS8;
-	
+
+	private static final int JLS9 = AST.JLS9;
+
 	/**
 	 * The string buffer into which the serialized representation of the AST is
 	 * written.
@@ -559,6 +561,11 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(CompilationUnit)
 	 */
 	public boolean visit(CompilationUnit node) {
+		if (node.getAST().apiLevel() >= JLS9) {
+			if (node.getModule() != null) {
+				node.getModule().accept(this);
+			}
+		}
 		if (node.getPackage() != null) {
 			node.getPackage().accept(this);
 		}
