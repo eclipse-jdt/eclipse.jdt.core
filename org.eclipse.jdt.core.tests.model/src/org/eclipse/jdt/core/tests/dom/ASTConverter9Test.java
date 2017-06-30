@@ -50,7 +50,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	static {
 //		TESTS_NUMBERS = new int[] { 19 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] {"testBug515875_004"};
+//		TESTS_NAMES = new String[] {"testBug515875_005"};
 	}
 	public static Test suite() {
 		String javaVersion = System.getProperty("java.version");
@@ -349,7 +349,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			ModuleDeclaration moduleDecl = unit.getModule();
 			checkSourceRange(moduleDecl, content, content);
 
-			ModuleBinding moduleBinding = (ModuleBinding) moduleDecl.resolveBinding();
+			IModuleBinding moduleBinding = moduleDecl.resolveBinding();
 			assertTrue("Module Binding null", moduleBinding != null);
 			String name = moduleBinding.getName();
 			assertTrue("Module Name null", name != null);
@@ -372,7 +372,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	public void testBug515875_002() throws Exception {
 		try {
 
-			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent = 
@@ -412,7 +412,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
 			checkSourceRange(moduleDecl1, fileContent, fileContent);
 
-			ModuleBinding moduleBinding = (ModuleBinding) moduleDecl1.resolveBinding();
+			IModuleBinding moduleBinding = moduleDecl1.resolveBinding();
 			assertTrue("Module Binding null", moduleBinding != null);
 			String name = moduleBinding.getName();
 			assertTrue("Module Name null", name != null);
@@ -420,8 +420,8 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			
 			Name modName1 = moduleDecl1.getName();
 			IBinding binding = modName1.resolveBinding();
-			assertTrue("binding not a module binding", binding instanceof ModuleBinding);
-			moduleBinding = (ModuleBinding) binding;
+			assertTrue("binding not a module binding", binding instanceof IModuleBinding);
+			moduleBinding = (IModuleBinding) binding;
 			assertTrue("Module Binding null", moduleBinding != null);
 			name = moduleBinding.getName();
 			assertTrue("Module Name null", name != null);
@@ -430,7 +430,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			IModuleBinding[] reqs = moduleBinding.getRequiredModules();
 			assertTrue("Null requires", reqs != null);
 			assertTrue("incorrect number of requires modules", reqs.length == 1);
-			ModuleBinding req11 = (ModuleBinding) reqs[0];
+			IModuleBinding req11 = reqs[0];
 			assertTrue("incorrect name for requires modules", req11.getName().equals("second"));
 
 			IPackageBinding[] secPacks = req11.getExportedPackages();
@@ -444,12 +444,12 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			assertTrue("Incorrect number of uses", uses.length == 1);
 			assertTrue("Incorrect uses", uses[0].getQualifiedName().equals("pack22.I22"));
 
-			IModuleBinding.Service[] services = moduleBinding.getServices();
+			ITypeBinding[] services = moduleBinding.getServices();
 			assertTrue("services null", services != null);
 			assertTrue("Incorrect number of services", services.length == 1);
-			for (IModuleBinding.Service s : services) {
-				assertTrue("Incorrect service", s.service.getQualifiedName().equals("pack22.I22"));
-				ITypeBinding[] implementations = s.implementations;
+			for (ITypeBinding s : services) {
+				assertTrue("Incorrect service", s.getQualifiedName().equals("pack22.I22"));
+				ITypeBinding[] implementations = moduleBinding.getImplementations(s);
 				assertTrue("implementations null", implementations != null);
 				assertTrue("Incorrect number of implementations", implementations.length == 1);
 				assertTrue("Incorrect implementation", implementations[0].getQualifiedName().equals("pack1.X11"));
@@ -506,7 +506,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 			RequiresDirective req = (RequiresDirective) moduleDecl1.moduleStatements().get(0);
 			Name reqModule = req.getName();
-			ModuleBinding moduleBinding = (ModuleBinding) reqModule.resolveBinding();
+			IModuleBinding moduleBinding = (IModuleBinding) reqModule.resolveBinding();
 			assertTrue("Module Binding null", moduleBinding != null);
 			String name = moduleBinding.getName();
 			assertTrue("Module Name null", name != null);
@@ -561,13 +561,13 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			checkSourceRange(moduleDecl1, fileContent, fileContent);
 			
 			Name name = moduleDecl1.getName();
-			ModuleBinding moduleBinding = (ModuleBinding) name.resolveBinding();
+			IModuleBinding moduleBinding = (IModuleBinding) name.resolveBinding();
 			assertTrue("Module Binding null", moduleBinding != null);
 			assertTrue("Module not open", moduleBinding.isOpen());
 
 			RequiresDirective req = (RequiresDirective) moduleDecl1.moduleStatements().get(0);
 			name = req.getName();
-			moduleBinding = (ModuleBinding) name.resolveBinding();
+			moduleBinding = (IModuleBinding) name.resolveBinding();
 			assertTrue("Module Binding null", moduleBinding != null);
 			String moduleName = moduleBinding.getName();
 			assertTrue("Module Name null", moduleName != null);
@@ -588,6 +588,8 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			String fileContent =
 				"module first {\n" +
 				"    requires second;\n" +
+				"    exports pack1 to test;\n" +
+				"    opens pack1 to test;\n" +
 				"    provides pack22.I22 with pack1.X11, pack1.X12;\n" +
 				"}";
 			createFile("/ConverterTests9/src/module-info.java",	fileContent);
@@ -624,18 +626,34 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
 			checkSourceRange(moduleDecl1, fileContent, fileContent);
 
-			ModuleBinding moduleBinding = (ModuleBinding) moduleDecl1.resolveBinding();
+			IModuleBinding moduleBinding = moduleDecl1.resolveBinding();
 			assertTrue("Module Binding null", moduleBinding != null);
 			String name = moduleBinding.getName();
 			assertTrue("Module Name null", name != null);
 			assertTrue("Wrong Module Name", name.equals("first"));
 
-			IModuleBinding.Service[] services = moduleBinding.getServices();
+			IPackageBinding[] exports = moduleBinding.getExportedPackages();
+			assertTrue("Incorrect number of exports", exports.length == 1);
+			IPackageBinding e = exports[0];
+			assertTrue("Incorrect Export", e.getKey().equals("pack1"));
+			String[] targets = moduleBinding.getExportedTo(e);
+			assertTrue("Incorrect number of targets", targets.length == 1);
+			assertTrue("Incorrect Target", targets[0].equals("test"));
+
+			IPackageBinding[] opens = moduleBinding.getOpenedPackages();
+			assertTrue("Incorrect number of opens", opens.length == 1);
+			e = opens[0];
+			assertTrue("Incorrect Opens", e.getKey().equals("pack1"));
+			targets = moduleBinding.getOpenedTo(e);
+			assertTrue("Incorrect number of targets", targets.length == 1);
+			assertTrue("Incorrect Target", targets[0].equals("test"));
+
+			ITypeBinding[] services = moduleBinding.getServices();
 			assertTrue("services null", services != null);
 			assertTrue("Incorrect number of services", services.length == 1);
-			for (IModuleBinding.Service s : services) {
-				assertTrue("Incorrect service", s.service.getQualifiedName().equals("pack22.I22"));
-				ITypeBinding[] implementations = s.implementations;
+			for (ITypeBinding s : services) {
+				assertTrue("Incorrect service", s.getQualifiedName().equals("pack22.I22"));
+				ITypeBinding[] implementations = moduleBinding.getImplementations(s);
 				assertTrue("implementations null", implementations != null);
 				assertTrue("Incorrect number of implementations", implementations.length == 2);
 				assertTrue("Incorrect implementation", implementations[0].getQualifiedName().equals("pack1.X11"));

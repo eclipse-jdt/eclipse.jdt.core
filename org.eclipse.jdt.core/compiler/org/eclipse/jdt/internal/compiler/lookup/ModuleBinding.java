@@ -68,8 +68,8 @@ public class ModuleBinding extends Binding {
 	public char[] moduleName;
 	public IModuleReference[] requires;
 	public IPackageExport[] exports;
+	public IPackageExport[] opens;
 	public TypeBinding[] uses;
-//	public LinkedHashMap<TypeBinding, TypeBinding[]> services;
 	Service[] services;
 	public CompilationUnitScope scope;
 	public LookupEnvironment environment;
@@ -88,6 +88,7 @@ public class ModuleBinding extends Binding {
 		this.environment = env;
 		this.requires = IModule.NO_MODULE_REFS;
 		this.exports = IModule.NO_EXPORTS;
+		this.exports = IModule.NO_OPENS;
 		this.services = new Service[0];
 		this.declaredPackages = new HashtableOfPackage(0);
 		this.exportedPackages = new HashtableOfPackage(0);
@@ -102,6 +103,9 @@ public class ModuleBinding extends Binding {
 		this.exports = decl.exports();
 		if (this.exports == null)
 			this.exports = IModule.NO_EXPORTS;
+		this.opens = decl.opens();
+		if (this.opens == null)
+			this.opens = IModule.NO_OPENS;
 		this.environment = environment;
 		this.uses = Binding.NO_TYPES;
 		this.services = new Service[0];
@@ -206,15 +210,7 @@ public class ModuleBinding extends Binding {
 		return this.moduleName;
 	}
 
-	/**
-	 * Check if the specified package is exported to the client module by this module. True if the package appears
-	 * in the list of exported packages and when the export is targeted, the module appears in the targets of the
-	 * exports statement
-	 * @param pkg - the package whose visibility is to be checked
-	 * @param client - the module that wishes to use the package
-	 * @return true if the package is visible to the client module, false otherwise
-	 */
-	public boolean isPackageExportedTo(PackageBinding pkg, ModuleBinding client) {
+	private boolean isPackageVisibleTo(PackageBinding pkg, ModuleBinding client, IPackageExport[] pvs) {
 		PackageBinding resolved = getExportedPackage(pkg.readableName());
 		if (resolved == pkg) {
 			if (this.isAuto) { // all packages are exported by an automatic module
@@ -224,10 +220,32 @@ public class ModuleBinding extends Binding {
 			Predicate<IPackageExport> isExportedTo = e -> 
 				Stream.of(e.targets()).map(ref -> this.environment.getModule(ref)).filter(m -> m != null).anyMatch(client::equals);
 			
-			return Stream.of(this.exports).filter(e -> CharOperation.equals(pkg.readableName(), e.name()))
+			return Stream.of(pvs).filter(e -> CharOperation.equals(pkg.readableName(), e.name()))
 					.anyMatch(isTargeted.negate().or(isExportedTo));
 		}
 		return false;
+	}
+	/**
+	 * Check if the specified package is exported to the client module by this module. True if the package appears
+	 * in the list of exported packages and when the export is targeted, the module appears in the targets of the
+	 * exports statement
+	 * @param pkg - the package whose visibility is to be checked
+	 * @param client - the module that wishes to use the package
+	 * @return true if the package is visible to the client module, false otherwise
+	 */
+	public boolean isPackageExportedTo(PackageBinding pkg, ModuleBinding client) {
+		return isPackageVisibleTo(pkg, client, this.exports);
+	}
+	/**
+	 * Check if the specified package is opened to the client module by this module. True if the package appears
+	 * in the list of opened packages and when the opens is targeted, the module appears in the targets of the
+	 * opens statement
+	 * @param pkg - the package whose visibility is to be checked
+	 * @param client - the module that wishes to use the package
+	 * @return true if the package is visible to the client module, false otherwise
+	 */
+	public boolean isPackageOpenedTo(PackageBinding pkg, ModuleBinding client) {
+		return isPackageVisibleTo(pkg, client, this.opens);
 	}
 	public PackageBinding getTopLevelPackage(char[] name) {
 		// return package binding if there exists a package named name in this module's context and it can be seen by this module
@@ -302,7 +320,7 @@ public class ModuleBinding extends Binding {
 		}
 		return parent;
 	}
-	public PackageBinding getExportedPackage(char[] qualifiedPackageName) {
+	private PackageBinding getVisibilityPackage(char[] qualifiedPackageName, IPackageExport[]  pvs) {
 		PackageBinding existing = this.exportedPackages.get(qualifiedPackageName);
 		if (existing != null && existing != LookupEnvironment.TheNotFoundPackage)
 			return existing;
@@ -310,7 +328,7 @@ public class ModuleBinding extends Binding {
 			return getDeclaredPackage(CharOperation.splitOn('.', qualifiedPackageName));
 		}
 		//Resolve exports to see if the package or a sub package is exported
-		return Stream.of(this.exports).sorted((e1, e2) -> e1.name().length - e2.name().length)
+		return Stream.of(pvs).sorted((e1, e2) -> e1.name().length - e2.name().length)
 		.filter(e -> CharOperation.prefixEquals(qualifiedPackageName, e.name())) // TODO: improve this
 		.map(e -> {
 			PackageBinding binding = getDeclaredPackage(CharOperation.splitOn('.', e.name()));
@@ -320,6 +338,12 @@ public class ModuleBinding extends Binding {
 			}
 			return null;
 		}).filter(p -> p != null).findFirst().orElse(null);
+	}
+	public PackageBinding getExportedPackage(char[] qualifiedPackageName) {
+		return getVisibilityPackage(qualifiedPackageName, this.exports);
+	}
+	public PackageBinding getOpenedPackage(char[] qualifiedPackageName) {
+		return getVisibilityPackage(qualifiedPackageName, this.opens);
 	}
 	public boolean declaresPackage(PackageBinding p) {
 		PackageBinding pkg = this.declaredPackages.get(p.readableName());
@@ -429,6 +453,24 @@ public class ModuleBinding extends Binding {
 		return this.moduleName;
 	}
 
+	private void printPackageVisibility(StringBuffer buffer, IPackageExport[] pvs, String present, String absent) {
+		int len = pvs.length;
+		buffer.append(len > 0 ? present : absent);
+		for (int i = 0; i < len; i++) {
+			IPackageExport pv = pvs[i];
+			buffer.append("\n\t"); //$NON-NLS-1$
+			buffer.append(pv.name());
+			char[][] targets = pv.targets();
+			if (targets != null) {
+				buffer.append("to "); //$NON-NLS-1$
+				for (int j = 0; j < targets.length; j++) {
+					if (j != 0)
+						buffer.append(", "); //$NON-NLS-1$
+					buffer.append(targets[j]);
+				}
+			}
+		}
+	}
 	public String toString() {
 		StringBuffer buffer = new StringBuffer(30);
 		buffer.append("module " + new String(readableName())); //$NON-NLS-1$
@@ -443,25 +485,8 @@ public class ModuleBinding extends Binding {
 		} else {
 			buffer.append("\nNo Requires"); //$NON-NLS-1$
 		}
-		if (this.exports.length > 0) {
-			buffer.append("\n/*    exports    */\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.exports.length; i++) {
-				IPackageExport export = this.exports[i];
-				buffer.append("\n\t"); //$NON-NLS-1$
-				buffer.append(export.name());
-				char[][] targets = export.targets();
-				if (targets != null) {
-					buffer.append("to "); //$NON-NLS-1$
-					for (int j = 0; j < targets.length; j++) {
-						if (j != 0)
-							buffer.append(", "); //$NON-NLS-1$
-						buffer.append(targets[j]);
-					}
-				}
-			}
-		} else {
-			buffer.append("\nNo Exports"); //$NON-NLS-1$
-		}
+		printPackageVisibility(buffer, this.exports, "\n/*    exports    */\n", "\nNo Exports"); //$NON-NLS-1$ //$NON-NLS-2$
+		printPackageVisibility(buffer, this.opens, "\n/*    opens    */\n", "\nNo Opens"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (this.uses != null && this.uses.length > 0) {
 			buffer.append("\n/*    uses    /*\n"); //$NON-NLS-1$
 			for (int i = 0; i < this.uses.length; i++) {
