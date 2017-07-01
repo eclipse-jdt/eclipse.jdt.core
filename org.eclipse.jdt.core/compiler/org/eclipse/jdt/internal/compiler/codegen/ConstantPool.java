@@ -1178,6 +1178,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		this.stringCache.clear();
 		this.methodsAndFieldsCache.clear();
 		this.classCache.clear();
+		this.packageCache.clear();
+		this.moduleCache.clear();
 		this.nameAndTypeCacheForFieldsAndMethods.clear();
 		this.currentIndex = 1;
 		this.currentOffset = 0;
