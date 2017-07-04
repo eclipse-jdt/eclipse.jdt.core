@@ -57,7 +57,7 @@ public interface IModuleBinding extends IBinding {
 	 * modules, otherwise returns an empty array.
 	 * 
 	 * @param packageBinding a package binding for which targeted modules are declared
-	 * @return array of names of targetted modules
+	 * @return array of names of targeted modules
 	 */
 	public abstract String[] getExportedTo(IPackageBinding packageBinding);
 
@@ -96,9 +96,9 @@ public interface IModuleBinding extends IBinding {
 	public abstract ITypeBinding[] getServices();
 
 	/**
-	 * Returns the implementations that implement this service.
+	 * Returns the implementations that implement the given service in this module.
 	 *
-	 * @return array of implementations
+	 * @return array of implementation type bindings, in declaration order
 	 */
 	public abstract ITypeBinding[] getImplementations(ITypeBinding service);
 }
