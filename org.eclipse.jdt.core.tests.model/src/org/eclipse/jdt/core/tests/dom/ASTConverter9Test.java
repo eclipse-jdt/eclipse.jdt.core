@@ -37,6 +37,8 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 	private static boolean isJRE9 = false;
+	private static final String jcl9lib = "CONVERTER_JCL9_LIB";
+	
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
@@ -50,7 +52,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	static {
 //		TESTS_NUMBERS = new int[] { 19 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] {"testBug515875_005"};
+//		TESTS_NAMES = new String[] {"testBug515875_002"};
 	}
 	public static Test suite() {
 		String javaVersion = System.getProperty("java.version");
@@ -197,7 +199,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 	public void testBug512023_0001() throws Exception {
 		try {
-			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String content = 
@@ -329,7 +331,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 	public void testBug515875_001() throws Exception {
 		try {
-			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String content = 
@@ -372,7 +374,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	public void testBug515875_002() throws Exception {
 		try {
 
-			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent = 
@@ -387,7 +389,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 					"package pack1;\n" +
 					"public class X11 implements pack22.I22{}\n");
 
-			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile = 
@@ -429,11 +431,11 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 			IModuleBinding[] reqs = moduleBinding.getRequiredModules();
 			assertTrue("Null requires", reqs != null);
-			assertTrue("incorrect number of requires modules", reqs.length == 1);
-			IModuleBinding req11 = reqs[0];
-			assertTrue("incorrect name for requires modules", req11.getName().equals("second"));
+			assertTrue("incorrect number of requires modules", reqs.length == 2);
+			assertTrue("incorrect name for requires modules", reqs[0].getName().equals("java.base"));
+			assertTrue("incorrect name for requires modules", reqs[1].getName().equals("second"));
 
-			IPackageBinding[] secPacks = req11.getExportedPackages();
+			IPackageBinding[] secPacks = reqs[1].getExportedPackages();
 			assertTrue("Packages Exported in second module null", secPacks != null);
 			assertTrue("Incorrect number of exported packages in second module", secPacks.length == 1);
 			IPackageBinding pack22 = secPacks[0];
@@ -465,7 +467,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	public void testBug515875_003() throws Exception {
 		try {
 
-			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent = 
@@ -479,7 +481,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 					"package pack1;\n" +
 					"public class X11 implements pack22.I22{}\n");
 
-			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile = 
@@ -521,7 +523,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	public void testBug515875_004() throws Exception {
 		try {
 
-			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent = 
@@ -535,7 +537,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 					"package pack1;\n" +
 					"public class X11 implements pack22.I22{}\n");
 
-			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile = 
@@ -582,7 +584,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	public void testBug515875_005() throws Exception {
 		try {
 
-			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project1.open(null);
 			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String fileContent =
@@ -601,7 +603,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 					"package pack1;\n" +
 					"public class X12 implements pack22.I22{}\n");
 
-			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			project2.open(null);
 			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			String secondFile =
