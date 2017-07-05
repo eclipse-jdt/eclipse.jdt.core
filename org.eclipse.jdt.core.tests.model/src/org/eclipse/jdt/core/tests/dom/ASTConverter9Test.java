@@ -668,7 +668,18 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		}
 	}
 
+	public void _testBug518843_001() throws Exception {// TODO: Uncomment after bug 488541 is fixed
+		this.workingCopies = new ICompilationUnit[1];
+		String content =  "module first {"
+				+ "  exports pack11.module to third, fourth;\n"
+				+ "}";
+		this.workingCopies[0] = getWorkingCopy("/Converter9/src/module-info.java", content);
+
+		CompilationUnit unit = (CompilationUnit) runConversion(AST_INTERNAL_JLS9, this.workingCopies[0], false/*no bindings*/);
+		ModuleDeclaration moduleDecl = unit.getModule();
+		checkSourceRange(moduleDecl, content, content);
+	}
 
 
-// Add new tests here 
+// Add new tests here
 }

@@ -3302,6 +3302,18 @@ class ASTConverter {
 		return fieldDeclaration;
 	}
 
+	/**
+	 * If there is a parsing error causing a recovered module the source positions may be updated only partially. 
+	 * See bug 518843 for a case where this issue occurred. This method provide a safety net with 
+	 * source positions updated even in case of a recovery - if there is no recovery, the source positions will 
+	 * be retained in-tact identical to the compile time ast module node.
+	 */
+	private int getKnownEnd(ModuleDeclaration md, int sourceEnd, int declSourceEnd) {
+		int end =  retrieveRightBrace(md.getStartPosition() + 1, this.compilationUnitSourceLength);
+		end = end > sourceEnd ? end : sourceEnd;
+		end = end > declSourceEnd ? end : declSourceEnd;
+		return end;
+	}
 	public ModuleDeclaration convertToModuleDeclaration(org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration) {
 		checkCanceled();
 		if (this.scanner.sourceLevel < ClassFileConstants.JDK9
@@ -3313,7 +3325,6 @@ class ASTConverter {
 		moduleDecl.setOpen(moduleDeclaration.isOpen());
 		Name moduleName = getName(moduleDeclaration, CharOperation.splitOn('.', moduleDeclaration.moduleName), moduleDeclaration.sourcePositions);
 		moduleDecl.setName(moduleName);
-		moduleDecl.setSourceRange(moduleDeclaration.declarationSourceStart, moduleDeclaration.declarationSourceEnd - moduleDeclaration.declarationSourceStart + 1);
 
 		List<ModuleDirective> stmts = moduleDecl.moduleStatements();
 		TreeSet<ModuleDirective> tSet = new TreeSet<> (new Comparator() {
@@ -3370,6 +3381,8 @@ class ASTConverter {
 			moduleDecl.resolveBinding();
 		}
 		stmts.addAll(tSet);
+		int end = getKnownEnd(moduleDecl, moduleDeclaration.sourceEnd, moduleDeclaration.declarationSourceEnd);
+		moduleDecl.setSourceRange(moduleDeclaration.declarationSourceStart, end  - moduleDeclaration.declarationSourceStart + 1);
 		return moduleDecl;
 	}
 
