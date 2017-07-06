@@ -169,6 +169,7 @@ ReferenceBinding getType(char[] name, ModuleBinding mod) {
 		return new ProblemReferenceBinding(new char[][]{ name }, referenceBinding, ProblemReasons.InternalNameProvided);
 	if (!mod.canAccess(this))
 		return new ProblemReferenceBinding(referenceBinding.compoundName, referenceBinding, ProblemReasons.NotAccessible);
+	// at this point we have only checked accessibility of the package, accessibility of the type will be checked by callers
 	return referenceBinding;
 }
 /* Answer the type named name if it exists in the cache.

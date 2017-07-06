@@ -185,7 +185,7 @@ public class SplitPackageBinding extends PackageBinding {
 		boolean accessible = false;
 		for (PackageBinding incarnation : this.incarnations) {
 			ReferenceBinding type = incarnation.getType(name, mod);
-			if (type != null) { // FIXME(SHMOD) differentiate non-public vs. non-exported
+			if (type != null) {
 				if (candidate == null || !accessible) {
 					candidate = type;
 					accessible = mod.canAccess(incarnation);
@@ -196,6 +196,7 @@ public class SplitPackageBinding extends PackageBinding {
 		}
 		if (candidate != null && !accessible)
 			return new ProblemReferenceBinding(candidate.compoundName, candidate, ProblemReasons.NotAccessible); // TODO(SHMOD) more info
+		// at this point we have only checked unique accessibility of the package, accessibility of the type will be checked by callers
 		return candidate;
 	}
 

@@ -3063,6 +3063,80 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	
+	public void testNonPublic1() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources1 = {
+					"src/module-info.java", 
+					"module mod.one { \n" +
+					"	exports pm;\n" +
+					"}",
+					"src/pm/C1.java", 
+					"package pm;\n" +
+					"class C1 {\n" +
+					"	public void test() {}\n" +
+					"}\n"
+			};
+			IJavaProject p1 = setupModuleProject("mod.one", sources1);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			String[] sources2 = {
+					"src/module-info.java", 
+					"module mod.two { \n" +
+					"	requires mod.one;\n" +
+					"}",
+					"src/pm/sub/C2.java", 
+					"package pm.sub;\n" +
+					"class C2 {\n" +
+					"	public void foo() {}\n" +
+					"}\n",
+					"src/po/Client.java", 
+					"package po;\n" + 
+					"import pm.*;\n" + // package is exported but type C1 is not public
+					"public class Client {\n" + 
+					"    void test1(C1 one) {\n" +
+					"        one.test();\n" + 
+					"    }\n" + 
+					"}\n"
+			};
+
+			IJavaProject p2 = setupModuleProject("mod.two", sources2, new IClasspathEntry[] { dep });
+			this.workingCopies = new ICompilationUnit[3];
+			this.workingCopies[0] = getCompilationUnit("/mod.two/src/module-info.java").getWorkingCopy(this.wcOwner, null);
+			this.workingCopies[1] = getCompilationUnit("/mod.two/src/pm/sub/C2.java").getWorkingCopy(this.wcOwner, null);
+			this.problemRequestor.initialize(sources2[5].toCharArray());
+			this.workingCopies[2] = getCompilationUnit("/mod.two/src/po/Client.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /mod.two/src/po/Client.java (at line 4)\n" + 
+					"	void test1(C1 one) {\n" + 
+					"	           ^^\n" + 
+					"The type C1 is not visible\n" + 
+					"----------\n" + 
+					"2. ERROR in /mod.two/src/po/Client.java (at line 5)\n" + 
+					"	one.test();\n" + 
+					"	^^^\n" + 
+					"The type C1 is not visible\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			String expectedError = "The type C1 is not visible\n" + 
+									"The type C1 is not visible";
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", expectedError, markers);
+
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", expectedError, markers);
+		} finally {
+			deleteProject("mod.one");
+			deleteProject("mod.two");
+		}
+	}
+
 	// sort by CHAR_START
 	protected void sortMarkers(IMarker[] markers) {
 		Arrays.sort(markers, (a,b) -> a.getAttribute(IMarker.CHAR_START, 0) - b.getAttribute(IMarker.CHAR_START, 0)); 
