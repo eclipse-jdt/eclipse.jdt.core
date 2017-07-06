@@ -217,14 +217,14 @@ class ModuleBinding implements IModuleBinding {
 	@Override
 	public ITypeBinding[] getUses() {
 		if (this.uses == null)
-			this.uses = getTypes(this.binding.uses);
+			this.uses = getTypes(this.binding.getUses());
 		return this.uses;
 	}
 
 	@Override
 	public ITypeBinding[] getServices() {
 		if (this.services == null)
-			this.services = getTypes(this.binding.services);
+			this.services = getTypes(this.binding.getServices());
 		return this.services;
 	}
 	@Override

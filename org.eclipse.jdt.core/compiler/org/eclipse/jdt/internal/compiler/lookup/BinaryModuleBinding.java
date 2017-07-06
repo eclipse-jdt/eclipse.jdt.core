@@ -14,16 +14,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.HashMap;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
+import org.eclipse.jdt.internal.compiler.env.IModule.IService;
 
 public class BinaryModuleBinding extends ModuleBinding {
 	
 	private IPackageExport[] unresolvedExports;
 	private IPackageExport[] unresolvedOpens;
+	private char[][] unresolvedUses;
+	private IService[] unresolvedProvides;
 	
 	/**
 	 * Construct a named module from binary.
@@ -41,8 +46,6 @@ public class BinaryModuleBinding extends ModuleBinding {
 		this.isAuto = module.isAutomatic();
 		if (module.isOpen())
 			this.modifiers |= ClassFileConstants.ACC_OPEN;
-
-		// FIXME(SHMOD): the following triggers a lot of recursive resolving, make it more lazy!
 
 		IModuleReference[] requiresReferences = module.requires();
 		this.requires = new ModuleBinding[requiresReferences.length];
@@ -65,6 +68,8 @@ public class BinaryModuleBinding extends ModuleBinding {
 
 		this.unresolvedExports = module.exports();
 		this.unresolvedOpens = module.opens();
+		this.unresolvedUses = module.uses();
+		this.unresolvedProvides = module.provides();
 	}
 	
 	@Override
@@ -96,9 +101,42 @@ public class BinaryModuleBinding extends ModuleBinding {
 			this.openedPackages[i] = declaredPackage;
 			recordOpensRestrictions(declaredPackage, opens.targets());
 		}
-		// FIXME(SHMOD): impl resolving of uses/services/implementations from binary
-		this.uses = Binding.NO_TYPES;
-		this.services = Binding.NO_TYPES;
-		this.implementations = null;
+	}
+	
+	@Override
+	public TypeBinding[] getUses() {
+		if (this.uses == null) {
+			this.uses = new TypeBinding[this.unresolvedUses.length];
+			for (int i = 0; i < this.unresolvedUses.length; i++)
+				this.uses[i] = this.environment.getType(CharOperation.splitOn('.', this.unresolvedUses[i]), this);
+		}
+		return super.getUses();
+	}
+	
+	@Override
+	public TypeBinding[] getServices() {
+		if (this.services == null)
+			resolveServices();
+		return super.getServices();
+	}
+
+	@Override
+	public TypeBinding[] getImplementations(TypeBinding binding) {
+		if (this.implementations == null)
+			resolveServices();
+		return super.getImplementations(binding);
+	}
+
+	private void resolveServices() {
+		this.services = new TypeBinding[this.unresolvedProvides.length];
+		this.implementations = new HashMap<>();
+		for (int i = 0; i < this.unresolvedProvides.length; i++) {
+			this.services[i] = this.environment.getType(CharOperation.splitOn('.', this.unresolvedProvides[i].name()), this);
+			char[][] implNames = this.unresolvedProvides[i].with();
+			TypeBinding[] impls = new TypeBinding[implNames.length];
+			for (int j = 0; j < implNames.length; j++)
+				impls[j] = this.environment.getType(CharOperation.splitOn('.', implNames[j]), this);
+			this.implementations.put(this.services[i], impls);
+		}
 	}
 }

@@ -82,9 +82,9 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	private Map<PackageBinding,SimpleSetOfCharArray> exportRestrictions; // RHS is unresolved names, because unresolvable names are legal in this position
 	protected PackageBinding[] openedPackages;
 	private Map<PackageBinding,SimpleSetOfCharArray> openRestrictions; // RHS is unresolved names, because unresolvable names are legal in this position
-	public TypeBinding[] uses;
-	public TypeBinding[] services;
-	public Map<TypeBinding,Collection<TypeBinding>> implementations;
+	protected TypeBinding[] uses;
+	protected TypeBinding[] services;
+	public Map<TypeBinding,TypeBinding[]> implementations;
 	public int modifiers;
 	public LookupEnvironment environment;
 	public int tagBits;
@@ -162,9 +162,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 	public TypeBinding[] getImplementations(TypeBinding binding) {
 		if (this.implementations != null) {
-			Collection<TypeBinding> impls = this.implementations.get(binding);
-			if (impls != null)
-				return impls.toArray(new TypeBinding[impls.size()]);
+			return this.implementations.get(binding);
 		}
 		return null;
 	}
@@ -176,6 +174,15 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		completeIfNeeded(UpdateKind.MODULE);
 		return this.requiresTransitive;
 	}
+	
+	public TypeBinding[] getUses() {
+		return this.uses;
+	}
+	
+	public TypeBinding[] getServices() {
+		return this.services;
+	}
+
 	private void completeIfNeeded(IUpdatableModule.UpdateKind kind) {
 		if (!this.isComplete[kind.ordinal()]) {
 			this.isComplete[kind.ordinal()] = true;

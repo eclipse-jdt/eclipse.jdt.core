@@ -25,13 +25,12 @@ import java.util.function.Consumer;
  */
 public interface IUpdatableModule {
 	
-	enum UpdateKind { MODULE, PACKAGE, TYPE }
+	enum UpdateKind { MODULE, PACKAGE }
 
 	/** Structure for update operations, sorted by {@link UpdateKind}. */
 	class UpdatesByKind {
 		List<Consumer<IUpdatableModule>> moduleUpdates = Collections.emptyList();
 		List<Consumer<IUpdatableModule>> packageUpdates = Collections.emptyList();
-		List<Consumer<IUpdatableModule>> typeUpdates = Collections.emptyList();
 		public List<Consumer<IUpdatableModule>> getList(UpdateKind kind, boolean create) {
 			switch (kind) {
 				case MODULE:
@@ -42,10 +41,6 @@ public interface IUpdatableModule {
 					if (this.packageUpdates == Collections.EMPTY_LIST && create)
 						this.packageUpdates = new ArrayList<>();
 					return this.packageUpdates;
-				case TYPE:
-					if (this.typeUpdates == Collections.EMPTY_LIST && create)
-						this.typeUpdates = new ArrayList<>();
-					return this.typeUpdates;
 				default:
 					throw new IllegalArgumentException("Unknown enum value "+kind); //$NON-NLS-1$
 			}

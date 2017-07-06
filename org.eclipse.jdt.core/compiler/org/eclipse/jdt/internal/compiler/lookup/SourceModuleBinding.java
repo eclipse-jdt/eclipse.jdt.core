@@ -52,7 +52,7 @@ public class SourceModuleBinding extends ModuleBinding {
 	public void setImplementations(TypeBinding infBinding, Collection<TypeBinding> resolvedImplementations) {
 		if (this.implementations == null)
 			this.implementations = new HashMap<>();
-		this.implementations.put(infBinding, resolvedImplementations);
+		this.implementations.put(infBinding, resolvedImplementations.toArray(new TypeBinding[resolvedImplementations.size()]));
 	}
 
 	private <T> T[] merge(T[] one, T[] two, IntFunction<T[]> supplier) {

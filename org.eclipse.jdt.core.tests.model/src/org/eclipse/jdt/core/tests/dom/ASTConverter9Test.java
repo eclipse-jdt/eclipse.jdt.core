@@ -403,10 +403,25 @@ public class ASTConverter9Test extends ConverterTestSetup {
 					"public interface I22 {}\n");
 
 			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+
+			// workaround: I need a way to navigate from a source module to a binary module containing "uses" and "provides":
+			IJavaProject project3 = createJavaProject("third", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project3.open(null);
+			addClasspathEntry(project3, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String thirdFile = 
+					"module third {\n" +
+					"    requires first;\n" +
+					"}";
+			createFile("/third/src/module-info.java",	thirdFile);
+			addClasspathEntry(project3, JavaCore.newProjectEntry(project1.getPath()));
+			//
+
 			project1.close(); // sync
 			project2.close();
+			project3.close();
 			project2.open(null);
 			project1.open(null);
+			project3.open(null);
 
 			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
@@ -415,51 +430,65 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			checkSourceRange(moduleDecl1, fileContent, fileContent);
 
 			IModuleBinding moduleBinding = moduleDecl1.resolveBinding();
-			assertTrue("Module Binding null", moduleBinding != null);
-			String name = moduleBinding.getName();
-			assertTrue("Module Name null", name != null);
-			assertTrue("Wrong Module Name", name.equals("first"));
-			
 			Name modName1 = moduleDecl1.getName();
 			IBinding binding = modName1.resolveBinding();
 			assertTrue("binding not a module binding", binding instanceof IModuleBinding);
 			moduleBinding = (IModuleBinding) binding;
-			assertTrue("Module Binding null", moduleBinding != null);
-			name = moduleBinding.getName();
-			assertTrue("Module Name null", name != null);
-			assertTrue("Wrong Module Name", name.equals("first"));
 
-			IModuleBinding[] reqs = moduleBinding.getRequiredModules();
-			assertTrue("Null requires", reqs != null);
-			assertTrue("incorrect number of requires modules", reqs.length == 1);
-			assertTrue("incorrect name for requires modules", reqs[0].getName().equals("second"));
+			assertModuleFirstDetails(moduleBinding);
+			
+			// indirectly fetch the binary version of "first" via "third":
+			ICompilationUnit sourceUnit3 = getCompilationUnit("third" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit3 = runConversion(AST_INTERNAL_JLS9, sourceUnit3, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit3.getNodeType());
+			ModuleDeclaration moduleDecl3 = ((CompilationUnit) unit3).getModule();
+			IModuleBinding firstModAsBinary = moduleDecl3.resolveBinding().getRequiredModules()[0];
 
-			IPackageBinding[] secPacks = reqs[0].getExportedPackages();
-			assertTrue("Packages Exported in second module null", secPacks != null);
-			assertTrue("Incorrect number of exported packages in second module", secPacks.length == 1);
-			IPackageBinding pack22 = secPacks[0];
-			assertTrue("Incorrect Package", pack22.getName().equals("pack22"));
-
-			ITypeBinding[] uses = moduleBinding.getUses();
-			assertTrue("uses null", uses != null);
-			assertTrue("Incorrect number of uses", uses.length == 1);
-			assertTrue("Incorrect uses", uses[0].getQualifiedName().equals("pack22.I22"));
-
-			ITypeBinding[] services = moduleBinding.getServices();
-			assertTrue("services null", services != null);
-			assertTrue("Incorrect number of services", services.length == 1);
-			for (ITypeBinding s : services) {
-				assertTrue("Incorrect service", s.getQualifiedName().equals("pack22.I22"));
-				ITypeBinding[] implementations = moduleBinding.getImplementations(s);
-				assertTrue("implementations null", implementations != null);
-				assertTrue("Incorrect number of implementations", implementations.length == 1);
-				assertTrue("Incorrect implementation", implementations[0].getQualifiedName().equals("pack1.X11"));
-			}
-
-		}
-		finally {
+			assertModuleFirstDetails(firstModAsBinary);
+		
+		} finally {
 			deleteProject("ConverterTests9");
 			deleteProject("second");
+			deleteProject("third");
+		}
+	}
+
+	private void assertModuleFirstDetails(IModuleBinding moduleBinding) {
+		assertTrue("Module Binding null", moduleBinding != null);
+		String name = moduleBinding.getName();
+		assertTrue("Module Name null", name != null);
+		assertTrue("Wrong Module Name", name.equals("first"));
+		
+		assertTrue("Module Binding null", moduleBinding != null);
+		name = moduleBinding.getName();
+		assertTrue("Module Name null", name != null);
+		assertTrue("Wrong Module Name", name.equals("first"));
+
+		IModuleBinding[] reqs = moduleBinding.getRequiredModules();
+		assertTrue("Null requires", reqs != null);
+		assertTrue("incorrect number of requires modules", reqs.length == 1);
+		assertTrue("incorrect name for requires modules", reqs[0].getName().equals("second"));
+
+		IPackageBinding[] secPacks = reqs[0].getExportedPackages();
+		assertTrue("Packages Exported in second module null", secPacks != null);
+		assertTrue("Incorrect number of exported packages in second module", secPacks.length == 1);
+		IPackageBinding pack22 = secPacks[0];
+		assertTrue("Incorrect Package", pack22.getName().equals("pack22"));
+
+		ITypeBinding[] uses = moduleBinding.getUses();
+		assertTrue("uses null", uses != null);
+		assertTrue("Incorrect number of uses", uses.length == 1);
+		assertTrue("Incorrect uses", uses[0].getQualifiedName().equals("pack22.I22"));
+
+		ITypeBinding[] services = moduleBinding.getServices();
+		assertTrue("services null", services != null);
+		assertTrue("Incorrect number of services", services.length == 1);
+		for (ITypeBinding s : services) {
+			assertTrue("Incorrect service", s.getQualifiedName().equals("pack22.I22"));
+			ITypeBinding[] implementations = moduleBinding.getImplementations(s);
+			assertTrue("implementations null", implementations != null);
+			assertTrue("Incorrect number of implementations", implementations.length == 1);
+			assertTrue("Incorrect implementation", implementations[0].getQualifiedName().equals("pack1.X11"));
 		}
 	}
 

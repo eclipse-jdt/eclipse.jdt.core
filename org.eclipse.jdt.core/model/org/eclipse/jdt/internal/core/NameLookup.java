@@ -20,6 +20,7 @@ import java.util.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -1265,19 +1266,17 @@ public class NameLookup implements SuffixConstants {
 		if (moduleContext == null) // includes the case where looking for module UNNAMED or ANY
 			return isPackage(pkgName);
 		
-		Object value = this.packageFragments.get(pkgName);
-		if (value instanceof PackageFragmentRoot) {
-			PackageFragmentRoot root = (PackageFragmentRoot)value;
-			return moduleMatches(root, moduleContext);
-		} else {
-			IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
-			if (roots != null) {
-				for (int i = 0, length = roots.length; i < length; i++) {
-					PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
-					if (moduleMatches(root, moduleContext))
-						return true;
+		switch (moduleContext.getElementType()) {
+			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+				IPackageFragmentRoot moduleRoot = (IPackageFragmentRoot) moduleContext;
+				return moduleRoot.getPackageFragment(String.join(".", pkgName)).exists(); //$NON-NLS-1$
+			case IJavaElement.JAVA_PROJECT:
+				try {
+					IJavaElement element = ((IJavaProject) moduleContext).findElement(new Path(String.join("/", pkgName))); //$NON-NLS-1$
+					return element instanceof IPackageFragment;
+				} catch (JavaModelException e) {
+					return false;
 				}
-			}
 		}
 		return false;
 	}
@@ -1341,14 +1340,26 @@ public class NameLookup implements SuffixConstants {
 			seekModuleAwarePartialPackageFragments(name, requestor, moduleContext);
 			return;
 		}
-		
-		String[] splittedName = Util.splitOn('.', name, 0, name.length());
-		int pkgIndex = this.packageFragments.getIndex(splittedName);
-		if (pkgIndex == -1)
-			return;
-		checkModulePackages(requestor, moduleContext, pkgIndex);
-		
+		switch (moduleContext.getElementType()) {
+			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+				IPackageFragmentRoot moduleRoot = (IPackageFragmentRoot) moduleContext;
+				IPackageFragment fragment = moduleRoot.getPackageFragment(name);
+				if (fragment.exists())
+					requestor.acceptPackageFragment(fragment);
+				break;
+			case IJavaElement.JAVA_PROJECT:
+				try {
+					for (IPackageFragmentRoot fragmentRoot : ((IJavaProject) moduleContext).getPackageFragmentRoots()) {
+						fragment = fragmentRoot.getPackageFragment(name);
+						if (fragment.exists())
+							requestor.acceptPackageFragment(fragment);
+					}
+				} catch (JavaModelException e) {
+					// silent
+				}
+		}
 	}
+
 	/**
 	 * Notifies the given requestor of all package fragments with the
 	 * given name. Checks the requestor at regular intervals to see if the
