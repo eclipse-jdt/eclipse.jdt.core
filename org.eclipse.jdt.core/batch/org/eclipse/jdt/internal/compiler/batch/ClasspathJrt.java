@@ -130,7 +130,10 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 
 				@Override
 				public FileVisitResult visitFile(java.nio.file.Path dir, java.nio.file.Path modPath, BasicFileAttributes attrs) throws IOException {
-					if (!dir.getParent().toString().equals(qualifiedPackageName)) {
+					Path parent = dir.getParent();
+					if (parent == null)
+						return FileVisitResult.CONTINUE;
+					if (!parent.toString().equals(qualifiedPackageName)) {
 						return FileVisitResult.CONTINUE;
 					}
 					String fileName = dir.getName(dir.getNameCount() - 1).toString();

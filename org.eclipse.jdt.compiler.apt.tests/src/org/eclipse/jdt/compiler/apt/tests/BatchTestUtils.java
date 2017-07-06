@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 BEA Systems, Inc.
+ * Copyright (c) 2007, 2017 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
@@ -12,9 +16,6 @@
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests;
-
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,6 +37,9 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 
 /**
  * Helper class to support compilation and results checking for tests running in batch mode.
@@ -108,6 +112,32 @@ public class BatchTestUtils {
 		compileTree(compiler, options, targetFolder, useJLS8Processors, null);
 	}
 
+	public static void compileInModuleMode(JavaCompiler compiler, List<String> options,
+			File targetFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule) {
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		// create new list containing inputfile
+		List<File> files = new ArrayList<File>();
+		findFilesUnder(targetFolder, files);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		options.add("-d");
+		options.add(_tmpBinFolderName);
+		options.add("-s");
+		options.add(_tmpGenFolderName);
+		addModuleProcessorPath(options, getSrcFolderName(), multiModule);
+		options.add("-XprintRounds");
+		CompilationTask task = compiler.getTask(printWriter, manager, listener, options, null, units);
+		Boolean result = task.call();
+
+		if (!result.booleanValue()) {
+			String errorOutput = stringWriter.getBuffer().toString();
+			System.err.println("Compilation failed: " + errorOutput);
+	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
+		}
+	}
 	public static void compileTree(JavaCompiler compiler, List<String> options,
 			File targetFolder, boolean useJLS8Processors,
 			DiagnosticListener<? super JavaFileObject> listener) {
@@ -295,6 +325,16 @@ public class BatchTestUtils {
 		options.add("-processorpath");
 		options.add(path);
 	}
+	private static void addModuleProcessorPath(List<String> options, String srcFolderName, boolean multiModule) {
+		options.add("--processor-module-path");
+		options.add(_jls8ProcessorJarPath);
+		options.add("--module-path");
+		options.add(_jls8ProcessorJarPath);
+		if (multiModule) {
+			options.add("--module-source-path");
+			options.add(srcFolderName);
+		}
+	}
 
 	public static void tearDown() {
 		new File(_processorJarPath).deleteOnExit();
@@ -376,15 +416,17 @@ public class BatchTestUtils {
 				throw new IOException("Unable to create directory " + destFolder);
 			}
 		}
-		// write bytes to dest
-		FileOutputStream out = null;
-		try {
-			out = new FileOutputStream(dest);
-			out.write(srcBytes);
-			out.flush();
-		} finally {
-			if (out != null) {
-				out.close();
+		// write bytes to dest only if it doesn't exist already.
+		if (!dest.exists()) {
+			FileOutputStream out = null;
+			try {
+				out = new FileOutputStream(dest);
+				out.write(srcBytes);
+				out.flush();
+			} finally {
+				if (out != null) {
+					out.close();
+				}
 			}
 		}
 	}

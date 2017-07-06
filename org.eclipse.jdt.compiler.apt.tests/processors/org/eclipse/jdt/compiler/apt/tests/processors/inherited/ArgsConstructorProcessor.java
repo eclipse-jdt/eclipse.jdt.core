@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,8 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
@@ -154,7 +156,9 @@ public class ArgsConstructorProcessor extends BaseProcessor {
 		return false;
 	}
 
+	@SuppressWarnings("deprecation")
 	private final TypeVisitor<Boolean, List<TypeMirror>> argsVisitor = new SimpleTypeVisitor6<Boolean, List<TypeMirror>>() {
+		@Override
 		public Boolean visitExecutable(ExecutableType t,
 				List<TypeMirror> annotatedTypes) {
 

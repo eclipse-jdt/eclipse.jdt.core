@@ -61,6 +61,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	static final int HAS_BOOTCLASSPATH = 2;
 	static final int HAS_ENDORSED_DIRS = 4;
 	static final int HAS_PROCESSORPATH = 8;
+	static final int HAS_PROC_MODULEPATH = 16;
 
 	Map<File, Archive> archivesCache;
 	Charset charset;
@@ -81,6 +82,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			Iterable<? extends File> defaultClasspath = getDefaultClasspath();
 			this.setLocation(StandardLocation.CLASS_PATH, defaultClasspath);
 			this.setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, defaultClasspath);
+			this.setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, defaultClasspath);
 		} catch (IOException e) {
 			// ignore
 		}
@@ -615,6 +617,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						}
 						if ((this.flags & EclipseFileManager.HAS_PROCESSORPATH) == 0) {
 							setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, classpaths);
+							setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, null);
+						} else if ((this.flags & EclipseFileManager.HAS_PROC_MODULEPATH) == 0) {
+							setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, classpaths);
+							setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, null);
 						}
 					}
 					return true;
@@ -684,12 +690,26 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				}				
 			}
 			if ("-processorpath".equals(current)) {//$NON-NLS-1$
+				setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, null);
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> processorpaths = getPathsFrom(remaining.next());
 					if (processorpaths != null) {
 						setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, processorpaths);
 					}
 					this.flags |= EclipseFileManager.HAS_PROCESSORPATH;
+					return true;
+				} else {
+					throw new IllegalArgumentException();
+				}
+			}
+			if ("--processor-module-path".equals(current)) {//$NON-NLS-1$
+				setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, null);
+				if (remaining.hasNext()) {
+					final Iterable<? extends File> processorpaths = getPathsFrom(remaining.next());
+					if (processorpaths != null) {
+						setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, processorpaths);
+					}
+					this.flags |= EclipseFileManager.HAS_PROC_MODULEPATH;
 					return true;
 				} else {
 					throw new IllegalArgumentException();

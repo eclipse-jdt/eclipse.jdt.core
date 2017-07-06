@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -72,7 +73,7 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 		char[][][] typeNames = null;
 		INameEnvironment nameEnvironment = binding.environment.nameEnvironment;
 		if (nameEnvironment instanceof FileSystem) {
-			typeNames = ((FileSystem) nameEnvironment).findTypeNames(binding.compoundName, new String[] { null });
+			typeNames = ((FileSystem) nameEnvironment).findTypeNames(binding.compoundName);
 		}
 		HashSet<Element> set = new HashSet<>(); 
 		if (typeNames != null) {
@@ -90,8 +91,11 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 
 	@Override
 	public Element getEnclosingElement() {
-		// packages have no enclosing element
-		return null;
+		PackageBinding pBinding = (PackageBinding) _binding;
+		ModuleBinding module = pBinding.enclosingModule;
+		if (module == null)
+			return null;
+		return new ModuleElementImpl(_env, module);
 	}
 
 	@Override

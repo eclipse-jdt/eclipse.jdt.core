@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 IBM Corporation and others.
+ * Copyright (c) 2006, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -202,6 +202,16 @@ public class EclipseCompiler implements JavaCompiler {
 				Processor[] processors2 = new Processor[temp.size()];
 				temp.toArray(processors2);
 				eclipseCompiler2.processors = processors2;
+			}
+			@Override
+			public void addModules(Iterable<String> mods) {
+				ArrayList<String> temp = new ArrayList<>();
+				for (String mod : mods) {
+					temp.add(mod);
+				}
+				String[] mods2 = new String[temp.size()];
+				temp.toArray(mods2);
+				eclipseCompiler2.modules = mods2;
 			}
 		};
 	}

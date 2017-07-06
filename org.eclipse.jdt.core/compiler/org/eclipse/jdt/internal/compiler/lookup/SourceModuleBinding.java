@@ -18,9 +18,16 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.function.IntFunction;
 
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
+
 public class SourceModuleBinding extends ModuleBinding {
 
 	final public CompilationUnitScope scope; // TODO(SHMOD): consider cleanup at end of compile
+	private SimpleLookupTable storedAnnotations = null;
 
 	/**
 	 * Construct a named module from source.
@@ -81,4 +88,73 @@ public class SourceModuleBinding extends ModuleBinding {
 			this.scope.referenceContext.moduleDeclaration.resolveDirectives(this.scope);
 		return super.getAllRequiredModules();
 	}
+	public long getAnnotationTagBits() {
+		//TODO: This code is untested as we don't yet get a scope in ModuleBinding
+		if ((this.tagBits & TagBits.AnnotationResolved) == 0 && this.scope != null) {
+			ModuleDeclaration module = this.scope.referenceContext.moduleDeclaration;
+			ASTNode.resolveAnnotations(module.scope, module.annotations, this);
+			if ((this.tagBits & TagBits.AnnotationDeprecated) != 0) {
+				this.modifiers |= ClassFileConstants.AccDeprecated;
+				this.tagBits |= TagBits.DeprecatedAnnotationResolved;
+			}
+			this.tagBits |= TagBits.AnnotationResolved;
+		}
+		return this.tagBits;
+	}
+	public AnnotationBinding[] getAnnotations() {
+		return retrieveAnnotations(this);
+	}
+	public AnnotationHolder retrieveAnnotationHolder(Binding binding, boolean forceInitialization) {
+		SimpleLookupTable store = storedAnnotations(forceInitialization);
+		return store == null ? null : (AnnotationHolder) store.get(binding);
+	}
+
+	AnnotationBinding[] retrieveAnnotations(Binding binding) {
+		AnnotationHolder holder = retrieveAnnotationHolder(binding, true);
+		return holder == null ? Binding.NO_ANNOTATIONS : holder.getAnnotations();
+	}
+
+	public void setAnnotations(AnnotationBinding[] annotations) {
+		storeAnnotations(this, annotations);
+	}
+	void storeAnnotationHolder(Binding binding, AnnotationHolder holder) {
+		if (holder == null) {
+			SimpleLookupTable store = storedAnnotations(false);
+			if (store != null)
+				store.removeKey(binding);
+		} else {
+			SimpleLookupTable store = storedAnnotations(true);
+			if (store != null)
+				store.put(binding, holder);
+		}
+	}
+
+	void storeAnnotations(Binding binding, AnnotationBinding[] annotations) {
+		AnnotationHolder holder = null;
+		if (annotations == null || annotations.length == 0) {
+			SimpleLookupTable store = storedAnnotations(false);
+			if (store != null)
+				holder = (AnnotationHolder) store.get(binding);
+			if (holder == null) return; // nothing to delete
+		} else {
+			SimpleLookupTable store = storedAnnotations(true);
+			if (store == null) return; // not supported
+			holder = (AnnotationHolder) store.get(binding);
+			if (holder == null)
+				holder = new AnnotationHolder();
+		}
+		storeAnnotationHolder(binding, holder.setAnnotations(annotations));
+	}
+
+	SimpleLookupTable storedAnnotations(boolean forceInitialize) {
+		if (forceInitialize && this.storedAnnotations == null && this.scope != null) { // scope null when no annotation cached, and type got processed fully (159631)
+			this.scope.referenceCompilationUnit().compilationResult.hasAnnotations = true;
+			final CompilerOptions globalOptions = this.scope.environment().globalOptions;
+			if (!globalOptions.storeAnnotations)
+				return null; // not supported during this compile
+			this.storedAnnotations = new SimpleLookupTable(3);
+		}
+		return this.storedAnnotations;
+	}
+
 }

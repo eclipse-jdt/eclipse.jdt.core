@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -56,7 +57,7 @@ public class ModuleDeclaration extends ASTNode {
 	public int bodyStart;
 	public int bodyEnd; // doesn't include the trailing comment if any.
 	public int modifiersSourceStart;
-	BlockScope scope;
+	public BlockScope scope;
 	public char[][] tokens;
 	public char[] moduleName;
 	public long[] sourcePositions;
@@ -234,7 +235,9 @@ public class ModuleDeclaration extends ASTNode {
 		}
 		this.binding.setServices(interfaces.toArray(new TypeBinding[interfaces.size()]));
 	}
-
+	public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
+		visitor.visit(this, unitScope);
+	}
 	public StringBuffer printHeader(int indent, StringBuffer output) {
 		if (this.annotations != null) {
 			for (int i = 0; i < this.annotations.length; i++) {
