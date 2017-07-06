@@ -5065,7 +5065,7 @@ protected void setPaths(ArrayList bootclasspaths,
 
 	if (sourcepathClasspathArg != null) {
 		processPathEntries(DEFAULT_SIZE_CLASSPATH, sourcepathClasspaths,
-			sourcepathClasspathArg, null, true, false); // FIXME(SHMOD): why null encoding??
+			sourcepathClasspathArg, customEncoding, true, false);
 	}
 
 	/*
