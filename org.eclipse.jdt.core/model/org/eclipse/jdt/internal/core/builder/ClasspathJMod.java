@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
@@ -40,7 +41,7 @@ public class ClasspathJMod extends ClasspathJar {
 
 	public static char[] CLASSES = "classes".toCharArray(); //$NON-NLS-1$
 	public static char[] CLASSES_FOLDER = "classes/".toCharArray(); //$NON-NLS-1$
-	private static int MODULE_DESCRIPTOR_NAME_LENGTH = MODULE_INFO_CLASS.length();
+	private static int MODULE_DESCRIPTOR_NAME_LENGTH = IModule.MODULE_INFO_CLASS.length();
 
 	ClasspathJMod(String zipFilename, long lastModified, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env) {
 		super(zipFilename, lastModified, accessRuleSet, externalAnnotationPath, env, true);
@@ -96,7 +97,7 @@ public class ClasspathJMod extends ClasspathJar {
 				if (CharOperation.equals(CLASSES, folder)) {
 					char[] fileName = CharOperation.subarray(entryName, index + 1, entryName.length);
 					if (modInfo == null && fileName.length == MODULE_DESCRIPTOR_NAME_LENGTH) {
-						if (CharOperation.equals(fileName, MODULE_INFO_CLASS.toCharArray())) {
+						if (CharOperation.equals(fileName, IModule.MODULE_INFO_CLASS.toCharArray())) {
 							InputStream stream = null;
 							InputStream inputStream;
 							try {

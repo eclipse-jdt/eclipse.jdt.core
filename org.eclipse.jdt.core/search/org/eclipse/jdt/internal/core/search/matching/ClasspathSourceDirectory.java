@@ -27,10 +27,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
-import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
-import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
@@ -156,22 +153,4 @@ public String toString() {
 public String debugPathString() {
 	return this.sourceFolder.getFullPath().toString();
 }
-
-@Override
-public ITypeLookup typeLookup() {
-	//
-	return this::findClass;
-}
-
-@Override
-public IPackageLookup packageLookup() {
-	//
-	return this::isPackage;
-}
-
-@Override
-public IModuleEnvironment getLookupEnvironment() {
-	return this;
-}
-
 }

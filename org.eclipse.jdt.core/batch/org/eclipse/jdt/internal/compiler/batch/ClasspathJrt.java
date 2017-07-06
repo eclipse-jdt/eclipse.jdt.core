@@ -35,17 +35,14 @@ import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
-import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry, IModuleEnvironment {
+public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry {
 	protected File file;
 	protected ZipFile annotationZipFile;
 	protected boolean closeZipFileAtEnd;
@@ -207,7 +204,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 					@Override
 					public FileVisitResult visitModule(Path mod) throws IOException {
 						try {
-							ClasspathJrt.this.acceptModule(JRTUtil.getClassfileContent(ClasspathJrt.this.file, IModuleEnvironment.MODULE_INFO_CLASS, mod.toString()));
+							ClasspathJrt.this.acceptModule(JRTUtil.getClassfileContent(ClasspathJrt.this.file, IModule.MODULE_INFO_CLASS, mod.toString()));
 						} catch (ClassFormatException e) {
 							e.printStackTrace();
 						}
@@ -237,7 +234,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 			return;
 		ClassFileReader reader = null;
 		try {
-			reader = new ClassFileReader(content, IModuleEnvironment.MODULE_INFO_CLASS.toCharArray());
+			reader = new ClassFileReader(content, IModule.MODULE_INFO_CLASS.toCharArray());
 		} catch (ClassFormatException e) {
 			e.printStackTrace();
 		}
@@ -348,21 +345,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 		return null;
 	}
 	@Override
-	public ITypeLookup typeLookup() {
-		return this::findClass;
-	}
-	@Override
-	public IPackageLookup packageLookup() {
-		return this::isPackage;
-	}
-	@Override
 	public boolean servesModule(char[] moduleName) {
 		return getModule(moduleName) != null;
-	}
-
-	@Override
-	public IModuleEnvironment getLookupEnvironment() {
-		//
-		return this;
 	}
 }

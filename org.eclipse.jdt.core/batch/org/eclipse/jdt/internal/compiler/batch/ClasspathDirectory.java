@@ -28,10 +28,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
-import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -49,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class ClasspathDirectory extends ClasspathLocation implements IModuleEnvironment {
+public class ClasspathDirectory extends ClasspathLocation {
 
 private Hashtable directoryCache;
 private String[] missingPackageHolder = new String[1];
@@ -312,20 +309,5 @@ public IModule getModule() {
 		return this.module = new AutoModule(this.path.toCharArray());
 	}
 	return this.module;
-}
-@Override
-public ITypeLookup typeLookup() {
-	return this::findClass;
-}
-
-@Override
-public IPackageLookup packageLookup() {
-	return this::isPackage;
-}
-
-@Override
-public IModuleEnvironment getLookupEnvironment() {
-	// 
-	return this;
 }
 }

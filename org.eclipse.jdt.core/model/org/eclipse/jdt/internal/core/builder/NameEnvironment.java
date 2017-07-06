@@ -39,7 +39,6 @@ import org.eclipse.jdt.internal.core.*;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class NameEnvironment implements IModuleAwareNameEnvironment, SuffixConstants {
@@ -378,30 +377,33 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 	String qPackageName =  (qualifiedTypeName.length() == typeName.length) ? Util.EMPTY_STRING :
 		qBinaryFileName.substring(0, qBinaryFileName.length() - typeName.length - 7);
 	char[] binaryFileName = CharOperation.concat(typeName, SUFFIX_class);
-	if (moduleName == null || this.modulePathEntries == null) {
-		return Stream.of(this.binaryLocations)
-				.map(p -> p.typeLookup())
-				.reduce(ITypeLookup::chain)
-				.map(t -> t.findClass(binaryFileName, qPackageName, null, qBinaryFileName)).orElse(null);
-	}
-	IModulePathEntry modulePathEntry = this.modulePathEntries.get(moduleName);
-	if (modulePathEntry instanceof ModulePathEntry) {
-		NameEnvironmentAnswer suggestedAnswer = null;
-		for (ClasspathLocation classpathLocation : ((ModulePathEntry) modulePathEntry).getClasspathLocations()) {
-			NameEnvironmentAnswer answer = classpathLocation.findClass(binaryFileName, qPackageName, moduleName, qBinaryFileName, false);
-			if (answer != null) {
-				if (!answer.ignoreIfBetter()) {
-					if (answer.isBetter(suggestedAnswer))
-						return answer;
-				} else if (answer.isBetter(suggestedAnswer))
-					// remember suggestion and keep looking
-					suggestedAnswer = answer;
-			}
+
+	ClasspathLocation[] relevantLocations;
+	if (moduleName != null && this.modulePathEntries != null) {
+		IModulePathEntry modulePathEntry = this.modulePathEntries.get(moduleName);
+		if (modulePathEntry instanceof ModulePathEntry) {
+			relevantLocations = ((ModulePathEntry) modulePathEntry).getClasspathLocations();
+		} else if (modulePathEntry instanceof ClasspathLocation) {
+			return ((ClasspathLocation) modulePathEntry).findClass(typeName, qPackageName, moduleName, qBinaryFileName, false);
+		} else {
+			return null;
 		}
-	} else if (modulePathEntry instanceof ClasspathLocation) {
-		return ((ClasspathLocation) modulePathEntry).findClass(typeName, qPackageName, moduleName, qBinaryFileName, false);
+	} else {
+		relevantLocations = this.binaryLocations;
 	}
-	return null;
+	NameEnvironmentAnswer suggestedAnswer = null;
+	for (ClasspathLocation classpathLocation : relevantLocations) {
+		NameEnvironmentAnswer answer = classpathLocation.findClass(binaryFileName, qPackageName, moduleName, qBinaryFileName, false);
+		if (answer != null) {
+			if (!answer.ignoreIfBetter()) {
+				if (answer.isBetter(suggestedAnswer))
+					return answer;
+			} else if (answer.isBetter(suggestedAnswer))
+				// remember suggestion and keep looking
+				suggestedAnswer = answer;
+		}
+	}
+	return suggestedAnswer;
 }
 
 @Override

@@ -34,12 +34,9 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
-import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -94,7 +91,7 @@ static HashMap<String, SimpleSet> findPackagesInModules(final ClasspathJrt jrt) 
 			public FileVisitResult visitModule(Path mod) throws IOException {
 				String name = mod.toString();
 				try {
-					jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModuleEnvironment.MODULE_INFO_CLASS, name));
+					jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModule.MODULE_INFO_CLASS, name));
 				} catch (ClassFormatException e) {
 					e.printStackTrace();
 				}
@@ -137,7 +134,7 @@ public static void loadModules(final ClasspathJrt jrt) {
 				@Override
 				public FileVisitResult visitModule(Path mod) throws IOException {
 					try {
-						jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModuleEnvironment.MODULE_INFO_CLASS, mod.toString()));
+						jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModule.MODULE_INFO_CLASS, mod.toString()));
 					} catch (ClassFormatException e) {
 						e.printStackTrace();
 					}
@@ -158,7 +155,7 @@ void acceptModule(byte[] content) {
 		return;
 	ClassFileReader reader = null;
 	try {
-		reader = new ClassFileReader(content, IModuleEnvironment.MODULE_INFO_CLASS.toCharArray());
+		reader = new ClassFileReader(content, IModule.MODULE_INFO_CLASS.toCharArray());
 	} catch (ClassFormatException e) {
 		e.printStackTrace();
 	}
@@ -262,20 +259,6 @@ public Collection<String> getModuleNames() {
 	if (cache != null)
 		return cache.keySet();
 	return Collections.emptyList();
-}
-@Override
-public ITypeLookup typeLookup() {
-	return this::findClass;
-}
-@Override
-public IPackageLookup packageLookup() {
-	return this::isPackage;
-}
-
-@Override
-public IModuleEnvironment getLookupEnvironment() {
-	//
-	return this;
 }
 
 @Override

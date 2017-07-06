@@ -27,10 +27,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
-import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -88,7 +86,7 @@ ClasspathDirectory initializeModule() {
 				String name = m.getName();
 				// Note: Look only inside the default package.
 				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
-					if (name.equalsIgnoreCase(IModuleEnvironment.MODULE_INFO_CLASS)) {
+					if (name.equalsIgnoreCase(IModule.MODULE_INFO_CLASS)) {
 						try {
 							this.acceptModule( Util.newClassFileReader(m));
 							this.isAutoModule = false;
@@ -242,17 +240,6 @@ public String toString() {
 
 public String debugPathString() {
 	return this.binaryFolder.getFullPath().toString();
-}
-
-@Override
-public ITypeLookup typeLookup() {
-	//
-	return this::findClass;
-}
-
-@Override
-public IPackageLookup packageLookup() {
-	return this::isPackage;
 }
 
 @Override

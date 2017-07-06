@@ -16,9 +16,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
-import java.util.function.Function;
-import java.util.stream.Stream;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -26,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
-import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.INameEnvironmentWithProgress;
 import org.eclipse.jdt.internal.core.NameLookup;
@@ -53,60 +49,31 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName) {
 		return findType(typeName, packageName, true, moduleName);
 	}
-	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchSecondaryTypes, char[] moduleName) {
+	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes, char[] moduleName) {
 		checkCanceled();
 		NameEnvironmentAnswer answer = super.findType(typeName, packageName, moduleName);
-		if (answer == null && searchSecondaryTypes) {
+		if (answer == null && searchWithSecondaryTypes) {
 			NameEnvironmentAnswer suggestedAnswer = null;
 			String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
 			String qualifiedTypeName = new String(CharOperation.concatWith(packageName, typeName, '/'));
 			String qualifiedBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;
 			for (int i = 0, length = this.classpaths.length; i < length; i++) {
 				if (!(this.classpaths[i] instanceof ClasspathDirectory)) continue;
-// FIXME(SHMOD): crippled
 				ClasspathDirectory classpathDirectory = (ClasspathDirectory) this.classpaths[i];
-//				for (IModule iModule : modules) {
-//					if (!classpathDirectory.servesModule(iModule.name())) continue;
-//					answer = classpathDirectory.findSecondaryInClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
-//					if (answer != null) {
-//						if (!answer.ignoreIfBetter()) {
-//							if (answer.isBetter(suggestedAnswer))
-//								return answer;
-//						} else if (answer.isBetter(suggestedAnswer))
-//							// remember suggestion and keep looking
-//							suggestedAnswer = answer;
-//					}
-//				}
-			}
-			Function<ClasspathDirectory, ITypeLookup> secondaryTypesLookup = d -> {
-				return (t, qPackageName, moduleName2,qBinaryFileName, asBinaryOnly) -> {
-					return d.findSecondaryInClass(t, qPackageName, qBinaryFileName);
-				};
-			};
-			if (moduleName == ModuleBinding.ANY) {
-				answer =  Stream.of(this.classpaths)
-						.filter(env -> env instanceof ClasspathDirectory)
-						.map(p -> (ClasspathDirectory)p)
-						.map(secondaryTypesLookup)
-						.reduce(ITypeLookup::chain)
-						.map(t -> t.findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName)).orElse(null);
-			} else {
-				// FIXME(SHMOD) verify vs. version below
-				String moduleNameString = String.valueOf(moduleName);
-				for (int i = 0, length = this.classpaths.length; i < length; i++) {
-					if (!(this.classpaths[i] instanceof ClasspathDirectory)) continue;
-					ClasspathDirectory classpathDirectory = (ClasspathDirectory) this.classpaths[i];
-					if (classpathDirectory.servesModule(moduleName)) {
-						answer = classpathDirectory.findClass(typeName, qualifiedPackageName, moduleNameString, qualifiedBinaryFileName);
-					}
+				if (moduleName == ModuleBinding.UNNAMED) {
+					if (classpathDirectory.getModule() != null) continue;
+				} else if (moduleName != ModuleBinding.ANY) {
+					if (!classpathDirectory.servesModule(moduleName)) continue;
 				}
-//				answer = context.getEnvironment()
-//						.filter(env -> env instanceof ClasspathDirectory)
-//						.map(p -> (ClasspathDirectory)p)
-//						.map(secondaryTypesLookup)
-//						.reduce(ITypeLookup::chain)
-//						.map(lookup -> lookup.findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName))
-//						.orElse(null);
+				answer = classpathDirectory.findSecondaryInClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
+				if (answer != null) {
+					if (!answer.ignoreIfBetter()) {
+						if (answer.isBetter(suggestedAnswer))
+							return answer;
+					} else if (answer.isBetter(suggestedAnswer))
+						// remember suggestion and keep looking
+						suggestedAnswer = answer;
+				}
 			}
 		}
 		return answer;

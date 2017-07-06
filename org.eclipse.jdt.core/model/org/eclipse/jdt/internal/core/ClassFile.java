@@ -45,7 +45,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
@@ -387,7 +387,7 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 	IBinaryType result = null;
 	IPackageFragmentRoot root = getPackageFragmentRoot();
 	if (getPackageFragmentRoot() instanceof JarPackageFragmentRoot) {
-		if (root instanceof JrtPackageFragmentRoot || this.name.equals(IModuleEnvironment.MODULE_INFO)) {
+		if (root instanceof JrtPackageFragmentRoot || this.name.equals(IModule.MODULE_INFO)) {
 			PackageFragment pkg = (PackageFragment) getParent();
 			JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot) getPackageFragmentRoot();
 			String entryName = jarRoot.getClassFilePath(Util.concatWith(pkg.names, getElementName(), '/'));

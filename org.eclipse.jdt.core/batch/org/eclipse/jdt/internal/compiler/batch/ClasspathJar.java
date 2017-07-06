@@ -36,10 +36,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
-import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
@@ -48,7 +45,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class ClasspathJar extends ClasspathLocation implements IModuleEnvironment {
+public class ClasspathJar extends ClasspathLocation {
 
 protected File file;
 protected ZipFile zipFile;
@@ -209,7 +206,7 @@ void acceptModule(byte[] content) {
 		return;
 	ClassFileReader reader = null;
 	try {
-		reader = new ClassFileReader(content, IModuleEnvironment.MODULE_INFO_CLASS.toCharArray());
+		reader = new ClassFileReader(content, IModule.MODULE_INFO_CLASS.toCharArray());
 	} catch (ClassFormatException e) {
 		e.printStackTrace();
 	}
@@ -297,19 +294,5 @@ public IModule getModule() {
 		return this.module = new AutoModule(this.file.getName().toCharArray());
 	}
 	return this.module;
-}
-@Override
-public ITypeLookup typeLookup() {
-	return this::findClass;
-}
-@Override
-public IPackageLookup packageLookup() {
-	return this::isPackage;
-}
-
-@Override
-public IModuleEnvironment getLookupEnvironment() {
-	// 
-	return this;
 }
 }

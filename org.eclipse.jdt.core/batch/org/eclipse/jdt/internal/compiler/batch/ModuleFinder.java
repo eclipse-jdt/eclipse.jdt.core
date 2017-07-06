@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.PackageExportImpl;
 import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -60,8 +59,8 @@ public class ModuleFinder {
 						String[] list = file.list(new FilenameFilter() {
 							@Override
 							public boolean accept(File dir, String name) {
-								if (dir == file && (name.equalsIgnoreCase(IModuleEnvironment.MODULE_INFO_CLASS)
-										|| name.equalsIgnoreCase(IModuleEnvironment.MODULE_INFO_JAVA))) {
+								if (dir == file && (name.equalsIgnoreCase(IModule.MODULE_INFO_CLASS)
+										|| name.equalsIgnoreCase(IModule.MODULE_INFO_JAVA))) {
 									return true;
 								}
 								return false;
@@ -70,10 +69,10 @@ public class ModuleFinder {
 						if (list.length > 0) {
 							String fileName = list[0];
 							switch (fileName) {
-								case IModuleEnvironment.MODULE_INFO_CLASS:
+								case IModule.MODULE_INFO_CLASS:
 									module = ModuleFinder.extractModuleFromClass(new File(file, fileName), modulePath);
 									break;
-								case IModuleEnvironment.MODULE_INFO_JAVA:
+								case IModule.MODULE_INFO_JAVA:
 									module = ModuleFinder.extractModuleFromSource(new File(file, fileName), parser, modulePath);
 									break;
 							}
@@ -175,7 +174,7 @@ public class ModuleFinder {
 		ZipFile zipFile = null;
 		try {
 			zipFile = new ZipFile(file);
-			ClassFileReader reader = ClassFileReader.read(zipFile, IModuleEnvironment.MODULE_INFO_CLASS);
+			ClassFileReader reader = ClassFileReader.read(zipFile, IModule.MODULE_INFO_CLASS);
 			IModule module = getModule(reader);
 			if (module != null) {
 				return reader.getModuleDeclaration();

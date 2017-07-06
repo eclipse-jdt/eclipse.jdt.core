@@ -27,10 +27,7 @@ import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
-import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
-import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
@@ -42,7 +39,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see org.eclipse.jdt.core.IPackageFragmentRoot
  * @see org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo
  */
-public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IModulePathEntry, IModuleEnvironment {
+public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IModulePathEntry {
 
 	String moduleName;
 	
@@ -134,24 +131,6 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 	}
 
 	@Override
-	public IModuleEnvironment getLookupEnvironment() {
-		// 
-		return this;
-	}
-
-	@Override
-	public ITypeLookup typeLookup() {
-		// No direct way to lookup, use the java model APIs instead
-		return ITypeLookup.Dummy;
-	}
-
-	@Override
-	public IPackageLookup packageLookup() {
-		// No direct way to lookup, use the java model APIs instead
-		return IPackageLookup.Dummy;
-	}
-
-	@Override
 	public IModule getModule() {
 		IModuleDescription desc = getModuleDescription();
 		if (desc != null) {
@@ -168,10 +147,9 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 	public char[][] getModulesDeclaringPackage(String qualifiedPackageName, String requestedModuleName) {
 		if (requestedModuleName != null && !requestedModuleName.equals(this.moduleName))
 			return null;
-		if (isPackage(qualifiedPackageName, requestedModuleName)) {
+		if (getPackageFragment(qualifiedPackageName).exists()) {
 			return new char[][] { requestedModuleName.toCharArray() };
 		}
 		return null;
 	}
-
 }

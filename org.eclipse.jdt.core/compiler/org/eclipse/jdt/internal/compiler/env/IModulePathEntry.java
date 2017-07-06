@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
@@ -58,14 +59,13 @@ public interface IModulePathEntry {
 		return getModule(name) != null;
 	}
 
-	char[][] getModulesDeclaringPackage(String qualifiedPackageName, /*@Nullable*/String moduleName);
-
 	/**
-	 * Return the look up environment for this entry. Should be used when one needs to
-	 * look up types/packages in all the modules contributed by this entry
-	 * 
+	 * Answer the relevant modules that declare the given package.
+	 * If moduleName is ModuleBinding.ANY then all packages are relevant,
+	 * if moduleName is ModuleBinding.UNNAMED, then only packages in the unnamed module are relevant,
+	 * otherwise consider only packages in the module identified by moduleName.
 	 */
-	IModuleEnvironment getLookupEnvironment();
+	char[][] getModulesDeclaringPackage(String qualifiedPackageName, /*@Nullable*/String moduleName);
 
 	/**
 	 * Specifies whether this entry represents an automatic module.
@@ -73,6 +73,11 @@ public interface IModulePathEntry {
 	 * @return true if this is an automatic module, false otherwise
 	 */
 	public default boolean isAutomaticModule() {
+		return false;
+	}
+
+	/** Tests whether the current entry represents the given java project. */
+	public default boolean equalsProject(IJavaProject project) {
 		return false;
 	}
 }

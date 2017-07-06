@@ -25,6 +25,10 @@ public interface IModule {
 	public static IModule[] NO_MODULES = new IModule[0];
 	public static IPackageExport[] NO_OPENS = new IPackageExport[0];
 
+	public String MODULE_INFO = "module-info"; //$NON-NLS-1$
+	public String MODULE_INFO_JAVA = "module-info.java"; //$NON-NLS-1$
+	public String MODULE_INFO_CLASS = "module-info.class"; //$NON-NLS-1$
+
 	public char[] name();
 
 	public IModuleReference[] requires();

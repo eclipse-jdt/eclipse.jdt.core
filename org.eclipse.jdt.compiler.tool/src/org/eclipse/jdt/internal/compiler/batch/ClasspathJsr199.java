@@ -32,13 +32,10 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
-import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnvironment {
+public class ClasspathJsr199 extends ClasspathLocation {
 	private static final Set<JavaFileObject.Kind> fileTypes = new HashSet<>();
 
 	static {
@@ -231,14 +228,6 @@ public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnviron
 		// TODO Auto-generated method stub
 		return null;
 	}
-	@Override
-	public ITypeLookup typeLookup() {
-		return this::findClass;
-	}
-	@Override
-	public IPackageLookup packageLookup() {
-		return this::isPackage;
-	}
 
 	@Override
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName,
@@ -246,11 +235,4 @@ public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnviron
 		//
 		return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false);
 	}
-
-	@Override
-	public IModuleEnvironment getLookupEnvironment() {
-		//
-		return this;
-	}
-
 }

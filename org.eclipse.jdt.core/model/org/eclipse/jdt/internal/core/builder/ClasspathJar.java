@@ -33,11 +33,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
-import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
@@ -111,7 +108,7 @@ protected String readJarContent(final SimpleSet packageSet) {
 			int folderEnd = fileName.lastIndexOf('/');
 			folderEnd += 1;
 			String className = fileName.substring(folderEnd, fileName.length());
-			if (className.equalsIgnoreCase(MODULE_INFO_CLASS)) {
+			if (className.equalsIgnoreCase(IModule.MODULE_INFO_CLASS)) {
 				modInfo = fileName;
 			}
 		}
@@ -339,24 +336,6 @@ public IModule getModule() {
 	if (this.knownPackageNames == null)
 		scanContent();
 	return this.module;
-}
-
-@Override
-public IModuleEnvironment getLookupEnvironment() {
-	//
-	return this;
-}
-
-@Override
-public ITypeLookup typeLookup() {
-	// 
-	return this::findClass;
-}
-
-@Override
-public IPackageLookup packageLookup() {
-	//
-	return this::isPackage;
 }
 
 @Override

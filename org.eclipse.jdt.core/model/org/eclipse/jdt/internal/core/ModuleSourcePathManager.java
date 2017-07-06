@@ -57,7 +57,7 @@ public class ModuleSourcePathManager {
 
 	public void removeEntry(JavaProject javaProject) {
 		Entry<String, IModulePathEntry> entry = this.knownModules.entrySet().stream()
-			.filter(e -> e.getValue().getLookupEnvironment().equals(javaProject))
+			.filter(e -> e.getValue().equalsProject(javaProject))
 			.findFirst()
 			.orElse(null);
 

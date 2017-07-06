@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2016, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,11 +14,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 
 /**
@@ -47,9 +50,8 @@ public class ProjectEntry implements IModulePathEntry {
 	}
 
 	@Override
-	public IModuleEnvironment getLookupEnvironment() {
-		// 
-		return this.project;
+	public boolean equalsProject(IJavaProject otherProject) {
+		return this.project.equals(otherProject);
 	}
 
 	@Override
@@ -67,8 +69,13 @@ public class ProjectEntry implements IModulePathEntry {
 		} else if (!String.valueOf(mod.name()).equals(moduleName)) {
 			return null;
 		}
-		if (this.project.isPackage(qualifiedPackageName, moduleName))
-			return mod != null ? new char[][] { mod.name() } : CharOperation.NO_CHAR_CHAR;
+		try {
+			IJavaElement element = this.project.findElement(new Path(qualifiedPackageName.replace('.', '/')));
+			if (element instanceof IPackageFragment)
+				return mod != null ? new char[][] { mod.name() } : CharOperation.NO_CHAR_CHAR;
+		} catch (JavaModelException e) {
+			return null;
+		}
 		return null;
 	}
 }

@@ -91,7 +91,6 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerStats;
@@ -3095,7 +3094,7 @@ private IModule extractModuleDesc(String fileName) {
 	opts.put(CompilerOptions.OPTION_Source, this.options.get(CompilerOptions.OPTION_Compliance));
 	Parser parser = new Parser(new ProblemReporter(getHandlingPolicy(), 
 			new CompilerOptions(opts), getProblemFactory()), false);
-	if (fileName.toLowerCase().endsWith(IModuleEnvironment.MODULE_INFO_JAVA)) {
+	if (fileName.toLowerCase().endsWith(IModule.MODULE_INFO_JAVA)) {
 		
 		ICompilationUnit cu = new CompilationUnit(null, fileName, null);
 		CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
@@ -3103,7 +3102,7 @@ private IModule extractModuleDesc(String fileName) {
 		if (unit.isModuleInfo() && unit.moduleDeclaration != null) {
 			mod = new BasicModule(unit.moduleDeclaration, null);
 		}
-	} else if (fileName.toLowerCase().endsWith(IModuleEnvironment.MODULE_INFO_CLASS)) {
+	} else if (fileName.toLowerCase().endsWith(IModule.MODULE_INFO_CLASS)) {
 		try {
 			ClassFileReader reader = ClassFileReader.read(fileName); // Check the absolute path?
 			mod = reader.getModuleDeclaration();

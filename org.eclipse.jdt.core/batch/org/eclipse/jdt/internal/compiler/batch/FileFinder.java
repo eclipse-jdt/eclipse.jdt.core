@@ -18,7 +18,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 
 public class FileFinder {
 
@@ -48,7 +48,7 @@ private static void find0(File f, String pattern, List<String> collector) {
 				if (name.endsWith(pattern)) {
 					// NOTE: This handles only the lower case name. Check with the spec about
 					// Naming of the module descriptor before making this code code insensitive.
-					if (name.endsWith(IModuleEnvironment.MODULE_INFO_JAVA)) {
+					if (name.endsWith(IModule.MODULE_INFO_JAVA)) {
 						collector.add(0, current.getAbsolutePath());
 					} else {
 						collector.add(current.getAbsolutePath());

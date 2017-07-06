@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Stream;
 import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -40,7 +39,6 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
-import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdatesByKind;
@@ -375,13 +373,43 @@ private NameEnvironmentAnswer internalFindClass(String qualifiedTypeName, char[]
 			? Util.EMPTY_STRING
 			: qualifiedBinaryFileName.substring(0, qualifiedTypeName.length() - typeName.length - 1);
 
-	if (moduleName == ModuleBinding.ANY) {
-		// TODO(SHMOD): revert to Java 8 version?
-		return Stream.of(this.classpaths)
-				.map(p -> p.getLookupEnvironment().typeLookup())
-				.reduce(ITypeLookup::chain)
-				.map(t -> t.findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly)).orElse(null);
+	if (moduleName == ModuleBinding.ANY || moduleName == ModuleBinding.UNNAMED || this.moduleLocations == null) {
+		String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
+		NameEnvironmentAnswer suggestedAnswer = null;
+		if (qualifiedPackageName == qp2) {
+			for (int i = 0, length = this.classpaths.length; i < length; i++) {
+				if (moduleName == ModuleBinding.UNNAMED && this.classpaths[i].getModule() != null) continue;
+				NameEnvironmentAnswer answer = this.classpaths[i].findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly);
+				if (answer != null) {
+					if (!answer.ignoreIfBetter()) {
+						if (answer.isBetter(suggestedAnswer))
+							return answer;
+					} else if (answer.isBetter(suggestedAnswer))
+						// remember suggestion and keep looking
+						suggestedAnswer = answer;
+				}
+			}
+		} else {
+			String qb2 = qualifiedBinaryFileName.replace('/', File.separatorChar);
+			for (int i = 0, length = this.classpaths.length; i < length; i++) {
+				Classpath p = this.classpaths[i];
+				if (moduleName == ModuleBinding.UNNAMED && p.getModule() != null) continue;
+				NameEnvironmentAnswer answer = (p instanceof ClasspathJar)
+					? p.findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly)
+					: p.findClass(typeName, qp2, null, qb2, asBinaryOnly);
+				if (answer != null) {
+					if (!answer.ignoreIfBetter()) {
+						if (answer.isBetter(suggestedAnswer))
+							return answer;
+					} else if (answer.isBetter(suggestedAnswer))
+						// remember suggestion and keep looking
+						suggestedAnswer = answer;
+				}
+			}
+		}
+		return suggestedAnswer;
 	}
+	// searching for a specific named module:
 	String moduleNameString = String.valueOf(moduleName);
 	Classpath classpath = this.moduleLocations.get(moduleNameString);
 	if (classpath != null) {
