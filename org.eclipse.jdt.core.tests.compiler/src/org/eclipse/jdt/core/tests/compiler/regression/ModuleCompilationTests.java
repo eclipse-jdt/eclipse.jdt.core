@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
 
-public class ModuleCompilationTests extends BatchCompilerTest {
+public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 
 	static {
 //		 TESTS_NAMES = new String[] { "test035" };
@@ -40,7 +40,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		return buildMinimalComplianceTestSuite(testClass(), F_9);
 	}
 
-	public static Class testClass() {
+	public static Class<?> testClass() {
 		return ModuleCompilationTests.class;
 	}
 
