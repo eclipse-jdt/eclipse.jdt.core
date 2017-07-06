@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.UsesStatement;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 
@@ -205,14 +206,17 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 		mod.isOpen = module.isOpen();
 		if (module.requiresCount > 0) {
 			RequiresStatement[] refs = module.requires;
-			mod.requires = new ModuleReferenceInfo[refs.length];
+			mod.requires = new ModuleReferenceInfo[refs.length+1];
+			mod.requires[0] = getJavaBaseReference();
 			for (int i = 0; i < refs.length; i++) {
-				mod.requires[i] = new ModuleReferenceInfo();
-				mod.requires[i].name = CharOperation.concatWith(refs[i].module.tokens, '.'); // Check why ModuleReference#tokens must be a char[][] and not a char[] or String;
-				mod.requires[i].modifiers = refs[i].modifiers;
+				mod.requires[i+1] = new ModuleReferenceInfo();
+				mod.requires[i+1].name = CharOperation.concatWith(refs[i].module.tokens, '.'); // Check why ModuleReference#tokens must be a char[][] and not a char[] or String;
+				mod.requires[i+1].modifiers = refs[i].modifiers;
 			}
 		} else {
-			mod.requires = NO_REQUIRES;
+			mod.requires = CharOperation.equals(module.moduleName, TypeConstants.JAVA_BASE) 
+					? NO_REQUIRES 
+					: new ModuleReferenceInfo[] { getJavaBaseReference() };
 		}
 		if (module.exportsCount > 0) {
 			ExportsStatement[] refs = module.exports;
@@ -253,6 +257,12 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 			mod.opens = NO_OPENS;
 		}
 		return mod;
+	}
+
+	private static ModuleReferenceInfo getJavaBaseReference() {
+		ModuleReferenceInfo ref = new ModuleReferenceInfo();
+		ref.name = TypeConstants.JAVA_BASE;
+		return ref;
 	}
 
 	private static PackageExportInfo createPackageExport(ExportsStatement ref) {
@@ -370,7 +380,7 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 			buffer.append('\n');
 			for(int i = 0; i < this.usedServices.length; i++) {
 				buffer.append("\tuses "); //$NON-NLS-1$
-				buffer.append(this.usedServices[i].toString()).append('\n');
+				buffer.append(this.usedServices[i]).append('\n');
 			}
 		}
 		if (this.services != null && this.services.length > 0) {

@@ -37,16 +37,19 @@ public class SourceModuleBinding extends ModuleBinding {
 
 	public void setRequires(ModuleBinding[] requires, ModuleBinding[] requiresTransitive) {
 		// TODO(SHMOD): it's a bit awkward that we may get called after applyModuleUpdates() has already worked.
-		this.requires = merge(this.requires, requires, ModuleBinding[]::new);
-		this.requiresTransitive = merge(this.requiresTransitive, requiresTransitive, ModuleBinding[]::new);
+		ModuleBinding javaBase = this.environment.javaBaseModule();
+		if (javaBase.isUnnamed()) // happens when no java.base can be found in the name environment.
+			javaBase = null;
+		this.requires = merge(this.requires, requires, javaBase, ModuleBinding[]::new);
+		this.requiresTransitive = merge(this.requiresTransitive, requiresTransitive, null, ModuleBinding[]::new);
 	}
 	
 	public void setUses(TypeBinding[] uses) {
-		this.uses = merge(this.uses, uses, TypeBinding[]::new);
+		this.uses = merge(this.uses, uses, null, TypeBinding[]::new);
 	}
 
 	public void setServices(TypeBinding[] services) {
-		this.services = merge(this.services, services, TypeBinding[]::new);
+		this.services = merge(this.services, services, null, TypeBinding[]::new);
 	}
 
 	public void setImplementations(TypeBinding infBinding, Collection<TypeBinding> resolvedImplementations) {
@@ -55,17 +58,20 @@ public class SourceModuleBinding extends ModuleBinding {
 		this.implementations.put(infBinding, resolvedImplementations.toArray(new TypeBinding[resolvedImplementations.size()]));
 	}
 
-	private <T> T[] merge(T[] one, T[] two, IntFunction<T[]> supplier) {
-		if (one.length == 0) {
+	private <T> T[] merge(T[] one, T[] two, T extra, IntFunction<T[]> supplier) {
+		if (one.length == 0 && extra == null) {
 			if (two.length > 0)
 				return two;
 			return one;
 		}
+		int len0 = extra == null ? 0 : 1;
 		int len1 = one.length;
 		int len2 = two.length;
-		T[] result = supplier.apply(len1+len2);
-		System.arraycopy(one, 0, result, 0, len1);
-		System.arraycopy(two, 0, result, len1, len2);
+		T[] result = supplier.apply(len0+len1+len2);
+		if (extra != null)
+			result[0] = extra;
+		System.arraycopy(one, 0, result, len0, len1);
+		System.arraycopy(two, 0, result, len0+len1, len2);
 		return result;
 	}
 	
