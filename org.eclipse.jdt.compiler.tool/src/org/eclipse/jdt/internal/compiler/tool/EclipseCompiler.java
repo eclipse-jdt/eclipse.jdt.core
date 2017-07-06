@@ -209,6 +209,16 @@ public class EclipseCompiler implements JavaCompiler {
 				temp.toArray(processors2);
 				eclipseCompiler2.processors = processors2;
 			}
+			@Override
+			public void addModules(Iterable<String> mods) {
+				ArrayList<String> temp = new ArrayList<>();
+				for (String mod : mods) {
+					temp.add(mod);
+				}
+				String[] mods2 = new String[temp.size()];
+				temp.toArray(mods2);
+				eclipseCompiler2.modules = mods2;
+			}
 		};
 	}
 	/*

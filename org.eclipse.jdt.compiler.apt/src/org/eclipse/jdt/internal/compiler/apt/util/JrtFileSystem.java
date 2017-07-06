@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 IBM Corporation.
+ * Copyright (c) 2015, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,142 +22,128 @@ import java.io.Reader;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
-import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipException;
 
+import javax.tools.JavaFileObject;
+
+import org.eclipse.jdt.internal.compiler.apt.util.ModuleLocationHandler.ModuleLocationWrapper;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 
 public class JrtFileSystem extends Archive {
 
 	private static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
 	
-	private static final String BOOT_MODULE = "jrt-fs.jar"; //$NON-NLS-1$
+	static final String BOOT_MODULE = "jrt-fs.jar"; //$NON-NLS-1$
 	
-	private static final String MODULES_SUBDIR = "/modules"; //$NON-NLS-1$
-	
-	private static final String DEFAULT_PACKAGE = ""; //$NON-NLS-1$
-
-	private Set<String> typesCache = null;
+	public HashMap<String, Path> modulePathMap;
+	Path modules;
+	private java.nio.file.FileSystem jrtfs;
 	
 	public JrtFileSystem(File file) throws ZipException, IOException {
 		this.file = file;
 		initialize();
 	}
 	
-	private void initialize() throws IOException {
+	public void initialize() throws IOException {
 		// initialize packages
-		this.packagesCache = new Hashtable<>();
-		this.typesCache = new HashSet<>();
-		if (!this.file.getName().equals(BOOT_MODULE)) return;
-		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JRT_URI);
-		Iterable<java.nio.file.Path> roots = fs.getRootDirectories();
-		for (java.nio.file.Path path : roots) {
-			try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(path)) {
-				for (final java.nio.file.Path subdir: stream) {
-					if (subdir.toString().equals(MODULES_SUBDIR)) {
-						Files.walkFileTree(subdir, new FileVisitor<java.nio.file.Path>() {
+		this.modulePathMap = new HashMap<>();
+		URL jrtPath = null;
 
-							@Override
-							public FileVisitResult preVisitDirectory(java.nio.file.Path entry, BasicFileAttributes attrs)
-									throws IOException {
-								int count = entry.getNameCount();
-								if (count < 2) return FileVisitResult.CONTINUE;
-								return FileVisitResult.CONTINUE;
-							}
-
-							@Override
-							public FileVisitResult visitFile(java.nio.file.Path entry, BasicFileAttributes attrs) throws IOException {
-								int count = entry.getNameCount();
-								if (entry == subdir || count < 3) return FileVisitResult.CONTINUE;
-								if (count == 3) {
-									cacheTypes(DEFAULT_PACKAGE, entry.getName(2).toString(), entry.getName(1).toString());
-								} else {
-									cacheTypes(entry.subpath(2, count - 1).toString(), 
-										entry.getName(count - 1).toString(), entry.getName(1).toString());
-								}
-								return FileVisitResult.CONTINUE;
-							}
-
-							@Override
-							public FileVisitResult visitFileFailed(java.nio.file.Path entry, IOException exc) throws IOException {
-								return FileVisitResult.CONTINUE;
-							}
-
-							@Override
-							public FileVisitResult postVisitDirectory(java.nio.file.Path entry, IOException exc) throws IOException {
-								return FileVisitResult.CONTINUE;
-							}
-						});
-					}
-				}
-			} catch (Exception e) {
-				throw new IOException(e.getMessage());
+		if (this.file.exists()) {
+			jrtPath = Paths.get(this.file.toPath().toString(), "lib", JRTUtil.JRT_FS_JAR).toUri().toURL(); //$NON-NLS-1$
+			try (URLClassLoader loader = new URLClassLoader(new URL[] { jrtPath })) {
+				HashMap<String, ?> env = new HashMap<>();
+				this.jrtfs = FileSystems.newFileSystem(JRT_URI, env, loader);
+				this.modules = this.jrtfs.getPath("/modules"); //$NON-NLS-1$
 			}
+		} else {
+			return;
 		}
+
+		org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(this.file,
+				new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
+
+			@Override
+			public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs)
+					throws IOException {
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult visitFile(Path f, Path mod, BasicFileAttributes attrs)
+					throws IOException {
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult visitModule(Path mod) throws IOException {
+				JrtFileSystem.this.modulePathMap.put(mod.getFileName().toString(), mod);
+				return FileVisitResult.CONTINUE;
+			}
+		}, JRTUtil.NOTIFY_MODULES);
 	}
-	
-	public ArchiveFileObject getArchiveFileObject(String fileName, Charset charset) {
-		return new JrtFileObject(this.file, fileName, null, charset);
+
+	public List<JrtFileObject> list(ModuleLocationWrapper location, String packageName,
+			Set<JavaFileObject.Kind> kinds, boolean recurse, Charset charset) {
+    	String module = location.modName;
+    	Path mPath = this.modules.resolve(module);
+    	Path resolve = mPath.resolve(packageName);
+    	java.util.List<Path> files = null;
+        try (Stream<Path> p = Files.list(resolve)) {
+            files = p.filter((path) -> {
+            	if (Files.isDirectory(path))
+            		return false;
+            	else 
+            		return true;
+            }).collect(Collectors.toList());
+        } catch (IOException e) {
+        	// ignore
+        }
+        List<JrtFileObject> result = new ArrayList<>();
+        for (Path p: files) {
+        	result.add(new JrtFileObject(this.file, p, module, charset));
+        }
+        return result;
+    }
+	@Override
+	public ArchiveFileObject getArchiveFileObject(String fileName, String module, Charset charset) {
+		return new JrtFileObject(this.file, this.modules.resolve(module).resolve(fileName), module, charset);
 	}
-	
+
 	@Override
 	public boolean contains(String entryName) {
-		return this.typesCache.contains(entryName);
+		// FIXME
+		return false;
 	}
 
-	protected void cacheTypes(String packageName, String typeName, String module) {
-		int length = packageName.length();
-		if (length > 0 && packageName.charAt(packageName.length() - 1) != '/') {
-			packageName = packageName + '/'; 
-		}
-		ArrayList<String[]> types = this.packagesCache.get(packageName);
-		if (typeName == null) return;
-		if (types == null) {
-			types = new ArrayList<>();
-			types.add(new String[]{typeName, module});
-			this.packagesCache.put(packageName, types);
-		} else {
-			types.add(new String[]{typeName, module});
-		}
-		this.typesCache.add(packageName + typeName);
-	}
-	@Override
-	public List<String[]> getTypes(String packageName) {
-		// package name is expected to ends with '/'
-		if (this.packagesCache == null) {
-			try {
-				this.initialize();
-			} catch(IOException e) {
-				return Collections.<String[]>emptyList();
-			}
-		}
-		return this.packagesCache.get(packageName);
-	}
-	
 	@Override
 	public String toString() {
 		return "JRT: " + (this.file == null ? "UNKNOWN_ARCHIVE" : this.file.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	class JrtFileObject extends ArchiveFileObject {
-		IModule module = null; // FIXME(SHMOD): always null?? https://bugs.eclipse.org/517059
-		private JrtFileObject(File file, String fileName, IModule module, Charset charset) {
-			super(file, fileName, charset);
-			this.module = module;
+		String module;
+		Path path;
+		private JrtFileObject(File file, Path path, String module, Charset charset) {
+			super(file, path.toString(), charset);
+			this.path = path;
 		}
 
 		@Override
@@ -169,7 +155,9 @@ public class JrtFileSystem extends Archive {
 		protected ClassFileReader getClassReader() {
 			ClassFileReader reader = null;
 			try {
-				reader = ClassFileReader.readFromJrt(this.file, this.module, this.entryName);
+				byte[] content = JRTUtil.getClassfileContent(this.file, this.entryName, this.module);
+				if (content == null) return null;
+				return new ClassFileReader(content, this.entryName.toCharArray());
 			} catch (ClassFormatException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -186,12 +174,12 @@ public class JrtFileSystem extends Archive {
 		public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
 			try {
 				return Util.getCharContents(this, ignoreEncodingErrors,
-						org.eclipse.jdt.internal.compiler.util.JRTUtil.getClassfileContent(this.file, this.entryName, new String(this.module.name())),
+						org.eclipse.jdt.internal.compiler.util.JRTUtil.getClassfileContent(this.file, this.entryName, this.module),
 						this.charset.name());
 			} catch (ClassFormatException e) {
 				e.printStackTrace();
+				return null;
 			}
-			return null;
 		}
 
 		/* (non-Javadoc)
@@ -207,7 +195,7 @@ public class JrtFileSystem extends Archive {
 		 */
 		@Override
 		public String getName() {
-			return this.entryName;
+			return this.path.toString();
 		}
 
 		/* (non-Javadoc)
@@ -215,7 +203,7 @@ public class JrtFileSystem extends Archive {
 		 */
 		@Override
 		public InputStream openInputStream() throws IOException {
-			return org.eclipse.jdt.internal.compiler.util.JRTUtil.getContentFromJrt(this.file, this.entryName, null);
+			return Files.newInputStream(this.path);
 		}
 
 		/* (non-Javadoc)

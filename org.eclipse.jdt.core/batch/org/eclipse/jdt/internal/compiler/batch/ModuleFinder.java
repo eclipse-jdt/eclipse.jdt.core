@@ -18,7 +18,6 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -39,34 +38,45 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ModuleFinder {
 
-	protected static List<FileSystem.Classpath> findModules(File f, String destinationPath, Parser parser, Map<String, String> options, boolean isModulepath) {
+	public static List<FileSystem.Classpath> findModules(File f, String destinationPath, Parser parser, Map<String, String> options, boolean isModulepath) {
 		List<FileSystem.Classpath> collector = new ArrayList<>();
-		if (f.isDirectory()) {
-			File[] files = f.listFiles();
-			if (files == null) 
-				return Collections.EMPTY_LIST;
-			for (final File file : files) {
-				Classpath modulePath = findModule(file, destinationPath, parser, options, isModulepath);
-				if (modulePath != null)
-					collector.add(modulePath);
-			}
-		}
+		scanForModules(destinationPath, parser, options, isModulepath, false, collector, f);
 		return collector;
 	}
-	protected static FileSystem.Classpath findModule(final File file, String destinationPath, Parser parser, Map<String, String> options, boolean isModulepath) {
-		FileSystem.Classpath modulePath = FileSystem.getClasspath(
+
+	protected static FileSystem.Classpath findModule(final File file, String destinationPath, Parser parser,
+			Map<String, String> options, boolean isModulepath) {
+		FileSystem.Classpath modulePath = FileSystem.getClasspath(file.getAbsolutePath(), null, !isModulepath, null,
+				destinationPath == null ? null : (destinationPath + File.separator + file.getName()), options);
+		if (modulePath != null) {
+			scanForModule(modulePath, file, parser, isModulepath);
+		}
+		return modulePath;
+	}
+	protected static void scanForModules(String destinationPath, Parser parser, Map<String, String> options, boolean isModulepath, 
+			boolean thisAnAutomodule, List<FileSystem.Classpath> collector, final File file) {
+		FileSystem.Classpath entry = FileSystem.getClasspath(
 				file.getAbsolutePath(),
 				null,
 				!isModulepath,
 				null,
 				destinationPath == null ? null : (destinationPath + File.separator + file.getName()), 
 				options);
-		if (modulePath != null) {
-			scanForModule(modulePath, file, parser, isModulepath);
+		if (entry != null) {
+			IModule module = scanForModule(entry, file, parser, thisAnAutomodule);
+			if (module != null) {
+				collector.add(entry);
+			} else {
+				if (file.isDirectory()) {
+					File[] files = file.listFiles();
+					for (File f : files) {
+						scanForModules(destinationPath, parser, options, isModulepath, isModulepath, collector, f);
+					}
+				}
+			}
 		}
-		return modulePath;
 	}
-	protected static IModule scanForModule(FileSystem.Classpath modulePath, final File file, Parser parser, boolean isModulepath) {
+	protected static IModule scanForModule(FileSystem.Classpath modulePath, final File file, Parser parser, boolean considerAutoModules) {
 		IModule module = null;
 		if (file.isDirectory()) {
 			String[] list = file.list(new FilenameFilter() {
@@ -97,7 +107,7 @@ public class ModuleFinder {
 		} else if (isJar(file)) {
 			module = extractModuleFromJar(file, modulePath);
 		}
-		if (isModulepath && module == null && !(modulePath instanceof ClasspathJrt)) {
+		if (considerAutoModules && module == null && !(modulePath instanceof ClasspathJrt)) {
 			module = IModule.createAutomatic(getFileName(file), file.isFile(), getManifest(file));
 		}
 		if (module != null)
@@ -203,7 +213,7 @@ public class ModuleFinder {
 			}
 			return null;
 		} catch (ClassFormatException | IOException e) {
-			e.printStackTrace();
+			// Nothing to be done here
 		} finally {
 			if (zipFile != null) {
 				try {

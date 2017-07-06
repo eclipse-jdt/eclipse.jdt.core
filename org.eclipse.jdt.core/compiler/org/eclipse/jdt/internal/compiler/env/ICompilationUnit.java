@@ -72,4 +72,7 @@ default ModuleBinding module(LookupEnvironment environment) {
 default char[] getModuleName() {
 	return null;
 }
+default String getDestinationPath() {
+	return null;
+}
 }

@@ -131,4 +131,7 @@ public ModuleBinding module(LookupEnvironment rootEnvironment) {
 	}
 	return rootEnvironment.UnNamedModule;
 }
+public String getDestinationPath() {
+	return this.destinationPath;
+}
 }

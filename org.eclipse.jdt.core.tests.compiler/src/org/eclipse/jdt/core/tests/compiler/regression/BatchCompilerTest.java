@@ -52,6 +52,7 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
@@ -12561,7 +12562,8 @@ public void test385780_warn_option() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405225
 public void test405225_extdirs() {
-	// check the option introduced in bug 359721
+	if (AbstractCompilerTest.isJRE9)
+		return;
 	this.runConformTest(
 		new String[] {
 			"X.java",

@@ -43,10 +43,11 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry {
-	protected File file;
+	public File file;
 	protected ZipFile annotationZipFile;
 	protected boolean closeZipFileAtEnd;
 	private static HashMap<String, Map<String,IModule>> ModulesCache = new HashMap<>();
+	public HashMap<String, Path> modulePathMap;
 	//private Set<String> packageCache;
 	protected List<String> annotationPaths;
 
@@ -55,6 +56,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 		super(accessRuleSet, destinationPath);
 		this.file = file;
 		this.closeZipFileAtEnd = closeZipFileAtEnd;
+		this.modulePathMap = new HashMap<>();
 	}
 
 	public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
@@ -134,7 +136,10 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 
 				@Override
 				public FileVisitResult visitFile(java.nio.file.Path dir, java.nio.file.Path modPath, BasicFileAttributes attrs) throws IOException {
-					if (!dir.getParent().toString().equals(qualifiedPackageName)) {
+					Path parent = dir.getParent();
+					if (parent == null)
+						return FileVisitResult.CONTINUE;
+					if (!parent.toString().equals(qualifiedPackageName)) {
 						return FileVisitResult.CONTINUE;
 					}
 					String fileName = dir.getName(dir.getNameCount() - 1).toString();
@@ -209,6 +214,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 					public FileVisitResult visitModule(Path mod) throws IOException {
 						try {
 							ClasspathJrt.this.acceptModule(JRTUtil.getClassfileContent(ClasspathJrt.this.file, IModule.MODULE_INFO_CLASS, mod.toString()));
+							ClasspathJrt.this.modulePathMap.put(mod.getFileName().toString(), mod);
 						} catch (ClassFormatException e) {
 							e.printStackTrace();
 						}

@@ -242,10 +242,16 @@ public synchronized char[][] getModulesDeclaringPackage(String qualifiedPackageN
 }
 @Override
 public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
+	qualifiedPackageName += '/';
 	for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
 		String fileName = e.nextElement().getName();
-		if (fileName.startsWith(qualifiedPackageName) && fileName.toLowerCase().endsWith(SUFFIX_STRING_class))
-			return true;
+		if (fileName.startsWith(qualifiedPackageName) && fileName.length() > qualifiedPackageName.length()) {
+			String tail = fileName.substring(qualifiedPackageName.length());
+			if (tail.indexOf('/') != -1)
+				continue;
+			if (tail.toLowerCase().endsWith(SUFFIX_STRING_class))
+				return true;
+		}
 	}	
 	return false;
 }

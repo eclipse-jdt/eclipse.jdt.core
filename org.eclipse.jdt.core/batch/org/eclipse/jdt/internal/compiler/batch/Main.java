@@ -1405,6 +1405,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public Logger logger;
 	public int maxProblems;
 	public Map<String, String> options;
+	long complianceLevel;
 	public char[][] ignoreOptionalProblemsFromFolders;
 	protected PrintWriter out;
 	public boolean proceed = true;
@@ -1841,6 +1842,7 @@ public void configure(String[] argv) {
 	final int INSIDE_ADD_EXPORTS = 25;
 	final int INSIDE_ADD_READS = 26;
 	final int INSIDE_SYSTEM = 27;
+	final int INSIDE_PROCESSOR_MODULE_PATH_start = 28;
 
 	final int DEFAULT = 0;
 	ArrayList<String> bootclasspaths = new ArrayList<>(DEFAULT_SIZE_CLASSPATH);
@@ -2191,7 +2193,7 @@ public void configure(String[] argv) {
 					mode = INSIDE_SYSTEM;
 					continue;
 				}
-				if (currentArg.equals("--module-path") || currentArg.equals("-p")) { //$NON-NLS-1$ //$NON-NLS-2$
+				if (currentArg.equals("--module-path") || currentArg.equals("-p") || currentArg.equals("--processor-module-path")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					mode = INSIDE_MODULEPATH_start;
 					continue;
 				}
@@ -2598,6 +2600,10 @@ public void configure(String[] argv) {
 					mode = INSIDE_PROCESSOR_start;
 					continue;
 				}
+				if (currentArg.equals("--processor-module-path")) { //$NON-NLS-1$
+					mode = INSIDE_PROCESSOR_MODULE_PATH_start;
+					continue;
+				}
 				if (currentArg.equals("-proc:only")) { //$NON-NLS-1$
 					this.options.put(
 						CompilerOptions.OPTION_GenerateClassFiles,
@@ -2856,6 +2862,9 @@ public void configure(String[] argv) {
 				continue;
 			case INSIDE_PROCESSOR_start :
 				// nothing to do here. This is consumed again by the AnnotationProcessorManager
+				mode = DEFAULT;
+				continue;
+			case INSIDE_PROCESSOR_MODULE_PATH_start :
 				mode = DEFAULT;
 				continue;
 			case INSIDE_S_start :
@@ -4550,7 +4559,6 @@ public void outputClassFiles(CompilationResult unitResult) {
  *  Low-level API performing the actual compilation
  */
 public void performCompilation() {
-
 	this.startTime = System.currentTimeMillis();
 
 	FileSystem environment = getLibraryAccess();
@@ -4631,30 +4639,52 @@ private ReferenceBinding[] processClassNames(LookupEnvironment environment) {
 	// check for .class file presence in case of apt processing
 	int length = this.classNames.length;
 	ReferenceBinding[] referenceBindings = new ReferenceBinding[length];
-	for (int i = 0; i < length; i++) {
-		String currentName = this.classNames[i];
-		char[][] compoundName = null;
-		int idx = currentName.indexOf('/');
-		ModuleBinding mod = null;
-		if (idx > 0) {
-			String m = currentName.substring(0, idx);
-			mod = environment.getModule(m.toCharArray());
-			if (mod == null) {
-				throw new IllegalArgumentException(this.bind("configure.invalidModuleName", m)); //$NON-NLS-1$
+	ModuleBinding[] modules = new ModuleBinding[length];
+	Set<ModuleBinding> modSet = new HashSet<>();
+	String[] typeNames = new String[length];
+	if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
+		typeNames = this.classNames;
+	} else {
+		for (int i = 0; i < length; i++) {
+			String currentName = this.classNames[i];
+			int idx = currentName.indexOf('/');
+			ModuleBinding mod = null;
+			if (idx > 0) {
+				String m = currentName.substring(0, idx);
+				mod = environment.getModule(m.toCharArray());
+				if (mod == null) {
+					throw new IllegalArgumentException(this.bind("configure.invalidModuleName", m)); //$NON-NLS-1$
+				}
+				modules[i] = mod;
+				modSet.add(mod);
+				currentName = currentName.substring(idx + 1);
 			}
-			currentName = currentName.substring(idx + 1);
+			typeNames[i] = currentName;
 		}
-		if (currentName.indexOf('.') != -1) {
+		for (ModuleBinding mod : modSet) {
+			mod.getExports();
+			mod.getRequires();
+			mod.getOpens();
+			mod.getServices();
+		}
+	}
+
+	for (int i = 0; i < length; i++) {
+		char[][] compoundName = null;
+		String cls = typeNames[i];
+		if (cls.indexOf('.') != -1) {
 			// consider names with '.' as fully qualified names
-			char[] typeName = currentName.toCharArray();
+			char[] typeName = cls.toCharArray();
 			compoundName = CharOperation.splitOn('.', typeName);
 		} else {
-			compoundName = new char[][] { currentName.toCharArray() };
+			compoundName = new char[][] { cls.toCharArray() };
 		}
+		ModuleBinding mod = modules[i];
 		ReferenceBinding type = mod != null ? environment.getType(compoundName, mod) : environment.getType(compoundName);
 		if (type != null && type.isValidBinding()) {
 			if (type.isBinaryBinding()) {
 				referenceBindings[i] = type;
+				type.superclass();
 			}
 		} else {
 			throw new IllegalArgumentException(
@@ -5019,8 +5049,12 @@ protected void setPaths(ArrayList<String> bootclasspaths,
 		ArrayList<String> endorsedDirClasspaths,
 		String customEncoding) {
 
-	String version = this.options.get(CompilerOptions.OPTION_Compliance);
-	if (CompilerOptions.versionToJdkLevel(version) > ClassFileConstants.JDK1_8) {
+	if (this.complianceLevel == 0) {
+		String version = this.options.get(CompilerOptions.OPTION_Compliance);
+		this.complianceLevel = CompilerOptions.versionToJdkLevel(version);
+	}
+
+	if (this.complianceLevel > ClassFileConstants.JDK1_8) {
 		if (bootclasspaths != null && bootclasspaths.size() > 0)
 			throw new IllegalArgumentException(
 				this.bind("configure.unsupportedOption", "-bootclasspath")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -5218,25 +5252,28 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 	}
 
 	final String sourceVersion = this.options.get(CompilerOptions.OPTION_Source);
-	final String compliance = this.options.get(CompilerOptions.OPTION_Compliance);
+	if (this.complianceLevel == 0) {
+		final String compliance = this.options.get(CompilerOptions.OPTION_Compliance);
+		this.complianceLevel = CompilerOptions.versionToJdkLevel(compliance);
+	}
 	if (sourceVersion.equals(CompilerOptions.VERSION_1_8)
-			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_8) {
+			&& this.complianceLevel < ClassFileConstants.JDK1_8) {
 		// compliance must be 1.8 if source is 1.8
 		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_8)); //$NON-NLS-1$
 	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_7)
-			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_7) {
+			&& this.complianceLevel < ClassFileConstants.JDK1_7) {
 		// compliance must be 1.7 if source is 1.7
 		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_7)); //$NON-NLS-1$
 	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_6)
-			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_6) {
+			&& this.complianceLevel < ClassFileConstants.JDK1_6) {
 		// compliance must be 1.6 if source is 1.6
 		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_6)); //$NON-NLS-1$
 	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_5)
-			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_5) {
+			&& this.complianceLevel < ClassFileConstants.JDK1_5) {
 		// compliance must be 1.5 if source is 1.5
 		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_5)); //$NON-NLS-1$
 	} else if (sourceVersion.equals(CompilerOptions.VERSION_1_4)
-			&& CompilerOptions.versionToJdkLevel(compliance) < ClassFileConstants.JDK1_4) {
+			&& this.complianceLevel < ClassFileConstants.JDK1_4) {
 		// compliance must be 1.4 if source is 1.4
 		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
 	}
@@ -5254,7 +5291,7 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 			if (this.didSpecifySource && CompilerOptions.versionToJdkLevel(sourceVersion) >= ClassFileConstants.JDK1_4) {
 				throw new IllegalArgumentException(this.bind("configure.incompatibleSourceForCldcTarget", targetVersion, sourceVersion)); //$NON-NLS-1$
 			}
-			if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK1_5) {
+			if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 				throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForCldcTarget", targetVersion, sourceVersion)); //$NON-NLS-1$
 			}
 		} else {
@@ -5284,7 +5321,7 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 				throw new IllegalArgumentException(this.bind("configure.incompatibleTargetForSource", targetVersion, CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
 			}
 			// target cannot be greater than compliance level
-			if (CompilerOptions.versionToJdkLevel(compliance) < CompilerOptions.versionToJdkLevel(targetVersion)){
+			if (this.complianceLevel < CompilerOptions.versionToJdkLevel(targetVersion)){
 				throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForTarget", this.options.get(CompilerOptions.OPTION_Compliance), targetVersion)); //$NON-NLS-1$
 			}
 		}
