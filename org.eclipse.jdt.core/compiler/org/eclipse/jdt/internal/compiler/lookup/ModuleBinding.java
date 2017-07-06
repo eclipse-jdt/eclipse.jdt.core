@@ -313,8 +313,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	 *   An array of all required modules
 	 */
 	public ModuleBinding[] getAllRequiredModules() {
-//		if (this.requiredModules != null) // FIXME(SHMOD): for caching: when invoked? must have resolved first)
-//			return this.requiredModules;
+		if (this.requiredModules != null)
+			return this.requiredModules;
 
 		Collection<ModuleBinding> allRequires = dependencyCollector().get();
 		if (allRequires.contains(this)) {
