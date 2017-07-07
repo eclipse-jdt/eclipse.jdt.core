@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -31,6 +35,7 @@ import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
+import org.eclipse.jdt.internal.core.search.matching.ModulePattern;
 
 /**
  * Selects the indexes that correspond to projects in a given search scope
@@ -200,7 +205,7 @@ private void initializeIndexLocations() {
 	IndexManager manager = JavaModelManager.getIndexManager();
 	// use a linked set to preserve the order during search: see bug 348507
 	LinkedHashSet locations = new LinkedHashSet();
-	IJavaElement focus = MatchLocator.projectOrJarFocus(this.pattern);
+	IJavaElement focus = this.pattern instanceof ModulePattern ? null : MatchLocator.projectOrJarFocus(this.pattern);
 	if (focus == null) {
 		for (int i = 0; i < projectsAndJars.length; i++) {
 			IPath path = projectsAndJars[i];
