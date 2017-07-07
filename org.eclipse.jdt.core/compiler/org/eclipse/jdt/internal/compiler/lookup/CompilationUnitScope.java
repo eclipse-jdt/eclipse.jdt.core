@@ -424,6 +424,13 @@ void faultInImports() {
 				problemReporter().importProblem(importReference, importBinding);
 				continue nextImport;
 			}
+			if (importBinding instanceof SplitPackageBinding) {
+				SplitPackageBinding splitPackage = (SplitPackageBinding) importBinding;
+				if (splitPackage.hasConflict()) {
+					problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, importReference.sourceEnd);
+					continue nextImport;
+				}
+			}
 			if (importReference.isStatic() && importBinding instanceof PackageBinding) {
 				problemReporter().cannotImportPackage(importReference);
 				continue nextImport;
@@ -445,6 +452,17 @@ void faultInImports() {
 			if (importBinding instanceof PackageBinding) {
 				problemReporter().cannotImportPackage(importReference);
 				continue nextImport;
+			} else if (this.environment.useModuleSystem && importBinding instanceof ReferenceBinding) {
+				// re-get to find a possible split package:
+				Binding importedPackage = findImport(((ReferenceBinding) importBinding).fPackage.compoundName, false, true);
+				if (importedPackage instanceof SplitPackageBinding) {
+					SplitPackageBinding splitPackage = (SplitPackageBinding) importedPackage;
+					if (splitPackage.hasConflict()) {
+						int sourceEnd = (int) importReference.sourcePositions[splitPackage.compoundName.length-1];
+						problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, sourceEnd);
+						continue nextImport;
+					}
+				}
 			}
 			// all the code here which checks for valid bindings have been moved to the method 
 			// checkAndRecordImportBinding() since bug 361327

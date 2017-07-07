@@ -877,6 +877,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("NotAccessibleMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NotAccessibleType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("NotAccessiblePackage", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
+		expectedProblemAttributes.put("ConflictingPackageFromModules", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
 		expectedProblemAttributes.put("NotVisibleConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NotVisibleConstructorInDefaultConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NotVisibleConstructorInImplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1755,6 +1756,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NotAccessibleMethod", SKIP);
 		expectedProblemAttributes.put("NotAccessibleType", SKIP);
 		expectedProblemAttributes.put("NotAccessiblePackage", SKIP);
+		expectedProblemAttributes.put("ConflictingPackageFromModules", SKIP);		
 		expectedProblemAttributes.put("NotVisibleConstructor", SKIP);
 		expectedProblemAttributes.put("NotVisibleConstructorInDefaultConstructor", SKIP);
 		expectedProblemAttributes.put("NotVisibleConstructorInImplicitConstructorCall", SKIP);

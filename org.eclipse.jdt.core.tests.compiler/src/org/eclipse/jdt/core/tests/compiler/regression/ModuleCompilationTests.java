@@ -478,7 +478,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	requires mod.one;\n" +
 						"	requires mod.two;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "Z.java", 
+		writeFile(moduleLoc + File.separator + "r", "Z.java", 
 						"package r;\n" +
 						"public class Z extends Object {\n" +
 						"	p.X x = null;\n" +
@@ -1751,6 +1751,91 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"The method m1(impl.SomeImpl) in the type C1 is not applicable for the arguments (impl.SomeImpl)\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
+				false);
+	}
+
+	public void testPackageConflict1() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports pm;\n" +
+						"	exports p2;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+		writeFile(moduleLoc + File.separator + "p2", "C2.java", 
+						"package p2;\n" +
+						"public class C2 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	exports pm;\n" +
+						"	exports p2.sub;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "pm", "C3.java", 
+						"package pm;\n" +
+						"public class C3 {\n" +
+						"}\n");
+		writeFile(moduleLoc + File.separator + "p2" + File.separator + "sub", "C4.java", 
+						"package p2.sub;\n" +
+						"public class C4 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.three";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.three { \n" +
+						"	requires mod.one;\n" +
+						"	requires mod.two;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "po", "Client.java", 
+						"package po;\n" + 
+						"import pm.*;\n" +
+						"import pm.C3;\n" +
+						"import p2.C2;\n" +
+						"public class Client {\n" + 
+						"    void test1(C1 one) {\n" + 
+						"    }\n" +
+						"	 pm.C1 f1;\n" +
+						"	 p2.sub.C4 f4;\n" + // no conflict mod.one/p2 <-> mod.two/p2.sub
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/po/Client.java (at line 2)\n" + 
+				"	import pm.*;\n" + 
+				"	       ^^\n" + 
+				"The package pm is accessible from more than one module: mod.one, mod.two\n" + 
+				"----------\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/po/Client.java (at line 3)\n" + 
+				"	import pm.C3;\n" + 
+				"	       ^^\n" + 
+				"The package pm is accessible from more than one module: mod.one, mod.two\n" + 
+				"----------\n" + 
+				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/po/Client.java (at line 8)\n" + 
+				"	pm.C1 f1;\n" + 
+				"	^^\n" + 
+				"The package pm is accessible from more than one module: mod.one, mod.two\n" + 
+				"----------\n" + 
+				"3 problems (3 errors)\n",
 				false);
 	}
 }

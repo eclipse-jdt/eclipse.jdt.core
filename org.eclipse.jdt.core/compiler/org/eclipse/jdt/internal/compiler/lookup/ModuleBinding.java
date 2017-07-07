@@ -220,7 +220,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	public void addResolvedExport(PackageBinding declaredPackage, char[][] targetModules) {
 		int len = this.exportedPackages.length;
 		if (declaredPackage == null || !declaredPackage.isValidBinding()) {
-			// FIXME(SHMOD) error reporting
+			// FIXME(SHMOD) use a problem binding? See https://bugs.eclipse.org/518794#c13
 			return;
 		}
 		if (len == 0) {
@@ -235,7 +235,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	public void addResolvedOpens(PackageBinding declaredPackage, char[][] targetModules) {
 		int len = this.openedPackages.length;
 		if (declaredPackage == null || !declaredPackage.isValidBinding()) {
-			// FIXME(SHMOD) error reporting
+			// FIXME(SHMOD) use a problem binding? See https://bugs.eclipse.org/518794#c13
 			return;
 		}
 		if (len == 0) {
@@ -374,7 +374,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			PackageBinding[] initializedExports = getExports();
 			for (int i = 0; i < initializedExports.length; i++) {
 				PackageBinding export = initializedExports[i];
-				if (export.subsumes(pkg)) {
+				if (export.subsumes(resolved)) {
 					if (this.exportRestrictions != null) {
 						SimpleSetOfCharArray restrictions = this.exportRestrictions.get(export);
 						if (restrictions != null)
@@ -421,7 +421,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 					for (char[] declaringModuleName : declaringModuleNames) {
 						ModuleBinding declaringModule = this.environment.root.getModule(declaringModuleName);
 						if (declaringModule != null)
-							binding = SplitPackageBinding.combine(declaringModule.getTopLevelPackage(name), binding);
+							binding = SplitPackageBinding.combine(declaringModule.getTopLevelPackage(name), binding, declaringModule);
 					}
 				}
 			}
@@ -433,7 +433,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		// enrich with split-siblings from visible modules:
 		for (ModuleBinding required : getAllRequiredModules()) {
 			if (required == this) continue;
-			binding = SplitPackageBinding.combine(required.getTopLevelPackage(name), binding);
+			binding = SplitPackageBinding.combine(required.getTopLevelPackage(name), binding, this);
 		}
 
 		// remember:
@@ -522,13 +522,14 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 
 	private PackageBinding combineWithChildrenOfSplitPackage(PackageBinding childPackage, SplitPackageBinding splitParent, char[] name) {
+		ModuleBinding primaryModule = childPackage != null ? childPackage.enclosingModule : splitParent.enclosingModule;
 		// see if other incarnations contribute to the child package, too:
 		for (PackageBinding incarnation :  splitParent.incarnations) {
 			ModuleBinding moduleBinding = incarnation.enclosingModule;
 			if (moduleBinding == this)
 				continue;
 			PackageBinding next = moduleBinding.getVisiblePackage(incarnation, name);
-			childPackage = SplitPackageBinding.combine(next, childPackage);
+			childPackage = SplitPackageBinding.combine(next, childPackage, primaryModule);
 		}
 		return childPackage;
 	}
@@ -591,7 +592,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			char[] packageName = packageBinding.readableName();
 			if (checkForSplit) {
 				for (ModuleBinding moduleBinding : getAllRequiredModules())
-					packageBinding = SplitPackageBinding.combine(moduleBinding.getVisiblePackage(packageBinding.compoundName), packageBinding);
+					packageBinding = SplitPackageBinding.combine(moduleBinding.getVisiblePackage(packageBinding.compoundName), packageBinding, this);
 			}
 			this.declaredPackages.put(packageName, packageBinding);
 		}

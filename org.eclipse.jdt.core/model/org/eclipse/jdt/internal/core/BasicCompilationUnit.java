@@ -22,6 +22,8 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModuleDescription;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -42,6 +44,7 @@ public class BasicCompilationUnit implements ICompilationUnit {
 
 	protected char[][] packageName;
 	protected char[] mainTypeName;
+	protected char[] moduleName;
 	protected String encoding;
 
 public BasicCompilationUnit(char[] contents, char[][] packageName, String fileName) {
@@ -58,6 +61,15 @@ public BasicCompilationUnit(char[] contents, char[][] packageName, String fileNa
 public BasicCompilationUnit(char[] contents, char[][] packageName, String fileName, IJavaElement javaElement) {
 	this(contents, packageName, fileName);
 	initEncoding(javaElement);
+	try {
+		if (javaElement != null) {
+			IModuleDescription moduleDescription = javaElement.getJavaProject().getModuleDescription();
+			if (moduleDescription != null)
+				this.moduleName = moduleDescription.getElementName().toCharArray();
+		}
+	} catch (JavaModelException e) {
+		// silent, moduleName is optional
+	}
 }
 
 /*
@@ -146,7 +158,6 @@ public String toString(){
 
 @Override
 public char[] getModuleName() {
-	// FIXME(SHMOD) may need a module name also here
-	return null;
+	return this.moduleName;
 }
 }

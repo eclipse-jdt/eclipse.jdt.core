@@ -394,7 +394,7 @@ private NameEnvironmentAnswer internalFindClass(String qualifiedTypeName, char[]
 			for (int i = 0, length = this.classpaths.length; i < length; i++) {
 				Classpath p = this.classpaths[i];
 				if (moduleName == ModuleBinding.UNNAMED && p.getModule() != null) continue;
-				NameEnvironmentAnswer answer = (p instanceof ClasspathJar)
+				NameEnvironmentAnswer answer = (p instanceof ClasspathJar || p instanceof ClasspathJrt)
 					? p.findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly)
 					: p.findClass(typeName, qp2, null, qb2, asBinaryOnly);
 				if (answer != null) {

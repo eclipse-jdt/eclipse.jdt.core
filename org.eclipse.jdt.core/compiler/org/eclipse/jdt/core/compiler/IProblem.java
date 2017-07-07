@@ -1958,6 +1958,8 @@ void setSourceStart(int sourceStart);
 	int NotAccessibleConstructor = MethodRelated + 1453;
 	/** @since 3.13 BETA_JAVA9 */
 	int NotAccessiblePackage = ImportRelated + 1454;
+	/** @since 3.13 BETA_JAVA9 */
+	int ConflictingPackageFromModules = ImportRelated + 1455;
 
 	/** @since 3.13 */
 	int RedundantNullDefaultAnnotationLocal = Internal + 1062;

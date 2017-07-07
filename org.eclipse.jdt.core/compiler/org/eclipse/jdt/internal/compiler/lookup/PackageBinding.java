@@ -37,7 +37,7 @@ public class PackageBinding extends Binding implements TypeConstants {
 	// one of Binding.{NO_NULL_DEFAULT,NULL_UNSPECIFIED_BY_DEFAULT,NONNULL_BY_DEFAULT}
 	protected int defaultNullness = NO_NULL_DEFAULT;
 
-	ModuleBinding enclosingModule;
+	public ModuleBinding enclosingModule;
 
 protected PackageBinding() {
 	// for creating problem package

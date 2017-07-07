@@ -74,7 +74,7 @@ public class SearchableEnvironment
 		this.workingCopies = workingCopies;
 		this.nameLookup = project.newNameLookup(workingCopies);
 		if (CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9) {
-			for (IPackageFragmentRoot root : this.nameLookup.packageFragmentRoots) {
+			for (IPackageFragmentRoot root : project.getPackageFragmentRoots()) {
 				if (root.getModuleDescription() != null) {
 					this.knownModuleLocations = new HashMap<>();
 					break;

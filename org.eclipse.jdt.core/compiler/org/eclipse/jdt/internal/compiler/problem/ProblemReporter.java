@@ -83,6 +83,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -183,6 +184,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -3207,6 +3209,23 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 		return;
 	}
 	invalidType(importRef, (TypeBinding)expectedImport);
+}
+public void conflictingPackagesFromModules(SplitPackageBinding splitPackage, int sourceStart, int sourceEnd) {
+	ModuleBinding enclosingModule = splitPackage.enclosingModule;
+	String modules = splitPackage.incarnations.stream()
+						.filter(enclosingModule::canAccess)
+						.map(p -> String.valueOf(p.enclosingModule.name()))
+						.sorted()
+						.collect(Collectors.joining(", ")); //$NON-NLS-1$
+	String[] arguments = new String[] {
+						CharOperation.toString(splitPackage.compoundName),
+						modules };
+	this.handle(
+			IProblem.ConflictingPackageFromModules,
+			arguments,
+			arguments,
+			sourceStart,
+			sourceEnd);
 }
 public void incompatibleExceptionInThrowsClause(SourceTypeBinding type, MethodBinding currentMethod, MethodBinding inheritedMethod, ReferenceBinding exceptionType) {
 	if (TypeBinding.equalsEquals(type, currentMethod.declaringClass)) {

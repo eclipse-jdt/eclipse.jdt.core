@@ -714,7 +714,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 				for (char[] mod : declaringModules) {
 					ModuleBinding declaringModule = this.root.getModule(mod);
 					if (declaringModule != null)
-						packageBinding = SplitPackageBinding.combine(declaringModule.getTopLevelPackage(constantPoolName[0]), packageBinding);
+						packageBinding = SplitPackageBinding.combine(declaringModule.getTopLevelPackage(constantPoolName[0]), packageBinding, this.module);
 				}
 			}
 		}
@@ -734,7 +734,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 					for (char[] mod : declaringModules) {
 						ModuleBinding declaringModule = this.root.getModule(mod);
 						if (declaringModule != null)
-							packageBinding = SplitPackageBinding.combine(declaringModule.getPackage(parent.compoundName, constantPoolName[i]), packageBinding);
+							packageBinding = SplitPackageBinding.combine(declaringModule.getPackage(parent.compoundName, constantPoolName[i]), packageBinding, this.module);
 					}
 				}
 			}
@@ -1611,7 +1611,7 @@ private ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean 
 	ReferenceBinding binding = getCachedType(compoundName);
 	if (binding == null) {
 		PackageBinding packageBinding = computePackageFrom(compoundName, false /* valid pkg */);
-		binding = new UnresolvedReferenceBinding(compoundName, packageBinding); // TODO(SHMOD): relies on this & packageBinding for module context. Is this OK?
+		binding = new UnresolvedReferenceBinding(compoundName, packageBinding);
 		if (wasMissingType) {
 			binding.tagBits |= TagBits.HasMissingType; // record it was bound to a missing type
 		}

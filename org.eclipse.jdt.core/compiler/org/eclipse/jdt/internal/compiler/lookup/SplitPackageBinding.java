@@ -22,9 +22,18 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class SplitPackageBinding extends PackageBinding {
 	Set<ModuleBinding> declaringModules;
-	Set<PackageBinding> incarnations;
+	public Set<PackageBinding> incarnations;
 	
-	public static PackageBinding combine(PackageBinding binding, PackageBinding previous) {
+	/**
+	 * Combine two potential package bindings, answering either the better of those if the other has a problem,
+	 * or combine both into a split package.
+	 * @param binding one candidate
+	 * @param previous a previous candidate
+	 * @param primaryModule when constructing a new SplitPackageBinding this primary module will define the
+	 * 	focus when later an UnresolvedReferenceBinding is resolved relative to this SplitPackageBinding.
+	 * @return one of: <code>null</code>, a regular PackageBinding or a SplitPackageBinding.
+	 */
+	public static PackageBinding combine(PackageBinding binding, PackageBinding previous, ModuleBinding primaryModule) {
 		if (previous == null || !previous.isValidBinding())
 			return binding == LookupEnvironment.TheNotFoundPackage ? null : binding;
 		if (binding == null || !binding.isValidBinding())
@@ -33,13 +42,13 @@ public class SplitPackageBinding extends PackageBinding {
 			return previous;
 		if (binding.subsumes(previous))
 			return binding;
-		SplitPackageBinding split = new SplitPackageBinding(previous);
+		SplitPackageBinding split = new SplitPackageBinding(previous, primaryModule);
 		split.add(binding);
 		return split;
 	}
 
-	public SplitPackageBinding(PackageBinding initialBinding) {
-		super(initialBinding.compoundName, initialBinding.parent, initialBinding.environment, initialBinding.enclosingModule);
+	public SplitPackageBinding(PackageBinding initialBinding, ModuleBinding primaryModule) {
+		super(initialBinding.compoundName, initialBinding.parent, primaryModule.environment, primaryModule);
 		this.declaringModules = new HashSet<>();
 		this.incarnations = new HashSet<>();
 		if (initialBinding instanceof SplitPackageBinding) {
@@ -66,7 +75,7 @@ public class SplitPackageBinding extends PackageBinding {
 	void addPackage(PackageBinding element) {
 		char[] simpleName = element.compoundName[element.compoundName.length-1];
 		PackageBinding visible = this.knownPackages.get(simpleName);
-		visible = SplitPackageBinding.combine(element, visible);
+		visible = SplitPackageBinding.combine(element, visible, this.enclosingModule);
 		this.knownPackages.put(simpleName, visible);
 		PackageBinding incarnation = getIncarnation(element.enclosingModule);
 		if (incarnation != null)
@@ -84,7 +93,7 @@ public class SplitPackageBinding extends PackageBinding {
 			PackageBinding package0 = incarnation.getPackage0(name);
 			if (package0 == null)
 				return null; // if any incarnation lacks cached info, a full findPackage will be necessary 
-			candidate = combine(package0, candidate);
+			candidate = combine(package0, candidate, this.enclosingModule);
 		}
 		if (candidate != null)
 			this.knownPackages.put(name, candidate);
@@ -110,7 +119,7 @@ public class SplitPackageBinding extends PackageBinding {
 			result = candidates.iterator().next();
 		} else if (count > 1) {
 			Iterator<PackageBinding> iterator = candidates.iterator();
-			SplitPackageBinding split = new SplitPackageBinding(iterator.next());
+			SplitPackageBinding split = new SplitPackageBinding(iterator.next(), this.enclosingModule);
 			while (iterator.hasNext())
 				split.add(iterator.next());
 			result = split;
@@ -204,7 +213,19 @@ public class SplitPackageBinding extends PackageBinding {
 	public boolean isDeclaredIn(ModuleBinding moduleBinding) {
 		return this.declaringModules.contains(moduleBinding);
 	}
-	
+
+	public boolean hasConflict() {
+		int visibleCount = 0;
+		for (PackageBinding incarnation : this.incarnations) {
+			if (incarnation.knownTypes != null && incarnation.knownTypes.elementSize > 0) { // FIXME(SHMOD): this is a workaround for checking existence of any CU
+				if (this.enclosingModule.canAccess(incarnation)) 
+					if (++visibleCount > 1)
+						return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder buf = new StringBuilder(super.toString());

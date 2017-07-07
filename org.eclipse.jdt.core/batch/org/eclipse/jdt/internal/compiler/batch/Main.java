@@ -3305,7 +3305,7 @@ public CompilationUnit[] getCompilationUnits() {
 						shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()), 
 						this.modNames[i]);
 				if (isModuleInfo) {
-					int lastSlash = CharOperation.lastIndexOf('/', units[i].fileName);
+					int lastSlash = CharOperation.lastIndexOf(File.separatorChar, units[i].fileName);
 					if (lastSlash != -1) {
 						pathToModCU.put(String.valueOf(CharOperation.subarray(units[i].fileName, 0, lastSlash)), units[i]);
 					}

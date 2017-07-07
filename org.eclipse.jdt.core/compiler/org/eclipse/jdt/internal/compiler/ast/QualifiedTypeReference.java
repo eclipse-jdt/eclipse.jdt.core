@@ -111,11 +111,21 @@ public class QualifiedTypeReference extends TypeReference {
 			return (ReferenceBinding) binding; // not found
 		}
 	    PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
+	    int typeStart = packageBinding == null ? 0 : packageBinding.compoundName.length;
+	    
+	    if (packageBinding instanceof SplitPackageBinding) {
+	    	SplitPackageBinding splitPackage = (SplitPackageBinding) packageBinding;
+	    	if (splitPackage.hasConflict()) {
+	    		scope.problemReporter().conflictingPackagesFromModules(splitPackage, this.sourceStart, (int)this.sourcePositions[typeStart-1]);
+	    		this.resolvedType = new ProblemReferenceBinding(this.tokens, null, ProblemReasons.Ambiguous);
+	    		return null;
+	    	}
+	    }
 	    rejectAnnotationsOnPackageQualifiers(scope, packageBinding);
 
 	    boolean isClassScope = scope.kind == Scope.CLASS_SCOPE;
 	    ReferenceBinding qualifiedType = null;
-		for (int i = packageBinding == null ? 0 : packageBinding.compoundName.length, max = this.tokens.length, last = max-1; i < max; i++) {
+		for (int i = typeStart, max = this.tokens.length, last = max-1; i < max; i++) {
 			findNextTypeBinding(i, scope, packageBinding);
 			if (!this.resolvedType.isValidBinding())
 				return this.resolvedType;
