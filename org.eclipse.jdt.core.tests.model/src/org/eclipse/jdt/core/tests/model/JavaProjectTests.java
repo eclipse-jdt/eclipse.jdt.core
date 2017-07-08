@@ -2880,4 +2880,25 @@ public void testBug501220() throws CoreException {
 			deleteProject(egitPrj);
 	}
 }
+public void testBug519435() throws Exception {
+	try {
+		final String externalResourcePath = getExternalResourcePath("bug519435.jar");
+		IFile file = getFile(externalResourcePath);
+		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(externalResourcePath, JavaCore.VERSION_1_4);
+		createJavaProject("P", new String[0], new String[] {externalResourcePath}, "");
+		IProject project = getProject("P");
+		assertTrue(JavaModelManager.getJavaModelManager().deltaState.getExternalLibTimeStamps().containsKey(file.getFullPath()));
+
+		project.close(null);
+		simulateExitRestart();
+		assertFalse(JavaModelManager.getJavaModelManager().deltaState.getExternalLibTimeStamps().containsKey(file.getFullPath()));
+
+		project.open(null);
+		simulateExitRestart();
+		assertTrue(JavaModelManager.getJavaModelManager().deltaState.getExternalLibTimeStamps().containsKey(file.getFullPath()));
+	} finally {
+		deleteExternalResource("bug519435.jar");
+		deleteProject("P");
+	}
+}
 }

@@ -2636,6 +2636,7 @@ public class DeltaProcessor {
 						if (res.isOpen()) {
 							if (JavaProject.hasJavaNature(res)) {
 								addToParentInfo(element);
+								this.manager.getPerProjectInfo(res, true /*create info if needed*/).rememberExternalLibTimestamps();
 								currentDelta().opened(element);
 								this.state.updateRoots(element.getPath(), delta, this);
 
