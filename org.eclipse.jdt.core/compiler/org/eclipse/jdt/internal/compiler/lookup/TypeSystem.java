@@ -355,6 +355,9 @@ public class TypeSystem {
 			this.types[unannotatedGenericType.id] = derivedTypes;
 		}
 		
+		if(unannotatedGenericType.isStatic() && unannotatedEnclosingType != null) {
+			unannotatedEnclosingType=(ReferenceBinding) unannotatedEnclosingType.original();
+		}
 		TypeBinding rawTytpe = derivedTypes[i] = new RawTypeBinding(unannotatedGenericType, unannotatedEnclosingType, this.environment);
 		int typesLength = this.types.length;
 		if (this.typeid == typesLength)

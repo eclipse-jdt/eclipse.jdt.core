@@ -848,20 +848,24 @@ public TypeBinding convertToRawType(TypeBinding type, boolean forceRawEnclosingT
 		convertedType = needToConvert ? createRawType((ReferenceBinding)originalType.erasure(), null) : originalType;
 	} else {
 		ReferenceBinding convertedEnclosing;
-		if (originalEnclosing.kind() == Binding.RAW_TYPE) {
-			needToConvert |= !((ReferenceBinding)originalType).isStatic();
-			convertedEnclosing = originalEnclosing;
-		} else if (forceRawEnclosingType && !needToConvert/*stop recursion when conversion occurs*/) {
-			convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing, forceRawEnclosingType);
-			needToConvert = TypeBinding.notEquals(originalEnclosing, convertedEnclosing); // only convert generic or parameterized types
-		} else if (needToConvert || ((ReferenceBinding)originalType).isStatic()) {
-			convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing, false);
+		if(((ReferenceBinding)originalType).isStatic()) {
+			convertedEnclosing = (ReferenceBinding) originalEnclosing.original();
 		} else {
-			convertedEnclosing = convertToParameterizedType(originalEnclosing);
+			if (originalEnclosing.kind() == Binding.RAW_TYPE) {			
+				convertedEnclosing = originalEnclosing;
+				needToConvert = true;
+			} else if (forceRawEnclosingType && !needToConvert/*stop recursion when conversion occurs*/) {
+				convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing, forceRawEnclosingType);
+				needToConvert = TypeBinding.notEquals(originalEnclosing, convertedEnclosing); // only convert generic or parameterized types
+			} else if (needToConvert) {
+				convertedEnclosing = (ReferenceBinding) convertToRawType(originalEnclosing, false);
+			} else {
+				convertedEnclosing = convertToParameterizedType(originalEnclosing);
+			}
 		}
 		if (needToConvert) {
 			convertedType = createRawType((ReferenceBinding) originalType.erasure(), convertedEnclosing);
-		} else if (TypeBinding.notEquals(originalEnclosing, convertedEnclosing) && !originalType.isStatic()) {
+		} else if (TypeBinding.notEquals(originalEnclosing, convertedEnclosing)) {
 			convertedType = createParameterizedType((ReferenceBinding) originalType.erasure(), null, convertedEnclosing);
 		} else {
 			convertedType = originalType;

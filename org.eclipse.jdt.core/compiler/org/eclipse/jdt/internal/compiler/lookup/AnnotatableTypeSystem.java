@@ -157,6 +157,9 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		if (!haveTypeAnnotations(genericType, enclosingType, null, annotations))
 			return nakedType;
 	
+		if(genericType.isStatic() && enclosingType != null) {
+			enclosingType=(ReferenceBinding) enclosingType.original();
+		}
 		RawTypeBinding rawType = new RawTypeBinding(genericType, enclosingType, this.environment);
 		rawType.id = nakedType.id;
 		rawType.setTypeAnnotations(annotations, this.isAnnotationBasedNullAnalysisEnabled);
