@@ -655,7 +655,8 @@ class ASTConverter {
 			if (block != null) {
 				if ((methodDeclaration.modifiers & (ClassFileConstants.AccAbstract | ClassFileConstants.AccNative)) != 0
 						|| (isInterface && (this.ast.apiLevel < AST.JLS8_INTERNAL ||
-							(methodDeclaration.modifiers & (ClassFileConstants.AccStatic | ExtraCompilerModifiers.AccDefaultMethod)) == 0))) {
+							(methodDeclaration.modifiers & (ClassFileConstants.AccStatic | ExtraCompilerModifiers.AccDefaultMethod |
+									(this.ast.apiLevel > AST.JLS8_INTERNAL ? ClassFileConstants.AccPrivate : 0))) == 0))) {
 					methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
 				}
 			}

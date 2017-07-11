@@ -708,6 +708,19 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		ModuleDeclaration moduleDecl = unit.getModule();
 		checkSourceRange(moduleDecl, content, content);
 	}
+	public void testBug519310_001() throws Exception {// TODO: Uncomment after bug 488541 is fixed
+		this.workingCopies = new ICompilationUnit[1];
+		String content =  "package p;\n"
+				+ "  public interface I1 {\n"
+				+ "  private void foo() {}\n"
+				+ "}";
+		this.workingCopies[0] = getWorkingCopy("/Converter9/src/p/I1.java", content);
+
+		CompilationUnit unit = (CompilationUnit) runConversion(AST_INTERNAL_JLS9, this.workingCopies[0], false/*no bindings*/);
+		AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) unit.types().get(0);
+		MethodDeclaration method = (MethodDeclaration) typeDeclaration.bodyDeclarations().get(0);
+		assertTrue("Method Malformed", (method.getFlags() & ASTNode.MALFORMED) == 0);
+	}
 
 
 // Add new tests here
