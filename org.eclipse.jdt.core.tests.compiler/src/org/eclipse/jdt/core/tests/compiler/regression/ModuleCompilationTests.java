@@ -4374,4 +4374,33 @@ public void testBug521362_emptyFile() {
 				false,
 				"");
 	}
+	public void testBug519600() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String outDir = OUTPUT_DIR + File.separator + "bin";
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = srcDir + File.separator + "test";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module test {}");
+		writeFileCollecting(files, moduleLoc + File.separator + "test", "Thing.java", 
+				"package test;\n" +
+				"import java.util.Comparator;\n" + 
+				"import java.util.Iterator;\n" + 
+				"public abstract class Thing implements Iterator<Object> {\n" + 
+				"    void breaking() {\n" + 
+				"        remove(); // allowed (good)\n" + 
+				"        Iterator.super.remove(); // not 1.7-compliant (must be an error)\n" + 
+				"        Comparator.naturalOrder(); // not 1.7-compliant (bad error message)\n" + 
+				"    }\n" + 
+				"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + outDir )
+			.append(" -source 9 ")
+			.append(" --module-source-path " + "\"" + srcDir + "\" ");
+		runConformModuleTest(files, buffer,
+				"",
+				"",
+				false);
+	}
 }
