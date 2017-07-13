@@ -2693,7 +2693,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		for(int i = 0; i < module.requiresCount; i++) {
 			RequiresStatement req = module.requires[i];
 			ModuleBinding reqBinding = req.resolvedBinding;
-			if (CharOperation.equals(req.module.moduleName, TypeConstants.JAVA_BASE)) {
+			if (CharOperation.equals(reqBinding.moduleName, TypeConstants.JAVA_BASE)) {
 				javaBaseBinding = reqBinding;
 			}
 			int nameIndex = this.constantPool.literalIndexForModule(reqBinding.moduleName);
@@ -2706,7 +2706,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localContentsOffset++] = (byte) (required_version >> 8);
 			this.contents[localContentsOffset++] = (byte) (required_version);
 		}
-		if (javaBaseBinding == null) {
+		if (!CharOperation.equals(binding.moduleName, TypeConstants.JAVA_BASE) && javaBaseBinding == null) {
 			if (localContentsOffset + 6 >= this.contents.length) {
 				resizeContents(6);
 			}
