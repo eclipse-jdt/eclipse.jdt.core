@@ -3136,6 +3136,475 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("mod.two");
 		}
 	}
+	// test that two packages with the same name result in conflict if they are both
+	// accessible to a module
+	public void _test_conflicting_packages() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module some.mod {\n" +
+				"	exports org.astro;\n" +
+				"}",
+				"src/org/astro/Test.java",
+				"package org.astro;\n" +
+				"public class Test { }"
+			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
+			sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires some.mod;\n" +
+				"	requires org.astro;\n" +
+				"	exports com.greetings;\n" +
+				"}",
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"import org.astro.World;\n" +
+				"public class MyWorld implements World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers", 
+					"Package org.astro exists in multiple modules, org.astro and some.mod\n" +
+					"World cannot be resolved to a type",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("some.mod");
+			deleteProject("com.greetings");
+		}
+	}
+	// test that a package declared in a module conflicts with an accessible package
+	// of the same name declared in another required module
+	public void _test_conflicting_packages_declaredvsaccessible() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires org.astro;\n" +
+				"	exports com.greetings;\n" +
+				"}",
+				"src/org/astro/Test.java",
+				"package org.astro;\n" +
+				"public class Test {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}",
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"public class MyWorld implements org.astro.World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", 
+					"org.astro.World cannot be resolved to a type\n" +
+					"Package org.astro exists in another module, org.astro",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	// accessible package bundle.org contains type astro
+	// accessible package bundle.org.astro contains type World
+	// Type bundle.org.astro.World should not be resolved, because type
+	// bundle.org.astro trumps package bundle.org.astro
+	public void _test_conflict_packagevstype() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports bundle.org.astro;\n" + 
+				"}",
+				"src/bundle/org/astro/World.java",
+				"package bundle.org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			sources = new String[] {
+					"src/module-info.java",
+					"module other.mod {\n" +
+					"	exports bundle.org;\n" + 
+					"}",
+					"src/bundle/org/astro.java",
+					"package bundle.org;\n" +
+					"public class astro {}"
+				};
+			setupModuleProject("other.mod", sources, new IClasspathEntry[]{dep});
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires org.astro;\n" +
+				"	requires other.mod;\n" +
+				"	exports com.greetings;\n" +
+				"}",
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"public class MyWorld implements bundle.org.astro.World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", 
+					"bundle.org.astro.World cannot be resolved to a type",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("other.mod");
+			deleteProject("com.greetings");
+		}
+	}
+	// package bundle.org contains type astro, but the package is not accessible
+	// accessible package bundle.org.astro contains type World
+	// type bundle.org.astro.World should be resolved because type bundle.org.astro
+	// cannot be seen
+	// TODO - to be confirmed with spec
+	public void _test_noconflict_concealedtype_accessiblepackage() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports bundle.org.astro;\n" + 
+				"}",
+				"src/bundle/org/astro/World.java",
+				"package bundle.org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			sources = new String[] {
+					"src/module-info.java",
+					"module other.mod {\n" +
+					"}",
+					"src/bundle/org/astro.java",
+					"package bundle.org;\n" +
+					"public class astro {}"
+				};
+			setupModuleProject("other.mod", sources, new IClasspathEntry[]{dep});
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires org.astro;\n" +
+				"	requires other.mod;\n" +
+				"	exports com.greetings;\n" +
+				"}",
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"public class MyWorld implements bundle.org.astro.World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",	"",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("other.mod");
+			deleteProject("com.greetings");
+		}
+	}
+	// test that two packages of the same name exported by two named modules result in
+	// a conflict in the context of a non-modular project
+	public void _test_conflicting_packages_unnamed() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module some.mod {\n" +
+				"	exports org.astro;\n" +
+				"}",
+				"src/org/astro/Test.java",
+				"package org.astro;\n" +
+				"public class Test { }"
+			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			IJavaProject p1 = setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
+			sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			IJavaProject p2 = setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			String[] src = new String[] {
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"import org.astro.World;\n" +
+				"public class MyWorld implements World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath());
+			IJavaProject p3 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep1, dep2 });
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers", 
+					"Package org.astro exists in multiple modules, org.astro and some.mod\n" +
+					"World cannot be resolved to a type",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("some.mod");
+			deleteProject("com.greetings");
+		}
+	}
+	// test that a package declared in a non-modular project conflicts with a package with the same name
+	// exported by a named module on it's build path
+	public void _test_conflict_unnamed_declaredvsexported() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			String[] src = new String[] {
+				"src/org/astro/Test.java",
+				"package org.astro;\n" +
+				"public class Test {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}",
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"public class MyWorld implements org.astro.World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath());
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep1 });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", 
+					"org.astro.World cannot be resolved to a type\n" +
+					"Package org.astro exists in another module, org.astro",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	// test that a type in an accessible package trumps an accessible package with the same name
+	// in the context of a non-modular project
+	public void _test_conflict_packagevstype_unnamed() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports bundle.org.astro;\n" + 
+				"}",
+				"src/bundle/org/astro/World.java",
+				"package bundle.org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			sources = new String[] {
+					"src/module-info.java",
+					"module other.mod {\n" +
+					"	exports bundle.org;\n" + 
+					"}",
+					"src/bundle/org/astro.java",
+					"package bundle.org;\n" +
+					"public class astro {}"
+				};
+			IJavaProject p2 = setupModuleProject("other.mod", sources, new IClasspathEntry[]{dep});
+			String[] src = new String[] {
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"public class MyWorld implements bundle.org.astro.World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath());
+			IJavaProject p3 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep1, dep2 });
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", 
+					"bundle.org.astro.World cannot be resolved to a type",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("other.mod");
+			deleteProject("com.greetings");
+		}
+	}
+	// test that a conflicting package does not cause an error when resolving a sub package name
+	// when the sub package is accessible in the context of a non-modular project
+	public void _test_noconflict_subpkg_unnamed() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports bundle.org.astro;\n" + 
+				"}",
+				"src/bundle/org/astro/World.java",
+				"package bundle.org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			sources = new String[] {
+					"src/module-info.java",
+					"module other.mod {\n" +
+					"	exports bundle.org;\n" + 
+					"}",
+					"src/bundle/org/astro.java",
+					"package bundle.org;\n" +
+					"public class astro {}"
+				};
+			IJavaProject p2 = setupModuleProject("other.mod", sources, new IClasspathEntry[]{dep});
+			String[] src = new String[] {
+				"src/bundle/org/Test.java",
+				"package bundle.org;\n" +
+				"public class Test {}",
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"public class MyWorld implements bundle.org.astro.World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath());
+			IJavaProject p3 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep1, dep2 });
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", 
+					"Package bundle.org exists in another module, other.mod",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("other.mod");
+			deleteProject("com.greetings");
+		}
+	}
+	// test that a type in a non-accessible package does not conflict with an accessible package
+	// in the context of a non-modular project
+	public void _test_noconflict_concealedtype_accessiblepackage_unnamed() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports bundle.org.astro;\n" + 
+				"}",
+				"src/bundle/org/astro/World.java",
+				"package bundle.org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			sources = new String[] {
+					"src/module-info.java",
+					"module other.mod {\n" +
+					"}",
+					"src/bundle/org/astro.java",
+					"package bundle.org;\n" +
+					"public class astro {}"
+				};
+			IJavaProject p2 = setupModuleProject("other.mod", sources, new IClasspathEntry[]{dep});
+			String[] src = new String[] {
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"public class MyWorld implements bundle.org.astro.World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath());
+			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath());
+			IJavaProject p3 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep1, dep2 });
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",	"",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("other.mod");
+			deleteProject("com.greetings");
+		}
+	}
 
 	// sort by CHAR_START
 	protected void sortMarkers(IMarker[] markers) {
