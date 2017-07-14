@@ -427,42 +427,48 @@ public NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName) 
 			moduleName);
 	return null;
 }
-public char[][][] findTypeNames(char[][] packageName) {
+public char[][][] findTypeNames(char[][] packageName, String[] moduleNames) {
 	char[][][] result = null;
 	if (packageName != null) {
 		String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
 		String qualifiedPackageName2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
 		if (qualifiedPackageName == qualifiedPackageName2) {
 			for (int i = 0, length = this.classpaths.length; i < length; i++) {
-				char[][][] answers = this.classpaths[i].findTypeNames(qualifiedPackageName, null);
-				if (answers != null) {
-					// concat with previous answers
-					if (result == null) {
-						result = answers;
-					} else {
-						int resultLength = result.length;
-						int answersLength = answers.length;
-						System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0, resultLength);
-						System.arraycopy(answers, 0, result, resultLength, answersLength);
+				for (String moduleName : moduleNames) {
+					if (moduleName !=  null && !this.classpaths[i].servesModule(moduleName.toCharArray())) continue;
+					char[][][] answers = this.classpaths[i].findTypeNames(qualifiedPackageName, moduleName);
+					if (answers != null) {
+						// concat with previous answers
+						if (result == null) {
+							result = answers;
+						} else {
+							int resultLength = result.length;
+							int answersLength = answers.length;
+							System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0, resultLength);
+							System.arraycopy(answers, 0, result, resultLength, answersLength);
+						}
 					}
 				}
 			}
 		} else {
 			for (int i = 0, length = this.classpaths.length; i < length; i++) {
 				Classpath p = this.classpaths[i];
-				char[][][] answers = (p instanceof ClasspathJar || p instanceof ClasspathJrt) ? p.findTypeNames(qualifiedPackageName, null)
-						: p.findTypeNames(qualifiedPackageName2, null);
-				if (answers != null) {
-					// concat with previous answers
-					if (result == null) {
-						result = answers;
-					} else {
-						int resultLength = result.length;
-						int answersLength = answers.length;
-						System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0,
-								resultLength);
-						System.arraycopy(answers, 0, result, resultLength, answersLength);
-					}
+				for (String moduleName : moduleNames) {
+					if (moduleName != null && !p.servesModule(moduleName.toCharArray())) continue;
+					char[][][] answers = (p instanceof ClasspathJar)
+							? p.findTypeNames(qualifiedPackageName, moduleName)
+							: p.findTypeNames(qualifiedPackageName2, moduleName);
+						if (answers != null) {
+							// concat with previous answers
+							if (result == null) {
+								result = answers;
+							} else {
+								int resultLength = result.length;
+								int answersLength = answers.length;
+								System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0, resultLength);
+								System.arraycopy(answers, 0, result, resultLength, answersLength);
+							}
+						}
 				}
 			}
 		}

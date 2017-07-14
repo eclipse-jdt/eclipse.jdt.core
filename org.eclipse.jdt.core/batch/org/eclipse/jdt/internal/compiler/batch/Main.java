@@ -1837,7 +1837,6 @@ public void configure(String[] argv) {
 	final int INSIDE_ADD_EXPORTS = 25;
 	final int INSIDE_ADD_READS = 26;
 	final int INSIDE_SYSTEM = 27;
-	final int INSIDE_PROCESSOR_MODULE_PATH_start = 28;
 
 	final int DEFAULT = 0;
 	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
@@ -2188,7 +2187,7 @@ public void configure(String[] argv) {
 					mode = INSIDE_SYSTEM;
 					continue;
 				}
-				if (currentArg.equals("--module-path") || currentArg.equals("-p") || currentArg.equals("--processor-module-path")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				if (currentArg.equals("--module-path") || currentArg.equals("-p")) { //$NON-NLS-1$ //$NON-NLS-2$
 					mode = INSIDE_MODULEPATH_start;
 					continue;
 				}
@@ -2589,10 +2588,6 @@ public void configure(String[] argv) {
 					mode = INSIDE_PROCESSOR_start;
 					continue;
 				}
-				if (currentArg.equals("--processor-module-path")) { //$NON-NLS-1$
-					mode = INSIDE_PROCESSOR_MODULE_PATH_start;
-					continue;
-				}
 				if (currentArg.equals("-proc:only")) { //$NON-NLS-1$
 					this.options.put(
 						CompilerOptions.OPTION_GenerateClassFiles,
@@ -2852,9 +2847,6 @@ public void configure(String[] argv) {
 				continue;
 			case INSIDE_PROCESSOR_start :
 				// nothing to do here. This is consumed again by the AnnotationProcessorManager
-				mode = DEFAULT;
-				continue;
-			case INSIDE_PROCESSOR_MODULE_PATH_start :
 				mode = DEFAULT;
 				continue;
 			case INSIDE_S_start :
@@ -3459,9 +3451,8 @@ protected ArrayList handleModulepath(String arg) {
 	// TODO: What about chained jars from MANIFEST.MF? Check with spec
 	return modulePaths;
 }
-protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
+protected ArrayList handleModuleSourcepath(String arg) {
 	ArrayList<String> modulePaths = processModulePathEntries(arg);
-	ArrayList<FileSystem.Classpath> result = new ArrayList<>();
 	final int classpathsSize;
 	if ((modulePaths != null)
 		&& ((classpathsSize = modulePaths.size()) != 0)) {
@@ -3471,21 +3462,25 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 		}
 		String[] paths = new String[modulePaths.size()];
 		modulePaths.toArray(paths);
+		// We reuse the same List to store <Classpath>, which earlier contained <String>
+		modulePaths.clear();
 		for (int i = 0; i < classpathsSize; i++) {
-			processPathEntries(DEFAULT_SIZE_CLASSPATH, modulePaths, paths[i], null, false, true);
+			processPathEntries(DEFAULT_SIZE_CLASSPATH, modulePaths, paths[i],
+					null, false, true);
 		}
+//		Parser parser = getNewParser();
 		for (int i = 0; i < paths.length; i++) {
 			File dir = new File(paths[i]);
 			if (dir.isDirectory()) {
 				// 1. Create FileSystem.Classpath for each module
 				// 2. Iterator each module in case of directory for source files and add to this.fileNames
 
-				result =
+				modulePaths =
 						(ArrayList) ModuleFinder.findModules(dir, this.destinationPath, getNewParser(), this.options, false);
-				for (Object obj : result) {
+				for (Object obj : modulePaths) {
 					Classpath classpath = (Classpath) obj;
 					File modLocation = new File(classpath.getPath());
-					String[] files = FileFinder.find(modLocation, SuffixConstants.SUFFIX_STRING_java);
+					String[] result = FileFinder.find(modLocation, SuffixConstants.SUFFIX_STRING_java);
 					String destPath = classpath.getDestinationPath();
 					IModule mod = classpath.getModule();
 					String moduleName = mod == null ? null : new String(mod.name());
@@ -3494,7 +3489,7 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 					if (this.filenames != null) {
 						int filesCount = this.filenames.length;
 						// some source files were specified explicitly
-						int length = files.length;
+						int length = result.length;
 						System.arraycopy(
 							this.filenames,
 							0,
@@ -3519,14 +3514,14 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 								(this.modNames = new String[length + filesCount]),
 								0,
 								filesCount);
-						System.arraycopy(files, 0, this.filenames, filesCount, length);
+						System.arraycopy(result, 0, this.filenames, filesCount, length);
 						for (int j = 0; j < length; j++) {
 							this.modNames[filesCount + j] = moduleName;
 							this.destinationPaths[filesCount + j] = destPath;
 						}
 						filesCount += length;
 					} else {
-						this.filenames = files;
+						this.filenames = result;
 						int filesCount = this.filenames.length;
 						this.encodings = new String[filesCount];
 						this.destinationPaths = new String[filesCount];
@@ -3541,7 +3536,7 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 		}
 		
 	}
-	return result;
+	return modulePaths;
 }
 /*
  * External API
@@ -4590,62 +4585,61 @@ public void outputClassFiles(CompilationResult unitResult) {
  *  Low-level API performing the actual compilation
  */
 public void performCompilation() {
+
 	this.startTime = System.currentTimeMillis();
 
 	FileSystem environment = getLibraryAccess();
-	try {
+	this.compilerOptions = new CompilerOptions(this.options);
+	this.compilerOptions.performMethodsFullRecovery = false;
+	this.compilerOptions.performStatementsRecovery = false;
+	this.batchCompiler =
+		new Compiler(
+			environment,
+			getHandlingPolicy(),
+			this.compilerOptions,
+			getBatchRequestor(),
+			getProblemFactory(),
+			this.out,
+			this.progress);
+	this.batchCompiler.remainingIterations = this.maxRepetition-this.currentRepetition/*remaining iterations including this one*/;
+	// temporary code to allow the compiler to revert to a single thread
+	String setting = System.getProperty("jdt.compiler.useSingleThread"); //$NON-NLS-1$
+	this.batchCompiler.useSingleThread = setting != null && setting.equals("true"); //$NON-NLS-1$
 
-		this.compilerOptions = new CompilerOptions(this.options);
-		this.compilerOptions.performMethodsFullRecovery = false;
-		this.compilerOptions.performStatementsRecovery = false;
-		this.batchCompiler =
-			new Compiler(
-				environment,
-				getHandlingPolicy(),
-				this.compilerOptions,
-				getBatchRequestor(),
-				getProblemFactory(),
-				this.out,
-				this.progress);
-		this.batchCompiler.remainingIterations = this.maxRepetition-this.currentRepetition/*remaining iterations including this one*/;
-		// temporary code to allow the compiler to revert to a single thread
-		String setting = System.getProperty("jdt.compiler.useSingleThread"); //$NON-NLS-1$
-		this.batchCompiler.useSingleThread = setting != null && setting.equals("true"); //$NON-NLS-1$
-
-		if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_6
-				&& this.compilerOptions.processAnnotations) {
-			if (checkVMVersion(ClassFileConstants.JDK1_6)) {
-				initializeAnnotationProcessorManager();
-				if (this.classNames != null) {
-					this.batchCompiler.setBinaryTypes(processClassNames(this.batchCompiler.lookupEnvironment));
-				}
-			} else {
-				// report a warning
-				this.logger.logIncorrectVMVersionForAnnotationProcessing();
+	if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_6
+			&& this.compilerOptions.processAnnotations) {
+		if (checkVMVersion(ClassFileConstants.JDK1_6)) {
+			initializeAnnotationProcessorManager();
+			if (this.classNames != null) {
+				this.batchCompiler.setBinaryTypes(processClassNames(this.batchCompiler.lookupEnvironment));
 			}
+		} else {
+			// report a warning
+			this.logger.logIncorrectVMVersionForAnnotationProcessing();
 		}
-
-		// set the non-externally configurable options.
-		this.compilerOptions.verbose = this.verbose;
-		this.compilerOptions.produceReferenceInfo = this.produceRefInfo;
-		try {
-			this.logger.startLoggingSources();
-			this.batchCompiler.compile(getCompilationUnits());
-		} finally {
-			this.logger.endLoggingSources();
-		}
-
-		if (this.extraProblems != null) {
-			loggingExtraProblems();
-			this.extraProblems = null;
-		}
-		if (this.compilerStats != null) {
-			this.compilerStats[this.currentRepetition] = this.batchCompiler.stats;
-		}
-		this.logger.printStats();
-	} finally {
-		environment.cleanup();
 	}
+
+	// set the non-externally configurable options.
+	this.compilerOptions.verbose = this.verbose;
+	this.compilerOptions.produceReferenceInfo = this.produceRefInfo;
+	try {
+		this.logger.startLoggingSources();
+		this.batchCompiler.compile(getCompilationUnits());
+	} finally {
+		this.logger.endLoggingSources();
+	}
+
+	if (this.extraProblems != null) {
+		loggingExtraProblems();
+		this.extraProblems = null;
+	}
+	if (this.compilerStats != null) {
+		this.compilerStats[this.currentRepetition] = this.batchCompiler.stats;
+	}
+	this.logger.printStats();
+
+	// cleanup
+	environment.cleanup();
 }
 protected void loggingExtraProblems() {
 	this.logger.loggingExtraProblems(this);

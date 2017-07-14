@@ -61,7 +61,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	static final int HAS_BOOTCLASSPATH = 2;
 	static final int HAS_ENDORSED_DIRS = 4;
 	static final int HAS_PROCESSORPATH = 8;
-	static final int HAS_PROC_MODULEPATH = 16;
 
 	Map<File, Archive> archivesCache;
 	Charset charset;
@@ -82,7 +81,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			Iterable<? extends File> defaultClasspath = getDefaultClasspath();
 			this.setLocation(StandardLocation.CLASS_PATH, defaultClasspath);
 			this.setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, defaultClasspath);
-			this.setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, defaultClasspath);
 		} catch (IOException e) {
 			// ignore
 		}
@@ -609,8 +607,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						}
 						if ((this.flags & EclipseFileManager.HAS_PROCESSORPATH) == 0) {
 							setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, classpaths);
-						} else if ((this.flags & EclipseFileManager.HAS_PROC_MODULEPATH) == 0) {
-							setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, classpaths);
 						}
 					}
 					return true;
@@ -680,7 +676,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				}				
 			}
 			if ("-processorpath".equals(current)) {//$NON-NLS-1$
-				setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, null);
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> processorpaths = getPathsFrom(remaining.next());
 					if (processorpaths != null) {
@@ -690,17 +685,6 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					return true;
 				} else {
 					throw new IllegalArgumentException();
-				}
-			}
-			if ("--processor-module-path".equals(current)) { //$NON-NLS-1$
-				setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, null);
-				if (remaining.hasNext()) {
-					final Iterable<? extends File> processorpaths = getPathsFrom(remaining.next());
-					if (processorpaths != null) {
-						setLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH, processorpaths);
-					}
-					this.flags |= EclipseFileManager.HAS_PROC_MODULEPATH;
-					return true;
 				}
 			}
 		} catch (IOException e) {
@@ -822,18 +806,20 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	 */
 	@Override
 	public void setLocation(Location location, Iterable<? extends File> path) throws IOException {
-		if (location.isOutputLocation()) {
-			// output location
-			int count = 0;
-			for (Iterator<? extends File> iterator = path.iterator(); iterator.hasNext(); ) {
-				iterator.next();
-				count++;
+		if (path != null) {
+			if (location.isOutputLocation()) {
+				// output location
+				int count = 0;
+				for (Iterator<? extends File> iterator = path.iterator(); iterator.hasNext(); ) {
+					iterator.next();
+					count++;
+				}
+				if (count != 1) {
+					throw new IllegalArgumentException("output location can only have one path");//$NON-NLS-1$
+				}
 			}
-			if (count != 1) {
-				throw new IllegalArgumentException("output location can only have one path");//$NON-NLS-1$
-			}
+			this.locations.put(location.getName(), path);
 		}
-		this.locations.put(location.getName(), path);
 	}
 	
 	public void setLocale(Locale locale) {

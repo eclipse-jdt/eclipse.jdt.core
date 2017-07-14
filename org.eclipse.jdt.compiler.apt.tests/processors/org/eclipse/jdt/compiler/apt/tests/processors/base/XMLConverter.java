@@ -50,7 +50,7 @@ import org.w3c.dom.Node;
 public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNames {
 	
 	private final Document _doc;
-	@Deprecated
+	
 	private XMLConverter(Document doc) {
 		_doc = doc;
 	}

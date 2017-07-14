@@ -783,10 +783,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					ModuleBinding module = (ModuleBinding)recipient;
 					if ((module.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
 					module.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
-					if (length > 0) {
-						annotations = new AnnotationBinding[length];
-						module.setAnnotations(annotations, scope);
-					}
 					break;
 				default :
 					return annotations;

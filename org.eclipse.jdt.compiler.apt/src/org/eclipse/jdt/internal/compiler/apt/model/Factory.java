@@ -1,14 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2016 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- * 
+ *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - fix for 342598
@@ -49,7 +45,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -324,11 +319,6 @@ public class Factory {
 					ClassFileConstants.AccStrictfp
 				});
 				break;
-			case MODULE :
-				decodeModifiers(result, modifiers, new int[] {
-						ClassFileConstants.ACC_OPEN,
-						ClassFileConstants.ACC_TRANSITIVE
-				});
 			default:
 				break;
 		}
@@ -371,8 +361,6 @@ public class Factory {
 		case Binding.TYPE_PARAMETER:
 			return new TypeParameterElementImpl(_env, (TypeVariableBinding)binding);
 			// TODO: fill in the rest of these
-		case Binding.MODULE:
-			return new ModuleElementImpl(_env, (ModuleBinding) binding);
 		case Binding.IMPORT:
 		case Binding.ARRAY_TYPE:
 		case Binding.BASE_TYPE:
@@ -583,9 +571,9 @@ public class Factory {
 			case 'c':
 				return Character.valueOf((char) b); // narrowing.
 			case 'd':
-				return Double.valueOf(b); // widening.
+				return new Double(b); // widening.
 			case 'f':
-				return  Float.valueOf(b); // widening.
+				return new Float(b); // widening.
 			case 'i':
 				return Integer.valueOf(b); // widening.
 			case 'l':
@@ -611,9 +599,9 @@ public class Factory {
 			case 'c':
 				return Character.valueOf((char) s); // narrowing.
 			case 'd':
-				return Double.valueOf(s); // widening.
+				return new Double(s); // widening.
 			case 'f':
-				return Float.valueOf(s); // widening.
+				return new Float(s); // widening.
 			case 'i':
 				return Integer.valueOf(s); // widening.
 			case 'l':
@@ -639,9 +627,9 @@ public class Factory {
 			case 'c':
 				return value; // exact match
 			case 'd':
-				return Double.valueOf(c); // widening.
+				return new Double(c); // widening.
 			case 'f':
-				return Float.valueOf(c); // widening.
+				return new Float(c); // widening.
 			case 'i':
 				return Integer.valueOf(c); // widening.
 			case 'l':
@@ -668,9 +656,9 @@ public class Factory {
 			case 'c':
 				return Character.valueOf((char) i); // narrowing
 			case 'd':
-				return Double.valueOf(i); // widening.
+				return new Double(i); // widening.
 			case 'f':
-				return Float.valueOf(i); // widening.
+				return new Float(i); // widening.
 			case 'i':
 				return value; // exact match
 			case 'l':
@@ -694,9 +682,9 @@ public class Factory {
 				// completely wrong.
 				return avoidReflectException ? getMatchingDummyValue(expectedType) : value;
 			case 'd':
-				return Double.valueOf(l); // widening.
+				return new Double(l); // widening.
 			case 'f':
-				return Float.valueOf(l); // widening.			
+				return new Float(l); // widening.			
 			case 'l': 
 				return value; // exact match.
 		
@@ -719,7 +707,7 @@ public class Factory {
 				// completely wrong.
 				return avoidReflectException ? getMatchingDummyValue(expectedType) : value;
 			case 'd':
-				return Double.valueOf(f); // widening.
+				return new Double(f); // widening.
 			case 'f':
 				return value; // exact match.
 			default:  				
@@ -889,6 +877,6 @@ public class Factory {
 				}
 			}
 		}
-		return unpackedAnnotations.toArray(new AnnotationBinding [unpackedAnnotations.size()]);
+		return (AnnotationBinding[]) unpackedAnnotations.toArray(new AnnotationBinding [unpackedAnnotations.size()]);
 	}	
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2017 IBM Corporation and others.
+ * Copyright (c) 2005, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -24,8 +23,6 @@ import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
 import javax.annotation.processing.Processor;
-import javax.tools.JavaFileManager;
-import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 
 import org.eclipse.jdt.internal.compiler.batch.Main;
@@ -77,18 +74,7 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 		}
 		BatchProcessingEnvImpl processingEnv = new BatchProcessingEnvImpl(this, (Main) batchCompiler, commandLineArguments);
 		_processingEnv = processingEnv;
-		JavaFileManager fileManager = processingEnv.getFileManager();
-		if (fileManager instanceof StandardJavaFileManager) {
-			Iterable<? extends File> location = ((StandardJavaFileManager) fileManager).getLocation(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH);
-			if (location != null) {
-				_procLoader = fileManager.getClassLoader(StandardLocation.ANNOTATION_PROCESSOR_MODULE_PATH);
-			} else {
-				_procLoader = fileManager.getClassLoader(StandardLocation.ANNOTATION_PROCESSOR_PATH);
-			}
-		} else {
-			// Fall back to old code
-			_procLoader = fileManager.getClassLoader(StandardLocation.ANNOTATION_PROCESSOR_PATH);
-		}
+		_procLoader = processingEnv.getFileManager().getClassLoader(StandardLocation.ANNOTATION_PROCESSOR_PATH);
 		parseCommandLine(commandLineArguments);
 		_round = 0;
 	}

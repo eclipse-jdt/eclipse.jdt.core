@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2017 IBM Corporation and others.
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -79,7 +79,6 @@ public abstract class ElementImpl
 		return _env.getFactory().getAnnotationMirrors(getPackedAnnotationBindings());
 	}
 
-	@Override
 	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
 		A [] annotations = _env.getFactory().getAnnotationsByType(Factory.getUnpackedAnnotationBindings(getPackedAnnotationBindings()), annotationType);
 		if (annotations.length != 0 || this.getKind() != ElementKind.CLASS || annotationType.getAnnotation(Inherited.class) == null)
@@ -138,10 +137,9 @@ public abstract class ElementImpl
 
 	/**
 	 * @return the package containing this element.  The package of a PackageElement is itself.
+	 * @see javax.lang.model.util.Elements#getPackageOf(javax.lang.model.element.Element)
 	 */
-	PackageElement getPackage() {
-		return null;
-	}
+	abstract /* package */ PackageElement getPackage();
 
 	/**
 	 * Subclassed by VariableElementImpl, TypeElementImpl, and ExecutableElementImpl.

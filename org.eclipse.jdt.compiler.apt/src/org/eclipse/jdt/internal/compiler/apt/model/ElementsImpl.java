@@ -31,13 +31,11 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
-import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -56,14 +54,12 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.util.HashtableOfModule;
 
 /**
  * Utilities for working with language elements.
@@ -618,20 +614,9 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public TypeElement getTypeElement(CharSequence name) {
+		LookupEnvironment le = _env.getLookupEnvironment();
 		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
-		return getTypeElement(compoundName, null);
-	}
-
-	@Override
-	public TypeElement getTypeElement(ModuleElement module, CharSequence name) {
-		ModuleBinding mBinding = ((ModuleElementImpl) module).binding;
-		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
-		return getTypeElement(compoundName, mBinding);
-	}
-
-	private TypeElement getTypeElement(final char[][] compoundName, ModuleBinding mBinding) {
-		LookupEnvironment le = mBinding == null ? _env.getLookupEnvironment() : mBinding.environment;
-		ReferenceBinding binding = mBinding == null ? le.getType(compoundName) : le.getType(compoundName, mBinding);
+		ReferenceBinding binding = le.getType(compoundName);
 		// If we didn't find the binding, maybe it's a nested type;
 		// try finding the top-level type and then working downwards.
 		if (null == binding) {
@@ -721,7 +706,6 @@ public class ElementsImpl implements Elements {
 		}
 	}
 
-	@Override
 	public boolean isFunctionalInterface(TypeElement type) {
 		if (type != null && type.getKind() == ElementKind.INTERFACE) {
 			ReferenceBinding binding = (ReferenceBinding)((TypeElementImpl) type)._binding;
@@ -730,78 +714,6 @@ public class ElementsImpl implements Elements {
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public
-	PackageElement getPackageElement(ModuleElement module, CharSequence name) {
-		ModuleBinding mBinding = ((ModuleElementImpl) module).binding;
-		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
-
-		LookupEnvironment le = mBinding == null ? _env.getLookupEnvironment() : mBinding.environment;
-		PackageBinding binding = le.createPackage(compoundName);
-		return new PackageElementImpl(_env, binding);
-	}
-
-	@Override
-	public ModuleElement getModuleElement(CharSequence name) {
-		LookupEnvironment lookup = _env.getLookupEnvironment();
-		ModuleBinding binding = lookup.getModule(name.toString().toCharArray()); //TODO: Surely there has to be a better way than calling toString().toCharArray()?
-		if (binding == null) {
-			return null;
-		}
-		return new ModuleElementImpl(_env, binding);
-	}
-
-	@Override
-	public Set<? extends ModuleElement> getAllModuleElements() {
-		LookupEnvironment lookup = _env.getLookupEnvironment();
-		HashtableOfModule knownModules = lookup.knownModules;
-		ModuleBinding[] modules = knownModules.valueTable;
-		if (modules == null || modules.length == 0) {
-			return Collections.emptySet();
-		}
-		Set<ModuleElement> mods = new HashSet<>(modules.length);
-		for (ModuleBinding moduleBinding : modules) {
-			if (moduleBinding == null)
-				continue;
-			ModuleElement element = (ModuleElement) _env.getFactory().newElement(moduleBinding);
-			mods.add(element);
-		}
-		return mods;
-	}
-
-	@Override
-	public Origin getOrigin(Element e) {
-		return Origin.EXPLICIT;
-	}
-
-	@Override
-	public Origin getOrigin(AnnotatedConstruct c, AnnotationMirror a) {
-		return Origin.EXPLICIT;
-	}
-
-	@Override
-	public Origin getOrigin(ModuleElement m, ModuleElement.Directive directive) {
-		return Origin.EXPLICIT;
-	}
-
-	@Override
-	public boolean isBridge(ExecutableElement e) {
-		MethodBinding methodBinding = (MethodBinding) ((ExecutableElementImpl) e)._binding;
-		return methodBinding.isBridge();
-	}
-
-	@Override
-	public ModuleElement getModuleOf(Element elem) {
-		Element parent = elem.getEnclosingElement();
-		while (parent != null) {
-			if (parent instanceof ModuleElement) {
-				return (ModuleElement) parent;
-			}
-			parent = parent.getEnclosingElement();
-		}
-		return null;
 	}
 
 }
