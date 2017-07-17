@@ -72,14 +72,31 @@ public class SplitPackageBinding extends PackageBinding {
 	}
 
 	@Override
-	void addPackage(PackageBinding element) {
+	PackageBinding addPackage(PackageBinding element, ModuleBinding module) {
 		char[] simpleName = element.compoundName[element.compoundName.length-1];
+		// enrich
+		element = combineWithSiblings(element, simpleName, module);
+
 		PackageBinding visible = this.knownPackages.get(simpleName);
 		visible = SplitPackageBinding.combine(element, visible, this.enclosingModule);
 		this.knownPackages.put(simpleName, visible);
 		PackageBinding incarnation = getIncarnation(element.enclosingModule);
 		if (incarnation != null)
-			incarnation.addPackage(element);
+			incarnation.addPackage(element, module);
+		return element;
+	}
+
+	PackageBinding combineWithSiblings(PackageBinding childPackage, char[] name, ModuleBinding module) {
+		ModuleBinding primaryModule = childPackage != null ? childPackage.enclosingModule : this.enclosingModule;
+		// see if other incarnations contribute to the child package, too:
+		for (PackageBinding incarnation :  this.incarnations) {
+			ModuleBinding moduleBinding = incarnation.enclosingModule;
+			if (moduleBinding == module)
+				continue;
+			PackageBinding next = moduleBinding.getVisiblePackage(incarnation, name); // TODO(SHMOD): reduce split-package work during this invocation?
+			childPackage = combine(next, childPackage, primaryModule);
+		}
+		return childPackage;
 	}
 	
 	@Override
@@ -127,7 +144,7 @@ public class SplitPackageBinding extends PackageBinding {
 		if (result == null)
 			addNotFoundPackage(name);
 		else
-			addPackage(result);
+			addPackage(result, module);
 		return result;
 	}
 

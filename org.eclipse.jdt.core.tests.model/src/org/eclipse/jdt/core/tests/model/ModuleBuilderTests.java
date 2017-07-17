@@ -3196,7 +3196,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// test that a package declared in a module conflicts with an accessible package
 	// of the same name declared in another required module
-	public void _test_conflicting_packages_declaredvsaccessible() throws CoreException {
+	public void test_conflicting_packages_declaredvsaccessible() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
@@ -3237,8 +3237,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"org.astro.World cannot be resolved to a type\n" +
-					"Package org.astro exists in another module, org.astro",  markers);
+					"The package org.astro is accessible from more than one module: com.greetings, org.astro",  markers);
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("com.greetings");
@@ -3248,7 +3247,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// accessible package bundle.org.astro contains type World
 	// Type bundle.org.astro.World should not be resolved, because type
 	// bundle.org.astro trumps package bundle.org.astro
-	public void _test_conflict_packagevstype() throws CoreException {
+	public void test_conflict_packagevstype() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
@@ -3305,7 +3304,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// type bundle.org.astro.World should be resolved because type bundle.org.astro
 	// cannot be seen
 	// TODO - to be confirmed with spec
-	public void _test_noconflict_concealedtype_accessiblepackage() throws CoreException {
+	public void test_noconflict_concealedtype_accessiblepackage() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
@@ -3410,7 +3409,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// test that a package declared in a non-modular project conflicts with a package with the same name
 	// exported by a named module on it's build path
-	public void _test_conflict_unnamed_declaredvsexported() throws CoreException {
+	public void test_conflict_unnamed_declaredvsexported() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
@@ -3447,8 +3446,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"org.astro.World cannot be resolved to a type\n" +
-					"Package org.astro exists in another module, org.astro",  markers);
+					"The package org.astro is accessible from more than one module: <unnamed>, org.astro",
+					markers);
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("com.greetings");
@@ -3456,7 +3455,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// test that a type in an accessible package trumps an accessible package with the same name
 	// in the context of a non-modular project
-	public void _test_conflict_packagevstype_unnamed() throws CoreException {
+	public void test_conflict_packagevstype_unnamed() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
@@ -3559,7 +3558,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// test that a type in a non-accessible package does not conflict with an accessible package
 	// in the context of a non-modular project
-	public void _test_noconflict_concealedtype_accessiblepackage_unnamed() throws CoreException {
+	public void test_noconflict_concealedtype_accessiblepackage_unnamed() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));

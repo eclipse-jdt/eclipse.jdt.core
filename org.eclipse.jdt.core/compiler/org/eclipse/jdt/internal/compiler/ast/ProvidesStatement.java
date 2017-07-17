@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -78,10 +77,10 @@ public class ProvidesStatement extends ModuleStatement {
 				TypeBinding implType = impl;
 				if (provider != null) {
 					implType = provider.returnType;
-					if (!implType.canBeSeenBy(scope)) {
-						//
+					if (implType instanceof ReferenceBinding && !implType.canBeSeenBy(scope)) {
+						ReferenceBinding referenceBinding = (ReferenceBinding) implType;
 						scope.problemReporter().invalidType(this.implementations[i], new ProblemReferenceBinding(
-								CharOperation.NO_CHAR_CHAR, (ReferenceBinding) implType, ProblemReasons.NotVisible));
+								referenceBinding.compoundName, referenceBinding, ProblemReasons.NotVisible));
 						hasErrors = true;
 					}
 				} else {

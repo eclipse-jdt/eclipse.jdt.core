@@ -77,9 +77,15 @@ private void addNotFoundType(char[] simpleName) {
 		this.knownTypes = new HashtableOfType(25);
 	this.knownTypes.put(simpleName, LookupEnvironment.TheNotFoundType);
 }
-void addPackage(PackageBinding element) {
+/**
+ * Remembers a sub-package.
+ * For a split parent package this will enclude enriching with siblings,
+ * in which case the enrichted (split) binding will be returned.
+ */
+PackageBinding addPackage(PackageBinding element, ModuleBinding module) {
 	if ((element.tagBits & TagBits.HasMissingType) == 0) clearMissingTagBit();
 	this.knownPackages.put(element.compoundName[element.compoundName.length - 1], element);
+	return element;
 }
 void addType(ReferenceBinding element) {
 	if ((element.tagBits & TagBits.HasMissingType) == 0) clearMissingTagBit();
@@ -215,14 +221,19 @@ public Binding getTypeOrPackage(char[] name, ModuleBinding mod) {
 	if (packageBinding != null && packageBinding != LookupEnvironment.TheNotFoundPackage) {
 		return packageBinding;
 	}
+	ReferenceBinding problemBinding = null;
+	lookForType:
 	if (referenceBinding == null) { // have not looked for it before
 		if ((referenceBinding = this.environment.askForType(this, name, mod)) != null) {
 			if (referenceBinding.isNestedType()) {
 				return new ProblemReferenceBinding(new char[][]{name}, referenceBinding, ProblemReasons.InternalNameProvided);
 			}
-			if (!mod.canAccess(referenceBinding.fPackage))
-				return new ProblemReferenceBinding(referenceBinding.compoundName, referenceBinding, ProblemReasons.NotAccessible);
-			return referenceBinding;
+			if (!mod.canAccess(referenceBinding.fPackage)) {
+				problemBinding = new ProblemReferenceBinding(referenceBinding.compoundName, referenceBinding, ProblemReasons.NotAccessible);
+				break lookForType;
+			} else {
+				return referenceBinding;
+			}
 		}
 
 		// Since name could not be found, add a problem binding
@@ -235,12 +246,14 @@ public Binding getTypeOrPackage(char[] name, ModuleBinding mod) {
 			return packageBinding;
 		}
 		if (referenceBinding != null && referenceBinding != LookupEnvironment.TheNotFoundType) {
+			if (problemBinding != null)
+				return problemBinding;
 			return referenceBinding; // found cached missing type - check if package conflict
 		}
 		addNotFoundPackage(name);
 	}
 
-	return null;
+	return problemBinding;
 }
 public final boolean isViewedAsDeprecated() {
 	if ((this.tagBits & TagBits.DeprecatedAnnotationResolved) == 0) {

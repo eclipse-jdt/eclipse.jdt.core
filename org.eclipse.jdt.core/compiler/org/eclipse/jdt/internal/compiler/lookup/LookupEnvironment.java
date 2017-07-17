@@ -722,7 +722,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 			packageBinding = new PackageBinding(constantPoolName[0], this, this.module);
 		}
 		if (isMissing) packageBinding.tagBits |= TagBits.HasMissingType;
-		this.knownPackages.put(constantPoolName[0], packageBinding);
+		this.knownPackages.put(constantPoolName[0], packageBinding); // TODO: split?
 	}
 
 	for (int i = 1, length = constantPoolName.length - 1; i < length; i++) {
@@ -744,7 +744,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 			if (isMissing) {
 				packageBinding.tagBits |= TagBits.HasMissingType;
 			}
-			parent.addPackage(packageBinding);
+			packageBinding = parent.addPackage(packageBinding, this.module);
 		}
 	}
 	return packageBinding;
@@ -1031,7 +1031,7 @@ public PackageBinding createPackage(char[][] compoundName) {
 	if (packageBinding == null || packageBinding == TheNotFoundPackage) {
 		packageBinding = new PackageBinding(compoundName[0], this, this.module);
 		this.knownPackages.put(compoundName[0], packageBinding);
-		if (this.module != null && !this.module.isUnnamed()) {
+		if (this.module != null) {
 			packageBinding = this.module.addPackage(packageBinding, true);
 			this.knownPackages.put(compoundName[0], packageBinding); // update in case of split package
 		}
@@ -1067,7 +1067,7 @@ public PackageBinding createPackage(char[][] compoundName) {
 				}
 			}
 			packageBinding = new PackageBinding(CharOperation.subarray(compoundName, 0, i + 1), parent, this, this.module);
-			parent.addPackage(packageBinding);
+			packageBinding = parent.addPackage(packageBinding, this.module);
 		}
 	}
 	if (packageBinding instanceof SplitPackageBinding)

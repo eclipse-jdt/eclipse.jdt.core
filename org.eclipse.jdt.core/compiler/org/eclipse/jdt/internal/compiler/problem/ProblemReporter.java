@@ -3174,13 +3174,14 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 	}
 
 	if (expectedImport instanceof PackageBinding && expectedImport.problemId() == ProblemReasons.NotAccessible) {
-		String[] arguments = new String[] {CharOperation.toString(((PackageBinding)expectedImport).compoundName)};
+		char[][] compoundName = ((PackageBinding)expectedImport).compoundName;
+		String[] arguments = new String[] {CharOperation.toString(compoundName)};
 		this.handleUntagged(
 		        IProblem.NotAccessiblePackage,
 		        arguments,
 		        arguments,
 		        importRef.sourceStart,
-		        (int) importRef.sourcePositions[importRef.tokens.length - 1]);
+		        (int) importRef.sourcePositions[compoundName.length - 1]);
 		return;
 	}
 
@@ -3214,7 +3215,7 @@ public void conflictingPackagesFromModules(SplitPackageBinding splitPackage, int
 	ModuleBinding enclosingModule = splitPackage.enclosingModule;
 	String modules = splitPackage.incarnations.stream()
 						.filter(enclosingModule::canAccess)
-						.map(p -> String.valueOf(p.enclosingModule.name()))
+						.map(p -> String.valueOf(p.enclosingModule.readableName()))
 						.sorted()
 						.collect(Collectors.joining(", ")); //$NON-NLS-1$
 	String[] arguments = new String[] {

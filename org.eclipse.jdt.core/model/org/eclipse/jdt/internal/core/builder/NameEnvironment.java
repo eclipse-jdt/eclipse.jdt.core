@@ -435,7 +435,7 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] na
 	if (moduleName == ModuleBinding.UNNAMED || this.modulePathEntries == null) {
 		char[][] names = CharOperation.NO_CHAR_CHAR;
 		for (ClasspathLocation location : this.binaryLocations) {
-			if (location.module == null) {
+			if (location.module == null && !(location instanceof ClasspathJrt)) {
 				char[][] declaringModules = location.getModulesDeclaringPackage(pkgName, null);
 				if (declaringModules != null)
 					names = CharOperation.arrayConcat(names, declaringModules);

@@ -453,8 +453,13 @@ void faultInImports() {
 				problemReporter().cannotImportPackage(importReference);
 				continue nextImport;
 			} else if (this.environment.useModuleSystem && importBinding instanceof ReferenceBinding) {
+				PackageBinding importedPackage = ((ReferenceBinding) importBinding).fPackage;
+				if (!importedPackage.isValidBinding()) {
+					problemReporter().importProblem(importReference, importedPackage);
+					continue nextImport;
+				}
 				// re-get to find a possible split package:
-				Binding importedPackage = findImport(((ReferenceBinding) importBinding).fPackage.compoundName, false, true);
+				importedPackage = (PackageBinding) findImport(importedPackage.compoundName, false, true);
 				if (importedPackage instanceof SplitPackageBinding) {
 					SplitPackageBinding splitPackage = (SplitPackageBinding) importedPackage;
 					if (splitPackage.hasConflict()) {
