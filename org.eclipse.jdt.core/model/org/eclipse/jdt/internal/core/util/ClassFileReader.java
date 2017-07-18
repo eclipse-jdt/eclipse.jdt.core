@@ -293,6 +293,12 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 							this.attributes[attributesIndex++] = new RuntimeVisibleTypeAnnotationsAttribute(classFileBytes, this.constantPool, readOffset);
 						} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS)) {
 							this.attributes[attributesIndex++] = new RuntimeInvisibleTypeAnnotationsAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.MODULE)) {
+							this.attributes[attributesIndex++] = new ModuleAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.MODULE_PACKAGES)) {
+							this.attributes[attributesIndex++] = new ModulePackagesAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.MODULE_MAIN_CLASS)) {
+							this.attributes[attributesIndex++] = new ModuleMainClassAttribute(classFileBytes, this.constantPool, readOffset);
 						} else {
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						}
@@ -454,7 +460,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	 * @see IClassFileReader#isClass()
 	 */
 	public boolean isClass() {
-		return !isInterface();
+		return !(isInterface() || isModule());
 	}
 
 	/**
@@ -462,5 +468,8 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	 */
 	public boolean isInterface() {
 		return (getAccessFlags() & IModifierConstants.ACC_INTERFACE) != 0;
+	}
+	private boolean isModule() {
+		return (getAccessFlags() & IModifierConstants.ACC_MODULE) != 0;
 	}
 }
