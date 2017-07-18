@@ -38,6 +38,7 @@ public abstract class ClasspathLocation {
 		return singletonModuleNameIf(isPackage(qualifiedPackageName, moduleName));
 	}
 	public boolean hasModule() { return getModule() != null; }
+	abstract public boolean hasCompilationUnit(String pkgName, String moduleName);
 
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 		String fileName = new String(typeName);

@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
@@ -77,5 +78,17 @@ public class ProjectEntry implements IModulePathEntry {
 			return null;
 		}
 		return null;
+	}
+	@Override
+	public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
+		try {
+			for (IPackageFragmentRoot root : this.project.getPackageFragmentRoots()) {
+				if (root instanceof PackageFragmentRoot && ((PackageFragmentRoot) root).hasCompilationUnit(qualifiedPackageName, moduleName))
+					return true;
+			}
+		} catch (JavaModelException e) {
+			// silent
+		}
+		return false;
 	}
 }

@@ -313,6 +313,27 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] pa
 }
 
 @Override
+public boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleName) {
+	String qualifiedPackageNameString = String.valueOf(CharOperation.concatWith(qualifiedPackageName, '/'));
+	LookupStrategy strategy = LookupStrategy.get(moduleName);
+	String moduleNameString = LookupStrategy.getStringName(moduleName);
+	if (strategy == LookupStrategy.Named) {
+		if (this.moduleLocations != null) {
+			ClasspathLocation location = this.moduleLocations.get(moduleNameString);
+			if (location != null)
+				return location.hasCompilationUnit(qualifiedPackageNameString, moduleNameString);
+		}
+	} else {
+		for (ClasspathLocation location : this.locationSet) {
+			if (strategy.matches(location, ClasspathLocation::hasModule) )
+				if (location.hasCompilationUnit(qualifiedPackageNameString, moduleNameString))
+					return true;
+		}
+	}
+	return false;
+}
+
+@Override
 public IModule getModule(char[] moduleName) {
 	computeModules();
 	IModuleDescription moduleDesc = this.modules.get(new String(moduleName));

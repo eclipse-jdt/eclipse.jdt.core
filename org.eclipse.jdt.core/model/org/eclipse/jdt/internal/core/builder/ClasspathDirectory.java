@@ -213,6 +213,18 @@ public boolean isPackage(String qualifiedPackageName, String moduleName) {
 	}
 	return directoryList(qualifiedPackageName) != null;
 }
+@Override
+public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
+	String[] dirList = directoryList(qualifiedPackageName);
+	if (dirList != null) {
+		for (String entry : dirList) {
+			String entryLC = entry.toLowerCase();
+			if (entryLC.endsWith(SuffixConstants.SUFFIX_STRING_class) || entryLC.endsWith(SuffixConstants.SUFFIX_STRING_java))
+				return true;
+		}
+	}
+	return false;
+}
 
 public void reset() {
 	this.directoryCache = new SimpleLookupTable(5);

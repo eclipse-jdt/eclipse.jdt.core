@@ -226,6 +226,10 @@ public char[][] getModulesDeclaringPackage(String qualifiedPackageName, String m
 	return CharOperation.toCharArrays(moduleNames); 
 }
 @Override
+public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
+	return JRTUtil.hasCompilationUnit(new File(this.zipFilename), qualifiedPackageName, moduleName);
+}
+@Override
 public boolean isPackage(String qualifiedPackageName, String moduleName) {
 	return JRTUtil.getModulesDeclaringPackage(new File(this.zipFilename), qualifiedPackageName, moduleName) != null;
 }

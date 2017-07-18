@@ -68,6 +68,15 @@ public interface IModulePathEntry {
 	char[][] getModulesDeclaringPackage(String qualifiedPackageName, /*@Nullable*/String moduleName);
 
 	/**
+	 * Answer whether the given package has any compilation unit (.java or .class) in the given module.
+	 * For entries representing a single module, the module name should be checked before invoking this method.
+	 * @param qualifiedPackageName '/'-separated package name
+	 * @param moduleName if non-null only CUs attached to the given module should be considered
+	 * @return true iff a .java or .class file could be found in the given module / package.
+	 */
+	boolean hasCompilationUnit(String qualifiedPackageName, String moduleName);
+
+	/**
 	 * Specifies whether this entry represents an automatic module.
 	 * 
 	 * @return true if this is an automatic module, false otherwise

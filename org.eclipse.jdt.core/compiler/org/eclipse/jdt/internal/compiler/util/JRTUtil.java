@@ -27,6 +27,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -158,6 +159,10 @@ public class JRTUtil {
 	public static List<String> getModulesDeclaringPackage(File jrt, String qName, String moduleName) {
 		return getJrtSystem(jrt).getModulesDeclaringPackage(qName, moduleName);
 	}
+
+	public static boolean hasCompilationUnit(File jrt, String qualifiedPackageName, String moduleName) {
+		return getJrtSystem(jrt).hasClassFile(qualifiedPackageName, moduleName);
+	}
 }
 class JrtFileSystem {
 	private final Map<String, String> packageToModule = new HashMap<String, String>();
@@ -244,6 +249,23 @@ class JrtFileSystem {
 			}
 		}
 		return JRTUtil.DEFAULT_MODULE;
+	}
+	public boolean hasClassFile(String qualifiedPackageName, String module) {
+		// easy checks first:
+		String knownModule = this.packageToModule.get(qualifiedPackageName);
+		if (knownModule == null || (knownModule != JRTUtil.MULTIPLE && !knownModule.equals(module)))
+			return false;
+		Path packagePath = this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, module, qualifiedPackageName);
+		if (!Files.exists(packagePath))
+			return false;
+		// iterate files:
+		try {
+			return Files.list(packagePath)
+				.anyMatch(filePath -> filePath.endsWith(SuffixConstants.SUFFIX_STRING_class)
+										|| filePath.endsWith(SuffixConstants.SUFFIX_STRING_CLASS));
+		} catch (IOException e) {
+			return false;
+		}
 	}
 
 	public InputStream getContentFromJrt(String fileName, String module) throws IOException {

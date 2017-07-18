@@ -1867,4 +1867,24 @@ public class NameLookup implements SuffixConstants {
 		return false;
 	}
 
+	public boolean hasCompilationUnit(char[][] pkgName, IJavaElement moduleContext) {
+		String packageName = CharOperation.toString(pkgName);
+		if (packageName == null || packageName.length() == 0) {
+			packageName= IPackageFragment.DEFAULT_PACKAGE_NAME;
+		}
+
+		// Look for concerned package fragments
+		JavaElementRequestor elementRequestor = new JavaElementRequestor();
+		seekPackageFragments(packageName, false, elementRequestor, moduleContext);
+		IPackageFragment[] packages= elementRequestor.getPackageFragments();
+		for (IPackageFragment fragment : packages) {
+			try {
+				if (fragment.containsJavaResources())
+					return true;
+			} catch (JavaModelException e) {
+				// silent
+			}
+		}
+		return false;
+	}
 }

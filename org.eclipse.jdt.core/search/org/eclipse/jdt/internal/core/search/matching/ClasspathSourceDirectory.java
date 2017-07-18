@@ -141,6 +141,13 @@ public boolean isPackage(String qualifiedPackageName, String moduleName) {
 	}
 	return directoryTable(qualifiedPackageName) != null;
 }
+@Override
+public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
+	SimpleLookupTable dirTable = directoryTable(qualifiedPackageName);
+	if (dirTable != null && dirTable.elementSize > 0)
+		return true;
+	return false;
+}
 
 public void reset() {
 	this.directoryCache = new SimpleLookupTable(5);

@@ -64,6 +64,10 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 		List<String> modules = JRTUtil.getModulesDeclaringPackage(this.file, qualifiedPackageName, moduleName);
 		return CharOperation.toCharArrays(modules);
 	}
+	@Override
+	public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
+		return JRTUtil.hasCompilationUnit(this.file, qualifiedPackageName, moduleName);
+	}
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
 		return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false);
 	}

@@ -238,6 +238,15 @@ public synchronized char[][] getModulesDeclaringPackage(String qualifiedPackageN
 	}
 	return singletonModuleNameIf(this.packageCache.contains(qualifiedPackageName));
 }
+@Override
+public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
+	for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
+		String fileName = e.nextElement().getName();
+		if (fileName.startsWith(qualifiedPackageName) && fileName.toLowerCase().endsWith(SUFFIX_STRING_class))
+			return true;
+	}	
+	return false;
+}
 public void reset() {
 	if (this.closeZipFileAtEnd) {
 		if (this.zipFile != null) {

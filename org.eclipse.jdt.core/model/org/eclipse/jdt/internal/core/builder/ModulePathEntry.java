@@ -117,4 +117,12 @@ public class ModulePathEntry implements IModulePathEntry {
 		}
 		return names == CharOperation.NO_CHAR_CHAR ? null : names;
 	}
+	@Override
+	public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
+		for (ClasspathLocation cp : this.locations) {
+			if (cp.hasCompilationUnit(qualifiedPackageName, moduleName))
+				return true;
+		}
+		return false;
+	}
 }

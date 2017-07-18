@@ -59,7 +59,6 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName);
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly);
 		boolean isPackage(String qualifiedPackageName, /*@Nullable*/String moduleName);
-		char[][] getModulesDeclaringPackage(String qualifiedPackageName, /*@Nullable*/String moduleName);
 		default boolean hasModule() { return getModule() != null; }
 		/**
 		 * Return a list of the jar file names defined in the Class-Path section
@@ -527,6 +526,30 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] pa
 		}
 	}
 	return allNames;
+}
+
+@Override
+public boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleName) {
+	String qPackageName = String.valueOf(CharOperation.concatWith(qualifiedPackageName, '/'));
+	String moduleNameString = String.valueOf(moduleName);
+	LookupStrategy strategy = LookupStrategy.get(moduleName);
+	switch (strategy) {
+		case Named:
+			if (this.moduleLocations != null) {
+				Classpath location = this.moduleLocations.get(moduleNameString);
+				if (location != null)
+					return location.hasCompilationUnit(qPackageName, moduleNameString);
+			}
+			return false;
+		default:
+			for (int i = 0; i < this.classpaths.length; i++) {
+				Classpath location = this.classpaths[i];
+				if (strategy.matches(location, Classpath::hasModule))
+					if (location.hasCompilationUnit(qPackageName, moduleNameString))
+						return true;
+			}
+			return false;
+	}
 }
 
 @Override

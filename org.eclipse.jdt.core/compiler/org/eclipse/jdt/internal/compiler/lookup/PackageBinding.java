@@ -19,6 +19,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfType;
 
@@ -360,5 +361,18 @@ public boolean isDeclaredIn(ModuleBinding moduleBinding) {
 }
 public boolean subsumes(PackageBinding binding) {
 	return binding == this;
+}
+public boolean hasCompilationUnit() {
+	if (this.knownTypes != null) {
+		for (ReferenceBinding knownType : this.knownTypes.valueTable) {
+			if (knownType != null && knownType != LookupEnvironment.TheNotFoundType)
+				return true;
+		}
+	}
+	if (this.environment.useModuleSystem) {
+		IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
+		return moduleEnv.hasCompilationUnit(this.compoundName, this.enclosingModule.nameForLookup());
+	}
+	return false;
 }
 }

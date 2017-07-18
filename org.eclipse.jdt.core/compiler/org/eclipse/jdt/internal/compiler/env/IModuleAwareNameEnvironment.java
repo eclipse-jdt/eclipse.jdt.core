@@ -107,7 +107,14 @@ public interface IModuleAwareNameEnvironment extends INameEnvironment {
 	/** Answer a type identified by the given names. moduleName may be one of the special names from ModuleBinding (ANY, ANY_NAMED, UNNAMED). */
 	NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName);
 	char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] name, char[] moduleName);
-
+	
+	/**
+	 * Answer whether the given package (within the given module) contains any compilation unit.
+	 * @param qualifiedPackageName
+	 * @return true iff the package contains at least one compilation unit.
+	 */
+	boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleName);
+	
 	/** Get the module with the given name, which must denote a named module. */
 	IModule getModule(char[] moduleName);
 	IModule[] getAllAutomaticModules();

@@ -884,4 +884,15 @@ public IModuleDescription getModuleDescription() {
 	}
 	return null;
 }
+/** @see org.eclipse.jdt.internal.compiler.env.IModulePathEntry#hasCompilationUnit(String, String) */
+public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
+	IPackageFragment fragment = getPackageFragment(qualifiedPackageName.replace('/', '.'));
+	try {
+		if (fragment.exists())
+			return fragment.containsJavaResources();
+	} catch (JavaModelException e) {
+		// silent
+	}
+	return false;
+}
 }

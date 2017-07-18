@@ -277,6 +277,15 @@ public boolean isPackage(String qualifiedPackageName, String moduleName) {
 		scanContent();
 	return this.knownPackageNames.includes(qualifiedPackageName);
 }
+@Override
+public boolean hasCompilationUnit(String pkgName, String moduleName) {
+	for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
+		String fileName = e.nextElement().getName();
+		if (fileName.startsWith(pkgName) && fileName.toLowerCase().endsWith(SuffixConstants.SUFFIX_STRING_class))
+			return true;
+	}	
+	return false;
+}
 
 /** Scan the contained packages and try to locate the module descriptor. */
 private void scanContent() {

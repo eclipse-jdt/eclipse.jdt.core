@@ -182,6 +182,13 @@ public class ClasspathJsr199 extends ClasspathLocation {
 		}
 		return singletonModuleNameIf(result);
 	}
+	
+	@Override
+	public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
+		if (this.jrt != null)
+			return this.jrt.hasCompilationUnit(qualifiedPackageName, moduleName);
+		return false;
+	}
 
 	@Override
 	public void reset() {

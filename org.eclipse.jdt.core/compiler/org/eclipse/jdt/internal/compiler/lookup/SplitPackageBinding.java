@@ -254,7 +254,7 @@ public class SplitPackageBinding extends PackageBinding {
 	public boolean hasConflict() {
 		int visibleCount = 0;
 		for (PackageBinding incarnation : this.incarnations) {
-			if (incarnation.knownTypes != null && incarnation.knownTypes.elementSize > 0) { // FIXME(SHMOD): this is a workaround for checking existence of any CU
+			if (incarnation.hasCompilationUnit()) {
 				if (this.enclosingModule.canAccess(incarnation)) 
 					if (++visibleCount > 1)
 						return true;

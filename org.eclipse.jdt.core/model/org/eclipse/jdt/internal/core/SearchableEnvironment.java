@@ -806,6 +806,40 @@ public class SearchableEnvironment
 				throw new IllegalArgumentException("Unexpected LookupStrategy "+strategy); //$NON-NLS-1$
 		}
 	}
+	@Override
+	public boolean hasCompilationUnit(char[][] pkgName, char[] moduleName) {
+		LookupStrategy strategy = LookupStrategy.get(moduleName);
+		switch (strategy) {
+			case Named:
+				if (this.knownModuleLocations != null) {
+					IJavaElement moduleContext = findModuleContext(moduleName);
+					if (moduleContext != null) {
+						// (this.owner != null && this.owner.isPackage(pkgName)) // TODO(SHMOD) see old isPackage
+						if (this.nameLookup.hasCompilationUnit(pkgName, moduleContext))
+							return true;
+					}
+				}
+				return false;
+			case Unnamed:
+			case Any:
+				// if in pre-9 mode we may still search the unnamed module 
+				if (this.knownModuleLocations == null) {
+					if (this.nameLookup.hasCompilationUnit(pkgName, null))
+						return true;
+				}
+				//$FALL-THROUGH$
+			case AnyNamed:
+				for (IPackageFragmentRoot packageRoot : this.nameLookup.packageFragmentRoots) {
+					if (strategy.matches(packageRoot, loc -> loc instanceof JrtPackageFragmentRoot || getModuleDescription(loc) != null)) {
+						if (this.nameLookup.hasCompilationUnit(pkgName, packageRoot))
+							return true;
+					}
+				}
+				return false;
+			default:
+				throw new IllegalArgumentException("Unexpected LookupStrategy "+strategy); //$NON-NLS-1$
+		}
+	}
 	private IModuleDescription getModuleDescription(IPackageFragmentRoot root) {
 		if (root instanceof JarPackageFragmentRoot)
 			return root.getModuleDescription();

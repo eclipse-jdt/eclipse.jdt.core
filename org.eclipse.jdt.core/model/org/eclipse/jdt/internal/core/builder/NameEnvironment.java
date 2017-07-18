@@ -480,6 +480,45 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] na
 	}
 	return null;
 }
+
+@Override
+public boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleName) {
+	String pkgName = String.valueOf(CharOperation.concatWith(qualifiedPackageName, '/'));
+	LookupStrategy strategy = LookupStrategy.get(moduleName);
+	String modName = LookupStrategy.getStringName(moduleName);
+	switch (strategy) {
+		// include unnamed (search all locations):
+		case Any:
+		case Unnamed:
+			for (ClasspathLocation location : this.binaryLocations) {
+				if (strategy.matches(location, ClasspathLocation::hasModule))
+					if (location.hasCompilationUnit(pkgName, null))
+						return true;
+			}
+			for (ClasspathLocation location : this.sourceLocations) {
+				if (strategy.matches(location, ClasspathLocation::hasModule))
+					if (location.hasCompilationUnit(pkgName, null))
+						return true;
+			}
+			return false;
+		// only named (rely on modulePathEntries):
+		case Named:
+			if (this.modulePathEntries != null) {
+				IModulePathEntry modulePathEntry = this.modulePathEntries.get(modName);
+				return modulePathEntry != null && modulePathEntry.hasCompilationUnit(pkgName, modName);
+			}
+			return false;
+		case AnyNamed:
+			if (this.modulePathEntries != null) {
+				for (IModulePathEntry modulePathEntry : this.modulePathEntries.values())
+					if (modulePathEntry.hasCompilationUnit(pkgName, modName))
+						return true;
+			}
+			return false;
+		default:
+			throw new IllegalArgumentException("Unexpected LookupStrategy "+strategy); //$NON-NLS-1$
+	}
+}
 private boolean isPackage(String qualifiedPackageName, char[] moduleName) {
 	String stringModuleName = null;
 

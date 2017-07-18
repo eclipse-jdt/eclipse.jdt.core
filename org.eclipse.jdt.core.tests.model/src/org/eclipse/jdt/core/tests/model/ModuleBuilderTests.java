@@ -57,7 +57,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-//		 TESTS_NAMES = new String[] { "testBug518282e" };
+//		 TESTS_NAMES = new String[] { "test_conflicting_packages" };
 	}
 	private static boolean isJRE9 = false;
 	private String sourceWorkspacePath = null;
@@ -3226,7 +3226,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// test that two packages with the same name result in conflict if they are both
 	// accessible to a module
-	public void _test_conflicting_packages() throws CoreException {
+	public void test_conflicting_packages() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
@@ -3274,8 +3274,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"Package org.astro exists in multiple modules, org.astro and some.mod\n" +
-					"World cannot be resolved to a type",  markers);
+					"The package org.astro is accessible from more than one module: org.astro, some.mod", markers);
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("some.mod");
@@ -3444,7 +3443,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// test that two packages of the same name exported by two named modules result in
 	// a conflict in the context of a non-modular project
-	public void _test_conflicting_packages_unnamed() throws CoreException {
+	public void test_conflicting_packages_unnamed() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
@@ -3492,8 +3491,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"Package org.astro exists in multiple modules, org.astro and some.mod\n" +
-					"World cannot be resolved to a type",  markers);
+					"The package org.astro is accessible from more than one module: org.astro, some.mod",
+					markers);
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("some.mod");
@@ -3606,7 +3605,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// test that a conflicting package does not cause an error when resolving a sub package name
 	// when the sub package is accessible in the context of a non-modular project
-	public void _test_noconflict_subpkg_unnamed() throws CoreException {
+	public void test_noconflict_subpkg_unnamed() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
@@ -3655,7 +3654,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"Package bundle.org exists in another module, other.mod",  markers);
+					"The package bundle.org is accessible from more than one module: <unnamed>, other.mod",
+					markers);
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("other.mod");
