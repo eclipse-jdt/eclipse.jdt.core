@@ -2123,6 +2123,9 @@ public final class CompletionEngine
 									debugPrintf();
 									return;
 								}
+							} else if (implementation instanceof CompletionOnKeyword) {
+								contextAccepted = true;
+								processModuleKeywordCompletion(parsedUnit, implementation, (CompletionOnKeyword) implementation);
 							}
 						}
 					}

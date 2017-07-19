@@ -593,4 +593,58 @@ public void test486988_0015() throws Exception {
 		deleteProject(project2);
 	}
 }
+public void testBug518618_001() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	IJavaProject project2 = createJavaProject("Completion9_2", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		createType("/Completion9_1/src/", "pack11", "X11");
+		createType("/Completion9_1/src/", "pack11.packinternal", "Z11");
+		createTypePlus("/Completion9_1/src/", "pack11.packinternal", "Z12", "implements pack22.I22", true /* isClass */, false /* createFolder */);
+		createType("/Completion9_1/src/", "pack12", "X12");
+		createTypePlus("/Completion9_1/src/", "pack12", "Y12", "implements pack22.I22", true /* isClass */, false /* createFolder */);
+		String filePath1 = "/Completion9_1/src/module-info.java";
+		String completeBehind = "with pack12.Y12;";
+		String fileContent1 =  "module first {\n"
+				+ "requires second;\n"
+				+ "provides pack22.I22 " + completeBehind
+				+ "}\n";
+		createFile(filePath1, fileContent1);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project2.open(null);
+		createType("/Completion9_2/src/", "pack21", "X21");
+		createType("/Completion9_2/src/", "pack22", "X22");
+		createTypePlus("/Completion9_2/src/", "pack22", "I22", null, false /* isClass */, false /* createFolder */);
+
+		String fileContent2 =  "module second { "
+				+ "exports pack21 to first;\n"
+				+ "exports pack22 to first;\n" 
+				+ "}\n";
+		String filePath2 = "/Completion9_2/src/module-info.java";
+		createFile(filePath2, fileContent2);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+
+		int cursorLocation = fileContent1.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath1);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "exports[KEYWORD]{exports, null, null, exports, 49}\n"
+				+ "opens[KEYWORD]{opens, null, null, opens, 49}\n"
+				+ "provides[KEYWORD]{provides, null, null, provides, 49}\n"
+				+ "requires[KEYWORD]{requires, null, null, requires, 49}\n"
+				+ "uses[KEYWORD]{uses, null, null, uses, 49}";
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+		deleteProject(project2);
+	}
+}
 }
