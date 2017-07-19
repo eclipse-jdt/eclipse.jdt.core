@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Runnable
+Bundle-SymbolicName: bundle.test.a.callable
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-9
+Export-Package: bundle.test.a.callable

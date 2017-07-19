@@ -24,6 +24,7 @@ import java.util.Map;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -55,6 +56,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 //		 TESTS_NAMES = new String[] { "test_ReconcilerModuleLookup" };
 	}
 	private static boolean isJRE9 = false;
+	private String sourceWorkspacePath = null;
 	protected ProblemRequestor problemRequestor;
 	public static Test suite() {
 		String javaVersion = System.getProperty("java.version");
@@ -66,6 +68,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			isJRE9 = true;
 		}
 		return buildModelTestSuite(ModuleBuilderTests.class, BYTECODE_DECLARATION_ORDER);
+	}
+	public String getSourceWorkspacePath() {
+		return this.sourceWorkspacePath == null ? super.getSourceWorkspacePath() : this.sourceWorkspacePath;
 	}
 	public void setUp() throws Exception {
 		super.setUp();
@@ -3604,7 +3609,35 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("com.greetings");
 		}
 	}
-
+	public void testBug512053() throws CoreException, IOException {
+		if (!isJRE9) return;
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		this.sourceWorkspacePath = super.getSourceWorkspacePath() + java.io.File.separator + "bug512053"; 
+		try {
+			setUpJavaProject("bundle.test.a.callable", "9");
+			setUpJavaProject("bundle.test.a", "9");
+			setUpJavaProject("bundle.test.b", "9");
+			setUpJavaProject("jpms.test.a", "9");
+			setUpJavaProject("jpms.test.b", "9");
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+			//assertNoErrors(p2);
+		} finally {
+			this.deleteProject("bundle.test.a.callable");
+			this.deleteProject("bundle.test.a");
+			this.deleteProject("bundle.test.b");
+			this.deleteProject("jpms.test.a");
+			this.deleteProject("jpms.test.b");
+			this.sourceWorkspacePath = null;
+			 JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	protected void assertNoErrors() throws CoreException {
+		for (IProject p : getWorkspace().getRoot().getProjects()) {
+			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
+			assertFalse("Unexpected errors in project " + p.getName(), maxSeverity == IMarker.SEVERITY_ERROR);
+		}
+	}
 	// sort by CHAR_START
 	protected void sortMarkers(IMarker[] markers) {
 		Arrays.sort(markers, (a,b) -> a.getAttribute(IMarker.CHAR_START, 0) - b.getAttribute(IMarker.CHAR_START, 0)); 
