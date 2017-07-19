@@ -279,7 +279,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 	}
 
-	private Stream<ModuleBinding> getRequiredModules(boolean transitiveOnly) {
+	Stream<ModuleBinding> getRequiredModules(boolean transitiveOnly) {
 		return Stream.of(transitiveOnly ? this.getRequiresTransitive() : this.getRequires());
 	}
 	private void collectAllDependencies(Set<ModuleBinding> deps) {

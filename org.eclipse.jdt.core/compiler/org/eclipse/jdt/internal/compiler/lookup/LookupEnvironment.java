@@ -228,7 +228,8 @@ public ReferenceBinding askForType(char[][] compoundName, /*@NonNull*/ModuleBind
 	NameEnvironmentAnswer[] answers = null;
 	if (this.useModuleSystem) {
 		IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.nameEnvironment;
-		answers = askForTypeFromModules(clientModule, mod -> moduleEnv.findType(compoundName, mod.nameForLookup()));
+		answers = askForTypeFromModules(clientModule, clientModule.getAllRequiredModules(),
+				mod -> moduleEnv.findType(compoundName, mod.nameForLookup()));
 	} else {
 		NameEnvironmentAnswer answer = this.nameEnvironment.findType(compoundName);
 		if (answer != null) {
@@ -286,7 +287,9 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, ModuleBi
 	if (this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
 		IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.nameEnvironment;
 		final PackageBinding pack = packageBinding;
-		answers = askForTypeFromModules(clientModule, mod -> fromSplitPackageOrOracle(moduleEnv, mod, pack, name));
+		// leverage module information from the (split?) package as to prefer NotAccessible over NotFound:
+		answers = askForTypeFromModules(null, packageBinding.getDeclaringModules(),
+				mod -> fromSplitPackageOrOracle(moduleEnv, mod, pack, name));
 	} else {
 		NameEnvironmentAnswer answer = this.nameEnvironment.findType(name, packageBinding.compoundName);
 		if (answer != null) {
@@ -356,28 +359,33 @@ private ReferenceBinding combine(ReferenceBinding one, ReferenceBinding two, Mod
 	if (!clientModule.canAccess(two.fPackage)) return one;
 	return new ProblemReferenceBinding(one.compoundName, one, ProblemReasons.Ambiguous); // TODO(SHMOD): use a new problem ID
 }
-/** Collect answers from the oracle concerning the given clientModule and each of its required modules. */
-private NameEnvironmentAnswer[] askForTypeFromModules(ModuleBinding clientModule, Function<ModuleBinding,NameEnvironmentAnswer> oracle)
+/** Collect answers from the oracle concerning the given clientModule (if present) and each of a set of other modules. */
+private NameEnvironmentAnswer[] askForTypeFromModules(ModuleBinding clientModule, ModuleBinding[] otherModules,
+		Function<ModuleBinding,NameEnvironmentAnswer> oracle)
 {
-	if (clientModule.nameForLookup() == ModuleBinding.ANY) {
+	if (clientModule != null && clientModule.nameForLookup() == ModuleBinding.ANY) {
 		NameEnvironmentAnswer answer = oracle.apply(clientModule);
 		if (answer != null)
 			answer.moduleBinding = this.root.getModuleFromAnswer(answer);
 		return new NameEnvironmentAnswer[] { answer };
 	} else {
-		ModuleBinding[] requiredModules = clientModule.getAllRequiredModules();
-		NameEnvironmentAnswer[] answers = new NameEnvironmentAnswer[requiredModules.length+1];
 		boolean found = false;
-		NameEnvironmentAnswer answer = oracle.apply(clientModule);
-		if (answer != null) {
-			answer.moduleBinding = clientModule;
-			answers[answers.length-1] = answer;
-			found = true;
-		}
-		for (int i = 0; i < requiredModules.length; i++) {
-			answer = oracle.apply(requiredModules[i]);
+		NameEnvironmentAnswer[] answers = null;
+		if (clientModule != null) {
+			answers = new NameEnvironmentAnswer[otherModules.length+1];
+			NameEnvironmentAnswer answer = oracle.apply(clientModule);
 			if (answer != null) {
-				answer.moduleBinding = requiredModules[i];
+				answer.moduleBinding = clientModule;
+				answers[answers.length-1] = answer;
+				found = true;
+			}
+		} else {
+			answers = new NameEnvironmentAnswer[otherModules.length];
+		}
+		for (int i = 0; i < otherModules.length; i++) {
+			NameEnvironmentAnswer answer = oracle.apply(otherModules[i]);
+			if (answer != null) {
+				answer.moduleBinding = otherModules[i];
 				answers[i] = answer;
 				found = true;
 			}

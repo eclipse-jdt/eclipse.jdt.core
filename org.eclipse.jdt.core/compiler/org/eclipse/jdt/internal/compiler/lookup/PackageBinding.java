@@ -101,6 +101,10 @@ void addType(ReferenceBinding element) {
 			checkIfNullAnnotationType(element);
 }
 
+ModuleBinding[] getDeclaringModules() {
+	return new ModuleBinding[] { this.enclosingModule };
+}
+
 void clearMissingTagBit() {
 	PackageBinding current = this;
 	do {
@@ -202,14 +206,18 @@ ReferenceBinding getType0(char[] name) {
 */
 
 public Binding getTypeOrPackage(char[] name, ModuleBinding mod) {
+	ReferenceBinding problemBinding = null;
 	ReferenceBinding referenceBinding = getType0(name);
+	lookForType0:
 	if (referenceBinding != null && referenceBinding != LookupEnvironment.TheNotFoundType) {
 		referenceBinding = (ReferenceBinding) BinaryTypeBinding.resolveType(referenceBinding, this.environment, false /* no raw conversion for now */);
 		if (referenceBinding.isNestedType()) {
 			return new ProblemReferenceBinding(new char[][]{name}, referenceBinding, ProblemReasons.InternalNameProvided);
 		}
-		if (mod != this.enclosingModule && !mod.canAccess(referenceBinding.fPackage)) {
-			return new ProblemReferenceBinding(referenceBinding.compoundName, referenceBinding, ProblemReasons.NotAccessible);
+		boolean isSameModule = (this instanceof SplitPackageBinding) ? referenceBinding.module() == mod : this.enclosingModule == mod;
+		if (!isSameModule && !mod.canAccess(referenceBinding.fPackage)) {
+			problemBinding = new ProblemReferenceBinding(referenceBinding.compoundName, referenceBinding, ProblemReasons.NotAccessible);
+			break lookForType0;
 		}
 		if ((referenceBinding.tagBits & TagBits.HasMissingType) == 0) {
 			return referenceBinding;
@@ -221,14 +229,13 @@ public Binding getTypeOrPackage(char[] name, ModuleBinding mod) {
 	if (packageBinding != null && packageBinding != LookupEnvironment.TheNotFoundPackage) {
 		return packageBinding;
 	}
-	ReferenceBinding problemBinding = null;
 	lookForType:
-	if (referenceBinding == null) { // have not looked for it before
+	if (referenceBinding == null && problemBinding == null) { // have not looked for it before
 		if ((referenceBinding = this.environment.askForType(this, name, mod)) != null) {
 			if (referenceBinding.isNestedType()) {
 				return new ProblemReferenceBinding(new char[][]{name}, referenceBinding, ProblemReasons.InternalNameProvided);
 			}
-			if (!mod.canAccess(referenceBinding.fPackage)) {
+			if (referenceBinding.isValidBinding() && !mod.canAccess(referenceBinding.fPackage)) {
 				problemBinding = new ProblemReferenceBinding(referenceBinding.compoundName, referenceBinding, ProblemReasons.NotAccessible);
 				break lookForType;
 			} else {

@@ -1838,4 +1838,55 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"3 problems (3 errors)\n",
 				false);
 	}
+	public void testPackageTypeConflict1() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p1" + File.separator + "p2", "t3.java", 
+						"package p1.p2;\n" +
+						"public class t3 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	exports p1.p2.t3;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p1" + File.separator + "p2" + File.separator + "t3", "t4.java", 
+						"package p1.p2.t3;\n" +
+						"public class t4 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.three";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.three { \n" +
+						"	requires mod.one;\n" +
+						"	requires mod.two;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "po", "Client.java", 
+						"package po;\n" + 
+						"public class Client {\n" + 
+						"	 p1.p2.t3.t4 f;\n" + // no conflict mod.one/p1.p2.t3 <-> mod.two/p1.p2.t3
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runConformTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"",
+				false);
+	}
 }

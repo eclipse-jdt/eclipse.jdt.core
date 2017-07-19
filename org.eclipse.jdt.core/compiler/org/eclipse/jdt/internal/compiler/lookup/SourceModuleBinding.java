@@ -17,6 +17,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.function.IntFunction;
+import java.util.stream.Stream;
 
 public class SourceModuleBinding extends ModuleBinding {
 
@@ -75,6 +76,14 @@ public class SourceModuleBinding extends ModuleBinding {
 		return result;
 	}
 	
+	@Override
+	Stream<ModuleBinding> getRequiredModules(boolean transitiveOnly) {
+		if (this.requires == NO_MODULES) {
+			this.scope.referenceContext.moduleDeclaration.resolveDirectives(this.scope);
+		}
+		return super.getRequiredModules(transitiveOnly);
+	}
+
 	@Override
 	public ModuleBinding[] getAllRequiredModules() {
 		if (this.scope != null)

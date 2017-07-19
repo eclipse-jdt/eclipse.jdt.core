@@ -1886,7 +1886,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"The import org.astro.World cannot be resolved\n" +
+					"The type org.astro.World is not accessible\n" +
 					"World cannot be resolved to a type",  markers);
 		} finally {
 			deleteProject("org.astro");

@@ -100,6 +100,11 @@ public class SplitPackageBinding extends PackageBinding {
 	}
 	
 	@Override
+	ModuleBinding[] getDeclaringModules() {
+		return this.declaringModules.toArray(new ModuleBinding[this.declaringModules.size()]);
+	}
+
+	@Override
 	PackageBinding getPackage0(char[] name) {
 		PackageBinding knownPackage = super.getPackage0(name);
 		if (knownPackage != null)

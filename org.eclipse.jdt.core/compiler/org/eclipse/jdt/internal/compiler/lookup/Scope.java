@@ -2923,7 +2923,7 @@ public abstract class Scope {
 			if (binding == null) {
 				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), null /* no closest match since search for pkg*/, ProblemReasons.NotFound);
 			}
-			if (!binding.isValidBinding())
+			if (!binding.isValidBinding() && binding.problemId() != ProblemReasons.Ambiguous)
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
 					binding instanceof ReferenceBinding ? (ReferenceBinding)((ReferenceBinding)binding).closestMatch() : null,
