@@ -34,10 +34,16 @@ public class SplitPackageBinding extends PackageBinding {
 	 * @return one of: <code>null</code>, a regular PackageBinding or a SplitPackageBinding.
 	 */
 	public static PackageBinding combine(PackageBinding binding, PackageBinding previous, ModuleBinding primaryModule) {
-		if (previous == null || !previous.isValidBinding())
-			return binding == LookupEnvironment.TheNotFoundPackage ? null : binding;
-		if (binding == null || !binding.isValidBinding())
-			return previous == LookupEnvironment.TheNotFoundPackage ? null : previous;
+		// if a candidate has problems, pick the "better" candidate:
+		int prevRank = rank(previous);
+		int curRank = rank(binding);
+		if (prevRank < curRank)
+			return binding;
+		if (prevRank > curRank)
+			return previous;
+		if (previous == null)
+			return null;
+		// both are valid
 		if (previous.subsumes(binding))
 			return previous;
 		if (binding.subsumes(previous))
@@ -45,6 +51,15 @@ public class SplitPackageBinding extends PackageBinding {
 		SplitPackageBinding split = new SplitPackageBinding(previous, primaryModule);
 		split.add(binding);
 		return split;
+	}
+	private static int rank(PackageBinding candidate) {
+		if (candidate == null)
+			return 0;
+		if (candidate == LookupEnvironment.TheNotFoundPackage)
+			return 1;
+		if (!candidate.isValidBinding())
+			return 2;
+		return 3;
 	}
 
 	public SplitPackageBinding(PackageBinding initialBinding, ModuleBinding primaryModule) {

@@ -1889,4 +1889,37 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"",
 				false);
 	}
+
+	public void testBug519922() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		
+		writeFile(directory + File.separator + "test", "Test.java", 
+						"package test;\n" + 
+						"\n" + 
+						"public class Test implements org.eclipse.SomeInterface {\n" + 
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"----------\n" +
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/test/Test.java (at line 3)\n" +
+				"	public class Test implements org.eclipse.SomeInterface {\n" +
+				"	                             ^^^^^^^^^^^\n" +
+				"org.eclipse cannot be resolved to a type\n" +
+				"----------\n" +
+				"1 problem (1 error)\n",
+				false);
+	}
 }
