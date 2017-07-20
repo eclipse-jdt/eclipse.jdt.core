@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -60,16 +59,7 @@ public BasicCompilationUnit(char[] contents, char[][] packageName, String fileNa
 
 public BasicCompilationUnit(char[] contents, char[][] packageName, String fileName, IJavaElement javaElement) {
 	this(contents, packageName, fileName);
-	initEncoding(javaElement);
-	try {
-		if (javaElement != null) {
-			IModuleDescription moduleDescription = javaElement.getJavaProject().getModuleDescription();
-			if (moduleDescription != null)
-				this.moduleName = moduleDescription.getElementName().toCharArray();
-		}
-	} catch (JavaModelException e) {
-		// silent, moduleName is optional
-	}
+	initAttributes(javaElement);
 }
 
 /*
@@ -80,26 +70,35 @@ public BasicCompilationUnit(char[] contents, char[][] packageName, String fileNa
  * a corresponding source file resource.
  * If we have a compilation unit, then get encoding from its resource directly...
  */
-private void initEncoding(IJavaElement javaElement) {
+private void initAttributes(IJavaElement javaElement) {
 	if (javaElement != null) {
 		try {
-			IJavaProject javaProject = javaElement.getJavaProject();
-			switch (javaElement.getElementType()) {
-				case IJavaElement.COMPILATION_UNIT:
-					IFile file = (IFile) javaElement.getResource();
-					if (file != null) {
-						this.encoding = file.getCharset();
+				IModuleDescription module = null;
+				IJavaProject javaProject = javaElement.getJavaProject();
+
+				switch (javaElement.getElementType()) {
+					case IJavaElement.CLASS_FILE:
+						module = ((ClassFile) javaElement).getPackageFragmentRoot().getModuleDescription();
 						break;
-					}
-					// if no file, then get project encoding
-					// $FALL-THROUGH$
-				default:
+					case IJavaElement.COMPILATION_UNIT:
+						IFile file = (IFile) javaElement.getResource();
+						if (file != null) {
+							this.encoding = file.getCharset();
+						}
+						break;
+					default:
+						break;
+				}
+
+				if (module != null) {
+					this.moduleName = module.getElementName().toCharArray();
+				}
+				if (this.encoding == null) {
 					IProject project = (IProject) javaProject.getResource();
 					if (project != null) {
 						this.encoding = project.getDefaultCharset();
 					}
-					break;
-			}
+				}
 		} catch (CoreException e1) {
 			this.encoding = null;
 		}
