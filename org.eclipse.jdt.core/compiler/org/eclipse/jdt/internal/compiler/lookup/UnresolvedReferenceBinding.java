@@ -103,7 +103,10 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 		char[] typeName = this.compoundName[this.compoundName.length - 1];
 		targetType = this.fPackage.getType0(typeName);
 		if (targetType == this) { //$IDENTITY-COMPARISON$
-			targetType = environment.askForType(this.compoundName, this.fPackage.enclosingModule);
+			if (this.fPackage instanceof SplitPackageBinding) // leverage SplitPackageBinding to avoid duplicate creation of BinaryTypeBinding
+				targetType = environment.askForType(this.fPackage, typeName, this.fPackage.enclosingModule);
+			else
+				targetType = environment.askForType(this.compoundName, this.fPackage.enclosingModule);
 		}
 		if ((targetType == null || targetType == this) && CharOperation.contains('.', typeName)) { //$IDENTITY-COMPARISON$
 			// bug 491354: this complements the NameLookup#seekTypes(..), which performs the same adaptation

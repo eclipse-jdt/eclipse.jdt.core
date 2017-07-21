@@ -203,7 +203,7 @@ public ModuleBinding getModule(char[] name) {
 		return this.UnNamedModule;
 	ModuleBinding moduleBinding = this.knownModules.get(name);
 	if (moduleBinding == null) {
-		if (this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
+		if (this.useModuleSystem) {
 			IModule mod = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModule(name);
 			if (mod != null) {
 				moduleBinding = new BinaryModuleBinding(mod, this);
@@ -284,7 +284,7 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, ModuleBi
 		packageBinding = this.defaultPackage;
 	}
 	NameEnvironmentAnswer[] answers = null;
-	if (this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
+	if (this.useModuleSystem) {
 		IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.nameEnvironment;
 		final PackageBinding pack = packageBinding;
 		// leverage module information from the (split?) package as to prefer NotAccessible over NotFound:
@@ -363,7 +363,7 @@ private ReferenceBinding combine(ReferenceBinding one, ReferenceBinding two, Mod
 private NameEnvironmentAnswer[] askForTypeFromModules(ModuleBinding clientModule, ModuleBinding[] otherModules,
 		Function<ModuleBinding,NameEnvironmentAnswer> oracle)
 {
-	if (clientModule != null && clientModule.nameForLookup() == ModuleBinding.ANY) {
+	if (clientModule != null && clientModule.nameForLookup().length == 0) {
 		NameEnvironmentAnswer answer = oracle.apply(clientModule);
 		if (answer != null)
 			answer.moduleBinding = this.root.getModuleFromAnswer(answer);

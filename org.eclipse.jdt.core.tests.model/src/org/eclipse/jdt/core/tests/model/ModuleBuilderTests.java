@@ -57,7 +57,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-//		 TESTS_NAMES = new String[] { "test_ReconcilerModuleLookup" };
+//		 TESTS_NAMES = new String[] { "testBug518282e" };
 	}
 	private static boolean isJRE9 = false;
 	private String sourceWorkspacePath = null;
@@ -4076,7 +4076,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"The import org cannot be resolved\n" +
+					"The package org.astro is not accessible\n" +
 					"World cannot be resolved to a type", markers);
 		} finally {
 			this.deleteProject("test");
@@ -4143,7 +4143,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p3 = setupModuleProject("test_automodules", src, new IClasspathEntry[] {dep, dep2});
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "org cannot be resolved to a type", markers);
+			assertMarkers("Unexpected markers",
+					"The project was not built since its build path is incomplete. Cannot find the class file for org.astro.World. Fix the build path then try building this project\n" + 
+					"The type org.astro.World cannot be resolved. It is indirectly referenced from required .class files",
+					markers);
 		} finally {
 			this.deleteProject("test");
 			this.deleteProject("test_automodules");
@@ -4152,6 +4155,39 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			JavaCore.setOptions(javaCoreOptions);
 		}
 	}
+
+	public void testUnnamedModule_bug519674() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			IJavaProject p1 = createJava9Project("Project1");
+			createFolder("/Project1/src/pack1");
+			createFile("/Project1/src/pack1/Class1.java",
+					"package pack1;\n" +
+					"public class Class1 {}\n");
+			
+			IJavaProject p2 = createJava9Project("Project2");
+			{
+				IClasspathEntry[] old = p2.getRawClasspath();
+				IClasspathEntry[] newPath = new IClasspathEntry[old.length + 1];
+				System.arraycopy(old, 0, newPath, 0, old.length);
+				newPath[old.length] = JavaCore.newProjectEntry(p1.getPath());
+				p2.setRawClasspath(newPath, null);
+			}
+			createFolder("/Project2/src/pack2");
+			createFile("/Project2/src/pack2/Class2.java",
+					"package pack2;\n" +
+					"import pack1.Class1;\n" +
+					"public class Class2 extends Class1 {}\n");
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			this.deleteProject("Project1");
+			this.deleteProject("Project2");
+		}
+
+	}
+	
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

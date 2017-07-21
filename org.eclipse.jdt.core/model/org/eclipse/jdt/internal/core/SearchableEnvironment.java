@@ -331,7 +331,8 @@ public class SearchableEnvironment
 	public NameEnvironmentAnswer findType(char[][] compoundTypeName, char[] moduleName) {
 		if (compoundTypeName == null) return null;
 
-		IJavaElement moduleLocation = (moduleName != ModuleBinding.ANY ? findModuleContext(moduleName) : null);
+		boolean isNamedStrategy = LookupStrategy.get(moduleName) == LookupStrategy.Named;
+		IJavaElement moduleLocation = isNamedStrategy ? findModuleContext(moduleName) : null;
 
 		int length = compoundTypeName.length;
 		if (length <= 1) {
@@ -356,7 +357,8 @@ public class SearchableEnvironment
 	public NameEnvironmentAnswer findType(char[] name, char[][] packageName, char[] moduleName) {
 		if (name == null) return null;
 
-		IJavaElement moduleLocation = (moduleName != ModuleBinding.ANY ? findModuleContext(moduleName) : null);
+		boolean isNamedStrategy = LookupStrategy.get(moduleName) == LookupStrategy.Named;
+		IJavaElement moduleLocation = isNamedStrategy ? findModuleContext(moduleName) : null;
 		return find(
 			new String(name),
 			packageName == null || packageName.length == 0 ? null : CharOperation.toString(packageName),
@@ -765,39 +767,44 @@ public class SearchableEnvironment
 				pkgName[i] = new String(parentPackageName[i]);
 			pkgName[length] = new String(name);
 		}
-		if (this.knownModuleLocations == null) {
-			if ((this.owner != null && this.owner.isPackage(pkgName))
-					|| this.nameLookup.isPackage(pkgName))
-				return new char[][] { ModuleBinding.UNNAMED };
-		} else if (moduleName == ModuleBinding.UNNAMED) {
-			for (IPackageFragmentRoot packageRoot : this.nameLookup.packageFragmentRoots) {
-				IModuleDescription moduleDescription = getModuleDescription(packageRoot);
-				if (moduleDescription == null) {
-					if (this.nameLookup.isPackage(pkgName, packageRoot)) // TODO(SHMOD): need to distinguish kinds?
-						return new char[][] { moduleName };
+		LookupStrategy strategy = LookupStrategy.get(moduleName);
+		switch (strategy) {
+			case Named:
+				if (this.knownModuleLocations != null) {
+					IJavaElement moduleContext = findModuleContext(moduleName);
+					if (moduleContext != null) {
+						// (this.owner != null && this.owner.isPackage(pkgName)) // TODO(SHMOD) see old isPackage
+						if (this.nameLookup.isPackage(pkgName, moduleContext)) {
+							return new char[][] { moduleName };
+						}
+					}
 				}
-			}
-			return null;
-		} else if (moduleName == ModuleBinding.ANY) {
-			char[][] names = CharOperation.NO_CHAR_CHAR;
-			for (IPackageFragmentRoot packageRoot : this.nameLookup.packageFragmentRoots) {
-				IModuleDescription moduleDescription = getModuleDescription(packageRoot);
-				if (moduleDescription != null) {
-					if (this.nameLookup.isPackage(pkgName, packageRoot)) // TODO(SHMOD): need to distinguish kinds?
-						names = CharOperation.arrayConcat(names, moduleDescription.getElementName().toCharArray());
+				return null;
+			case Unnamed:
+			case Any:
+				// if in pre-9 mode we may still search the unnamed module 
+				if (this.knownModuleLocations == null) {
+					if ((this.owner != null && this.owner.isPackage(pkgName))
+							|| this.nameLookup.isPackage(pkgName))
+						return new char[][] { ModuleBinding.UNNAMED };
+					return null;
 				}
-			}
-			return names == CharOperation.NO_CHAR_CHAR ? null : names;
-		} else {
-			IJavaElement moduleContext = findModuleContext(moduleName);
-			if (moduleContext != null) {
-				// (this.owner != null && this.owner.isPackage(pkgName)) // TODO(SHMOD) see old isPackage
-				if (this.nameLookup.isPackage(pkgName, moduleContext)) {
-					return new char[][] { moduleName };
+				//$FALL-THROUGH$
+			case AnyNamed:
+				char[][] names = CharOperation.NO_CHAR_CHAR;
+				for (IPackageFragmentRoot packageRoot : this.nameLookup.packageFragmentRoots) {
+					if (strategy.matches(packageRoot, loc -> loc instanceof JrtPackageFragmentRoot || getModuleDescription(loc) != null)) {
+						if (this.nameLookup.isPackage(pkgName, packageRoot)) {
+							IModuleDescription moduleDescription = getModuleDescription(packageRoot);
+							char[] aName = moduleDescription != null ? moduleDescription.getElementName().toCharArray() : ModuleBinding.UNNAMED;
+							names = CharOperation.arrayConcat(names, aName);
+						}
+					}
 				}
-			}
+				return names == CharOperation.NO_CHAR_CHAR ? null : names;
+			default:
+				throw new IllegalArgumentException("Unexpected LookupStrategy "+strategy); //$NON-NLS-1$
 		}
-		return null;
 	}
 	private IModuleDescription getModuleDescription(IPackageFragmentRoot root) {
 		if (root instanceof JarPackageFragmentRoot)

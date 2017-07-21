@@ -336,7 +336,10 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 	public int getMode() {
 		return BINARY;
 	}
-
+	@Override
+	public boolean hasModule() {
+		return true;
+	}
 	public IModule getModule(char[] moduleName) {
 		Map<String, IModule> modules = ModulesCache.get(this.file.getPath());
 		if (modules != null) {

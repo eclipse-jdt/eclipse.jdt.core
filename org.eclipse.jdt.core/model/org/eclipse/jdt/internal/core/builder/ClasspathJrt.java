@@ -243,6 +243,10 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	return findClass(fileName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, asBinaryOnly);
 }
 @Override
+public boolean hasModule() {
+	return true;
+}
+@Override
 public IModule getModule(char[] moduleName) {
 	Set<IModule> modules = ModulesCache.get(this.zipFilename);
 	if (modules != null) {

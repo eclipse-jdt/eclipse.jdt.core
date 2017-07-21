@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
+import java.util.function.Predicate;
+
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 
 /**
@@ -22,6 +24,75 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
  *
  */
 public interface IModuleAwareNameEnvironment extends INameEnvironment {
+
+	/** Strategies for searching types & packages in classpath locations & modules. */
+	enum LookupStrategy {
+		/** Search a specific named module only. */
+		Named {
+			@Override
+			public <T> boolean matchesWithName(T elem, Predicate<T> isNamed, Predicate<T> nameMatcher) {
+				assert nameMatcher != null : "name match needs a nameMatcher"; //$NON-NLS-1$
+				return isNamed.test(elem) && nameMatcher.test(elem);
+			}
+		},
+		/** Search all named modules. */
+		AnyNamed {
+			@Override
+			public <T> boolean matchesWithName(T elem, Predicate<T> isNamed, Predicate<T> nameMatcher) {
+				return isNamed.test(elem);
+			}
+		},
+		/** Search all locations, module or otherwise. */
+		Any {
+			@Override
+			public <T> boolean matchesWithName(T elem, Predicate<T> isNamed, Predicate<T> nameMatcher) {
+				return true;
+			}
+		},
+		/** Search only the unnamed module. */
+		Unnamed {
+			@Override
+			public <T> boolean matchesWithName(T elem, Predicate<T> isNamed, Predicate<T> nameMatcher) {
+				return !isNamed.test(elem);
+			}
+		};
+		/**
+		 * Test whether the given element matches this lookup strategy.
+		 * @param elem location being tests
+		 * @param isNamed predicate to determine if 'elem' represents a named module
+		 * @param nameMatcher predicate to test if 'elem' matches the expected module name
+		 * @return true iff the given element matches this lookup strategy.
+		 */
+		public abstract <T> boolean matchesWithName(T elem, Predicate<T> isNamed, Predicate<T> nameMatcher);
+		/**
+		 * Test whether the given element matches this lookup strategy.
+		 * @param elem location being tests
+		 * @param isNamed predicate to determine if 'elem' represents a named module
+		 * @return true iff the given element matches this lookup strategy.
+		 */
+		public <T> boolean matches(T elem, Predicate<T> isNamed) {
+			return matchesWithName(elem, isNamed, t -> true);
+		}
+		
+		/** Get the lookup strategy corresponding to the given module name. */
+		public static LookupStrategy get(char[] moduleName) {
+			if (moduleName == ModuleBinding.ANY)
+				return Any;
+			if (moduleName == ModuleBinding.ANY_NAMED)
+				return AnyNamed;
+			if (moduleName == ModuleBinding.UNNAMED)
+				return Unnamed;
+			return Named;
+		}
+		/** If 'moduleName' is none of the special names (ANY, ANY_NAMED, UNNAMED) return the string converted name, else {@code null}. */
+		public static String getStringName(char[] moduleName) {
+			switch (get(moduleName)) {
+				case Named : return String.valueOf(moduleName);
+				default: return null;
+			}
+		}
+	}
+	
 	default NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 		return findType(compoundTypeName, ModuleBinding.ANY);
 	}
@@ -33,7 +104,7 @@ public interface IModuleAwareNameEnvironment extends INameEnvironment {
 	}
 
 	NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName);
-	/** Answer a type identified by the given names. A {@code null} moduleName signals the unnamed module. */
+	/** Answer a type identified by the given names. moduleName may be one of the special names from ModuleBinding (ANY, ANY_NAMED, UNNAMED). */
 	NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName);
 	char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] name, char[] moduleName);
 

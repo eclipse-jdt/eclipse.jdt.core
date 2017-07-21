@@ -30,12 +30,14 @@ public abstract class ClasspathLocation {
 
 	protected boolean isOnModulePath;
 	protected IModule module;
+	// In the following signatures, passing a null moduleName signals "don't care":
 	abstract public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName);
 	abstract public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly);
 	abstract public boolean isPackage(String qualifiedPackageName, String moduleName);
 	public char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
 		return singletonModuleNameIf(isPackage(qualifiedPackageName, moduleName));
 	}
+	public boolean hasModule() { return getModule() != null; }
 
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 		String fileName = new String(typeName);

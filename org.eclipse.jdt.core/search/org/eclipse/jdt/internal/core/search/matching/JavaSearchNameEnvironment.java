@@ -187,7 +187,7 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 	return cp;
 }
 
-private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, /*@Nullable*/String moduleName) {
+private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, LookupStrategy strategy, /*@Nullable*/String moduleName) {
 	String
 		binaryFileName = null, qBinaryFileName = null,
 		sourceFileName = null, qSourceFileName = null,
@@ -196,6 +196,8 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 	Iterator<ClasspathLocation> iter = getLocationsFor(moduleName);
 	while (iter.hasNext()) {
 		ClasspathLocation location = iter.next();
+		if (!strategy.matches(location, ClasspathLocation::hasModule))
+			continue;
 		NameEnvironmentAnswer answer;
 		if (location instanceof ClasspathSourceDirectory) {
 			if (sourceFileName == null) {
@@ -266,7 +268,8 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, cha
 		return findClass(
 			new String(CharOperation.concatWith(packageName, typeName, '/')),
 			typeName,
-			moduleName == ModuleBinding.ANY ? null : String.valueOf(moduleName));
+			LookupStrategy.get(moduleName),
+			LookupStrategy.getStringName(moduleName));
 	return null;
 }
 
@@ -276,39 +279,37 @@ public NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName) 
 		return findClass(
 			new String(CharOperation.concatWith(compoundName, '/')),
 			compoundName[compoundName.length - 1],
-			moduleName == ModuleBinding.ANY ? null : String.valueOf(moduleName));
+			LookupStrategy.get(moduleName),
+			LookupStrategy.getStringName(moduleName));
 	return null;
 }
 
 @Override
 public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] packageName, char[] moduleName) {
 	String qualifiedPackageName = String.valueOf(CharOperation.concatWith(parentPackageName, packageName, '/'));
-	if (this.moduleLocations == null || moduleName == ModuleBinding.UNNAMED) {
-		for (ClasspathLocation location : this.locationSet) {
-			IModule module = location.getModule();
-			if (module == null && location.isPackage(qualifiedPackageName, null))
-				return new char[][] { moduleName };
+	LookupStrategy strategy = LookupStrategy.get(moduleName);
+	if (strategy == LookupStrategy.Named) {
+		if (this.moduleLocations != null) {
+			String moduleNameString = String.valueOf(moduleName);
+			ClasspathLocation location = this.moduleLocations.get(moduleNameString);
+			if (location != null) {
+				if (location.isPackage(qualifiedPackageName, moduleNameString))
+					return new char[][] { moduleName };
+			}
 		}
-		return null;
-		
-	} else if (moduleName == ModuleBinding.ANY) {
-		char[][] moduleNames = CharOperation.NO_CHAR_CHAR;
-		for (ClasspathLocation location : this.locationSet) {
-			IModule module = location.getModule();
-			if (module != null && location.isPackage(qualifiedPackageName, null))
-				moduleNames = CharOperation.arrayConcat(moduleNames, module.name()); // FIXME(SHMOD): handle multiple modules per location
-		}
-		return moduleNames == CharOperation.NO_CHAR_CHAR ? null : moduleNames;
-	} else {
-		String moduleNameString = String.valueOf(moduleName);
-		ClasspathLocation location = this.moduleLocations.get(moduleNameString);
-		if (location != null) {
-			if (location.isPackage(qualifiedPackageName, moduleNameString))
-				return new char[][] { moduleName };
-			return null;
+		return null;		
+	}
+	char[][] moduleNames = CharOperation.NO_CHAR_CHAR;
+	for (ClasspathLocation location : this.locationSet) {
+		if (strategy.matches(location, ClasspathLocation::hasModule) ) {
+			if (location.isPackage(qualifiedPackageName, null)) {
+				IModule module = location.getModule();
+				char[] aName = module != null ? module.name() : ModuleBinding.UNNAMED;
+				moduleNames = CharOperation.arrayConcat(moduleNames, aName); // FIXME(SHMOD): handle multiple modules per location
+			}
 		}
 	}
-	return null;
+	return moduleNames == CharOperation.NO_CHAR_CHAR ? null : moduleNames;
 }
 
 @Override

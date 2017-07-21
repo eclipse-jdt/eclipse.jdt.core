@@ -22,7 +22,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.INameEnvironmentWithProgress;
 import org.eclipse.jdt.internal.core.NameLookup;
@@ -60,10 +59,11 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 			for (int i = 0, length = this.classpaths.length; i < length; i++) {
 				if (!(this.classpaths[i] instanceof ClasspathDirectory)) continue;
 				ClasspathDirectory classpathDirectory = (ClasspathDirectory) this.classpaths[i];
-				if (moduleName == ModuleBinding.UNNAMED) {
-					if (classpathDirectory.getModule() != null) continue;
-				} else if (moduleName != ModuleBinding.ANY) {
-					if (!classpathDirectory.servesModule(moduleName)) continue;
+				LookupStrategy strategy = LookupStrategy.get(moduleName);
+				if (!strategy.matchesWithName(classpathDirectory,
+						loc -> loc.getModule() != null,
+						loc -> loc.servesModule(moduleName))) {
+					continue;
 				}
 				answer = classpathDirectory.findSecondaryInClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
 				if (answer != null) {

@@ -52,6 +52,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	public static final char[] UNNAMED = "".toCharArray(); //$NON-NLS-1$
 	/** Module name for package/type lookup that doesn't care about modules. */
 	public static final char[] ANY = "".toCharArray(); //$NON-NLS-1$
+	/** Module name for package/type lookup that should look into all named modules. */
+	public static final char[] ANY_NAMED = "".toCharArray(); //$NON-NLS-1$
 
 	public static class UnNamedModule extends ModuleBinding {
 
@@ -360,6 +362,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	public char[] nameForLookup() {
 		if (this.moduleName == UNNAMED)
 			return ANY;
+		else if (this.isAuto)
+			return ANY_NAMED;
 		else
 			return this.moduleName;
 	}
@@ -377,7 +381,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		PackageBinding resolved = getVisiblePackage(pkg.compoundName);
 		if (pkg.isEquivalentTo(resolved)) {
 			if (this.isAuto) { // all packages are exported by an automatic module
-				return true;
+				return pkg.enclosingModule == this; // no transitive export
 			}
 			PackageBinding[] initializedExports = getExports();
 			for (int i = 0; i < initializedExports.length; i++) {
@@ -549,7 +553,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			return declared != LookupEnvironment.TheNotFoundPackage;
 		}
 		INameEnvironment nameEnvironment = this.environment.nameEnvironment;
-		if (nameEnvironment instanceof IModuleAwareNameEnvironment) {
+		if (this.environment.useModuleSystem) {
 			IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment)nameEnvironment;
 			return moduleEnv.getModulesDeclaringPackage(parentPackageName, name, this.moduleName) != null;
 		} else {

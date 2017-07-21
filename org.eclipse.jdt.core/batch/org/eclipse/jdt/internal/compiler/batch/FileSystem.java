@@ -34,7 +34,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
-import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
@@ -61,6 +60,7 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly);
 		boolean isPackage(String qualifiedPackageName, /*@Nullable*/String moduleName);
 		char[][] getModulesDeclaringPackage(String qualifiedPackageName, /*@Nullable*/String moduleName);
+		default boolean hasModule() { return getModule() != null; }
 		/**
 		 * Return a list of the jar file names defined in the Class-Path section
 		 * of the jar file manifest if any, null else. Only ClasspathJar (and
@@ -373,49 +373,54 @@ private NameEnvironmentAnswer internalFindClass(String qualifiedTypeName, char[]
 			? Util.EMPTY_STRING
 			: qualifiedBinaryFileName.substring(0, qualifiedTypeName.length() - typeName.length - 1);
 
-	if (moduleName == ModuleBinding.ANY || moduleName == ModuleBinding.UNNAMED || this.moduleLocations == null) {
-		String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
-		NameEnvironmentAnswer suggestedAnswer = null;
-		if (qualifiedPackageName == qp2) {
-			for (int i = 0, length = this.classpaths.length; i < length; i++) {
-				if (moduleName == ModuleBinding.UNNAMED && this.classpaths[i].getModule() != null) continue;
-				NameEnvironmentAnswer answer = this.classpaths[i].findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly);
-				if (answer != null) {
-					if (!answer.ignoreIfBetter()) {
-						if (answer.isBetter(suggestedAnswer))
-							return answer;
-					} else if (answer.isBetter(suggestedAnswer))
-						// remember suggestion and keep looking
-						suggestedAnswer = answer;
-				}
-			}
-		} else {
-			String qb2 = qualifiedBinaryFileName.replace('/', File.separatorChar);
-			for (int i = 0, length = this.classpaths.length; i < length; i++) {
-				Classpath p = this.classpaths[i];
-				if (moduleName == ModuleBinding.UNNAMED && p.getModule() != null) continue;
-				NameEnvironmentAnswer answer = (p instanceof ClasspathJar || p instanceof ClasspathJrt)
-					? p.findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly)
-					: p.findClass(typeName, qp2, null, qb2, asBinaryOnly);
-				if (answer != null) {
-					if (!answer.ignoreIfBetter()) {
-						if (answer.isBetter(suggestedAnswer))
-							return answer;
-					} else if (answer.isBetter(suggestedAnswer))
-						// remember suggestion and keep looking
-						suggestedAnswer = answer;
-				}
+	LookupStrategy strategy = LookupStrategy.get(moduleName);
+	if (strategy == LookupStrategy.Named) {
+		if (this.moduleLocations != null) {
+			// searching for a specific named module:
+			String moduleNameString = String.valueOf(moduleName);
+			Classpath classpath = this.moduleLocations.get(moduleNameString);
+			if (classpath != null) {
+				return classpath.findClass(typeName, qualifiedPackageName, moduleNameString, qualifiedBinaryFileName);
 			}
 		}
-		return suggestedAnswer;
+		return null;
 	}
-	// searching for a specific named module:
-	String moduleNameString = String.valueOf(moduleName);
-	Classpath classpath = this.moduleLocations.get(moduleNameString);
-	if (classpath != null) {
-		return classpath.findClass(typeName, qualifiedPackageName, moduleNameString, qualifiedBinaryFileName);
+	String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
+	NameEnvironmentAnswer suggestedAnswer = null;
+	if (qualifiedPackageName == qp2) {
+		for (int i = 0, length = this.classpaths.length; i < length; i++) {
+			if (!strategy.matches(this.classpaths[i], Classpath::hasModule))
+				continue;
+			NameEnvironmentAnswer answer = this.classpaths[i].findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly);
+			if (answer != null) {
+				if (!answer.ignoreIfBetter()) {
+					if (answer.isBetter(suggestedAnswer))
+						return answer;
+				} else if (answer.isBetter(suggestedAnswer))
+					// remember suggestion and keep looking
+					suggestedAnswer = answer;
+			}
+		}
+	} else {
+		String qb2 = qualifiedBinaryFileName.replace('/', File.separatorChar);
+		for (int i = 0, length = this.classpaths.length; i < length; i++) {
+			Classpath p = this.classpaths[i];
+			if (!strategy.matches(p, Classpath::hasModule))
+				continue;
+			NameEnvironmentAnswer answer = (p instanceof ClasspathJar || p instanceof ClasspathJrt)
+				? p.findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly)
+				: p.findClass(typeName, qp2, null, qb2, asBinaryOnly);
+			if (answer != null) {
+				if (!answer.ignoreIfBetter()) {
+					if (answer.isBetter(suggestedAnswer))
+						return answer;
+				} else if (answer.isBetter(suggestedAnswer))
+					// remember suggestion and keep looking
+					suggestedAnswer = answer;
+			}
+		}
 	}
-	return null;
+	return suggestedAnswer;
 }
 
 public NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName) {
@@ -477,65 +482,51 @@ public char[][][] findTypeNames(char[][] packageName, String[] moduleNames) {
 }
 
 public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName) {
-	if (typeName == null)
-		return null;
-	String qualifiedTypeName = new String(CharOperation.concatWith(packageName, typeName, '/'));
-	NameEnvironmentAnswer answer = internalFindClass(qualifiedTypeName, typeName, false, moduleName);
-	if (this.annotationsFromClasspath && answer != null && answer.getBinaryType() instanceof ClassFileReader) {
-		for (int i = 0, length = this.classpaths.length; i < length; i++) {
-			Classpath classpathEntry = this.classpaths[i];
-			if (classpathEntry.hasAnnotationFileFor(qualifiedTypeName)) {
-				@SuppressWarnings("resource")
-				ZipFile zip = classpathEntry instanceof ClasspathJar ? ((ClasspathJar) classpathEntry).zipFile : null;
-				try {
-					if (zip == null) {
-						zip = ExternalAnnotationDecorator.getAnnotationZipFile(classpathEntry.getPath(), null);
-					}
-					answer.setBinaryType(ExternalAnnotationDecorator.create(answer.getBinaryType(), classpathEntry.getPath(), 
-							qualifiedTypeName, zip));
-					break;
-				} catch (IOException e) {
-					// ignore broken entry, keep searching
-				}
-			}
-		}
-	}
-	return answer;
-	
+	if (typeName != null)
+		return findClass(
+			new String(CharOperation.concatWith(packageName, typeName, '/')),
+			typeName,
+			false,
+			moduleName);
+	return null;
 }
 
 public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] packageName, char[] moduleName) {
 	String qualifiedPackageName = new String(CharOperation.concatWith(parentPackageName, packageName, '/'));
-
-	if (moduleName == ModuleBinding.ANY) {
-		// search the entire environment and answer which modules declare that package:
-		for (Classpath cp : this.classpaths) {
-			char[][] declaringModules = cp.getModulesDeclaringPackage(qualifiedPackageName, null);
-			if (declaringModules != null)
-				return declaringModules;
-			// TODO(SHMOD): support package split among different classpath locations?
-		}
-	}
 	String moduleNameString = String.valueOf(moduleName);
-	if (moduleName == ModuleBinding.UNNAMED) {
-		// search all classpaths that have no module
-		for (Classpath cp : this.classpaths) {
-			if (cp.getModule() == null) {
-				if (!(cp instanceof IMultiModuleEntry)) { // multiModuleEntries have a module by definition
-					if (cp.isPackage(qualifiedPackageName, moduleNameString))
-						return new char[][] {ModuleBinding.UNNAMED};
+
+	LookupStrategy strategy = LookupStrategy.get(moduleName);
+	if (strategy == LookupStrategy.Named) {
+		if (this.moduleLocations != null) {
+			// specific search in a given module:
+			Classpath classpath = this.moduleLocations.get(moduleNameString);
+			if (classpath != null) {
+				if (classpath.isPackage(qualifiedPackageName, moduleNameString))
+					return new char[][] {moduleName};
+			}
+		}
+		return null;
+	}
+	// search the entire environment and answer which modules declare that package:
+	char[][] allNames = null;
+	for (Classpath cp : this.classpaths) {
+		if (strategy.matches(cp, Classpath::hasModule)) {
+			if (strategy == LookupStrategy.Unnamed) {
+				// short-cut
+				if (cp.isPackage(qualifiedPackageName, moduleNameString))
+					return new char[][] { ModuleBinding.UNNAMED };
+			} else {
+				char[][] declaringModules = cp.getModulesDeclaringPackage(qualifiedPackageName, null);
+				if (declaringModules != null) {
+					if (allNames == null)
+						allNames = declaringModules;
+					else
+						allNames = CharOperation.arrayConcat(allNames, declaringModules);
 				}
 			}
 		}
-	} else {
-		// specific search in a given module:
-		Classpath classpath = this.moduleLocations.get(moduleNameString);
-		if (classpath != null) {
-			if (classpath.isPackage(qualifiedPackageName, moduleNameString))
-				return new char[][] {moduleName};
-		}
 	}
-	return null;
+	return allNames;
 }
 
 @Override
