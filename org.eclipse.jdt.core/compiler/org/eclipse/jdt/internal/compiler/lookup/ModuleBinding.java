@@ -358,7 +358,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	 * search in all accessible modules.
 	 */
 	public char[] nameForLookup() {
-		if (this.moduleName == UNNAMED || this.isAuto)
+		if (this.moduleName == UNNAMED)
 			return ANY;
 		else
 			return this.moduleName;

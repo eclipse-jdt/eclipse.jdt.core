@@ -4074,7 +4074,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p3 = setupModuleProject("test_automodules", src, new IClasspathEntry[] {dep, dep2});
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "World cannot be resolved to a type", markers);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers", 
+					"The import org cannot be resolved\n" +
+					"World cannot be resolved to a type", markers);
 		} finally {
 			this.deleteProject("test");
 			this.deleteProject("test_automodules");
