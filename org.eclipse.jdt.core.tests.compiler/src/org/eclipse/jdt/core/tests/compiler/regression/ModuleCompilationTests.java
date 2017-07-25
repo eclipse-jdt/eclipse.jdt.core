@@ -1754,6 +1754,99 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				false);
 	}
 
+	// conflict even without any reference to the conflicting package
+	// - three-way conflict between two direct and one indirect dependency
+	public void testPackageConflict0() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String moduleLoc = directory + File.separator + "mod.x";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.x { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "pm", "C1x.java", 
+						"package pm;\n" +
+						"public class C1x {\n" +
+						"}\n");
+		
+		moduleLoc = directory + File.separator + "mod.y";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.y { \n" +
+						"	requires transitive mod.x;\n" +
+						"}");
+		
+		moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports pm;\n" +
+						"	exports p2;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+		writeFile(moduleLoc + File.separator + "p2", "C2.java", 
+						"package p2;\n" +
+						"public class C2 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	exports pm;\n" +
+						"	exports p2.sub;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "pm", "C3.java", 
+						"package pm;\n" +
+						"public class C3 {\n" +
+						"}\n");
+		writeFile(moduleLoc + File.separator + "p2" + File.separator + "sub", "C4.java", 
+						"package p2.sub;\n" +
+						"public class C4 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.three";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.three { \n" +
+						"	requires mod.one;\n" +
+						"	requires mod.two;\n" +
+						"	requires transitive mod.y;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 2)\n" + 
+				"	requires mod.one;\n" + 
+				"	^^^^^^^^^^^^^^^^\n" + 
+				"The package pm is accessible from more than one module: mod.one, mod.two, mod.x\n" + 
+				"----------\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 3)\n" + 
+				"	requires mod.two;\n" + 
+				"	^^^^^^^^^^^^^^^^\n" + 
+				"The package pm is accessible from more than one module: mod.one, mod.two, mod.x\n" + 
+				"----------\n" + 
+				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 4)\n" + 
+				"	requires transitive mod.y;\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The package pm is accessible from more than one module: mod.one, mod.two, mod.x\n" + 
+				"----------\n" + 
+				"3 problems (3 errors)\n",
+				false);
+	}
+
 	public void testPackageConflict1() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -1820,22 +1913,33 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				buffer.toString(), 
 				"",
 				"----------\n" + 
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/po/Client.java (at line 2)\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 2)\n" + 
+				"	requires mod.one;\n" + 
+				"	^^^^^^^^^^^^^^^^\n" + 
+				"The package pm is accessible from more than one module: mod.one, mod.two\n" + 
+				"----------\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 3)\n" + 
+				"	requires mod.two;\n" + 
+				"	^^^^^^^^^^^^^^^^\n" + 
+				"The package pm is accessible from more than one module: mod.one, mod.two\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/po/Client.java (at line 2)\n" + 
 				"	import pm.*;\n" + 
 				"	       ^^\n" + 
 				"The package pm is accessible from more than one module: mod.one, mod.two\n" + 
 				"----------\n" + 
-				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/po/Client.java (at line 3)\n" + 
+				"4. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/po/Client.java (at line 3)\n" + 
 				"	import pm.C3;\n" + 
 				"	       ^^\n" + 
 				"The package pm is accessible from more than one module: mod.one, mod.two\n" + 
 				"----------\n" + 
-				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/po/Client.java (at line 8)\n" + 
+				"5. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/po/Client.java (at line 8)\n" + 
 				"	pm.C1 f1;\n" + 
 				"	^^\n" + 
 				"The package pm is accessible from more than one module: mod.one, mod.two\n" + 
 				"----------\n" + 
-				"3 problems (3 errors)\n",
+				"5 problems (5 errors)\n",
 				false);
 	}
 	public void testPackageTypeConflict1() {

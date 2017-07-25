@@ -83,6 +83,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -3221,6 +3222,21 @@ public void conflictingPackagesFromModules(SplitPackageBinding splitPackage, int
 	String[] arguments = new String[] {
 						CharOperation.toString(splitPackage.compoundName),
 						modules };
+	this.handle(
+			IProblem.ConflictingPackageFromModules,
+			arguments,
+			arguments,
+			sourceStart,
+			sourceEnd);
+}
+public void conflictingPackagesFromModules(PackageBinding pack, Set<ModuleBinding> modules, int sourceStart, int sourceEnd) {
+	String moduleNames = modules.stream()
+						.map(p -> String.valueOf(p.name()))
+						.sorted()
+						.collect(Collectors.joining(", ")); //$NON-NLS-1$
+	String[] arguments = new String[] {
+						CharOperation.toString(pack.compoundName),
+						moduleNames };
 	this.handle(
 			IProblem.ConflictingPackageFromModules,
 			arguments,

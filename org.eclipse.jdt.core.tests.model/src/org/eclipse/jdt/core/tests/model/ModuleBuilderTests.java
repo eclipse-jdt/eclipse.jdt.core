@@ -3280,8 +3280,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
-			assertMarkers("Unexpected markers", 
-					"The package org.astro is accessible from more than one module: org.astro, some.mod", markers);
+			assertMarkers("Unexpected markers",
+					// reported against both 'requires' directives & against the import:
+					"The package org.astro is accessible from more than one module: org.astro, some.mod\n" +
+					"The package org.astro is accessible from more than one module: org.astro, some.mod\n" +
+					"The package org.astro is accessible from more than one module: org.astro, some.mod",
+					markers);
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("some.mod");

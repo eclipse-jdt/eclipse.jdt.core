@@ -126,6 +126,9 @@ public void analyseCode() {
 				this.types[i].analyseCode(this.scope);
 			}
 		}
+		if (this.moduleDeclaration != null) {
+			this.moduleDeclaration.analyseModuleGraph(this.scope);
+		}
 		// request inner emulation propagation
 		propagateInnerEmulationForAllLocalTypes();
 	} catch (AbortCompilationUnit e) {

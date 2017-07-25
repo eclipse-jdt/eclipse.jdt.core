@@ -16,7 +16,9 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -233,6 +235,45 @@ public class ModuleDeclaration extends ASTNode {
 			}
 		}
 		this.binding.setServices(interfaces.toArray(new TypeBinding[interfaces.size()]));
+	}
+
+	public void analyseModuleGraph(CompilationUnitScope skope) {
+		if (this.requires != null) {
+			// collect transitively:
+			Map<String, Set<ModuleBinding>> pack2mods = new HashMap<>();
+			for (ModuleBinding requiredModule : this.binding.getAllRequiredModules()) {
+				for (PackageBinding exportedPackage : requiredModule.getExports()) {
+					if (this.binding.canAccess(exportedPackage)) {
+						String packName = String.valueOf(exportedPackage.readableName());
+						Set<ModuleBinding> mods = pack2mods.get(packName);
+						if (mods == null)
+							pack2mods.put(packName, mods = new HashSet<>());
+						mods.add(requiredModule);
+					}
+				}
+			}
+			// report against the causing requires directives:
+			for (RequiresStatement requiresStat : this.requires) {
+				ModuleBinding requiredModule = requiresStat.resolvedBinding;
+				if (requiredModule != null) {
+					analyseOneDependency(requiresStat, requiredModule, skope, pack2mods);
+					if (requiresStat.isTransitive()) {
+						for (ModuleBinding secondLevelModule : requiredModule.getAllRequiredModules())
+							analyseOneDependency(requiresStat, secondLevelModule, skope, pack2mods);
+					}
+				}
+			}
+		}
+	}
+
+	private void analyseOneDependency(RequiresStatement requiresStat, ModuleBinding requiredModule, CompilationUnitScope skope,
+			Map<String, Set<ModuleBinding>> pack2mods)
+	{
+		for (PackageBinding pack : requiredModule.getExports()) {
+			Set<ModuleBinding> mods = pack2mods.get(String.valueOf(pack.readableName()));
+			if (mods != null && mods.size() > 1)
+				skope.problemReporter().conflictingPackagesFromModules(pack, mods, requiresStat.sourceStart, requiresStat.sourceEnd);
+		}
 	}
 
 	public StringBuffer printHeader(int indent, StringBuffer output) {
