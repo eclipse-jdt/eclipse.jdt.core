@@ -87,7 +87,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		System.setProperty("modules.to.load", "java.base,java.desktop;java.rmi;java.sql;");
+		System.setProperty("modules.to.load", "java.base;java.desktop;java.rmi;java.sql;");
 		this.currentProject = createJava9Project("P1");
 		this.createFile("P1/src/module-info.java", "");
 		this.createFolder("P1/src/com/greetings");
@@ -95,6 +95,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		waitForManualRefresh();
 		waitForAutoBuild();
 	}
+	
+	public void tearDownSuite() throws Exception {
+		super.tearDownSuite();
+		deleteProject("P1");
+		System.setProperty("modules.to.load", "");
+	}
+	
 	// Test that the java.base found as a module package fragment root in the project 
 	public void test001() throws CoreException {
 		if (!isJRE9) return;
@@ -4197,10 +4204,5 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// sort by CHAR_START
 	protected void sortMarkers(IMarker[] markers) {
 		Arrays.sort(markers, (a,b) -> a.getAttribute(IMarker.CHAR_START, 0) - b.getAttribute(IMarker.CHAR_START, 0)); 
-	}
-	public void tearDownSuite() throws Exception {
-		super.tearDownSuite();
-		deleteProject("P1");
-		System.setProperty("modules.on.demand", "");
 	}
 }
