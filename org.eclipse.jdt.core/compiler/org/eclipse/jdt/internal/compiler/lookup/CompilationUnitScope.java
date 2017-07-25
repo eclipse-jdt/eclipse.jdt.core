@@ -644,7 +644,7 @@ private MethodBinding findStaticMethod(ReferenceBinding currentType, char[] sele
 }
 ImportBinding[] getDefaultImports() {
 	// initialize the default imports if necessary... share the default java.lang.* import
-	if (this.environment.defaultImports != null) return this.environment.defaultImports;
+	if (this.environment.root.defaultImports != null) return this.environment.root.defaultImports;
 
 	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA);
 	if (importBinding != null)
@@ -660,7 +660,7 @@ ImportBinding[] getDefaultImports() {
 		importBinding = missingObject.fPackage;
 	}
 
-	return this.environment.defaultImports = new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
+	return this.environment.root.defaultImports = new ImportBinding[] {new ImportBinding(TypeConstants.JAVA_LANG, true, importBinding, null)};
 }
 // NOT Public API
 public final Binding getImport(char[][] compoundName, boolean onDemand, boolean isStaticImport) {

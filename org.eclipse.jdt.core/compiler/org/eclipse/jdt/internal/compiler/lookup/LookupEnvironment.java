@@ -72,13 +72,13 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	 * Map from typeBinding -> accessRestriction rule
 	 */
 	private Map accessRestrictions;
-	ImportBinding[] defaultImports;
+	ImportBinding[] defaultImports;				// ROOT_ONLY
 	/**
 	 * The root environment driving the current compilation.
 	 * Other mutable fields in this class marked as ROOT_ONLY must always be accessed from the root environment.
 	 * It is assumed that external clients only know the root environment, whereas calls internally in the compiler
 	 * have to delegate to root where necessary.
-	 * Immutable fields with "global" semantics are shared among environments via aliasing.
+	 * Immutable fields with "global" semantics are SHARED among environments via aliasing.
 	 */
 	public final LookupEnvironment root;
 	public ModuleBinding UnNamedModule;
@@ -87,22 +87,22 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public PackageBinding defaultPackage;
 	/** All visible toplevel packages, i.e. observable packages associated with modules read by the current module. */
 	HashtableOfPackage knownPackages;
-	private int lastCompletedUnitIndex = -1; // ROOT_ONLY
-	private int lastUnitIndex = -1; // ROOT_ONLY
+	private int lastCompletedUnitIndex = -1; 	// ROOT_ONLY
+	private int lastUnitIndex = -1; 			// ROOT_ONLY
 
-	TypeSystem typeSystem;
+	TypeSystem typeSystem;					 	// SHARED
 	
-	public INameEnvironment nameEnvironment;
-	public CompilerOptions globalOptions;
+	public INameEnvironment nameEnvironment;	// SHARED
+	public CompilerOptions globalOptions;		// SHARED
 
-	public ProblemReporter problemReporter;
-	public ClassFilePool classFilePool;
+	public ProblemReporter problemReporter; 	// SHARED
+	public ClassFilePool classFilePool; 		// SHARED
 	// indicate in which step on the compilation we are.
 	// step 1 : build the reference binding
 	// step 2 : conect the hierarchy (connect bindings)
 	// step 3 : build fields and method bindings.
-	private int stepCompleted; // ROOT_ONLY
-	public ITypeRequestor typeRequestor;
+	private int stepCompleted; 					// ROOT_ONLY
+	public ITypeRequestor typeRequestor;		// SHARED
 
 	private SimpleLookupTable uniqueParameterizedGenericMethodBindings;
 	
@@ -112,7 +112,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	boolean useModuleSystem;					// true when compliance >= 9 and nameEnvironment is module aware
 	// key is a string with the module name value is a module binding
-	public HashtableOfModule knownModules;
+	public HashtableOfModule knownModules;		// SHARED
 
 	public CompilationUnitDeclaration unitBeingCompleted = null; // only set while completing units -- ROOT_ONLY
 	public Object missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
@@ -120,7 +120,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private MethodVerifier verifier;
 
 	private ArrayList missingTypes;
-	Set<SourceTypeBinding> typesBeingConnected;
+	Set<SourceTypeBinding> typesBeingConnected;	// SHARED
 	public boolean isProcessingAnnotations = false;
 	public boolean mayTolerateMissingType = false;
 
@@ -133,7 +133,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	Map<String,Integer> allNullAnnotations = null;
 
-	final List<MethodBinding> deferredEnumMethods; // during early initialization we cannot mark Enum-methods as nonnull.
+	final List<MethodBinding> deferredEnumMethods; // SHARED: during early initialization we cannot mark Enum-methods as nonnull.
 
 	/** Global access to the outermost active inference context as the universe for inference variable interning. */
 	InferenceContext18 currentInferenceContext;
@@ -1978,6 +1978,7 @@ boolean isMissingType(char[] typeName) {
 
 // The method verifier is lazily initialized to guarantee the receiver, the compiler & the oracle are ready.
 public MethodVerifier methodVerifier() {
+	 // TODO(SHMOD): I'm not sure if the verifier would need to be created with a specific LE?
 	if (this.verifier == null)
 		this.verifier = newMethodVerifier();
 	return this.verifier;
