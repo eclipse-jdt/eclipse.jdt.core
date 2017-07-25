@@ -117,7 +117,7 @@ public interface IModuleAwareNameEnvironment extends INameEnvironment {
 	
 	/** Get the module with the given name, which must denote a named module. */
 	IModule getModule(char[] moduleName);
-	IModule[] getAllAutomaticModules();
+	char[][] getAllAutomaticModules();
 
 	/**
 	 * Ask the name environment to perform any updates (add-exports or add-reads) to the given module.

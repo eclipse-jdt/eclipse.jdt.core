@@ -921,8 +921,8 @@ public class SearchableEnvironment
 	}
 
 	@Override
-	public IModule[] getAllAutomaticModules() {
-		return new IModule[0];
+	public char[][] getAllAutomaticModules() {
+		return CharOperation.NO_CHAR_CHAR;
 	}
 
 	@Override

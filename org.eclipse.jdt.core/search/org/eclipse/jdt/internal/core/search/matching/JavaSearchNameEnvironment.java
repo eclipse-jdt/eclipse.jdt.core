@@ -374,11 +374,11 @@ public IModule getModule(char[] moduleName) {
 }
 
 @Override
-public IModule[] getAllAutomaticModules() {
+public char[][] getAllAutomaticModules() {
 	if (this.moduleLocations == null || this.moduleLocations.size() == 0)
-		return IModule.NO_MODULES;
-	Set<IModule> set = this.moduleLocations.values().stream().map(e -> e.getModule()).filter(m -> m.isAutomatic())
-			.collect(Collectors.toSet());
-	return set.toArray(new IModule[set.size()]);
+		return CharOperation.NO_CHAR_CHAR;
+	Set<char[]> set = this.moduleLocations.values().stream().map(e -> e.getModule()).filter(m -> m != null && m.isAutomatic())
+			.map(m -> m.name()).collect(Collectors.toSet());
+	return set.toArray(new char[set.size()][]);
 }
 }

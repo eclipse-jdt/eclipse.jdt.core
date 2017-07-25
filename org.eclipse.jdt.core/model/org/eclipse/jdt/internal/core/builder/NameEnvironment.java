@@ -608,12 +608,12 @@ public IModule getModule(char[] name) {
 }
 
 @Override
-public IModule[] getAllAutomaticModules() {
+public char[][] getAllAutomaticModules() {
 	if (this.modulePathEntries == null)
-		return IModule.NO_MODULES;
-	Set<IModule> set = this.modulePathEntries.values().stream().filter(m -> m.isAutomaticModule()).map(e -> e.getModule())
+		return CharOperation.NO_CHAR_CHAR;
+	Set<char[]> set = this.modulePathEntries.values().stream().filter(m -> m.isAutomaticModule()).map(e -> e.getModule().name())
 			.collect(Collectors.toSet());
-	return set.toArray(new IModule[set.size()]);
+	return set.toArray(new char[set.size()][]);
 }
 @Override
 public void applyModuleUpdates(IUpdatableModule compilerModule, IUpdatableModule.UpdateKind kind) {

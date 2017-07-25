@@ -3961,7 +3961,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	// An automatic module grants implied readability to all other automatic modules
-	public void _testBug518282d() throws CoreException, IOException {
+	public void testBug518282d() throws CoreException, IOException {
 		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		String libPath = "externalLib/test.jar";
@@ -3975,8 +3975,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			};
 			IJavaProject p1 = setupModuleProject("org.astro", src);
 			src = new String[] { 
-				"src/com/greetings/Test.java",
-				"package com.greetings;\n" +
+				"src/org/greetings/Test.java",
+				"package org.greetings;\n" +
 				"import  org.astro.World;\n" +
 				"public class Test implements World {\n" +
 				"	public String name() {\n" +
@@ -3996,7 +3996,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}",
 				"src/test/Main.java",
 				"package test;\n" +
-				"import com.greetings.Test;\n" +
+				"import org.greetings.Test;\n" +
 				"public class Main {\n" +
 				"	public static void main(String[] args) {\n" +
 				"		org.astro.World world = new Test();\n" +

@@ -15,6 +15,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.HashMap;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -22,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.env.IModule.IService;
+import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 
 public class BinaryModuleBinding extends ModuleBinding {
 	
@@ -44,9 +46,15 @@ public class BinaryModuleBinding extends ModuleBinding {
 	
 	void cachePartsFrom(IModule module) {
 		this.isAuto = module.isAutomatic();
+
 		if (module.isOpen())
 			this.modifiers |= ClassFileConstants.ACC_OPEN;
 
+		if (this.isAuto) {
+			this.requires = Binding.NO_MODULES;
+			this.requiresTransitive = Binding.NO_MODULES;
+			this.exportedPackages = Binding.NO_PACKAGES;
+		} else {
 		IModuleReference[] requiresReferences = module.requires();
 		this.requires = new ModuleBinding[requiresReferences.length];
 		this.requiresTransitive = new ModuleBinding[requiresReferences.length];
@@ -65,7 +73,7 @@ public class BinaryModuleBinding extends ModuleBinding {
 			System.arraycopy(this.requires, 0, this.requires = new ModuleBinding[count], 0, count);
 		if (transitiveCount < this.requiresTransitive.length)
 			System.arraycopy(this.requiresTransitive, 0, this.requiresTransitive = new ModuleBinding[transitiveCount], 0, transitiveCount);
-
+		}
 		this.unresolvedExports = module.exports();
 		this.unresolvedOpens = module.opens();
 		this.unresolvedUses = module.uses();
@@ -83,7 +91,7 @@ public class BinaryModuleBinding extends ModuleBinding {
 	public PackageBinding[] getOpens() {
 		if (this.openedPackages == null && this.unresolvedOpens != null)
 			resolvePackages();
-		return super.getExports();
+		return super.getOpens();
 	}
 
 	private void resolvePackages() {
@@ -141,7 +149,18 @@ public class BinaryModuleBinding extends ModuleBinding {
 			resolveServices();
 		return super.getImplementations(binding);
 	}
-
+	public ModuleBinding[] getRequiresTransitive() {
+		if (this.isAuto) {
+			if (this.requiresTransitive == NO_MODULES) {
+				char[][] autoModules = ((IModuleAwareNameEnvironment)this.environment.nameEnvironment).getAllAutomaticModules();
+				return this.requiresTransitive = Stream.of(autoModules)
+					.filter(name -> !CharOperation.equals(name, this.moduleName))
+					.map(name -> this.environment.getModule(name)).filter(m -> m != null)
+					.toArray(ModuleBinding[]::new);
+			}
+		}
+		return super.getRequiresTransitive();
+	}
 	private void resolveServices() {
 		this.services = new TypeBinding[this.unresolvedProvides.length];
 		this.implementations = new HashMap<>();

@@ -571,14 +571,14 @@ public IModule getModule(char[] name) {
 }
 
 @Override
-public IModule[] getAllAutomaticModules() {
-	Set<IModule> set = new HashSet<>();
+public char[][] getAllAutomaticModules() {
+	Set<char[]> set = new HashSet<>();
 	for (int i = 0, l = this.classpaths.length; i < l; i++) {
 		if (this.classpaths[i].isAutomaticModule()) {
-			set.add(this.classpaths[i].getModule());
+			set.add(this.classpaths[i].getModule().name());
 		}
 	}
-	return set.toArray(new IModule[set.size()]);
+	return set.toArray(new char[set.size()][]);
 }
 
 void addModuleUpdate(String moduleName, Consumer<IUpdatableModule> update, UpdateKind kind) {
