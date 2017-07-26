@@ -169,6 +169,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.typeSystem = this.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 && this.globalOptions.storeAnnotations ? new AnnotatableTypeSystem(this) : new TypeSystem(this);
 	this.knownModules = new HashtableOfModule();
 	this.useModuleSystem = nameEnvironment instanceof IModuleAwareNameEnvironment && globalOptions.complianceLevel >= ClassFileConstants.JDK9;
+	this.resolutionListeners = new IQualifiedTypeResolutionListener[0];
 }
 
 /** Construct a specific LookupEnvironment, corresponding to the given module. */
@@ -2047,7 +2048,7 @@ void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding re
 	this.typeSystem.updateCaches(unresolvedType, resolvedType);
 }
 
-public IQualifiedTypeResolutionListener[] resolutionListeners = new IQualifiedTypeResolutionListener[0];
+public IQualifiedTypeResolutionListener[] resolutionListeners;	// ROOT_ONLY
 
 public void addResolutionListener(IQualifiedTypeResolutionListener resolutionListener) {
 	synchronized (this.root) {
