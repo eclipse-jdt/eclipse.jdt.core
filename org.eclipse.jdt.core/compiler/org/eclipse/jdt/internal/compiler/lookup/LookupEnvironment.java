@@ -2050,14 +2050,16 @@ void updateCaches(UnresolvedReferenceBinding unresolvedType, ReferenceBinding re
 public IQualifiedTypeResolutionListener[] resolutionListeners = new IQualifiedTypeResolutionListener[0];
 
 public void addResolutionListener(IQualifiedTypeResolutionListener resolutionListener) {
-	int length = this.resolutionListeners.length;
-	for (int i = 0; i < length; i++){
-		if (this.resolutionListeners[i].equals(resolutionListener))
-			return;
+	synchronized (this.root) {
+		int length = this.root.resolutionListeners.length;
+		for (int i = 0; i < length; i++){
+			if (this.root.resolutionListeners[i].equals(resolutionListener))
+				return;
+		}
+		System.arraycopy(this.root.resolutionListeners, 0,
+				this.root.resolutionListeners = new IQualifiedTypeResolutionListener[length + 1], 0, length);
+		this.root.resolutionListeners[length] = resolutionListener;
 	}
-	System.arraycopy(this.resolutionListeners, 0,
-			this.resolutionListeners = new IQualifiedTypeResolutionListener[length + 1], 0, length);
-	this.resolutionListeners[length] = resolutionListener;
 }
 
 
