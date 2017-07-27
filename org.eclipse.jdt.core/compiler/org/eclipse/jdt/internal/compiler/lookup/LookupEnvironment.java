@@ -764,7 +764,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 			if (isMissing) {
 				packageBinding.tagBits |= TagBits.HasMissingType;
 			}
-			packageBinding = parent.addPackage(packageBinding, this.module);
+			packageBinding = parent.addPackage(packageBinding, this.module, true);
 		}
 	}
 	return packageBinding;
@@ -1087,7 +1087,7 @@ public PackageBinding createPackage(char[][] compoundName) {
 				}
 			}
 			packageBinding = new PackageBinding(CharOperation.subarray(compoundName, 0, i + 1), parent, this, this.module);
-			packageBinding = parent.addPackage(packageBinding, this.module);
+			packageBinding = parent.addPackage(packageBinding, this.module, true);
 		}
 	}
 	if (packageBinding instanceof SplitPackageBinding)

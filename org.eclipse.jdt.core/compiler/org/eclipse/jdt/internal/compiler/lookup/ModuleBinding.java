@@ -27,7 +27,6 @@ import java.util.stream.Stream;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
@@ -436,48 +435,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		binding = this.environment.getPackage0(name);
 		if (binding != null)
 			return binding;
-
-		// find declaration in a visible module:
-		if (this.environment.useModuleSystem) {
-			IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
-			char[][] declaringModuleNames = moduleEnv.getModulesDeclaringPackage(null, name, nameForLookup());
-			if (declaringModuleNames != null) {
-				if (CharOperation.containsEqual(declaringModuleNames, this.moduleName)) {
-					// declared here, not yet known, so create it now:
-					binding = new PackageBinding(new char[][] {name}, null, this.environment, this);
-				} else {
-					// visible but foreign (when current is unnamed or auto):
-					for (char[] declaringModuleName : declaringModuleNames) {
-						ModuleBinding declaringModule = this.environment.root.getModule(declaringModuleName);
-						if (declaringModule != null)
-							binding = SplitPackageBinding.combine(declaringModule.getTopLevelPackage(name), binding, this);
-					}
-				}
-			}
-		} else {
-			if (this.environment.nameEnvironment.isPackage(null, name))
-				binding = new PackageBinding(new char[][] {name}, null, this.environment, this);			
-		}
-
-		// enrich with split-siblings from visible modules:
-		if (isUnnamed() && this.environment.useModuleSystem) {
-			IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
-			char[][] declaringModuleNames = moduleEnv.getModulesDeclaringPackage(null, name, ANY);
-			if (declaringModuleNames != null) {
-				for (char[] declaringModuleName : declaringModuleNames) {
-					if (declaringModuleName == this.moduleName) continue;
-					ModuleBinding declaringModule = this.environment.getModule(declaringModuleName);
-					if (declaringModule != null)
-						binding = SplitPackageBinding.combine(declaringModule.getTopLevelPackage(name), binding, this);
-				}
-			}
-		} else {
-			for (ModuleBinding required : getAllRequiredModules()) {
-				if (required == this) continue;
-				binding = SplitPackageBinding.combine(required.getTopLevelPackage(name), binding, this);
-			}
-		}
-
+		binding = getVisiblePackage(null, name);
 		// remember:
 		if (binding != null) {
 			this.environment.knownPackages.put(name, binding);
@@ -488,17 +446,32 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		return binding;
 	}
 
-	// Given parent is visible in this module, see if there is sub package named name visible in this module
-	PackageBinding getVisiblePackage(PackageBinding parent, char[] name) {
-		assert parent.compoundName.length > 0 : "shouldn't ask children of a default package"; //$NON-NLS-1$
-
+	PackageBinding getDeclaredPackage(char[][] parentName, char[] name) {
 		// check caches:
-		char[][] subPkgCompoundName = CharOperation.arrayConcat(parent.compoundName, name);
+		char[][] subPkgCompoundName = CharOperation.arrayConcat(parentName, name);
 		char[] fullFlatName = CharOperation.concatWith(subPkgCompoundName, '.');
 		PackageBinding pkg = this.declaredPackages.get(fullFlatName);
 		if (pkg != null)
 			return pkg;
-		pkg = parent.getPackage0(name);
+		PackageBinding parent = parentName.length == 0 ? null : getVisiblePackage(parentName);
+		PackageBinding binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
+		// remember
+		this.declaredPackages.put(fullFlatName, binding);
+		return binding;
+	}
+	// Given parent is visible in this module, see if there is sub package named name visible in this module
+	PackageBinding getVisiblePackage(PackageBinding parent, char[] name) {
+		// check caches:
+		char[][] parentName = parent == null ? CharOperation.NO_CHAR_CHAR : parent.compoundName;
+		char[][] subPkgCompoundName = CharOperation.arrayConcat(parentName, name);
+		char[] fullFlatName = CharOperation.concatWith(subPkgCompoundName, '.');
+		PackageBinding pkg = this.declaredPackages.get(fullFlatName);
+		if (pkg != null)
+			return pkg;
+		if (parent != null)
+			pkg = parent.getPackage0(name);
+		else
+			pkg = this.environment.getPackage0(name);
 		if (pkg != null) {
 			if (pkg == LookupEnvironment.TheNotFoundPackage)
 				return null;
@@ -507,27 +480,41 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 
 		PackageBinding binding = null;
-		if (!parent.isDeclaredIn(this)) {
-			// delegate foreign packages to their declaring modules:
-			if (parent instanceof SplitPackageBinding)
-				return ((SplitPackageBinding) parent).combineWithSiblings(binding, name, this);
-			return parent.enclosingModule.getVisiblePackage(parent, name);
+		if (this.environment.useModuleSystem) {
+			IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
+			char[][] declaringModuleNames = moduleEnv.getModulesDeclaringPackage(parentName, name, nameForLookup());
+			if (declaringModuleNames != null) {
+				if (CharOperation.containsEqual(declaringModuleNames, this.moduleName)) {
+					// declared here, not yet known, so create it now:
+					binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
+				} else {
+					// visible but foreign (when current is unnamed or auto):
+					for (char[] declaringModuleName : declaringModuleNames) {
+						ModuleBinding declaringModule = this.environment.root.getModule(declaringModuleName);
+						if (declaringModule != null)
+							binding = SplitPackageBinding.combine(declaringModule.getDeclaredPackage(parentName, name), binding, this);
+					}
+				}
+			}
+		} else {
+			if (this.environment.nameEnvironment.isPackage(parentName, name))
+				binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
 		}
 
-		boolean isPackage = this.environment.useModuleSystem 
-								? isDeclaredPackage(parent.compoundName, name)
-								: this.environment.nameEnvironment.isPackage(parent.compoundName, name);
-		if (!isPackage)
-			return null; 
-
-		// create
-		binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
-		
+		// enrich with split-siblings from visible modules:
+		if (!isUnnamed()) {
+			for (ModuleBinding required : getAllRequiredModules()) {
+				if (required == this) continue;
+				binding = SplitPackageBinding.combine(required.getVisiblePackage(subPkgCompoundName), binding, this);
+			}
+		}
+		if (binding == null || !binding.isValidBinding())
+			return null;
 		// remember
-		if (parent.compoundName.length == 0)
+		if (parentName.length == 0)
 			this.environment.knownPackages.put(name, binding);
 		else
-			binding = parent.addPackage(binding, this);
+			binding = parent.addPackage(binding, this, false);
 		return addPackage(binding, false);
 	}
 
@@ -560,25 +547,6 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 
 	/**
-	 * Does this module declare a package by the given name and qualified by the given parentPackageName?
-	 * In JLS diction a declared package is "associated" with this module.
-	 */
-	private boolean isDeclaredPackage(char[][] parentPackageName, char[] name) {
-		char[] qualifiedPackageName = CharOperation.concatWith(parentPackageName, name, '.');
-		PackageBinding declared = this.declaredPackages.get(qualifiedPackageName);
-		if (declared != null) {
-			return declared != LookupEnvironment.TheNotFoundPackage;
-		}
-		INameEnvironment nameEnvironment = this.environment.nameEnvironment;
-		if (this.environment.useModuleSystem) {
-			IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment)nameEnvironment;
-			return moduleEnv.getModulesDeclaringPackage(parentPackageName, name, this.moduleName) != null;
-		} else {
-			return nameEnvironment.isPackage(parentPackageName, name);
-		}
-	}
-
-	/**
 	 * Answer a package, that is a member named <em>packageName</em> of the parent package
 	 * named <em>parentPackageName</em>.
 	 * Considers all packages that are visible to the current module,
@@ -590,7 +558,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		// Returns a package binding if there exists such a package in the context of this module and it is observable
 		// A package is observable if it is declared in this module or it is exported by some required module
 		if (parentPackageName == null || parentPackageName.length == 0) {
-			return getTopLevelPackage(packageName);
+			return getVisiblePackage(null, packageName);
 		}
 		PackageBinding binding = null;
 		PackageBinding parent = getVisiblePackage(parentPackageName);

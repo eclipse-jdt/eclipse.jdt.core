@@ -4687,6 +4687,65 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("com.greetings");
 		}
 	}
+	public void testBug520147c() throws CoreException, IOException {
+		if (!isJRE9) return;
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		try {
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"module org.astro {\n" +
+					"	exports org.astro;\n" +
+					"}",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", src);
+			src = new String[] {
+				"src/org/eclipse/pack1/SomeWorld.java",
+				"package org.eclipse.pack1;\n" +
+				"import  org.astro.World;\n" +
+				"public class SomeWorld implements World {\n" +
+				"	public String name() {\n" +
+				"		return \" Some World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] {dep});
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			src = new String[] { 
+				"src/module-info.java",
+				"module test {\n" +
+				"	exports test;\n" +
+				"	requires com.greetings;\n" +
+				"	requires org.astro;\n" +
+				"}",
+				"src/test/Main.java",
+				"package test;\n" +
+				"import org.eclipse.pack1.SomeWorld;\n" +
+				"public class Main {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		org.astro.World world = new SomeWorld();\n" +
+				"		System.out.println(world.name());\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
+			IJavaProject p3 = setupModuleProject("test", src, new IClasspathEntry[] {dep, dep2});
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			this.deleteProject("test");
+			this.deleteProject("com.greetings");
+			this.deleteProject("org.astro");
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
