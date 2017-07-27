@@ -1541,6 +1541,8 @@ PackageBinding getTopLevelPackage(char[] name) {
 		}
 	}
 	if (packageBinding != null) {
+		if (packageBinding == TheNotFoundPackage)
+			return null;
 		return packageBinding;
 	}
 

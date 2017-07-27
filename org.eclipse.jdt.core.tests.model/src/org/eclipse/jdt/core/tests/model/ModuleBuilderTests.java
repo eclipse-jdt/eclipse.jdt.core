@@ -4198,7 +4198,30 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 
 	}
-	
+	public void testBug520246() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] src = new String[] { 
+				"src/module-info.java",
+				"module test_automodules {\n" +
+				"	requires java.sql;\n" +
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"import some.pack.Type;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", src);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "The import some cannot be resolved", markers);
+		} finally {
+			this.deleteProject("org.astro");
+		}
+
+	}	
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
