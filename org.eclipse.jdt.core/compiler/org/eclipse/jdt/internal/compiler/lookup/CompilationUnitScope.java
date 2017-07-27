@@ -426,7 +426,7 @@ void faultInImports() {
 			}
 			if (importBinding instanceof SplitPackageBinding) {
 				SplitPackageBinding splitPackage = (SplitPackageBinding) importBinding;
-				if (splitPackage.hasConflict()) {
+				if (splitPackage.hasConflict(module())) {
 					problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, importReference.sourceEnd);
 					continue nextImport;
 				}
@@ -462,7 +462,7 @@ void faultInImports() {
 				importedPackage = (PackageBinding) findImport(importedPackage.compoundName, false, true);
 				if (importedPackage instanceof SplitPackageBinding) {
 					SplitPackageBinding splitPackage = (SplitPackageBinding) importedPackage;
-					if (splitPackage.hasConflict()) {
+					if (splitPackage.hasConflict(module())) {
 						int sourceEnd = (int) importReference.sourcePositions[splitPackage.compoundName.length-1];
 						problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, sourceEnd);
 						continue nextImport;

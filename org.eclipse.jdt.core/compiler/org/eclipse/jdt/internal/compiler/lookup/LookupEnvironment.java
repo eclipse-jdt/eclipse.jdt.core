@@ -403,8 +403,11 @@ private static NameEnvironmentAnswer fromSplitPackageOrOracle(IModuleAwareNameEn
 		// now check if the module-incarnation of the package has the type:
 		// (needed because the moduleEnv will not answer initial types).
 		ReferenceBinding binding = ((SplitPackageBinding) packageBinding).getType0ForModule(module, name);
-		if (binding != null && binding.isValidBinding())
+		if (binding != null && binding.isValidBinding()) {
+			if (binding instanceof UnresolvedReferenceBinding)
+				binding = ((UnresolvedReferenceBinding) binding).resolve(module.environment, false);
 			return new NameEnvironmentAnswer(binding, module);
+		}
 	}
 	return moduleEnv.findType(name, packageBinding.compoundName, module.nameForLookup());
 }
@@ -717,14 +720,18 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 
 	PackageBinding packageBinding = getPackage0(constantPoolName[0]);
 	if (packageBinding == null || packageBinding == TheNotFoundPackage) {
-		if (this.useModuleSystem && this.module.isUnnamed()) {
-			char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModulesDeclaringPackage(null, constantPoolName[0], ModuleBinding.ANY);
-			if (declaringModules != null) {
-				for (char[] mod : declaringModules) {
-					ModuleBinding declaringModule = this.root.getModule(mod);
-					if (declaringModule != null)
-						packageBinding = SplitPackageBinding.combine(declaringModule.getTopLevelPackage(constantPoolName[0]), packageBinding, this.module);
+		if (this.useModuleSystem) {
+			if (this.module.isUnnamed()) {
+				char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModulesDeclaringPackage(null, constantPoolName[0], ModuleBinding.ANY);
+				if (declaringModules != null) {
+					for (char[] mod : declaringModules) {
+						ModuleBinding declaringModule = this.root.getModule(mod);
+						if (declaringModule != null)
+							packageBinding = SplitPackageBinding.combine(declaringModule.getTopLevelPackage(constantPoolName[0]), packageBinding, this.module);
+					}
 				}
+			} else {
+				packageBinding = this.module.getTopLevelPackage(constantPoolName[0]);
 			}
 		}
 		if (packageBinding == null || packageBinding == TheNotFoundPackage) {
@@ -737,14 +744,18 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 	for (int i = 1, length = constantPoolName.length - 1; i < length; i++) {
 		PackageBinding parent = packageBinding;
 		if ((packageBinding = parent.getPackage0(constantPoolName[i])) == null || packageBinding == TheNotFoundPackage) {
-			if (this.useModuleSystem && this.module.isUnnamed()) {
-				char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModulesDeclaringPackage(parent.compoundName, constantPoolName[i], ModuleBinding.ANY);
-				if (declaringModules != null) {
-					for (char[] mod : declaringModules) {
-						ModuleBinding declaringModule = this.root.getModule(mod);
-						if (declaringModule != null)
-							packageBinding = SplitPackageBinding.combine(declaringModule.getPackage(parent.compoundName, constantPoolName[i]), packageBinding, this.module);
+			if (this.useModuleSystem) {
+				if (this.module.isUnnamed()) {
+					char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModulesDeclaringPackage(parent.compoundName, constantPoolName[i], ModuleBinding.ANY);
+					if (declaringModules != null) {
+						for (char[] mod : declaringModules) {
+							ModuleBinding declaringModule = this.root.getModule(mod);
+							if (declaringModule != null)
+								packageBinding = SplitPackageBinding.combine(declaringModule.getPackage(parent.compoundName, constantPoolName[i]), packageBinding, this.module);
+						}
 					}
+				} else {
+					packageBinding = this.module.getVisiblePackage(parent, constantPoolName[i]);
 				}
 			}
 			if (packageBinding == null || packageBinding == TheNotFoundPackage) {

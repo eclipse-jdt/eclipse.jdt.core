@@ -369,17 +369,22 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 
 	/**
-	 * Check if the specified package is exported to the client module by this module. True if the package appears
-	 * in the list of exported packages and when the export is targeted, the module appears in the targets of the
-	 * exports statement
+	 * Check if the specified package is owned by the current module and exported to the client module.
+	 * True if the package appears in the list of exported packages and when the export is targeted,
+	 * the module appears in the targets of the exports statement.
 	 * @param pkg - the package whose visibility is to be checked
 	 * @param client - the module that wishes to use the package
 	 * @return true if the package is visible to the client module, false otherwise
 	 */
 	public boolean isPackageExportedTo(PackageBinding pkg, ModuleBinding client) {
 		// TODO(SHMOD): cache the result?
-		PackageBinding resolved = getVisiblePackage(pkg.compoundName);
-		if (pkg.isEquivalentTo(resolved)) {
+		PackageBinding resolved = null;
+		if (pkg instanceof SplitPackageBinding) {
+			resolved = ((SplitPackageBinding) pkg).getIncarnation(this);
+		} else if (pkg.enclosingModule == this) {
+			resolved = pkg;
+		}
+		if (resolved != null) {
 			if (this.isAuto) { // all packages are exported by an automatic module
 				return pkg.enclosingModule == this; // no transitive export
 			}

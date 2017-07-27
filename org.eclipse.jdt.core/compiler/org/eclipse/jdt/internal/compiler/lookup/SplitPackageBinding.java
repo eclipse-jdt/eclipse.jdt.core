@@ -175,19 +175,11 @@ public class SplitPackageBinding extends PackageBinding {
 		}
 		return null; // FIXME(SHMOD) is this an error?? (note that requestedModule could be the unnamed module
 	}
-	
-	@Override
-	public boolean isEquivalentTo(PackageBinding other) {
-		if (other == this)
-			return true;
-		if (other == null)
-			return false;
-		return CharOperation.equals(this.compoundName, other.compoundName)
-				&& this.declaringModules.contains(other.enclosingModule);
-	}
 
 	@Override
 	public boolean subsumes(PackageBinding binding) {
+		if (!CharOperation.equals(this.compoundName, binding.compoundName))
+			return false;
 		if (binding instanceof SplitPackageBinding)
 			return this.declaringModules.containsAll(((SplitPackageBinding) binding).declaringModules);
 		else
@@ -251,11 +243,11 @@ public class SplitPackageBinding extends PackageBinding {
 		return this.declaringModules.contains(moduleBinding);
 	}
 
-	public boolean hasConflict() {
+	public boolean hasConflict(ModuleBinding clientModule) {
 		int visibleCount = 0;
 		for (PackageBinding incarnation : this.incarnations) {
 			if (incarnation.hasCompilationUnit()) {
-				if (this.enclosingModule.canAccess(incarnation)) 
+				if (clientModule.canAccess(incarnation)) 
 					if (++visibleCount > 1)
 						return true;
 			}

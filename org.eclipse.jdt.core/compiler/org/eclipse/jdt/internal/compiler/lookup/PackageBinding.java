@@ -349,13 +349,6 @@ public String toString() {
 	}
 	return str;
 }
-public boolean isEquivalentTo(PackageBinding other) {
-	if (this == other)
-		return true;
-	if (other instanceof SplitPackageBinding)
-		return other.isEquivalentTo(this);
-	return false;
-}
 public boolean isDeclaredIn(ModuleBinding moduleBinding) {
 	return this.enclosingModule == moduleBinding;
 }
