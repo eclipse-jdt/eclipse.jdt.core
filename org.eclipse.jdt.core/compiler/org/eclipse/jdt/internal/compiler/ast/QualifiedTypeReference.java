@@ -117,13 +117,13 @@ public class QualifiedTypeReference extends TypeReference {
 	    PackageBinding packageBinding = binding == null ? null : (PackageBinding) binding;
 	    int typeStart = packageBinding == null ? 0 : packageBinding.compoundName.length;
 	    
+	    if (packageBinding != null)
+	    	packageBinding = packageBinding.getVisibleFor(scope.module());
 	    if (packageBinding instanceof SplitPackageBinding) {
 	    	SplitPackageBinding splitPackage = (SplitPackageBinding) packageBinding;
-	    	if (splitPackage.hasConflict(scope.module())) {
-	    		scope.problemReporter().conflictingPackagesFromModules(splitPackage, this.sourceStart, (int)this.sourcePositions[typeStart-1]);
-	    		this.resolvedType = new ProblemReferenceBinding(this.tokens, null, ProblemReasons.Ambiguous);
-	    		return null;
-	    	}
+	    	scope.problemReporter().conflictingPackagesFromModules(splitPackage, this.sourceStart, (int)this.sourcePositions[typeStart-1]);
+	    	this.resolvedType = new ProblemReferenceBinding(this.tokens, null, ProblemReasons.Ambiguous);
+	    	return null;
 	    }
 	    rejectAnnotationsOnPackageQualifiers(scope, packageBinding);
 

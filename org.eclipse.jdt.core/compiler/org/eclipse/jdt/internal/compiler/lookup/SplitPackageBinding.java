@@ -243,16 +243,24 @@ public class SplitPackageBinding extends PackageBinding {
 		return this.declaringModules.contains(moduleBinding);
 	}
 
-	public boolean hasConflict(ModuleBinding clientModule) {
+	@Override
+	public PackageBinding getVisibleFor(ModuleBinding clientModule) {
 		int visibleCount = 0;
+		PackageBinding unique = null;
 		for (PackageBinding incarnation : this.incarnations) {
 			if (incarnation.hasCompilationUnit()) {
-				if (clientModule.canAccess(incarnation)) 
-					if (++visibleCount > 1)
-						return true;
+				if (incarnation.enclosingModule == clientModule) {
+					return incarnation; // prefer local package over foreign
+				} else {
+					if (clientModule.canAccess(incarnation)) {
+						if (++visibleCount > 1)
+							return this;
+						unique = incarnation;
+					}
+				}
 			}
 		}
-		return false;
+		return unique;
 	}
 
 	@Override

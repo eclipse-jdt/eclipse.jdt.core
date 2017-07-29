@@ -424,9 +424,10 @@ void faultInImports() {
 				problemReporter().importProblem(importReference, importBinding);
 				continue nextImport;
 			}
-			if (importBinding instanceof SplitPackageBinding) {
-				SplitPackageBinding splitPackage = (SplitPackageBinding) importBinding;
-				if (splitPackage.hasConflict(module())) {
+			if (importBinding instanceof PackageBinding) {
+				importBinding = ((PackageBinding)importBinding).getVisibleFor(module());
+				if (importBinding instanceof SplitPackageBinding) {
+					SplitPackageBinding splitPackage = (SplitPackageBinding) importBinding;
 					problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, importReference.sourceEnd);
 					continue nextImport;
 				}
@@ -460,13 +461,13 @@ void faultInImports() {
 				}
 				// re-get to find a possible split package:
 				importedPackage = (PackageBinding) findImport(importedPackage.compoundName, false, true);
+				if (importedPackage != null)
+					importedPackage = importedPackage.getVisibleFor(module());
 				if (importedPackage instanceof SplitPackageBinding) {
 					SplitPackageBinding splitPackage = (SplitPackageBinding) importedPackage;
-					if (splitPackage.hasConflict(module())) {
-						int sourceEnd = (int) importReference.sourcePositions[splitPackage.compoundName.length-1];
-						problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, sourceEnd);
-						continue nextImport;
-					}
+					int sourceEnd = (int) importReference.sourcePositions[splitPackage.compoundName.length-1];
+					problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, sourceEnd);
+					continue nextImport;
 				}
 			}
 			// all the code here which checks for valid bindings have been moved to the method 
@@ -504,6 +505,8 @@ public void faultInTypes() {
 	faultInImports();
 	if (this.referenceContext.moduleDeclaration != null) {
 		this.referenceContext.moduleDeclaration.resolveTypeDirectives(this);
+	} else if (this.referenceContext.currentPackage != null) {
+		this.referenceContext.currentPackage.checkPackageConflict(this);
 	}
 
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)

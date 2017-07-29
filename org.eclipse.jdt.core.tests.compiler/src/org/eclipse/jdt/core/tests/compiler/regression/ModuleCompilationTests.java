@@ -1942,6 +1942,53 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"5 problems (5 errors)\n",
 				false);
 	}
+	// conflict foreign<->local package
+	public void testPackageConflict3() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	requires mod.one;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "pm", "C3.java", 
+						"package pm;\n" +
+						"public class C3 {\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeTest(new String[]{},
+				buffer.toString(), 
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/pm/C3.java (at line 1)\n" + 
+				"	package pm;\n" + 
+				"	        ^^\n" + 
+				"The package pm conflicts with a package accessible from another module: mod.one\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false);
+	}
 	public void testPackageTypeConflict1() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);

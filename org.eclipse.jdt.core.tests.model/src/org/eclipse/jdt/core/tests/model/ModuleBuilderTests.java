@@ -3335,7 +3335,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"The package org.astro is accessible from more than one module: com.greetings, org.astro",  markers);
+					"org.astro.World cannot be resolved to a type\n" +
+					"The package org.astro conflicts with a package accessible from another module: org.astro",  markers);
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("com.greetings");
@@ -3552,7 +3553,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"The package org.astro is accessible from more than one module: <unnamed>, org.astro",
+					"The package org.astro conflicts with a package accessible from another module: org.astro",
 					markers);
 		} finally {
 			deleteProject("org.astro");
@@ -3665,7 +3666,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"The package bundle.org is accessible from more than one module: <unnamed>, other.mod",
+					"The package bundle.org conflicts with a package accessible from another module: other.mod\n" + 
+					"bundle.org.astro.World cannot be resolved to a type",
 					markers);
 		} finally {
 			deleteProject("org.astro");
@@ -4501,6 +4503,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testPrivateMethod_Bug515985() throws CoreException {
+		if (!isJRE9) return;
 		try {
 			String[] src = new String[] {
 					"src/module-info.java", 

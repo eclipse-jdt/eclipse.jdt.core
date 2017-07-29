@@ -3244,6 +3244,14 @@ public void conflictingPackagesFromModules(PackageBinding pack, Set<ModuleBindin
 			sourceStart,
 			sourceEnd);
 }
+public void conflictingPackagesFromOtherModules(ImportReference currentPackage, Set<ModuleBinding> declaringModules) {
+		String moduleNames = declaringModules.stream()
+								.map(p -> String.valueOf(p.name()))
+								.sorted()
+								.collect(Collectors.joining(", ")); //$NON-NLS-1$
+		String[] arguments = new String[] { CharOperation.toString(currentPackage.tokens), moduleNames };
+		this.handle(IProblem.ConflictingPackageFromOtherModules, arguments, arguments, currentPackage.sourceStart, currentPackage.sourceEnd);
+}
 public void incompatibleExceptionInThrowsClause(SourceTypeBinding type, MethodBinding currentMethod, MethodBinding inheritedMethod, ReferenceBinding exceptionType) {
 	if (TypeBinding.equalsEquals(type, currentMethod.declaringClass)) {
 		int id;

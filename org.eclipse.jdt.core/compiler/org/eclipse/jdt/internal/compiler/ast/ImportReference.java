@@ -1,14 +1,21 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -52,6 +59,21 @@ public class ImportReference extends ASTNode {
 	public char[][] getImportName() {
 
 		return this.tokens;
+	}
+
+	public void checkPackageConflict(CompilationUnitScope scope) {
+		ModuleBinding module = scope.module();
+		PackageBinding visiblePackage = module.getVisiblePackage(this.tokens);
+		if (visiblePackage instanceof SplitPackageBinding) {
+			Set<ModuleBinding> declaringMods = new HashSet<>();
+			for (PackageBinding incarnation : ((SplitPackageBinding) visiblePackage).incarnations) {
+				if (incarnation.enclosingModule != module && module.canAccess(incarnation))
+					declaringMods.add(incarnation.enclosingModule);
+			}
+			if (!declaringMods.isEmpty()) {
+				scope.problemReporter().conflictingPackagesFromOtherModules(this, declaringMods);
+			}
+		}
 	}
 
 	public StringBuffer print(int indent, StringBuffer output) {

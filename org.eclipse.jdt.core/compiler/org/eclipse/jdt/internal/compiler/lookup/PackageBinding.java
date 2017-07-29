@@ -355,6 +355,17 @@ public boolean isDeclaredIn(ModuleBinding moduleBinding) {
 public boolean subsumes(PackageBinding binding) {
 	return binding == this;
 }
+/**
+ * If this package is uniquely visible to 'module' return a plain PackageBinding.
+ * In case of a conflict between a local package and foreign package
+ * the plain local package is returned, because this conflict will more
+ * appropriately be reported against the package declaration, not its references.
+ * In case of multiple accessible foreign packages a SplitPackageBinding is returned
+ * to indicate a conflict.
+ */
+public PackageBinding getVisibleFor(ModuleBinding module) {
+	return this;
+}
 public boolean hasCompilationUnit() {
 	if (this.knownTypes != null) {
 		for (ReferenceBinding knownType : this.knownTypes.valueTable) {
