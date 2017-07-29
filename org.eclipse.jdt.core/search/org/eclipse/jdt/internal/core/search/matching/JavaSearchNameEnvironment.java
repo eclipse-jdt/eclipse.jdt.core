@@ -164,11 +164,11 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 			ClasspathEntry rawClasspathEntry = (ClasspathEntry) root.getRawClasspathEntry();
 			cp = JavaModelManager.isJrt(path) ? 
 					new ClasspathJrt(path.toOSString(), 
-							ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true), this) :
+							ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true)) :
 						new ClasspathJar(manager.getZipFile(path), rawClasspathEntry.getAccessRuleSet(),
 								ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry,
 										((IJavaProject) root.getParent()).getProject(), true),
-								this, rawClasspathEntry.isAutomaticModule());
+								rawClasspathEntry.isAutomaticModule());
 		} else {
 			Object target = JavaModel.getTarget(path, true);
 			if (target != null) {
@@ -178,7 +178,7 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 					ClasspathEntry rawClasspathEntry = (ClasspathEntry) root.getRawClasspathEntry();
 					cp = ClasspathLocation.forBinaryFolder((IContainer) target, false, rawClasspathEntry.getAccessRuleSet(),
 														ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true),
-														this, rawClasspathEntry.isAutomaticModule());
+														rawClasspathEntry.isAutomaticModule());
 				}
 			}
 		}

@@ -33,7 +33,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -58,7 +57,6 @@ static class PackageCacheEntry {
 
 protected static SimpleLookupTable PackageCache = new SimpleLookupTable();
 protected static SimpleLookupTable ModuleCache = new SimpleLookupTable();
-INameEnvironment env = null;
 
 protected static void addToPackageSet(SimpleSet packageSet, String fileName, boolean endsWithSep) {
 	int last = endsWithSep ? fileName.length() : fileName.lastIndexOf('/');
@@ -137,7 +135,7 @@ private SimpleSet knownPackageNames;
 AccessRuleSet accessRuleSet;
 String externalAnnotationPath;
 
-ClasspathJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env, boolean isOnModulePath) {
+ClasspathJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, boolean isOnModulePath) {
 	this.resource = resource;
 	try {
 		java.net.URI location = resource.getLocationURI();
@@ -158,26 +156,25 @@ ClasspathJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotati
 	this.isOnModulePath = isOnModulePath;
 }
 
-ClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env, boolean isOnModulePath) {
+ClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, boolean isOnModulePath) {
 	this.zipFilename = zipFilename;
 	this.lastModified = lastModified;
 	this.zipFile = null;
 	this.knownPackageNames = null;
 	this.accessRuleSet = accessRuleSet;
-	this.env = env;
 	if (externalAnnotationPath != null)
 		this.externalAnnotationPath = externalAnnotationPath.toString();
 	this.isOnModulePath = isOnModulePath;
 }
 
-public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env, boolean isOnModulePath) {
-	this(zipFile.getName(), accessRuleSet, externalAnnotationPath, env, isOnModulePath);
+public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, boolean isOnModulePath) {
+	this(zipFile.getName(), accessRuleSet, externalAnnotationPath, isOnModulePath);
 	this.zipFile = zipFile;
 	this.closeZipFileAtEnd = true;
 }
 
-public ClasspathJar(String fileName, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env, boolean isOnModulePath) {
-	this(fileName, 0, accessRuleSet, externalAnnotationPath, env, isOnModulePath);
+public ClasspathJar(String fileName, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, boolean isOnModulePath) {
+	this(fileName, 0, accessRuleSet, externalAnnotationPath, isOnModulePath);
 	if (externalAnnotationPath != null)
 		this.externalAnnotationPath = externalAnnotationPath.toString();
 }

@@ -35,7 +35,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
@@ -46,14 +45,12 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 //private HashMap<String, SimpleSet> packagesInModule = null;
 private static HashMap<String, HashMap<String, SimpleSet>> PackageCache = new HashMap<>();
 private static HashMap<String, Set<IModule>> ModulesCache = new HashMap<>();
-INameEnvironment env = null;
 private String externalAnnotationPath;
 private ZipFile annotationZipFile;
 String zipFilename; // keep for equals
 
-public ClasspathJrt(String zipFilename, IPath externalAnnotationPath, INameEnvironment env) {
+public ClasspathJrt(String zipFilename, IPath externalAnnotationPath) {
 	this.zipFilename = zipFilename;
-	this.env = env;
 	if (externalAnnotationPath != null)
 		this.externalAnnotationPath = externalAnnotationPath.toString();
 	loadModules(this);

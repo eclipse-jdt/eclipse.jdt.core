@@ -21,7 +21,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -51,37 +50,35 @@ public abstract class ClasspathLocation {
 		return this.module;
 	}
 	static ClasspathLocation forSourceFolder(IContainer sourceFolder, IContainer outputFolder,
-			char[][] inclusionPatterns, char[][] exclusionPatterns, boolean ignoreOptionalProblems,
-			INameEnvironment env) {
+			char[][] inclusionPatterns, char[][] exclusionPatterns, boolean ignoreOptionalProblems) {
 		return new ClasspathMultiDirectory(sourceFolder, outputFolder, inclusionPatterns, exclusionPatterns,
-				ignoreOptionalProblems, env);
+				ignoreOptionalProblems);
 	}
-public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env, boolean autoModule) {
-	return new ClasspathDirectory(binaryFolder, isOutputFolder, accessRuleSet, externalAnnotationPath, env, autoModule);
+public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, boolean autoModule) {
+	return new ClasspathDirectory(binaryFolder, isOutputFolder, accessRuleSet, externalAnnotationPath, autoModule);
 }
 
 static ClasspathLocation forLibrary(String libraryPathname, 
 										long lastModified, 
 										AccessRuleSet accessRuleSet, 
 										IPath annotationsPath,
-										INameEnvironment env,
 										boolean autoModule) {
 	return Util.isJrt(libraryPathname) ?
-			new ClasspathJrt(libraryPathname, annotationsPath, env) :
+			new ClasspathJrt(libraryPathname, annotationsPath) :
 				Util.archiveFormat(libraryPathname) == Util.JMOD_FILE ?
-					new ClasspathJMod(libraryPathname, lastModified, accessRuleSet, annotationsPath, env) :
-			new ClasspathJar(libraryPathname, lastModified, accessRuleSet, annotationsPath, env, autoModule);
+					new ClasspathJMod(libraryPathname, lastModified, accessRuleSet, annotationsPath) :
+			new ClasspathJar(libraryPathname, lastModified, accessRuleSet, annotationsPath, autoModule);
 
 }
 
 public static ClasspathLocation forLibrary(String libraryPathname, AccessRuleSet accessRuleSet, IPath annotationsPath,
-											INameEnvironment env, boolean autoModule) {
-	return forLibrary(libraryPathname, 0, accessRuleSet, annotationsPath, env, autoModule);
+											boolean autoModule) {
+	return forLibrary(libraryPathname, 0, accessRuleSet, annotationsPath, autoModule);
 }
 
 static ClasspathLocation forLibrary(IFile library, AccessRuleSet accessRuleSet, IPath annotationsPath,
-										INameEnvironment env, boolean autoModule) {
-	return new ClasspathJar(library, accessRuleSet, annotationsPath, env, autoModule);
+										boolean autoModule) {
+	return new ClasspathJar(library, accessRuleSet, annotationsPath, autoModule);
 }
 
 public abstract IPath getProjectRelativePath();

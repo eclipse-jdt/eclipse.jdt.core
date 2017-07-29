@@ -21,7 +21,6 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -38,7 +37,6 @@ public class State {
 String javaProjectName;
 public ClasspathMultiDirectory[] sourceLocations;
 ClasspathLocation[] binaryLocations;
-INameEnvironment environment;
 // keyed by the project relative path of the type (i.e. "src1/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
 SimpleLookupTable references;
 // keyed by qualified type name "p1/p2/A", value is the project relative path which defines this type "src1/p1/p2/A.java"
@@ -70,7 +68,6 @@ protected State(JavaBuilder javaBuilder) {
 	this.previousStructuralBuildTime = -1;
 	this.structurallyChangedTypes = null;
 	this.javaProjectName = javaBuilder.currentProject.getName();
-	this.environment = javaBuilder.nameEnvironment;
 	this.sourceLocations = javaBuilder.nameEnvironment.sourceLocations;
 	this.binaryLocations = javaBuilder.nameEnvironment.binaryLocations;
 	this.references = new SimpleLookupTable(7);
@@ -257,7 +254,7 @@ static State read(IProject project, DataInputStream in) throws IOException {
 		if ((folderName = in.readUTF()).length() > 0) sourceFolder = project.getFolder(folderName);
 		if ((folderName = in.readUTF()).length() > 0) outputFolder = project.getFolder(folderName);
 		ClasspathMultiDirectory md =
-			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, readNames(in), readNames(in), in.readBoolean(), newState.environment);
+			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, readNames(in), readNames(in), in.readBoolean());
 		if (in.readBoolean())
 			md.hasIndependentOutputFolder = true;
 		newState.sourceLocations[i] = md;
@@ -277,16 +274,16 @@ static State read(IProject project, DataInputStream in) throws IOException {
 					? (IContainer) root.getProject(path.toString())
 					: (IContainer) root.getFolder(path);
 					newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(),
-							readRestriction(in), new Path(in.readUTF()), newState.environment, in.readBoolean());
+							readRestriction(in), new Path(in.readUTF()), in.readBoolean());
 				break;
 			case EXTERNAL_JAR :
 				String jarPath = in.readUTF();
 				newState.binaryLocations[i] = ClasspathLocation.forLibrary(jarPath, in.readLong(),
-							readRestriction(in), new Path(in.readUTF()), newState.environment, Util.isJrt(jarPath) ? false : in.readBoolean());
+							readRestriction(in), new Path(in.readUTF()), Util.isJrt(jarPath) ? false : in.readBoolean());
 				break;
 			case INTERNAL_JAR :
 					newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())),
-							readRestriction(in), new Path(in.readUTF()), newState.environment, in.readBoolean());
+							readRestriction(in), new Path(in.readUTF()), in.readBoolean());
 		}
 	}
 
