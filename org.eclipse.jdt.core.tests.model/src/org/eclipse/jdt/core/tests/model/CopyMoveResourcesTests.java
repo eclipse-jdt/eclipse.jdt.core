@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Vladimir Piskarev <pisv@1c.ru> - F_CONTENT sometimes lost when merging deltas - https://bugs.eclipse.org/520336
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -903,7 +904,7 @@ public void testMoveCU05() throws CoreException {
 							+ "		p1[*]: {CHILDREN}\n"
 							+ "			X.java[-]: {MOVED_TO(Y.java [in p2 [in src [in P]]])}\n"
 							+ "		p2[*]: {CHILDREN}\n"
-							+ "			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n"
+							+ "			Y.java[*]: {CHILDREN | CONTENT | FINE GRAINED | PRIMARY RESOURCE}\n"
 							+ "				Y[+]: {MOVED_FROM(X [in X.java [in p1 [in src [in P]]]])}", listener);
 	}
 	finally {

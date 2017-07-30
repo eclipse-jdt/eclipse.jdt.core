@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Vladimir Piskarev <pisv@1c.ru> - F_CONTENT sometimes lost when merging deltas - https://bugs.eclipse.org/520336
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -368,7 +369,7 @@ public void testRenameCU2() throws CoreException {
 				"	src[*]: {CHILDREN}\n" + 
 				"		<default>[*]: {CHILDREN}\n" + 
 				"			X.java[-]: {MOVED_TO(Y.java [in <default> [in src [in P]]])}\n" + 
-				"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" + 
+				"			Y.java[*]: {CHILDREN | CONTENT | FINE GRAINED | PRIMARY RESOURCE}\n" + 
 				"				Y[+]: {MOVED_FROM(X [in X.java [in <default> [in src [in P]]]])}"
 	);
 }
