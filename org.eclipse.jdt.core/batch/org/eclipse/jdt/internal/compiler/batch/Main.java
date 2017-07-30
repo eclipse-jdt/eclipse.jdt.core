@@ -1556,7 +1556,7 @@ public void addExtraProblems(CategorizedProblem problem) {
 	}
 	this.extraProblems.add(problem);
 }
-protected void addNewEntry(ArrayList paths, String currentClasspathName,
+protected void addNewEntry(ArrayList<FileSystem.Classpath> paths, String currentClasspathName,
 		ArrayList currentRuleSpecs, String customEncoding,
 		String destPath, boolean isSourceOnly,
 		boolean rejectDestinationPathOnJars) {
@@ -3451,36 +3451,29 @@ protected ArrayList handleModulepath(String arg) {
 	// TODO: What about chained jars from MANIFEST.MF? Check with spec
 	return modulePaths;
 }
-protected ArrayList handleModuleSourcepath(String arg) {
+protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 	ArrayList<String> modulePaths = processModulePathEntries(arg);
-	final int classpathsSize;
+	ArrayList<FileSystem.Classpath> result = new ArrayList<>();
 	if ((modulePaths != null)
-		&& ((classpathsSize = modulePaths.size()) != 0)) {
+		&& (modulePaths.size() != 0)) {
 
 		if (this.destinationPath == null) {
 			addPendingErrors(this.bind("configure.missingDestinationPath"));//$NON-NLS-1$
 		}
 		String[] paths = new String[modulePaths.size()];
 		modulePaths.toArray(paths);
-		// We reuse the same List to store <Classpath>, which earlier contained <String>
-		modulePaths.clear();
-		for (int i = 0; i < classpathsSize; i++) {
-			processPathEntries(DEFAULT_SIZE_CLASSPATH, modulePaths, paths[i],
-					null, false, true);
-		}
-//		Parser parser = getNewParser();
 		for (int i = 0; i < paths.length; i++) {
 			File dir = new File(paths[i]);
 			if (dir.isDirectory()) {
 				// 1. Create FileSystem.Classpath for each module
 				// 2. Iterator each module in case of directory for source files and add to this.fileNames
 
-				modulePaths =
+				result =
 						(ArrayList) ModuleFinder.findModules(dir, this.destinationPath, getNewParser(), this.options, false);
-				for (Object obj : modulePaths) {
+				for (Object obj : result) {
 					Classpath classpath = (Classpath) obj;
 					File modLocation = new File(classpath.getPath());
-					String[] result = FileFinder.find(modLocation, SuffixConstants.SUFFIX_STRING_java);
+					String[] files = FileFinder.find(modLocation, SuffixConstants.SUFFIX_STRING_java);
 					String destPath = classpath.getDestinationPath();
 					IModule mod = classpath.getModule();
 					String moduleName = mod == null ? null : new String(mod.name());
@@ -3489,7 +3482,7 @@ protected ArrayList handleModuleSourcepath(String arg) {
 					if (this.filenames != null) {
 						int filesCount = this.filenames.length;
 						// some source files were specified explicitly
-						int length = result.length;
+						int length = files.length;
 						System.arraycopy(
 							this.filenames,
 							0,
@@ -3514,14 +3507,14 @@ protected ArrayList handleModuleSourcepath(String arg) {
 								(this.modNames = new String[length + filesCount]),
 								0,
 								filesCount);
-						System.arraycopy(result, 0, this.filenames, filesCount, length);
+						System.arraycopy(files, 0, this.filenames, filesCount, length);
 						for (int j = 0; j < length; j++) {
 							this.modNames[filesCount + j] = moduleName;
 							this.destinationPaths[filesCount + j] = destPath;
 						}
 						filesCount += length;
 					} else {
-						this.filenames = result;
+						this.filenames = files;
 						int filesCount = this.filenames.length;
 						this.encodings = new String[filesCount];
 						this.destinationPaths = new String[filesCount];
@@ -3536,7 +3529,7 @@ protected ArrayList handleModuleSourcepath(String arg) {
 		}
 		
 	}
-	return modulePaths;
+	return result;
 }
 /*
  * External API
@@ -3606,7 +3599,7 @@ protected ArrayList handleClasspath(ArrayList classpaths, String customEncoding)
 /*
  * External API
  */
-protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
+protected ArrayList<FileSystem.Classpath> handleEndorseddirs(ArrayList<String> endorsedDirClasspaths) {
  	final File javaHome = getJavaHome();
 	/*
 	 * Feed endorsedDirClasspath according to:
@@ -3634,10 +3627,10 @@ protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
 	 * extdirsNames.
 	 */
 	if (endorsedDirClasspaths.size() != 0) {
+		ArrayList<FileSystem.Classpath> result = new ArrayList<>();
 		File[] directoriesToCheck = new File[endorsedDirClasspaths.size()];
 		for (int i = 0; i < directoriesToCheck.length; i++)
-			directoriesToCheck[i] = new File((String) endorsedDirClasspaths.get(i));
-		endorsedDirClasspaths.clear();
+			directoriesToCheck[i] = new File(endorsedDirClasspaths.get(i));
 		File[][] endorsedDirsJars = getLibrariesFiles(directoriesToCheck);
 		if (endorsedDirsJars != null) {
 			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
@@ -3649,7 +3642,7 @@ protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
 									current[j].getAbsolutePath(),
 									null, null, this.options);
 						if (classpath != null) {
-							endorsedDirClasspaths.add(classpath);
+							result.add(classpath);
 						}
 					}
 				} else if (directoriesToCheck[i].isFile()) {
@@ -3660,15 +3653,16 @@ protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
 				}
 			}
 		}
+		return result;
 	}
-	return endorsedDirClasspaths;
+	return FileSystem.EMPTY_CLASSPATH;
 }
 
 /*
  * External API
  * Handle extdirs processing
  */
-protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
+protected ArrayList<FileSystem.Classpath> handleExtdirs(ArrayList<String> extdirsClasspaths) {
  	final File javaHome = getJavaHome();
 
 	/*
@@ -3694,10 +3688,10 @@ protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
 	 * extdirsNames.
 	 */
 	if (extdirsClasspaths.size() != 0) {
+		ArrayList<FileSystem.Classpath> result = new ArrayList<>();
 		File[] directoriesToCheck = new File[extdirsClasspaths.size()];
 		for (int i = 0; i < directoriesToCheck.length; i++)
-			directoriesToCheck[i] = new File((String) extdirsClasspaths.get(i));
-		extdirsClasspaths.clear();
+			directoriesToCheck[i] = new File(extdirsClasspaths.get(i));
 		File[][] extdirsJars = getLibrariesFiles(directoriesToCheck);
 		if (extdirsJars != null) {
 			for (int i = 0, max = extdirsJars.length; i < max; i++) {
@@ -3709,7 +3703,7 @@ protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
 									current[j].getAbsolutePath(),
 									null, null, this.options);
 						if (classpath != null) {
-							extdirsClasspaths.add(classpath);
+							result.add(classpath);
 						}
 					}
 				} else if (directoriesToCheck[i].isFile()) {
@@ -3719,9 +3713,10 @@ protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
 				}
 			}
 		}
+		return result; 
 	}
 
-	return extdirsClasspaths;
+	return FileSystem.EMPTY_CLASSPATH;
 }
 
 /*

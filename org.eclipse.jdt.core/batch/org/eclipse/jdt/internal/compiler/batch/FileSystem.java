@@ -47,6 +47,10 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants {
+
+	// Keep the type as ArrayList and not List as there are clients that are already written to expect ArrayList.
+	public static ArrayList<FileSystem.Classpath> EMPTY_CLASSPATH = new ArrayList<>();
+
 	/**
 	 * A <code>Classpath</code>, even though an IModuleLocation, can represent a plain
 	 * classpath location too. The FileSystem tells the Classpath whether to behave as a module or regular class
