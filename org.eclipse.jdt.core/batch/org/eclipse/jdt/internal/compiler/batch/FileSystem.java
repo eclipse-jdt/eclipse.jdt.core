@@ -33,6 +33,9 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class FileSystem implements INameEnvironment, SuffixConstants {
+	// Keep the type as ArrayList and not List as there are clients that are already written to expect ArrayList.
+	public static ArrayList<FileSystem.Classpath> EMPTY_CLASSPATH = new ArrayList<>();
+
 	public interface Classpath {
 		char[][][] findTypeNames(String qualifiedPackageName);
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName);

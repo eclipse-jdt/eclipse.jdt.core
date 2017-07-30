@@ -1532,7 +1532,7 @@ public void addExtraProblems(CategorizedProblem problem) {
 	}
 	this.extraProblems.add(problem);
 }
-protected void addNewEntry(ArrayList paths, String currentClasspathName,
+protected void addNewEntry(ArrayList<FileSystem.Classpath> paths, String currentClasspathName,
 		ArrayList currentRuleSpecs, String customEncoding,
 		String destPath, boolean isSourceOnly,
 		boolean rejectDestinationPathOnJars) {
@@ -3277,7 +3277,7 @@ protected ArrayList handleClasspath(ArrayList classpaths, String customEncoding)
 /*
  * External API
  */
-protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
+protected ArrayList<FileSystem.Classpath> handleEndorseddirs(ArrayList<String> endorsedDirClasspaths) {
  	final File javaHome = getJavaHome();
 	/*
 	 * Feed endorsedDirClasspath according to:
@@ -3305,10 +3305,10 @@ protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
 	 * extdirsNames.
 	 */
 	if (endorsedDirClasspaths.size() != 0) {
+		ArrayList<FileSystem.Classpath> result = new ArrayList<>();
 		File[] directoriesToCheck = new File[endorsedDirClasspaths.size()];
 		for (int i = 0; i < directoriesToCheck.length; i++)
-			directoriesToCheck[i] = new File((String) endorsedDirClasspaths.get(i));
-		endorsedDirClasspaths.clear();
+			directoriesToCheck[i] = new File(endorsedDirClasspaths.get(i));
 		File[][] endorsedDirsJars = getLibrariesFiles(directoriesToCheck);
 		if (endorsedDirsJars != null) {
 			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
@@ -3320,7 +3320,7 @@ protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
 									current[j].getAbsolutePath(),
 									null, null, this.options);
 						if (classpath != null) {
-							endorsedDirClasspaths.add(classpath);
+							result.add(classpath);
 						}
 					}
 				} else if (directoriesToCheck[i].isFile()) {
@@ -3331,15 +3331,16 @@ protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
 				}
 			}
 		}
+		return result;
 	}
-	return endorsedDirClasspaths;
+	return FileSystem.EMPTY_CLASSPATH;
 }
 
 /*
  * External API
  * Handle extdirs processing
  */
-protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
+protected ArrayList<FileSystem.Classpath> handleExtdirs(ArrayList<String> extdirsClasspaths) {
  	final File javaHome = getJavaHome();
 
 	/*
@@ -3365,10 +3366,10 @@ protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
 	 * extdirsNames.
 	 */
 	if (extdirsClasspaths.size() != 0) {
+		ArrayList<FileSystem.Classpath> result = new ArrayList<>();
 		File[] directoriesToCheck = new File[extdirsClasspaths.size()];
 		for (int i = 0; i < directoriesToCheck.length; i++)
-			directoriesToCheck[i] = new File((String) extdirsClasspaths.get(i));
-		extdirsClasspaths.clear();
+			directoriesToCheck[i] = new File(extdirsClasspaths.get(i));
 		File[][] extdirsJars = getLibrariesFiles(directoriesToCheck);
 		if (extdirsJars != null) {
 			for (int i = 0, max = extdirsJars.length; i < max; i++) {
@@ -3380,7 +3381,7 @@ protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
 									current[j].getAbsolutePath(),
 									null, null, this.options);
 						if (classpath != null) {
-							extdirsClasspaths.add(classpath);
+							result.add(classpath);
 						}
 					}
 				} else if (directoriesToCheck[i].isFile()) {
@@ -3390,9 +3391,10 @@ protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
 				}
 			}
 		}
+		return result; 
 	}
 
-	return extdirsClasspaths;
+	return FileSystem.EMPTY_CLASSPATH;
 }
 
 /*
