@@ -212,6 +212,14 @@ public final class Messages extends NLS {
 	public static String convention_package_nameWithBlanks;
 	public static String convention_package_consecutiveDotsName;
 	public static String convention_package_uppercaseName;
+	public static String convention_module_nullName;
+	public static String convention_module_emptyName;
+	public static String convention_module_dotName;
+	public static String convention_module_nameWithBlanks;
+	public static String convention_module_consecutiveDotsName;
+	public static String convention_module_uppercaseName;
+	public static String convention_module_terminalDigits;
+	public static String convention_module_javaName;
 	public static String dom_cannotDetail;
 	public static String dom_nullTypeParameter;
 	public static String dom_nullNameParameter;
