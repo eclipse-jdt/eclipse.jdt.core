@@ -4424,6 +4424,82 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			JavaCore.setOptions(javaCoreOptions);
 		}
 	}
+	public void testSourceFolders_Bug519673() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			// Setup project PSources1:
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"module PSources1 {\n" +
+					"	//exports p.q;\n" +
+					"}",
+					"src2/p/q/SomeClass.java",
+					"package p.q;\n" +
+					"public class SomeClass {}",
+			};
+			IJavaProject p1 = setupModuleProject("PSources1", new String[] { "src", "src2" }, src, new IClasspathEntry[0]);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			// Edit PSources1/src/module-info.java:
+			String infoSrc =
+					"module PSources1 {\n" +
+					"	exports p.q;\n" +
+					"}";
+			String infoPath = "/PSources1/src/module-info.java";
+			editFile(infoPath, infoSrc);
+			this.workingCopies = new ICompilationUnit[1];
+			char[] sourceChars = src[1].toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			this.workingCopies[0] = getCompilationUnit(infoPath).getWorkingCopy(this.wcOwner, null);
+			// was: ERROR: The package pkg does not exist or is empty
+//			assertProblems(
+//					"Unexpected problems",
+//					"----------\n" + 
+//					"----------\n",
+//					this.problemRequestor);
+
+			// Setup project PClient2:
+			String[] src2 = new String[] { 
+					"src/module-info.java",
+					"module PClient2 {\n" +
+					"	requires PSources1;\n" +
+					"}",
+					"src/x/Client.java",
+					"package x;\n" +
+					"public class Client {\n" +
+					"	p.q.SomeClass f;\n" +
+					"\n}",
+			};
+			setupModuleProject("PClient2", src2);
+			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+
+			// Edit PClient2/src/module-info.java:
+			// was NPE in ModuleBinding.canAccess()
+			char[] info2Chars = src2[2].toCharArray();
+			this.problemRequestor.initialize(info2Chars);
+			this.workingCopies[0] = getCompilationUnit("PClient2/src/module-info.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			// Failed attempt to trigger NPE in ModuleBinding.isPackageExportedTo() by editing Client.java
+//			char[] source2Chars = src2[3].toCharArray();
+//			this.problemRequestor.initialize(source2Chars);
+//			this.workingCopies[0] = getCompilationUnit("PClient2/src/x/Client.java").getWorkingCopy(this.wcOwner, null);
+//			assertProblems(
+//					"Unexpected problems",
+//					"----------\n" + 
+//					"----------\n",
+//					this.problemRequestor);
+		} finally {
+			deleteProject("PSources1");
+			deleteProject("PClient2");
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

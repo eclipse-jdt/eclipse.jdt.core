@@ -168,14 +168,14 @@ public class ModuleDeclaration extends ASTNode {
 				if (!exportedPkgs.add(ref.resolvedPackage)) {
 					cuScope.problemReporter().invalidPackageReference(IProblem.DuplicateExports, ref);
 				}
+				char[][] targets = null;
+				if (ref.targets != null) {
+					targets = new char[ref.targets.length][];
+					for (int j = 0; j < targets.length; j++)
+						targets[j] = ref.targets[j].moduleName;
+				}
+				this.binding.addResolvedExport(ref.resolvedPackage, targets);
 			}
- 			char[][] targets = null;
- 			if (ref.targets != null) {
- 				targets = new char[ref.targets.length][];
- 				for (int j = 0; j < targets.length; j++)
-					targets[j] = ref.targets[j].moduleName;
- 			}
- 			this.binding.addResolvedExport(ref.resolvedPackage, targets);
 		}
 
 		Set<PackageBinding> openedPkgs = new HashSet<>();
@@ -189,14 +189,14 @@ public class ModuleDeclaration extends ASTNode {
 						cuScope.problemReporter().invalidPackageReference(IProblem.DuplicateOpens, ref);
 					}
 				}
+				char[][] targets = null;
+				if (ref.targets != null) {
+					targets = new char[ref.targets.length][];
+					for (int j = 0; j < targets.length; j++)
+						targets[j] = ref.targets[j].moduleName;
+				}
+				this.binding.addResolvedOpens(ref.resolvedPackage, targets);
 			}
- 			char[][] targets = null;
- 			if (ref.targets != null) {
- 				targets = new char[ref.targets.length][];
- 				for (int j = 0; j < targets.length; j++)
-					targets[j] = ref.targets[j].moduleName;
- 			}
-			this.binding.addResolvedOpens(ref.resolvedPackage, targets);
 		}
 	}
 

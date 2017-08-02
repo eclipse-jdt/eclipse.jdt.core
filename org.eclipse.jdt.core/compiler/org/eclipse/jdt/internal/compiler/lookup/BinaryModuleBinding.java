@@ -88,19 +88,34 @@ public class BinaryModuleBinding extends ModuleBinding {
 
 	private void resolvePackages() {
 		this.exportedPackages = new PackageBinding[this.unresolvedExports.length];
+		int count = 0;
 		for (int i = 0; i < this.unresolvedExports.length; i++) {
 			IPackageExport export = this.unresolvedExports[i];
 			PackageBinding declaredPackage = getVisiblePackage(CharOperation.splitOn('.', export.name()));
-			this.exportedPackages[i] = declaredPackage;
-			recordExportRestrictions(declaredPackage, export.targets());
+			if (declaredPackage != null) {
+				this.exportedPackages[count++] = declaredPackage;
+				recordExportRestrictions(declaredPackage, export.targets());
+			} else {
+				// TODO(SHMOD): report incomplete module path?
+			}
 		}
+		if (count < this.exportedPackages.length)
+			System.arraycopy(this.exportedPackages, 0, this.exportedPackages = new PackageBinding[count], 0, count);
+		
 		this.openedPackages = new PackageBinding[this.unresolvedOpens.length];
+		count = 0;
 		for (int i = 0; i < this.unresolvedOpens.length; i++) {
 			IPackageExport opens = this.unresolvedOpens[i];
 			PackageBinding declaredPackage = getVisiblePackage(CharOperation.splitOn('.', opens.name()));
-			this.openedPackages[i] = declaredPackage;
-			recordOpensRestrictions(declaredPackage, opens.targets());
+			if (declaredPackage != null) {
+				this.openedPackages[count++] = declaredPackage;
+				recordOpensRestrictions(declaredPackage, opens.targets());
+			} else {
+				// TODO(SHMOD): report incomplete module path?
+			}
 		}
+		if (count < this.openedPackages.length)
+			System.arraycopy(this.openedPackages, 0, this.openedPackages = new PackageBinding[count], 0, count);
 	}
 	
 	@Override

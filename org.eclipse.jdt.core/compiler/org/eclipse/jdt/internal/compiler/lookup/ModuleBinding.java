@@ -222,7 +222,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	@Override
 	public void addExports(char[] packageName, char[][] targetModules) {
 		PackageBinding declaredPackage = getVisiblePackage(CharOperation.splitOn('.', packageName));
-		addResolvedExport(declaredPackage, targetModules);
+		if (declaredPackage != null && declaredPackage.isValidBinding())
+			addResolvedExport(declaredPackage, targetModules);
 	}
 
 	// ---
