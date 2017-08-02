@@ -54,7 +54,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class Util implements SuffixConstants {
 
 	/**
@@ -1073,6 +1072,7 @@ public class Util implements SuffixConstants {
 			output.close();
 		}
 	}
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void recordNestedType(ClassFile classFile, TypeBinding typeBinding) {
 		if (classFile.visitedTypes == null) {
 			classFile.visitedTypes = new HashSet(3);
@@ -1159,11 +1159,11 @@ public class Util implements SuffixConstants {
 		return null;
 	}
 
-	public static void collectVMBootclasspath(List bootclasspaths, File javaHome) {
+	public static void collectVMBootclasspath(List<Classpath> bootclasspaths, File javaHome) {
 		List<Classpath> classpaths = collectPlatformLibraries(javaHome);
 		bootclasspaths.addAll(classpaths);
 	}
-	public static void collectRunningVMBootclasspath(List bootclasspaths) {
+	public static void collectRunningVMBootclasspath(List<Classpath> bootclasspaths) {
 		collectVMBootclasspath(bootclasspaths, null);
 	}
 	public static long getJDKLevel(File javaHome) {

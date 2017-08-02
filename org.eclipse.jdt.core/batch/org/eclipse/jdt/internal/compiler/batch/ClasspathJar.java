@@ -30,6 +30,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
@@ -61,13 +62,13 @@ public ClasspathJar(File file, boolean closeZipFileAtEnd,
 	this.closeZipFileAtEnd = closeZipFileAtEnd;
 }
 
-public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
+public List<Classpath> fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
 	// expected to be called once only - if multiple calls desired, consider
 	// using a cache
 	InputStream inputStream = null;
 	try {
 		initialize();
-		ArrayList result = new ArrayList();
+		ArrayList<Classpath> result = new ArrayList<>();
 		ZipEntry manifest = this.zipFile.getEntry("META-INF/MANIFEST.MF"); //$NON-NLS-1$
 		if (manifest != null) { // non-null implies regular file
 			inputStream = this.zipFile.getInputStream(manifest);
