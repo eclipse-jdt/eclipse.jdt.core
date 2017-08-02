@@ -861,6 +861,9 @@ public class SearchableEnvironment
 					while (moduleContext == null && current != null) {
 						switch (current.getElementType()) {
 							case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+								if (!((IPackageFragmentRoot) current).isExternal())
+									current = current.getJavaProject();
+								//$FALL-THROUGH$
 							case IJavaElement.JAVA_PROJECT:
 								moduleContext = current;
 								break;

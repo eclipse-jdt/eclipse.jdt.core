@@ -4452,11 +4452,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.problemRequestor.initialize(sourceChars);
 			this.workingCopies[0] = getCompilationUnit(infoPath).getWorkingCopy(this.wcOwner, null);
 			// was: ERROR: The package pkg does not exist or is empty
-//			assertProblems(
-//					"Unexpected problems",
-//					"----------\n" + 
-//					"----------\n",
-//					this.problemRequestor);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
 
 			// Setup project PClient2:
 			String[] src2 = new String[] { 
@@ -4487,14 +4487,14 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					this.problemRequestor);
 
 			// Failed attempt to trigger NPE in ModuleBinding.isPackageExportedTo() by editing Client.java
-//			char[] source2Chars = src2[3].toCharArray();
-//			this.problemRequestor.initialize(source2Chars);
-//			this.workingCopies[0] = getCompilationUnit("PClient2/src/x/Client.java").getWorkingCopy(this.wcOwner, null);
-//			assertProblems(
-//					"Unexpected problems",
-//					"----------\n" + 
-//					"----------\n",
-//					this.problemRequestor);
+			char[] source2Chars = src2[3].toCharArray();
+			this.problemRequestor.initialize(source2Chars);
+			this.workingCopies[0] = getCompilationUnit("PClient2/src/x/Client.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
 		} finally {
 			deleteProject("PSources1");
 			deleteProject("PClient2");

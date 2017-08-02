@@ -1349,10 +1349,13 @@ public class NameLookup implements SuffixConstants {
 				break;
 			case IJavaElement.JAVA_PROJECT:
 				try {
-					for (IPackageFragmentRoot fragmentRoot : ((IJavaProject) moduleContext).getPackageFragmentRoots()) {
-						fragment = fragmentRoot.getPackageFragment(name);
-						if (fragment.exists())
-							requestor.acceptPackageFragment(fragment);
+					IJavaProject javaProject = (IJavaProject) moduleContext;
+					for (IPackageFragmentRoot fragmentRoot : javaProject.getPackageFragmentRoots()) {
+						if (!fragmentRoot.isExternal()) {
+							fragment = fragmentRoot.getPackageFragment(name);
+							if (fragment.exists())
+								requestor.acceptPackageFragment(fragment);
+						}
 					}
 				} catch (JavaModelException e) {
 					// silent
