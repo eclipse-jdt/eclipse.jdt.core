@@ -406,12 +406,12 @@ public class EclipseCompilerImpl extends Main {
 	}
 
 	@Override
-	protected void setPaths(ArrayList bootclasspaths,
+	protected void setPaths(ArrayList<String> bootclasspaths,
 			String sourcepathClasspathArg,
-			ArrayList sourcepathClasspaths,
-			ArrayList classpaths,
-			ArrayList extdirsClasspaths,
-			ArrayList endorsedDirClasspaths,
+			ArrayList<String> sourcepathClasspaths,
+			ArrayList<String> classpaths,
+			ArrayList<String> extdirsClasspaths,
+			ArrayList<String> endorsedDirClasspaths,
 			String customEncoding) {
 
 		ArrayList<FileSystem.Classpath> fileSystemClasspaths = new ArrayList<>();

@@ -50,7 +50,7 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 		 * @return a list of the jar file names defined in the Class-Path
 		 *         section of the jar file manifest if any
 		 */
-		List fetchLinkedJars(ClasspathSectionProblemReporter problemReporter);
+		List<Classpath> fetchLinkedJars(ClasspathSectionProblemReporter problemReporter);
 		/**
 		 * This method resets the environment. The resulting state is equivalent to
 		 * a new name environment without creating a new object.
