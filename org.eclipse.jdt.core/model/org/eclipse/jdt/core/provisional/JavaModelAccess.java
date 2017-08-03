@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.provisional;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.core.AbstractModule;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.ModuleUpdater;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 
 /**
@@ -206,5 +208,20 @@ public class JavaModelAccess {
 		String[] limitArray = list.toArray(new String[list.size()]);
 		Arrays.sort(limitArray);
 		return String.join(COMMA, limitArray);
+	}
+
+	/**
+	 * Returns the module names that are compiled in projects which are built with a non-empty classpath and are on the build path of <code>project</code>
+	 * @param project the project whose build path is examined
+	 * @return set of module names
+	 * @throws JavaModelException when access to the classpath or module description of the given project fails.
+	 */
+	public static Set<String> determineModulesOfProjectsWithNonEmptyClasspath(IJavaProject project) throws JavaModelException {
+		if(project instanceof JavaProject) {
+			// this should always be true, as IJavaProject is @noimplement
+			JavaProject javaProject = (JavaProject) project;
+			return ModuleUpdater.determineModulesOfProjectsWithNonEmptyClasspath(javaProject, javaProject.getExpandedClasspath());
+		} 
+		return Collections.emptySet();
 	}
 }

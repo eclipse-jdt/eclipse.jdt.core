@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
@@ -163,6 +164,26 @@ public class CompilationUnitProblemFinder extends Compiler {
 		};
 	}
 
+	private static boolean isTestSource(IJavaProject project, ICompilationUnit cu) {
+		try {
+			IClasspathEntry[] resolvedClasspath = project.getResolvedClasspath(true);
+			final IPath resourcePath = cu.getResource().getFullPath();
+			for (IClasspathEntry e : resolvedClasspath) {
+				if (e.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+					if (e.isTest()) {
+						if (e.getPath().isPrefixOf(resourcePath)) {
+							return true;
+						}
+					}
+				}
+			}
+		} catch (JavaModelException e) {
+			Util.log(e, "Exception while determining if compilation unit \"" + cu.getElementName() //$NON-NLS-1$
+					+ "\" is test source"); //$NON-NLS-1$
+		}
+		return false;
+	}
+
 	/*
 	 * Can return null if the process was aborted or canceled 
 	 */
@@ -182,7 +203,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		CompilationUnitProblemFinder problemFinder = null;
 		CompilationUnitDeclaration unit = null;
 		try {
-			environment = new CancelableNameEnvironment(project, workingCopyOwner, monitor);
+			environment = new CancelableNameEnvironment(project, workingCopyOwner, monitor, !isTestSource(unitElement.getJavaProject(), unitElement));
 			problemFactory = new CancelableProblemFactory(monitor);
 			CompilerOptions compilerOptions = getCompilerOptions(project.getOptions(true), creatingAST, ((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0));
 			boolean ignoreMethodBodies = (reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0;

@@ -46,18 +46,21 @@ BuildNotifier notifier;
 
 SimpleSet initialTypeNames; // assumed that each name is of the form "a/b/ClassName", or, if a module is given: "my.mod:a/b/ClassName"
 SimpleLookupTable additionalUnits;
+private CompilationGroup compilationGroup;
 /** Tasks resulting from add-reads or add-exports classpath attributes. */
 ModuleUpdater moduleUpdater;
 
-NameEnvironment(IWorkspaceRoot root, JavaProject javaProject, SimpleLookupTable binaryLocationsPerProject, BuildNotifier notifier) throws CoreException {
+NameEnvironment(IWorkspaceRoot root, JavaProject javaProject, SimpleLookupTable binaryLocationsPerProject, BuildNotifier notifier, CompilationGroup compilationGroup) throws CoreException {
+	this.compilationGroup = compilationGroup;
 	this.isIncrementalBuild = false;
 	this.notifier = notifier;
 	computeClasspathLocations(root, javaProject, binaryLocationsPerProject);
 	setNames(null, null);
 }
 
-public NameEnvironment(IJavaProject javaProject) {
+public NameEnvironment(IJavaProject javaProject, CompilationGroup compilationGroup) {
 	this.isIncrementalBuild = false;
+	this.compilationGroup = compilationGroup;
 	try {
 		computeClasspathLocations(javaProject.getProject().getWorkspace().getRoot(), (JavaProject) javaProject, null);
 	} catch(CoreException e) {
@@ -104,13 +107,17 @@ private void computeClasspathLocations(
 			cycleMarker.setAttribute(IMarker.SEVERITY, severity);
 	}
 
-	IClasspathEntry[] classpathEntries = javaProject.getExpandedClasspath();
+	IClasspathEntry[] classpathEntries = javaProject.getExpandedClasspath(this.compilationGroup == CompilationGroup.MAIN);
 	ArrayList sLocations = new ArrayList(classpathEntries.length);
 	ArrayList bLocations = new ArrayList(classpathEntries.length);
+	ArrayList sLocationsForTest = new ArrayList(classpathEntries.length);
 	Map<String, IModulePathEntry> moduleEntries = null;
 	if (CompilerOptions.versionToJdkLevel(javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9) {
 		moduleEntries = new HashMap<>(classpathEntries.length);
 		this.moduleUpdater = new ModuleUpdater(javaProject);
+		if (this.compilationGroup == CompilationGroup.TEST) {
+			this.moduleUpdater.addReadUnnamedForNonEmptyClasspath(javaProject, classpathEntries);
+		}
 	}
 	IModuleDescription projectModule = javaProject.getModuleDescription();
 
@@ -137,7 +144,7 @@ private void computeClasspathLocations(
 			patchedModuleName = null;
 		}
 
-		if (this.moduleUpdater != null)
+		if (this.moduleUpdater != null && (this.compilationGroup == CompilationGroup.TEST || !entry.isTest()))
 			this.moduleUpdater.computeModuleUpdates(entry);
 
 		switch(entry.getEntryKind()) {
@@ -154,16 +161,25 @@ private void computeClasspathLocations(
 					if (!outputFolder.exists())
 						createOutputFolder(outputFolder);
 				}
-				ClasspathLocation sourceLocation = ClasspathLocation.forSourceFolder(
-							(IContainer) target, 
-							outputFolder,
-							entry.fullInclusionPatternChars(), 
-							entry.fullExclusionPatternChars(),
-							entry.ignoreOptionalProblems());
-				if (patchedModule != null) {
-					ModuleEntryProcessor.combinePatchIntoModuleEntry(sourceLocation, patchedModule, moduleEntries);
+				if (this.compilationGroup == CompilationGroup.TEST && !entry.isTest()) {
+					ClasspathLocation bLocation = ClasspathLocation.forBinaryFolder(outputFolder, true, entry.getAccessRuleSet(), externalAnnotationPath, isOnModulePath);
+					bLocations.add(bLocation);
+					sLocationsForTest.add(bLocation);
+					if (patchedModule != null) {
+						ModuleEntryProcessor.combinePatchIntoModuleEntry(bLocation, patchedModule, moduleEntries);
+					}
+				} else {
+					ClasspathLocation sourceLocation = ClasspathLocation.forSourceFolder(
+								(IContainer) target, 
+								outputFolder,
+								entry.fullInclusionPatternChars(), 
+								entry.fullExclusionPatternChars(),
+								entry.ignoreOptionalProblems());
+					if (patchedModule != null) {
+						ModuleEntryProcessor.combinePatchIntoModuleEntry(sourceLocation, patchedModule, moduleEntries);
+					}
+					sLocations.add(sourceLocation);
 				}
-				sLocations.add(sourceLocation);
 				continue nextEntry;
 
 			case IClasspathEntry.CPE_PROJECT :
@@ -178,6 +194,8 @@ private void computeClasspathLocations(
 				nextPrereqEntry: for (int j = 0, m = prereqClasspathEntries.length; j < m; j++) {
 					IClasspathEntry prereqEntry = prereqClasspathEntries[j];
 					if (prereqEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+						if ((this.compilationGroup == CompilationGroup.MAIN || entry.isWithoutTestCode()) && prereqEntry.isTest())
+							continue nextPrereqEntry;
 						Object prereqTarget = JavaModel.getTarget(prereqEntry.getPath(), true);
 						if (!(prereqTarget instanceof IContainer)) continue nextPrereqEntry;
 						IPath prereqOutputPath = prereqEntry.getOutputLocation() != null
@@ -294,7 +312,17 @@ private void computeClasspathLocations(
 			try {
 				AbstractModule sourceModule = (AbstractModule)projectModule;
 				ModuleDescriptionInfo info = (ModuleDescriptionInfo) sourceModule.getElementInfo();
-				ModulePathEntry projectEntry = new ModulePathEntry(javaProject.getPath(), info, this.sourceLocations);
+				final ClasspathLocation[] sourceLocations2;
+				if(sLocationsForTest.size() == 0) {
+					sourceLocations2 = this.sourceLocations;
+				} else {
+					ArrayList<ClasspathLocation> sourceLocationsForModulePathEntry=new ArrayList<>(sLocations.size()+sLocationsForTest.size());
+					sourceLocationsForModulePathEntry.addAll(sLocations);
+					sourceLocationsForModulePathEntry.addAll(sLocationsForTest);
+					sourceLocations2= sourceLocationsForModulePathEntry
+							.toArray(new ClasspathLocation[sourceLocationsForModulePathEntry.size()]);
+				}
+				ModulePathEntry projectEntry = new ModulePathEntry(javaProject.getPath(), info, sourceLocations2);
 				if (!moduleEntries.containsKey(sourceModule.getElementName())) { // can be registered already, if patching
 					moduleEntries.put(sourceModule.getElementName(), projectEntry);
 				}

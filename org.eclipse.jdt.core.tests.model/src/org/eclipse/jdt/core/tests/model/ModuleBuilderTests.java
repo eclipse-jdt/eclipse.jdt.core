@@ -6511,6 +6511,146 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject(p1);
 		}
 	}
+	// Bug 520713: allow test code to access code on the classpath
+	public void testWithTestAttributeAndTestDependencyOnClassPath() throws CoreException, IOException {
+		if (!isJRE9) return;
+		String outputDirectory = Util.getOutputDirectory();
+		
+		String jarPath = outputDirectory + File.separator + "mytestlib.jar";
+		IJavaProject project1 = null;
+		IJavaProject project2 = null;
+		try {
+			String[] sources = {
+				"my/test/Test.java",
+				"package my.test;\n" +
+				"public class Test {}\n;"
+			};
+			Util.createJar(sources, jarPath, "1.8");
+			
+			project1 = createJava9Project("Project1", new String[] {"src"});
+			addClasspathEntry(project1, JavaCore.newSourceEntry(new Path("/Project1/src-tests"), null, null, new Path("/Project1/bin-tests"), new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true") }));
+			addClasspathEntry(project1, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true") }, false));
+
+			createFolder("/Project1/src/p1");
+			createFolder("/Project1/src-tests/p1");
+			createFile("/Project1/src/module-info.java",
+					"module m1 {\n" +
+					"	exports p1;\n" +
+					"}");
+			createFile("/Project1/src/p1/P1Class.java", 
+					"package p1;\n" + 
+					"\n" + 
+					"public class P1Class {\n"+ 
+					"}\n" 
+					);
+			createFile("/Project1/src/p1/Production1.java",
+					"package p1;\n" + 
+					"\n" + 
+					"public class Production1 {\n" + 
+					"	void p1() {\n" + 
+					"		new P1Class(); // ok\n" + 
+					"		new T1Class(); // forbidden\n" + 
+					"	}\n" + 
+					"}\n" + 
+					""
+					);
+			createFile("/Project1/src-tests/p1/T1Class.java", 
+					"package p1;\n" + 
+					"\n" + 
+					"public class T1Class {\n"+ 
+					"}\n" 
+					);
+			createFile("/Project1/src-tests/p1/Test1.java", 
+					"package p1;\n" + 
+					"\n" + 
+					"public class Test1 extends my.test.Test {\n" + 
+					"	void test1() {\n" + 
+					"		new P1Class(); // ok\n" + 
+					"		new T1Class(); // ok\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"" 
+					);
+			project1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+	
+			IMarker[] markers = project1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers", 
+					"T1Class cannot be resolved to a type" + 
+					"", 
+					markers);
+			
+			project2 = createJava9Project("Project2", new String[] {"src"});
+			addClasspathEntry(project2, JavaCore.newProjectEntry(new Path("/Project1"), null, false, new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") }, false));
+			addClasspathEntry(project2, JavaCore.newSourceEntry(new Path("/Project2/src-tests"), null, null, new Path("/Project2/bin-tests"), new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true") }));
+			addClasspathEntry(project2, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true") }, false));
+			createFolder("/Project2/src/p2");
+			createFolder("/Project2/src-tests/p2");
+			createFile("/Project2/src/module-info.java",
+					"module m2 {\n" +
+					"	requires m1;\n" +
+					"}");
+			createFile("/Project2/src/p2/P2Class.java", 
+					"package p2;\n" + 
+					"\n" + 
+					"public class P2Class {\n"+ 
+					"}\n" 
+					);
+			createFile("/Project2/src/p2/Production2.java",
+					"package p2;\n" + 
+					"\n" + 
+					"import p1.P1Class;\n" + 
+					"import p1.T1Class;\n" + 
+					"\n" + 
+					"public class Production2 {\n" + 
+					"	void p2() {\n" + 
+					"		new P1Class(); // ok\n" + 
+					"		new P2Class(); // ok\n" + 
+					"		new T1Class(); // forbidden\n" + 
+					"		new T2Class(); // forbidden\n" + 
+					"	}\n" + 
+					"}\n" + 
+					""
+					);
+			createFile("/Project2/src-tests/p2/T2Class.java", 
+					"package p2;\n" + 
+					"\n" + 
+					"public class T2Class {\n"+ 
+					"}\n" 
+					);
+			createFile("/Project2/src-tests/p2/Test2.java", 
+					"package p2;\n" + 
+					"\n" + 
+					"import p1.P1Class;\n" + 
+					"import p1.T1Class;\n" + 
+					"\n" + 
+					"public class Test2 extends p1.Test1 {\n" + 
+					"	void test2() {\n" + 
+					"		new P1Class(); // ok\n" + 
+					"		new P2Class(); // ok\n" + 
+					"		new T1Class(); // ok\n" + 
+					"		new T2Class(); // ok\n" + 
+					"	}\n" + 
+					"}\n" + 
+					"" 
+					);
+			project1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+	
+			IMarker[] markers2 = project2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers2);
+			assertMarkers("Unexpected markers", 
+					"The import p1.T1Class cannot be resolved\n" + 
+					"T1Class cannot be resolved to a type\n" + 
+					"T2Class cannot be resolved to a type", 
+					markers2);
+		} finally {
+			if (project1 != null)
+				deleteProject(project1);
+			if (project2 != null)
+				deleteProject(project2);
+			new File(jarPath).delete();
+		}
+	}
 
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {

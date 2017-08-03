@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.CompilationGroup;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -87,10 +88,10 @@ public final static Integer P_HIGH = Integer.valueOf(IMarker.PRIORITY_HIGH);
 public final static Integer P_NORMAL = Integer.valueOf(IMarker.PRIORITY_NORMAL);
 public final static Integer P_LOW = Integer.valueOf(IMarker.PRIORITY_LOW);
 
-protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, State newState) {
+protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, State newState, CompilationGroup compilationGroup) {
 	// local copies
 	this.javaBuilder = javaBuilder;
-	this.nameEnvironment = javaBuilder.nameEnvironment;
+	this.nameEnvironment = compilationGroup == CompilationGroup.TEST ? javaBuilder.testNameEnvironment : javaBuilder.nameEnvironment;
 	this.sourceLocations = this.nameEnvironment.sourceLocations;
 	this.notifier = javaBuilder.notifier;
 	this.keepStoringProblemMarkers = true; // may get disabled when missing classfiles are encountered
@@ -433,9 +434,8 @@ protected void deleteGeneratedFiles(IFile[] deletedGeneratedFiles) {
 protected SourceFile findSourceFile(IFile file, boolean mustExist) {
 	if (mustExist && !file.exists()) return null;
 
-	// assumes the file exists in at least one of the source folders & is not excluded
-	ClasspathMultiDirectory md = this.sourceLocations[0];
-	if (this.sourceLocations.length > 1) {
+	ClasspathMultiDirectory md = null;
+	if (this.sourceLocations.length > 0) {
 		IPath sourceFileFullPath = file.getFullPath();
 		for (int j = 0, m = this.sourceLocations.length; j < m; j++) {
 			if (this.sourceLocations[j].sourceFolder.getFullPath().isPrefixOf(sourceFileFullPath)) {
@@ -447,7 +447,7 @@ protected SourceFile findSourceFile(IFile file, boolean mustExist) {
 			}
 		}
 	}
-	return new SourceFile(file, md);
+	return md == null ? null: new SourceFile(file, md);
 }
 
 protected void finishedWith(String sourceLocator, CompilationResult result, char[] mainTypeName, ArrayList definedTypeNames, ArrayList duplicateTypeNames) {
