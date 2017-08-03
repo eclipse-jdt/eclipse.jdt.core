@@ -4549,6 +4549,133 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("mod.two");
 		}
 	}
+	public void testAddExports() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+					"src/module-info.java",
+					"module morg.astro {\n" +
+//					"	exports org.astro to com.greetings;\n" + // this export will be added via add-exports
+					"}",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}"
+			};
+			IJavaProject p1 = setupModuleProject("morg.astro", sources);
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathAttribute addExports = new ClasspathAttribute(IClasspathAttribute.ADD_EXPORTS, "morg.astro/org.astro=com.greetings");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+															new IClasspathAttribute[] {modAttr, addExports},
+															false/*not exported*/);
+			String[] src = new String[] {
+					"src/module-info.java",
+					"module com.greetings {\n" +
+					"	requires morg.astro;\n" +
+					"	exports com.greetings;\n" +
+					"}",
+					"src/com/greetings/MyWorld.java",
+					"package com.greetings;\n" +
+					"import org.astro.World;\n" +
+					"public class MyWorld implements World {\n" +
+					"	public String name() {\n" +
+					"		return \" My World!!\";\n" +
+					"	}\n" +
+					"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",	"",  markers);
+		} finally {
+			deleteProject("morg.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void testAddReads() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			// org.astro defines the "real" org.astro.World:
+			String[] sources = new String[] {
+					"src/module-info.java",
+					"module org.astro {\n" +
+					"	exports org.astro;\n" + 
+					"}",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}"
+			};
+			IJavaProject p = setupModuleProject("org.astro", sources);
+
+			// build mod.one with a private copy of org.astro.World:
+			String[] src1 = new String[] {
+					"src/module-info.java",
+					"module mod.one {\n" +
+					"	exports one.p;\n" +
+					"}\n",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World { public String name(); }\n",
+					"src/one/p/C.java",
+					"package one.p;\n" +
+					"public class C {\n" +
+					"	public void test(org.astro.World w) {\n" +
+					"		System.out.println(w.name());\n" +
+					"	}\n" +
+					"}\n"
+			};
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p.getPath(), null, false,
+															new IClasspathAttribute[] { modAttr },
+															false/*not exported*/);
+			IJavaProject p1 = setupModuleProject("mod.one", src1, new IClasspathEntry[] { dep });
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",	"",  markers);
+
+			// jar-up without the private copy:
+			deleteFile("/mod.one/src/org/astro/World.java");
+			deleteFile("/mod.one/bin/org/astro/World.class");
+			String modOneJarPath = getWorkspacePath()+File.separator+"mod.one.jar";
+			Util.zip(new File(getWorkspacePath()+"/mod.one/bin"), modOneJarPath);
+
+			// com.greetings depends on both other modules:
+			String[] src2 = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires org.astro;\n" +
+				"	requires mod.one;\n" +
+				"}",
+				"src/com/greetings/MyTest.java",
+				"package com.greetings;\n" +
+				"public class MyTest {\n" +
+				"	public void test(one.p.C c, org.astro.World w) {\n" +
+				"		c.test(w);\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep1 = JavaCore.newProjectEntry(p.getPath(), null, false,
+															new IClasspathAttribute[] {new ClasspathAttribute("module", "true")},
+															false/*not exported*/);
+			// need to re-wire dependency mod.one -> org.astro for resolving one.p.C:
+			IClasspathEntry dep2 = JavaCore.newLibraryEntry(new Path(modOneJarPath), null, null, null,
+															new IClasspathAttribute[] {
+																	new ClasspathAttribute("module", "true"),
+																	new ClasspathAttribute(IClasspathAttribute.ADD_READS, "mod.one=org.astro")
+															},
+															false/*not exported*/);
+			IJavaProject p2 = setupModuleProject("com.greetings", src2, new IClasspathEntry[] { dep1, dep2 });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",	"",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

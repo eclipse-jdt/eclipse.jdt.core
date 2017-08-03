@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2016 IBM Corporation and others.
+ * Copyright (c) 2005, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -127,6 +127,28 @@ public interface IClasspathAttribute {
 	 * @since 3.13 BETA_JAVA9
 	 */
 	String AUTOMATIC_MODULE = "module"; //$NON-NLS-1$
+
+	/**
+	 * Constant for the name of the add_exports attribute.
+	 * 
+	 * <p>The value of this attribute must adhere to the syntax of <code>javac's</code>
+	 * {@code --add-exports} command line option: {@code <source-module>/<package>=<target-module>(,<target-module>)*}.
+	 * The given exports will be added at compile time.</p>
+	 * 
+	 * @since 3.13 BETA_JAVA9
+	 */
+	String ADD_EXPORTS = "add-exports"; //$NON-NLS-1$
+
+	/**
+	 * Constant for the name of the add_exports attribute.
+	 * 
+	 * <p>The value of this attribute must adhere to the syntax of <code>javac's</code>
+	 * {@code --add-reads} command line option: {@code <source-module>=<target-module>}.
+	 * The given reads edge will be added at compile time.</p>
+	 * 
+	 * @since 3.13 BETA_JAVA9
+	 */
+	String ADD_READS = "add-reads"; //$NON-NLS-1$
 
 	/**
 	 * Constant for the name of the external annotation path attribute. 

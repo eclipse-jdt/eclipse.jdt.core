@@ -27,8 +27,11 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
+import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdatesByKind;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
@@ -38,6 +41,7 @@ import org.eclipse.jdt.internal.core.*;
 
 import java.io.*;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -51,6 +55,8 @@ BuildNotifier notifier;
 
 SimpleSet initialTypeNames; // assumed that each name is of the form "a/b/ClassName", or, if a module is given: "my.mod:a/b/ClassName"
 SimpleLookupTable additionalUnits;
+/** Tasks resulting from add-reads or add-exports classpath attributes. */
+Map<String,UpdatesByKind> moduleUpdates = new HashMap<>();
 
 NameEnvironment(IWorkspaceRoot root, JavaProject javaProject, SimpleLookupTable binaryLocationsPerProject, BuildNotifier notifier) throws CoreException {
 	this.isIncrementalBuild = false;
@@ -123,6 +129,33 @@ private void computeClasspathLocations(
 		IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, javaProject.getProject(), true);
 		if (target == null) continue nextEntry;
 		boolean isOnModulePath = entry.isAutomaticModule();
+
+		for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
+			String attributeName = attribute.getName();
+			if (attributeName.equals(IClasspathAttribute.ADD_EXPORTS)) {
+				String value = attribute.getValue(); // format: <source-module>/<package>=<target-module>(,<target-module>)*
+				int slash = value.indexOf('/');
+				int equals = value.indexOf('=');
+				if (slash != -1 && equals != -1) {
+					String modName = value.substring(0, slash);
+					char[] packName = value.substring(slash+1, equals).toCharArray();
+					char[][] targets = CharOperation.splitOn(',', value.substring(equals+1).toCharArray());
+					addModuleUpdate(modName, m -> m.addExports(packName, targets), UpdateKind.PACKAGE);
+				} else {
+					org.eclipse.jdt.internal.core.util.Util.log(IStatus.WARNING, "Invalid argument to add-exports: "+value); //$NON-NLS-1$
+				}
+			} else if (attributeName.equals(IClasspathAttribute.ADD_READS)) {
+				String value = attribute.getValue(); // format: <source-module>=<target-module>
+				int equals = value.indexOf('=');
+				if (equals != -1) {
+					String srcMod = value.substring(0, equals);
+					char[] targetMod = value.substring(equals+1).toCharArray();
+					addModuleUpdate(srcMod, m -> m.addReads(targetMod), UpdateKind.MODULE);
+				} else {
+					org.eclipse.jdt.internal.core.util.Util.log(IStatus.WARNING, "Invalid argument to add-reads: "+value); //$NON-NLS-1$
+				}
+			}
+		}
 
 		switch(entry.getEntryKind()) {
 			case IClasspathEntry.CPE_SOURCE :
@@ -608,5 +641,23 @@ public IModule[] getAllAutomaticModules() {
 	Set<IModule> set = this.modulePathEntries.values().stream().filter(m -> m.isAutomaticModule()).map(e -> e.getModule())
 			.collect(Collectors.toSet());
 	return set.toArray(new IModule[set.size()]);
+}
+void addModuleUpdate(String moduleName, Consumer<IUpdatableModule> update, UpdateKind kind) {
+	UpdatesByKind updates = this.moduleUpdates.get(moduleName);
+	if (updates == null) {
+		this.moduleUpdates.put(moduleName, updates = new UpdatesByKind());
+	}
+	updates.getList(kind, true).add(update);
+}
+@Override
+public void applyModuleUpdates(IUpdatableModule compilerModule, IUpdatableModule.UpdateKind kind) {
+	char[] name = compilerModule.name();
+	if (name != ModuleBinding.UNNAMED) { // can't update the unnamed module
+		UpdatesByKind updates = this.moduleUpdates.get(String.valueOf(name));
+		if (updates != null) {
+			for (Consumer<IUpdatableModule> update : updates.getList(kind, false))
+				update.accept(compilerModule);
+		}
+	}
 }
 }
