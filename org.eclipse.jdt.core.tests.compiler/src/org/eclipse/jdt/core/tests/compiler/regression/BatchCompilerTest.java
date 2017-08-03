@@ -10082,7 +10082,6 @@ public void test279_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2[?**/*]" + "\""
-		+ " --module-source-path \"" + OUTPUT_DIR + File.separator + "src2" + "\""
 		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + "\""
 		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",

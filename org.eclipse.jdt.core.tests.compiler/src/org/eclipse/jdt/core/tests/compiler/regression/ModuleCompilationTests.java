@@ -18,16 +18,29 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 
 public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 
 	static {
-//		 TESTS_NAMES = new String[] { "test035" };
+//		 TESTS_NAMES = new String[] { "test013" };
 		// TESTS_NUMBERS = new int[] { 1 };
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -42,6 +55,11 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 
 	public static Class<?> testClass() {
 		return ModuleCompilationTests.class;
+	}
+
+	protected void writeFileCollecting(List<String> collectedFiles, String directoryName, String fileName, String source) {
+		writeFile(directoryName, fileName, source);
+		collectedFiles.add(directoryName+File.separator+fileName);
 	}
 
 	protected void writeFile(String directoryName, String fileName, String source) {
@@ -63,9 +81,189 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			return;
 		}
 	}
+	
+	void runConformModuleTest(List<String> testFileNames, StringBuffer commandLine,
+			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
+			boolean shouldFlushOutputDirectory)
+	{
+		runConformModuleTest(testFileNames, commandLine,
+				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, OUTPUT_DIR);
+	}
+
+	void runConformModuleTest(List<String> testFileNames, StringBuffer commandLine,
+			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
+			boolean shouldFlushOutputDirectory, String output)
+	{
+		for (String file : testFileNames)
+			commandLine.append(" \"").append(file).append("\"");
+		runConformModuleTest(new String[0], commandLine.toString(),
+				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, output);
+	}
+
+	Set<String> runConformModuleTest(String[] testFiles, String commandLine,
+			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
+			boolean shouldFlushOutputDirectory)
+	{
+		return runConformModuleTest(testFiles, commandLine, expectedFailureErrOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, OUTPUT_DIR);
+	}
+
+	Set<String> runConformModuleTest(String[] testFiles, String commandLine,
+			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
+			boolean shouldFlushOutputDirectory, String output)
+	{
+		this.runConformTest(testFiles, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory);
+		if (RUN_JAVAC) {
+			File outputDir = new File(output);
+			final Set<String> outFiles = new HashSet<>();
+			walkOutFiles(output, outFiles, true);
+			String[] testFileNames = new String[testFiles.length/2];
+			for (int i = 0; i < testFileNames.length; i++) {
+				testFileNames[i] = testFiles[i*2];
+			}
+			for (Object comp : javacCompilers) {
+				JavacCompiler javacCompiler = (JavacCompiler) comp;
+				if (javacCompiler.compliance < ClassFileConstants.JDK9)
+					continue;
+				commandLine = commandLine.replace(" -9", " -source 9");
+				StringBuffer log = new StringBuffer();
+				try {
+					long compileResult = javacCompiler.compile(
+											outputDir, /* directory */
+											commandLine /* options */,
+											testFileNames /* source file names */,
+											log);
+					if (compileResult != 0) {
+						System.err.println("Previous error was from "+testName());
+						fail("Unexpected error from javac");
+					}
+				} catch (IOException | InterruptedException e) {
+					e.printStackTrace();
+					throw new AssertionFailedError(e.getMessage());
+				}
+				final Set<String> expectedFiles = new HashSet<>(outFiles);
+				walkOutFiles(output, expectedFiles, false);
+				for (String missingFile : expectedFiles)
+					System.err.println("Missing output file from javac:    "+missingFile);
+			}
+			return outFiles;
+		}
+		return null;
+	}
+
+	void runNegativeModuleTest(List<String> testFileNames, StringBuffer commandLine,
+			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
+			boolean shouldFlushOutputDirectory, String javacErrorMatch) {
+		runNegativeModuleTest(testFileNames, commandLine, expectedFailureOutOutputString,
+				expectedFailureErrOutputString, shouldFlushOutputDirectory, javacErrorMatch, OUTPUT_DIR);
+	}
+
+	void runNegativeModuleTest(List<String> testFileNames, StringBuffer commandLine,
+			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
+			boolean shouldFlushOutputDirectory, String javacErrorMatch, String output)
+	{
+		for (String file : testFileNames)
+			commandLine.append(" \"").append(file).append("\"");
+		runNegativeModuleTest(new String[0], commandLine.toString(),
+				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, javacErrorMatch, output);
+	}
+	void runNegativeModuleTest(String[] testFiles, String commandLine,
+			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
+			boolean shouldFlushOutputDirectory, String javacErrorMatch) {
+		runNegativeModuleTest(testFiles, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString,
+				shouldFlushOutputDirectory, javacErrorMatch, OUTPUT_DIR);
+	}
+
+	void runNegativeModuleTest(String[] testFiles, String commandLine,
+			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
+			boolean shouldFlushOutputDirectory, String javacErrorMatch, String output)
+	{
+		this.runNegativeTest(testFiles, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory);
+		if (RUN_JAVAC) {
+			String[] testFileNames = new String[testFiles.length/2];
+			for (int i = 0; i < testFileNames.length; i++) {
+				testFileNames[i] = testFiles[i*2];
+			}
+			File outputDir = new File(OUTPUT_DIR);
+			final Set<String> outFiles = new HashSet<>();
+			walkOutFiles(output, outFiles, true);
+			for (Object comp : javacCompilers) {
+				JavacCompiler javacCompiler = (JavacCompiler) comp;
+				if (javacCompiler.compliance < ClassFileConstants.JDK9)
+					continue;
+				commandLine = commandLine.replace(" -9", " -source 9");
+				StringBuffer log = new StringBuffer();
+				try {
+					long compileResult = javacCompiler.compile(
+											outputDir, /* directory */
+											commandLine /* options */,
+											testFileNames /* source file names */,
+											log);
+					if (compileResult == 0) {
+						System.err.println("Previous error was from "+testName());
+						fail(testName()+": Unexpected success from javac");
+					}
+					if (!log.toString().contains(javacErrorMatch)) {
+						System.err.println(testName()+": Error match " + javacErrorMatch + " not found in \n"+log.toString());
+						fail("Expected error match not found: "+javacErrorMatch);
+					}
+				} catch (IOException | InterruptedException e) {
+					e.printStackTrace();
+					throw new AssertionFailedError(e.getMessage());
+				}
+				final Set<String> expectedFiles = new HashSet<>(outFiles);
+				walkOutFiles(output, expectedFiles, false);
+				for (String missingFile : expectedFiles)
+					System.err.println("Missing output file from javac:    "+missingFile);
+			}
+		}
+	}
+	
+	private void walkOutFiles(final String outputLocation, final Set<String> fileNames, boolean add) {
+		if (!(new File(outputLocation)).exists()) 
+			return;
+		try {
+			Files.walkFileTree(FileSystems.getDefault().getPath(outputLocation), new SimpleFileVisitor<Path>() {
+				@Override
+				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+					if (file.toString().endsWith(".class")) {
+						if (add) {
+							fileNames.add(file.toString());
+						} else {
+							if (!fileNames.remove(file.toString()))
+								System.err.println("Unexpected output file from javac: "+file.toString());
+						}
+						Files.delete(file);
+					}
+					return FileVisitResult.CONTINUE;
+				}
+				@Override
+				public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+					if (!dir.toString().equals(outputLocation)) {
+						try {
+							Files.delete(dir);
+						} catch (DirectoryNotEmptyException ex) {
+							// expected
+						}
+					}
+			        return FileVisitResult.CONTINUE;
+				}
+			});
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new AssertionFailedError(e.getMessage());
+		}
+	}
+
+	private void assertClassFile(String msg, String fileName, Set<String> classFiles) {
+		if (classFiles != null) {
+			assertTrue(msg, classFiles.contains(fileName));
+		} else {
+			assertTrue(msg, (new File(fileName).exists()));
+		}
+	}
 
 	public void test001() {
-		this.runNegativeTest(
+		runNegativeModuleTest(
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -89,10 +287,11 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
     		"java.sql cannot be resolved to a type\n" + 
     		"----------\n" + 
     		"1 problem (1 error)\n",
-	        true);
+	        true,
+	        "package java.sql" /* match for javac error */);
 	}
 	public void test002() {
-		this.runConformTest(
+		runConformModuleTest(
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -115,7 +314,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 	        true);
 	}
 	public void test003() {
-		this.runConformTest(
+		runConformModuleTest(
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -132,7 +331,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 	        true);
 	}
 	public void test004() {
-		this.runConformTest(
+		Set<String> classFiles = runConformModuleTest(
 			new String[] {
 				"module-info.java",
 				"module mod.one { \n" +
@@ -140,16 +339,15 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"	requires java.sql;\n" +
 				"}"
 	        },
-			"-9 \"" + OUTPUT_DIR +  File.separator + "module-info.java\"",
+			" -9 \"" + OUTPUT_DIR +  File.separator + "module-info.java\"",
 	        "",
 	        "",
 	        true);
 		String fileName = OUTPUT_DIR + File.separator + "module-info.class";
-		assertTrue("Missing modul-info.class: " + fileName, (new File(fileName)).exists());
+		assertClassFile("Missing modul-info.class: " + fileName, fileName, classFiles);
 	}
 	public void test005() {
-		String out = "bin";
-		this.runConformTest(
+		Set<String> classFiles = runConformModuleTest(
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -168,15 +366,15 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"   java.awt.Image image;\n" +
 				"}"
 	        },
-			"-9 \"" + OUTPUT_DIR + File.separator + "module-info.java\" "
+			" -9 \"" + OUTPUT_DIR + File.separator + "module-info.java\" "
 			+ "\"" + OUTPUT_DIR + File.separator + "q/Y.java\" "
 	        + "\"" + OUTPUT_DIR + File.separator + "p/X.java\" "
-	        + "-d " + OUTPUT_DIR + File.separator + out,
+	        + "-d " + OUTPUT_DIR ,
 	        "",
 	        "",
 	        true);
-		String fileName = OUTPUT_DIR + File.separator + out + File.separator + "module-info.class";
-		assertTrue("Missing modul-info.class: " + fileName, (new File(fileName)).exists());
+		String fileName = OUTPUT_DIR  + File.separator + "module-info.class";
+		assertClassFile("Missing modul-info.class: " + fileName, fileName, classFiles);
 	}
 	public void test006() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -184,31 +382,32 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires java.sql;\n" +
 						"	requires java.desktop;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	java.sql.Connection con;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"public class Y {\n" +
 						"   java.awt.Image image;\n" +
 						"}");
 
 		StringBuffer buffer = new StringBuffer();
-			buffer.append("-d " + OUTPUT_DIR + File.separator + out );
-			buffer.append(" -9 ");
-		buffer.append(" -classpath \"")
-		.append(Util.getJavaClassLibsAsString())
-		.append("\" ");
-		buffer.append(" --module-source-path " + "\"" + directory + "\"");
-		runConformTest(new String[]{}, buffer.toString(), "", "", false);
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+		runConformModuleTest(files, buffer, "", "", false);
 	}
 	public void test007() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -216,12 +415,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -229,27 +429,26 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires java.base;\n" +
 						"	requires mod.one;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"public class Y {\n" +
 						"   java.sql.Connection con = p.X.getConnection();\n" +
 						"}");
 		
 		StringBuffer buffer = new StringBuffer();
-			buffer.append("-d " + OUTPUT_DIR + File.separator + out );
-			buffer.append(" -9 ");
-		buffer.append(" -classpath \"")
-		.append(Util.getJavaClassLibsAsString())
-		.append("\" ");
-		buffer.append(" --module-source-path " + "\"" + directory + "\"");
-		
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n" + 
@@ -258,7 +457,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"The type p.X is not accessible\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
-				false);
+				false,
+				"p.X");
 	}
 	public void test008() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -266,13 +466,14 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	exports p;\n" +
 						"	requires mod.two;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"import q.Y;\n" +
 						"public class X {\n" +
@@ -281,12 +482,12 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	exports q;\n" +
 						"	requires java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"public class Y {\n" +
 						"   public static java.sql.Connection con = null;\n" +
@@ -300,8 +501,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(files,
+				buffer, 
 				"",
 				"",
 				false);
@@ -312,13 +513,14 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	exports p.q;\n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p" + File.separator + "q", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "q", "X.java", 
 						"package p.q;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -326,31 +528,35 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires java.base;\n" +
 						"	requires mod.one;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q" + File.separator + "r", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q" + File.separator + "r", "Y.java", 
 						"package q.r;\n" +
 						"public class Y {\n" +
 						"   java.sql.Connection con = p.q.X.getConnection();\n" +
 						"}");
+		
+		String systemDirectory = OUTPUT_DIR+File.separator+"system";
+		writeFile(systemDirectory, "readme.txt", "Not a valid system");
 
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
-			.append("--system ").append("C:\\Java\\jdk-9-ea+153")
+			.append("--system ").append(systemDirectory)
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer, 
 				"",
-				"",
-				false);
+				"invalid location for system libraries: ---OUTPUT_DIR_PLACEHOLDER---/system\n",
+				false,
+				"system");
 	}
 	public void test009() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -358,13 +564,14 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	exports p;\n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -372,12 +579,12 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires java.base;\n" +
 						"	requires mod.one;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"public class Y {\n" +
 						"   java.sql.Connection con = p.X.getConnection();\n" +
@@ -388,6 +595,27 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" -9 ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
+		runConformModuleTest(files, 
+				buffer,
+				"",
+				"",
+				false);
+	}
+	private void createUnnamedLibrary(String unnamedLoc, String unnamedBin) {
+		writeFile(unnamedLoc + File.separator + "s" + File.separator + "t", "Tester.java", 
+				"package s.t;\n" +
+				"public class Tester {\n" +
+				"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + unnamedBin)
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\"")
+			.append(" -sourcepath \"" + unnamedLoc + "\" ")
+			.append(unnamedLoc + File.separator + "s" + File.separator + "t" + File.separator + "Tester.java");
+
 		runConformTest(new String[]{}, 
 				buffer.toString(), 
 				"",
@@ -396,13 +624,14 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 	}
 	private void createReusableModules(String srcDir, String outDir, File modDir) {
 		String moduleLoc = srcDir + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	exports p;\n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -410,7 +639,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		// This one is not exported (i.e. internal to this module)
-		writeFile(moduleLoc + File.separator + "p1", "X1.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p1", "X1.java", 
 				"package p1;\n" +
 				"public class X1 {\n" +
 				"	public static java.sql.Connection getConnection() {\n" +
@@ -419,13 +648,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"}");
 
 		moduleLoc = srcDir + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	exports q;\n" +
 						"	requires java.base;\n" +
 						"	requires mod.one;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"public class Y {\n" +
 						"   java.sql.Connection con = p.X.getConnection();\n" +
@@ -438,6 +667,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + srcDir + "\"");
+		for (String fileName : files)
+			buffer.append(" \"").append(fileName).append("\"");
 
 		runConformTest(new String[]{}, 
 				buffer.toString(), 
@@ -473,12 +704,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
 		createReusableModules(srcDir, outDir, modDir);
 		String moduleLoc = srcDir + File.separator + "mod.three";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.three { \n" +
 						"	requires mod.one;\n" +
 						"	requires mod.two;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "r", "Z.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "r", "Z.java", 
 						"package r;\n" +
 						"public class Z extends Object {\n" +
 						"	p.X x = null;\n" +
@@ -494,15 +726,15 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + srcDir + "\"");
 
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(files, 
+				buffer, 
 				"",
 				"",
-				false);
+				false, outDir);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=487421
 	public void test011() {
-		this.runConformTest(
+		runConformModuleTest(
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -514,7 +746,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"	requires java.base;\n" +
 				"}"
 	        },
-			"-9 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+			" -9 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
 	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
 	        "",
 	        "",
@@ -529,12 +761,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
 		createReusableModules(srcDir, outDir, modDir);
 		String moduleLoc = srcDir + File.separator + "mod.three";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.three { \n" +
 						"	requires mod.one;\n" +
 						"	requires mod.two;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "r", "Z.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "r", "Z.java", 
 						"package r;\n" +
 						"public class Z extends Object {\n" +
 						"}");
@@ -549,8 +782,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + srcDir + "\"");
 
-		runNegativeTest(new String[]{},
-				buffer.toString(), 
+		runNegativeModuleTest(files,
+				buffer,
 				"",
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 2)\n" + 
@@ -564,7 +797,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"mod.two cannot be resolved to a module\n" + 
 				"----------\n" + 
 				"2 problems (2 errors)\n",
-				false);
+				false,
+				"module");
 	}
 	// Modules used as regular -classpath as opposed to --module-path. The files being compiled
 	// aren't part of any modules (i.e. module-info is missing). The files should be able to
@@ -576,7 +810,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
 		createReusableModules(srcDir, outDir, modDir);
 		String moduleLoc = srcDir + File.separator + "mod.three";
-		writeFile(moduleLoc + File.separator + "p", "Z.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "Z.java", 
 						"package r;\n" +
 						"public class Z extends Object {\n" +
 						"	p.X x = null;\n" +
@@ -592,11 +827,12 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(modDir + File.separator + "mod.two").append(File.pathSeparator)
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + srcDir + "\"");
-		runConformTest(new String[]{},
-				buffer.toString(), 
+		runConformModuleTest(files,
+				buffer, 
 				"",
 				"",
-				false);
+				false,
+				outDir);
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=495500
 	//-source 9
@@ -625,11 +861,11 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"public class X {\n" +
 				"}",
 			},
-	"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-	+ " -9 -source 8 -target 9 -d \"" + OUTPUT_DIR + "\"",
-	"",
-	"",
-	true);
+			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+			+ " -9 -source 8 -target 9 -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"",
+			true);
 		String expectedOutput = "// Compiled from X.java (version 9 : 53.0, super bit)";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
@@ -642,26 +878,30 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"public class X {\n" +
 				"}",
 			},
-	"\"" + OUTPUT_DIR +  File.separator + "X.java\""
-	+ " -9 -source 9 -target 9 -d \"" + OUTPUT_DIR + "\"",
-	"",
-	"",
-	true);
+			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+			+ " -9 -source 9 -target 9 -d \"" + OUTPUT_DIR + "\"",
+			"",
+			"",
+			true);
 		String expectedOutput = "// Compiled from X.java (version 9 : 53.0, super bit)";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
+	/*
+	 * Test add-exports grants visibility to another module
+	 */
 	public void test014() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -669,12 +909,12 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires java.base;\n" +
 						"	requires mod.one;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"public class Y {\n" +
 						"   java.sql.Connection con = p.X.getConnection();\n" +
@@ -689,24 +929,28 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.two");
 
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(files,
+				buffer,
 				"",
 				"",
 				false);
 	}
+	/*
+	 * Test with --add-exports, without a "requires", the packages are seen by the target module
+	 */
 	public void test015() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -714,12 +958,12 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires java.base;\n" +
 						"	requires java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"public class Y {\n" +
 						"   java.sql.Connection con = p.X.getConnection();\n" +
@@ -733,18 +977,12 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.two");
-
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(files,
+				buffer,
 				"",
-				"----------\n" + 
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n" + 
-				"	java.sql.Connection con = p.X.getConnection();\n" + 
-				"	                          ^\n" + 
-				"p cannot be resolved\n" + 
-				"----------\n" + 
-				"1 problem (1 error)\n",
-				false);
+				"",
+				false,
+				OUTPUT_DIR + File.separator + out);
 	}
 	public void test016() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -752,12 +990,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -765,11 +1004,11 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires java.base;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"public class Y {\n" +
 						"   java.sql.Connection con = p.X.getConnection();\n" +
@@ -785,8 +1024,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" --add-exports mod.one/p=mod.two")
 			.append(" --add-reads mod.two=mod.one");
 
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(files, 
+				buffer,
 				"",
 				"",
 				false);
@@ -797,12 +1036,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -810,11 +1050,11 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires java.base;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"public class Y {\n" +
 						"   java.sql.Connection con = p.X.getConnection();\n" +
@@ -830,8 +1070,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" --add-exports mod.one/p=mod.three")
 			.append(" --add-reads mod.two=mod.one");
 
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n" + 
@@ -840,7 +1080,9 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"The type p.X is not accessible\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
-				false);
+				false,
+				"visible",
+				OUTPUT_DIR + File.separator + out);
 	}
 	public void test018() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -848,12 +1090,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -861,21 +1104,21 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires java.base;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"public class Y {\n" +
 						"   java.sql.Connection con = p.X.getConnection();\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.three";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.three { \n" +
 						"	requires java.base;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "r", "Z.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "r", "Z.java", 
 						"package r;\n" +
 						"public class Z {\n" +
 						"   java.sql.Connection con = p.X.getConnection();\n" +
@@ -893,8 +1136,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" --add-reads mod.two=mod.one")
 			.append(" --add-reads mod.three=mod.one");
 
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(files, 
+				buffer,
 				"",
 				"",
 				false);
@@ -908,7 +1151,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public abstract class X extends com.sun.security.ntlm.Server {\n" +
 						"	//public X() {}\n" +
@@ -924,11 +1168,10 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
 			.append(" -sourcepath " + "\"" + moduleLoc + "\" ")
-			.append(" --add-exports java.base/com.sun.security.ntlm=ALL-UNNAMED ")
-			.append(moduleLoc + File.separator + "p" + File.separator + "X.java");
+			.append(" --add-exports java.base/com.sun.security.ntlm=ALL-UNNAMED ");
 
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(files, 
+				buffer,
 				"",
 				"",
 				false);
@@ -942,17 +1185,17 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String unnamedLoc = directory + File.separator + "nomodule";
-		writeFile(unnamedLoc + File.separator + "s" + File.separator + "t", "Tester.java", 
-						"package s.t;\n" +
-						"public class Tester {\n" +
-						"}");
+		String unnamedBin = OUTPUT_DIR + File.separator + "un_bin";
+		String moduleLoc = directory + File.separator + "mod" + File.separator + "mod.one";
 
-		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		createUnnamedLibrary(unnamedLoc, unnamedBin);
+
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one {\n" +
 						"	exports p.q;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p" + File.separator + "q", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "q", "X.java", 
 						"package p.q;\n" +
 						"public abstract class X {\n" +
 						"	s.t.Tester t;\n" +
@@ -963,17 +1206,19 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" -9 ")
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
+			.append(unnamedBin + File.pathSeparator)
 			.append("\"")
-			.append(" -sourcepath \"" + unnamedLoc + "\"")
-			.append(" --module-source-path \"" + directory + "\" ")
+			.append(" --module-source-path \"" + directory + File.separator + "mod" + "\" ")
 			.append(" --add-reads mod.one=ALL-UNNAMED ");
 
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(files, 
+				buffer, 
 				"",
 				"",
-				false);
+				false,
+				OUTPUT_DIR + File.separator + out);
 	}
+
 	/*
 	 * Can only import from a package that contains compilation units (from the unnamed module)
 	 */
@@ -983,17 +1228,17 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String unnamedLoc = directory + File.separator + "nomodule";
-		writeFile(unnamedLoc + File.separator + "s" + File.separator + "t", "Tester.java", 
-						"package s.t;\n" +
-						"public class Tester {\n" +
-						"}");
+		String unnamedBin = OUTPUT_DIR + File.separator + "un_bin";
 
+		createUnnamedLibrary(unnamedLoc, unnamedBin);
+
+		List<String> files = new ArrayList<>(); 
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one {\n" +
 						"	exports p.q;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p" + File.separator + "q", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "q", "X.java", 
 						"package p.q;\n" +
 						"import s.*;\n" +
 						"import s.t.*;\n" +
@@ -1005,13 +1250,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" -9 ")
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
+			.append(unnamedBin + File.pathSeparator)
 			.append("\"")
-			.append(" -sourcepath \"" + unnamedLoc + "\"")
 			.append(" --module-source-path \"" + directory + "\" ")
 			.append(" --add-reads mod.one=ALL-UNNAMED ");
 
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer, 
 				"",
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/q/X.java (at line 2)\n" + 
@@ -1020,7 +1265,9 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"The package s is not accessible\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
-				false);
+				false,
+				"package s",
+				 OUTPUT_DIR + File.separator + out);
 	}
 	public void test020() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1028,12 +1275,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -1050,11 +1298,12 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one=mod.two,mod.three");
 
-		runNegativeTest(new String[]{}, 
-				buffer.toString(),
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"incorrectly formatted option: --add-exports mod.one=mod.two,mod.three\n",
-				false);
+				false,
+				"option");
 	}
 	public void test021() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1062,12 +1311,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -1084,11 +1334,12 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-reads mod.one/mod.two");
 
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"incorrectly formatted option: --add-reads mod.one/mod.two\n",
-				false);
+				false,
+				"option");
 	}
 	public void test022() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1096,12 +1347,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -1119,11 +1371,12 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" --add-exports mod.one/p=mod.three")
 			.append(" --add-exports mod.one/p=mod.three");
 
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"can specify a package in a module only once with --add-export\n",
-				false);
+				false,
+				"export");
 	}
 	public void test023() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1131,7 +1384,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
@@ -1143,14 +1397,15 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append("\"" + OUTPUT_DIR +  File.separator + "module-info.java\" ")
+			.append("\"" + moduleLoc +  File.separator + "module-info.java\" ")
 			.append(" -extdirs " + OUTPUT_DIR + File.separator + "src");
 
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"option -extdirs not supported at compliance level 9 and above\n",
-				false);
+				false,
+				"extdirs");
 	}
 	public void test024() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1158,7 +1413,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
@@ -1170,14 +1426,15 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" \"" + OUTPUT_DIR +  File.separator + "module-info.java\" ")
+			.append(" \"" + moduleLoc +  File.separator + "module-info.java\" ")
 			.append(" -bootclasspath " + OUTPUT_DIR + File.separator + "src");
 
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"option -bootclasspath not supported at compliance level 9 and above\n",
-				false);
+				false,
+				"not allowed"); // when specifying -bootclasspath javac answers: "option --boot-class-path not allowed with target 1.9" (two bugs)
 	}
 	public void test025() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1185,7 +1442,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
@@ -1197,14 +1455,15 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append("\"" + OUTPUT_DIR +  File.separator + "module-info.java\" ")
+			.append("\"" + moduleLoc +  File.separator + "module-info.java\" ")
 			.append(" -endorseddirs " + OUTPUT_DIR + File.separator + "src");
 
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"option -endorseddirs not supported at compliance level 9 and above\n",
-				false);
+				false,
+				"endorseddirs");
 	}
 	public void test026() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1212,7 +1471,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
@@ -1224,45 +1484,10 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" --system \"").append(javaHome).append("\"")
 			.append(" \"" + moduleLoc +  File.separator + "module-info.java\" ");
 
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(new String[0], 
+				buffer.toString(),
 				"",
 				"",
-				false);
-	}
-	public void test027() {
-		File outputDirectory = new File(OUTPUT_DIR);
-		Util.flushDirectoryContent(outputDirectory);
-		String out = "bin";
-		String directory = OUTPUT_DIR + File.separator + "src";
-		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
-						"module mod.one { \n" +
-						"	requires java.base;\n" +
-						"}");
-		String javaHome = System.getProperty("java.home");
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
-			.append(" -9 ")
-			.append(" --system \"").append(javaHome).append(File.separator)
-			.append("lib\"")
-			.append(" \"" + moduleLoc +  File.separator + "module-info.java\" ");
-
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
-				"",
-				"----------\n"+
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)\n"+
-				"	module mod.one { \n"+
-				"	^\n"+
-				"The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files\n"+
-				"----------\n"+
-				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n"+
-				"	requires java.base;\n"+
-				"	         ^^^^^^^^^\n"+
-				"java.base cannot be resolved to a module\n"+
-				"----------\n"+
-				"2 problems (2 errors)\n",
 				false);
 	}
 	/**
@@ -1275,12 +1500,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
 		createReusableModules(srcDir, outDir, modDir);
 		String moduleLoc = srcDir + File.separator + "mod.three";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.three { \n" +
 						"	requires mod.one;\n" +
 						"	requires mod.two;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "r", "Z.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "r", "Z.java", 
 						"package r;\n" +
 						"public class Z extends Object {\n" +
 						"	p.X x = null;\n" +
@@ -1296,8 +1522,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		.append("\" ")
 		.append(" --module-source-path " + "\"" + srcDir + "\"");
 
-		runNegativeTest(new String[]{},
-				buffer.toString(), 
+		runNegativeModuleTest(files,
+				buffer,
 				"",
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/r/Z.java (at line 4)\n"+
@@ -1306,7 +1532,9 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"The type p1.X1 is not accessible\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
-				false);
+				false,
+				"visible", 
+				outDir);
 	}
 	public void test029() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1314,12 +1542,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -1327,11 +1556,11 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires java.base;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"public class Y {\n" +
 						"   java.sql.Connection con = p.X.getConnection();\n" +
@@ -1347,8 +1576,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" --add-exports mod.one/p=mod.two,mod.three")
 			.append(" --add-reads mod.two=mod.one");
 
-		runNegativeTest(new String[]{}, 
-			buffer.toString(), 
+		runNegativeModuleTest(files, 
+			buffer,
 			"",
 			"----------\n"+
 			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n"+
@@ -1357,7 +1586,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			"The type java.sql.Connection is not accessible\n"+
 			"----------\n"+
 			"1 problem (1 error)\n",
-			false);
+			false,
+			"visible");
 	}
 	public void test030() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1365,12 +1595,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -1378,11 +1609,11 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires java.base;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"import java.sql.*;\n" +
 						"public class Y {\n" +
@@ -1399,8 +1630,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" --add-exports mod.one/p=mod.two,mod.three")
 			.append(" --add-reads mod.two=mod.one");
 
-		runNegativeTest(new String[]{}, 
-			buffer.toString(), 
+		runNegativeModuleTest(files, 
+			buffer,
 			"",
 			"----------\n"+
 			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 2)\n"+
@@ -1414,7 +1645,9 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			"Connection cannot be resolved to a type\n"+
 			"----------\n"+
 			"2 problems (2 errors)\n",
-			false);
+			false,
+			"visible",
+			OUTPUT_DIR + File.separator + out);
 	}
 	public void test031() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1422,12 +1655,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
@@ -1435,11 +1669,11 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires java.base;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
 						"import java.sql.Connection;\n" +
 						"public class Y {\n" +
@@ -1456,8 +1690,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" --add-exports mod.one/p=mod.two,mod.three")
 			.append(" --add-reads mod.two=mod.one");
 
-		runNegativeTest(new String[]{}, 
-			buffer.toString(), 
+		runNegativeModuleTest(files, 
+			buffer,
 			"",
 			"----------\n"+
 			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 2)\n"+
@@ -1471,7 +1705,9 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			"Connection cannot be resolved to a type\n"+
 			"----------\n"+
 			"2 problems (2 errors)\n",
-			false);
+			false,
+			"visible",
+			OUTPUT_DIR + File.separator + out);
 	}
 	public void test032() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1479,11 +1715,12 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"}");
-		writeFile(moduleLoc, "X.java", 
+		writeFileCollecting(files, moduleLoc, "X.java", 
 						"public class X {\n" +
 						"	public static class Inner {\n" +
 						"	}\n" +
@@ -1497,11 +1734,12 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runConformTest(new String[]{}, 
-			buffer.toString(), 
+		runConformModuleTest(files, 
+			buffer,
 			"",
 			"",
-			false);
+			false,
+			OUTPUT_DIR + File.separator + out);
 	}
 	/**
 	 * Test that a module can't access types/packages in a plain Jar put in classpath
@@ -1528,12 +1766,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X extends a.A {\n" +
 						"}");
@@ -1545,8 +1784,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(Util.getJavaClassLibsAsString())
 			.append(LIB_DIR).append(File.separator).append("lib1.jar").append(File.pathSeparator).append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 2)\n" + 
@@ -1555,7 +1794,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"a cannot be resolved to a type\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
-				false);
+				false,
+				"package a does not exist");
 	}
 	/**
 	 * Test that a module can't access types/packages in a plain Jar put in modulepath
@@ -1583,12 +1823,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X extends a.A {\n" +
 						"}");
@@ -1601,8 +1842,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("-p \"")
 			.append(LIB_DIR).append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 2)\n" + 
@@ -1611,7 +1852,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"a cannot be resolved to a type\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
-				false);
+				false,
+				"does not read");
 	}
 	/**
 	 * Test that a module can access types/packages in a plain Jar put in modulepath
@@ -1639,13 +1881,14 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires java.sql;\n" +
 						"	requires lib1;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X extends a.A {\n" +
 						"}");
@@ -1658,8 +1901,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("-p \"")
 			.append(LIB_DIR).append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(files, 
+				buffer,
 				"",
 				"",
 				false);
@@ -1671,27 +1914,28 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String directory = OUTPUT_DIR + File.separator + "src";
 		
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	exports pm;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "impl", "Other.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "impl", "Other.java", 
 						"package impl;\n" +
 						"public class Other {\n" +
 						"    public void privateMethod() {}" + 
 						"}\n");
-		writeFile(moduleLoc + File.separator + "pm", "C1.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
 						"package pm;\n" +
 						"import impl.Other;\n" + 
 						"public class C1 extends Other {\n" + 
 						"}\n");
 
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires mod.one;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "po", "Client.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "po", "Client.java", 
 						"package po;\n" + 
 						"import pm.C1;\n" + 
 						"public class Client {\n" + 
@@ -1708,8 +1952,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(files, 
+				buffer,
 				"",
 				"",
 				false);
@@ -1722,15 +1966,16 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String directory = OUTPUT_DIR + File.separator + "src";
 		
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	exports pm;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "impl", "Other.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "impl", "Other.java", 
 						"package impl;\n" +
 						"public class Other {\n" +
 						"}\n");
-		writeFile(moduleLoc + File.separator + "pm", "C1.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
 						"package pm;\n" +
 						"import impl.Other;\n" + 
 						"public class C1 extends Other {\n" +
@@ -1738,15 +1983,15 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"}\n");
 
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires mod.one;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "impl", "Other.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "impl", "Other.java", 
 						"package impl;\n" +
 						"public class Other {\n" +
 						"}\n");
-		writeFile(moduleLoc + File.separator + "po", "Client.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "po", "Client.java", 
 						"package po;\n" + 
 						"import pm.C1;\n" + 
 						"public class Client {\n" + 
@@ -1763,8 +2008,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(files, 
+				buffer,
 				"",
 				"",
 				false);
@@ -1781,36 +2026,37 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String directory = OUTPUT_DIR + File.separator + "src";
 		
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	exports pm;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "impl", "SomeImpl.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "impl", "SomeImpl.java", 
 						"package impl;\n" +
 						"public class SomeImpl {\n" +
 						"}\n");
-		writeFile(moduleLoc + File.separator + "pm", "C1.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
 						"package pm;\n" +
 						"import impl.SomeImpl;\n" + 
 						"public class C1 {\n" +
 						"	public void m1(SomeImpl o) {}\n" + 
 						"}\n");
-		writeFile(moduleLoc + File.separator + "pm", "Other.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "Other.java", 
 						"package pm;\n" +
 						"import impl.SomeImpl;\n" + 
 						"public class Other extends SomeImpl {\n" +
 						"}\n");
 
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires mod.one;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "impl", "SomeImpl.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "impl", "SomeImpl.java", 
 						"package impl;\n" +
 						"public class SomeImpl {\n" + // pseudo-conflict to same named, but inaccessible class from mod.one
 						"}\n");
-		writeFile(moduleLoc + File.separator + "po", "Client.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "po", "Client.java", 
 						"package po;\n" + 
 						"import pm.C1;\n" + 
 						"import pm.Other;\n" +
@@ -1831,8 +2077,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/po/Client.java (at line 8)\n" + 
@@ -1841,7 +2087,9 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"The method m1(impl.SomeImpl) in the type C1 is not applicable for the arguments (impl.SomeImpl)\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
-				false);
+				false,
+				"incompatible",
+				OUTPUT_DIR + File.separator + out);
 	}
 
 	// conflict even without any reference to the conflicting package
@@ -1853,53 +2101,54 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String directory = OUTPUT_DIR + File.separator + "src";
 
 		String moduleLoc = directory + File.separator + "mod.x";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.x { \n" +
 						"	exports pm;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "pm", "C1x.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1x.java", 
 						"package pm;\n" +
 						"public class C1x {\n" +
 						"}\n");
 		
 		moduleLoc = directory + File.separator + "mod.y";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.y { \n" +
 						"	requires transitive mod.x;\n" +
 						"}");
 		
 		moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	exports pm;\n" +
 						"	exports p2;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "pm", "C1.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
 						"package pm;\n" +
 						"public class C1 {\n" +
 						"}\n");
-		writeFile(moduleLoc + File.separator + "p2", "C2.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p2", "C2.java", 
 						"package p2;\n" +
 						"public class C2 {\n" +
 						"}\n");
 
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	exports pm;\n" +
 						"	exports p2.sub;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "pm", "C3.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C3.java", 
 						"package pm;\n" +
 						"public class C3 {\n" +
 						"}\n");
-		writeFile(moduleLoc + File.separator + "p2" + File.separator + "sub", "C4.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p2" + File.separator + "sub", "C4.java", 
 						"package p2.sub;\n" +
 						"public class C4 {\n" +
 						"}\n");
 
 		moduleLoc = directory + File.separator + "mod.three";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.three { \n" +
 						"	requires mod.one;\n" +
 						"	requires mod.two;\n" +
@@ -1914,8 +2163,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 2)\n" + 
@@ -1934,7 +2183,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"The package pm is accessible from more than one module: mod.one, mod.two, mod.x\n" + 
 				"----------\n" + 
 				"3 problems (3 errors)\n",
-				false);
+				false,
+				"reads package pm");
 	}
 
 	public void testPackageConflict1() {
@@ -1944,42 +2194,43 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String directory = OUTPUT_DIR + File.separator + "src";
 		
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	exports pm;\n" +
 						"	exports p2;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "pm", "C1.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
 						"package pm;\n" +
 						"public class C1 {\n" +
 						"}\n");
-		writeFile(moduleLoc + File.separator + "p2", "C2.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p2", "C2.java", 
 						"package p2;\n" +
 						"public class C2 {\n" +
 						"}\n");
 
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	exports pm;\n" +
 						"	exports p2.sub;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "pm", "C3.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C3.java", 
 						"package pm;\n" +
 						"public class C3 {\n" +
 						"}\n");
-		writeFile(moduleLoc + File.separator + "p2" + File.separator + "sub", "C4.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p2" + File.separator + "sub", "C4.java", 
 						"package p2.sub;\n" +
 						"public class C4 {\n" +
 						"}\n");
 
 		moduleLoc = directory + File.separator + "mod.three";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.three { \n" +
 						"	requires mod.one;\n" +
 						"	requires mod.two;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "po", "Client.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "po", "Client.java", 
 						"package po;\n" + 
 						"import pm.*;\n" +
 						"import pm.C3;\n" +
@@ -1999,8 +2250,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 2)\n" + 
@@ -2030,7 +2281,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"The package pm is accessible from more than one module: mod.one, mod.two\n" + 
 				"----------\n" + 
 				"5 problems (5 errors)\n",
-				false);
+				false,
+				"reads package pm");
 	}
 	// conflict foreign<->local package
 	public void testPackageConflict3() {
@@ -2039,22 +2291,23 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 
+		List<String> files = new ArrayList<>(); 
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	exports pm;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "pm", "C1.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
 						"package pm;\n" +
 						"public class C1 {\n" +
 						"}\n");
 
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires mod.one;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "pm", "C3.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C3.java", 
 						"package pm;\n" +
 						"public class C3 {\n" +
 						"}\n");
@@ -2067,8 +2320,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runNegativeTest(new String[]{},
-				buffer.toString(), 
+		runNegativeModuleTest(files,
+				buffer, 
 				"",
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/pm/C3.java (at line 1)\n" + 
@@ -2077,7 +2330,9 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"The package pm conflicts with a package accessible from another module: mod.one\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
-				false);
+				false,
+				"",
+				OUTPUT_DIR + File.separator + out);
 	}
 	public void testPackageTypeConflict1() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -2086,31 +2341,32 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String directory = OUTPUT_DIR + File.separator + "src";
 		
 		String moduleLoc = directory + File.separator + "mod.one";
-		writeFile(moduleLoc, "module-info.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p1" + File.separator + "p2", "t3.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p1" + File.separator + "p2", "t3.java", 
 						"package p1.p2;\n" +
 						"public class t3 {\n" +
 						"}\n");
 
 		moduleLoc = directory + File.separator + "mod.two";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	exports p1.p2.t3;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p1" + File.separator + "p2" + File.separator + "t3", "t4.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "p1" + File.separator + "p2" + File.separator + "t3", "t4.java", 
 						"package p1.p2.t3;\n" +
 						"public class t4 {\n" +
 						"}\n");
 
 		moduleLoc = directory + File.separator + "mod.three";
-		writeFile(moduleLoc, "module-info.java", 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.three { \n" +
 						"	requires mod.one;\n" +
 						"	requires mod.two;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "po", "Client.java", 
+		writeFileCollecting(files, moduleLoc + File.separator + "po", "Client.java", 
 						"package po;\n" + 
 						"public class Client {\n" + 
 						"	 p1.p2.t3.t4 f;\n" + // no conflict mod.one/p1.p2.t3 <-> mod.two/p1.p2.t3
@@ -2124,8 +2380,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runConformTest(new String[]{}, 
-				buffer.toString(), 
+		runConformModuleTest(files, 
+				buffer,
 				"",
 				"",
 				false);
@@ -2137,7 +2393,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		
-		writeFile(directory + File.separator + "test", "Test.java", 
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, directory + File.separator + "test", "Test.java", 
 						"package test;\n" + 
 						"\n" + 
 						"public class Test implements org.eclipse.SomeInterface {\n" + 
@@ -2151,8 +2408,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runNegativeTest(new String[]{}, 
-				buffer.toString(), 
+		runNegativeModuleTest(files, 
+				buffer,
 				"",
 				"----------\n" +
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/test/Test.java (at line 3)\n" +
@@ -2161,6 +2418,38 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"org.eclipse cannot be resolved to a type\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
-				false);
+				false,
+				"not in a module");
+	}
+	public void testMixedSourcepath() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod" + File.separator + "mod.one";
+
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one {\n" +
+						"	exports p.q;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\"")
+			.append(" -sourcepath \"" + directory + "\" ")
+			.append(" --module-source-path \"" + directory + File.separator + "mod" + "\" ")
+			.append(" --add-reads mod.one=ALL-UNNAMED ");
+
+		runNegativeModuleTest(files, 
+				buffer, 
+				"",
+				"cannot specify both -source-path and --module-source-path\n",
+				false,
+				"cannot specify both",
+				OUTPUT_DIR + File.separator + out);
 	}
 }

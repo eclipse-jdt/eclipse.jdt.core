@@ -22,7 +22,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,7 +31,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
@@ -1167,25 +1165,8 @@ public class Util implements SuffixConstants {
 		collectVMBootclasspath(bootclasspaths, null);
 	}
 	public static long getJDKLevel(File javaHome) {
-		String version = getJavaVersion(javaHome);
+		String version = System.getProperty("java.version"); //$NON-NLS-1$
 		return CompilerOptions.versionToJdkLevel(version);
-	}
-	public static String getJavaVersion(File javaHome) {
-		if (javaHome == null) {
-			return System.getProperty("java.version"); //$NON-NLS-1$
-		}
-		File release = new File(javaHome, "release"); //$NON-NLS-1$
-		Properties prop = new Properties();
-		try {
-			prop.load(new FileReader(release));
-			String ver = prop.getProperty("JAVA_VERSION"); //$NON-NLS-1$
-			if (ver != null)
-				ver = ver.replace("\"", "");  //$NON-NLS-1$//$NON-NLS-2$
-			return ver;
-		} catch (IOException e) {
-			// Nothing can be done.
-		}
-		return null;
 	}
 	public static List<FileSystem.Classpath> collectFilesNames() {
 		return collectPlatformLibraries(null);
@@ -1196,7 +1177,8 @@ public class Util implements SuffixConstants {
 		 * the batch compiler
 		 */
 		String javaversion = null;
-		javaversion = getJavaVersion(javaHome);
+		javaversion = System.getProperty("java.version"); //$NON-NLS-1$
+		// Surely, this ain't required anymore?
 		if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
 			throw new IllegalStateException();
 		}

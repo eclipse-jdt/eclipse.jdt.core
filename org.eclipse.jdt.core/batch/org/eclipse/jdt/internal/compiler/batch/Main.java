@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -48,6 +49,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -2192,6 +2195,9 @@ public void configure(String[] argv) {
 					continue;
 				}
 				if (currentArg.equals("--module-source-path")) { //$NON-NLS-1$
+					if (sourcepathClasspathArg != null) {
+						throw new IllegalArgumentException(this.bind("configure.OneOfModuleOrSourcePath")); //$NON-NLS-1$
+					}
 					mode = INSIDE_MODULESOURCEPATH_start;
 					continue;
 				}
@@ -2213,6 +2219,9 @@ public void configure(String[] argv) {
 						}
 						throw new IllegalArgumentException(
 							this.bind("configure.duplicateSourcepath", errorMessage.toString())); //$NON-NLS-1$
+					}
+					if (moduleSourcepathArg != null) {
+						throw new IllegalArgumentException(this.bind("configure.OneOfModuleOrSourcePath")); //$NON-NLS-1$
 					}
 					mode = INSIDE_SOURCE_PATH_start;
 					continue;
@@ -2764,8 +2773,7 @@ public void configure(String[] argv) {
 				continue;
 			case INSIDE_SYSTEM:
 				mode = DEFAULT;
-				this.javaHomeCache = new File(currentArg);
-				this.javaHomeChecked = true;
+				setJavaHome(currentArg);
 				continue;
 			case INSIDE_MODULEPATH_start:
 				mode = DEFAULT;
@@ -3003,9 +3011,7 @@ public void configure(String[] argv) {
 			CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
 			CompilerOptions.PRIVATE);
 	}
-	// We don't add the source files from --module-source-path yet to the final list. So,
-	// don't report it if that's the case.
-	if (printUsageRequired || (filesCount == 0 && classCount == 0 && moduleSourcepathArg == null)) {
+	if (printUsageRequired || (filesCount == 0 && classCount == 0)) {
 		if (usageSection ==  null) {
 			printUsage(); // default
 		} else {
@@ -3336,7 +3342,19 @@ public IErrorHandlingPolicy getHandlingPolicy() {
 		}
 	};
 }
-
+private void setJavaHome(String javaHome) {
+	File release = new File(javaHome, "release"); //$NON-NLS-1$
+	Properties prop = new Properties();
+	try {
+		prop.load(new FileReader(release));
+		String ver = prop.getProperty("JAVA_VERSION"); //$NON-NLS-1$
+		if (ver != null)
+			ver = ver.replace("\"", "");  //$NON-NLS-1$//$NON-NLS-2$
+	} catch (IOException e) {
+		throw new IllegalArgumentException(this.bind("configure.invalidSystem", this.javaHomeCache.toString())); //$NON-NLS-1$
+	}
+	this.javaHomeChecked = true;
+}
 /*
  * External API
  */
@@ -3379,9 +3397,7 @@ protected ArrayList<Classpath> handleBootclasspath(ArrayList<String> bootclasspa
 		try {
 			Util.collectVMBootclasspath(result, this.javaHomeCache);
 		} catch(IllegalStateException e) {
-			this.logger.logWrongJDK();
-			this.proceed = false;
-			return null;
+			throw new IllegalArgumentException(this.bind("configure.invalidSystem", this.javaHomeCache.toString())); //$NON-NLS-1$
 		}
 	}
 	return result;
@@ -3455,60 +3471,25 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 				// 1. Create FileSystem.Classpath for each module
 				// 2. Iterator each module in case of directory for source files and add to this.fileNames
 
-				result =
-						(ArrayList<Classpath>) ModuleFinder.findModules(dir, this.destinationPath, getNewParser(), this.options, false);
-				for (Object obj : result) {
-					Classpath classpath = (Classpath) obj;
-					File modLocation = new File(classpath.getPath());
-					String[] files = FileFinder.find(modLocation, SuffixConstants.SUFFIX_STRING_java);
+				List<Classpath> modules = ModuleFinder.findModules(dir, this.destinationPath, getNewParser(), this.options, false);
+				for (Classpath classpath : modules) {
+					result.add(classpath);
+					Path modLocation = Paths.get(classpath.getPath()).toAbsolutePath();
 					String destPath = classpath.getDestinationPath();
 					IModule mod = classpath.getModule();
 					String moduleName = mod == null ? null : new String(mod.name());
-
-					// Add them to this.filenames
-					if (this.filenames != null) {
-						int filesCount = this.filenames.length;
-						// some source files were specified explicitly
-						int length = files.length;
-						System.arraycopy(
-							this.filenames,
-							0,
-							(this.filenames = new String[length + filesCount]),
-							0,
-							filesCount);
-						System.arraycopy(
-							this.encodings,
-							0,
-							(this.encodings = new String[length + filesCount]),
-							0,
-							filesCount);
-						System.arraycopy(
-							this.destinationPaths,
-							0,
-							(this.destinationPaths = new String[length + filesCount]),
-							0,
-							filesCount);
-						System.arraycopy(
-								this.modNames,
-								0,
-								(this.modNames = new String[length + filesCount]),
-								0,
-								filesCount);
-						System.arraycopy(files, 0, this.filenames, filesCount, length);
-						for (int j = 0; j < length; j++) {
-							this.modNames[filesCount + j] = moduleName;
-							this.destinationPaths[filesCount + j] = destPath;
-						}
-						filesCount += length;
-					} else {
-						this.filenames = files;
-						int filesCount = this.filenames.length;
-						this.encodings = new String[filesCount];
-						this.destinationPaths = new String[filesCount];
-						this.modNames = new String[filesCount];
-						for (int j = 0; j < filesCount; j++) {
-							this.destinationPaths[j] = destPath;
-							this.modNames[j] = moduleName;
+					for(int j = 0; j < this.filenames.length; j++) {
+						Path filePath;
+						try {
+							// Get canonical path just as the classpath location is stored with the same.
+							// To avoid mismatch of /USER_JAY and /USE~1 in windows systems.
+							filePath = new File(this.filenames[j]).getCanonicalFile().toPath();
+							if (filePath.startsWith(modLocation)) {
+								this.modNames[j] = moduleName;
+								this.destinationPaths[j] = destPath;
+							}
+						} catch (IOException e) {
+							// Files doesn't exist and perhaps doesn't belong in a module, move on to other files
 						}
 					}
 				}
