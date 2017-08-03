@@ -4500,6 +4500,52 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("PClient2");
 		}
 	}
+	public void testPrivateMethod_Bug515985() throws CoreException {
+		try {
+			String[] src = new String[] {
+					"src/module-info.java", 
+					"module mod.one { \n" +
+					"	exports pm;\n" +
+					"}",
+					"src/impl/Other.java", 
+					"package impl;\n" +
+					"public class Other {\n" +
+					"    public void privateMethod() {}" + 
+					"}\n",
+					"src/pm/C1.java", 
+					"package pm;\n" +
+					"import impl.Other;\n" + 
+					"public class C1 extends Other {\n" + 
+					"}\n"
+			};
+			IJavaProject p1 = setupModuleProject("mod.one", src);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+	
+			String[] src2 = new String[] {
+					"src/module-info.java", 
+					"module mod.two { \n" +
+					"	requires mod.one;\n" +
+					"}",
+					"src/po/Client.java", 
+					"package po;\n" + 
+					"import pm.C1;\n" + 
+					"public class Client {\n" + 
+					"    void test1(C1 one) {\n" + 
+					"        one.privateMethod(); // ecj: The method privateMethod() is undefined for the type C1\n" + 
+					"    }\n" + 
+					"}\n"
+			};
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
+			IJavaProject p2 = setupModuleProject("mod.two", src2, new IClasspathEntry[] {dep});
+			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			deleteProject("mod.one");
+			deleteProject("mod.two");
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
