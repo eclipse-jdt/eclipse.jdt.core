@@ -635,10 +635,16 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	 * @return True, if the package is accessible by this module, false otherwise
 	 */
 	public boolean canAccess(PackageBinding pkg) {
-		boolean answer = pkg.isDeclaredIn(this) || Stream.of(getAllRequiredModules()).anyMatch(
-				dep -> dep.isPackageExportedTo(pkg, ModuleBinding.this) // TODO(SHMOD): store export status in the PackageBinding
-		);
-		return answer;
+		if (pkg.isDeclaredIn(this))
+			return true;
+		for (ModuleBinding requiredModule : getAllRequiredModules()) {
+			// If pkg is a SplitPackageBinding, we actually ask the intersection of all required modules
+			// and modules declaring the package, if any of them exports the package to this module.
+			// The intersection is computed when inside isPackageExportedTo we ask for pkg's incarnation in requiredModule.
+			if (requiredModule.isPackageExportedTo(pkg, ModuleBinding.this))
+				return true; // TODO(SHMOD): store export status in the PackageBinding
+		}
+		return false;
 	}
 	@Override
 	public char[] computeUniqueKey(boolean isLeaf) {

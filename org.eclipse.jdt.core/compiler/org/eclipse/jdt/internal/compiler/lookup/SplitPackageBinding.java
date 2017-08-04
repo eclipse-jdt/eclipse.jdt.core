@@ -173,7 +173,7 @@ public class SplitPackageBinding extends PackageBinding {
 			if (incarnation.enclosingModule == requestedModule)
 				return incarnation;
 		}
-		return null; // FIXME(SHMOD) is this an error?? (note that requestedModule could be the unnamed module
+		return null;
 	}
 
 	@Override

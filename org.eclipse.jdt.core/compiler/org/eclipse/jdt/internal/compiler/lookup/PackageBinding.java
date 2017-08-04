@@ -61,7 +61,7 @@ public PackageBinding(char[][] compoundName, PackageBinding parent, LookupEnviro
 	if (enclosingModule != null)
 		this.enclosingModule = enclosingModule;
 	else if (parent != null)
-		this.enclosingModule = parent.enclosingModule; // FIXME(SHMOD): check parent for split package?
+		this.enclosingModule = parent.enclosingModule; // stop-gap for any remaining calls that don't provide an enclosingModule (they should)
 	
 	if (this.enclosingModule == null)
 		throw new IllegalStateException("Package should have an enclosing module"); //$NON-NLS-1$
