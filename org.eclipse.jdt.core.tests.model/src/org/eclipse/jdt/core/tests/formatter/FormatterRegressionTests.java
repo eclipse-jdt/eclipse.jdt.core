@@ -4,7 +4,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Brock Janiczak - Contribution for bug 150741
@@ -189,14 +193,31 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 
 	String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, IRegion[] regions, String lineSeparator) {
-//		long time = System.currentTimeMillis();
 		TextEdit edit = codeFormatter.format(kind, source, regions, indentationLevel, lineSeparator);//$NON-NLS-1$
-//		System.out.println((System.currentTimeMillis() - time) + " ms");
-		if (edit == null) return null;
-
-		return org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
+		return edit == null ? null : org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
 	}
-	
+
+	String runFormatterModuleInfoFile(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator, boolean repeat) {
+		TextEdit edit = codeFormatter.formatModuleInfoFile(kind, source, offset, length, indentationLevel, lineSeparator);//$NON-NLS-1$
+		if (edit == null) return null;
+		String result = org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
+
+		if (repeat && length == source.length()) {
+			edit = codeFormatter.formatModuleInfoFile(kind, result, 0, result.length(), indentationLevel, lineSeparator);//$NON-NLS-1$
+			if (edit == null) return null;
+			final String result2 = org.eclipse.jdt.internal.core.util.Util.editedString(result, edit);
+			if (!result.equals(result2)) {
+				assertSourceEquals("Second formatting is different from first one!", Util.convertToIndependantLineDelimiter(result), Util.convertToIndependantLineDelimiter(result2));
+			}
+		}
+		return result;
+	}
+
+	String runFormatterModuleInfoFile(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, IRegion[] regions, String lineSeparator) {
+		TextEdit edit = codeFormatter.formatModuleInfoFile(kind, source, regions, indentationLevel, lineSeparator);//$NON-NLS-1$
+		return edit == null ? null : org.eclipse.jdt.internal.core.util.Util.editedString(source, edit);
+	}
+
 	/**
 	 * Init formatter preferences with Eclipse default settings.
 	 */
@@ -343,6 +364,58 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		}
 	}
 
+	void formatSourceModuleInfoFile(String source, String formattedOutput, int kind) {
+		formatSourceModuleInfoFile(source, formattedOutput, kind, 0, true /*repeat formatting twice*/);
+	}
+	void formatSourceModuleInfoFile(String source, String formattedOutput, int kind, int indentationLevel, int offset, int length, String lineSeparator, boolean repeat) {
+		DefaultCodeFormatter codeFormatter = codeFormatter();
+		String result;
+		if (length == -1) {
+			result = runFormatterModuleInfoFile(codeFormatter, source, kind, indentationLevel, offset, source.length(), lineSeparator, repeat);
+		} else {
+			result = runFormatterModuleInfoFile(codeFormatter, source, kind, indentationLevel, offset, length, lineSeparator, repeat);
+		}
+		if (lineSeparator == null) {
+			assertLineEquals(result, source, formattedOutput);
+		} else {
+			// Do not convert line delimiter while comparing result when a specific one is specified
+			assertNotNull("Error(s) occured while formatting", result);
+			String outputSource = formattedOutput == null ? source : formattedOutput;
+			assertSourceEquals("Different number of length", outputSource, result, false/*do not convert line delimiter*/);
+		}
+	}
+
+	void formatSourceModuleInfoFile(String source, String formattedOutput, int kind, int indentationLevel, boolean repeat) {
+		int regionStart = source.indexOf("[#");
+		if (regionStart != -1) {
+			ArrayList<IRegion> regions =  new ArrayList<>();
+			int start = 0;
+			int delta = 0;
+			StringBuffer buffer = new StringBuffer();
+			while (regionStart != -1) {
+				buffer.append(source.substring(start, regionStart));
+				int regionEnd = source.indexOf("#]", regionStart+2);
+				buffer.append(source.substring(regionStart+2, regionEnd));
+				regions.add(new Region(regionStart-delta, regionEnd-(regionStart+2)));
+				delta += 4;
+				start = regionEnd + 2;
+				regionStart = source.indexOf("[#", start);
+			}
+			buffer.append(source.substring(start, source.length()));
+			String newSource = buffer.toString();
+			String result;
+			if (regions.size() == 1) {
+				// Use offset and length until bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=233967 is fixed
+				result = runFormatterModuleInfoFile(codeFormatter(), newSource, kind, indentationLevel, regions.get(0).getOffset(), regions.get(0).getLength(), LINE_SEPARATOR, repeat);
+			} else {
+				IRegion[] regionsArray = regions.toArray(new IRegion[regions.size()]);
+				result = runFormatterModuleInfoFile(codeFormatter(), newSource, kind, indentationLevel, regionsArray, LINE_SEPARATOR);
+			}
+			assertLineEquals(result, newSource, formattedOutput);
+		} else {
+			formatSourceModuleInfoFile(source, formattedOutput, kind, indentationLevel, 0, -1, null, repeat);
+		}
+	}
 
 	private void runTest(String packageName, String compilationUnitName) {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
@@ -14012,8 +14085,8 @@ public void testBug506430a() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_9);
 	setPageWidth80();
 	String input = getCompilationUnit("Formatter", "", "test506430", "A_in.java").getSource();
-	formatSource(input, getCompilationUnit("Formatter", "", "test506430", "A_out.java") .getSource(),
-			CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
+	formatSourceModuleInfoFile(input, getCompilationUnit("Formatter", "", "test506430", "A_out.java") .getSource(),
+			CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS);
 }
 /**
  * https://bugs.eclipse.org/506430 - [1.9] Formatter support for module-info.java
@@ -14030,7 +14103,7 @@ public void testBug506430b() throws JavaModelException {
 	this.formatterPrefs.alignment_for_module_statements = Alignment.M_NEXT_PER_LINE_SPLIT;
 	this.formatterPrefs.insert_new_line_at_end_of_file_if_missing = true;
 	String input = getCompilationUnit("Formatter", "", "test506430", "B_in.java").getSource();
-	formatSource(input, getCompilationUnit("Formatter", "", "test506430", "B_out.java") .getSource(),
+	formatSourceModuleInfoFile(input, getCompilationUnit("Formatter", "", "test506430", "B_out.java") .getSource(),
 			CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
 }
 /**
@@ -14040,7 +14113,7 @@ public void testBug506430c() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_9);
 	setPageWidth80();
 	String input = getCompilationUnit("Formatter", "", "test506430", "A_in.java").getSource();
-	formatSource(input, getCompilationUnit("Formatter", "", "test506430", "A_out.java") .getSource(),
+	formatSourceModuleInfoFile(input, getCompilationUnit("Formatter", "", "test506430", "A_out.java") .getSource(),
 			CodeFormatter.K_UNKNOWN | CodeFormatter.F_INCLUDE_COMMENTS);
 }
 }
