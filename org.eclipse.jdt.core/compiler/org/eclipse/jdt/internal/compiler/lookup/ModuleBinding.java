@@ -50,6 +50,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 
 	/** Name of the unnamed module. */
 	public static final char[] UNNAMED = "".toCharArray(); //$NON-NLS-1$
+	/** Name to represent unnamed modules in --add-exports & --add-reads options. */
+	public static final char[] ALL_UNNAMED = "ALL-UNNAMED".toCharArray(); //$NON-NLS-1$
 	/** Module name for package/type lookup that doesn't care about modules. */
 	public static final char[] ANY = "".toCharArray(); //$NON-NLS-1$
 	/** Module name for package/type lookup that should look into all named modules. */
@@ -395,8 +397,12 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				if (export.subsumes(resolved)) {
 					if (this.exportRestrictions != null) {
 						SimpleSetOfCharArray restrictions = this.exportRestrictions.get(export);
-						if (restrictions != null)
-							return restrictions.includes(client.name());
+						if (restrictions != null) {
+							if (client.isUnnamed())
+								return restrictions.includes(ALL_UNNAMED);
+							else
+								return restrictions.includes(client.name());
+						}
 					}
 					return true;
 				}
@@ -642,7 +648,10 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			// and modules declaring the package, if any of them exports the package to this module.
 			// The intersection is computed when inside isPackageExportedTo we ask for pkg's incarnation in requiredModule.
 			if (requiredModule.isPackageExportedTo(pkg, ModuleBinding.this))
-				return true; // TODO(SHMOD): store export status in the PackageBinding
+				return true;
+			if (requiredModule.isUnnamed() && pkg.isDeclaredIn(requiredModule))
+				return true;
+			// TODO(SHMOD): store export status in the PackageBinding?
 		}
 		return false;
 	}

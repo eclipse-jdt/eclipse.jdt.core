@@ -200,7 +200,7 @@ LookupEnvironment(LookupEnvironment rootEnv, ModuleBinding module) {
 public ModuleBinding getModule(char[] name) {
 	if (this.root != this)
 		return this.root.getModule(name);
-	if (name == null || name.length == 0 || CharOperation.equals(name, ModuleBinding.UNNAMED))
+	if (name == null || name == ModuleBinding.UNNAMED || CharOperation.equals(name, ModuleBinding.ALL_UNNAMED))
 		return this.UnNamedModule;
 	ModuleBinding moduleBinding = this.knownModules.get(name);
 	if (moduleBinding == null) {

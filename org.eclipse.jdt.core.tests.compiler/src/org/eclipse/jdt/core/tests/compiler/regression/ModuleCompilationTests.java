@@ -900,9 +900,9 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				false);
 	}
 	/*
-	 * Unnamed module tries to access a type from an unexported package successfully. 
+	 * Unnamed module tries to access a type from an unexported package successfully due to --add-exports
 	 */
-	public void _test019() { // FIXME(SHMOD): check underlying assumptions
+	public void test019() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
 		String out = "bin";
@@ -924,7 +924,49 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
 			.append(" -sourcepath " + "\"" + moduleLoc + "\" ")
+			.append(" --add-exports java.base/com.sun.security.ntlm=ALL-UNNAMED ")
 			.append(moduleLoc + File.separator + "p" + File.separator + "X.java");
+
+		runConformTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"",
+				false);
+	}
+	/*
+	 * Named module tries to access a type from an unnamed module successfully due to --add-reads
+	 */
+	public void test019b() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String unnamedLoc = directory + File.separator + "nomodule";
+		writeFile(unnamedLoc + File.separator + "s" + File.separator + "t", "Tester.java", 
+						"package s.t;\n" +
+						"public class Tester {\n" +
+						"}");
+
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one {\n" +
+						"	exports p.q;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p" + File.separator + "q", "X.java", 
+						"package p.q;\n" +
+						"public abstract class X {\n" +
+						"	s.t.Tester t;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\"")
+			.append(" -sourcepath \"" + unnamedLoc + "\"")
+			.append(" --module-source-path \"" + directory + "\" ")
+			.append(" --add-reads mod.one=ALL-UNNAMED ");
 
 		runConformTest(new String[]{}, 
 				buffer.toString(), 
