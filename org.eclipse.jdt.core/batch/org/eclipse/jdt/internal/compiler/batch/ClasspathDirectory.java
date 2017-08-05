@@ -287,10 +287,12 @@ public char[][] getModulesDeclaringPackage(String qualifiedPackageName, /*@Nulla
 public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
 	String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
 	String[] dirList = directoryList(qp2);
-	for (String entry : dirList) {
-		String entryLC = entry.toLowerCase();
-		if (entryLC.endsWith(SUFFIX_STRING_java) || entryLC.endsWith(SUFFIX_STRING_class))
-			return true;
+	if (dirList != null) {
+		for (String entry : dirList) {
+			String entryLC = entry.toLowerCase();
+			if (entryLC.endsWith(SUFFIX_STRING_java) || entryLC.endsWith(SUFFIX_STRING_class))
+				return true;
+		}
 	}
 	return false;
 }

@@ -974,6 +974,54 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"",
 				false);
 	}
+	/*
+	 * Can only import from a package that contains compilation units (from the unnamed module)
+	 */
+	public void test019c() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String unnamedLoc = directory + File.separator + "nomodule";
+		writeFile(unnamedLoc + File.separator + "s" + File.separator + "t", "Tester.java", 
+						"package s.t;\n" +
+						"public class Tester {\n" +
+						"}");
+
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one {\n" +
+						"	exports p.q;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p" + File.separator + "q", "X.java", 
+						"package p.q;\n" +
+						"import s.*;\n" +
+						"import s.t.*;\n" +
+						"public abstract class X {\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\"")
+			.append(" -sourcepath \"" + unnamedLoc + "\"")
+			.append(" --module-source-path \"" + directory + "\" ")
+			.append(" --add-reads mod.one=ALL-UNNAMED ");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/q/X.java (at line 2)\n" + 
+				"	import s.*;\n" + 
+				"	       ^\n" + 
+				"The package s is not accessible\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false);
+	}
 	public void test020() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);

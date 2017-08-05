@@ -75,6 +75,11 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			return true;
 		}
 		@Override
+		public boolean isPackageExportedTo(PackageBinding pkg, ModuleBinding client) {
+			// per JLS 7.7.5 an unnamed module exports all its packages
+			return pkg.isDeclaredIn(this) && pkg.hasCompilationUnit();
+		}
+		@Override
 		public boolean isUnnamed() {
 			return true;
 		}
@@ -648,8 +653,6 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			// and modules declaring the package, if any of them exports the package to this module.
 			// The intersection is computed when inside isPackageExportedTo we ask for pkg's incarnation in requiredModule.
 			if (requiredModule.isPackageExportedTo(pkg, ModuleBinding.this))
-				return true;
-			if (requiredModule.isUnnamed() && pkg.isDeclaredIn(requiredModule))
 				return true;
 			// TODO(SHMOD): store export status in the PackageBinding?
 		}
