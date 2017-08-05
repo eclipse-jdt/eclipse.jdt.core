@@ -1369,14 +1369,17 @@ public ISourceRange getNameRange() {
 public IModuleDescription getModule() throws JavaModelException {
 	if (TypeConstants.MODULE_INFO_FILE_NAME_STRING.equals(getElementName()))
 		return ((CompilationUnitElementInfo) getElementInfo()).getModule();
-	JavaProject project = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
-	return project.getModuleDescription();
+	return null;
 }
 
 @Override
 public char[] getModuleName() {
 	try {
 		IModuleDescription module = getModule();
+		if (module == null) {
+			JavaProject project = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
+			module = project.getModuleDescription();
+		}
 		if (module != null)
 			return module.getElementName().toCharArray();
 	} catch (JavaModelException e) {

@@ -453,10 +453,8 @@ public interface IPackageFragmentRoot
 
 	/**
 	 * Returns the <code>IModuleDescription</code> that this package fragment root contains 
-	 * or <code>null</code> if the root doesn't contain any named module. The package fragment
-	 * root may contain the module descriptor directly in its default package or in the case
-	 * of a source package fragment root, it may come from any of the other source package
-	 * fragment roots in the Java project.
+	 * or <code>null</code> if the root doesn't contain any named module. If present the module
+	 * descriptor is found as a child of the package fragment representing the default package. 
 	 * 
 	 * Note that only one of the source package fragment roots in a Java Project can legally
 	 * contain a module descriptor.
