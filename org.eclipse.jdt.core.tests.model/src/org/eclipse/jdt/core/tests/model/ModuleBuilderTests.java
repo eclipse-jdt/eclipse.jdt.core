@@ -4671,6 +4671,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",	"",  markers);
+
+			// check that reconcile respects --add-reads, too:
+			this.problemRequestor.reset();
+			ICompilationUnit cu = getCompilationUnit("/com.greetings/src/com/greetings/MyTest.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("com.greetings");

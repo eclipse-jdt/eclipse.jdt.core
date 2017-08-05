@@ -119,5 +119,10 @@ public interface IModuleAwareNameEnvironment extends INameEnvironment {
 	IModule getModule(char[] moduleName);
 	IModule[] getAllAutomaticModules();
 
+	/**
+	 * Ask the name environment to perform any updates (add-exports or add-reads) to the given module.
+	 * @param module the compiler representation of the module to updates
+	 * @param kind selects what kind of updates should be performed
+	 */
 	default void applyModuleUpdates(IUpdatableModule module, IUpdatableModule.UpdateKind kind) { /* default: do nothing */ }
 }

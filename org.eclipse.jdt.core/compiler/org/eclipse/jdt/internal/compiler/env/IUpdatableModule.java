@@ -21,10 +21,14 @@ import java.util.function.Consumer;
 
 /**
  * Interface to a module as needed to implement the updates for {@code --add-reads}
- * and {@code --add-exports} command line options.
+ * and {@code --add-exports} command line options (or corresponding classpath attributes).
  */
 public interface IUpdatableModule {
-	
+
+	/**
+	 * The compiler first wires modules only, before then wiring packages based on the module graph.
+	 * This enum selects one of these phases when asking the environment to perform its updates.
+	 */
 	enum UpdateKind { MODULE, PACKAGE }
 
 	/** Structure for update operations, sorted by {@link UpdateKind}. */

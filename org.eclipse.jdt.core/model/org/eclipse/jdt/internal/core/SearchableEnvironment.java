@@ -32,7 +32,9 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
+import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -63,6 +65,8 @@ public class SearchableEnvironment
 	// moduleName -> IJavaProject | IJavaPackageFragmentRoot (lazily populated)
 	private Map<String,IJavaElement> knownModuleLocations; // null indicates: not using JPMS
 
+	private ModuleUpdater moduleUpdater;
+
 	/**
 	 * Creates a SearchableEnvironment on the given project
 	 */
@@ -80,6 +84,11 @@ public class SearchableEnvironment
 					break;
 				}
 			}
+		}
+		if (CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9) {
+			this.moduleUpdater = new ModuleUpdater();
+			for (IClasspathEntry entry : project.getRawClasspath())
+				this.moduleUpdater.computeModuleUpdates(entry);
 		}
 	}
 
@@ -914,5 +923,11 @@ public class SearchableEnvironment
 	@Override
 	public IModule[] getAllAutomaticModules() {
 		return new IModule[0];
+	}
+
+	@Override
+	public void applyModuleUpdates(IUpdatableModule module, UpdateKind kind) {
+		if (this.moduleUpdater != null)
+			this.moduleUpdater.applyModuleUpdates(module, kind);
 	}
 }
