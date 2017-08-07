@@ -301,7 +301,10 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testPackageAnnotations", null, "filer8");
 	}
-	
+	public void testBug520540() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testBug520540", null, "bug520540");
+	}
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
 		internalTest(compiler, processor, testMethod, null);
 	}

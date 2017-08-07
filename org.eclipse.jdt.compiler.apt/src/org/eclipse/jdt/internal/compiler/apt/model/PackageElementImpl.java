@@ -77,6 +77,7 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 		HashSet<Element> set = new HashSet<>(); 
 		if (typeNames != null) {
 			for (char[][] typeName : typeNames) {
+				if (typeName == null) continue;
 				ReferenceBinding type = environment.getType(typeName);
 				if (type != null && type.isValidBinding()) {
 					set.add(_env.getFactory().newElement(type));

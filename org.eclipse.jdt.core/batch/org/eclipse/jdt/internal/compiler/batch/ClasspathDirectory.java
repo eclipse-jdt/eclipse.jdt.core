@@ -44,6 +44,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ClasspathDirectory extends ClasspathLocation {
@@ -194,7 +195,7 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 /**
  *  Add all the secondary types in the package
  */
-private Hashtable<String, String> getPackageTypes(String qualifiedPackageName) {
+private Hashtable<String, String> getSecondaryTypes(String qualifiedPackageName) {
 	Hashtable<String, String> packageEntry = new Hashtable<>();
 
 	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
@@ -213,7 +214,7 @@ private Hashtable<String, String> getPackageTypes(String qualifiedPackageName) {
 		if (s == null) continue;
 		if (!(s.endsWith(SUFFIX_STRING_java) || s.endsWith(SUFFIX_STRING_JAVA))) continue;
 		CompilationUnit cu = new CompilationUnit(null, s, this.encoding, this.destinationPath);
-		CompilationResult compilationResult = new CompilationResult(cu.getContents(), 1, 1, 10);
+		CompilationResult compilationResult = new CompilationResult(s.toCharArray(), 1, 1, 10);
 		ProblemReporter problemReporter = 
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(),
@@ -239,7 +240,7 @@ private NameEnvironmentAnswer findSourceSecondaryType(String typeName, String qu
 	if (this.packageSecondaryTypes == null) this.packageSecondaryTypes = new Hashtable<>();
 	Hashtable<String, String> packageEntry = this.packageSecondaryTypes.get(qualifiedPackageName);
 	if (packageEntry == null) {
-		packageEntry = 	getPackageTypes(qualifiedPackageName);
+		packageEntry = 	getSecondaryTypes(qualifiedPackageName);
 		this.packageSecondaryTypes.put(qualifiedPackageName, packageEntry);
 	}
 	String fileName = packageEntry.get(typeName);
@@ -267,12 +268,21 @@ public char[][][] findTypeNames(String qualifiedPackageName, String moduleName) 
 	if (listFiles == null || (length = listFiles.length) == 0) {
 		return null;
 	}
-	char[][][] result = new char[length][][];
+	Set<String> secondary = getSecondaryTypes(qualifiedPackageName).keySet();
+	char[][][] result = new char[length + secondary.size()][][];
 	char[][] packageName = CharOperation.splitOn(File.separatorChar, qualifiedPackageName.toCharArray());
 	for (int i = 0; i < length; i++) {
 		String fileName = listFiles[i];
 		int indexOfLastDot = fileName.indexOf('.');
-		result[i] = CharOperation.arrayConcat(packageName, fileName.substring(0, indexOfLastDot).toCharArray());
+		String typeName = indexOfLastDot > 0 ? fileName.substring(0, indexOfLastDot) : fileName;
+		result[i] = CharOperation.arrayConcat(packageName, typeName.toCharArray());
+	}
+	if (secondary.size() > 0) {
+		int idx = length;
+		for (String type : secondary) {
+			result[idx] = CharOperation.arrayConcat(packageName, type.toCharArray());
+		}
+		idx++;
 	}
 	return result;
 }
