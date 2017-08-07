@@ -440,9 +440,6 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, cha
 			LookupStrategy.getStringName(moduleName));
 }
 
-public boolean isPackage(String qualifiedPackageName) {
-	return isPackage(qualifiedPackageName, null);
-}
 @Override
 public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] name, char[] moduleName) {
 	String pkgName = new String(CharOperation.concatWith(parentPackageName, name, '/'));
@@ -525,7 +522,7 @@ public boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleNa
 			throw new IllegalArgumentException("Unexpected LookupStrategy "+strategy); //$NON-NLS-1$
 	}
 }
-private boolean isPackage(String qualifiedPackageName, char[] moduleName) {
+public boolean isPackage(String qualifiedPackageName, char[] moduleName) {
 	String stringModuleName = null;
 
 	LookupStrategy strategy = LookupStrategy.get(moduleName);
