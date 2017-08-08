@@ -5,10 +5,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
@@ -286,82 +282,6 @@ public abstract class CodeFormatter {
 	 * @since 3.4
 	 */
 	public abstract TextEdit format(int kind, String source, IRegion[] regions, int indentationLevel, String lineSeparator);
-
-	/**
-	 * Format <code>source</code> in a module-info.java file,
-	 * and returns a text edit that correspond to the difference between the given
-	 * string and the formatted string.
-	 * <p>
-	 * It returns null if the given string cannot be formatted.
-	 * </p><p>
-	 * If the offset position is matching a whitespace, the result can include
-	 * whitespaces. It would be up to the caller to get rid of preceding
-	 * whitespaces.
-	 * </p>
-	 *
-	 * @param kind Use to specify the kind of the code snippet to format. It can
-	 * be any of these:
-	 * <ul>
-	 * 	<li>{@link #K_EXPRESSION}</li>
-	 * 	<li>{@link #K_STATEMENTS}</li>
-	 * 	<li>{@link #K_CLASS_BODY_DECLARATIONS}</li>
-	 * 	<li>{@link #K_COMPILATION_UNIT}</li>
-	 * 	<li>{@link #K_UNKNOWN}</li>
-	 * 	<li>{@link #K_SINGLE_LINE_COMMENT}</li>
-	 * 	<li>{@link #K_MULTI_LINE_COMMENT}</li>
-	 * 	<li>{@link #K_JAVA_DOC}</li>
-	 * </ul>
-	 * @param source the source to format
-	 * @param offset the given offset to start recording the edits (inclusive).
-	 * @param length the given length to stop recording the edits (exclusive).
-	 * @param indentationLevel the initial indentation level, used
-	 *      to shift left/right the entire source fragment. An initial indentation
-	 *      level of zero or below has no effect.
-	 * @param lineSeparator the line separator to use in formatted source,
-	 *     if set to <code>null</code>, then the platform default one will be used.
-	 * @return the text edit
-	 * @throws IllegalArgumentException if offset is lower than 0, length is lower than 0 or
-	 * length is greater than source length.
-	 */
-	public abstract TextEdit formatModuleInfoFile(int kind, String source, int offset, int length, int indentationLevel, String lineSeparator);
-
-	/**
-	 * Format <code>source</code> in a module-info.java file,
-	 * and returns a text edit that correspond to the difference between the given string and the formatted string.
-	 * <p>It returns null if the given string cannot be formatted.</p>
-	 *
-	 * <p>If an offset position is matching a whitespace, the result can include whitespaces. It would be up to the
-	 * caller to get rid of preceding whitespaces.</p>
-	 *
-	 * <p>No region in <code>regions</code> must overlap with any other region in <code>regions</code>.
-	 * Each region must be within source. There must be at least one region. Regions must be sorted
-	 * by their offsets, smaller offset first.</p>
-	 *
-	 * @param kind Use to specify the kind of the code snippet to format. It can
-	 * be any of these:
-	 * <ul>
-	 * 	<li>{@link #K_EXPRESSION}</li>
-	 * 	<li>{@link #K_STATEMENTS}</li>
-	 * 	<li>{@link #K_CLASS_BODY_DECLARATIONS}</li>
-	 * 	<li>{@link #K_COMPILATION_UNIT}</li>
-	 * 	<li>{@link #K_UNKNOWN}</li>
-	 * 	<li>{@link #K_SINGLE_LINE_COMMENT}</li>
-	 * 	<li>{@link #K_MULTI_LINE_COMMENT}</li>
-	 * 	<li>{@link #K_JAVA_DOC}</li>
-	 * </ul>
-	 * @param source the source to format
-	 * @param regions a set of regions in source to format
-	 * @param indentationLevel the initial indentation level, used
-	 *      to shift left/right the entire source fragment. An initial indentation
-	 *      level of zero or below has no effect.
-	 * @param lineSeparator the line separator to use in formatted source,
-	 *     if set to <code>null</code>, then the platform default one will be used.
-	 * @return the text edit
-	 * @throws IllegalArgumentException if there is no region, a region overlaps with another region, or the regions are not
-	 * sorted in the ascending order.
-	 * @since 3.13 BETA_JAVA9
-	 */
-	public abstract TextEdit formatModuleInfoFile(int kind, String source, IRegion[] regions, int indentationLevel, String lineSeparator);
 
 	/**
 	 * Answers the string that corresponds to the indentation to the given indentation level or an empty string

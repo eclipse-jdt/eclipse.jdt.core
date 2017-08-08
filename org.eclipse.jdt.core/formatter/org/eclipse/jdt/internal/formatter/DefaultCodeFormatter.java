@@ -5,10 +5,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper Steen Moller - Contributions for
@@ -104,8 +100,6 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private List<Token> tokens = new ArrayList<>();
 	private TokenManager tokenManager;
 
-	private boolean isInModuleInfo = false;
-
 	public DefaultCodeFormatter() {
 		this(new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings()), null);
 	}
@@ -193,21 +187,6 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		return result;
 	}
 
-	/**
-	 * @see org.eclipse.jdt.core.formatter.CodeFormatter#formatModuleInfoFile(int, java.lang.String, int, int, int, java.lang.String)
-	 */
-	public TextEdit formatModuleInfoFile(int kind, String source, int offset, int length, int indentationLevel, String lineSeparator) {
-		this.isInModuleInfo = true;
-		return format(kind, source, new IRegion[] { new Region(offset, length) }, indentationLevel, lineSeparator);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public TextEdit formatModuleInfoFile(int kind, String source, IRegion[] regions, int indentationLevel, String lineSeparator) {
-		this.isInModuleInfo = true;
-		return format(kind, source, regions, indentationLevel, lineSeparator);
-	}
 	private boolean init(String source, int kind) {
 
 		// this is convenient for debugging (see Token.toString())
@@ -348,7 +327,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private ASTParser createParser(int kind) {
 		ASTParser parser = ASTParser.newParser(AST.JLS9);
 
-		if (this.isInModuleInfo) {
+		if (kind == K_MODULE_INFO) {
 			Path fakeModuleInfoPath = new Path("project/" + TypeConstants.MODULE_INFO_FILE_NAME_STRING); //$NON-NLS-1$
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(fakeModuleInfoPath);
 			ICompilationUnit unit = JavaCore.createCompilationUnitFrom(file);
@@ -385,7 +364,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		Scanner scanner = new Scanner(true, false, false/* nls */, CompilerOptions.versionToJdkLevel(this.sourceLevel),
 				null/* taskTags */, null/* taskPriorities */, false/* taskCaseSensitive */);
 		scanner.setSource(this.sourceArray);
-		scanner.fakeInModule = this.isInModuleInfo;
+		scanner.fakeInModule = (kind & K_MODULE_INFO) != 0;
 		while (true) {
 			try {
 				int tokenType = scanner.getNextToken();
