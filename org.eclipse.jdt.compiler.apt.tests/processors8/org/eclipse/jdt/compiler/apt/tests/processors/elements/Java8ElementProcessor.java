@@ -322,10 +322,10 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		List<? extends VariableElement> params = method.getParameters();
 		assertEquals("Incorrect no of params for method bar()", 2, params.size());
-		VariableElement param = (VariableElement) params.get(0);
+		VariableElement param = params.get(0);
 		TypeMirror typeMirror = param.asType();
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=p1)"});
-		param = (VariableElement) params.get(1);
+		param = params.get(1);
 		typeMirror = param.asType();
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=p2)"});
 	}
@@ -407,7 +407,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertNotNull("Method should not be null", method);
 		List<? extends VariableElement> params = method.getParameters();
 		assertEquals("Incorrect no of params for method bar()", 2, params.size());
-		VariableElement param = (VariableElement) params.get(0);
+		VariableElement param = params.get(0);
 		TypeMirror typeMirror = param.asType();
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=p2)"});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
@@ -418,7 +418,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=p1)"});
 
-		param = (VariableElement) params.get(1);
+		param = params.get(1);
 		typeMirror = param.asType();
 		verifyAnnotations(typeMirror, new String[]{});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
@@ -540,7 +540,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		VariableElement field2 = null;
 		for (VariableElement member : ElementFilter.fieldsIn(members)) {
 			if ("_field2".equals(member.getSimpleName().toString())) {
-				field2 = (VariableElement) member;
+				field2 = member;
 				break;
 			}
 		}
@@ -639,7 +639,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		VariableElement field = null;
 		for (VariableElement member : ElementFilter.fieldsIn(members)) {
 			if ("_i".equals(member.getSimpleName().toString())) {
-				field = (VariableElement) member;
+				field = member;
 				break;
 			}
 		}
@@ -1003,14 +1003,15 @@ public class Java8ElementProcessor extends BaseProcessor {
 		PackageElement packageElement = _elementUtils.getPackageElement("targets.bug520540");
 		assertNotNull("package element should not be null", packageElement);
 		List<? extends Element> enclosedElements = packageElement.getEnclosedElements();
-		assertEquals("Incorrect no of elements", 2, enclosedElements.size());
+		assertEquals("Incorrect no of elements", 5, enclosedElements.size());
 		List<String> typeElements = new ArrayList<>();
 		for (Element element : enclosedElements) {
 			if (element instanceof TypeElement) {
 				typeElements.add(((TypeElement) element).getQualifiedName().toString());
 			}
 		}
-		String[] types = new String[] {"targets.bug520540.GenericType", "targets.bug520540.MyEnum"};
+		String[] types = new String[] { "targets.bug520540.GenericType", "targets.bug520540.MyEnum",
+				"targets.bug520540.TypeEx", "targets.bug520540.TypeA", "targets.bug520540.AnnotB" };
 		for (String string : types) {
 			typeElements.remove(string);
 		}
@@ -1094,11 +1095,12 @@ public class Java8ElementProcessor extends BaseProcessor {
 		
 		Type[] annots = construct.getAnnotationsByType(Type.class);
 		assertEquals(msg + "Incorrect no of annotations", 1, annots.length);
-		annot = (Type) annots[0];
+		annot = annots[0];
 		assertSame(msg + "Invalid annotation type" , Type.class, annots[0].annotationType());
 		assertEquals(msg + "Invalid annotation value", value, annot.value());
 	}
 	
+	@Override
 	public void reportError(String msg) {
 		throw new AssertionFailedError(msg);
 	}

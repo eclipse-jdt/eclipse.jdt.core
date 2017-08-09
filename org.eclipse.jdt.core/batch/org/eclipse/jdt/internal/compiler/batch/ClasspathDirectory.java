@@ -280,9 +280,8 @@ public char[][][] findTypeNames(String qualifiedPackageName, String moduleName) 
 	if (secondary.size() > 0) {
 		int idx = length;
 		for (String type : secondary) {
-			result[idx] = CharOperation.arrayConcat(packageName, type.toCharArray());
+			result[idx++] = CharOperation.arrayConcat(packageName, type.toCharArray());
 		}
-		idx++;
 	}
 	return result;
 }
