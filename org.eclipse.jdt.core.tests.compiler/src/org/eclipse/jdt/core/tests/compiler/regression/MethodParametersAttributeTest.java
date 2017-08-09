@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2016 Jesper Steen Moeller and others.
+ * Copyright (c) 2013, 2017 Jesper Steen Moeller and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -492,8 +492,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 			"    11  invokespecial java.lang.Object() [18]\n" + 
 			"    14  return\n" + 
 			"      Line numbers:\n" + 
-			"        [pc: 0, line: 1]\n" + 
-			"        [pc: 10, line: 9]\n" + 
+			"        [pc: 0, line: 9]\n" + 
 			"      Method Parameters:\n" + 
 			"        final mandated this$0\n" + 
 			"        final synthetic val$finalMessage\n" + 
@@ -761,8 +760,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				"     7  invokespecial Y$Z(Y) [12]\n" + 
 				"    10  return\n" + 
 				"      Line numbers:\n" + 
-				"        [pc: 0, line: 1]\n" + 
-				"        [pc: 5, line: 3]\n" + 
+				"        [pc: 0, line: 3]\n" + 
 				"      Method Parameters:\n" + 
 				"        final synthetic this$0\n" + 
 				"        final mandated this$1\n" + 
@@ -873,8 +871,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 			"     7  invokespecial InnerLocalClassTest$1Local(InnerLocalClassTest) [12]\n" + 
 			"    10  return\n" + 
 			"      Line numbers:\n" + 
-			"        [pc: 0, line: 1]\n" + 
-			"        [pc: 5, line: 4]\n" + 
+			"        [pc: 0, line: 4]\n" + 
 			"      Method Parameters:\n" + 
 			"        final synthetic this$0\n" + 
 			"        final synthetic this$1\n";
