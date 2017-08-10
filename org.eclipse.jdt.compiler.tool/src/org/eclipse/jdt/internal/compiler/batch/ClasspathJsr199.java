@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -231,9 +233,26 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	}
 
 	@Override
-	public IModule getModule() {
-		// TODO Auto-generated method stub
-		return null;
+	public Collection<String> getModuleNames() {
+		if (this.jrt != null)
+			return this.jrt.getModuleNames();
+		return Collections.emptyList();
+	}
+
+	@Override
+	public boolean hasModule() {
+		if (this.jrt != null) {
+			return this.jrt.hasModule();
+		}
+		return super.hasModule();
+	}
+
+	@Override
+	public IModule getModule(char[] name) {
+		if (this.jrt != null) {
+			return this.jrt.getModule(name);
+		}
+		return super.getModule(name);
 	}
 
 	@Override

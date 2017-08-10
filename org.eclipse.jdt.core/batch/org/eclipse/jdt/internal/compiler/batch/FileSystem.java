@@ -410,7 +410,7 @@ private NameEnvironmentAnswer internalFindClass(String qualifiedTypeName, char[]
 			Classpath p = this.classpaths[i];
 			if (!strategy.matches(p, Classpath::hasModule))
 				continue;
-			NameEnvironmentAnswer answer = (p instanceof ClasspathJar || p instanceof ClasspathJrt)
+			NameEnvironmentAnswer answer = !(p instanceof ClasspathDirectory)
 				? p.findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly)
 				: p.findClass(typeName, qp2, null, qb2, asBinaryOnly);
 			if (answer != null) {
