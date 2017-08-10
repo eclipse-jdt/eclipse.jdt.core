@@ -16,10 +16,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -65,6 +66,7 @@ public class JavaSearchNameEnvironment implements IModuleAwareNameEnvironment, S
 	Map<String, IModuleDescription> modules;
 	private boolean modulesComputed = false;
 	Map<String,ClasspathLocation> moduleLocations;
+	Map<String,List<ClasspathLocation>> moduleToClassPathLocations;
 
 	/*
 	 * A map from the fully qualified slash-separated name of the main type (String) to the working copy
@@ -74,6 +76,7 @@ public class JavaSearchNameEnvironment implements IModuleAwareNameEnvironment, S
 public JavaSearchNameEnvironment(IJavaProject javaProject, org.eclipse.jdt.core.ICompilationUnit[] copies) {
 	if (CompilerOptions.versionToJdkLevel(javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9) {
 		this.moduleLocations = new HashMap<>();
+		this.moduleToClassPathLocations = new HashMap<>();
 	}
 	this.modules = new HashMap<>();
 	this.locationSet = computeClasspathLocations((JavaProject) javaProject);
@@ -120,11 +123,18 @@ private LinkedHashSet<ClasspathLocation> computeClasspathLocations(JavaProject j
 	} catch (JavaModelException e) {
 		return null;// project doesn't exist
 	}
+	IModuleDescription imd = null;
+	try {
+		imd = javaProject.getModuleDescription();
+	} catch (JavaModelException e) {
+		// e.printStackTrace(); // ignore
+	}
+
 	LinkedHashSet<ClasspathLocation> locations = new LinkedHashSet<ClasspathLocation>();
 	int length = roots.length;
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	for (int i = 0; i < length; i++) {
-		ClasspathLocation cp = mapToClassPathLocation(manager, (PackageFragmentRoot) roots[i]);
+		ClasspathLocation cp = mapToClassPathLocation(manager, (PackageFragmentRoot) roots[i], imd);
 		if (cp != null) locations.add(cp);
 	}
 	return locations;
@@ -146,7 +156,7 @@ private void computeModules() {
 	}
 }
 
-private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, PackageFragmentRoot root) {
+private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, PackageFragmentRoot root, IModuleDescription defaultModule) {
 	ClasspathLocation cp = null;
 	IPath path = root.getPath();
 	try {
@@ -183,8 +193,22 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 		this.modules.put(moduleName, imd);
 		cp.setModule(mod);
 		this.moduleLocations.put(moduleName, cp);
+		addClassPathToModule(moduleName, cp);
+	} else if (defaultModule != null) {
+		IModule mod = NameLookup.getModuleDescriptionInfo(defaultModule);
+		cp.setModule(mod);
+		String moduleName = new String(mod.name());
+		addClassPathToModule(moduleName, cp);
 	}
 	return cp;
+}
+private void addClassPathToModule(String moduleName, ClasspathLocation cp) {
+	List<ClasspathLocation> l = this.moduleToClassPathLocations.get(moduleName);
+	if (l == null) {
+		l = new ArrayList<>();
+		this.moduleToClassPathLocations.put(moduleName, l);
+	}
+	l.add(cp);
 }
 
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, LookupStrategy strategy, /*@Nullable*/String moduleName) {
@@ -255,9 +279,9 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 
 private Iterator<ClasspathLocation> getLocationsFor(/*@Nullable*/String moduleName) {
 	if (moduleName != null) {
-		ClasspathLocation moduleLocation = this.moduleLocations.get(moduleName);
-		if (moduleLocation != null)
-			return Collections.singletonList(moduleLocation).iterator();
+		List<ClasspathLocation> l = this.moduleToClassPathLocations.get(moduleName);
+		if (l != null && l.size() > 0)
+			return l.iterator();
 	}
 	return this.locationSet.iterator();
 }
@@ -289,15 +313,17 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] pa
 	String qualifiedPackageName = String.valueOf(CharOperation.concatWith(parentPackageName, packageName, '/'));
 	LookupStrategy strategy = LookupStrategy.get(moduleName);
 	if (strategy == LookupStrategy.Named) {
-		if (this.moduleLocations != null) {
+		if (this.moduleToClassPathLocations != null) {
 			String moduleNameString = String.valueOf(moduleName);
-			ClasspathLocation location = this.moduleLocations.get(moduleNameString);
-			if (location != null) {
-				if (location.isPackage(qualifiedPackageName, moduleNameString))
-					return new char[][] { moduleName };
+			List<ClasspathLocation> l = this.moduleToClassPathLocations.get(moduleNameString);
+			if (l != null) {
+				for (ClasspathLocation cp : l) {
+					if (cp.isPackage(qualifiedPackageName, moduleNameString))
+						return new char[][] { moduleName };
+				}
 			}
 		}
-		return null;		
+		return null;
 	}
 	char[][] moduleNames = CharOperation.NO_CHAR_CHAR;
 	for (ClasspathLocation location : this.locationSet) {

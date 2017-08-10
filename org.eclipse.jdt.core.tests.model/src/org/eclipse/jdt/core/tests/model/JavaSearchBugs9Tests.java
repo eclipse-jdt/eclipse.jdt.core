@@ -644,6 +644,40 @@ public void testBug519980_002() throws Exception {
 		deleteProject("second");
 	}
 }
+public void testBug520477_001() throws Exception {
+	try {
 
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src", "src2"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project1.open(null);
+		String fileContent =
+			"module first {\n" +
+			"    exports pack1;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFile("/JavaSearchBugs9/src/X.java",
+				"public class X {\n" +
+				"    pack1.C C;\n" +
+				"}\n"
+		);
+		createFolder("/JavaSearchBugs9/src2/pack1");
+		createFile("/JavaSearchBugs9/src2/pack1/C.java",
+				"package pack1;\n" +
+				"public class C {\n" +
+				"}\n"
+		);
+
+		SearchPattern pattern = SearchPattern.createPattern("pack1", IJavaSearchConstants.PACKAGE, REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/X.java X.C [pack1] EXACT_MATCH\n" +
+				"src/module-info.java first [pack1] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
 // Add more tests here
 }
