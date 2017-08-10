@@ -8,6 +8,23 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
+        <filter comment="future additions have always been announced in the API" id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.CategorizedProblem"/>
+                <message_argument value="CAT_MODULE"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="compiler/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
+        <filter comment="must react to added constant CAT_MODULE" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="IgnoreCategoriesMask"/>
+                <message_argument value="16777215"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/CompilationUnit.java" type="org.eclipse.jdt.core.dom.CompilationUnit">
         <filter comment="has never been subclassable" id="336744520">
             <message_arguments>
