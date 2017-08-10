@@ -79,8 +79,9 @@ public abstract class CodeFormatter {
 	/**
 	 * Kind used to format a compilation unit
 	 * <p>
-	 * Note that using this constant, the comments are only indented while
-	 * formatting the compilation unit.
+	 * <u>Note:</u> <b>since 3.13 BETA_JAVA9</b>, if the formatted compilation unit is a
+	 * module declaration (i.e. it's named module-info.java), the
+	 * {@link #K_MODULE_INFO} kind must be used instead.
 	 * </p><p>
 	 * <b>Since 3.4</b>, if the corresponding comment option is set to
 	 * <code>true</code> then it is also possible to format the comments on the fly
@@ -130,7 +131,7 @@ public abstract class CodeFormatter {
 	 * 		<li>{@link #K_CLASS_BODY_DECLARATIONS} <i>(since 3.6)</i></li>
 	 * 		<li>{@link #K_EXPRESSION} <i>(since 3.6)</i></li>
 	 * 		<li>{@link #K_STATEMENTS} <i>(since 3.6)</i></li>
-	 * 		<li>{@link #K_MODULE_INFO}</li>
+	 * 		<li>{@link #K_MODULE_INFO} <i>(since 3.13 BETA_JAVA9</i></li>
 	 * </ul>
 	 * </p><p>
 	 * Note also that it has an effect only when one or several format comments
@@ -214,17 +215,16 @@ public abstract class CodeFormatter {
 	 * 	<li>{@link #K_STATEMENTS}</li>
 	 * 	<li>{@link #K_CLASS_BODY_DECLARATIONS}</li>
 	 * 	<li>{@link #K_COMPILATION_UNIT}</li>
-	 * 	<li>{@link #K_MODULE_INFO}<br>
-	 * 		<b>Since 3.4</b>, the comments can be formatted on the fly while
-	 * 		using this kind of code snippet<br>
-	 * 		(see {@link #F_INCLUDE_COMMENTS} for more detailed explanation on
-	 * 		this flag)
-	 * 	</li>
+	 * 	<li>{@link #K_MODULE_INFO}</li>
 	 * 	<li>{@link #K_UNKNOWN}</li>
 	 * 	<li>{@link #K_SINGLE_LINE_COMMENT}</li>
 	 * 	<li>{@link #K_MULTI_LINE_COMMENT}</li>
 	 * 	<li>{@link #K_JAVA_DOC}</li>
 	 * </ul>
+	 * <b>Since 3.4</b> for {@link #K_MODULE_INFO} and <b>since 3.6</b> for other
+	 * kinds unrelated to comments, the {@link #F_INCLUDE_COMMENTS} flag can be
+	 * used to format comments on the fly (see the flag documentation for more
+	 * detailed explanation).
 	 * @param source the source to format
 	 * @param offset the given offset to start recording the edits (inclusive).
 	 * @param length the given length to stop recording the edits (exclusive).
@@ -258,17 +258,16 @@ public abstract class CodeFormatter {
 	 * 	<li>{@link #K_STATEMENTS}</li>
 	 * 	<li>{@link #K_CLASS_BODY_DECLARATIONS}</li>
 	 * 	<li>{@link #K_COMPILATION_UNIT}</li>
-	 * 	<li>{@link #K_MODULE_INFO}<br>
-	 * 		<b>Since 3.4</b>, the comments can be formatted on the fly while
-	 * 		using this kind of code snippet<br>
-	 * 		(see {@link #F_INCLUDE_COMMENTS} for more detailed explanation on
-	 * 		this flag)
-	 * 	</li>
+	 * 	<li>{@link #K_MODULE_INFO}</li>
 	 * 	<li>{@link #K_UNKNOWN}</li>
 	 * 	<li>{@link #K_SINGLE_LINE_COMMENT}</li>
 	 * 	<li>{@link #K_MULTI_LINE_COMMENT}</li>
 	 * 	<li>{@link #K_JAVA_DOC}</li>
 	 * </ul>
+	 * <b>Since 3.4</b> for {@link #K_MODULE_INFO} and <b>since 3.6</b> for other
+	 * kinds unrelated to comments, the {@link #F_INCLUDE_COMMENTS} flag can be
+	 * used to format comments on the fly (see the flag documentation for more
+	 * detailed explanation).
 	 * @param source the source to format
 	 * @param regions a set of regions in source to format
 	 * @param indentationLevel the initial indentation level, used
