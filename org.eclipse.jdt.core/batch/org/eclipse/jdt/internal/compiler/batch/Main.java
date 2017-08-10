@@ -3854,6 +3854,9 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			} else if (token.equals("enumIdentifier")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportEnumIdentifier, severity, isEnabling);
 				return;
+			} else if (token.equals("exports")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportAPILeak, severity, isEnabling);
+				return;
 			}
 			break;
 		case 'f' :

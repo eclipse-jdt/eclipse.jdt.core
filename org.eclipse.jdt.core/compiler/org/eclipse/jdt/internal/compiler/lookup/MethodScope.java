@@ -25,6 +25,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
@@ -626,5 +627,66 @@ public Binding checkRedundantDefaultNullness(int nullBits, int sourceStart) {
 		}
 	}
 	return this.parent.checkRedundantDefaultNullness(nullBits, sourceStart);
+}
+public boolean shouldCheckAPILeaks(ReferenceBinding declaringClass, boolean memberIsPublic) {
+	if (environment().useModuleSystem)
+		return memberIsPublic && declaringClass.isPublic() && declaringClass.fPackage.isExported();
+	return false;
+}
+public void detectAPILeaks(ASTNode typeNode, TypeBinding type) {
+	if (environment().useModuleSystem) {
+		// NB: using an ASTVisitor yields more precise locations than a TypeBindingVisitor would
+		ASTVisitor visitor = new ASTVisitor() {
+			@Override
+			public boolean visit(SingleTypeReference typeReference, BlockScope scope) {
+				if (typeReference.resolvedType instanceof ReferenceBinding)
+					checkType((ReferenceBinding) typeReference.resolvedType, typeReference.sourceStart, typeReference.sourceEnd);
+				return true;
+			}
+			@Override
+			public boolean visit(QualifiedTypeReference typeReference, BlockScope scope) {
+				if (typeReference.resolvedType instanceof ReferenceBinding)
+					checkType((ReferenceBinding) typeReference.resolvedType, typeReference.sourceStart, typeReference.sourceEnd);
+				return true;
+			}
+			@Override
+			public boolean visit(ArrayTypeReference typeReference, BlockScope scope) {
+				TypeBinding leafComponentType = typeReference.resolvedType.leafComponentType();
+				if (leafComponentType instanceof ReferenceBinding)
+					checkType((ReferenceBinding) leafComponentType, typeReference.sourceStart, typeReference.originalSourceEnd);
+				return true;
+			}
+			private void checkType(ReferenceBinding referenceBinding, int sourceStart, int sourceEnd) {
+				if (!referenceBinding.isValidBinding())
+					return;
+				ModuleBinding otherModule = referenceBinding.module();
+				if (otherModule == otherModule.environment.javaBaseModule())
+					return; // always accessible
+				if (!isFullyPublic(referenceBinding)) {
+					problemReporter().nonPublicTypeInAPI(referenceBinding, sourceStart, sourceEnd);
+				} else if (!referenceBinding.fPackage.isExported()) {
+					problemReporter().notExportedTypeInAPI(referenceBinding, sourceStart, sourceEnd);
+				} else if (isUnrelatedModule(referenceBinding.fPackage)) {
+					problemReporter().missingRequiresTransitiveForTypeInAPI(referenceBinding, sourceStart, sourceEnd);
+				}
+			}
+			private boolean isFullyPublic(ReferenceBinding referenceBinding) {
+				if (!referenceBinding.isPublic())
+					return false;
+				if (referenceBinding instanceof NestedTypeBinding)
+					return isFullyPublic(((NestedTypeBinding) referenceBinding).enclosingType);
+				return true;
+			}
+			private boolean isUnrelatedModule(PackageBinding fPackage) {
+				ModuleBinding otherModule = fPackage.enclosingModule;
+				ModuleBinding thisModule = module();
+				if (thisModule != otherModule) {
+					return !thisModule.isTransitivelyRequired(otherModule);
+				}
+				return false;
+			}
+		};
+		typeNode.traverse(visitor, this);
+	}
 }
 }

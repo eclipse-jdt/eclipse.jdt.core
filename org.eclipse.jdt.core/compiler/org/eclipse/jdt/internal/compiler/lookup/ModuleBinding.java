@@ -107,6 +107,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	ModuleBinding[] requiredModules = null;
 	boolean isAuto;
 	private boolean[] isComplete = new boolean[UpdateKind.values().length];
+	private Set<ModuleBinding> transitiveRequires;
 
 	/** Packages declared in this module (indexed by qualified name). */
 	HashtableOfPackage declaredPackages; // TODO(SHMOD): measure if this is worth the memory. LE->PackageBinding basically hold the same information
@@ -246,6 +247,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			System.arraycopy(this.exportedPackages, 0, this.exportedPackages = new PackageBinding[len+1], 0, len);
 			this.exportedPackages[len] = declaredPackage;
 		}
+		declaredPackage.isExported = Boolean.TRUE;
 		recordExportRestrictions(declaredPackage, targetModules);
 	}
 
@@ -756,5 +758,13 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	public boolean isDeprecated() {
 		// TODO(SHMOD) implement deprecation for modules
 		return false;
+	}
+	public boolean isTransitivelyRequired(ModuleBinding otherModule) {
+		if (this.transitiveRequires == null) {
+			Set<ModuleBinding> transitiveDeps = new HashSet<>();
+			collectTransitiveDependencies(transitiveDeps);
+			this.transitiveRequires = transitiveDeps;
+		}
+		return this.transitiveRequires.contains(otherModule);
 	}
 }

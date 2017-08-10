@@ -199,6 +199,8 @@ public class CompilerOptions {
 	public static final String OPTION_ReportUnlikelyCollectionMethodArgumentTypeStrict = "org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentTypeStrict"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnlikelyEqualsArgumentType = "org.eclipse.jdt.core.compiler.problem.unlikelyEqualsArgumentType"; //$NON-NLS-1$
 
+	public static final String OPTION_ReportAPILeak = "org.eclipse.jdt.core.compiler.problem.APILeak"; //$NON-NLS-1$
+
 	/**
 	 * Possible values for configurable options
 	 */
@@ -324,6 +326,7 @@ public class CompilerOptions {
 	public static final int UnlikelyCollectionMethodArgumentType = IrritantSet.GROUP2 | ASTNode.Bit22;
 	public static final int UnlikelyEqualsArgumentType = IrritantSet.GROUP2 | ASTNode.Bit23;
 	public static final int UsingTerminallyDeprecatedAPI = IrritantSet.GROUP2 | ASTNode.Bit24;
+	public static final int APILeak = IrritantSet.GROUP2 | ASTNode.Bit25;
 
 
 	// Severity level for handlers
@@ -520,6 +523,7 @@ public class CompilerOptions {
 		"cast", //$NON-NLS-1$
 		"dep-ann", //$NON-NLS-1$
 		"deprecation", //$NON-NLS-1$
+		"exports",  //$NON-NLS-1$
 		"fallthrough", //$NON-NLS-1$
 		"finally", //$NON-NLS-1$
 		"hiding", //$NON-NLS-1$
@@ -741,6 +745,8 @@ public class CompilerOptions {
 				return OPTION_ReportUnlikelyCollectionMethodArgumentType;
 			case UnlikelyEqualsArgumentType:
 				return OPTION_ReportUnlikelyEqualsArgumentType;
+			case APILeak:
+				return OPTION_ReportAPILeak;
 		}
 		return null;
 	}
@@ -941,6 +947,7 @@ public class CompilerOptions {
 			OPTION_ReportNonnullParameterAnnotationDropped,
 			OPTION_ReportUnlikelyCollectionMethodArgumentType,
 			OPTION_ReportUnlikelyEqualsArgumentType,
+			OPTION_ReportAPILeak,
 		};
 		return result;
 	}
@@ -1038,6 +1045,8 @@ public class CompilerOptions {
 			case UnlikelyEqualsArgumentType:
 			case UnlikelyCollectionMethodArgumentType:
 				return "unlikely-arg-type"; //$NON-NLS-1$
+			case APILeak:
+				return "exports"; //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -1063,6 +1072,10 @@ public class CompilerOptions {
 					return IrritantSet.DEPRECATION;
 				if ("dep-ann".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.DEP_ANN;
+				break;
+			case 'e' :
+				if ("exports".equals(warningToken)) //$NON-NLS-1$
+					return IrritantSet.API_LEAK;
 				break;
 			case 'f' :
 				if ("fallthrough".equals(warningToken)) //$NON-NLS-1$
@@ -1271,6 +1284,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportUnlikelyCollectionMethodArgumentType, getSeverityString(UnlikelyCollectionMethodArgumentType));
 		optionsMap.put(OPTION_ReportUnlikelyCollectionMethodArgumentTypeStrict, this.reportUnlikelyCollectionMethodArgumentTypeStrict ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportUnlikelyEqualsArgumentType, getSeverityString(UnlikelyEqualsArgumentType));
+		optionsMap.put(OPTION_ReportAPILeak, getSeverityString(APILeak));
 		return optionsMap;
 	}
 
@@ -1788,6 +1802,7 @@ public class CompilerOptions {
 		} else {
 			this.analyseResourceLeaks = true;
 		}
+		if ((optionValue = optionsMap.get(OPTION_ReportAPILeak)) != null) updateSeverity(APILeak, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_AnnotationBasedNullAnalysis)) != null) {
 			this.isAnnotationBasedNullAnalysisEnabled = ENABLED.equals(optionValue);
 		}
@@ -2112,6 +2127,7 @@ public class CompilerOptions {
 		buf.append("\n\t- unlikely argument type for collection methods: ").append(getSeverityString(UnlikelyCollectionMethodArgumentType)); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument type for collection methods, strict check against expected type: ").append(this.reportUnlikelyCollectionMethodArgumentTypeStrict ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument types for equals(): ").append(getSeverityString(UnlikelyEqualsArgumentType)); //$NON-NLS-1$
+		buf.append("\n\t- API leak: ").append(getSeverityString(APILeak)); //$NON-NLS-1$
 		return buf.toString();
 	}
 	

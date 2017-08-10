@@ -1815,6 +1815,8 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 						field.tagBits &= ~TagBits.AnnotationNullMASK;
 				}
 			}
+			if (initializationScope.shouldCheckAPILeaks(this, field.isPublic()))
+				initializationScope.detectAPILeaks(fieldDecl.type, fieldType);
 		} finally {
 		    initializationScope.initializedField = previousField;
 		}
@@ -1909,6 +1911,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 	}
 	final boolean reportUnavoidableGenericTypeProblems = this.scope.compilerOptions().reportUnavoidableGenericTypeProblems;
 	boolean foundArgProblem = false;
+	boolean checkAPIleak = methodDecl.scope.shouldCheckAPILeaks(this, method.isPublic());
 	Argument[] arguments = methodDecl.arguments;
 	if (arguments != null) {
 		int size = arguments.length;
@@ -1946,6 +1949,8 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 				if (leafType instanceof ReferenceBinding && (((ReferenceBinding) leafType).modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)
 					method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				newParameters[i] = parameterType;
+				if (checkAPIleak)
+					methodDecl.scope.detectAPILeaks(arg.type, parameterType);
 				arg.binding = new LocalVariableBinding(arg, parameterType, arg.modifiers, methodDecl.scope);
 			}
 		}
@@ -2013,6 +2018,8 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 					method.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 				else if (leafType == TypeBinding.VOID && methodDecl.annotations != null)
 					rejectTypeAnnotatedVoidMethod(methodDecl);
+				if (checkAPIleak)
+					methodDecl.scope.detectAPILeaks(returnType, methodType);
 			}
 		}
 	} else {

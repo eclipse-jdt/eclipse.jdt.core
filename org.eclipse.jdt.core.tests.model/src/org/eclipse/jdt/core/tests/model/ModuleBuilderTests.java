@@ -207,7 +207,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForManualRefresh();
 			this.currentProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = this.currentProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "", markers);
+			assertMarkers("Unexpected markers",
+					// just an API leak warning:
+					"The type Connection from module java.sql is not accessible to clients due to missing \'requires transitive\'",
+					markers);
 		} finally {
 		}
 	}
@@ -1175,7 +1178,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"src/module-info.java",
 				"module com.greetings {\n" +
 				"	requires org.astro;\n" +
-				"	requires other.mod;\n" +
+				"	requires transitive other.mod;\n" +
 				"	exports com.greetings;\n" +
 				"	provides org.astro.World with com.greetings.MyImpl;\n" +
 				"}",
@@ -4634,6 +4637,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 															new IClasspathAttribute[] { modAttr },
 															false/*not exported*/);
 			IJavaProject p1 = setupModuleProject("mod.one", src1, new IClasspathEntry[] { dep });
+			p1.setOption(JavaCore.COMPILER_PB_API_LEAKS, JavaCore.IGNORE); // the stub org.astro.World is not exported but used in API
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",	"",  markers);

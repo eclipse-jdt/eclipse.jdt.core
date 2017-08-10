@@ -1594,6 +1594,30 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE = PLUGIN_ID + ".compiler.problem.unlikelyEqualsArgumentType"; //$NON-NLS-1$
 
 	/**
+	 * Compiler option ID: Reporting when public API uses a non-API type.
+	 * <p>
+	 * This option is relevant only when compiling code in a named module (at compliance 9 or greater).
+	 * <p>
+	 * When enabled, the compiler will issue an error or warning when public API mentions a type that is not
+	 * accessible to clients. Here, public API refers to signatures of public fields and methods declared
+	 * by a public type in an exported package.
+	 * In these positions types are complained against that are either not public or not in an exported package.
+	 * Export qualification is not taken into account.
+	 * If a type in one of these positions is declared in another module that is required by the current module,
+	 * but without the {@code transitive} modifier, this is reported as a problem, too.
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.APILeak"</code></dd>
+	 * <dt>Possible values:</dt>
+	 * <dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 * 
+	 * @since 3.13 BETA_JAVA9
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_API_LEAKS = PLUGIN_ID + ".compiler.problem.APILeak"; //$NON-NLS-1$
+	
+	/**
 	 * Compiler option ID: Annotation-based Null Analysis.
 	 * <p>This option controls whether the compiler will use null annotations for
 	 *    improved analysis of (potential) null references.</p>

@@ -635,6 +635,11 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.UnlikelyCollectionMethodArgumentType;
 		case IProblem.UnlikelyEqualsArgumentType:
 			return CompilerOptions.UnlikelyEqualsArgumentType;
+
+		case IProblem.NonPublicTypeInAPI:
+		case IProblem.NotExportedTypeInAPI:
+		case IProblem.MissingRequiresTransitiveForTypeInAPI:
+			return CompilerOptions.APILeak;
 }
 	return 0;
 }
@@ -696,6 +701,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.NonNullTypeVariableFromLegacyInvocation :
 			case CompilerOptions.UnlikelyCollectionMethodArgumentType :
 			case CompilerOptions.UnlikelyEqualsArgumentType:
+			case CompilerOptions.APILeak:
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			
 			case CompilerOptions.OverriddenPackageDefaultMethod :
@@ -10690,5 +10696,30 @@ public void unlikelyArgumentType(Expression argument, MethodBinding method, Type
 			}, 
 			argument.sourceStart, 
 			argument.sourceEnd);
+}
+
+public void nonPublicTypeInAPI(TypeBinding type, int sourceStart, int sourceEnd) {
+	handle(IProblem.NonPublicTypeInAPI,
+			new String[] { new String(type.readableName()) },
+			new String[] { new String(type.shortReadableName()) },
+			sourceStart,
+			sourceEnd);
+}
+
+public void notExportedTypeInAPI(TypeBinding type, int sourceStart, int sourceEnd) {
+	handle(IProblem.NotExportedTypeInAPI,
+			new String[] { new String(type.readableName()) },
+			new String[] { new String(type.shortReadableName()) },
+			sourceStart,
+			sourceEnd);
+}
+
+public void missingRequiresTransitiveForTypeInAPI(ReferenceBinding referenceBinding, int sourceStart, int sourceEnd) {
+	String moduleName = new String(referenceBinding.fPackage.enclosingModule.readableName());
+	handle(IProblem.MissingRequiresTransitiveForTypeInAPI,
+			new String[] { new String(referenceBinding.readableName()), moduleName },
+			new String[] { new String(referenceBinding.shortReadableName()), moduleName },
+			sourceStart,
+			sourceEnd);
 }
 }

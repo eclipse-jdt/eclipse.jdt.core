@@ -40,7 +40,7 @@ import junit.framework.Test;
 public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 
 	static {
-//		 TESTS_NAMES = new String[] { "test013" };
+//		 TESTS_NAMES = new String[] { "testAPILeakDetection" };
 		// TESTS_NUMBERS = new int[] { 1 };
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -124,7 +124,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				JavacCompiler javacCompiler = (JavacCompiler) comp;
 				if (javacCompiler.compliance < ClassFileConstants.JDK9)
 					continue;
-				commandLine = commandLine.replace(" -9", " -source 9");
+				commandLine = adjustForJavac(commandLine);
 				StringBuffer log = new StringBuffer();
 				try {
 					long compileResult = javacCompiler.compile(
@@ -190,7 +190,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				JavacCompiler javacCompiler = (JavacCompiler) comp;
 				if (javacCompiler.compliance < ClassFileConstants.JDK9)
 					continue;
-				commandLine = commandLine.replace(" -9", " -source 9");
+				commandLine = adjustForJavac(commandLine);
 				StringBuffer log = new StringBuffer();
 				try {
 					long compileResult = javacCompiler.compile(
@@ -216,6 +216,24 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 					System.err.println("Missing output file from javac:    "+missingFile);
 			}
 		}
+	}
+
+	String adjustForJavac(String commandLine) {
+		String[] tokens = commandLine.split(" ");
+		StringBuffer buf = new StringBuffer();
+		for (int i = 0; i < tokens.length; i++) {
+			if (tokens[i].trim().equals("-9")) {
+				buf.append(" -source 9 ");
+				continue;
+			}
+			if (tokens[i].startsWith("-warn") || tokens[i].startsWith("-err") || tokens[i].startsWith("-info")) {
+				if (tokens[i].contains("exports") && !tokens[i].contains("-exports"))
+					buf.append(" -Xlint:exports ");
+				continue;
+			}
+			buf.append(tokens[i]).append(' ');
+		}
+		return buf.toString();
 	}
 	
 	private void walkOutFiles(final String outputLocation, final Set<String> fileNames, boolean add) {
@@ -499,6 +517,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
+			.append(" -warn:-exports") // Y.con unreliably refers to Connection (missing requires transitive)
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
 		runConformModuleTest(files,
@@ -935,9 +954,6 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"",
 				false);
 	}
-	/*
-	 * Test with --add-exports, without a "requires", the packages are seen by the target module
-	 */
 	public void test015() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -977,11 +993,18 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.two");
-		runConformModuleTest(files,
+		runNegativeModuleTest(files,
 				buffer,
 				"",
-				"",
+				"----------\n" +
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n" +
+				"	java.sql.Connection con = p.X.getConnection();\n" +
+				"	                          ^\n" +
+				"p cannot be resolved\n" +
+				"----------\n" +
+				"1 problem (1 error)\n",
 				false,
+				"cannot be resolved",
 				OUTPUT_DIR + File.separator + out);
 	}
 	public void test016() {
@@ -1533,7 +1556,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"----------\n" + 
 				"1 problem (1 error)\n",
 				false,
-				"visible", 
+				"visible",
 				outDir);
 	}
 	public void test029() {
@@ -1542,7 +1565,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		List<String> files = new ArrayList<>(); 
+		List<String> files = new ArrayList<>();
 		writeFileCollecting(files, moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
@@ -1579,13 +1602,19 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		runNegativeModuleTest(files, 
 			buffer,
 			"",
-			"----------\n"+
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n"+
-			"	java.sql.Connection con = p.X.getConnection();\n"+
-			"	^^^^^^^^^^^^^^^^^^^\n"+
-			"The type java.sql.Connection is not accessible\n"+
-			"----------\n"+
-			"1 problem (1 error)\n",
+			"----------\n" +
+			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 3)\n" +
+			"	public static java.sql.Connection getConnection() {\n" +
+			"	              ^^^^^^^^^^^^^^^^^^^\n" +
+			"The type Connection from module java.sql is not accessible to clients due to missing \'requires transitive\'\n" +
+			"----------\n" +
+			"----------\n" +
+			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n" +
+			"	java.sql.Connection con = p.X.getConnection();\n" +
+			"	^^^^^^^^^^^^^^^^^^^\n" +
+			"The type java.sql.Connection is not accessible\n" +
+			"----------\n" +
+			"2 problems (1 error, 1 warning)\n",
 			false,
 			"visible");
 	}
@@ -1626,6 +1655,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
+			.append(" -warn:-exports") // getConnection() leaks non-transitively required type
 			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.two,mod.three")
 			.append(" --add-reads mod.two=mod.one");
@@ -1664,7 +1694,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public class X {\n" +
-						"	public static java.sql.Connection getConnection() {\n" +
+						"	static java.sql.Connection getConnection() {\n" +
 						"		return null;\n" +
 						"	}\n" +
 						"}");
@@ -2011,7 +2041,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		runConformModuleTest(files, 
 				buffer,
 				"",
-				"",
+				"----------\n" + 
+				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/pm/C1.java (at line 4)\n" + 
+				"	public void m1(Other o) {}\n" + 
+				"	               ^^^^^\n" + 
+				"The type Other is not exported from this module\n" + 
+				"----------\n" + 
+				"1 problem (1 warning)\n",
 				false);
 	}
 
@@ -2075,18 +2111,25 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
+			.append(" -info:+exports")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
 		runNegativeModuleTest(files, 
 				buffer,
 				"",
 				"----------\n" + 
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/po/Client.java (at line 8)\n" + 
+				"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/pm/C1.java (at line 4)\n" +
+				"	public void m1(SomeImpl o) {}\n" +
+				"	               ^^^^^^^^\n" +
+				"The type SomeImpl is not exported from this module\n" +
+				"----------\n" +
+				"----------\n" +
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/po/Client.java (at line 8)\n" +
 				"	one.m1(impl);\n" + 
 				"	    ^^\n" + 
 				"The method m1(impl.SomeImpl) in the type C1 is not applicable for the arguments (impl.SomeImpl)\n" + 
 				"----------\n" + 
-				"1 problem (1 error)\n",
+				"2 problems (1 error, 0 warnings, 1 info)\n",
 				false,
 				"incompatible",
 				OUTPUT_DIR + File.separator + out);
@@ -2451,5 +2494,283 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				false,
 				"cannot specify both",
 				OUTPUT_DIR + File.separator + out);
+	}
+
+	// causes: non-public type (C0), non-exported package (p.priv)
+	// locations: field, method parameter, method return
+	public void testAPILeakDetection1() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports p.exp;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "exp", "C1.java", 
+						"package p.exp;\n" +
+						"import p.priv.*;\n" +
+						"class C0 {\n" +
+						"	public void test(C0 c) {}\n" +
+						"}\n" +
+						"public class C1 {\n" +
+						"	public C2 f;\n" +
+						"	public void test1(C0 c) {}\n" +
+						"	public void test2(C2 c) {}\n" +
+						"	protected void test3(C0 c) {}\n" +
+						"	protected void test4(C2 c) {}\n" +
+						"	public p.priv.C2 test5() { return null; }\n" +
+						"}\n");
+
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "priv", "C2.java", 
+						"package p.priv;\n" +
+						"public class C2 {\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -err:exports")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files, buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/exp/C1.java (at line 7)\n" + 
+				"	public C2 f;\n" + 
+				"	       ^^\n" + 
+				"The type C2 is not exported from this module\n" + 
+				"----------\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/exp/C1.java (at line 8)\n" + 
+				"	public void test1(C0 c) {}\n" + 
+				"	                  ^^\n" + 
+				"The type C0 is not accessible to clients that require this module\n" + 
+				"----------\n" + 
+				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/exp/C1.java (at line 9)\n" + 
+				"	public void test2(C2 c) {}\n" + 
+				"	                  ^^\n" + 
+				"The type C2 is not exported from this module\n" + 
+				"----------\n" + 
+				"4. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/exp/C1.java (at line 12)\n" + 
+				"	public p.priv.C2 test5() { return null; }\n" + 
+				"	       ^^^^^^^^^\n" + 
+				"The type C2 is not exported from this module\n" + 
+				"----------\n" + 
+				"4 problems (4 errors)\n",
+				false,
+				"is not exported");
+	}
+
+	// details: in array, parameterized type
+	public void testAPILeakDetection2() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports p.exp;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "exp", "C1.java", 
+						"package p.exp;\n" +
+						"import java.util.*;\n" +
+						"class C0 {\n" +
+						"	public void test(C0 c) {}\n" +
+						"}\n" +
+						"public class C1 {\n" +
+						"	public List<C0> f1;\n" +
+						"	public C0[] f2;\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -err:+exports")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files, buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/exp/C1.java (at line 7)\n" + 
+				"	public List<C0> f1;\n" + 
+				"	            ^^\n" + 
+				"The type C0 is not accessible to clients that require this module\n" + 
+				"----------\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/exp/C1.java (at line 8)\n" + 
+				"	public C0[] f2;\n" + 
+				"	       ^^\n" + 
+				"The type C0 is not accessible to clients that require this module\n" + 
+				"----------\n" + 
+				"2 problems (2 errors)\n",
+				false,
+				"not accessible to clients");
+	}
+
+	// suppress
+	public void testAPILeakDetection3() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports p.exp;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "exp", "C1.java", 
+						"package p.exp;\n" +
+						"import java.util.*;\n" +
+						"class C0 {\n" +
+						"	public void test(C0 c) {}\n" +
+						"}\n" +
+						"public class C1 {\n" +
+						"	@SuppressWarnings(\"exports\")\n" +
+						"	public List<C0> f1;\n" +
+						"	@SuppressWarnings(\"exports\")\n" +
+						"	public C0[] f2;\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -warn:+exports,+suppress")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runConformModuleTest(files,
+				buffer, 
+				"",
+				"",
+				false);
+	}
+	
+	// details: nested types
+	public void testAPILeakDetection4() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports p.exp;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "exp", "C1.java", 
+						"package p.exp;\n" +
+						"public class C1 {\n" +
+						"	static class C3 {\n" +
+						"		public static class C4 {}\n" + // public but nested in non-public
+						"	}\n" +
+						"	public C3 f1;\n" +
+						"	public C3.C4 f2;\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -err:+exports")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files, buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/exp/C1.java (at line 6)\n" + 
+				"	public C3 f1;\n" + 
+				"	       ^^\n" + 
+				"The type C1.C3 is not accessible to clients that require this module\n" + 
+				"----------\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/exp/C1.java (at line 7)\n" + 
+				"	public C3.C4 f2;\n" + 
+				"	       ^^^^^\n" + 
+				"The type C1.C3.C4 is not accessible to clients that require this module\n" + 
+				"----------\n" + 
+				"2 problems (2 errors)\n",
+				false,
+				"one is not accessible to clients");
+	}
+
+	// type from non-transitive required module
+	public void testAPILeakDetection5() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports p.exp1;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "exp1", "C1.java", 
+						"package p.exp1;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	exports p.exp2;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "exp2", "C2.java", 
+						"package p.exp2;\n" +
+						"public class C2 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.three";
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.three { \n" +
+						"	requires mod.one; // missing transitive\n" +
+						"	requires transitive mod.two;\n" +
+						"	exports p.exp3;\n" + 
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "exp3", "C3.java", 
+						"package p.exp3;\n" +
+						"public class C3 {\n" +
+						"	public void m1(p.exp1.C1 arg) {}\n" +
+						"	public void m2(p.exp2.C2 arg) {}\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -err:+exports")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files, buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/p/exp3/C3.java (at line 3)\n" + 
+				"	public void m1(p.exp1.C1 arg) {}\n" + 
+				"	               ^^^^^^^^^\n" + 
+				"The type C1 from module mod.one is not accessible to clients due to missing \'requires transitive\'\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false,
+				"is not indirectly exported");
 	}
 }

@@ -825,6 +825,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MissingNonNullByDefaultAnnotationOnType", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MissingOverrideAnnotation", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("MissingOverrideAnnotationForInterfaceMethodImplementation", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
+		expectedProblemAttributes.put("MissingRequiresTransitiveForTypeInAPI", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MissingReturnType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("MissingSemiColon", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("MissingSerialVersion", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -865,6 +866,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("NonNullLocalVariableComparisonYieldsFalse", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NonNullTypeVariableFromLegacyMethod", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NonNullMethodTypeVariableFromLegacyMethod", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("NonPublicTypeInAPI", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NonStaticAccessToStaticField", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("NonStaticAccessToStaticMethod", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("NonStaticContextForEnumMemberType", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -877,6 +879,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("NotAccessibleMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NotAccessibleType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("NotAccessiblePackage", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
+		expectedProblemAttributes.put("NotExportedTypeInAPI", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ConflictingPackageFromModules", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
 		expectedProblemAttributes.put("ConflictingPackageFromOtherModules", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
 		expectedProblemAttributes.put("NotVisibleConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1705,6 +1708,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MissingNonNullByDefaultAnnotationOnType", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION));
 		expectedProblemAttributes.put("MissingOverrideAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION));
 		expectedProblemAttributes.put("MissingOverrideAnnotationForInterfaceMethodImplementation", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION));
+		expectedProblemAttributes.put("MissingRequiresTransitiveForTypeInAPI", new ProblemAttributes(JavaCore.COMPILER_PB_API_LEAKS));
 		expectedProblemAttributes.put("MissingReturnType", SKIP);
 		expectedProblemAttributes.put("MissingSemiColon", SKIP);
 		expectedProblemAttributes.put("MissingSerialVersion", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION));
@@ -1745,6 +1749,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NonNullMessageSendComparisonYieldsFalse", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
 		expectedProblemAttributes.put("NonNullTypeVariableFromLegacyMethod", new ProblemAttributes(JavaCore.COMPILER_PB_NONNULL_TYPEVAR_FROM_LEGACY_INVOCATION));
 		expectedProblemAttributes.put("NonNullMethodTypeVariableFromLegacyMethod", new ProblemAttributes(JavaCore.COMPILER_PB_NONNULL_TYPEVAR_FROM_LEGACY_INVOCATION));
+		expectedProblemAttributes.put("NonPublicTypeInAPI", new ProblemAttributes(JavaCore.COMPILER_PB_API_LEAKS));
 		expectedProblemAttributes.put("NonStaticAccessToStaticField", new ProblemAttributes(JavaCore.COMPILER_PB_STATIC_ACCESS_RECEIVER));
 		expectedProblemAttributes.put("NonStaticAccessToStaticMethod", new ProblemAttributes(JavaCore.COMPILER_PB_STATIC_ACCESS_RECEIVER));
 		expectedProblemAttributes.put("NonStaticContextForEnumMemberType", SKIP);
@@ -1757,6 +1762,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NotAccessibleMethod", SKIP);
 		expectedProblemAttributes.put("NotAccessibleType", SKIP);
 		expectedProblemAttributes.put("NotAccessiblePackage", SKIP);
+		expectedProblemAttributes.put("NotExportedTypeInAPI", new ProblemAttributes(JavaCore.COMPILER_PB_API_LEAKS));
 		expectedProblemAttributes.put("ConflictingPackageFromModules", SKIP);
 		expectedProblemAttributes.put("ConflictingPackageFromOtherModules", SKIP);
 		expectedProblemAttributes.put("NotVisibleConstructor", SKIP);

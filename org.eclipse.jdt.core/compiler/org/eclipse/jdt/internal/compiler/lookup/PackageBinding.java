@@ -40,6 +40,9 @@ public class PackageBinding extends Binding implements TypeConstants {
 
 	public ModuleBinding enclosingModule;
 
+	/** Is this package exported from its module? NB: to query this property use {@link #isExported()} to ensure initialization. */
+	Boolean isExported;
+
 protected PackageBinding() {
 	// for creating problem package
 }
@@ -354,6 +357,18 @@ public boolean isDeclaredIn(ModuleBinding moduleBinding) {
 }
 public boolean subsumes(PackageBinding binding) {
 	return binding == this;
+}
+/**
+ * Is this package exported from its module?
+ * Does not consider export restrictions.
+ */
+public boolean isExported() {
+	if (this.isExported == null) {
+		this.enclosingModule.getExports(); // ensure resolved and completed
+		if (this.isExported == null)
+			this.isExported = Boolean.FALSE;
+	}
+	return this.isExported == Boolean.TRUE;
 }
 /**
  * If this package is uniquely visible to 'module' return a plain PackageBinding.

@@ -1964,6 +1964,12 @@ void setSourceStart(int sourceStart);
 	int ConflictingPackageFromModules = ModuleRelated + 1455;
 	/** @since 3.13 BETA_JAVA9 */
 	int ConflictingPackageFromOtherModules = ModuleRelated + 1456;
+	/** @since 3.13 BETA_JAVA9 */
+	int NonPublicTypeInAPI = ModuleRelated + 1457;
+	/** @since 3.13 BETA_JAVA9 */
+	int NotExportedTypeInAPI = ModuleRelated + 1458;
+	/** @since 3.13 BETA_JAVA9 */
+	int MissingRequiresTransitiveForTypeInAPI = ModuleRelated + 1459;
 
 	/** @since 3.13 */
 	int RedundantNullDefaultAnnotationLocal = Internal + 1062;

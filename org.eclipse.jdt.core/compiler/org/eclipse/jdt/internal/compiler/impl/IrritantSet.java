@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -70,6 +74,7 @@ public class IrritantSet {
 	public static final IrritantSet UNQUALIFIED_FIELD_ACCESS = new IrritantSet(CompilerOptions.UnqualifiedFieldAccess);
 	public static final IrritantSet RESOURCE = new IrritantSet(CompilerOptions.UnclosedCloseable);
 	public static final IrritantSet UNLIKELY_ARGUMENT_TYPE = new IrritantSet(CompilerOptions.UnlikelyCollectionMethodArgumentType);
+	public static final IrritantSet API_LEAK = new IrritantSet(CompilerOptions.APILeak);
 
 	public static final IrritantSet JAVADOC = new IrritantSet(CompilerOptions.InvalidJavadoc);
 	public static final IrritantSet COMPILER_DEFAULT_ERRORS = new IrritantSet(0); // no optional error by default	
@@ -127,7 +132,8 @@ public class IrritantSet {
 				|CompilerOptions.PessimisticNullAnalysisForFreeTypeVariables
 				|CompilerOptions.NonNullTypeVariableFromLegacyInvocation
 				|CompilerOptions.UnlikelyCollectionMethodArgumentType
-				|CompilerOptions.UsingTerminallyDeprecatedAPI);
+				|CompilerOptions.UsingTerminallyDeprecatedAPI
+				|CompilerOptions.APILeak);
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation

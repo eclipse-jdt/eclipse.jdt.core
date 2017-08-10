@@ -1086,8 +1086,16 @@ public PackageBinding createPackage(char[][] compoundName) {
 					return null;
 				}
 			}
-			packageBinding = new PackageBinding(CharOperation.subarray(compoundName, 0, i + 1), parent, this, this.module);
-			packageBinding = parent.addPackage(packageBinding, this.module, true);
+			if (parent instanceof SplitPackageBinding) {
+				// parent.getPackage0() may have been too shy, so drill into the split:
+				PackageBinding singleParent = ((SplitPackageBinding) parent).getIncarnation(this.module);
+				if (singleParent != null)
+					packageBinding = singleParent.getPackage0(compoundName[i]);
+			}
+			if (packageBinding == null) {
+				packageBinding = new PackageBinding(CharOperation.subarray(compoundName, 0, i + 1), parent, this, this.module);
+				packageBinding = parent.addPackage(packageBinding, this.module, true);
+			}
 		}
 	}
 	if (packageBinding instanceof SplitPackageBinding)

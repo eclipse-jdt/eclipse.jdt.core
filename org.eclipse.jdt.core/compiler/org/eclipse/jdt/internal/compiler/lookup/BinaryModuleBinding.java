@@ -102,6 +102,7 @@ public class BinaryModuleBinding extends ModuleBinding {
 			PackageBinding declaredPackage = getVisiblePackage(CharOperation.splitOn('.', export.name()));
 			if (declaredPackage != null) {
 				this.exportedPackages[count++] = declaredPackage;
+				declaredPackage.isExported = Boolean.TRUE;
 				recordExportRestrictions(declaredPackage, export.targets());
 			} else {
 				// TODO(SHMOD): report incomplete module path?
