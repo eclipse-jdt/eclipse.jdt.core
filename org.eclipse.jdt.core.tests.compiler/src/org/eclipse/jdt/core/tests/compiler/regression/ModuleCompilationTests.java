@@ -1606,7 +1606,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 3)\n" +
 			"	public static java.sql.Connection getConnection() {\n" +
 			"	              ^^^^^^^^^^^^^^^^^^^\n" +
-			"The type Connection from module java.sql is not accessible to clients due to missing \'requires transitive\'\n" +
+			"The type Connection from module java.sql may not be accessible to clients due to missing \'requires transitive\'\n" +
 			"----------\n" +
 			"----------\n" +
 			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n" +
@@ -2767,7 +2767,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/p/exp3/C3.java (at line 3)\n" + 
 				"	public void m1(p.exp1.C1 arg) {}\n" + 
 				"	               ^^^^^^^^^\n" + 
-				"The type C1 from module mod.one is not accessible to clients due to missing \'requires transitive\'\n" + 
+				"The type C1 from module mod.one may not be accessible to clients due to missing \'requires transitive\'\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
 				false,

@@ -209,7 +209,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = this.currentProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
 					// just an API leak warning:
-					"The type Connection from module java.sql is not accessible to clients due to missing \'requires transitive\'",
+					"The type Connection from module java.sql may not be accessible to clients due to missing \'requires transitive\'",
 					markers);
 		} finally {
 		}
