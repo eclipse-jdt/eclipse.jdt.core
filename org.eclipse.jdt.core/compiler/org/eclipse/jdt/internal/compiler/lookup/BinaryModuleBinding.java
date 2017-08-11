@@ -27,34 +27,59 @@ import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 
 public class BinaryModuleBinding extends ModuleBinding {
 	
+	private static class AutomaticModuleBinding extends ModuleBinding {
+
+		public AutomaticModuleBinding(IModule module, LookupEnvironment existingEnvironment) {
+			super(module.name(), existingEnvironment);
+			existingEnvironment.root.knownModules.put(this.moduleName, this);
+			this.isAuto = true;
+			this.requires = Binding.NO_MODULES;
+			this.requiresTransitive = Binding.NO_MODULES;
+			this.exportedPackages = Binding.NO_PACKAGES;
+		}
+		public ModuleBinding[] getRequiresTransitive() {
+			if (this.requiresTransitive == NO_MODULES) {
+				char[][] autoModules = ((IModuleAwareNameEnvironment)this.environment.nameEnvironment).getAllAutomaticModules();
+				this.requiresTransitive = Stream.of(autoModules)
+					.filter(name -> !CharOperation.equals(name, this.moduleName))
+					.map(name -> this.environment.getModule(name)).filter(m -> m != null)
+					.toArray(ModuleBinding[]::new);
+			}
+			return this.requiresTransitive;
+		}
+		@Override
+		public char[] nameForLookup() {
+			return ANY_NAMED;
+		}
+	}
+	
 	private IPackageExport[] unresolvedExports;
 	private IPackageExport[] unresolvedOpens;
 	private char[][] unresolvedUses;
 	private IService[] unresolvedProvides;
 	
 	/**
-	 * Construct a named module from binary.
+	 * Construct a named module from binary, could be an auto module.
 	 * <p>
 	 * <strong>Side effects:</strong> adds the new module to root.knownModules and resolves its directives.
 	 * </p>
 	 */
-	public BinaryModuleBinding(IModule module, LookupEnvironment existingEnvironment) {
+	public static ModuleBinding create(IModule module, LookupEnvironment existingEnvironment) {
+		if (module.isAutomatic())
+			return new AutomaticModuleBinding(module, existingEnvironment);
+		return new BinaryModuleBinding(module, existingEnvironment);
+	}
+
+	private BinaryModuleBinding(IModule module, LookupEnvironment existingEnvironment) {
 		super(module.name(), existingEnvironment);
 		existingEnvironment.root.knownModules.put(this.moduleName, this);
 		cachePartsFrom(module);
 	}
 	
 	void cachePartsFrom(IModule module) {
-		this.isAuto = module.isAutomatic();
-
 		if (module.isOpen())
 			this.modifiers |= ClassFileConstants.ACC_OPEN;
 
-		if (this.isAuto) {
-			this.requires = Binding.NO_MODULES;
-			this.requiresTransitive = Binding.NO_MODULES;
-			this.exportedPackages = Binding.NO_PACKAGES;
-		} else {
 		IModuleReference[] requiresReferences = module.requires();
 		this.requires = new ModuleBinding[requiresReferences.length];
 		this.requiresTransitive = new ModuleBinding[requiresReferences.length];
@@ -73,7 +98,7 @@ public class BinaryModuleBinding extends ModuleBinding {
 			System.arraycopy(this.requires, 0, this.requires = new ModuleBinding[count], 0, count);
 		if (transitiveCount < this.requiresTransitive.length)
 			System.arraycopy(this.requiresTransitive, 0, this.requiresTransitive = new ModuleBinding[transitiveCount], 0, transitiveCount);
-		}
+
 		this.unresolvedExports = module.exports();
 		this.unresolvedOpens = module.opens();
 		this.unresolvedUses = module.uses();
@@ -149,18 +174,6 @@ public class BinaryModuleBinding extends ModuleBinding {
 		if (this.implementations == null)
 			resolveServices();
 		return super.getImplementations(binding);
-	}
-	public ModuleBinding[] getRequiresTransitive() {
-		if (this.isAuto) {
-			if (this.requiresTransitive == NO_MODULES) {
-				char[][] autoModules = ((IModuleAwareNameEnvironment)this.environment.nameEnvironment).getAllAutomaticModules();
-				return this.requiresTransitive = Stream.of(autoModules)
-					.filter(name -> !CharOperation.equals(name, this.moduleName))
-					.map(name -> this.environment.getModule(name)).filter(m -> m != null)
-					.toArray(ModuleBinding[]::new);
-			}
-		}
-		return super.getRequiresTransitive();
 	}
 	private void resolveServices() {
 		this.services = new TypeBinding[this.unresolvedProvides.length];

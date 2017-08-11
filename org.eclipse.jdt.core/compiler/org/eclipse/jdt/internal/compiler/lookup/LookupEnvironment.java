@@ -207,7 +207,7 @@ public ModuleBinding getModule(char[] name) {
 		if (this.useModuleSystem) {
 			IModule mod = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModule(name);
 			if (mod != null) {
-				moduleBinding = new BinaryModuleBinding(mod, this);
+				moduleBinding = BinaryModuleBinding.create(mod, this);
 			}
 		} else 
 			return this.UnNamedModule;
@@ -422,7 +422,7 @@ private ModuleBinding getModuleFromAnswer(NameEnvironmentAnswer answer) {
 			if (moduleBinding == null && this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
 				assert answer.isBinaryType();
 				IModule iModule = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModule(moduleName);
-				moduleBinding = new BinaryModuleBinding(iModule, this);
+				moduleBinding = BinaryModuleBinding.create(iModule, this);
 			}
 		}
 		return moduleBinding;

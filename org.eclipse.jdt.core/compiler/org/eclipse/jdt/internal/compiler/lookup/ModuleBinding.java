@@ -83,6 +83,10 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			return true;
 		}
 		@Override
+		public char[] nameForLookup() {
+			return ANY;
+		}
+		@Override
 		public char[] readableName() {
 			return UNNAMED_READABLE_NAME;
 		}
@@ -105,7 +109,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	public LookupEnvironment environment;
 	public int tagBits;
 	ModuleBinding[] requiredModules = null;
-	boolean isAuto;
+	boolean isAuto = false;
 	private boolean[] isComplete = new boolean[UpdateKind.values().length];
 	private Set<ModuleBinding> transitiveRequires;
 
@@ -133,7 +137,6 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		this.uses = Binding.NO_TYPES;
 		this.services = Binding.NO_TYPES;
 		this.declaredPackages = new HashtableOfPackage(5);
-		this.isAuto = false;
 	}
 
 	/* For sub class BinaryModuleBinding */
@@ -365,16 +368,11 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 
 	/**
 	 * Answer the name of this module as it should be used for package or type lookup.
-	 * Unnamed and automatic modules answer {@link #ANY}, to signal that lookup should
-	 * search in all accessible modules.
+	 * Unnamed and automatic modules answer {@link #ANY} or {@link #ANY_NAMED} resp.,
+	 * to signal that lookup should search in all accessible (named) modules.
 	 */
 	public char[] nameForLookup() {
-		if (this.moduleName == UNNAMED)
-			return ANY;
-		else if (this.isAuto)
-			return ANY_NAMED;
-		else
-			return this.moduleName;
+		return this.moduleName;
 	}
 
 	/**
