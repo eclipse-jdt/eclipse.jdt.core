@@ -3350,10 +3350,11 @@ private void setJavaHome(String javaHome) {
 		String ver = prop.getProperty("JAVA_VERSION"); //$NON-NLS-1$
 		if (ver != null)
 			ver = ver.replace("\"", "");  //$NON-NLS-1$//$NON-NLS-2$
+		this.javaHomeCache = new File(javaHome);
+		this.javaHomeChecked = true;
 	} catch (IOException e) {
-		throw new IllegalArgumentException(this.bind("configure.invalidSystem", this.javaHomeCache.toString())); //$NON-NLS-1$
+		throw new IllegalArgumentException(this.bind("configure.invalidSystem", javaHome)); //$NON-NLS-1$
 	}
-	this.javaHomeChecked = true;
 }
 /*
  * External API
