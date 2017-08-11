@@ -41,6 +41,8 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -4742,6 +4744,74 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		} finally {
 			this.deleteProject("test");
 			this.deleteProject("com.greetings");
+			this.deleteProject("org.astro");
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	public void testBug519935() throws CoreException, IOException {
+		if (!isJRE9) return;
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		try {
+			String[] src = new String[] { 
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" +
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", src);
+			src = new String[] { 
+				"src/org/eclipse/pack/Test.java",
+				"package org.eclipse.pack;\n" +
+				"import org.astro.World;\n" +
+				"public class Test implements World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			IJavaProject p2 = setupModuleProject("test", src, new IClasspathEntry[] {dep});
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			src = new String[] { 
+				"src/module-info.java",
+				"module test_automodules {\n" +
+				"	requires bin;\n" +
+				"	requires org.astro;\n" +
+				"}",
+				"src/test/Main.java",
+				"package test;\n" +
+				"import org.eclipse.pack.Test;\n" +
+				"import org.astro.*;\n" +
+				"public class Main {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		World world = new Test();\n" +
+				"		System.out.println(world.name());\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			dep = JavaCore.newLibraryEntry(p2.getProject().findMember("bin").getFullPath(), null, null,
+				ClasspathEntry.NO_ACCESS_RULES,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			modAttr = new ClasspathAttribute("module", "true");
+			IClasspathEntry dep2 = JavaCore.newProjectEntry(p1.getPath(), null, true,
+				new IClasspathAttribute[] {modAttr},
+				false/*not exported*/);
+			setupModuleProject("testSOE", src, new IClasspathEntry[] {dep, dep2});
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getCompilationUnit("/testSOE/src/test/Main.java").getWorkingCopy(this.wcOwner, null);
+			this.problemRequestor.initialize(src[3].toCharArray());
+			CompilationUnit unit = this.workingCopies[0].reconcile(AST.JLS9, true, this.wcOwner, null);
+			assertNotNull("Could not reconcile", unit);
+		} finally {
+			this.deleteProject("test");
+			this.deleteProject("testSOE");
 			this.deleteProject("org.astro");
 			JavaCore.setOptions(javaCoreOptions);
 		}
