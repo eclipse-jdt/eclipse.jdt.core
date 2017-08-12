@@ -37,6 +37,8 @@ public abstract class CodeFormatter {
 	/**
 	 * Kind used to format an expression
 	 * <p>
+	 * This kind is not applicable to module descriptions.
+	 * </p><p>
 	 * Note that using this constant, the comments encountered while formatting
 	 * the expression may be shifted to match the correct indentation but are not
 	 * formatted.
@@ -51,6 +53,8 @@ public abstract class CodeFormatter {
 	/**
 	 * Kind used to format a set of statements
 	 * <p>
+	 * This kind is not applicable to module descriptions.
+	 * </p><p>
 	 * Note that using this constant, the comments encountered while formatting
 	 * the statements may be shifted to match the correct indentation but are not
 	 * formatted.
@@ -65,6 +69,8 @@ public abstract class CodeFormatter {
 	/**
 	 * Kind used to format a set of class body declarations
 	 * <p>
+	 * This kind is not applicable to module descriptions.
+	 * </p><p>
 	 * Note that using this constant, the comments encountered while formatting
 	 * the body declarations may be shifted to match the correct indentation but
 	 * are not formatted.
@@ -80,7 +86,7 @@ public abstract class CodeFormatter {
 	 * Kind used to format a compilation unit
 	 * <p>
 	 * <u>Note:</u> <b>since 3.13 BETA_JAVA9</b>, if the formatted compilation unit is a
-	 * module declaration (i.e. it's named module-info.java), the
+	 * module description (i.e. it's named module-info.java), the
 	 * {@link #K_MODULE_INFO} kind must be used instead.
 	 * </p><p>
 	 * <b>Since 3.4</b>, if the corresponding comment option is set to
@@ -131,7 +137,7 @@ public abstract class CodeFormatter {
 	 * 		<li>{@link #K_CLASS_BODY_DECLARATIONS} <i>(since 3.6)</i></li>
 	 * 		<li>{@link #K_EXPRESSION} <i>(since 3.6)</i></li>
 	 * 		<li>{@link #K_STATEMENTS} <i>(since 3.6)</i></li>
-	 * 		<li>{@link #K_MODULE_INFO} <i>(since 3.13 BETA_JAVA9</i></li>
+	 * 		<li>{@link #K_MODULE_INFO} <i>(since 3.13 BETA_JAVA9)</i></li>
 	 * </ul>
 	 * </p><p>
 	 * Note also that it has an effect only when one or several format comments
@@ -221,7 +227,7 @@ public abstract class CodeFormatter {
 	 * 	<li>{@link #K_MULTI_LINE_COMMENT}</li>
 	 * 	<li>{@link #K_JAVA_DOC}</li>
 	 * </ul>
-	 * <b>Since 3.4</b> for {@link #K_MODULE_INFO} and <b>since 3.6</b> for other
+	 * <b>Since 3.4</b> for {@link #K_COMPILATION_UNIT} and <b>since 3.6</b> for other
 	 * kinds unrelated to comments, the {@link #F_INCLUDE_COMMENTS} flag can be
 	 * used to format comments on the fly (see the flag documentation for more
 	 * detailed explanation).
@@ -264,7 +270,7 @@ public abstract class CodeFormatter {
 	 * 	<li>{@link #K_MULTI_LINE_COMMENT}</li>
 	 * 	<li>{@link #K_JAVA_DOC}</li>
 	 * </ul>
-	 * <b>Since 3.4</b> for {@link #K_MODULE_INFO} and <b>since 3.6</b> for other
+	 * <b>Since 3.4</b> for {@link #K_COMPILATION_UNIT} and <b>since 3.6</b> for other
 	 * kinds unrelated to comments, the {@link #F_INCLUDE_COMMENTS} flag can be
 	 * used to format comments on the fly (see the flag documentation for more
 	 * detailed explanation).
