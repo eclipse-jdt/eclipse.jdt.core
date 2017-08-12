@@ -3340,7 +3340,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"org.astro.World cannot be resolved to a type\n" +
 					"The package org.astro conflicts with a package accessible from another module: org.astro",  markers);
 		} finally {
 			deleteProject("org.astro");

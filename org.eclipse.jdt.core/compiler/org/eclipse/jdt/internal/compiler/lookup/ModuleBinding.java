@@ -228,6 +228,19 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		} else {
 			// TODO(SHMOD) report error
 		}
+		// update known packages:
+		HashtableOfPackage knownPackages = this.environment.knownPackages;
+		for (int i = 0; i < knownPackages.valueTable.length; i++) {
+			PackageBinding packageBinding = knownPackages.valueTable[i];
+			if (packageBinding == null) continue;
+			PackageBinding newBinding = requiredModule.getVisiblePackage(packageBinding.compoundName);
+			newBinding = SplitPackageBinding.combine(newBinding, packageBinding, this);
+			if (packageBinding != newBinding) {
+				knownPackages.valueTable[i] = newBinding;
+				if (this.declaredPackages.containsKey(newBinding.readableName()))
+					this.declaredPackages.put(newBinding.readableName(), newBinding);
+			}
+		}
 	}
 	@Override
 	public void addExports(char[] packageName, char[][] targetModules) {
