@@ -1169,9 +1169,9 @@ boolean hasNonNullDefaultFor(int location, boolean useTypeAnnotations, int sourc
 	}
 	// package
 	if (useTypeAnnotations)
-		return (this.getPackage().defaultNullness & location) != 0;
+		return (this.getPackage().getDefaultNullness() & location) != 0;
 	else
-		return this.getPackage().defaultNullness == NONNULL_BY_DEFAULT;
+		return this.getPackage().getDefaultNullness() == NONNULL_BY_DEFAULT;
 }
 
 int getNullDefault() {

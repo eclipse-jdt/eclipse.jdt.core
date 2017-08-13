@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
-/** Marker interface for usage of {@link org.eclipse.jdt.internal.compiler.classfmt.ModuleInfo} outside the compiler proper. */
 public interface IBinaryModule extends IModule {
-	// empty
+	public IBinaryAnnotation[] getAnnotations();
 }

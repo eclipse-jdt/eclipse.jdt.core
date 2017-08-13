@@ -126,7 +126,13 @@ public void acceptResult(CompilationResult result) {
 	// Before reporting the new problems, we need to update the problem count &
 	// remove the old problems. Plus delete additional class files that no longer exist.
 
-	SourceFile compilationUnit = (SourceFile) result.getCompilationUnit(); // go directly back to the sourceFile
+	ICompilationUnit resultCU = result.getCompilationUnit();
+	if (!(resultCU instanceof SourceFile)) {
+		return; // can happen for secondary module redirected via CompilationUnit
+		// we should never have to report errors etc for those, but this entire construction is a kludge,
+		// working around lack of support for modules in SourceTypeConverter
+	}
+	SourceFile compilationUnit = (SourceFile) resultCU; // go directly back to the sourceFile
 	if (!this.workQueue.isCompiled(compilationUnit)) {
 		this.workQueue.finished(compilationUnit);
 
