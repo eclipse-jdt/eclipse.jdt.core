@@ -298,6 +298,9 @@ public final class ASTRewriteFormatter {
 				case ASTNode.COMPILATION_UNIT:
 					code= CodeFormatter.K_COMPILATION_UNIT;
 					break;
+				case ASTNode.MODULE_DECLARATION:
+					code= CodeFormatter.K_MODULE_INFO;
+					break;
 				case ASTNode.VARIABLE_DECLARATION_EXPRESSION:
 					suffix= ";"; //$NON-NLS-1$
 					code= CodeFormatter.K_STATEMENTS;
