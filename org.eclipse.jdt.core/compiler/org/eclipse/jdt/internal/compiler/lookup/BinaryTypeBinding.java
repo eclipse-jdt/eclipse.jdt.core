@@ -2106,6 +2106,8 @@ public FieldBinding[] unResolvedFields() {
 	return this.fields;
 }
 public ModuleBinding module() {
+	if (!isPrototype())
+		return this.prototype.module;
 	return this.module;
 }
 }

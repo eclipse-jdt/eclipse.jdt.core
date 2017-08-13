@@ -1815,7 +1815,7 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 						field.tagBits &= ~TagBits.AnnotationNullMASK;
 				}
 			}
-			if (initializationScope.shouldCheckAPILeaks(this, field.isPublic()))
+			if (initializationScope.shouldCheckAPILeaks(this, field.isPublic()) && fieldDecl.type != null) // fieldDecl.type is null for enum constants
 				initializationScope.detectAPILeaks(fieldDecl.type, fieldType);
 		} finally {
 		    initializationScope.initializedField = previousField;
@@ -2684,6 +2684,8 @@ public void tagIndirectlyAccessibleMembers() {
 			((SourceTypeBinding) this.superclass).tagIndirectlyAccessibleMembers();
 }
 public ModuleBinding module() {
+	if (!isPrototype())
+		return this.prototype.module;
 	return this.module;
 }
 }

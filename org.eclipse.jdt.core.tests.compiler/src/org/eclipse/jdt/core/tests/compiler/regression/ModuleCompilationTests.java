@@ -2773,4 +2773,90 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				false,
 				"is not indirectly exported");
 	}
+
+	// annotated types in API
+	public void testAPILeakDetection6() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports p.exp;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "exp", "C1.java", 
+						"package p.exp;\n" +
+						"import java.lang.annotation.*;\n" +
+						"@Target(ElementType.TYPE_USE)\n" +
+						"@interface ANN {}\n" +
+						"class C0 {}\n" +
+						"public class C1 {\n" +
+						"	public @ANN String f1;\n" +
+						"	public @ANN C0 f3;\n" +
+						"	public @ANN String test(@ANN String arg, @ANN C0 c) { return \"\"; }\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -err:exports")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files, buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/exp/C1.java (at line 8)\n" + 
+				"	public @ANN C0 f3;\n" + 
+				"	            ^^\n" + 
+				"The type C0 is not accessible to clients that require this module\n" + 
+				"----------\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/exp/C1.java (at line 9)\n" + 
+				"	public @ANN String test(@ANN String arg, @ANN C0 c) { return \"\"; }\n" + 
+				"	                                              ^^\n" + 
+				"The type C0 is not accessible to clients that require this module\n" + 
+				"----------\n" + 
+				"2 problems (2 errors)\n",
+				false,
+				"is not accessible to clients");
+	}
+
+	// enum API
+	public void testAPILeakDetection7() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports p.exp;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "exp", "C1.java", 
+						"package p.exp;\n" +
+						"public enum C1 {\n" +
+						"	X, Y, Z;\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -err:exports")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runConformModuleTest(files, buffer,
+				"",
+				"",
+				false);
+	}
 }
