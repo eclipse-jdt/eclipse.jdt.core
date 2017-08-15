@@ -24,9 +24,9 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.env.IBinaryModule;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -257,7 +257,7 @@ private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayLi
 }
 private void generateModuleInfos(ClassFile classFile, IBinaryType info, HashMap newElements, ArrayList childrenHandles) {
 	// TODO: The following needs fix once we can get ModuleDeclaration from IndexBinaryType
-	IModule modDecl = (info instanceof ClassFileReader) ? ((ClassFileReader) info).getModuleDeclaration() : null;
+	IBinaryModule modDecl = (info instanceof ClassFileReader) ? ((ClassFileReader) info).getModuleDeclaration() : null;
 	if (modDecl != null) {
 		char[] modName = modDecl.name();
 		BinaryModule handle = new BinaryModule(classFile, new String(modName));

@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.env.IBinaryModule;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
@@ -55,7 +56,7 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private AnnotationInfo[] annotations;
 	private TypeAnnotationInfo[] typeAnnotations;
 	private FieldInfo[] fields;
-	private IModule moduleDeclaration;
+	private IBinaryModule moduleDeclaration;
 	public char[] moduleName;
 	private int fieldsCount;
 
@@ -618,7 +619,7 @@ public char[] getModule() {
  * 
  * @return the module declaration this represents
  */
-public IModule getModuleDeclaration() {
+public IBinaryModule getModuleDeclaration() {
 	return this.moduleDeclaration;
 }
 

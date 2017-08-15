@@ -18,11 +18,11 @@ import org.eclipse.core.resources.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.batch.BasicModule;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
-import org.eclipse.jdt.internal.core.ModuleInfo;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathMultiDirectory extends ClasspathDirectory {
@@ -81,10 +81,7 @@ public void acceptModuleInfo(ICompilationUnit cu, Parser parser) {
 	CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 	// Request could also come in when module-info has changed or removed.
 	if (unit.isModuleInfo() && unit.moduleDeclaration != null) {
-		IModule decl = ModuleInfo.createModule(unit.moduleDeclaration);
-		if (decl != null) {
-			this.module = decl;
-		}
+		this.module = new BasicModule(unit.moduleDeclaration, null);
 	}
 }
 public void setModule(IModule mod) {
