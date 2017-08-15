@@ -68,14 +68,25 @@ public boolean equals(Object obj) {
 public char[] getContents() {
 	char[] contents = (this.source == NO_SOURCE_FILE) ? null : this.source;
 	if (this.source == null) {
-		if (this.openable instanceof ClassFile) {
+		if (this.openable instanceof AbstractClassFile) {
 			String fileName = getSourceFileName();
 			if (fileName == NO_SOURCE_FILE_NAME) return CharOperation.NO_CHAR;
 
 			SourceMapper sourceMapper = this.openable.getSourceMapper();
 			if (sourceMapper != null) {
-				IType type = ((ClassFile) this.openable).getType();
-				contents = sourceMapper.findSource(type, fileName);
+				if (this.openable instanceof ClassFile) {
+					IType type = ((ClassFile) this.openable).getType();
+					contents = sourceMapper.findSource(type, fileName);
+				} else if (this.openable instanceof ModularClassFile) {
+					// FIXME(SHMOD): not working
+					try {
+						IModuleDescription module = ((ModularClassFile) this.openable).getModule();
+						contents = sourceMapper.findSource(module.getElementName()); // FIXME(SHMOD)
+					} catch (JavaModelException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
 			}
 		} else {
 			contents = this.document.getCharContents();
@@ -124,6 +135,11 @@ private char[] getQualifiedName() {
 		String simpleName = index==-1 ? fileName : fileName.substring(0, index);
 		PackageFragment pkg = (PackageFragment) this.openable.getParent();
 		return Util.concatWith(pkg.names, simpleName, '.').toCharArray();
+	} else if (this.openable instanceof ModularClassFile) {
+		// FIXME(SHMOD): not useful
+		String simpleName = TypeConstants.MODULE_INFO_NAME_STRING;
+		PackageFragment pkg = (PackageFragment) this.openable.getParent();
+		return Util.concatWith(pkg.names, simpleName, '.').toCharArray();
 	}
 	return null;
 }
@@ -139,11 +155,16 @@ private String getSourceFileName() {
 
 	this.sourceFileName = NO_SOURCE_FILE_NAME;
 	if (this.openable.getSourceMapper() != null) {
-		BinaryType type = (BinaryType) ((ClassFile) this.openable).getType();
-		IBinaryType reader = MatchLocator.classFileReader(type);
-		if (reader != null) {
-			String fileName = type.sourceFileName(reader);
-			this.sourceFileName = fileName == null ? NO_SOURCE_FILE_NAME : fileName;
+		if (this.openable instanceof ClassFile) {
+			BinaryType type = (BinaryType) ((ClassFile) this.openable).getType();
+			IBinaryType reader = MatchLocator.classFileReader(type);
+			if (reader != null) {
+				String fileName = type.sourceFileName(reader);
+				this.sourceFileName = fileName == null ? NO_SOURCE_FILE_NAME : fileName;
+			}
+		} else if (this.openable instanceof ModularClassFile) {
+			// FIXME(SHMOD): premature
+			this.sourceFileName = TypeConstants.MODULE_INFO_FILE_NAME_STRING;
 		}
 	}
 	return this.sourceFileName;

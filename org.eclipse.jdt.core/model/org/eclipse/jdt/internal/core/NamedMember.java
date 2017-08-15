@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IModularClassFile;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
@@ -213,6 +214,8 @@ public abstract class NamedMember extends Member {
 				}
 				return this.name;
 			case IJavaElement.CLASS_FILE:
+				if (this.parent instanceof IModularClassFile)
+					return null;
 				String classFileName = this.parent.getElementName();
 				String typeName;
 				if (classFileName.indexOf('$') == -1) {

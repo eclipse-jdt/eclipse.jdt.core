@@ -824,7 +824,10 @@ public class DeltaProcessor {
 							// create class file handle
 							// fileName validation has been done in elementType(IResourceDelta, int, boolean)
 							String fileName = path.lastSegment();
-							element = pkgFragment.getClassFile(fileName);
+							if (TypeConstants.MODULE_INFO_CLASS_NAME_STRING.equals(fileName))
+								element = pkgFragment.getModularClassFile();
+							else
+								element = pkgFragment.getClassFile(fileName);
 						}
 					}
 				}

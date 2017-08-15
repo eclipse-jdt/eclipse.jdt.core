@@ -19,7 +19,6 @@ import java.util.HashMap;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
@@ -255,17 +254,6 @@ private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayLi
 		}
 	}
 }
-private void generateModuleInfos(ClassFile classFile, IBinaryType info, HashMap newElements, ArrayList childrenHandles) {
-	// TODO: The following needs fix once we can get ModuleDeclaration from IndexBinaryType
-	IBinaryModule modDecl = (info instanceof ClassFileReader) ? ((ClassFileReader) info).getModuleDeclaration() : null;
-	if (modDecl != null) {
-		char[] modName = modDecl.name();
-		BinaryModule handle = new BinaryModule(classFile, new String(modName));
-		ModuleDescriptionInfo moduleInfo = ModuleDescriptionInfo.createModule(modDecl);
-		setModule(handle);
-		newElements.put(handle, moduleInfo);
-	}
-}
 /**
  * Creates the handles and infos for the methods of the given binary type.
  * Adds new handles to the given vector.
@@ -425,13 +413,6 @@ private void generateTypeParameterInfos(BinaryMember parent, char[] signature, H
 	}
 }
 /**
- * Returns true iff the <code>readBinaryChildren</code> has already
- * been called.
- */
-boolean hasReadBinaryChildren() {
-	return this.binaryChildren != null;
-}
-/**
  * Creates the handles for <code>BinaryMember</code>s defined in this
  * <code>ClassFile</code> and adds them to the
  * <code>JavaModelManager</code>'s cache.
@@ -446,9 +427,6 @@ protected void readBinaryChildren(ClassFile classFile, HashMap newElements, IBin
 		generateFieldInfos(type, typeInfo, newElements, childrenHandles);
 		generateMethodInfos(type, typeInfo, newElements, childrenHandles, typeParameterHandles);
 		generateInnerClassHandles(type, typeInfo, childrenHandles); // Note inner class are separate openables that are not opened here: no need to pass in newElements
-		if (Flags.isModule(typeInfo.getModifiers())) {
-			generateModuleInfos(classFile, typeInfo, newElements, childrenHandles);
-		}
 	}
 
 	this.binaryChildren = new JavaElement[childrenHandles.size()];
@@ -460,6 +438,21 @@ protected void readBinaryChildren(ClassFile classFile, HashMap newElements, IBin
 		this.typeParameters = new ITypeParameter[typeParameterHandleSize];
 		typeParameterHandles.toArray(this.typeParameters);
 	}
+}
+protected BinaryModule readBinaryModule(AbstractClassFile classFile, HashMap newElements, IBinaryModule modDecl) {
+	this.binaryChildren = JavaElement.NO_ELEMENTS;
+	this.typeParameters = TypeParameter.NO_TYPE_PARAMETERS;
+	if (modDecl != null) {//may not be a valid class file
+		// TODO: The following needs fix once we can get ModuleDeclaration from IndexBinaryType
+		char[] modName = modDecl.name();
+		BinaryModule handle = new BinaryModule(classFile, new String(modName));
+		ModuleDescriptionInfo moduleInfo = ModuleDescriptionInfo.createModule(modDecl);
+		setModule(handle);
+		newElements.put(handle, moduleInfo);
+		this.binaryChildren = new JavaElement[] { handle };
+		return handle;
+	}
+	return null;
 }
 /**
  * Removes the binary children handles and remove their infos from

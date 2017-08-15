@@ -472,6 +472,7 @@ public interface TypeConstants {
 	// synthetic package-info name
 	public static final char[] PACKAGE_INFO_NAME = "package-info".toCharArray(); //$NON-NLS-1$
 	public static final char[] MODULE_INFO_NAME = "module-info".toCharArray(); //$NON-NLS-1$
+	public static final String MODULE_INFO_NAME_STRING = "module-info"; //$NON-NLS-1$
 	public static final char[] MODULE_INFO_FILE_NAME = "module-info.java".toCharArray(); //$NON-NLS-1$
 	public static final char[] MODULE_INFO_CLASS_NAME = "module-info.class".toCharArray(); //$NON-NLS-1$
 	public static final String MODULE_INFO_FILE_NAME_STRING = "module-info.java"; //$NON-NLS-1$

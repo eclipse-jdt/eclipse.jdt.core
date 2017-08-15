@@ -24,7 +24,9 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
@@ -846,10 +848,43 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertTrue("Invalid selection result", (elements[0] instanceof BinaryModule));
 			IModuleDescription mod = (IModuleDescription) elements[0];
 			String id = mod.getHandleIdentifier();
-			assertTrue("incorrect id", id.matches("=Java9Elements/.*"+Pattern.quote("\\/jmods\\/java.base.jmod<(module-info.class`java.base")));
+			assertTrue("incorrect id", id.matches("=Java9Elements/.*"+Pattern.quote("\\/jmods\\/java.base.jmod<'`java.base")));
 			IJavaElement element = JavaCore.create(id);
 			assertEquals("incorrect element type", IJavaElement.JAVA_MODULE, element.getElementType());
 			assertEquals("incorrect module name", "java.base", element.getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void test_binary_module_bug520651() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+			project.open(null);
+			ITypeRoot classFile = null;
+			IModuleDescription moduleDescription = null;
+			for (IPackageFragmentRoot root : project.getAllPackageFragmentRoots()) {
+				moduleDescription = root.getModuleDescription();
+				if (moduleDescription != null && moduleDescription.getElementName().equals("java.base")) {
+					try {
+						classFile = root.getPackageFragment("").getOrdinaryClassFile("module-info.class");
+						fail("getOrdinaryClassFile() should not answer module-info.class");
+					} catch (IllegalArgumentException iae) {
+						// expected
+					}
+					classFile = root.getPackageFragment("").getModularClassFile();
+					break;
+				}
+			}
+			assertNotNull("classfile should not be null", classFile);
+			assertEquals("same module", moduleDescription, classFile.getModule());
+			IJavaElement[] children = classFile.getChildren();
+			assertEquals("number of children", 1, children.length);
+			IJavaElement child = children[0];
+			assertTrue("type of child", child instanceof BinaryModule);
+			assertEquals("module name", "java.base", child.getElementName());
+			BinaryModule mod = (BinaryModule) child;
+			assertEquals("# mod children", 0, mod.getChildren().length);
 		}
 		finally {
 			deleteProject("Java9Elements");

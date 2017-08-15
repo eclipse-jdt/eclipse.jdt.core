@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModularClassFile;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -78,7 +79,10 @@ private void initAttributes(IJavaElement javaElement) {
 
 				switch (javaElement.getElementType()) {
 					case IJavaElement.CLASS_FILE:
-						module = ((ClassFile) javaElement).getPackageFragmentRoot().getModuleDescription();
+						if (javaElement instanceof IModularClassFile)
+							module = ((IModularClassFile) javaElement).getModule();
+						else
+							module = ((ClassFile) javaElement).getPackageFragmentRoot().getModuleDescription();
 						break;
 					case IJavaElement.COMPILATION_UNIT:
 						IFile file = (IFile) javaElement.getResource();

@@ -25,9 +25,7 @@ public class BinaryModule extends AbstractModule {
 	 * @see IParent#getChildren()
 	 */
 	public IJavaElement[] getChildren() throws JavaModelException {
-		ClassFile cf = (ClassFile) this.parent;
-		ClassFileInfo cfi = (ClassFileInfo) cf.getElementInfo();
-		return cfi.binaryChildren;
+		return NO_ELEMENTS;
 	}
 	@Override
 	public int getFlags() throws JavaModelException {

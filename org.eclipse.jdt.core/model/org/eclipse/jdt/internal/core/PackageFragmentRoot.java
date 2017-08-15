@@ -450,7 +450,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			if (memento.hasMoreTokens()) {
 				token = memento.nextToken();
 				char firstChar = token.charAt(0);
-				if (firstChar == JEM_CLASSFILE || firstChar == JEM_COMPILATIONUNIT || firstChar == JEM_COUNT) {
+				if (firstChar == JEM_CLASSFILE || firstChar == JEM_MODULAR_CLASSFILE || firstChar == JEM_COMPILATIONUNIT || firstChar == JEM_COUNT) {
 					pkgName = CharOperation.NO_STRINGS;
 				} else {
 					pkgName = Util.splitOn('.', token, 0, token.length());
@@ -870,8 +870,8 @@ public IModuleDescription getModuleDescription() {
 							return info.getModule();
 					}
 				} else {
-					IClassFile classFile = ((IPackageFragment)pkgs[j]).getClassFile(TypeConstants.MODULE_INFO_CLASS_NAME_STRING);
-					if (classFile instanceof ClassFile && classFile.exists()) {
+					IModularClassFile classFile = ((IPackageFragment)pkgs[j]).getModularClassFile();
+					if (classFile.exists()) {
 						return classFile.getModule();
 					}
 				}

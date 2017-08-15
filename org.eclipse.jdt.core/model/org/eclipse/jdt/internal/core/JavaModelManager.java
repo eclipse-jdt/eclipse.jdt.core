@@ -128,6 +128,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
@@ -1069,6 +1070,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			PackageFragmentRoot root = (PackageFragmentRoot) project.getPackageFragmentRoot(file.getParent());
 			pkg = root.getPackageFragment(CharOperation.NO_STRINGS);
 		}
+		String fileName = file.getName();
+		if (TypeConstants.MODULE_INFO_CLASS_NAME_STRING.equals(fileName))
+			return pkg.getModularClassFile();
 		return pkg.getClassFile(file.getName());
 	}
 

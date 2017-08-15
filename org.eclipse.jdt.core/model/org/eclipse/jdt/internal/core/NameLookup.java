@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IOpenable;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ISourceRange;
@@ -1638,11 +1639,13 @@ public class NameLookup implements SuffixConstants {
 					// MatchName will never have the extension ".class" and the elementName always will.
 					String elementName = classFile.getElementName();
 					if (elementName.regionMatches(true /*ignore case*/, 0, name, 0, matchLength)) {
-						IType type = ((ClassFile) classFile).getType();
-						String typeName = type.getElementName();
-						if (typeName.length() > 0 && !Character.isDigit(typeName.charAt(0))) { //not an anonymous type
-							if (nameMatches(unqualifiedName, type, true/*partial match*/) && acceptType(type, acceptFlags, false/*not a source type*/))
-								requestor.acceptType(type);
+						if (classFile instanceof IOrdinaryClassFile) {
+							IType type = ((IOrdinaryClassFile) classFile).getType();
+							String typeName = type.getElementName();
+							if (typeName.length() > 0 && !Character.isDigit(typeName.charAt(0))) { //not an anonymous type
+								if (nameMatches(unqualifiedName, type, true/*partial match*/) && acceptType(type, acceptFlags, false/*not a source type*/))
+									requestor.acceptType(type);
+							}
 						}
 					}
 				}

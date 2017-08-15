@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2016, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -111,6 +111,7 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 	
 	public static ModuleDescriptionInfo createModule(IModule module) {
 		ModuleDescriptionInfo mod = new ModuleDescriptionInfo();
+		mod.children = JavaElement.NO_ELEMENTS;
 		mod.name = module.name();
 		mod.isOpen = module.isOpen();
 		if (module.requires().length > 0) {

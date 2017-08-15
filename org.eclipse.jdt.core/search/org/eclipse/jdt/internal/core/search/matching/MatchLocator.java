@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IOpenable;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ISourceRange;
@@ -780,7 +781,7 @@ protected IType createTypeHandle(String simpleTypeName) {
 
 	// type name may be null for anonymous (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=164791)
 	String classFileName = simpleTypeName.length() == 0 ? binaryTypeQualifiedName : simpleTypeName;
-	IClassFile classFile = binaryType.getPackageFragment().getClassFile(classFileName + SuffixConstants.SUFFIX_STRING_class);
+	IOrdinaryClassFile classFile = binaryType.getPackageFragment().getOrdinaryClassFile(classFileName + SuffixConstants.SUFFIX_STRING_class);
 	return classFile.getType();
 }
 protected boolean encloses(IJavaElement element) {
@@ -2891,7 +2892,7 @@ protected void reportMatching(ModuleDeclaration module, IJavaElement parent, int
 			// do nothing
 		}
 	}
-	if (moduleDesc == null) // should not happen - safety net.
+	if (moduleDesc == null) // could theoretically happen if openable is ICompilationUnit, but logically having a module should prevent this from happening
 		return;
 	if (accuracy > -1) { // report module declaration
 		SearchMatch match = this.patternLocator.newDeclarationMatch(module, moduleDesc, module.binding, accuracy, module.moduleName.length, this);
@@ -3001,7 +3002,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 				if ((type.bits & ASTNode.IsAnonymousType) != 0) {
 					if (fileName != null) {
 						if (fileName.endsWith("jar") || fileName.endsWith(SuffixConstants.SUFFIX_STRING_class)) { //$NON-NLS-1$
-							IClassFile classFile= binaryType.getPackageFragment().getClassFile(binaryType.getTypeQualifiedName() + 
+							IOrdinaryClassFile classFile= binaryType.getPackageFragment().getOrdinaryClassFile(binaryType.getTypeQualifiedName() + 
 									"$" + Integer.toString(occurrenceCount) + SuffixConstants.SUFFIX_STRING_class);//$NON-NLS-1$
 							anonType =  classFile.getType();
 						}

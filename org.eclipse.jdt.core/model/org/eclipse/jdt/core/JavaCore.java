@@ -4526,8 +4526,8 @@ public final class JavaCore extends Plugin {
 			if (element.equals(markerElement)) return true; // external elements may still be equal with different handleIDs.
 
 			// cycle through enclosing types in case marker is associated with a classfile (15568)
-			if (markerElement instanceof IClassFile){
-				IType enclosingType = ((IClassFile)markerElement).getType().getDeclaringType();
+			if (markerElement instanceof IOrdinaryClassFile){
+				IType enclosingType = ((IOrdinaryClassFile)markerElement).getType().getDeclaringType();
 				if (enclosingType != null){
 					markerElement = enclosingType.getClassFile(); // retry with immediate enclosing classfile
 					continue;
@@ -4569,8 +4569,8 @@ public final class JavaCore extends Plugin {
 			if (element.equals(markerElement)) return true; // external elements may still be equal with different handleIDs.
 
 			// cycle through enclosing types in case marker is associated with a classfile (15568)
-			if (markerElement instanceof IClassFile){
-				IType enclosingType = ((IClassFile)markerElement).getType().getDeclaringType();
+			if (markerElement instanceof IOrdinaryClassFile){
+				IType enclosingType = ((IOrdinaryClassFile)markerElement).getType().getDeclaringType();
 				if (enclosingType != null){
 					markerElement = enclosingType.getClassFile(); // retry with immediate enclosing classfile
 					continue;

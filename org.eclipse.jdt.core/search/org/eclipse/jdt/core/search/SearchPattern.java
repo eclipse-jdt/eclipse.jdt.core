@@ -2294,6 +2294,8 @@ private static char[][] enclosingTypeNames(IType type) {
 	IJavaElement parent = type.getParent();
 	switch (parent.getElementType()) {
 		case IJavaElement.CLASS_FILE:
+			if (parent instanceof IModularClassFile)
+				return null;
 			// For a binary type, the parent is not the enclosing type, but the declaring type is.
 			// (see bug 20532  Declaration of member binary type not found)
 			IType declaringType = type.getDeclaringType();
