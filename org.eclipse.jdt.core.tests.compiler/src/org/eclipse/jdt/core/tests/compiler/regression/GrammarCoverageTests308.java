@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -615,28 +615,13 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"----------\n" + 
 				"3. ERROR in X.java (at line 4)\n" + 
 				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
-				"	             ^^^^^^\n" + 
-				"Marker cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"4. WARNING in X.java (at line 4)\n" + 
-				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
 				"	                        ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"5. ERROR in X.java (at line 4)\n" + 
-				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
-				"	                         ^^^^^^\n" + 
-				"Marker cannot be resolved to a type\n" + 
-				"----------\n" + 
-				"6. WARNING in X.java (at line 4)\n" + 
+				"4. ERROR in X.java (at line 4)\n" + 
 				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
 				"	                                     ^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
-				"----------\n" + 
-				"7. ERROR in X.java (at line 4)\n" + 
-				"	Object o2 = @Marker int @Marker[] [] @Marker[].class;\n" + 
-				"	                                      ^^^^^^\n" + 
-				"Marker cannot be resolved to a type\n" + 
 				"----------\n");
 	}
 	// ReferenceExpression ::= PrimitiveType Dims '::' NonWildTypeArgumentsopt IdentifierOrNew

@@ -4726,14 +4726,6 @@ public void invalidUsageOfTypeAnnotations(Annotation annotation) {
 			annotation.sourceStart,
 			annotation.sourceEnd);
 }
-public void toleratedMisplacedTypeAnnotations(Annotation first, Annotation last) {
-	this.handle(
-			IProblem.ToleratedMisplacedTypeAnnotations,
-			NoArgument,
-			NoArgument,
-			first.sourceStart,
-			last.sourceEnd);	
-}
 public void misplacedTypeAnnotations(Annotation first, Annotation last) {
 	this.handle(
 			IProblem.MisplacedTypeAnnotations,
