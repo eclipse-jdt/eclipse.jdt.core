@@ -6138,9 +6138,6 @@ protected void rejectIllegalLeadingTypeAnnotations(TypeReference typeReference) 
 	}
 }
 private void rejectIllegalTypeAnnotations(TypeReference typeReference) {
-	rejectIllegalTypeAnnotations(typeReference, false);
-}
-private void rejectIllegalTypeAnnotations(TypeReference typeReference, boolean tolerateAnnotationsOnDimensions) {
 	// Reject misplaced annotations on type reference; Used when grammar is permissive enough to allow them in the first place.
 	Annotation [][]  annotations = typeReference.annotations;
 	Annotation[] misplacedAnnotations;
@@ -6151,23 +6148,15 @@ private void rejectIllegalTypeAnnotations(TypeReference typeReference, boolean t
 		}
 	}
 	annotations = typeReference.getAnnotationsOnDimensions(true);
-	boolean tolerated = false;
 	for (int i = 0, length = annotations == null ? 0 : annotations.length; i < length; i++) {
 		misplacedAnnotations = annotations[i];
 		if (misplacedAnnotations != null) {
-			if (tolerateAnnotationsOnDimensions) {
-				problemReporter().toleratedMisplacedTypeAnnotations(misplacedAnnotations[0], misplacedAnnotations[misplacedAnnotations.length - 1]);
-				tolerated = true;
-			}
-			else 
 				problemReporter().misplacedTypeAnnotations(misplacedAnnotations[0], misplacedAnnotations[misplacedAnnotations.length - 1]);
 		}
 	}
-	if (!tolerated) {
-		typeReference.annotations = null;
-		typeReference.setAnnotationsOnDimensions(null);
-		typeReference.bits &= ~ASTNode.HasTypeAnnotations;
-	}
+typeReference.annotations = null;
+typeReference.setAnnotationsOnDimensions(null);
+typeReference.bits &= ~ASTNode.HasTypeAnnotations;
 }
 protected void consumeQualifiedSuperReceiver() {
 	// QualifiedSuperReceiver ::= Name '.' 'super'
@@ -6203,7 +6192,7 @@ protected void consumePrimaryNoNewArrayPrimitiveArrayType() {
 	ClassLiteralAccess cla;
 	pushOnExpressionStack(
 		cla = new ClassLiteralAccess(this.intStack[this.intPtr--], getTypeReference(this.intStack[this.intPtr--])));
-	rejectIllegalTypeAnnotations(cla.type, true /* tolerate annotations on dimensions for bug compatibility for now */);
+	rejectIllegalTypeAnnotations(cla.type);
 }
 protected void consumePrimaryNoNewArrayPrimitiveType() {
 	// PrimaryNoNewArray ::= PrimitiveType '.' 'class'

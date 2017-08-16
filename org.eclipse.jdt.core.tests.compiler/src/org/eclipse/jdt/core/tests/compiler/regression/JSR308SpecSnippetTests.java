@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -985,7 +985,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"	           ^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"5. WARNING in X.java (at line 20)\n" + 
+		"5. ERROR in X.java (at line 20)\n" + 
 		"	o = int @NonEmpty [].class; // illegal!\n" + 
 		"	        ^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
@@ -1061,7 +1061,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"	           ^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
 		"----------\n" + 
-		"5. WARNING in X.java (at line 27)\n" + 
+		"5. ERROR in X.java (at line 27)\n" + 
 		"	o = int @NonEmpty [].class; // illegal!\n" + 
 		"	        ^^^^^^^^^\n" + 
 		"Syntax error, type annotations are illegal here\n" + 
