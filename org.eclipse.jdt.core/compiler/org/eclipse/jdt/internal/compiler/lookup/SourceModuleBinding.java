@@ -79,7 +79,7 @@ public class SourceModuleBinding extends ModuleBinding {
 	@Override
 	Stream<ModuleBinding> getRequiredModules(boolean transitiveOnly) {
 		if (this.requires == NO_MODULES) {
-			this.scope.referenceContext.moduleDeclaration.resolveDirectives(this.scope);
+			this.scope.referenceContext.moduleDeclaration.resolveModuleDirectives(this.scope);
 		}
 		return super.getRequiredModules(transitiveOnly);
 	}
@@ -87,7 +87,7 @@ public class SourceModuleBinding extends ModuleBinding {
 	@Override
 	public ModuleBinding[] getAllRequiredModules() {
 		if (this.scope != null)
-			this.scope.referenceContext.moduleDeclaration.resolveDirectives(this.scope);
+			this.scope.referenceContext.moduleDeclaration.resolveModuleDirectives(this.scope);
 		return super.getAllRequiredModules();
 	}
 }

@@ -211,7 +211,8 @@ void checkAndSetImports() {
 	}
 
 	if (this.referenceContext.moduleDeclaration != null) {
-		this.referenceContext.moduleDeclaration.resolveDirectives(this);
+		this.referenceContext.moduleDeclaration.resolveModuleDirectives(this);
+		this.referenceContext.moduleDeclaration.resolvePackageDirectives(this);
 	}
 
 	if (this.referenceContext.imports == null) {

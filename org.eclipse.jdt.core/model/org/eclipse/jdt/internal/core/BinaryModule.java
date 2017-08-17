@@ -15,6 +15,7 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class BinaryModule extends AbstractModule {
@@ -38,6 +39,18 @@ public class BinaryModule extends AbstractModule {
 	}
 	public String getKey(boolean forceOpen) throws JavaModelException {
 		return getKey(this, forceOpen);
+	}
+	@Override
+	public ISourceRange getSourceRange() throws JavaModelException {
+		SourceMapper mapper= getSourceMapper();
+		if (mapper != null) {
+			// ensure the class file's buffer is open so that source ranges are computed
+			((ModularClassFile)getClassFile()).getBuffer();
+
+			return mapper.getSourceRange(this);
+		} else {
+			return SourceMapper.UNKNOWN_RANGE;
+		}
 	}
 	public String toString(String lineDelimiter) {
 		StringBuffer buffer = new StringBuffer();

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Nina Rinskaya
@@ -31,14 +35,21 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.batch.BasicModule;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Util {
     // Trace for delete operation
@@ -162,6 +173,50 @@ public static CompilationUnit[] compilationUnits(String[] testFiles) {
     }
     return result;
 }
+// --------
+// reduced version of org.eclipse.jdt.internal.compiler.batch.Main.getCompilationUnits()
+// (need to associate ordinary compilation units with preceding modular compilation units)
+public static CompilationUnit[] compilationUnits9(String[] testFiles, String compliance,
+								IErrorHandlingPolicy errorHandlingPolicy, IProblemFactory problemFactory)
+{
+	int fileCount = testFiles.length / 2;
+	CompilationUnit[] units = new CompilationUnit[fileCount];
+	
+	String modName = null;
+	CompilationUnit modCU = null;
+	for (int i = 0; i < fileCount; i++) {
+		String fileName = testFiles[i*2];
+		boolean isModuleInfo = fileName.endsWith(TypeConstants.MODULE_INFO_FILE_NAME_STRING);
+		units[i] = new CompilationUnit(testFiles[i*2+1].toCharArray(), fileName, null, "", false, modName); 
+		if (isModuleInfo) {
+			IModule mod = extractModuleDesc(testFiles[i*2+1], compliance, errorHandlingPolicy, problemFactory);
+			if (mod != null) {
+				modName = String.valueOf(mod.name());
+				modCU = units[i];
+				modCU.module = mod.name();
+			}
+		} else {
+			if (modCU != null)
+				units[i].setModule(modCU);
+		}
+	}
+	return units;
+}
+private static IModule extractModuleDesc(String contents, String compliance,
+								IErrorHandlingPolicy errorHandlingPolicy, IProblemFactory problemFactory)
+{
+	Map<String,String> opts = new HashMap<>();
+	opts.put(CompilerOptions.OPTION_Source, compliance);
+	Parser parser = new Parser(new ProblemReporter(errorHandlingPolicy, new CompilerOptions(opts), problemFactory), false);
+	ICompilationUnit cu = new CompilationUnit(contents.toCharArray(), "module-info.java", null);
+	CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
+	CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
+	if (unit.isModuleInfo() && unit.moduleDeclaration != null) {
+		return new BasicModule(unit.moduleDeclaration, null);
+	}
+	return null;
+}
+//--------
 public static void compile(String[] pathsAndContents, Map options, String outputPath) {
 	compile(pathsAndContents, options, null, outputPath);
 }
@@ -209,7 +264,14 @@ public static void compile(String[] pathsAndContents, Map options, String[] clas
                 requestor,
                 problemFactory);
         batchCompiler.options.produceReferenceInfo = true;
-        batchCompiler.compile(compilationUnits(pathsAndContents)); // compile all files together
+        CompilationUnit[] compilationUnits;
+        if (compilerOptions.complianceLevel >= ClassFileConstants.JDK9) {
+        	String compliance = (String)options.get(CompilerOptions.OPTION_Compliance);
+			compilationUnits = compilationUnits9(pathsAndContents, compliance, errorHandlingPolicy, problemFactory);
+        } else {
+        	compilationUnits = compilationUnits(pathsAndContents);
+        }
+		batchCompiler.compile(compilationUnits); // compile all files together
         // cleanup
     	nameEnvironment.cleanup();
         if (requestor.hasErrors)

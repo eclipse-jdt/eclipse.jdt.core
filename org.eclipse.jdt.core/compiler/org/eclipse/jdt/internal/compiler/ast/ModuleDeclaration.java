@@ -64,7 +64,8 @@ public class ModuleDeclaration extends ASTNode {
 	public long[] sourcePositions;
 	public int modifiers = ClassFileConstants.AccDefault;
 	boolean ignoreFurtherInvestigation;
-	boolean hasResolvedDirectives;
+	boolean hasResolvedModuleDirectives;
+	boolean hasResolvedPackageDirectives;
 	CompilationResult compilationResult;
 
 	public ModuleDeclaration(CompilationResult compilationResult, char[][] tokens, long[] positions) {
@@ -132,16 +133,16 @@ public class ModuleDeclaration extends ASTNode {
 		}
 	}
 
-	/** Resolve those module directives that relate to modules & packages (requires, exports, opens). */
-	public void resolveDirectives(CompilationUnitScope cuScope) {
+	/** Resolve those module directives that relate to modules (requires). */
+	public void resolveModuleDirectives(CompilationUnitScope cuScope) {
 		if (this.binding == null) {
 			this.ignoreFurtherInvestigation = true;
 			return;
 		}
-		if (this.hasResolvedDirectives)
+		if (this.hasResolvedModuleDirectives)
 			return;
 
-		this.hasResolvedDirectives = true;
+		this.hasResolvedModuleDirectives = true;
 
 		Set<ModuleBinding> requiredModules = new HashSet<ModuleBinding>();
 		Set<ModuleBinding> requiredTransitiveModules = new HashSet<ModuleBinding>();
@@ -160,6 +161,18 @@ public class ModuleDeclaration extends ASTNode {
 		}
 		this.binding.setRequires(requiredModules.toArray(new ModuleBinding[requiredModules.size()]),
 								 requiredTransitiveModules.toArray(new ModuleBinding[requiredTransitiveModules.size()]));
+	}
+
+	/** Resolve those module directives that relate to packages (exports, opens). */
+	public void resolvePackageDirectives(CompilationUnitScope cuScope) {
+		if (this.binding == null) {
+			this.ignoreFurtherInvestigation = true;
+			return;
+		}
+		if (this.hasResolvedPackageDirectives)
+			return;
+
+		this.hasResolvedPackageDirectives = true;
 
 		Set<PackageBinding> exportedPkgs = new HashSet<>();
 		for (int i = 0; i < this.exportsCount; i++) {
