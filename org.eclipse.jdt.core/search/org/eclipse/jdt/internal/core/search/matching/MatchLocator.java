@@ -2930,7 +2930,7 @@ private void reportMatching(PackageVisibilityStatement[] psvs, MatchingNodeSet n
 				this.patternLocator.matchReportImportRef(importRef, binding, moduleDesc, level.intValue(), this);
 			}
 			ModuleReference[] tgts = psv.targets;
-			if (tgts == null || tgts.length == 0) return;
+			if (tgts == null || tgts.length == 0) continue;
 			for (ModuleReference tgt : tgts) {
 				level = (Integer) nodeSet.matchingNodes.removeKey(tgt);
 				if (level != null) {
