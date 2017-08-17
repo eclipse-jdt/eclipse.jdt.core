@@ -39,7 +39,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	}
 
 	static {
-		//		TESTS_NAMES = new String[] { "test0012" };
+		//		TESTS_NAMES = new String[] { "test0009" };
 		//		TESTS_NUMBERS = new int[] { 133, 134, 135 };
 	}
 	public ModuleDeclarationSyntaxTest(String testName){
@@ -547,24 +547,71 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 
-	// TODO behavior would change once restricted keywords support is in place
 	public void testBug518626() throws IOException {
 		String source = 
 				"module module.test {\n" +
 				"    provides X with Y;\n" +
 				"}\n";
-		String expectedErrorString = 
-				"----------\n" +
-				"1. ERROR in module-info (at line 1)\n" +
-				"	module module.test {\n" +
-				"	       ^^^^^^\n" +
-				"Syntax error on token \"module\", Identifier expected\n" +
-				"----------\n";
-		
+		String expectedUnitToString = 
+				"module module.test {\n" +
+				"  provides X with Y;\n" +
+				"}\n";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
 		options.sourceLevel = ClassFileConstants.JDK9;
 		options.targetJDK = ClassFileConstants.JDK9;
-		checkParse(CHECK_PARSER, source.toCharArray(), expectedErrorString, "module-info", null, null, options);
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+	public void testbug488541() throws IOException {
+		String source =
+				"module module {\n" +
+				"   requires requires;\n" +
+				"   exports to to exports;\n" +
+				"   uses module;\n" +
+				"   provides uses with to;\n" +
+				"}\n";
+		String expectedUnitToString =
+				"module module {\n" +
+				"  requires requires;\n" +
+				"  exports to to exports;\n" +
+				"  uses module;\n" +
+				"  provides uses with to;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+	public void testbug488541a() throws IOException {
+		String source =
+			"import module.pack1.exports.pack2;\n" +
+			"import module.open.pack1.opens.pack2;\n" +
+			"@open @module(true)\n" +
+			"open module module.module.module {\n" +
+			"   requires static transitive requires;\n" +
+			"   requires transitive static transitive;\n" +
+			"   exports to to exports;\n" +
+			"   opens module.to.pack1 to to.exports;\n" +
+			"   uses module;\n" +
+			"   provides uses with to;\n" +
+			"}\n";
+		String expectedUnitToString =
+			"import module.pack1.exports.pack2;\n" +
+			"import module.open.pack1.opens.pack2;\n" +
+			"@open @module(true)\n" +
+			"open module module.module.module {\n" +
+			"  requires transitive static requires;\n" +
+			"  requires transitive static transitive;\n" +
+			"  exports to to exports;\n" +
+			"  opens module.to.pack1 to to.exports;\n" +
+			"  uses module;\n" +
+			"  provides uses with to;\n" +
+			"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
 }

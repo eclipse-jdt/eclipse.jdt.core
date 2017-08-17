@@ -94,6 +94,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -549,7 +550,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	private boolean checkSelection(
 			char[] source,
 			int selectionStart,
-			int selectionEnd) {
+			int selectionEnd,
+			boolean isModuleInfo) {
 
 		Scanner scanner =
 			new Scanner(
@@ -638,7 +640,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 
 			// compute start and end of the last token
-			scanner.resetTo(nextCharacterPosition, end);
+			scanner.resetTo(nextCharacterPosition, end, isModuleInfo);
 			isolateLastName: do {
 				try {
 					token = scanner.getNextToken();
@@ -688,7 +690,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					}
 				}  
 			} // there could be some innocuous widening, shouldn't matter.
-			scanner.resetTo(selectionStart, selectionEnd);
+			scanner.resetTo(selectionStart, selectionEnd, isModuleInfo);
 
 			boolean expectingIdentifier = true;
 			do {
@@ -950,7 +952,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			System.out.println("SELECTION - Source :"); //$NON-NLS-1$
 			System.out.println(source);
 		}
-		if (!checkSelection(source, selectionSourceStart, selectionSourceEnd)) {
+		boolean isModuleInfo = CharOperation.endsWith(sourceUnit.getFileName(), TypeConstants.MODULE_INFO_FILE_NAME);
+		if (!checkSelection(source, selectionSourceStart, selectionSourceEnd, isModuleInfo)) {
 			return;
 		}
 		if (DEBUG) {

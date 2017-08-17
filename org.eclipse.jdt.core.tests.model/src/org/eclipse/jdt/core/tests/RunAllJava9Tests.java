@@ -21,8 +21,10 @@ import org.eclipse.jdt.core.tests.dom.ASTConverter9Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.model.CompletionTests9;
 import org.eclipse.jdt.core.tests.model.Java9ElementTests;
+import org.eclipse.jdt.core.tests.model.JavaConventionTests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs9Tests;
 import org.eclipse.jdt.core.tests.model.ModuleBuilderTests;
+import org.eclipse.jdt.core.tests.model.ResolveTests9;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import junit.framework.Test;
@@ -41,6 +43,8 @@ public class RunAllJava9Tests extends TestCase {
 			Java9ElementTests.class,
 			JavaSearchBugs9Tests.class,
 			CompletionTests9.class,
+			ResolveTests9.class,
+			JavaConventionTests.class
 		};
 	}
 

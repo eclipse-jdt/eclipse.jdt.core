@@ -11046,6 +11046,7 @@ public void goForHeaders(){
 		this.firstToken = TokenNameUNSIGNED_RIGHT_SHIFT;
 	}
 	this.scanner.recordLineSeparator = true; // recovery goals must record line separators
+	this.scanner.scanContext = null;
 }
 public void goForImportDeclaration(){
 	//tells the scanner to go for import declaration parsing
