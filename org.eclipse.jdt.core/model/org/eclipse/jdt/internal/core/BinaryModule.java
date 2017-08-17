@@ -28,6 +28,10 @@ public class BinaryModule extends AbstractModule {
 		return NO_ELEMENTS;
 	}
 	@Override
+	public boolean isBinary() {
+		return true;
+	}
+	@Override
 	public int getFlags() throws JavaModelException {
 		ModuleDescriptionInfo info = (ModuleDescriptionInfo) getElementInfo();
 		return info.getModifiers();

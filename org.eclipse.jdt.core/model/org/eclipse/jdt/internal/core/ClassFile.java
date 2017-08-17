@@ -484,7 +484,7 @@ private IBuffer mapSource(SourceMapper mapper, IBinaryType info, IClassFile buff
 		buffer.addBufferChangedListener(this);
 
 		// do the source mapping
-		mapper.mapSource(getOuterMostEnclosingType(), contents, info);
+		mapper.mapSource((NamedMember) getOuterMostEnclosingType(), contents, info);
 
 		return buffer;
 	} else {

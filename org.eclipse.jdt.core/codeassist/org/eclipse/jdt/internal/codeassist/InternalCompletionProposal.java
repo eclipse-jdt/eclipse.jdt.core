@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.NameLookup;
+import org.eclipse.jdt.internal.core.NamedMember;
 import org.eclipse.jdt.internal.core.SourceMapper;
 
 /**
@@ -248,7 +249,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 								IBinaryType info = (IBinaryType) ((BinaryType) type).getElementInfo();
 								char[] source = mapper.findSource(type, info);
 								if (source != null){
-									mapper.mapSource(type, source, info);
+									mapper.mapSource((NamedMember) type, source, info);
 								}
 								paramNames = mapper.getMethodParameterNames(method);
 							}

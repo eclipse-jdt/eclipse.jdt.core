@@ -249,6 +249,57 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 		System.out.println("<<getWorkingCopy: "+workingCopy);
 		return workingCopy;
 	}
+	/**
+	 * Opens and returns buffer on the source code associated with this class file.
+	 * Maps the source code to the children elements of this class file.
+	 * If no source code is associated with this class file,
+	 * <code>null</code> is returned.
+	 *
+	 * @see Openable
+	 */
+	@Override
+	protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
+		SourceMapper mapper = getSourceMapper();
+		if (mapper != null) {
+			return mapSource(mapper);
+		}
+		return null;
+	}
+
+	/** Loads the buffer via SourceMapper, and maps it in SourceMapper */
+	private IBuffer mapSource(SourceMapper mapper) throws JavaModelException {
+		char[] contents = mapper.findSource(getModule());
+		if (contents != null) {
+			// create buffer
+			IBuffer buffer = BufferManager.createBuffer(this);
+			if (buffer == null) return null;
+			BufferManager bufManager = getBufferManager();
+			bufManager.addBuffer(buffer);
+
+			// set the buffer source
+			if (buffer.getCharacters() == null){
+				buffer.setContents(contents);
+			}
+
+			// listen to buffer changes
+			buffer.addBufferChangedListener(this);
+
+			// do the source mapping
+			mapper.mapSource((NamedMember) getModule(), contents, null);
+
+			return buffer;
+		} else {
+			// create buffer
+			IBuffer buffer = BufferManager.createNullBuffer(this);
+			if (buffer == null) return null;
+			BufferManager bufManager = getBufferManager();
+			bufManager.addBuffer(buffer);
+
+			// listen to buffer changes
+			buffer.addBufferChangedListener(this);
+			return buffer;
+		}
+	}
 
 	@Override
 	public IModuleDescription getModule() throws JavaModelException {
