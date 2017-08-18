@@ -1514,7 +1514,7 @@ public class NameLookup implements SuffixConstants {
 			} else {
 				String modName = root.getPath().removeFileExtension().lastSegment();
 				if (CharOperation.equals(modName.toCharArray(), name)) {
-					// ^^^ Only complete matches, at this point, as we don't propose automatic module names.
+					//            ^^^^^^ Only complete matches, at this point, as we don't propose automatic module names.
 					ClasspathEntry entry = (ClasspathEntry) this.rootToResolvedEntries.get(root);
 					if (entry != null && entry.isAutomaticModule()) {
 						requestor.acceptModule(new AutoModule(modName));

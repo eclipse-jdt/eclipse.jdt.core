@@ -14,8 +14,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -33,6 +35,8 @@ import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.core.BinaryModule;
 
 import junit.framework.Test;
+
+import static org.eclipse.jdt.core.IJavaElement.*;
 
 public class Java9ElementTests extends AbstractJavaModelTests {
 
@@ -889,5 +893,85 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		finally {
 			deleteProject("Java9Elements");
 		}
+	}
+	public void testFindModule1() throws CoreException, IOException {
+		try {
+			createJavaProject("mod.zero", new String[]{"src"}, null, "bin", JavaCore.VERSION_9);
+			createFolder("/mod.zero/src/test0");
+			createFile("/mod.zero/src/test0/Test.java",
+				"package test0;\n" +
+				"\n" +
+				"public class Test {}");
+			createFile("/mod.zero/src/module-info.java",
+				"module mod.zero {\n" +
+				"	exports test0;\n" +
+				"}\n");
+
+			IJavaProject javaProject = createJavaProject("Test", new String[]{"src"}, null, new String[] {"/mod.zero"}, "bin", JavaCore.VERSION_9);
+			createFolder("/Test/src/test1");
+			createFile("/Test/src/test1/Test.java",
+				"package test1;\n" +
+				"\n" +
+				"public class Test {}");
+			createFile("/Test/src/module-info.java",
+				"module test {\n" +
+				"	requires mod.one;\n" +
+				"	exports test1;\n" +
+				"}\n");
+
+			String modOneSrc = 
+				"\n" +
+				"/** The no. one module. */\n" +
+				"module mod.one {\n" +
+				"  exports m.o.p;\n" +
+				"}\n";
+			String[] pathAndContents = new String[] {
+				"module-info.java",
+				modOneSrc,
+				"m/o/p/C.java",
+				"package m.o.p;\n" +
+				"public class C {\n" +
+				"}"
+			};
+			addLibrary(javaProject, "mod.one.jar", "mod.onesrc.zip", pathAndContents, JavaCore.VERSION_9);
+
+			// search self module:
+			IModuleDescription modTest = javaProject.findModule("test", null);
+			assertNotNull("module", modTest);
+			assertEquals("module name", "test", modTest.getElementName());
+			IJavaElement root = parentChain(modTest, new int[] { COMPILATION_UNIT, PACKAGE_FRAGMENT, PACKAGE_FRAGMENT_ROOT });
+			String rootPath = ((IPackageFragmentRoot) root).getPath().toString();
+			assertEquals("package fragment root path", "/Test/src", rootPath);
+
+			// search source module in project dependency:
+			IModuleDescription modZero = javaProject.findModule("mod.zero", null);
+			assertNotNull("module", modZero);
+			assertEquals("module name", "mod.zero", modZero.getElementName());
+			root = parentChain(modZero, new int[] { COMPILATION_UNIT, PACKAGE_FRAGMENT, PACKAGE_FRAGMENT_ROOT });
+			rootPath = ((IPackageFragmentRoot) root).getPath().toString();
+			assertEquals("package fragment root path", "/mod.zero/src", rootPath);
+
+			// search binary module in jar dependency:
+			IModuleDescription modOne = javaProject.findModule("mod.one", null);
+			assertNotNull("module", modOne);
+			assertEquals("module name", "mod.one", modOne.getElementName());
+			root = parentChain(modOne, new int[] { CLASS_FILE, PACKAGE_FRAGMENT, PACKAGE_FRAGMENT_ROOT });
+			rootPath = ((IPackageFragmentRoot) root).getPath().toString();
+			assertEquals("package fragment root path", "/Test/mod.one.jar", rootPath);
+
+			IModuleDescription notSuchModule = javaProject.findModule("does.not.exist", null);
+			assertNull("inexistent module", notSuchModule);
+		} finally {
+			deleteProject("Test");
+		}
+	}
+
+	private IJavaElement parentChain(IJavaElement element, int[] elementTypes) {
+		IJavaElement current = element;
+		for (int i = 0; i < elementTypes.length; i++) {
+			current = current.getParent();
+			assertEquals("Parent type at level "+i, elementTypes[i], current.getElementType());
+		}
+		return current;
 	}
 }

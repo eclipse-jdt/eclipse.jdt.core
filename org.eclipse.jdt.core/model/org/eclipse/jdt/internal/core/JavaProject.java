@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 201y IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1458,6 +1458,21 @@ public class JavaProject
 	public IType findType(String fullyQualifiedName, WorkingCopyOwner owner, IProgressMonitor progressMonitor) throws JavaModelException {
 		NameLookup lookup = newNameLookup(owner);
 		return findType(fullyQualifiedName, lookup, true, progressMonitor);
+	}
+
+	public IModuleDescription findModule(String moduleName, WorkingCopyOwner owner) throws JavaModelException {
+		NameLookup lookup = newNameLookup(owner);
+		return findModule(moduleName, lookup);
+	}
+
+	/*
+	 * Internal findModule with instantiated name lookup
+	 */
+	IModuleDescription findModule(String moduleName, NameLookup lookup) throws JavaModelException {
+		NameLookup.Answer answer = lookup.findModule(moduleName.toCharArray());
+		if (answer != null)
+			return answer.module;
+		return null;
 	}
 
 	/**
