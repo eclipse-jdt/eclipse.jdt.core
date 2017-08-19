@@ -261,8 +261,8 @@ class JrtFileSystem {
 		// iterate files:
 		try {
 			return Files.list(packagePath)
-				.anyMatch(filePath -> filePath.endsWith(SuffixConstants.SUFFIX_STRING_class)
-										|| filePath.endsWith(SuffixConstants.SUFFIX_STRING_CLASS));
+				.anyMatch(filePath -> filePath.toString().endsWith(SuffixConstants.SUFFIX_STRING_class)
+										|| filePath.toString().endsWith(SuffixConstants.SUFFIX_STRING_CLASS));
 		} catch (IOException e) {
 			return false;
 		}

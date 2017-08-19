@@ -2859,4 +2859,34 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"",
 				false);
 	}
+
+	public void testBug486013_comment27() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String projLoc = directory + File.separator + "Proj";
+		List<String> files = new ArrayList<>();
+		writeFileCollecting(files, projLoc + File.separator + "p" + File.separator + "exp", "C1.java", 
+						"package p.exp;\n" +
+						"import java.util.*;\n" +
+						"public class C1 {\n" +
+						"	List<?> l;\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -err:exports")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runConformModuleTest(files, buffer,
+				"",
+				"",
+				false);
+	}
 }
