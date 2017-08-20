@@ -155,8 +155,10 @@ public class ModuleDeclaration extends ASTNode {
 				if (ref.isTransitive())
 					requiredTransitiveModules.add(ref.resolvedBinding);
 				Collection<ModuleBinding> deps = ref.resolvedBinding.dependencyGraphCollector().get();
-				if (deps.contains(this.binding))
+				if (deps.contains(this.binding)) {
 					cuScope.problemReporter().cyclicModuleDependency(this.binding, ref.module);
+					requiredModules.remove(ref.module.binding);
+				}
 			}
 		}
 		this.binding.setRequires(requiredModules.toArray(new ModuleBinding[requiredModules.size()]),

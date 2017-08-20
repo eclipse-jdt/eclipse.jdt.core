@@ -4688,6 +4688,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				this.problemRequestor);
 
 		} finally {
+			deleteProject("mod.one");
 			deleteProject("org.astro");
 			deleteProject("com.greetings");
 		}
@@ -4817,6 +4818,75 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.deleteProject("testSOE");
 			this.deleteProject("org.astro");
 			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
+	public void testBug520310() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			String[] src = new String[] { 
+				"src/module-info.java",
+				"module mod.one {\n" +
+//				"	requires mod.two;\n" +
+				"	exports org.astro;\n" +
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			IClasspathEntry modDep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			IJavaProject p1 = setupModuleProject("mod.one", src, new IClasspathEntry[] {modDep});
+
+			src = new String[] { 
+					"src/module-info.java",
+					"module mod.two {\n" +
+					"	requires mod.one;\n" +
+					"	exports test;\n" +
+					"}",
+					"src/test/Test.java",
+					"package test;\n" +
+					"import org.astro.World;\n" +
+					"public class Test implements World {\n" +
+					"	public String name() {\n" +
+					"		return \" My World!!\";\n" +
+					"	}\n" +
+					"}"
+			};
+			IJavaProject p2 = setupModuleProject("mod.two", src, new IClasspathEntry[] {modDep});
+			
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers in mod.one", "", markers);
+			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers in mod.two", "", markers);
+			
+			editFile("/mod.one/src/module-info.java",
+				"module mod.one {\n" +
+				"	requires mod.two;\n" + // added
+				"	exports org.astro;\n" +
+				"}");
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null); // modules see each other only on 2nd attempt, don't ask me...
+			markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers in mod.one", 
+					"Cycle exists in module dependencies, Module mod.one requires itself via mod.two",
+					markers);
+			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers in mod.two", 
+					"Cycle exists in module dependencies, Module mod.two requires itself via mod.one\n" + 
+					"The import org cannot be resolved\n" + // cannot use cyclic requires 
+					"World cannot be resolved to a type",
+					markers);
+	
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getCompilationUnit("/mod.two/src/module-info.java").getWorkingCopy(this.wcOwner, null);
+			this.problemRequestor.initialize(src[1].toCharArray());
+			CompilationUnit unit = this.workingCopies[0].reconcile(AST.JLS9, true, this.wcOwner, null);
+			assertNotNull("Could not reconcile", unit);
+		} finally {
+			this.deleteProject("mod.one");
+			this.deleteProject("org.two");
 		}
 	}
 	protected void assertNoErrors() throws CoreException {
