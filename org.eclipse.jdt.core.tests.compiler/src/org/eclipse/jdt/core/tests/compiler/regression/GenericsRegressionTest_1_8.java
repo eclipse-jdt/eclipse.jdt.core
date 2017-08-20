@@ -8238,4 +8238,31 @@ public void testBug508834_comment0() {
 			"Type safety: The expression of type Function needs unchecked conversion to conform to Function<String,String>\n" + 
 			"----------\n");
 	}
+
+	public void testBug521159() {
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.*;\n" +
+				"import java.util.stream.*;\n" +
+				"\n" +
+				"interface JarEntry {\n" +
+				"	boolean isDirectory();\n" +
+				"	String getName();\n" +
+				"}\n" +
+				"class VersionedStream {\n" +
+				"	static Stream<JarEntry> stream() { return null; }" +
+				"}\n" +
+				"public class Test {\n" +
+				"	static final String SERVICES_PREFIX = \"META-INF/services/\";\n" +
+				"	Map<Boolean, Set<String>> test() {\n" +
+				"		return VersionedStream.stream()\n" +
+				"			.filter(e -> (! e.isDirectory()))\n" +
+				"			.map(JarEntry::getName)\n" +
+				"			.filter(e -> \n(e.endsWith(\".class\") ^ e.startsWith(SERVICES_PREFIX)))\n" +
+				"			.collect(Collectors.partitioningBy(e -> e.startsWith(SERVICES_PREFIX), Collectors.toSet()));" +
+				"	}\n" +
+				"}\n"
+			});
+	}
 }
