@@ -527,6 +527,15 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				if (!validate((ParameterizedTypeBinding) receiverType, scope)) {
 					return this.resolvedType;
 				}
+			} else {
+				// 15.9.3 - If the compile-time declaration is applicable by variable arity invocation...
+				if (this.binding.isVarargs()) {
+					TypeBinding lastArg = this.binding.parameters[this.binding.parameters.length - 1].leafComponentType();
+					if (!lastArg.erasure().canBeSeenBy(scope)) {
+						scope.problemReporter().invalidType(this, new ProblemReferenceBinding(new char[][] {lastArg.readableName()}, (ReferenceBinding)lastArg, ProblemReasons.NotVisible));
+						return this.resolvedType = null;
+					}
+				}
 			}
 			resolvePolyExpressionArguments(this, this.binding, this.argumentTypes, scope);
 		} else {

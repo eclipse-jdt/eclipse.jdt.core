@@ -8291,4 +8291,111 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+
+	public void testBug521185() {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test<T> {\n" + 
+				"	private static class Inner {" +
+				"		public Inner(){}\n" +	
+				"	}\n" + 
+				"	public Inner get() {\n" + 
+				"		return new Inner();\n" + 
+				"	}\n" + 
+				"}\n",
+				"Z.java",
+				"class Z<T> implements I<T> {\n" + 
+				"	public Z(Runnable r, T... t1) {}\n" + 
+				"	public String toString (T t) {\n" + 
+				"		return t.toString();\n" + 
+				"	}\n" + 
+				"}",
+				"X.java",
+				"public class X {\n" +  
+				"	public static void main(String[] args) {\n" + 
+				"		Test<String> t = new Test<>();\n" + 
+				"		Z z = new Z<>(()->{System.out.println(\"asdad\");}, t.get());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface I<T> {\n" + 
+				"	String toString();\n" + 
+				"}"
+			},
+			"----------\n" +
+			"1. WARNING in Z.java (at line 2)\n" + 
+			"	public Z(Runnable r, T... t1) {}\n" + 
+			"	                          ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter t1\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	Z z = new Z<>(()->{System.out.println(\"asdad\");}, t.get());\n" + 
+			"	^\n" + 
+			"Z is a raw type. References to generic type Z<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	Z z = new Z<>(()->{System.out.println(\"asdad\");}, t.get());\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type Test.Inner is not visible\n" + 
+			"----------\n");
+	}
+
+	public void testBug521185a() {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test<T> {\n" + 
+				"	private static class Inner {" +
+				"		public Inner(){}\n" +	
+				"	}\n" + 
+				"	public Inner get() {\n" + 
+				"		return new Inner();\n" + 
+				"	}\n" + 
+				"}\n",
+				"Z.java",
+				"class Z<T> implements I<T> {\n" + 
+				"	public class Q<TT> {\n" + 
+				"		public Q(Runnable r, TT... ts) {}\n" + 
+				"	}\n" +
+				"	public Z(Runnable r, T... t1) {}\n" + 
+				"	public String toString (T t) {\n" + 
+				"		return t.toString();\n" + 
+				"	}\n" + 
+				"}",
+				"X.java",
+				"public class X {\n" +  
+				"	public static void main(String[] args) {\n" + 
+				"		Test<String> t = new Test<>();\n" + 
+				"		Z<Object> zr = new Z<>(null, new Object[0]);\n" + 
+				"		Z.Q zq = zr.new Q<>(null, t.get());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface I<T> {\n" + 
+				"	String toString();\n" + 
+				"}"
+			},
+			"----------\n" +
+			"1. WARNING in Z.java (at line 3)\n" + 
+			"	public Q(Runnable r, TT... ts) {}\n" + 
+			"	                           ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
+			"----------\n" +
+			"2. WARNING in Z.java (at line 5)\n" + 
+			"	public Z(Runnable r, T... t1) {}\n" + 
+			"	                          ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter t1\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	Z.Q zq = zr.new Q<>(null, t.get());\n" + 
+			"	^^^\n" + 
+			"Z.Q is a raw type. References to generic type Z<T>.Q<TT> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	Z.Q zq = zr.new Q<>(null, t.get());\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type Test.Inner is not visible\n" +  
+			"----------\n");
+	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -466,6 +466,14 @@ public TypeBinding resolveType(BlockScope scope) {
 			return new PolyTypeBinding(this);
 		}
 		this.resolvedType = this.type.resolvedType = this.binding.declaringClass;
+		// 15.9.3 - If the compile-time declaration is applicable by variable arity invocation...
+		if (this.binding.isVarargs()) {
+			TypeBinding lastArg = this.binding.parameters[this.binding.parameters.length - 1].leafComponentType();
+			if (!lastArg.erasure().canBeSeenBy(scope)) {
+				scope.problemReporter().invalidType(this, new ProblemReferenceBinding(new char[][] {lastArg.readableName()}, (ReferenceBinding)lastArg, ProblemReasons.NotVisible));
+				return this.resolvedType = null;
+			}
+		}
 		resolvePolyExpressionArguments(this, this.binding, this.argumentTypes, scope);
 	} else {
 		this.binding = findConstructorBinding(scope, this, (ReferenceBinding) this.resolvedType, this.argumentTypes);
