@@ -301,9 +301,46 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testPackageAnnotations", null, "filer8");
 	}
-	public void testBug520540() throws Exception {
+	public void testBug520540a() throws Exception {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testBug520540", null, "bug520540");
+	}
+	public void testBug520540aJavac() throws Exception {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testBug520540", null, "bug520540");
+	}
+	public void testBug520540b() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "bug520540");
+		BatchTestUtils.copyResources("targets/bug520540", targetFolder);
+		List<String> options = new ArrayList<String>();
+		options.add("-cp");
+		options.add(BatchTestUtils._tmpGenFolderName + File.pathSeparatorChar + BatchTestUtils._jls8ProcessorJarPath);
+		options.add("-processor");
+		options.add(JAVA8_ANNOTATION_PROC);
+		options.add("-A" + JAVA8_ANNOTATION_PROC);
+		options.add("-AtestBug520540");
+		options.add("-1.8");
+		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, null, true, false);
+		assertEquals(true, success);
+		assertEquals("succeeded", System.getProperty(JAVA8_ANNOTATION_PROC));
+	}
+	public void testBug520540bJavac() throws Exception {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "bug520540");
+		BatchTestUtils.copyResources("targets/bug520540", targetFolder);
+		List<String> options = new ArrayList<String>();
+		options.add("-cp");
+		options.add(BatchTestUtils._tmpGenFolderName + File.pathSeparatorChar + BatchTestUtils._jls8ProcessorJarPath);
+		options.add("-processorpath");
+		options.add(" ");
+		options.add("-processor");
+		options.add(JAVA8_ANNOTATION_PROC);
+		options.add("-A" + JAVA8_ANNOTATION_PROC);
+		options.add("-AtestBug520540");
+		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, null, true, false);
+		assertEquals(true, success);
+		assertEquals("succeeded", System.getProperty(JAVA8_ANNOTATION_PROC));
 	}
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
 		internalTest(compiler, processor, testMethod, null);

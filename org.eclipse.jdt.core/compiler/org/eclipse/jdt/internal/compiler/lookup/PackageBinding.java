@@ -30,7 +30,7 @@ public class PackageBinding extends Binding implements TypeConstants {
 	PackageBinding parent;
 	public LookupEnvironment environment;
 	/** Types in this map are either uniquely visible in the current module or ProblemReferenceBindings. */
-	HashtableOfType knownTypes;
+	public HashtableOfType knownTypes;
 	/** All visible member packages, i.e. observable packages associated with modules read by the current module. */
 	HashtableOfPackage knownPackages;
 

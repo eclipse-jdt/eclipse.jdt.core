@@ -46,8 +46,8 @@ public class BatchTestUtils {
 	// relative to plugin directory
 	private static final String PROCESSOR_JAR_NAME = "lib/apttestprocessors.jar";
 	private static final String JLS8_PROCESSOR_JAR_NAME = "lib/apttestprocessors8.jar";
-	private static String _processorJarPath;
-	private static String _jls8ProcessorJarPath;
+	public static String _processorJarPath;
+	public static String _jls8ProcessorJarPath;
 
 	// locations to copy and generate files
 	private static String _tmpFolder;
@@ -58,7 +58,7 @@ public class BatchTestUtils {
 	private static File _tmpSrcDir;
 	private static String _tmpBinFolderName;
 	private static File _tmpBinDir;
-	private static String _tmpGenFolderName;
+	public static String _tmpGenFolderName;
 	private static File _tmpGenDir;
 
 	/**

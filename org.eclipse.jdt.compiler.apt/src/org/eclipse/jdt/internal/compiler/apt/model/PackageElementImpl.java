@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -75,12 +76,22 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 			typeNames = ((FileSystem) nameEnvironment).findTypeNames(binding.compoundName, new String[] { null });
 		}
 		HashSet<Element> set = new HashSet<>(); 
+		Set<ReferenceBinding> types = new HashSet<>();
 		if (typeNames != null) {
 			for (char[][] typeName : typeNames) {
 				if (typeName == null) continue;
 				ReferenceBinding type = environment.getType(typeName);
 				if (type != null && type.isValidBinding()) {
 					set.add(_env.getFactory().newElement(type));
+					types.add(type);
+				}
+			}
+		}
+		ReferenceBinding[] knownTypes = binding.knownTypes.valueTable;
+		for (ReferenceBinding referenceBinding : knownTypes) {
+			if (referenceBinding != null && referenceBinding.isValidBinding() && referenceBinding.enclosingType() == null) {
+				if (!types.contains(referenceBinding)) {
+					set.add(_env.getFactory().newElement(referenceBinding));
 				}
 			}
 		}
