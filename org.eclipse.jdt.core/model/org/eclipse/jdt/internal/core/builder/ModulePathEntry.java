@@ -15,10 +15,9 @@
 package org.eclipse.jdt.internal.core.builder;
 
 
-import java.io.File;
-
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.AutomaticModuleNaming;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
@@ -62,17 +61,8 @@ public class ModulePathEntry implements IModulePathEntry {
 		return this.isAutomaticModule;
 	}
 	public static char[] getAutomaticModuleName(ClasspathLocation location) {
-		String name = null;
 		if (location instanceof ClasspathJar) {
-			name = ((ClasspathJar) location).zipFilename;
-			int index = name.lastIndexOf('.');
-			if (index != -1)
-				name = name.substring(0, index);
-			index = name.lastIndexOf(File.separatorChar);
-			if (index == -1)
-				return name.toCharArray();
-			return name.substring(index + 1).toCharArray();
-			
+			return AutomaticModuleNaming.determineAutomaticModuleName(((ClasspathJar) location).zipFilename);
 		}
 		if (location instanceof ClasspathDirectory) {
 			return ((ClasspathDirectory) location).binaryFolder.getName().toCharArray();
