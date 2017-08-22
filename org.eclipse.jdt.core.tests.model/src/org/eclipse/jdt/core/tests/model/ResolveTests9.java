@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -81,7 +82,7 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 		}
 		super.tearDown();
 	}
-	public void testModuleInfo_serviceReference_OK() throws CoreException {
+	public void testModuleInfo_serviceImplementation_OK() throws CoreException {
 		IFile modInfo = null;
 		try {
 			getWorkingCopy(
@@ -91,7 +92,6 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 					"/Resolve/src/test/TestClass.java",
 					"public class TestClass implements ITest {}\n");
 		
-			modInfo = createFile("/Resolve/src/module-info.java", ""); // TODO: can this be avoided? see https://bugs.eclipse.org/500941
 			this.wc = getWorkingCopy(
 					"/Resolve/src/module-info.java",
 					"module com.test {\n" +
@@ -114,6 +114,42 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 				deleteResource(modInfo);
 		}
 	}
+	public void testModuleInfo_serviceInterface_OK() throws CoreException {
+		IFile modInfo = null;
+		IFolder testFolder = null;
+		try {
+			testFolder = createFolder("/Resolve/src/test");
+			createFile(
+					"/Resolve/src/test/ITest.java",
+					"public interface ITest {}\n");
+			createFile(
+					"/Resolve/src/test/TestClass.java",
+					"public class TestClass implements ITest {}\n");
+		
+			this.wc = getWorkingCopy(
+					"/Resolve/src/module-info.java",
+					"module com.test {\n" +
+					"  provides test.ITest with test.TestClass;\n" +
+					"}\n");
+		
+			String str = this.wc.getSource();
+			String selection = "ITest";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+		
+			IJavaElement[] elements = this.wc.codeSelect(start, length);
+			assertElementsEqual(
+				"Unexpected elements",
+				"ITest [in ITest.java [in test [in src [in Resolve]]]]",
+				elements
+			);
+		} finally {
+			if (modInfo != null)
+				deleteResource(modInfo);
+			if (testFolder != null)
+				deleteResource(testFolder);
+		}
+	}
 	public void testModuleInfo_noReferenceAtKeyword() throws CoreException {
 		IFile providesFile = createFile("/Resolve/src/provides.java", "public class provides {}");
 		IFile modInfo = null;
@@ -125,7 +161,6 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 					"/Resolve/src/test/TestClass.java",
 					"public class TestClass implements ITest {}\n");
 		
-			modInfo = createFile("/Resolve/src/module-info.java", ""); // TODO: can this be avoided? see https://bugs.eclipse.org/500941
 			this.wc = getWorkingCopy(
 					"/Resolve/src/module-info.java",
 					"module com.test {\n" +
@@ -160,7 +195,6 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 					"/Resolve/src/test/TestClass.java",
 					"public class TestClass implements ITest {}\n");
 		
-			modInfo = createFile("/Resolve/src/module-info.java", ""); // TODO: can this be avoided? see https://bugs.eclipse.org/500941
 			this.wc = getWorkingCopy(
 					"/Resolve/src/module-info.java",
 					"module com.test {\n" + 
