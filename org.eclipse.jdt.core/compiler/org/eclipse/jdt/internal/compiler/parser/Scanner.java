@@ -2589,6 +2589,7 @@ void updateScanContext(int token) {
 		case TokenNameimport:
 		case TokenNameAT:
 		case TokenNameAT308:
+		case TokenNameCOMMA:
 			this.scanContext = ScanContext.EXPECTING_IDENTIFIER;
 			break;
 		case TokenNameIdentifier:
@@ -2815,7 +2816,7 @@ public void recordComment(int token) {
  * @param end the given end position
  */
 public void resetTo(int begin, int end) {
-	resetTo(begin, end, false);
+	resetTo(begin, end, isInModuleDeclaration());
 }
 public void resetTo(int begin, int end, boolean isModuleInfo) {
 	resetTo(begin, end, isModuleInfo, null);
@@ -4669,7 +4670,7 @@ private VanguardParser getVanguardParser() {
 		this.vanguardScanner.setActiveParser(this.vanguardParser);
 	}
 	this.vanguardScanner.setSource(this.source);
-	this.vanguardScanner.resetTo(this.startPosition, this.eofPosition - 1, isInModuleDeclaration());
+	this.vanguardScanner.resetTo(this.startPosition, this.eofPosition - 1, isInModuleDeclaration(), this.scanContext);
 	return this.vanguardParser;
 }
 
@@ -4785,16 +4786,6 @@ int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 		return TokenNameIdentifier;
 
 	switch(restrictedKeywordToken) {
-		case TokenNameopen:
-			if (this.scanContext != ScanContext.EXPECTING_KEYWORD) {
-				token = TokenNameIdentifier;
-			}
-			break;
-		case TokenNamemodule:
-			if (this.scanContext != ScanContext.EXPECTING_KEYWORD) {
-				token = TokenNameIdentifier;
-			}
-			break;
 		case TokenNametransitive:
 			if (this.scanContext != ScanContext.AFTER_REQUIRES) {
 				token = TokenNameIdentifier;
@@ -4810,6 +4801,8 @@ int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 				}
 			}
 			break;
+		case TokenNameopen:
+		case TokenNamemodule:
 		case TokenNameexports:
 		case TokenNameopens:
 		case TokenNamerequires:

@@ -614,4 +614,26 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	public void testbug488541b() throws IOException {
+		String source =
+				"module module {\n" +
+				"   requires requires;\n" +
+				"   exports to to exports, module;\n" +
+				"   uses module;\n" +
+				"   provides uses with to, open, module;\n" +
+				"}\n";
+		String expectedUnitToString =
+				"module module {\n" +
+				"  requires requires;\n" +
+				"  exports to to exports, module;\n" +
+				"  uses module;\n" +
+				"  provides uses with to, open, module;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+
 }
