@@ -71,6 +71,8 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.StringTokenizer;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
@@ -98,6 +100,7 @@ import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerStats;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -4549,57 +4552,60 @@ public void performCompilation() {
 	this.startTime = System.currentTimeMillis();
 
 	FileSystem environment = getLibraryAccess();
-	this.compilerOptions = new CompilerOptions(this.options);
-	this.compilerOptions.performMethodsFullRecovery = false;
-	this.compilerOptions.performStatementsRecovery = false;
-	this.batchCompiler =
-		new Compiler(
-			environment,
-			getHandlingPolicy(),
-			this.compilerOptions,
-			getBatchRequestor(),
-			getProblemFactory(),
-			this.out,
-			this.progress);
-	this.batchCompiler.remainingIterations = this.maxRepetition-this.currentRepetition/*remaining iterations including this one*/;
-	// temporary code to allow the compiler to revert to a single thread
-	String setting = System.getProperty("jdt.compiler.useSingleThread"); //$NON-NLS-1$
-	this.batchCompiler.useSingleThread = setting != null && setting.equals("true"); //$NON-NLS-1$
-
-	if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_6
-			&& this.compilerOptions.processAnnotations) {
-		if (checkVMVersion(ClassFileConstants.JDK1_6)) {
-			initializeAnnotationProcessorManager();
-			if (this.classNames != null) {
-				this.batchCompiler.setBinaryTypes(processClassNames(this.batchCompiler.lookupEnvironment));
-			}
-		} else {
-			// report a warning
-			this.logger.logIncorrectVMVersionForAnnotationProcessing();
-		}
-	}
-
-	// set the non-externally configurable options.
-	this.compilerOptions.verbose = this.verbose;
-	this.compilerOptions.produceReferenceInfo = this.produceRefInfo;
 	try {
-		this.logger.startLoggingSources();
-		this.batchCompiler.compile(getCompilationUnits());
-	} finally {
-		this.logger.endLoggingSources();
-	}
+		this.compilerOptions = new CompilerOptions(this.options);
+		this.compilerOptions.performMethodsFullRecovery = false;
+		this.compilerOptions.performStatementsRecovery = false;
+		this.batchCompiler =
+				new Compiler(
+						environment,
+						getHandlingPolicy(),
+						this.compilerOptions,
+						getBatchRequestor(),
+						getProblemFactory(),
+						this.out,
+						this.progress);
+		this.batchCompiler.remainingIterations = this.maxRepetition-this.currentRepetition/*remaining iterations including this one*/;
+		// temporary code to allow the compiler to revert to a single thread
+		String setting = System.getProperty("jdt.compiler.useSingleThread"); //$NON-NLS-1$
+		this.batchCompiler.useSingleThread = setting != null && setting.equals("true"); //$NON-NLS-1$
 
-	if (this.extraProblems != null) {
-		loggingExtraProblems();
-		this.extraProblems = null;
-	}
-	if (this.compilerStats != null) {
-		this.compilerStats[this.currentRepetition] = this.batchCompiler.stats;
-	}
-	this.logger.printStats();
+		if (this.compilerOptions.complianceLevel >= ClassFileConstants.JDK1_6
+				&& this.compilerOptions.processAnnotations) {
+			if (checkVMVersion(ClassFileConstants.JDK1_6)) {
+				initializeAnnotationProcessorManager();
+				if (this.classNames != null) {
+					this.batchCompiler.setBinaryTypes(processClassNames(this.batchCompiler.lookupEnvironment));
+				}
+			} else {
+				// report a warning
+				this.logger.logIncorrectVMVersionForAnnotationProcessing();
+			}
+		}
 
+		// set the non-externally configurable options.
+		this.compilerOptions.verbose = this.verbose;
+		this.compilerOptions.produceReferenceInfo = this.produceRefInfo;
+		try {
+			this.logger.startLoggingSources();
+			this.batchCompiler.compile(getCompilationUnits());
+		} finally {
+			this.logger.endLoggingSources();
+		}
+
+		if (this.extraProblems != null) {
+			loggingExtraProblems();
+			this.extraProblems = null;
+		}
+		if (this.compilerStats != null) {
+			this.compilerStats[this.currentRepetition] = this.batchCompiler.stats;
+		}
+		this.logger.printStats();
+	}
+	finally {
 	// cleanup
-	environment.cleanup();
+		environment.cleanup();
+	}
 }
 protected void loggingExtraProblems() {
 	this.logger.loggingExtraProblems(this);
@@ -4623,9 +4629,25 @@ private ReferenceBinding[] processClassNames(LookupEnvironment environment) {
 	// check for .class file presence in case of apt processing
 	int length = this.classNames.length;
 	ReferenceBinding[] referenceBindings = new ReferenceBinding[length];
+	String sourceLevel = this.options.get(CompilerOptions.OPTION_Source);
+	String complianceLevel = this.options.get(CompilerOptions.OPTION_Compliance);
 	for (int i = 0; i < length; i++) {
 		String currentName = this.classNames[i];
 		char[][] compoundName = null;
+		int idx = currentName.indexOf('/');
+		ModuleBinding mod = null;
+		if (idx > 0) {
+			String m = currentName.substring(0, idx);
+			IStatus status = JavaConventions.validateModuleName(m, sourceLevel, complianceLevel);
+			if (status.getSeverity() == IStatus.ERROR) {
+				throw new IllegalArgumentException(status.getMessage());
+			}
+			mod = environment.getModule(m.toCharArray());
+			if (mod == null) {
+				throw new IllegalArgumentException(this.bind("configure.invalidModuleName", m)); //$NON-NLS-1$
+			}
+			currentName = currentName.substring(idx + 1);
+		}
 		if (currentName.indexOf('.') != -1) {
 			// consider names with '.' as fully qualified names
 			char[] typeName = currentName.toCharArray();
@@ -4633,14 +4655,14 @@ private ReferenceBinding[] processClassNames(LookupEnvironment environment) {
 		} else {
 			compoundName = new char[][] { currentName.toCharArray() };
 		}
-		ReferenceBinding type = environment.getType(compoundName); // TODO(SHMOD): module? https://bugs.eclipse.org/518295
+		ReferenceBinding type = mod != null ? environment.getType(compoundName, mod) : environment.getType(compoundName);
 		if (type != null && type.isValidBinding()) {
 			if (type.isBinaryBinding()) {
 				referenceBindings[i] = type;
 			}
 		} else {
 			throw new IllegalArgumentException(
-					this.bind("configure.invalidClassName", currentName));//$NON-NLS-1$
+					this.bind("configure.invalidClassName", this.classNames[i]));//$NON-NLS-1$
 		}
 	}
 	return referenceBindings;
@@ -5001,8 +5023,8 @@ protected void setPaths(ArrayList<String> bootclasspaths,
 		ArrayList<String> endorsedDirClasspaths,
 		String customEncoding) {
 
-	Object version = this.options.get(CompilerOptions.OPTION_Compliance);
-	if (CompilerOptions.VERSION_9.equals(version)) {
+	String version = this.options.get(CompilerOptions.OPTION_Compliance);
+	if (CompilerOptions.versionToJdkLevel(version) > ClassFileConstants.JDK1_8) {
 		if (bootclasspaths != null && bootclasspaths.size() > 0)
 			throw new IllegalArgumentException(
 				this.bind("configure.unsupportedOption", "-bootclasspath")); //$NON-NLS-1$ //$NON-NLS-2$
