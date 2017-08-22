@@ -14,9 +14,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.net.URL;
+
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 
 public class BinaryModule extends AbstractModule {
 	public BinaryModule(JavaElement parent, String name) {
@@ -51,6 +56,39 @@ public class BinaryModule extends AbstractModule {
 		} else {
 			return SourceMapper.UNKNOWN_RANGE;
 		}
+	}
+	public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
+		JavadocContents javadocContents = getJavadocContents(monitor);
+		if (javadocContents == null) return null;
+		return javadocContents.getModuleDoc();
+	}
+	public JavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaModelException {
+		PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getJavaProject().getProject());
+		JavadocContents cachedJavadoc = null;
+		synchronized (projectInfo.javadocCache) {
+			cachedJavadoc = (JavadocContents) projectInfo.javadocCache.get(this);
+		}
+		
+		if (cachedJavadoc != null && cachedJavadoc != BinaryType.EMPTY_JAVADOC) {
+			return cachedJavadoc;
+		}
+		URL baseLocation= getJavadocBaseLocation();
+		if (baseLocation == null) {
+			return null;
+		}
+		StringBuffer pathBuffer = new StringBuffer(baseLocation.toExternalForm());
+
+		if (!(pathBuffer.charAt(pathBuffer.length() - 1) == '/')) {
+			pathBuffer.append('/');
+		}
+		pathBuffer.append(getElementName()).append(JavadocConstants.MODULE_FILE_SUFFIX);
+		if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
+		String contents = getURLContents(baseLocation, String.valueOf(pathBuffer));
+		JavadocContents javadocContents = new JavadocContents(contents);
+		synchronized (projectInfo.javadocCache) {
+			projectInfo.javadocCache.put(this, javadocContents);
+		}
+		return javadocContents;
 	}
 	public String toString(String lineDelimiter) {
 		StringBuffer buffer = new StringBuffer();

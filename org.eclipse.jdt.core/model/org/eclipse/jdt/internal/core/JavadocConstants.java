@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2016 IBM Corporation and others.
+ * Copyright (c) 2005, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -35,6 +39,9 @@ public interface JavadocConstants {
 	String PACKAGE_FILE_NAME = "package-summary.html"; //$NON-NLS-1$
 	char[] PACKAGE_DESCRIPTION_START = "name=\"package_description\"".toCharArray(); //$NON-NLS-1$
 	char[] PACKAGE_DESCRIPTION_START2 = "name=\"package.description\"".toCharArray(); //$NON-NLS-1$
+	char[] PACKAGE_DESCRIPTION_START3 = "<div class=\"contentContainer\">".toCharArray(); //$NON-NLS-1$
+	String MODULE_FILE_SUFFIX = "-summary.html"; //$NON-NLS-1$
+	char[] MODULE_DESCRIPTION_START = "<!-- ============ MODULE DESCRIPTION =========== -->".toCharArray(); //$NON-NLS-1$
 	char[] H2_PREFIX = "<H2".toCharArray(); //$NON-NLS-1$
 	char[] H2_SUFFIX = "</H2>".toCharArray(); //$NON-NLS-1$
 	int H2_SUFFIX_LENGTH = H2_SUFFIX.length;
