@@ -188,27 +188,38 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 	}
 	IModuleDescription imd = root.getModuleDescription();
 	if (imd != null) {
-		IModule mod = NameLookup.getModuleDescriptionInfo(imd);
-		String moduleName = new String(mod.name());
-		this.modules.put(moduleName, imd);
-		cp.setModule(mod);
-		this.moduleLocations.put(moduleName, cp);
-		addClassPathToModule(moduleName, cp);
+		String moduleName = addModuleClassPathInfo(cp, imd);
+		if (moduleName != null)
+			this.modules.put(moduleName, imd);
+		if (this.moduleLocations != null)
+			this.moduleLocations.put(moduleName, cp);
 	} else if (defaultModule != null) {
-		IModule mod = NameLookup.getModuleDescriptionInfo(defaultModule);
-		cp.setModule(mod);
-		String moduleName = new String(mod.name());
-		addClassPathToModule(moduleName, cp);
+		addModuleClassPathInfo(cp, defaultModule);
 	}
 	return cp;
 }
-private void addClassPathToModule(String moduleName, ClasspathLocation cp) {
-	List<ClasspathLocation> l = this.moduleToClassPathLocations.get(moduleName);
-	if (l == null) {
-		l = new ArrayList<>();
-		this.moduleToClassPathLocations.put(moduleName, l);
+private String addModuleClassPathInfo(ClasspathLocation cp, IModuleDescription imd) {
+	IModule mod = NameLookup.getModuleDescriptionInfo(imd);
+	String moduleName = null;
+	if (mod != null) {
+		char[] name = mod.name();
+		if (name != null) {
+			moduleName = new String(name);
+			cp.setModule(mod);
+			addClassPathToModule(moduleName, cp);
+		}
 	}
-	l.add(cp);
+	return moduleName;
+}
+private void addClassPathToModule(String moduleName, ClasspathLocation cp) {
+	if (this.moduleToClassPathLocations != null) {
+		List<ClasspathLocation> l = this.moduleToClassPathLocations.get(moduleName);
+		if (l == null) {
+			l = new ArrayList<>();
+			this.moduleToClassPathLocations.put(moduleName, l);
+		}
+		l.add(cp);
+	}
 }
 
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, LookupStrategy strategy, /*@Nullable*/String moduleName) {
