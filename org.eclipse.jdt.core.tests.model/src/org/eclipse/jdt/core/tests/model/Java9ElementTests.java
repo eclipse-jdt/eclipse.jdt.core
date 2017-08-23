@@ -963,6 +963,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertNull("inexistent module", notSuchModule);
 		} finally {
 			deleteProject("Test");
+			deleteProject("mod.zero");
 		}
 	}
 
@@ -973,5 +974,91 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertEquals("Parent type at level "+i, elementTypes[i], current.getElementType());
 		}
 		return current;
+	}
+	/*
+	 * Test finding module elements with similarly named types in the environment
+	 */
+	public void testBug521287a() throws CoreException, IOException {
+		try {
+			createJavaProject("mod.zero", new String[]{"src"}, null, "bin", JavaCore.VERSION_9);
+			createFolder("/mod.zero/src/test0");
+			createFile("/mod.zero/src/test0/ABCD.java",
+				"package test0;\n" +
+				"\n" +
+				"public class ABCD {}");
+			createFile("/mod.zero/src/module-info.java",
+				"module ABCD {\n" +
+				"	exports test0 to PQRS;\n" +
+				"}\n");
+
+			createJavaProject("Test", new String[]{"src"}, null, new String[] {"/mod.zero"}, "bin", JavaCore.VERSION_9);
+			createFolder("/Test/src/test1");
+			createFile("/Test/src/test1/Test.java",
+				"package test1;\n" +
+				"\n" +
+				"public class Test {}");
+			String content = "module PQRS {\n" +
+								"	exports test1;\n" +
+								"	requires ABCD;\n" +
+								"}\n";
+			createFile("/Test/src/module-info.java",
+				content);
+
+			ICompilationUnit unit = getCompilationUnit("/Test/src/module-info.java");
+			
+			int start = content.indexOf("ABCD");
+			IJavaElement[] elements = unit.codeSelect(start, 4);
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			assertEquals("Incorrect element type", IJavaElement.JAVA_MODULE, elements[0].getElementType());
+			assertElementEquals("Incorrect Java element", 
+					"ABCD [in module-info.java [in <default> [in src [in mod.zero]]]]", elements[0]);
+	
+		} finally {
+			deleteProject("Test");
+			deleteProject("mod.zero");
+		}
+	}
+	/*
+	 * Test finding module elements with similarly named types in the environment
+	 */
+	public void testBug521287b() throws CoreException, IOException {
+		try {
+			createJavaProject("mod.zero", new String[]{"src"}, null, "bin", JavaCore.VERSION_9);
+			createFolder("/mod.zero/src/test0");
+			createFile("/mod.zero/src/test0/PQRS.java",
+							"package test0;\n" +
+							"\n" +
+							"public class PQRS {}");
+			String content = 	"module ABCD {\n" +
+								"	exports test0 to PQRS;\n" +
+								"}\n";
+			createFile("/mod.zero/src/module-info.java",
+				content);
+
+			createJavaProject("Test", new String[]{"src"}, null, new String[] {"/mod.zero"}, "bin", JavaCore.VERSION_9);
+			createFolder("/Test/src/test1");
+			createFile("/Test/src/test1/Test.java",
+				"package test1;\n" +
+				"\n" +
+				"public class Test {}");
+			createFile("/Test/src/module-info.java",
+							"module PQRS {\n" +
+							"	exports test1;\n" +
+							"	requires ABCD;\n" +
+							"}\n");
+
+			ICompilationUnit unit = getCompilationUnit("/mod.zero/src/module-info.java");
+			
+			int start = content.indexOf("PQRS");
+			IJavaElement[] elements = unit.codeSelect(start, 4);
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			assertEquals("Incorrect element type", IJavaElement.JAVA_MODULE, elements[0].getElementType());
+			assertElementEquals("Incorrect Java element", 
+					"PQRS [in module-info.java [in <default> [in src [in Test]]]]", elements[0]);
+	
+		} finally {
+			deleteProject("Test");
+			deleteProject("mod.zero");
+		}
 	}
 }

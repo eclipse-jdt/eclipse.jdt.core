@@ -178,7 +178,6 @@ protected void acceptBinaryMethod(
 public void acceptModule(char[] moduleName, char[] uniqueKey, int start, int end) {
 	IModuleDescription module = resolveModule(moduleName);
 	addElement(module);
-	// TODO: Implement use cases to construct modules from location/key
 }
 /**
  * Resolve the type.

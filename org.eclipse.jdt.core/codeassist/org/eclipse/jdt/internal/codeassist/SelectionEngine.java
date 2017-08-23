@@ -61,7 +61,6 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.PackageVisibilityStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -1111,20 +1110,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					this.noProposal = false;
 					this.requestor.acceptPackage(CharOperation.concatWith(((SelectionOnPackageVisibilityReference) pv.pkgRef).tokens, '.'));
 				}
-				if (pv.targets == null || pv.targets.length == 0) continue;
-				for (ModuleReference ref : pv.targets) {
-					acceptModuleReference(ref, scope);
-				}
-			}
-		}
-	}
-	private void acceptModuleReference(ModuleReference ref, Scope scope) {
-		try {
-			ref.resolve(scope);
-		} catch (SelectionNodeFound e) {
-			if (e.binding != null) {
-				this.noProposal = false;
-				this.requestor.acceptModule(ref.moduleName, e.binding.computeUniqueKey(), ref.sourceStart, ref.sourceEnd);
 			}
 		}
 	}
@@ -1401,6 +1386,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					moduleBinding.computeUniqueKey(),
 					this.actualSelectionStart,
 					this.actualSelectionEnd);
+			this.acceptedAnswer = true;
 		}
 	}
 	/*
