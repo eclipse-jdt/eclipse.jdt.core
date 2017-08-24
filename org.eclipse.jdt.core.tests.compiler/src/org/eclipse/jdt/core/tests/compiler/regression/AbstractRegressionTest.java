@@ -81,6 +81,7 @@ import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseAnnotationProcessorMan
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.ProcessorInfo;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -1234,6 +1235,10 @@ protected static class JavacTestOptions {
 	}
 	protected IProblemFactory getProblemFactory() {
 		return new DefaultProblemFactory(Locale.getDefault());
+	}
+	// overridden in AbstractRegressionTests9
+	protected CompilationUnit[] getCompilationUnits(String[] testFiles) {
+		return Util.compilationUnits(testFiles);
 	}
 
 	public void initialize(CompilerTestSetup setUp) {
@@ -2687,7 +2692,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		compilerOptions.produceReferenceInfo = true;
 		Throwable exception = null;
 		try {
-			batchCompiler.compile(Util.compilationUnits(testFiles)); // compile all files together
+			batchCompiler.compile(getCompilationUnits(testFiles)); // compile all files together
 		} catch(RuntimeException e){
 			exception = e;
 			throw e;

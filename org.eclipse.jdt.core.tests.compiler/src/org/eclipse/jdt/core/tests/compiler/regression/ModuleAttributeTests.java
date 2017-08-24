@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 import junit.framework.Test;
 
-public class ModuleAttributeTests extends AbstractRegressionTest {
+public class ModuleAttributeTests extends AbstractRegressionTest9 {
 
 	public ModuleAttributeTests(String name) {
 		super(name);
@@ -138,5 +138,25 @@ public class ModuleAttributeTests extends AbstractRegressionTest {
 		assertNotNull("Error reading module-info.class", cfr);
 		int flags = cfr.getAccessFlags();
 		assertTrue("Invalid access flags", (flags & ~ClassFileConstants.AccModule) == 0);
+	}
+
+	public void testModuleCompile() throws Exception {
+		String pack1_x11java = "pack1/X11.java";
+		String pack2_x21java = "pack2/X21.java";
+		associateToModule("first", pack1_x11java, pack2_x21java);
+		String[] contents = {
+			"module-info.java",
+			"module first {\n" +
+				"exports pack1;\n" +
+				"exports pack2 to zero;\n" +
+			"}\n",
+			pack1_x11java,
+			"package pack1;\n" +
+			"public class X11 {}\n",
+			pack2_x21java,
+			"package pack2;\n" +
+			"public class X21 {}\n",
+		};
+		this.runConformTest(contents);
 	}
 }

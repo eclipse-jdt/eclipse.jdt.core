@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdatesByKind;
@@ -324,6 +325,15 @@ private void initializeKnownFileNames(String[] initialFileNames) {
 			this.knownFileNames.add(new String(CharOperation.subarray(fileName, matchingPathName.length, fileName.length)));
 		}
 		matchingPathName = null;
+	}
+}
+/** TESTS ONLY */
+public void scanForModules(Parser parser) {
+	for (int i = 0, max = this.classpaths.length; i < max; i++) {
+		File file = new File(this.classpaths[i].getPath());
+		IModule iModule = ModuleFinder.scanForModule(this.classpaths[i], file, parser, false);
+		if (iModule != null)
+			this.moduleLocations.put(String.valueOf(iModule.name()), this.classpaths[i]);
 	}
 }
 public void cleanup() {

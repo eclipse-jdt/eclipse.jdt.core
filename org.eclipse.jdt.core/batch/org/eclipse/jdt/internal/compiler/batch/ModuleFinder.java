@@ -54,42 +54,46 @@ public class ModuleFinder {
 						options);
 				if (modulePath != null) {
 					collector.add(modulePath);
-					IModule module = null;
-					if (file.isDirectory()) {
-						String[] list = file.list(new FilenameFilter() {
-							@Override
-							public boolean accept(File dir, String name) {
-								if (dir == file && (name.equalsIgnoreCase(IModule.MODULE_INFO_CLASS)
-										|| name.equalsIgnoreCase(IModule.MODULE_INFO_JAVA))) {
-									return true;
-								}
-								return false;
-							}
-						});
-						if (list.length > 0) {
-							String fileName = list[0];
-							switch (fileName) {
-								case IModule.MODULE_INFO_CLASS:
-									module = ModuleFinder.extractModuleFromClass(new File(file, fileName), modulePath);
-									break;
-								case IModule.MODULE_INFO_JAVA:
-									module = ModuleFinder.extractModuleFromSource(new File(file, fileName), parser, modulePath);
-									break;
-							}
-						}
-					} else if (isJar(file)) {
-						module = extractModuleFromJar(file, modulePath);
-					}
-					if (isModulepath && module == null) {
-						 // The name includes the file's extension, but it shouldn't matter.
-						module = new AutoModule(getFileName(file).toCharArray());
-					}
-					if (module != null)
-						modulePath.acceptModule(module);
+					scanForModule(modulePath, file, parser, isModulepath);
 				}
 			}
 		}
 		return collector;
+	}
+	protected static IModule scanForModule(FileSystem.Classpath modulePath, final File file, Parser parser, boolean isModulepath) {
+		IModule module = null;
+		if (file.isDirectory()) {
+			String[] list = file.list(new FilenameFilter() {
+				@Override
+				public boolean accept(File dir, String name) {
+					if (dir == file && (name.equalsIgnoreCase(IModule.MODULE_INFO_CLASS)
+							|| name.equalsIgnoreCase(IModule.MODULE_INFO_JAVA))) {
+						return true;
+					}
+					return false;
+				}
+			});
+			if (list.length > 0) {
+				String fileName = list[0];
+				switch (fileName) {
+					case IModule.MODULE_INFO_CLASS:
+						module = ModuleFinder.extractModuleFromClass(new File(file, fileName), modulePath);
+						break;
+					case IModule.MODULE_INFO_JAVA:
+						module = ModuleFinder.extractModuleFromSource(new File(file, fileName), parser, modulePath);
+						break;
+				}
+			}
+		} else if (isJar(file)) {
+			module = extractModuleFromJar(file, modulePath);
+		}
+		if (isModulepath && module == null) {
+			 // The name includes the file's extension, but it shouldn't matter.
+			module = new AutoModule(getFileName(file).toCharArray());
+		}
+		if (module != null)
+			modulePath.acceptModule(module);
+		return module;
 	}
 	private static String getFileName(File file) {
 		String name = file.getName();
