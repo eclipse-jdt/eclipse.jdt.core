@@ -146,15 +146,23 @@ PackageBinding getPackage(char[] name, ModuleBinding mod) {
 	addNotFoundPackage(name);
 	return null;
 }
-/* Answer the subpackage named name if it exists in the cache.
+/** Answer the subpackage named name if it exists in the cache.
 * Answer theNotFoundPackage if it could not be resolved the first time
 * it was looked up, otherwise answer null.
-*
+* <p>
+* NOTE: The returned package binding is guaranteed to be complete wrt. SplitPackageBinding,
+* or, if no complete binding is yet available, we shyly answer null.
+* </p><p>
 * NOTE: Senders must convert theNotFoundPackage into a real problem
-* package if its to returned.
+* package if its to returned.</p>
 */
-
 PackageBinding getPackage0(char[] name) {
+	return this.knownPackages.get(name);
+}
+/** Variant (see {@link #getPackage0(char[])}), that may even answer an incompletely
+ *  combined package (in the case of SplitPackageBinding).
+ */
+PackageBinding getPackage0Any(char[] name) {
 	return this.knownPackages.get(name);
 }
 /* Answer the type named name; ask the oracle for the type if its not in the cache.

@@ -1413,7 +1413,7 @@ public ReferenceBinding getCachedType(char[][] compoundName) {
 		return null;
 
 	for (int i = 1, packageLength = compoundName.length - 1; i < packageLength; i++)
-		if ((packageBinding = packageBinding.getPackage0(compoundName[i])) == null || packageBinding == TheNotFoundPackage)
+		if ((packageBinding = packageBinding.getPackage0Any(compoundName[i])) == null || packageBinding == TheNotFoundPackage)
 			return null;
 	return packageBinding.getType0(compoundName[compoundName.length - 1]);
 }

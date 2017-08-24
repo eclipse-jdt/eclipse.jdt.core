@@ -142,6 +142,23 @@ public class SplitPackageBinding extends PackageBinding {
 	}
 
 	@Override
+	PackageBinding getPackage0Any(char[] name) {
+		PackageBinding knownPackage = super.getPackage0(name);
+		if (knownPackage != null)
+			return knownPackage;
+
+		PackageBinding candidate = null;
+		for (PackageBinding incarnation : this.incarnations) {
+			PackageBinding package0 = incarnation.getPackage0(name);
+			if (package0 == null)
+				continue;
+			candidate = combine(package0, candidate, this.enclosingModule);
+		}
+		// don't cache the result, maybe incomplete
+		return candidate;
+	}
+
+	@Override
 	protected PackageBinding findPackage(char[] name, ModuleBinding module) {
 		Set<PackageBinding> candidates = new HashSet<>();
 		for (ModuleBinding candidateModule : this.declaringModules) {
