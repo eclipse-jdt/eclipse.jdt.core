@@ -733,7 +733,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			}
 			assertNotNull("should not be null", theRoot);
 			String[] modules = JavaCore.getReferencedModules(project);
-			assertStringsEqual("incorrect result", new String[]{"java.base", "java.desktop", "java.rmi", "java.sql"}, modules);
+			assertStringsEqual("incorrect result", new String[]{"java.desktop", "java.rmi", "java.sql"}, modules);
 		} finally {
 			this.deleteProject("ConvertToModule");
 			 JavaCore.setOptions(javaCoreOptions);
