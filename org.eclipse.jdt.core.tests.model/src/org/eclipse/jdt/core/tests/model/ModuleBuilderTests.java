@@ -4889,6 +4889,33 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.deleteProject("org.two");
 		}
 	}
+	public void testBug521346() throws CoreException, IOException {
+		if (!isJRE9) return;
+		IJavaProject javaProject = null;
+		try {
+			String src =
+					"import java.*;\n" + 
+					"public class X {\n" + 
+					"    public static void main(String[] args) {\n" + 
+					"        System.out.println(true);\n" + 
+					"    }\n" + 
+					"}";
+			javaProject = createJava9Project("Test");
+			this.problemRequestor.initialize(src.toCharArray());
+			getWorkingCopy("/Test/src/X.java", src, true);
+			assertProblems("should have not problems",
+					"----------\n" + 
+					"1. WARNING in /Test/src/X.java (at line 1)\n" + 
+					"	import java.*;\n" + 
+					"	       ^^^^\n" + 
+					"The import java is never used\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			if (javaProject != null)
+				deleteProject(javaProject);
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

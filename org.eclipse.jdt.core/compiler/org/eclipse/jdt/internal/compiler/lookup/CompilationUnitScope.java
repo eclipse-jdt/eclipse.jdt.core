@@ -426,9 +426,9 @@ void faultInImports() {
 				continue nextImport;
 			}
 			if (importBinding instanceof PackageBinding) {
-				importBinding = ((PackageBinding)importBinding).getVisibleFor(module());
-				if (importBinding instanceof SplitPackageBinding) {
-					SplitPackageBinding splitPackage = (SplitPackageBinding) importBinding;
+				PackageBinding uniquePackage = ((PackageBinding)importBinding).getVisibleFor(module());
+				if (uniquePackage instanceof SplitPackageBinding) {
+					SplitPackageBinding splitPackage = (SplitPackageBinding) uniquePackage;
 					problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, importReference.sourceEnd);
 					continue nextImport;
 				}
