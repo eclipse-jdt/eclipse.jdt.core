@@ -125,7 +125,7 @@ private void computeClasspathLocations(
 		Object target = JavaModel.getTarget(path, true);
 		IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, javaProject.getProject(), true);
 		if (target == null) continue nextEntry;
-		boolean isOnModulePath = entry.isAutomaticModule();
+		boolean isOnModulePath = isOnModulePath(entry);
 
 		if (this.moduleUpdater != null)
 			this.moduleUpdater.computeModuleUpdates(entry);
@@ -327,6 +327,10 @@ private void computeClasspathLocations(
 	
 	if (moduleEntries != null && !moduleEntries.isEmpty())
 		this.modulePathEntries = moduleEntries;
+}
+
+protected boolean isOnModulePath(ClasspathEntry entry) {
+	return entry.isAutomaticModule();
 }
 
 public void cleanup() {

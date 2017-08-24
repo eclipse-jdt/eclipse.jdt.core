@@ -36,7 +36,9 @@ import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.builder.NameEnvironment;
 import org.eclipse.jdt.internal.core.builder.ProblemFactory;
 
@@ -49,8 +51,14 @@ public class ModuleUtil {
 
 		Set<String> modules = new HashSet<>();
 		public String[] getModules() {
+			this.modules.remove(String.valueOf(TypeConstants.JAVA_BASE));
 			String[] mods = new String[this.modules.size()];
 			return this.modules.toArray(mods);
+		}
+
+		@Override
+		protected boolean isOnModulePath(ClasspathEntry entry) {
+			return true; // try to interpret all dependencies as modules from now on
 		}
 
 		@Override
@@ -74,12 +82,6 @@ public class ModuleUtil {
 				this.modules.add(String.valueOf(answer.moduleName()));
 			}
 			return answer;
-		}
-
-		@Override
-		public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] name, char[] moduleName) {
-			// FIXME(SHMOD): when answering non-null, should we record the module, too?
-			return super.getModulesDeclaringPackage(parentPackageName, name, moduleName);
 		}
 	}
 	private static Compiler newCompiler(ModuleAccumulatorEnvironment environment, IJavaProject javaProject) {
