@@ -45,27 +45,30 @@ public class ModuleUpdater {
 	public void computeModuleUpdates(IClasspathEntry entry) {
 		for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
 			String attributeName = attribute.getName();
+			String values = attribute.getValue(); // the attributes considered here may have multiple values separated by ':'
 			if (attributeName.equals(IClasspathAttribute.ADD_EXPORTS)) {
-				String value = attribute.getValue(); // format: <source-module>/<package>=<target-module>(,<target-module>)*
-				int slash = value.indexOf('/');
-				int equals = value.indexOf('=');
-				if (slash != -1 && equals != -1) {
-					String modName = value.substring(0, slash);
-					char[] packName = value.substring(slash+1, equals).toCharArray();
-					char[][] targets = CharOperation.splitOn(',', value.substring(equals+1).toCharArray());
-					addModuleUpdate(modName, m -> m.addExports(packName, targets), UpdateKind.PACKAGE);
-				} else {
-					Util.log(IStatus.WARNING, "Invalid argument to add-exports: "+value); //$NON-NLS-1$
+				for (String value : values.split(":")) { // format: <source-module>/<package>=<target-module>(,<target-module>)* //$NON-NLS-1$
+					int slash = value.indexOf('/');
+					int equals = value.indexOf('=');
+					if (slash != -1 && equals != -1) {
+						String modName = value.substring(0, slash);
+						char[] packName = value.substring(slash+1, equals).toCharArray();
+						char[][] targets = CharOperation.splitOn(',', value.substring(equals+1).toCharArray());
+						addModuleUpdate(modName, m -> m.addExports(packName, targets), UpdateKind.PACKAGE);
+					} else {
+						Util.log(IStatus.WARNING, "Invalid argument to add-exports: "+value); //$NON-NLS-1$
+					}
 				}
 			} else if (attributeName.equals(IClasspathAttribute.ADD_READS)) {
-				String value = attribute.getValue(); // format: <source-module>=<target-module>
-				int equals = value.indexOf('=');
-				if (equals != -1) {
-					String srcMod = value.substring(0, equals);
-					char[] targetMod = value.substring(equals+1).toCharArray();
-					addModuleUpdate(srcMod, m -> m.addReads(targetMod), UpdateKind.MODULE);
-				} else {
-					Util.log(IStatus.WARNING, "Invalid argument to add-reads: "+value); //$NON-NLS-1$
+				for (String value : values.split(":")) { // format: <source-module>=<target-module> //$NON-NLS-1$
+					int equals = value.indexOf('=');
+					if (equals != -1) {
+						String srcMod = value.substring(0, equals);
+						char[] targetMod = value.substring(equals+1).toCharArray();
+						addModuleUpdate(srcMod, m -> m.addReads(targetMod), UpdateKind.MODULE);
+					} else {
+						Util.log(IStatus.WARNING, "Invalid argument to add-reads: "+value); //$NON-NLS-1$
+					}
 				}
 			}
 		}

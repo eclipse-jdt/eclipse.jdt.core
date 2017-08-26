@@ -4597,6 +4597,56 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("com.greetings");
 		}
 	}
+	public void testAddExports2() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+					"src/module-info.java",
+					"module morg.astro {\n" +
+//					"	exports org.astro to com.greetings;\n" + // this export will be added via add-exports
+//					"	exports org.eclipse to com.greetings;\n" + // this export will be added via add-exports
+					"}",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}",
+					"src/org/eclipse/Planet.java",
+					"package org.eclipse;\n" +
+					"public class Planet {}\n"
+			};
+			IJavaProject p1 = setupModuleProject("morg.astro", sources);
+			IClasspathAttribute modAttr = new ClasspathAttribute("module", "true");
+			IClasspathAttribute addExports = new ClasspathAttribute(IClasspathAttribute.ADD_EXPORTS,
+						"morg.astro/org.astro=com.greetings:morg.astro/org.eclipse=com.greetings");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+															new IClasspathAttribute[] {modAttr, addExports},
+															false/*not exported*/);
+			String[] src = new String[] {
+					"src/module-info.java",
+					"module com.greetings {\n" +
+					"	requires morg.astro;\n" +
+					"	exports com.greetings;\n" +
+					"}",
+					"src/com/greetings/MyWorld.java",
+					"package com.greetings;\n" +
+					"import org.astro.World;\n" +
+					"public class MyWorld implements World {\n" +
+					"	org.eclipse.Planet planet;\n" +
+					"	public String name() {\n" +
+					"		return \" My World!!\";\n" +
+					"	}\n" +
+					"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",	"",  markers);
+		} finally {
+			deleteProject("morg.astro");
+			deleteProject("com.greetings");
+		}
+	}
 	public void testAddReads() throws CoreException, IOException {
 		if (!isJRE9) return;
 		try {

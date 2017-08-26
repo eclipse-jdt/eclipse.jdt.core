@@ -601,6 +601,8 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * valid Java module descriptor.
 	 * 
 	 * @return the <code>IModule</code> this project represents.
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
 	 * @since 3.13 BETA_JAVA9
 	 */
 	IModuleDescription getModuleDescription() throws JavaModelException;
