@@ -2033,6 +2033,7 @@ public void reset() {
 	this.knownModules = new HashtableOfModule();
 	this.UnNamedModule = new ModuleBinding.UnNamedModule(this);
 	this.module = this.UnNamedModule;
+	this.JavaBaseModule = null;
 
 	this.defaultPackage = new PackageBinding(this); // assume the default package always exists
 	this.defaultImports = null;
