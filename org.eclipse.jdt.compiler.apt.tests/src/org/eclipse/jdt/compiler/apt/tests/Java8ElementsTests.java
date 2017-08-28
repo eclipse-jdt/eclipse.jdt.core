@@ -160,6 +160,10 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations12");
 	}
+	public void testTypeAnnotations12Binary() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations12Binary", null, "model9");
+	}
 	public void testTypeAnnotations13() throws Exception {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations13");
@@ -369,6 +373,34 @@ public class Java8ElementsTests extends TestCase {
 			options.add("-1.8");
 		}
 		BatchTestUtils.compileTree(compiler, options, targetFolder, true);
+
+		// If it succeeded, the processor will have set this property to "succeeded";
+		// if not, it will set it to an error value.
+		assertEquals("succeeded", System.getProperty(processor));
+	}
+	private void internalTestWithBinary(JavaCompiler compiler, String processor, String testMethod, String testClass, String resourceArea) throws IOException {
+		if (!canRunJava8()) {
+			return;
+		}
+		System.clearProperty(processor);
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", resourceArea);
+		if (testClass == null || testClass.equals("")) {
+			BatchTestUtils.copyResources("targets/" + resourceArea, targetFolder);
+		} else {
+			BatchTestUtils.copyResource("targets/" + resourceArea + "/" + testClass, targetFolder);
+		}
+		
+
+		List<String> options = new ArrayList<String>();
+		options.add("-A" + processor);
+		options.add("-A" + testMethod);
+		options.add("-processor");
+		options.add(processor);
+		// Javac 1.8 doesn't (yet?) support the -1.8 option
+		if (compiler instanceof EclipseCompiler) {
+			options.add("-1.8");
+		}
+		BatchTestUtils.compileTreeAndProcessBinaries(compiler, options, processor, targetFolder, null);
 
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.

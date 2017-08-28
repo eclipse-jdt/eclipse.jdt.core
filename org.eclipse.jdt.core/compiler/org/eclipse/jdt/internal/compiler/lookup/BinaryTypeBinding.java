@@ -845,14 +845,15 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 
 	if (this.environment.globalOptions.storeAnnotations) {
 		IBinaryAnnotation[] annotations = method.getAnnotations();
-	    if (annotations == null || annotations.length == 0)
-	    	if (method.isConstructor())
-	    		annotations = walker.toMethodReturn().getAnnotationsAtCursor(this.id, false); // FIXME: When both exist, order could become an issue.
+		if (method.isConstructor()) {
+			IBinaryAnnotation[] tAnnotations = walker.toMethodReturn().getAnnotationsAtCursor(this.id, false); // FIXME: When both exist, order could become an issue.
+			result.setTypeAnnotations(createAnnotations(tAnnotations, this.environment, missingTypeNames));
+		}
 		result.setAnnotations(
-			createAnnotations(annotations, this.environment, missingTypeNames),
-			paramAnnotations,
-			isAnnotationType() ? convertMemberValue(method.getDefaultValue(), this.environment, missingTypeNames, true) : null,
-			this.environment);
+				createAnnotations(annotations, this.environment, missingTypeNames),
+				paramAnnotations,
+				isAnnotationType() ? convertMemberValue(method.getDefaultValue(), this.environment, missingTypeNames, true) : null,
+						this.environment);
 	}
 
 	if (argumentNames != null) result.parameterNames = argumentNames;

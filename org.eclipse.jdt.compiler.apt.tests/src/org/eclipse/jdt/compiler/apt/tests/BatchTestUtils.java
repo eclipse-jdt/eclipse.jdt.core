@@ -26,6 +26,10 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -36,6 +40,7 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
+import javax.tools.StandardLocation;
 
 /**
  * Helper class to support compilation and results checking for tests running in batch mode.
@@ -135,6 +140,60 @@ public class BatchTestUtils {
 	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
 		}
 	}
+	/*
+	 * First compiles the given files without processor, then processes them
+	 * with the just compiled binaries.
+	 */
+	public static void compileTreeAndProcessBinaries(JavaCompiler compiler, List<String> options, String processor,
+			File targetFolder, DiagnosticListener<? super JavaFileObject> listener) {
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		Iterable<? extends File> location = manager.getLocation(StandardLocation.CLASS_PATH);
+		// create new list containing inputfile
+		List<File> files = new ArrayList<File>();
+		findFilesUnder(targetFolder, files);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+		List<String> copyOptions = new ArrayList<>();
+		copyOptions.addAll(options);
+		copyOptions.add("-d");
+		copyOptions.add(_tmpBinFolderName);
+		copyOptions.add("-s");
+		copyOptions.add(_tmpGenFolderName);
+		addProcessorPaths(copyOptions, true, true);
+		options.add("-XprintRounds");
+		CompilationTask task = compiler.getTask(printWriter, manager, listener, copyOptions, null, units);
+		Boolean result = task.call();
+
+		if (!result.booleanValue()) {
+			String errorOutput = stringWriter.getBuffer().toString();
+			System.err.println("Compilation failed: " + errorOutput);
+	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
+		}
+		List<String> classes = new ArrayList<>();
+		try {
+			System.clearProperty(processor);
+			copyOptions = new ArrayList<>();
+			copyOptions.addAll(options);
+			copyOptions.add("-cp");
+			copyOptions.add(_tmpBinFolderName + File.pathSeparator + _jls8ProcessorJarPath + File.pathSeparator + _tmpGenFolderName);
+			copyOptions.add("-processorpath");
+			copyOptions.add(_jls8ProcessorJarPath);
+			classes.add("java.lang.Object"); // This is required to make sure BTB for Object is fully populated.
+			findClassesUnder(Paths.get(_tmpBinFolderName), null, classes);
+			manager.setLocation(StandardLocation.CLASS_PATH, location);
+			task = compiler.getTask(printWriter, manager, listener, copyOptions, classes, null);
+			result = task.call();
+			if (!result.booleanValue()) {
+				String errorOutput = stringWriter.getBuffer().toString();
+				System.err.println("Compilation failed: " + errorOutput);
+		 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
+			}
+		} catch (IOException e) {
+			// print the stack just in case.
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Compile the contents of a directory tree, collecting errors so that they can be
@@ -206,6 +265,24 @@ public class BatchTestUtils {
 		}
 	}
 
+	protected static void findClassesUnder(Path root, Path folder, List<String> classes) throws IOException {
+		if (folder == null) 
+			folder = root;
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(folder)) {
+	        for (Path entry : stream) {
+	            if (Files.isDirectory(entry)) {
+	            	findClassesUnder(root, entry, classes);
+	            } else {
+	            	if (entry.getFileName().toString().endsWith(".class")) {
+						String className = root.relativize(entry).toString();
+						className = className.substring(0, className.indexOf(".class"));
+						className = className.replace(File.separatorChar, '.');
+						classes.add(className);
+	            	}
+	            }
+	        }
+	    }
+	}
 	/** @return the name of the folder where class files will be saved */
 	public static String getBinFolderName() {
 		return _tmpBinFolderName;

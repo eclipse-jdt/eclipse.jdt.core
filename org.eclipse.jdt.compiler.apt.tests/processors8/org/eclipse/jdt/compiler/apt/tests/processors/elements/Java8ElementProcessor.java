@@ -601,8 +601,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertTrue("Found unexpected extra elements", expectedElementNames.isEmpty());
 	}
 
-	public void testTypeAnnotations12() {
-		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
+	private void tTypeAnnotations12(TypeElement annotatedType) {
 		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
 		ExecutableElement bar2 = null;
 		ExecutableElement constr = null;
@@ -630,6 +629,16 @@ public class Java8ElementProcessor extends BaseProcessor {
 		verifyAnnotations(constr2, new String[]{"@Type1(value=constr2)"});
 		type = (ExecutableType) constr2.asType();
 		verifyAnnotations(type, new String[]{});
+	}
+
+	public void testTypeAnnotations12() {
+		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
+		tTypeAnnotations12(annotatedType);
+	}
+
+	public void testTypeAnnotations12Binary() {
+		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model9.X");
+		tTypeAnnotations12(annotatedType);
 	}
 	
 	public void testTypeAnnotations13() {
