@@ -28,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryModule;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.core.nd.java.model.BinaryModuleDescriptor;
+import org.eclipse.jdt.internal.core.nd.java.model.BinaryModuleFactory;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -118,7 +120,7 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 	}
 
 	/**
-	 * Returns the <code>ClassFileReader</code>specific for this IClassFile, based
+	 * Returns the <code>IBinaryModule</code> specific for this IClassFile, based
 	 * on its underlying resource, or <code>null</code> if unable to create
 	 * the diet class file.
 	 * There are two cases to consider:<ul>
@@ -154,11 +156,11 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 	}
 	
 	private IBinaryModule getJarBinaryModuleInfo() throws CoreException, IOException, ClassFormatException {
-//		BinaryModuleDescriptor descriptor = BinaryModuleFactory.createDescriptor(this);
-//	
-//		if (descriptor == null) {
-//			return null;
-//		}
+		BinaryModuleDescriptor descriptor = BinaryModuleFactory.createDescriptor(this);
+	
+		if (descriptor == null) {
+			return null;
+		}
 		IBinaryModule result = null;
 		IPackageFragmentRoot root = getPackageFragmentRoot();
 		if (getPackageFragmentRoot() instanceof JarPackageFragmentRoot) {
@@ -180,15 +182,11 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 					return classFileReader.getModuleDeclaration();
 				}
 			} else {
-//				result = BinaryModuleFactory.readModule(descriptor, null);
+				result = BinaryModuleFactory.readModule(descriptor, null);
 			}
 		} else {
-//			result = BinaryModuleFactory.readModule(descriptor, null);
+			result = BinaryModuleFactory.readModule(descriptor, null);
 		}
-			
-//		if (result == null) {
-//			return null;
-//		}
 
 		return result;
 	}

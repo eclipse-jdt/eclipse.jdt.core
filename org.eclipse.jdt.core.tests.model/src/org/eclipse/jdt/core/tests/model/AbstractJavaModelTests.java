@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
@@ -1708,12 +1709,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					}
 					if (lib.indexOf(File.separatorChar) == -1 && lib.charAt(0) != '/' && lib.equals(lib.toUpperCase())) { // all upper case is a var
 						char[][] vars = CharOperation.splitOn(',', lib.toCharArray());
+						IClasspathAttribute[] extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
+						if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK9 && lib.startsWith("JCL")) {
+							extraAttributes = new IClasspathAttribute[] {
+								JavaCore.newClasspathAttribute(IClasspathAttribute.AUTOMATIC_MODULE, "true")
+							};
+						}
 						entries[sourceLength+i] = JavaCore.newVariableEntry(
 							new Path(new String(vars[0])),
 							vars.length > 1 ? new Path(new String(vars[1])) : null,
 							vars.length > 2 ? new Path(new String(vars[2])) : null,
 							ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles), // ClasspathEntry.NO_ACCESS_RULES,
-							ClasspathEntry.NO_EXTRA_ATTRIBUTES,
+							extraAttributes,
 							false);
 					} else if (lib.startsWith("org.eclipse.jdt.core.tests.model.")) { // container
 						entries[sourceLength+i] = JavaCore.newContainerEntry(

@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.IOException;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -891,6 +892,32 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertEquals("# mod children", 0, mod.getChildren().length);
 		}
 		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void test_module_in_classfolder_bug520651() throws Exception {
+		try {
+			IJavaProject libPrj= createJavaProject("Java9Lib", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+			createFile("Java9Lib/src/module-info.java", "module java9.lib {}\n");
+			libPrj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			
+			IJavaProject project = createJavaProject("Java9Elements",
+					new String[] {"src"},
+					new String[] {"JCL19_LIB", "/Java9Lib/bin"},
+					"bin", "9");
+			project.open(null);
+			IModuleDescription moduleDescription = null;
+			for (IPackageFragmentRoot root : project.getAllPackageFragmentRoots()) {
+				if (root.getPath().toString().equals("/Java9Lib/bin")) {
+					moduleDescription = root.getModuleDescription();
+					assertEquals("module name", "java9.lib", moduleDescription.getElementName());
+					return;
+				}
+			}
+			fail("class folder not found");
+		}
+		finally {
+			deleteProject("Java9Lib");
 			deleteProject("Java9Elements");
 		}
 	}
