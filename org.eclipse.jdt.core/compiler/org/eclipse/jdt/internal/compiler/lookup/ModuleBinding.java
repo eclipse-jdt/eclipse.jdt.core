@@ -641,7 +641,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 	@Override
 	public char[] computeUniqueKey(boolean isLeaf) {
-		return this.moduleName; // for now just return the module name - tied to Signature if any.
+		return CharOperation.prepend('"', this.moduleName);
 	}
 
 	@Override

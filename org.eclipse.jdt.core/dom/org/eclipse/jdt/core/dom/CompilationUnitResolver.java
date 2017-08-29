@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -57,6 +61,7 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.BinaryMember;
+import org.eclipse.jdt.internal.core.BinaryModule;
 import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 import org.eclipse.jdt.internal.core.CancelableProblemFactory;
 import org.eclipse.jdt.internal.core.INameEnvironmentWithProgress;
@@ -248,7 +253,9 @@ class CompilationUnitResolver extends Compiler {
 			} else {
 				char[] key = resolver.hasTypeName()
 					? resolver.getKey().toCharArray() // binary binding
-					: CharOperation.concatWith(resolver.compoundName(), '.'); // package binding or base type binding
+					: resolver.hasModuleName()
+					    ? resolver.moduleName()
+					    : CharOperation.concatWith(resolver.compoundName(), '.'); // package binding or base type binding
 				this.requestedKeys.put(key, resolver);
 			}
 			worked(1);
@@ -755,6 +762,8 @@ class CompilationUnitResolver extends Compiler {
 						key = ((LocalVariable) element).getKey(true/*open to get resolved info*/);
 					else if (element instanceof org.eclipse.jdt.internal.core.TypeParameter)
 						key = ((org.eclipse.jdt.internal.core.TypeParameter) element).getKey(true/*open to get resolved info*/);
+					else if (element instanceof BinaryModule)
+						key = ((BinaryModule) element).getKey(true);
 					else
 						throw new IllegalArgumentException(element + " has an unexpected type"); //$NON-NLS-1$
 					binaryElementPositions.put(key, i);

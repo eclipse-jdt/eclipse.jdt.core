@@ -1710,7 +1710,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					if (lib.indexOf(File.separatorChar) == -1 && lib.charAt(0) != '/' && lib.equals(lib.toUpperCase())) { // all upper case is a var
 						char[][] vars = CharOperation.splitOn(',', lib.toCharArray());
 						IClasspathAttribute[] extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
-						if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK9 && lib.startsWith("JCL")) {
+						if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK9 
+								&& (lib.startsWith("JCL") || lib.startsWith("CONVERTER_JCL"))) {
 							extraAttributes = new IClasspathAttribute[] {
 								JavaCore.newClasspathAttribute(IClasspathAttribute.AUTOMATIC_MODULE, "true")
 							};

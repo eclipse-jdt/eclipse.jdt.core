@@ -23,11 +23,17 @@ import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.SourceModule;
 
 import java.util.List;
+
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModularClassFile;
+import org.eclipse.jdt.core.IModuleDescription;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -364,7 +370,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			assertTrue("Source module name incorrect", sModule.getElementName().equals("first"));
 
 			String key = moduleBinding.getKey();
-			assertTrue("Unique Key incorrecct", key.equals("first"));
+			assertTrue("Unique Key incorrecct", key.equals("\"first"));
 
 		} finally {
 			deleteProject("ConverterTests9");
@@ -697,7 +703,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		}
 	}
 
-	public void _testBug518843_001() throws Exception {// TODO: Uncomment after bug 488541 is fixed
+	public void testBug518843_001() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		String content =  "module first {"
 				+ "  exports pack11.module to third, fourth;\n"
@@ -708,7 +714,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		ModuleDeclaration moduleDecl = unit.getModule();
 		checkSourceRange(moduleDecl, content, content);
 	}
-	public void testBug519310_001() throws Exception {// TODO: Uncomment after bug 488541 is fixed
+	public void testBug519310_001() throws Exception {
 		this.workingCopies = new ICompilationUnit[1];
 		String content =  "package p;\n"
 				+ "  public interface I1 {\n"
@@ -722,6 +728,82 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		assertTrue("Method Malformed", (method.getFlags() & ASTNode.MALFORMED) == 0);
 	}
 
+	public void testResolveSourceModule1() throws Exception {
+		IJavaProject project1 = null;
+		try {
+			project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			String fileContent = 
+				"open module first.module {\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+	
+			IModuleDescription firstModule = project1.findModule("first.module", null);
+			IJavaElement[] elements = new IJavaElement[] {
+					firstModule,
+				};
+			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
+			parser.setProject(project1);
+			IBinding[] bindings = parser.createBindings(elements, null);
+			assertBindingsEqual(
+				"\"first.module",
+				bindings);
+			String key = bindings[0].getKey();
+			IJavaElement element = project1.findElement(key, this.wcOwner);
+			assertEquals("should be the same module", firstModule, element);
+		} finally {
+			if (project1 != null)
+				deleteProject(project1);
+		}
+	}
+
+	public void testResolveBinaryModule1() throws Exception {
+		IJavaProject project1 = null;
+		IJavaProject project2 = null;
+		try {
+			project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			String fileContent = 
+				"module first.module { }";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			
+			project1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+	
+			project2 = createJavaProject("second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			addClasspathEntry(project2, JavaCore.newLibraryEntry(new Path("/ConverterTests9/bin"), null, null, null, 
+					new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.AUTOMATIC_MODULE, "true") }, false));		
+			project2.open(null);
+	
+			IModuleDescription firstModule = null;
+			for (IPackageFragmentRoot root : project2.getPackageFragmentRoots()) {
+				IModuleDescription module = root.getModuleDescription();
+				if (module != null && module.getElementName().equals("first.module")) {
+					assertTrue("should be in modular class file", module.getParent() instanceof IModularClassFile);
+					firstModule = module;
+					break;
+				}
+			}
+			assertNotNull("finding first.module", firstModule);
+			assertEquals("same as through find", firstModule, project2.findModule("first.module", this.wcOwner));
+			IJavaElement[] elements = new IJavaElement[] {
+					firstModule,
+				};
+			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
+			parser.setProject(project2);
+			IBinding[] bindings = parser.createBindings(elements, null);
+			assertBindingsEqual(
+				"\"first.module",
+				bindings);
+			String key = bindings[0].getKey();
+			IJavaElement element = project2.findElement(key, this.wcOwner);
+			assertEquals("should be the same module", firstModule, element);
+		} finally {
+			if (project1 != null)
+				deleteProject(project1);
+			if (project2 != null)
+				deleteProject(project2);
+		}
+	}
 
 // Add new tests here
 }

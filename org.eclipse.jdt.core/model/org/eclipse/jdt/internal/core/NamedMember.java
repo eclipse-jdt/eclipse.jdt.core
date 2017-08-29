@@ -167,10 +167,9 @@ public abstract class NamedMember extends Member {
 	}
 	protected String getKey(IModuleDescription module, boolean forceOpen) throws JavaModelException {
 		StringBuffer key = new StringBuffer();
-		key.append('L');
+		key.append('"');
 		String modName = module.getElementName();
 		key.append(modName);
-		key.append(';');
 		return key.toString();
 	}
 

@@ -183,6 +183,39 @@ public static final char[] append(char[] target, int index, char[] array, int st
 }
 
 /**
+ * Answers a new array with prepending the prefix character at the start of the array.
+ * <br>
+ * <br>
+ * For example:<br>
+ * <ol>
+ * <li><pre>
+ *    prefix = 'c'
+ *    array = { 'a', 'b' }
+ *    => result = { 'c' , 'a', 'b' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    prefix = 'c'
+ *    array = null
+ *    => result = { 'c' }
+ * </pre></li>
+ * </ol>
+ *
+ * @param array the array that is concatenated with the prefix character
+ * @param prefix the prefix character
+ * @return the new array
+ * @since 3.13 BETA_JAVA9
+ */
+public static final char[] prepend(char prefix, char[] array) {
+	if (array == null)
+		return new char[] { prefix };
+	int length = array.length;
+	System.arraycopy(array, 0, array = new char[length + 1], 1, length);
+	array[0] = prefix;
+	return array;
+}
+
+/**
  * Answers the concatenation of the two arrays. It answers null if the two arrays are null.
  * If the first array is null, then the second array is returned.
  * If the second array is null, then the first array is returned.
