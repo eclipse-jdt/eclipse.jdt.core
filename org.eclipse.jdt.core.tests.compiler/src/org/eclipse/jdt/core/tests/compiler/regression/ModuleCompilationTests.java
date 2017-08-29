@@ -1292,6 +1292,51 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"package s",
 				 OUTPUT_DIR + File.separator + out);
 	}
+	/*
+	 * Unnamed module tries to access a type from an unexported package, fail
+	 */
+	public void test019fail() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public abstract class X extends com.sun.security.ntlm.Server {\n" +
+						"	//public X() {}\n" +
+						"	public X(String arg0, String arg1) throws com.sun.security.ntlm.NTLMException {\n" +
+						"		super(arg0, arg1);\n" +
+						"	}\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -sourcepath " + "\"" + moduleLoc + "\" ");
+
+		runNegativeModuleTest(files, 
+				buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 2)\n" + 
+				"	public abstract class X extends com.sun.security.ntlm.Server {\n" + 
+				"	                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The type com.sun.security.ntlm.Server is not accessible\n" + 
+				"----------\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 4)\n" + 
+				"	public X(String arg0, String arg1) throws com.sun.security.ntlm.NTLMException {\n" + 
+				"	                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The type com.sun.security.ntlm.NTLMException is not accessible\n" + 
+				"----------\n" + 
+				"2 problems (2 errors)\n",
+				false,
+				"does not export it to the unnamed module");
+	}
 	public void test020() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
