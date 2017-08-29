@@ -846,7 +846,7 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 	if (this.environment.globalOptions.storeAnnotations) {
 		IBinaryAnnotation[] annotations = method.getAnnotations();
 		if (method.isConstructor()) {
-			IBinaryAnnotation[] tAnnotations = walker.toMethodReturn().getAnnotationsAtCursor(this.id, false); // FIXME: When both exist, order could become an issue.
+			IBinaryAnnotation[] tAnnotations = walker.toMethodReturn().getAnnotationsAtCursor(this.id, false);
 			result.setTypeAnnotations(createAnnotations(tAnnotations, this.environment, missingTypeNames));
 		}
 		result.setAnnotations(
