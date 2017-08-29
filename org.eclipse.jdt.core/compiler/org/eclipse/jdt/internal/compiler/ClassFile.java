@@ -5310,7 +5310,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 
 	public void initializeForModule(ModuleBinding module) {
-		initializeHeader(null, module.modifiers);
+		initializeHeader(null, ClassFileConstants.AccModule);
 		int classNameIndex = this.constantPool.literalIndexForType(TypeConstants.MODULE_INFO_NAME);
 		this.contents[this.contentsOffset++] = (byte) (classNameIndex >> 8);
 		this.contents[this.contentsOffset++] = (byte) classNameIndex;

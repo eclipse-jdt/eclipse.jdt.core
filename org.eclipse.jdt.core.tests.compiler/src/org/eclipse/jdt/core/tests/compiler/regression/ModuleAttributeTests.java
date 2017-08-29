@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IModuleAttribute;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 import junit.framework.Test;
 
@@ -79,8 +80,8 @@ public class ModuleAttributeTests extends AbstractRegressionTest {
 		}
 		assertNotNull("Module attribute not found", moduleAttribute);
 	}
-	// Test that ther is at most one Module attribute in the attributes table of a ClassFile structure- JVMS Sec 4.7.25
-	public void _testBug508889_002() throws Exception {
+	// Test that there is at most one Module attribute in the attributes table of a ClassFile structure- JVMS Sec 4.7.25
+	public void testBug508889_002() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"module-info.java",
@@ -112,6 +113,30 @@ public class ModuleAttributeTests extends AbstractRegressionTest {
 		IModuleAttribute module = getModuleAttribute(contents);
 		assertEquals("Wrong Module Name", "first", new String(module.getModuleName()));
 		assertTrue("Unexpected attribute length", module.getAttributeLength() > 0);
-		int flags = module.getModuleFlags();
+		//int flags = module.getModuleFlags();
+	}
+	public void testBug521521() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"module-info.java",
+				"module test {\n" +
+				"}\n",
+				});
+		IClassFileReader cfr = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "module-info.class", IClassFileReader.CLASSFILE_ATTRIBUTES);
+		assertNotNull("Error reading module-info.class", cfr);
+		int flags = cfr.getAccessFlags();
+		assertTrue("Invalid access flags", (flags & ~ClassFileConstants.AccModule) == 0);
+	}
+	public void testBug521521a() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"module-info.java",
+				"open module test {\n" +
+				"}\n",
+				});
+		IClassFileReader cfr = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "module-info.class", IClassFileReader.CLASSFILE_ATTRIBUTES);
+		assertNotNull("Error reading module-info.class", cfr);
+		int flags = cfr.getAccessFlags();
+		assertTrue("Invalid access flags", (flags & ~ClassFileConstants.AccModule) == 0);
 	}
 }
