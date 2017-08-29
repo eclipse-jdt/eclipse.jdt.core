@@ -1750,7 +1750,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"}");
-		writeFileCollecting(files, moduleLoc, "X.java", 
+		writeFileCollecting(files, moduleLoc+"/p", "X.java",
+						"package p;\n" +
 						"public class X {\n" +
 						"	public static class Inner {\n" +
 						"	}\n" +
@@ -3015,5 +3016,41 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				false,
 				"", // not expected pass with Javac
 				outDir);
+	}
+	public void testUnnamedPackage_Bug520839() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc, "X.java", 
+						"public class X {\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files, 
+			buffer,
+			"",
+			"----------\n" + 
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/X.java (at line 1)\n" + 
+			"	public class X {\n" + 
+			"	^\n" + 
+			"Must declare a named package because this compilation unit is associated to the named module \'mod.one\'\n" + 
+			"----------\n" + 
+			"1 problem (1 error)\n",
+			false,
+			OUTPUT_DIR + File.separator + out);
 	}
 }

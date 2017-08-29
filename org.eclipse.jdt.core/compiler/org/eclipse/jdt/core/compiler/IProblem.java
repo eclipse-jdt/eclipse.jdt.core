@@ -1970,6 +1970,8 @@ void setSourceStart(int sourceStart);
 	int NotExportedTypeInAPI = ModuleRelated + 1458;
 	/** @since 3.13 BETA_JAVA9 */
 	int MissingRequiresTransitiveForTypeInAPI = ModuleRelated + 1459;
+	/** @since  3.13 BETA_JAVA9 */
+	int UnnamedPackageInNamedModule = ModuleRelated + 1460;
 
 	/** @since 3.13 */
 	int RedundantNullDefaultAnnotationLocal = Internal + 1062;

@@ -10722,4 +10722,13 @@ public void missingRequiresTransitiveForTypeInAPI(ReferenceBinding referenceBind
 			sourceStart,
 			sourceEnd);
 }
+
+public void unnamedPackageInNamedModule(ModuleBinding module) {
+	String[] args = { new String(module.readableName()) };
+	handle(IProblem.UnnamedPackageInNamedModule,
+			args,
+			args,
+			0,
+			0);
+}
 }

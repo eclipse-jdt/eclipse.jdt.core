@@ -126,6 +126,8 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 				moduleDecl.createScope(this);
 				moduleDecl.checkAndSetModifiers();
 			}
+		} else if (this.environment.module != this.environment.UnNamedModule) {
+			problemReporter().unnamedPackageInNamedModule(this.environment.module);
 		}
 	} else {
 		if ((this.fPackage = this.environment.createPackage(this.currentPackageName)) == null) {

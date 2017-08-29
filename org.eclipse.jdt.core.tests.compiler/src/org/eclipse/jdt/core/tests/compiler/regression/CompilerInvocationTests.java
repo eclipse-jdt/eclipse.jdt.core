@@ -1088,6 +1088,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UnlikelyCollectionMethodArgumentType", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("UnlikelyEqualsArgumentType", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("UnmatchedBracket", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("UnnamedPackageInNamedModule", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
 		expectedProblemAttributes.put("UnnecessaryArgumentCast", DEPRECATED);
 		expectedProblemAttributes.put("UnnecessaryCast", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UnnecessaryElse", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
@@ -1971,6 +1972,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UnlikelyCollectionMethodArgumentType", new ProblemAttributes(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE));
 		expectedProblemAttributes.put("UnlikelyEqualsArgumentType", new ProblemAttributes(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE));
 		expectedProblemAttributes.put("UnmatchedBracket", SKIP);
+		expectedProblemAttributes.put("UnnamedPackageInNamedModule", SKIP);
 		expectedProblemAttributes.put("UnnecessaryArgumentCast", SKIP);
 		expectedProblemAttributes.put("UnnecessaryCast", new ProblemAttributes(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK));
 		expectedProblemAttributes.put("UnnecessaryElse", new ProblemAttributes(JavaCore.COMPILER_PB_UNNECESSARY_ELSE));
