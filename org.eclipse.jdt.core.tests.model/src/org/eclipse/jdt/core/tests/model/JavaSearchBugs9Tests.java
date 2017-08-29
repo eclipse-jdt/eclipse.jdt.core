@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.Map;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -41,7 +43,7 @@ public class JavaSearchBugs9Tests extends AbstractJavaSearchTests {
 
 	static {
 //	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//	TESTS_NAMES = new String[] {"testBug501162_001"};
+//	TESTS_NAMES = new String[] {"testBug521221_001"};
 }
 
 public JavaSearchBugs9Tests(String name) {
@@ -169,7 +171,7 @@ public void _testBug499338_001() throws CoreException {
 public void testBug501162_001() throws Exception {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -182,7 +184,7 @@ public void testBug501162_001() throws Exception {
 				"package pack1;\n" +
 				"public class X11 {}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -220,7 +222,7 @@ public void testBug501162_001() throws Exception {
 public void testBug501162_002() throws Exception {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -235,7 +237,7 @@ public void testBug501162_002() throws Exception {
 				"package pack1;\n" +
 				"public class X11 {}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -275,7 +277,7 @@ public void testBug501162_002() throws Exception {
 public void testBug501162_003() throws Exception {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -289,7 +291,7 @@ public void testBug501162_003() throws Exception {
 				"package pack1;\n" +
 				"public class X11 implements pack22.I22{}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -350,7 +352,7 @@ public void testBug501162_005() throws CoreException {
 public void testBug501162_006() throws Exception {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -364,7 +366,7 @@ public void testBug501162_006() throws Exception {
 				"package pack1;\n" +
 				"public class X11 implements pack22.I22{}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -399,7 +401,7 @@ public void testBug501162_006() throws Exception {
 public void testBug501162_007() throws Exception {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -413,7 +415,7 @@ public void testBug501162_007() throws Exception {
 				"package pack1;\n" +
 				"public class X11 implements pack22.I22{}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -448,7 +450,7 @@ public void testBug501162_007() throws Exception {
 public void testBug501162_008() throws Exception {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -462,7 +464,7 @@ public void testBug501162_008() throws Exception {
 				"package pack1;\n" +
 				"public class X11 implements pack22.I22{}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -498,7 +500,7 @@ public void testBug501162_008() throws Exception {
 public void testBug501162_009() throws Exception {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -517,7 +519,7 @@ public void testBug501162_009() throws Exception {
 				"package pack2;\n" +
 				"public class X21 {}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -555,7 +557,7 @@ public void testBug501162_009() throws Exception {
 public void testBug501162_010() throws Exception {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -569,7 +571,7 @@ public void testBug501162_010() throws Exception {
 				"package pack1;\n" +
 				"public class X11 implements pack22.I22{}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -604,7 +606,7 @@ public void testBug501162_010() throws Exception {
 public void testBug501162_011() throws Exception {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -618,7 +620,7 @@ public void testBug501162_011() throws Exception {
 				"package pack1;\n" +
 				"public class X11 implements pack22.I22{}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -652,7 +654,7 @@ public void testBug501162_011() throws Exception {
 }
 public void testBug501162_012() throws Exception {
 	try {
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -670,7 +672,7 @@ public void testBug501162_012() throws Exception {
 				"package pack2;\n" +
 				"public class X21 {}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -707,7 +709,7 @@ public void testBug501162_012() throws Exception {
 }
 public void testBug501162_013() throws Exception {
 	try {
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -725,7 +727,7 @@ public void testBug501162_013() throws Exception {
 				"package pack2;\n" +
 				"public class X21 {}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -762,7 +764,7 @@ public void testBug501162_013() throws Exception {
 }
 public void testBug501162_014() throws Exception {
 	try {
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -780,7 +782,7 @@ public void testBug501162_014() throws Exception {
 				"package pack2;\n" +
 				"public class X21 {}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -817,7 +819,7 @@ public void testBug501162_014() throws Exception {
 }
 public void testBug501162_015() throws Exception {
 	try {
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -835,7 +837,7 @@ public void testBug501162_015() throws Exception {
 				"package pack2;\n" +
 				"public class X21 {}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -872,7 +874,7 @@ public void testBug501162_015() throws Exception {
 }
 public void testBug501162_016() throws Exception {
 	try {
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -890,7 +892,7 @@ public void testBug501162_016() throws Exception {
 				"package pack2;\n" +
 				"public class X21 {}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -927,7 +929,7 @@ public void testBug501162_016() throws Exception {
 }
 public void testBug501162_017() throws Exception {
 	try {
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -945,7 +947,7 @@ public void testBug501162_017() throws Exception {
 				"package pack2;\n" +
 				"public class X21 {}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -982,7 +984,7 @@ public void testBug501162_017() throws Exception {
 }
 public void testBug501162_018() throws Exception {
 	try {
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -999,7 +1001,7 @@ public void testBug501162_018() throws Exception {
 				"package pack2;\n" +
 				"public class X21 {}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -1037,7 +1039,7 @@ public void testBug501162_018() throws Exception {
 public void testBug519211_001() throws CoreException {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -1051,7 +1053,7 @@ public void testBug519211_001() throws CoreException {
 				"package pack1;\n" +
 				"public class X11 implements pack22.I22{}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -1089,7 +1091,7 @@ public void testBug519211_001() throws CoreException {
 public void testBug519980_001() throws Exception {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -1103,7 +1105,7 @@ public void testBug519980_001() throws Exception {
 				"package pack1;\n" +
 				"public class X11 implements pack22.I22{}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -1137,7 +1139,7 @@ public void testBug519980_001() throws Exception {
 public void testBug519980_002() throws Exception {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String fileContent = 
@@ -1151,7 +1153,7 @@ public void testBug519980_002() throws Exception {
 				"package pack1;\n" +
 				"public class X11 implements pack22.I22{}\n");
 
-		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project2.open(null);
 		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 		String secondFile = 
@@ -1186,7 +1188,7 @@ public void testBug519980_002() throws Exception {
 public void testBug520477_001() throws Exception {
 	try {
 
-		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src", "src2"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src", "src2"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		String fileContent =
 			"module first {\n" +
@@ -1213,6 +1215,39 @@ public void testBug520477_001() throws Exception {
 				"src/X.java X.C [pack1] EXACT_MATCH\n" +
 				"src/module-info.java first [pack1] EXACT_MATCH",
 			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug521221_001() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		Map<String, String> options = project1.getOptions(false);
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
+		project1.setOptions(options);
+		project1.open(null);
+		createFolder("/JavaSearchBugs9/src/pack11");
+		String fileContent = "package pack11;\n" +
+				"public class X11 implements pack22.I22 {\n" +
+				"}\n";
+
+		createFile("/JavaSearchBugs9/src/pack11/X11.java", fileContent);
+		createFolder("/JavaSearchBugs9/src/pack12");
+		createFile("/JavaSearchBugs9/src/pack12/X12.java",
+				"package pack12;\n" +
+				"public class X12 extends pack11.X11 implements pack22.I22 {\n" +
+				"}\n"
+		);
+		ICompilationUnit unit = getCompilationUnit("/JavaSearchBugs9/src/pack11/X11.java");
+		String x11 = "X11";
+		int start = fileContent.indexOf(x11);
+		IJavaElement[] elements = unit.codeSelect(start, x11.length());
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		search(elements[0], REFERENCES, scope,	this.resultCollector);
+	} catch (NullPointerException e) {
+		assertFalse(true);
 	}
 	finally {
 		deleteProject("JavaSearchBugs9");

@@ -16,7 +16,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -66,7 +65,7 @@ public class JavaSearchNameEnvironment implements IModuleAwareNameEnvironment, S
 	Map<String, IModuleDescription> modules;
 	private boolean modulesComputed = false;
 	Map<String,ClasspathLocation> moduleLocations;
-	Map<String,List<ClasspathLocation>> moduleToClassPathLocations;
+	Map<String,LinkedHashSet<ClasspathLocation>> moduleToClassPathLocations;
 
 	/*
 	 * A map from the fully qualified slash-separated name of the main type (String) to the working copy
@@ -213,9 +212,9 @@ private String addModuleClassPathInfo(ClasspathLocation cp, IModuleDescription i
 }
 private void addClassPathToModule(String moduleName, ClasspathLocation cp) {
 	if (this.moduleToClassPathLocations != null) {
-		List<ClasspathLocation> l = this.moduleToClassPathLocations.get(moduleName);
+		LinkedHashSet<ClasspathLocation> l = this.moduleToClassPathLocations.get(moduleName);
 		if (l == null) {
-			l = new ArrayList<>();
+			l = new LinkedHashSet<>();
 			this.moduleToClassPathLocations.put(moduleName, l);
 		}
 		l.add(cp);
@@ -290,7 +289,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 
 private Iterator<ClasspathLocation> getLocationsFor(/*@Nullable*/String moduleName) {
 	if (moduleName != null) {
-		List<ClasspathLocation> l = this.moduleToClassPathLocations.get(moduleName);
+		LinkedHashSet<ClasspathLocation> l = this.moduleToClassPathLocations.get(moduleName);
 		if (l != null && l.size() > 0)
 			return l.iterator();
 	}
@@ -326,7 +325,8 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] pa
 	if (strategy == LookupStrategy.Named) {
 		if (this.moduleToClassPathLocations != null) {
 			String moduleNameString = String.valueOf(moduleName);
-			List<ClasspathLocation> l = this.moduleToClassPathLocations.get(moduleNameString);
+			LinkedHashSet<ClasspathLocation> cpl = this.moduleToClassPathLocations.get(moduleNameString);
+			List<ClasspathLocation> l = cpl != null ? cpl.stream().collect(Collectors.toList()): null;
 			if (l != null) {
 				for (ClasspathLocation cp : l) {
 					if (cp.isPackage(qualifiedPackageName, moduleNameString))
