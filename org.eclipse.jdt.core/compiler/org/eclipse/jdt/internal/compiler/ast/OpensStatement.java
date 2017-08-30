@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+
 public class OpensStatement extends PackageVisibilityStatement {
 
 	public OpensStatement(ImportReference pkgRef) {
@@ -22,7 +24,9 @@ public class OpensStatement extends PackageVisibilityStatement {
 	public OpensStatement(ImportReference pkgRef, ModuleReference[] targets) {
 		super(pkgRef, targets);
 	}
-	
+	protected int computeSeverity(int problemId) {
+		return ProblemSeverities.Warning;
+	}
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
 		printIndent(indent, output);

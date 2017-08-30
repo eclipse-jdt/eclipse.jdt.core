@@ -10642,11 +10642,13 @@ public void invalidOpensStatement(OpensStatement statement, ModuleDeclaration mo
 		statement.declarationSourceStart, statement.declarationSourceEnd);
 }
 public void invalidPackageReference(int problem, PackageVisibilityStatement ref) {
-	this.handle(problem, 
-		NoArgument, new String[] { CharOperation.charToString(ref.pkgName) },
-		ref.sourceStart, ref.sourceEnd);
+	invalidPackageReference(problem, ref, ProblemSeverities.Error);
 }
-
+public void invalidPackageReference(int problem, PackageVisibilityStatement ref, int severity) {
+	this.handle(problem, NoArgument, 0, new String[] { CharOperation.charToString(ref.pkgName) }, severity,
+		ref.pkgRef.sourceStart, ref.pkgRef.sourceEnd, this.referenceContext,
+		this.referenceContext == null ? null : this.referenceContext.compilationResult());
+}
 public void duplicateModuleReference(int problem, ModuleReference ref) {
 	this.handle(problem, 
 		NoArgument, new String[] { CharOperation.charToString(ref.moduleName) },

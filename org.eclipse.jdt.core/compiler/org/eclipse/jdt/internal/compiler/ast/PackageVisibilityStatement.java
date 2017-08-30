@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public abstract class PackageVisibilityStatement extends ModuleStatement {
@@ -58,20 +59,24 @@ public abstract class PackageVisibilityStatement extends ModuleStatement {
 		}
 		return !errorsExist;
 	}
+	protected int computeSeverity(int problemId) {
+		return ProblemSeverities.Error;
+	}
 	protected PackageBinding resolvePackageReference(Scope scope) {
 		if (this.resolvedPackage != null)
 			return this.resolvedPackage;
 		ModuleDeclaration exportingModule = scope.compilationUnitScope().referenceContext.moduleDeclaration;
 		ModuleBinding src = exportingModule.binding;
 		this.resolvedPackage = src != null ? src.getVisiblePackage(this.pkgRef.tokens) : null;
+		int problemId = IProblem.PackageDoesNotExistOrIsEmpty;
 		if (this.resolvedPackage == null) {
 			// TODO: need a check for empty package as well
-			scope.problemReporter().invalidPackageReference(IProblem.PackageDoesNotExistOrIsEmpty, this);
+			scope.problemReporter().invalidPackageReference(problemId, this, computeSeverity(problemId));
 		} else {
 			if (!this.resolvedPackage.isDeclaredIn(src)) {
 				this.resolvedPackage = null;
 				// TODO(SHMOD): specific error?
-				scope.problemReporter().invalidPackageReference(IProblem.PackageDoesNotExistOrIsEmpty, this);
+				scope.problemReporter().invalidPackageReference(problemId, this, computeSeverity(problemId));
 			}
 		}
 		

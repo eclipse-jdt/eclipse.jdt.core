@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.lookup.SourceModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public class ModuleDeclaration extends ASTNode {
 
@@ -193,16 +194,17 @@ public class ModuleDeclaration extends ASTNode {
 			}
 		}
 
-		Set<PackageBinding> openedPkgs = new HashSet<>();
+		HashtableOfObject openedPkgs = new HashtableOfObject();
 		for (int i = 0; i < this.opensCount; i++) {
 			OpensStatement ref = this.opens[i];
 			if (isOpen()) {
 				cuScope.problemReporter().invalidOpensStatement(ref, this);
 			} else {
-				if (ref.resolve(cuScope)) {
-					if (!openedPkgs.add(ref.resolvedPackage)) {
-						cuScope.problemReporter().invalidPackageReference(IProblem.DuplicateOpens, ref);
-					}
+				if (openedPkgs.containsKey(ref.pkgName)) {
+					cuScope.problemReporter().invalidPackageReference(IProblem.DuplicateOpens, ref);
+				} else {
+					openedPkgs.put(ref.pkgName, ref);
+					ref.resolve(cuScope);
 				}
 				char[][] targets = null;
 				if (ref.targets != null) {

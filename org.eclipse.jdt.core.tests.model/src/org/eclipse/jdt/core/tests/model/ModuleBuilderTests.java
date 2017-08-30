@@ -2377,7 +2377,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
-	public void test_Opens_Error() throws CoreException {
+	public void test_Opens_Nonexistent_Package() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			String[] src = new String[] {
@@ -2388,10 +2388,47 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			};
 			IJavaProject p2 = setupModuleProject("com.greetings", src);
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers",	
-					"The package com.greetings does not exist or is empty",  markers);
+			assertNoErrors();
 		} finally {
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_Opens_Alien_Package() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module org.astro {}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" + 
+				"public interface World {\n" + 
+				"    public String name();\n" + 
+				"}\n"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", src);
+			src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires org.astro;\n" +
+				"	opens org.astro;\n" +
+				"}",
+				"src/test/Test.java",
+				"package test;\n" +
+				"public class Test {\n" +
+				"	org.astro.World w = null;\n" +
+				"}"
+			};
+			IClasspathAttribute modAttr = new ClasspathAttribute(IClasspathAttribute.AUTOMATIC_MODULE, "true");
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] {dep});
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers",	
+					"The type org.astro.World is not accessible\n" +
+					"The package org.astro does not exist or is empty",  markers);
+		} finally {
+			deleteProject("org.astro");
 			deleteProject("com.greetings");
 		}
 	}
