@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15102,4 +15102,38 @@ public void testBug483650_010() throws Exception {
 	assertTrue("Unexpected Method Name", expectedName.equals(name));
 	assertTrue("IJavaElement Does not exist", method.exists());
 }
+public void testBug521240_001() throws CoreException {
+	this.workingCopies = new ICompilationUnit[3];
+	WorkingCopyOwner owner = new WorkingCopyOwner() {};
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack1/X.java",
+		"package pack1;\n" +
+		"public class X {\n" +
+		"    void foo(Y s) {}\n" +
+		"    void foo(pack2.Y s) {}\n" +
+		"}\n",
+		owner
+	);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/pack1/Y.java",
+			"package pack1;\n" +
+			"public class Y{}\n",
+			owner
+		);
+	this.workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/pack2/Y.java",
+		"package pack2;\n" +
+		"public class Y{}\n",
+		owner
+	);
+	SearchPattern pattern = SearchPattern.createPattern("pack1.X.foo(pack1.Y)",METHOD, DECLARATIONS,
+			SearchPattern.R_ERASURE_MATCH | SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+			"src/pack1/X.java void pack1.X.foo(Y) [foo] EXACT_MATCH"
+	);
+}
+
 }
