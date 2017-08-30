@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2015 IBM Corporation and others.
+ * Copyright (c) 2003, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3268,6 +3268,31 @@ public void test461706a() {
 		null,
 		true,
 		customOptions);
+}
+public void testAnonymous_bug520727() {
+	String[] source = {
+		"O.java",
+		"import java.io.Serializable;\n" +
+		"public class O {\n" +
+		"	Object in = new Object() {\n" +
+		"        public Object foo() {\n" +
+		"                return (Serializable) this;\n" +
+		"        }\n" +
+		"	};\n" +
+		"}\n"
+	};
+	if (this.complianceLevel < ClassFileConstants.JDK9) {
+		runNegativeTest(source,
+				"----------\n" +
+				"1. ERROR in O.java (at line 5)\n" +
+				"	return (Serializable) this;\n" +
+				"	       ^^^^^^^^^^^^^^^^^^^\n" +
+				"Cannot cast from new Object(){} to Serializable\n" +
+				"----------\n");
+	} else {
+		// starting from JLS 9, anonymous classes are *not* final, hence casting is legal:
+		runConformTest(source,"");
+	}
 }
 public static Class testClass() {
 	return CastTest.class;

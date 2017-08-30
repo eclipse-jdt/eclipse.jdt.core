@@ -490,7 +490,8 @@ public class ClassScope extends Scope {
 				return;
 			}
 			if (sourceType.isAnonymousType()) {
-			    modifiers |= ClassFileConstants.AccFinal;
+				if (compilerOptions().complianceLevel < ClassFileConstants.JDK9)
+					modifiers |= ClassFileConstants.AccFinal;
 			    // set AccEnum flag for anonymous body of enum constants
 			    if (this.referenceContext.allocation.type == null)
 			    	modifiers |= ClassFileConstants.AccEnum;
