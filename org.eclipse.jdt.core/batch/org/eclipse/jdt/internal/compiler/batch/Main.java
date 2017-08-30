@@ -71,8 +71,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
@@ -4629,8 +4627,6 @@ private ReferenceBinding[] processClassNames(LookupEnvironment environment) {
 	// check for .class file presence in case of apt processing
 	int length = this.classNames.length;
 	ReferenceBinding[] referenceBindings = new ReferenceBinding[length];
-	String sourceLevel = this.options.get(CompilerOptions.OPTION_Source);
-	String complianceLevel = this.options.get(CompilerOptions.OPTION_Compliance);
 	for (int i = 0; i < length; i++) {
 		String currentName = this.classNames[i];
 		char[][] compoundName = null;
@@ -4638,10 +4634,6 @@ private ReferenceBinding[] processClassNames(LookupEnvironment environment) {
 		ModuleBinding mod = null;
 		if (idx > 0) {
 			String m = currentName.substring(0, idx);
-			IStatus status = JavaConventions.validateModuleName(m, sourceLevel, complianceLevel);
-			if (status.getSeverity() == IStatus.ERROR) {
-				throw new IllegalArgumentException(status.getMessage());
-			}
 			mod = environment.getModule(m.toCharArray());
 			if (mod == null) {
 				throw new IllegalArgumentException(this.bind("configure.invalidModuleName", m)); //$NON-NLS-1$

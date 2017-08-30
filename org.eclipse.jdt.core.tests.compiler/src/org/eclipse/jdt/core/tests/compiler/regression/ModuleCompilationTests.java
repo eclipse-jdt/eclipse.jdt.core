@@ -3030,38 +3030,6 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				false,
 				outDir);
 	}
-	public void testBug518295d() {
-		Util.flushDirectoryContent(new File(OUTPUT_DIR));
-		String outDir = OUTPUT_DIR + File.separator + "bin";
-		String srcDir = OUTPUT_DIR + File.separator + "src";
-		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
-		createReusableModules(srcDir, outDir, modDir);
-		String moduleLoc = srcDir + File.separator + "mod.three";
-		List<String> files = new ArrayList<>(); 
-		writeFileCollecting(files, moduleLoc, "module-info.java", 
-						"module mod.three { \n" +
-						"	requires mod.one;\n" +
-						"	requires mod.two;\n" +
-						"}");
-
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("-d " + outDir )
-		.append(" -9 ")
-		.append(" -p \"")
-		.append(Util.getJavaClassLibsAsString())
-		.append(modDir.getAbsolutePath())
-		.append("\" ")
-		.append("-classNames \"mod one/p.X\"")
-		.append(" --module-source-path " + "\"" + srcDir + "\"");
-
-		runNegativeModuleTest(files,
-				buffer,
-				"",
-				"\'mod one\' is not a valid Java identifier\n",
-				false,
-				"", // not expected pass with Javac
-				outDir);
-	}
 	public void testUnnamedPackage_Bug520839() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
