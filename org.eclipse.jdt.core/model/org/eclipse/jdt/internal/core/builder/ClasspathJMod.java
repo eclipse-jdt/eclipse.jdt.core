@@ -14,12 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import java.io.BufferedInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 
@@ -34,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClasspathJMod extends ClasspathJar {
 
@@ -97,22 +91,6 @@ public class ClasspathJMod extends ClasspathJar {
 					char[] fileName = CharOperation.subarray(entryName, index + 1, entryName.length);
 					if (modInfo == null && fileName.length == MODULE_DESCRIPTOR_NAME_LENGTH) {
 						if (CharOperation.equals(fileName, IModule.MODULE_INFO_CLASS.toCharArray())) {
-							InputStream stream = null;
-							InputStream inputStream;
-							try {
-								inputStream = this.zipFile.getInputStream(entry);
-								if (inputStream == null) throw new IOException("Invalid zip entry name : " + entry.getName()); //$NON-NLS-1$
-								stream = new BufferedInputStream(inputStream);
-								byte[] content = Util.getInputStreamAsByteArray(stream, (int) entry.getSize());
-								// FIXME(SHMOD): avoid this (platform dependent) temp file!! https://bugs.eclipse.org/511950
-								DataOutputStream dos = new DataOutputStream(new FileOutputStream(new File("c:\\temp\\module-info.class"))); //$NON-NLS-1$
-								dos.write(content);
-								dos.close();
-//								FileWriter writer = new FileWriter(new File("c:\\temp\\module-info.class")); //$NON-NLS-1$
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
 							modInfo = new String(entryName);
 						}
 					}
