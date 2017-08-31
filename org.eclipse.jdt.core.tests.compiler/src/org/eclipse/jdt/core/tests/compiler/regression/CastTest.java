@@ -1421,8 +1421,7 @@ public void test034() throws Exception {
 }
 // javac incorrectly accepts it
 public void test035() {
-	this.runNegativeTest(
-		new String[] {
+	String[] sources = {
 			"Test231.java",
 			"public class Test231 implements Test231i\n" +
 			"{\n" +
@@ -1441,16 +1440,21 @@ public void test035() {
 			"\n" +
 			"interface Test231i\n" +
 			"{\n" +
-			"}\n",
-		},
-		"----------\n" +
-		"1. ERROR in Test231.java (at line 9)\n" +
-		"	return	(Test231i)this;\n" +
-		"	      	^^^^^^^^^^^^^^\n" +
-		"Cannot cast from new Object(){} to Test231i\n" +
-		"----------\n",
+			"}\n"
+		};
+	if (this.complianceLevel < ClassFileConstants.JDK9) {
+		runNegativeTest(sources,
+			"----------\n" +
+			"1. ERROR in Test231.java (at line 9)\n" +
+			"	return	(Test231i)this;\n" +
+			"	      	^^^^^^^^^^^^^^\n" +
+			"Cannot cast from new Object(){} to Test231i\n" +
+			"----------\n",
 		// javac options
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+	} else {
+		runConformTest(sources, "");
+	}
 }
 public void test036() {
 	runConformTest(
