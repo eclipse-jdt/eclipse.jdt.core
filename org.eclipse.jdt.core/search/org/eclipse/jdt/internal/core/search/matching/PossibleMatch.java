@@ -134,7 +134,7 @@ private char[] getQualifiedName() {
 		PackageFragment pkg = (PackageFragment) this.openable.getParent();
 		return Util.concatWith(pkg.names, simpleName, '.').toCharArray();
 	} else if (this.openable instanceof ModularClassFile) {
-		// FIXME(SHMOD): not useful
+		// FIXME(SHMOD): not useful https://bugs.eclipse.org/501162#c30
 		String simpleName = TypeConstants.MODULE_INFO_NAME_STRING;
 		PackageFragment pkg = (PackageFragment) this.openable.getParent();
 		return Util.concatWith(pkg.names, simpleName, '.').toCharArray();
@@ -161,7 +161,7 @@ private String getSourceFileName() {
 				this.sourceFileName = fileName == null ? NO_SOURCE_FILE_NAME : fileName;
 			}
 		} else if (this.openable instanceof ModularClassFile) {
-			// FIXME(SHMOD): premature
+			// FIXME(SHMOD): premature https://bugs.eclipse.org/501162#c31
 			this.sourceFileName = TypeConstants.MODULE_INFO_FILE_NAME_STRING;
 		}
 	}

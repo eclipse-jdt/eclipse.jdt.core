@@ -154,7 +154,7 @@ public class JrtFileSystem extends Archive {
 	}
 	
 	class JrtFileObject extends ArchiveFileObject {
-		IModule module = null; // FIXME(SHMOD): always null??
+		IModule module = null; // FIXME(SHMOD): always null?? https://bugs.eclipse.org/517059
 		private JrtFileObject(File file, String fileName, IModule module, Charset charset) {
 			super(file, fileName, charset);
 			this.module = module;

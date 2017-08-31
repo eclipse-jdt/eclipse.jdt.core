@@ -3214,7 +3214,7 @@ public abstract class Scope {
 
 		// at this point the scope is a compilation unit scope
 		CompilationUnitScope unitScope = (CompilationUnitScope) scope;
-		HashtableOfObject typeOrPackageCache = unitScope.typeOrPackageCache; // FIXME(SHMOD): dangerous, may mask other same named packages
+		HashtableOfObject typeOrPackageCache = unitScope.typeOrPackageCache;
 		if (typeOrPackageCache != null) {
 			Binding cachedBinding = (Binding) typeOrPackageCache.get(name);
 			if (cachedBinding != null) { // can also include NotFound ProblemReferenceBindings if we already know this name is not found

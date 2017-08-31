@@ -20,8 +20,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 
 /**
  * A module aware name environment
- * FIXME(SHMOD): consider folding this interface into INameEnvironment and extend existing methods rather then adding new ones. 
- *
  */
 public interface IModuleAwareNameEnvironment extends INameEnvironment {
 

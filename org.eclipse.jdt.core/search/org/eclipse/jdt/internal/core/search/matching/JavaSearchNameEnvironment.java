@@ -342,7 +342,7 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] pa
 			if (location.isPackage(qualifiedPackageName, null)) {
 				IModule module = location.getModule();
 				char[] aName = module != null ? module.name() : ModuleBinding.UNNAMED;
-				moduleNames = CharOperation.arrayConcat(moduleNames, aName); // FIXME(SHMOD): handle multiple modules per location
+				moduleNames = CharOperation.arrayConcat(moduleNames, aName); // FIXME(SHMOD): handle multiple modules per location https://bugs.eclipse.org/501162#c29
 			}
 		}
 	}

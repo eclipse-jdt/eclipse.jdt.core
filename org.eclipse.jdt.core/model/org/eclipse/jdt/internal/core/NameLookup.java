@@ -1236,7 +1236,7 @@ public class NameLookup implements SuffixConstants {
 		IModuleDescription[] modules = requestor.getModules();
 		if (modules.length == 0) {
 			try {
-				// FIXME(SHMOD): only considers source modules??
+				// FIXME(SHMOD): only considers source modules?? (MODULEPATH container is only experimental)
 				JavaModelManager.getModulePathManager().seekModule(moduleName, false, requestor);
 				modules = requestor.getModules();
 			} catch (JavaModelException e) {

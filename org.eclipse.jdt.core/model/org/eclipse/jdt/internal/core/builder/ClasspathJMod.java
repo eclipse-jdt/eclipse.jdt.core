@@ -104,7 +104,7 @@ public class ClasspathJMod extends ClasspathJar {
 								if (inputStream == null) throw new IOException("Invalid zip entry name : " + entry.getName()); //$NON-NLS-1$
 								stream = new BufferedInputStream(inputStream);
 								byte[] content = Util.getInputStreamAsByteArray(stream, (int) entry.getSize());
-								// FIXME(SHMOD): avoid this (platform dependent) temp file!!
+								// FIXME(SHMOD): avoid this (platform dependent) temp file!! https://bugs.eclipse.org/511950
 								DataOutputStream dos = new DataOutputStream(new FileOutputStream(new File("c:\\temp\\module-info.class"))); //$NON-NLS-1$
 								dos.write(content);
 								dos.close();

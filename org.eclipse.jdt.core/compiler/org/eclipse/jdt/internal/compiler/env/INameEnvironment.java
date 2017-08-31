@@ -27,7 +27,6 @@ package org.eclipse.jdt.internal.compiler.env;
  * <li>Determine to which module a given compilation unit / package is associated (JLS 7.3)</li>
  * </ul>
  * </p>
- * FIXME(SHMOD): fold methods of sub-interface IModuleAwareNameEnvironment back into this interface? (see also the following note). 
  * <p>
  * Note: This internal interface has been implemented illegally by the
  * org.apache.jasper.glassfish bundle from Orbit, see
