@@ -531,6 +531,45 @@ public void testBug488663_016() {
 		"The type Test$Inner is not visible\n" + 
 		"----------\n");
 }
+// All non-private methods of an anonymous class instantiated with '<>' must be treated as being annotated with @override
+public void testBug517926() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	String name;\n" + 
+			"	public X(String name) {\n" + 
+			"		this.name = name;\n" + 
+			"	}\n" + 
+			"	<T> void print(T o, I<T> converter) {\n" + 
+			"		System.out.println(converter.toString(o));\n" + 
+			"	}\n" + 
+			"	String name() {\n" + 
+			"		return this.name;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		X x = new X(\"asdasfd\");\n" + 
+			"		x.print(x, new I<>() {\n" + 
+			"			public String name() {return null;}\n" +
+			"			public String toString(X xx) {\n" + 
+			"				return xx.toString();\n" + 
+			"			}\n" + 
+			"		});\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface I<T> {\n" + 
+			"private String name() {return null;}" +
+			"	String toString(T t);\n" +
+			"default String getName() {return name();}" +
+			"}",
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	public String name() {return null;}\n" + 
+		"	              ^^^^^^\n" + 
+		"The method name() of type new I<X>(){} must override or implement a supertype method\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return GenericsRegressionTest_9.class;
 }

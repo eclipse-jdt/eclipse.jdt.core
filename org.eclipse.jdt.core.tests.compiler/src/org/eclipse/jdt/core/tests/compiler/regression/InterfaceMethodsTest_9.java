@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -270,6 +270,29 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 			"	private private public default protected void foo();\n" + 
 			"	                                              ^^^^^\n" + 
 			"This method requires a body instead of a semicolon\n" + 
+			"----------\n");
+	}
+	public void testBug517926() {
+		runNegativeTest(
+			new String[] {
+				"I.java",
+				"public interface I<T> {\n" +
+				"   private String name(T t){return null;}\n" +
+				"	default String getName() { return name(null);}\n" +
+				"}\n",
+				"A.java",
+				"public class A implements I<String> {\n" + 
+				"	@Override\n" + 
+				"	public String name(String s) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in A.java (at line 3)\n" + 
+			"	public String name(String s) {\n" + 
+			"	              ^^^^^^^^^^^^^^\n" + 
+			"The method name(String) of type A must override or implement a supertype method\n" + 
 			"----------\n");
 	}
 }
