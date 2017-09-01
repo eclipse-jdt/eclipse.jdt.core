@@ -673,7 +673,8 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 		methodModifiers &= ~ClassFileConstants.AccVarargs; // vararg methods are not recognized until 1.5
 	if (isInterface() && (methodModifiers & ClassFileConstants.AccAbstract) == 0) {
 		// see https://bugs.eclipse.org/388954 superseded by https://bugs.eclipse.org/390889
-		if ((methodModifiers & ClassFileConstants.AccStatic) == 0) {
+		if (((methodModifiers & ClassFileConstants.AccStatic) == 0
+				&& (methodModifiers & ClassFileConstants.AccPrivate) == 0)) {
 			// i.e. even at 1.7- we record AccDefaultMethod when reading a 1.8+ interface to avoid errors caused by default methods added to a library
 			methodModifiers |= ExtraCompilerModifiers.AccDefaultMethod;
 		}

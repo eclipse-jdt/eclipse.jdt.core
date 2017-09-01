@@ -76,15 +76,15 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class Java8ElementProcessor extends BaseProcessor {
 	
-		private static final String[] ELEMENT_NAMES = new String[] {"targets.model8.X", "T", "U", "K", "V", "KK", "VV", "KKK", "VVV"};
-		private static final String[] TYPE_PARAM_ELEMENTS_Z1 = new String[] {"KK", "VV"};
-		private static final String[] TYPE_PARAM_ELEMENTS_Z2 = new String[] {"KKK", "VVV"};
-		String simpleName = "filer8";
-		String packageName = "targets.filer8";
-		int roundNo = 0;
-		boolean reportSuccessAlready = true;
+	private static final String[] ELEMENT_NAMES = new String[] {"targets.model8.X", "T", "U", "K", "V", "KK", "VV", "KKK", "VVV"};
+	private static final String[] TYPE_PARAM_ELEMENTS_Z1 = new String[] {"KK", "VV"};
+	private static final String[] TYPE_PARAM_ELEMENTS_Z2 = new String[] {"KKK", "VVV"};
+	String simpleName = "filer8";
+	String packageName = "targets.filer8";
+	int roundNo = 0;
+	boolean reportSuccessAlready = true;
 		
-	RoundEnvironment roundEnv = null;
+	protected RoundEnvironment roundEnv = null;
 	// Always return false from this processor, because it supports "*".
 	// The return value does not signify success or failure!
 	@Override
