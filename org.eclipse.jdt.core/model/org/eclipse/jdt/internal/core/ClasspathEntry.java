@@ -1441,7 +1441,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	public boolean isAutomaticModule() {
 		for (int i = 0, length = this.extraAttributes.length; i < length; i++) {
 			IClasspathAttribute attribute = this.extraAttributes[i];
-			if (IClasspathAttribute.AUTOMATIC_MODULE.equals(attribute.getName()) && "true".equals(attribute.getValue())) //$NON-NLS-1$
+			if (IClasspathAttribute.MODULE.equals(attribute.getName()) && "true".equals(attribute.getValue())) //$NON-NLS-1$
 				return true;
 		}
 		return false;

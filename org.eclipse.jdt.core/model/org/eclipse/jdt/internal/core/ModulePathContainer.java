@@ -52,7 +52,7 @@ public class ModulePathContainer implements IClasspathContainer{
 				if (refRoot == null)
 					continue;
 				IPath path = refRoot.getPath();
-				IClasspathAttribute moduleAttribute = new ClasspathAttribute(IClasspathAttribute.AUTOMATIC_MODULE, "true"); //$NON-NLS-1$
+				IClasspathAttribute moduleAttribute = new ClasspathAttribute(IClasspathAttribute.MODULE, "true"); //$NON-NLS-1$
 				entries.add(JavaCore.newProjectEntry(path, ClasspathEntry.NO_ACCESS_RULES,
 						false,
 						new IClasspathAttribute[] {moduleAttribute}, ref.isTransitive()));

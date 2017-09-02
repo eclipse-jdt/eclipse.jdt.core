@@ -2418,7 +2418,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	org.astro.World w = null;\n" +
 				"}"
 			};
-			IClasspathAttribute modAttr = new ClasspathAttribute(IClasspathAttribute.AUTOMATIC_MODULE, "true");
+			IClasspathAttribute modAttr = new ClasspathAttribute(IClasspathAttribute.MODULE, "true");
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] {dep});
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);

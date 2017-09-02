@@ -771,7 +771,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	
 			project2 = createJavaProject("second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
 			addClasspathEntry(project2, JavaCore.newLibraryEntry(new Path("/ConverterTests9/bin"), null, null, null, 
-					new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.AUTOMATIC_MODULE, "true") }, false));		
+					new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") }, false));		
 			project2.open(null);
 	
 			IModuleDescription firstModule = null;

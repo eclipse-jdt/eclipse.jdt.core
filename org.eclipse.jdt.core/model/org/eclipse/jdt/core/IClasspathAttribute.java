@@ -117,23 +117,28 @@ public interface IClasspathAttribute {
 	 * @since 3.2
 	 */
 	String OPTIONAL = "optional"; //$NON-NLS-1$
+
 	/**
-	 * Constant for the name of automatic module. The possible values
+	 * Constant for the name of the module attribute. The possible values
 	 * for this attribute are <code>"true"</code> or <code>"false"</code>.
 	 * When not present, <code>"false"</code> is assumed.
-	 * If the value of this attribute is <code>"true"</code>, the classpath entry
-	 * is considered to be an automatic module.
+	 * If the value of this attribute is <code>"true"</code>, the classpath
+	 * entry is considered to be on the module path and will be treated as a
+	 * regular named module or as an automatic module.
 	 *
 	 * @since 3.13 BETA_JAVA9
 	 */
-	String AUTOMATIC_MODULE = "module"; //$NON-NLS-1$
+	String MODULE = "module"; //$NON-NLS-1$
 
 	/**
-	 * Constant for the name of the add_exports attribute.
+	 * Constant for the name of the add-exports attribute.
 	 * 
 	 * <p>The value of this attribute must adhere to the syntax of <code>javac's</code>
 	 * {@code --add-exports} command line option: {@code <source-module>/<package>=<target-module>(,<target-module>)*}.
+	 * Multiple such options are packed as a ':' separated list into a single classpath attribute.
 	 * The given exports will be added at compile time.</p>
+	 * <p>Classpath entries with this attribute should also have a {@link #MODULE} attribute
+	 * with value <code>"true"</code>.</p>
 	 * 
 	 * @since 3.13 BETA_JAVA9
 	 */

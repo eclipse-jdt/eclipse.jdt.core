@@ -1713,7 +1713,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK9 
 								&& (lib.startsWith("JCL") || lib.startsWith("CONVERTER_JCL"))) {
 							extraAttributes = new IClasspathAttribute[] {
-								JavaCore.newClasspathAttribute(IClasspathAttribute.AUTOMATIC_MODULE, "true")
+								JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true")
 							};
 						}
 						entries[sourceLength+i] = JavaCore.newVariableEntry(
