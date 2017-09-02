@@ -4960,12 +4960,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"Cycle exists in module dependencies, Module mod.one requires itself via mod.two",
 					markers);
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers in mod.two", 
-					"Cycle exists in module dependencies, Module mod.two requires itself via mod.one\n" + 
 					"The import org cannot be resolved\n" + // cannot use cyclic requires 
+					"Cycle exists in module dependencies, Module mod.two requires itself via mod.one\n" + 
 					"World cannot be resolved to a type",
 					markers);
-	
+
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getCompilationUnit("/mod.two/src/module-info.java").getWorkingCopy(this.wcOwner, null);
 			this.problemRequestor.initialize(src[1].toCharArray());
@@ -4973,7 +4974,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			assertNotNull("Could not reconcile", unit);
 		} finally {
 			this.deleteProject("mod.one");
-			this.deleteProject("org.two");
+			this.deleteProject("mod.two");
 		}
 	}
 	public void testBug521346() throws CoreException, IOException {
@@ -5001,6 +5002,172 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		} finally {
 			if (javaProject != null)
 				deleteProject(javaProject);
+		}
+	}
+	public void testAutoModule1() throws Exception {
+		if (!isJRE9) return;
+		IJavaProject javaProject = null;
+		try {
+			String[] sources = {
+				"p/a/X.java",
+				"package p.a;\n" +
+				"public class X {}\n;"
+			};
+			String outputDirectory = Util.getOutputDirectory();
+	
+			String jarPath = outputDirectory + File.separator + "lib-x.jar";
+			Util.createJar(sources, jarPath, "1.8");
+			
+			javaProject = createJava9Project("mod.one", new String[] {"src"});
+			IClasspathAttribute[] attributes = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+			addClasspathEntry(javaProject, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, attributes, false));
+
+			String srcMod =
+				"module mod.one { \n" +
+				"	requires lib.x;\n" + // lib.x is derived from lib-x.jar
+				"}";
+			createFile("/mod.one/src/module-info.java", 
+				srcMod);
+			createFolder("mod.one/src/q");
+			String srcX =
+				"package q;\n" +
+				"public class X {\n" +
+				"	p.a.X f;\n" +
+				"}";
+			createFile("/mod.one/src/q/X.java", srcX);
+			
+			this.problemRequestor.initialize(srcMod.toCharArray());
+			getWorkingCopy("/mod.one/module-info.java", srcMod, true);
+			assertProblems("module-info should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			this.problemRequestor.initialize(srcX.toCharArray());
+			getWorkingCopy("/mod.one/src/q/X.java", srcX, true);
+			assertProblems("X should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			if (javaProject != null)
+				deleteProject(javaProject);
+		}
+	}
+	public void testAutoModule2() throws Exception {
+		if (!isJRE9) return;
+		IJavaProject javaProject = null;
+		try {
+			String[] sources = {
+				"p/a/X.java",
+				"package p.a;\n" +
+				"public class X {}\n;",
+			};
+			String[] mfSource = {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" + 
+				"Automatic-Module-Name: org.eclipse.lib.x\n"
+			};
+			String outputDirectory = Util.getOutputDirectory();
+
+			String jarPath = outputDirectory + File.separator + "lib-x.jar";
+			Util.createJar(sources, mfSource, jarPath, "1.8");
+			
+			javaProject = createJava9Project("mod.one", new String[] {"src"});
+			IClasspathAttribute[] attributes = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+			addClasspathEntry(javaProject, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, attributes, false));
+
+			String srcMod =
+				"module mod.one { \n" +
+				"	requires org.eclipse.lib.x;\n" + // from jar attribute
+				"}";
+			createFile("/mod.one/src/module-info.java", 
+				srcMod);
+			createFolder("mod.one/src/q");
+			String srcX =
+				"package q;\n" +
+				"public class X {\n" +
+				"	p.a.X f;\n" +
+				"}";
+			createFile("/mod.one/src/q/X.java", srcX);
+
+			this.problemRequestor.initialize(srcMod.toCharArray());
+			getWorkingCopy("/mod.one/module-info.java", srcMod, true);
+			assertProblems("module-info should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			this.problemRequestor.initialize(srcX.toCharArray());
+			getWorkingCopy("/mod.one/src/q/X.java", srcX, true);
+			assertProblems("X should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			if (javaProject != null)
+				deleteProject(javaProject);
+		}
+	}
+	public void _testAutoModule3() throws Exception {
+		if (!isJRE9) return;
+		IJavaProject javaProject = null, auto = null;
+		try {
+			auto = createJava9Project("auto", new String[] {"src"});
+			createFolder("auto/src/p/a");
+			createFile("auto/src/p/a/X.java",
+				"package p.a;\n" +
+				"public class X {}\n;");
+			createFolder("auto/META-INF");
+			createFile("auto/META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" + 
+				"Automatic-Module-Name: org.eclipse.lib.x\n");
+
+			javaProject = createJava9Project("mod.one", new String[] {"src"});
+			IClasspathAttribute[] attributes = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+			addClasspathEntry(javaProject, JavaCore.newProjectEntry(auto.getPath(), null, false, attributes, false));
+
+			String srcMod =
+				"module mod.one { \n" +
+				"	requires org.eclipse.lib.x;\n" + // from manifest attribute
+				"}";
+			createFile("/mod.one/src/module-info.java", 
+				srcMod);
+			createFolder("mod.one/src/q");
+			String srcX =
+				"package q;\n" +
+				"public class X {\n" +
+				"	p.a.X f;\n" +
+				"}";
+			createFile("/mod.one/src/q/X.java", srcX);
+
+			this.problemRequestor.initialize(srcMod.toCharArray());
+			getWorkingCopy("/mod.one/module-info.java", srcMod, true);
+			assertProblems("module-info should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			this.problemRequestor.initialize(srcX.toCharArray());
+			getWorkingCopy("/mod.one/src/q/X.java", srcX, true);
+			assertProblems("X should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			if (javaProject != null)
+				deleteProject(javaProject);
+			if (auto != null)
+				deleteProject(auto);
 		}
 	}
 	protected void assertNoErrors() throws CoreException {

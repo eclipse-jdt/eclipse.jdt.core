@@ -167,7 +167,7 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 						new ClasspathJar(manager.getZipFile(path), rawClasspathEntry.getAccessRuleSet(),
 								ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry,
 										((IJavaProject) root.getParent()).getProject(), true),
-								rawClasspathEntry.isAutomaticModule());
+								rawClasspathEntry.isModular());
 		} else {
 			Object target = JavaModel.getTarget(path, true);
 			if (target != null) {
@@ -177,7 +177,7 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 					ClasspathEntry rawClasspathEntry = (ClasspathEntry) root.getRawClasspathEntry();
 					cp = ClasspathLocation.forBinaryFolder((IContainer) target, false, rawClasspathEntry.getAccessRuleSet(),
 														ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true),
-														rawClasspathEntry.isAutomaticModule());
+														rawClasspathEntry.isModular());
 				}
 			}
 		}

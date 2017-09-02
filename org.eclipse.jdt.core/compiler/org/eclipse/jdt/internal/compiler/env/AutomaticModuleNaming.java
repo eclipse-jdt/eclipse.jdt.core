@@ -16,8 +16,11 @@ import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
 public class AutomaticModuleNaming {
-	/*
-	 * Determine the automatic module name as specified in {@link <a href=
+
+	private static final String AUTOMATIC_MODULE_NAME = "Automatic-Module-Name"; //$NON-NLS-1$
+
+	/**
+	 * Determine the automatic module name of a given jar as specified in {@link <a href=
 	 * "http://download.java.net/java/jdk9/docs/api/java/lang/module/ModuleFinder.html#of-java.nio.file.Path...-">
 	 * ModuleFinder.of</a>}
 	 */
@@ -27,7 +30,7 @@ public class AutomaticModuleNaming {
 		try (JarFile jar = new JarFile(jarFileName)) {
 			Manifest manifest = jar.getManifest();
 			if (manifest != null) {
-				String automaticModuleName = manifest.getMainAttributes().getValue("Automatic-Module-Name"); //$NON-NLS-1$
+				String automaticModuleName = manifest.getMainAttributes().getValue(AUTOMATIC_MODULE_NAME);
 				if (automaticModuleName != null) {
 					return automaticModuleName.toCharArray();
 				}
@@ -37,6 +40,25 @@ public class AutomaticModuleNaming {
 		}
 		// The module name is otherwise derived from the name of the JAR file.
 		return determineAutomaticModuleNameFromFileName(jarFileName, true, true);
+	}
+
+	/**
+	 * Determine the automatic module name of a given jar or project as specified in {@link <a href=
+	 * "http://download.java.net/java/jdk9/docs/api/java/lang/module/ModuleFinder.html#of-java.nio.file.Path...-">
+	 * ModuleFinder.of</a>}
+	 * @param fileName names either a jar file or a java project in the workspace
+	 * @param isFile <code>true</code> indicates that fileName denotes a file, <code>false</code> must be used for projects
+	 * @param manifest representation of the META-INF/MANIFEST.MF entry within the given source (jar or project), or <code>null</code>
+	 * @return the derived module name or <code>null</code>
+	 */
+	public static char[] determineAutomaticModuleName(final String fileName, boolean isFile, Manifest manifest) {
+		if (manifest != null) {
+			String automaticModuleName = manifest.getMainAttributes().getValue(AUTOMATIC_MODULE_NAME);
+			if (automaticModuleName != null) {
+				return automaticModuleName.toCharArray();
+			}
+		}
+		return determineAutomaticModuleNameFromFileName(fileName, true, isFile);
 	}
 
 	/**

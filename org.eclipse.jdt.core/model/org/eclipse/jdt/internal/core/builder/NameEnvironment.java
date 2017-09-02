@@ -28,7 +28,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
@@ -202,7 +201,7 @@ private void computeClasspathLocations(
 						// do nothing, probably a non module project
 					}
 					if (info == null)
-						info = new AutoModule(prereqJavaProject.getElementName().toCharArray());
+						info = IModule.createAutomatic(prereqJavaProject.getElementName(), false, prereqJavaProject.getManifest());
 					ModulePathEntry projectEntry = new ModulePathEntry(prereqJavaProject.getPath(), info,
 							projectLocations.toArray(new ClasspathLocation[projectLocations.size()]));
 					moduleEntries.put(String.valueOf(info.name()), projectEntry);
@@ -330,7 +329,7 @@ private void computeClasspathLocations(
 }
 
 protected boolean isOnModulePath(ClasspathEntry entry) {
-	return entry.isAutomaticModule();
+	return entry.isModular();
 }
 
 public void cleanup() {

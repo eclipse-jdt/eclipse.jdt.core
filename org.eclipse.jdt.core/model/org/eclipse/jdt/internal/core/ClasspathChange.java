@@ -140,8 +140,8 @@ public class ClasspathChange {
 							continue; // null and not-null
 						}						
 					}
-					if (((ClasspathEntry) entry).isAutomaticModule() !=
-							((ClasspathEntry) other).isAutomaticModule()) {
+					if (((ClasspathEntry) entry).isModular() !=
+							((ClasspathEntry) other).isModular()) {
 						continue nextEntry;
 					}
 					return i;

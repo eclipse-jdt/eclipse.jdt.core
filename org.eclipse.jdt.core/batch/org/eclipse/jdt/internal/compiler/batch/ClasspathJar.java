@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -39,7 +40,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -69,7 +70,7 @@ public List<Classpath> fetchLinkedJars(FileSystem.ClasspathSectionProblemReporte
 	try {
 		initialize();
 		ArrayList<Classpath> result = new ArrayList<>();
-		ZipEntry manifest = this.zipFile.getEntry("META-INF/MANIFEST.MF"); //$NON-NLS-1$
+		ZipEntry manifest = this.zipFile.getEntry(TypeConstants.META_INF_MANIFEST_MF);
 		if (manifest != null) { // non-null implies regular file
 			inputStream = this.zipFile.getInputStream(manifest);
 			ManifestAnalyzer analyzer = new ManifestAnalyzer();
@@ -301,7 +302,16 @@ public int getMode() {
 
 public IModule getModule() {
 	if (this.isAutoModule && this.module == null) {
-		return this.module = new AutoModule(this.file.getName().toCharArray());
+		Manifest manifest = null;
+		try {
+			initialize();
+			ZipEntry entry = this.zipFile.getEntry(TypeConstants.META_INF_MANIFEST_MF);
+			if (entry != null)
+				manifest = new Manifest(this.zipFile.getInputStream(entry));
+		} catch (IOException e) {
+			// no usable manifest 
+		}
+		return this.module = IModule.createAutomatic(this.file.getName(), true, manifest);
 	}
 	return this.module;
 }

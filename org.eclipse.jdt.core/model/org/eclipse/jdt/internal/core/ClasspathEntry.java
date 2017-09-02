@@ -68,6 +68,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
@@ -1004,7 +1005,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			zip = manager.getZipFile(jarPath);
-			ZipEntry manifest = zip.getEntry("META-INF/MANIFEST.MF"); //$NON-NLS-1$
+			ZipEntry manifest = zip.getEntry(TypeConstants.META_INF_MANIFEST_MF);
 			if (manifest == null) {
 				return null;
 			}
@@ -1438,7 +1439,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 		return false;
 	}
-	public boolean isAutomaticModule() {
+	public boolean isModular() {
 		for (int i = 0, length = this.extraAttributes.length; i < length; i++) {
 			IClasspathAttribute attribute = this.extraAttributes[i];
 			if (IClasspathAttribute.MODULE.equals(attribute.getName()) && "true".equals(attribute.getValue())) //$NON-NLS-1$

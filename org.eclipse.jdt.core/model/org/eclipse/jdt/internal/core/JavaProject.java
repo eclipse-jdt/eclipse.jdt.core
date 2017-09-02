@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -3386,4 +3387,17 @@ public class JavaProject
 		}
 		info.setModule(module);
 	}
+
+	public Manifest getManifest() {
+		IFile file = getProject().getFile(new Path(TypeConstants.META_INF_MANIFEST_MF));
+		if (file.exists()) {
+			try (InputStream contents = file.getContents()) {
+				return new Manifest(contents);
+			} catch (IOException | CoreException e) {
+				// unusable manifest
+			}
+		}
+		return null;
+	}
+
 }

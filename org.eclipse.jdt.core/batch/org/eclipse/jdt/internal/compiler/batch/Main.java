@@ -3446,10 +3446,14 @@ protected ArrayList<FileSystem.Classpath> handleModulepath(String arg) {
 	ArrayList<Classpath> result = new ArrayList<>();
 	if ((modulePaths != null && modulePaths.size() > 0)) {
 		for (String path : modulePaths) {
-			File dir = new File(path);
-			if (dir.isDirectory()) {
+			File file = new File(path);
+			if (file.isDirectory()) {
 				result =
-					(ArrayList<Classpath>) ModuleFinder.findModules(dir, null, getNewParser(), this.options, true);
+					(ArrayList<Classpath>) ModuleFinder.findModules(file, null, getNewParser(), this.options, true);
+			} else {
+				Classpath modulePath = ModuleFinder.findModule(file, null, getNewParser(), this.options, true);
+				if (modulePath != null)
+					result.add(modulePath);
 			}
 		}
 	}

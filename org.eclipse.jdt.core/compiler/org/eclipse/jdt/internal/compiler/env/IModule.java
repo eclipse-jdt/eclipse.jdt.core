@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
+import java.util.jar.Manifest;
+
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public interface IModule {
@@ -82,4 +84,55 @@ public interface IModule {
 		return false;
 	}
 	public abstract boolean isOpen();
+
+
+	public static IModule createAutomatic(char[] moduleName) {
+		final class AutoModule implements IModule {
+			char[] name;
+			public AutoModule(char[] name) {
+				this.name = name;
+			}
+			@Override
+			public char[] name() {
+				return this.name;
+			}
+			
+			@Override
+			public IModuleReference[] requires() {
+				return IModule.NO_MODULE_REFS;
+			}
+			
+			@Override
+			public IPackageExport[] exports() {
+				return IModule.NO_EXPORTS;
+			}
+			
+			@Override
+			public char[][] uses() {
+				return IModule.NO_USES;
+			}
+			
+			@Override
+			public IService[] provides() {
+				return IModule.NO_PROVIDES;
+			}
+			
+			@Override
+			public IPackageExport[] opens() {
+				return NO_OPENS;
+			}
+			
+			public boolean isAutomatic() {
+				return true;
+			}
+			public boolean isOpen() {
+				return false;
+			}
+		}
+		return new AutoModule(moduleName);
+	}
+
+	public static IModule createAutomatic(String fileName, boolean isFile, Manifest manifest) {
+		return createAutomatic(AutomaticModuleNaming.determineAutomaticModuleName(fileName, isFile, manifest));
+	}
 }

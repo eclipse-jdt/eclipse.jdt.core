@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -35,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -108,7 +110,7 @@ IModule initializeModule() {
 	ZipFile file = null;
 	try {
 		file = new ZipFile(this.zipFilename);
-		ClassFileReader classfile = ClassFileReader.read(file, IModule.MODULE_INFO_CLASS);
+		ClassFileReader classfile = ClassFileReader.read(file, IModule.MODULE_INFO_CLASS); // FIXME: use jar cache
 		if (classfile != null) {
 			mod = classfile.getModuleDeclaration();
 		}
@@ -333,5 +335,16 @@ public IModule getModule() {
 public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
 	// 
 	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false);
+}
+public Manifest getManifest() {
+	scanContent(); // ensure zipFile is initialized
+	ZipEntry entry = this.zipFile.getEntry(TypeConstants.META_INF_MANIFEST_MF);
+	try {
+		if (entry != null)
+			return new Manifest(this.zipFile.getInputStream(entry));
+	} catch (IOException e) {
+		// cannot use manifest
+	}
+	return null;
 }
 }

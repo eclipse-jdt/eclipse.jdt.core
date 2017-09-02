@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -32,7 +34,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.PackageExportImpl;
-import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -45,20 +46,25 @@ public class ModuleFinder {
 			if (files == null) 
 				return Collections.EMPTY_LIST;
 			for (final File file : files) {
-				FileSystem.Classpath modulePath = FileSystem.getClasspath(
-						file.getAbsolutePath(),
-						null,
-						!isModulepath,
-						null,
-						destinationPath == null ? null : (destinationPath + File.separator + file.getName()), 
-						options);
-				if (modulePath != null) {
+				Classpath modulePath = findModule(file, destinationPath, parser, options, isModulepath);
+				if (modulePath != null)
 					collector.add(modulePath);
-					scanForModule(modulePath, file, parser, isModulepath);
-				}
 			}
 		}
 		return collector;
+	}
+	protected static FileSystem.Classpath findModule(final File file, String destinationPath, Parser parser, Map<String, String> options, boolean isModulepath) {
+		FileSystem.Classpath modulePath = FileSystem.getClasspath(
+				file.getAbsolutePath(),
+				null,
+				!isModulepath,
+				null,
+				destinationPath == null ? null : (destinationPath + File.separator + file.getName()), 
+				options);
+		if (modulePath != null) {
+			scanForModule(modulePath, file, parser, isModulepath);
+		}
+		return modulePath;
 	}
 	protected static IModule scanForModule(FileSystem.Classpath modulePath, final File file, Parser parser, boolean isModulepath) {
 		IModule module = null;
@@ -87,13 +93,21 @@ public class ModuleFinder {
 		} else if (isJar(file)) {
 			module = extractModuleFromJar(file, modulePath);
 		}
-		if (isModulepath && module == null) {
-			 // The name includes the file's extension, but it shouldn't matter.
-			module = new AutoModule(getFileName(file).toCharArray());
+		if (isModulepath && module == null && !(modulePath instanceof ClasspathJrt)) {
+			module = IModule.createAutomatic(getFileName(file), file.isFile(), getManifest(file));
 		}
 		if (module != null)
 			modulePath.acceptModule(module);
 		return module;
+	}
+	private static Manifest getManifest(File file) {
+		if (!isJar(file))
+			return null;
+		try (JarFile jar = new JarFile(file)) {
+			return jar.getManifest();
+		} catch (IOException e) {
+			return null;
+		}
 	}
 	private static String getFileName(File file) {
 		String name = file.getName();

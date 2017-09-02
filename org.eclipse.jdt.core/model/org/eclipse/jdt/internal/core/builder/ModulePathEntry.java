@@ -17,10 +17,8 @@ package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.env.AutomaticModuleNaming;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
-import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 
 /**
  * Represents a project on the module path.
@@ -60,12 +58,13 @@ public class ModulePathEntry implements IModulePathEntry {
 	public boolean isAutomaticModule() {
 		return this.isAutomaticModule;
 	}
-	public static char[] getAutomaticModuleName(ClasspathLocation location) {
+	public static IModule getAutomaticModule(ClasspathLocation location) {
 		if (location instanceof ClasspathJar) {
-			return AutomaticModuleNaming.determineAutomaticModuleName(((ClasspathJar) location).zipFilename);
+			ClasspathJar classpathJar = (ClasspathJar) location;
+			return IModule.createAutomatic(classpathJar.zipFilename, true, classpathJar.getManifest());
 		}
 		if (location instanceof ClasspathDirectory) {
-			return ((ClasspathDirectory) location).binaryFolder.getName().toCharArray();
+			return IModule.createAutomatic(((ClasspathDirectory) location).binaryFolder.getName(), false, null);
 		}
 		return null;
 	}
@@ -80,7 +79,7 @@ public class ModulePathEntry implements IModulePathEntry {
 			this.module = mod;
 			this.isAutomaticModule = false;
 		} else {
-			this.module = new AutoModule(getAutomaticModuleName(location));
+			this.module = getAutomaticModule(location);
 			this.isAutomaticModule = true;
 		}
 		location.setModule(this.module);

@@ -14,9 +14,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -31,6 +33,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
@@ -375,6 +378,23 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		}
 		return null;
 	}
+
+	@Override
+	public Manifest getManifest() {
+		ZipFile jar = null;
+		try {
+			jar = getJar();
+			ZipEntry mfEntry = jar.getEntry(TypeConstants.META_INF_MANIFEST_MF);
+			if (mfEntry != null)
+				return new Manifest(jar.getInputStream(mfEntry));
+		} catch (CoreException | IOException e) {
+			// must do without manifest
+		} finally {
+			JavaModelManager.getJavaModelManager().closeZipFile(jar);
+		}
+		return null;
+	}
+
 //	@Override
 //	public boolean isModule() {
 //	 	try {

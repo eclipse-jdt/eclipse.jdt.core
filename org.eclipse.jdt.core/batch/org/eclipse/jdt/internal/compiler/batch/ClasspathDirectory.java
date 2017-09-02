@@ -30,7 +30,6 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -328,7 +327,7 @@ public int getMode() {
 }
 public IModule getModule() {
 	if (this.isAutoModule && this.module == null) {
-		return this.module = new AutoModule(this.path.toCharArray());
+		return this.module = IModule.createAutomatic(this.path, false, null/*no manifest*/);
 	}
 	return this.module;
 }

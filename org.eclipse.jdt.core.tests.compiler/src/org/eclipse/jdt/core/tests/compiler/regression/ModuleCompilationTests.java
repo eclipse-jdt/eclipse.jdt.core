@@ -3066,4 +3066,45 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			false,
 			OUTPUT_DIR + File.separator + out);
 	}
+	public void testAutoModule1() throws Exception {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+
+		String[] sources = {
+			"p/a/X.java",
+			"package p.a;\n" +
+			"public class X {}\n;"
+		};
+		String jarPath = OUTPUT_DIR + File.separator + "lib-x.jar";
+		Util.createJar(sources, jarPath, "1.8");
+		
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires lib.x;\n" + // lib.x is derived from lib-x.jar
+						"}");
+		writeFileCollecting(files, moduleLoc+File.separator+"q", "X.java", 
+						"package q;\n" +
+						"public class X {\n" +
+						"	p.a.X f;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-path " + "\"" + jarPath + "\"");
+
+		runConformModuleTest(files, 
+			buffer,
+			"",
+			"",
+			false,
+			OUTPUT_DIR + File.separator + out);
+	}
 }

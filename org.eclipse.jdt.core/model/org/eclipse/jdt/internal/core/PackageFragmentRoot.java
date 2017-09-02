@@ -17,6 +17,7 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.jar.Manifest;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
@@ -894,5 +895,9 @@ public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName
 		// silent
 	}
 	return false;
+}
+/** Convenience lookup, though currently only JarPackageFragmentRoot is searched for a manifest. */
+public Manifest getManifest() {
+	return null;
 }
 }

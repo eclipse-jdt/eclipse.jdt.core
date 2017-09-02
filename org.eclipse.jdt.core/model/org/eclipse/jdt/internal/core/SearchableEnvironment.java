@@ -17,6 +17,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -66,6 +67,7 @@ public class SearchableEnvironment
 	private Map<String,IJavaElement> knownModuleLocations; // null indicates: not using JPMS
 
 	private ModuleUpdater moduleUpdater;
+	private Map<IPackageFragmentRoot,IModuleDescription> rootToModule;
 
 	/**
 	 * Creates a SearchableEnvironment on the given project
@@ -849,14 +851,19 @@ public class SearchableEnvironment
 				throw new IllegalArgumentException("Unexpected LookupStrategy "+strategy); //$NON-NLS-1$
 		}
 	}
+
 	private IModuleDescription getModuleDescription(IPackageFragmentRoot root) {
-		if (root instanceof JarPackageFragmentRoot)
-			return root.getModuleDescription();
-		try {
-			return root.getJavaProject().getModuleDescription();
-		} catch (JavaModelException e) {
-			return null;
+		if (this.rootToModule == null) {
+			this.rootToModule = new HashMap<>();
 		}
+		Function<IPackageFragmentRoot, IClasspathEntry> rootToEntry = r -> {
+			try {
+				return ((JavaProject) root.getJavaProject()).getClasspathEntryFor(root.getPath());
+			} catch (JavaModelException e) {
+				return null;
+			}
+		};
+		return NameLookup.getModuleDescription(root, this.rootToModule, rootToEntry);
 	}
 
 	private IJavaElement findModuleContext(char[] moduleName) {

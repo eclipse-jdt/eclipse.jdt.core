@@ -17,28 +17,25 @@ package org.eclipse.jdt.internal.core;
 
 import java.io.File;
 import java.util.*;
+import java.util.function.Function;
+import java.util.jar.Manifest;
+
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IModuleDescription;
-import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -46,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.AutomaticModuleNaming;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -74,238 +72,22 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class NameLookup implements SuffixConstants {
-	private final class AutoModule implements IModuleDescription {
-		String modName = null;
-		public AutoModule(String name) {
-			this.modName = name;
-		}
-		
-		@Override
-		public boolean hasChildren() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return false;
+
+	/**
+	 * Handle for an automatic module.
+	 *
+	 * <p>Note, that by definition this is mostly a fake, only {@link #getElementName()} provides a useful value.</p>
+	 */
+	private static class AutoModule extends AbstractModule {
+
+		public AutoModule(JavaElement parent, String name) {
+			super(parent, name);
 		}
 
 		@Override
-		public IJavaElement[] getChildren() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public void rename(String name, boolean replace, IProgressMonitor monitor) throws JavaModelException {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void move(IJavaElement container, IJavaElement sibling, String rename, boolean replace,
-				IProgressMonitor monitor) throws JavaModelException {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void delete(boolean force, IProgressMonitor monitor) throws JavaModelException {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean replace,
-				IProgressMonitor monitor) throws JavaModelException {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public ISourceRange getSourceRange() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getSource() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public ISourceRange getNameRange() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public <T> T getAdapter(Class<T> adapter) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public boolean isStructureKnown() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public boolean isReadOnly() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public IResource getUnderlyingResource() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public ISchedulingRule getSchedulingRule() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IResource getResource() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IJavaElement getPrimaryElement() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IPath getPath() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IJavaElement getParent() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IOpenable getOpenable() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IJavaProject getJavaProject() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IJavaModel getJavaModel() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getHandleIdentifier() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public int getElementType() {
-			return IJavaElement.JAVA_MODULE;
-		}
-
-		@Override
-		public String getElementName() {
-			return this.modName;
-		}
-
-		@Override
-		public IResource getCorrespondingResource() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IJavaElement getAncestor(int ancestorType) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public boolean exists() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public boolean isBinary() {
-			// TODO Auto-generated method stub
-			return false;
-		}
-
-		@Override
-		public ITypeRoot getTypeRoot() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IType getType(String name, int occurrenceCount) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public int getOccurrenceCount() {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public ISourceRange getJavadocRange() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public int getFlags() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public IType getDeclaringType() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public ICompilationUnit getCompilationUnit() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IClassFile getClassFile() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public String[] getCategories() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
+		protected void toStringContent(StringBuffer buffer, String lineDelimiter) throws JavaModelException {
+			buffer.append("automatic module "); //$NON-NLS-1$
+			buffer.append(this.name);
 		}
 	}
 
@@ -450,7 +232,9 @@ public class NameLookup implements SuffixConstants {
 	 * Reverse map from root path to corresponding resolved CP entry
 	 * (so as to be able to figure inclusion/exclusion rules)
 	 */
-	protected Map rootToResolvedEntries;
+	protected Map<IPackageFragmentRoot,IClasspathEntry> rootToResolvedEntries;
+
+	protected Map<IPackageFragmentRoot,IModuleDescription> rootToModule;
 
 	/**
 	 * A map from package handles to a map from type name to an IType or an IType[].
@@ -474,6 +258,7 @@ public class NameLookup implements SuffixConstants {
 			Util.verbose(" -> working copy size: " + (workingCopies == null ? 0 : workingCopies.length));  //$NON-NLS-1$
 			start = System.currentTimeMillis();
 		}
+		this.rootToModule = new HashMap<>();
 		this.packageFragmentRoots = packageFragmentRoots;
 		if (workingCopies == null) {
 			this.packageFragments = packageFragments;
@@ -1027,7 +812,8 @@ public class NameLookup implements SuffixConstants {
 						accessRestriction = getViolatedRestriction(typeName, packageName, entry, accessRestriction);
 					}
 				}
-				Answer answer = new Answer(type, accessRestriction, entry, getModule(root));
+				Answer answer = new Answer(type, accessRestriction, entry,
+										getModuleDescription(root, this.rootToModule, this.rootToResolvedEntries::get));
 				if (!answer.ignoreIfBetter()) {
 					if (answer.isBetter(suggestedAnswer))
 						return answer;
@@ -1094,7 +880,7 @@ public class NameLookup implements SuffixConstants {
 				} else if (moduleDesc instanceof SourceModule) {
 					return (ModuleDescriptionInfo)((SourceModule) moduleDesc).getElementInfo();
 				} else {
-					return new org.eclipse.jdt.internal.compiler.lookup.AutoModule(moduleDesc.getElementName().toCharArray());
+					return IModule.createAutomatic(moduleDesc.getElementName().toCharArray());
 				}
 			} catch (JavaModelException e) {
 				// TODO Auto-generated catch block
@@ -1105,11 +891,47 @@ public class NameLookup implements SuffixConstants {
 		return null;
 	}
 
-	private IModuleDescription getModule(PackageFragmentRoot root) {
-		return root.getModuleDescription();
+	/** Internal utility, which is able to answer explicit and automatic modules. */
+	static IModuleDescription getModuleDescription(IPackageFragmentRoot root, Map<IPackageFragmentRoot,IModuleDescription> cache, Function<IPackageFragmentRoot,IClasspathEntry> rootToEntry) {
+		IModuleDescription module = cache.get(root);
+		if (module != null)
+			return module;
+		try {
+			if (root.getKind() == IPackageFragmentRoot.K_SOURCE)
+				module = root.getJavaProject().getModuleDescription(); // from any root in this project
+			else
+				module = root.getModuleDescription();
+		} catch (JavaModelException e) {
+			return null;
+		}
+		if (module == null) {
+			// 2nd attempt: try automatic module:
+			IClasspathEntry classpathEntry = rootToEntry.apply(root);
+			if (classpathEntry instanceof ClasspathEntry) {
+				if (((ClasspathEntry) classpathEntry).isModular()) {
+					// modular but no module-info implies this is an automatic module
+					Manifest manifest = null;
+					switch (classpathEntry.getEntryKind()) {
+						case IClasspathEntry.CPE_LIBRARY:
+							manifest = ((PackageFragmentRoot) root).getManifest();
+							break;
+						case IClasspathEntry.CPE_PROJECT:
+							JavaProject javaProject = (JavaProject) root.getJavaModel().getJavaProject(classpathEntry.getPath().lastSegment());
+							manifest = javaProject.getManifest();
+							break;
+					}
+					char[] moduleName = AutomaticModuleNaming.determineAutomaticModuleName(root.getElementName(), root.isArchive(), manifest);
+					module = new AutoModule((JavaElement) root, String.valueOf(moduleName));
+				}
+			}
+		}
+		if (module != null)
+			cache.put(root, module);
+		return module;
 	}
+
 	public IModule getModuleDescriptionInfo(PackageFragmentRoot root) {
-		IModuleDescription desc = getModule(root);
+		IModuleDescription desc = getModuleDescription(root, this.rootToModule, this.rootToResolvedEntries::get);
 		if (desc != null) {
 			return getModuleDescriptionInfo(desc);
 		}
@@ -1274,7 +1096,10 @@ public class NameLookup implements SuffixConstants {
 			case IJavaElement.JAVA_PROJECT:
 				try {
 					IJavaElement element = ((IJavaProject) moduleContext).findElement(new Path(String.join("/", pkgName))); //$NON-NLS-1$
-					return element instanceof IPackageFragment;
+					if (element instanceof IPackageFragment) {
+						IPackageFragmentRoot root = (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+						return root.getKind() == IPackageFragmentRoot.K_SOURCE;
+					}
 				} catch (JavaModelException e) {
 					return false;
 				}
@@ -1418,7 +1243,7 @@ public class NameLookup implements SuffixConstants {
 
 	@FunctionalInterface
 	interface IPrefixMatcherCharArray { // note the reversal in the order of params wrt to the string version.
-		boolean matches(char[] prefix, char[] name);
+		boolean matches(char[] prefix, char[] name, boolean isCaseSensitive);
 	}
 	/**
 	 * Notifies the given requestor of all package fragments with the
@@ -1493,8 +1318,11 @@ public class NameLookup implements SuffixConstants {
 	}
 	public void seekModule(char[] name, boolean prefixMatch, IJavaElementRequestor requestor) {
 
-		IPrefixMatcherCharArray prefixMatcher = prefixMatch ? CharOperation.equals(name, CharOperation.ALL_PREFIX) ?
-				(x, y) -> true : CharOperation::prefixEquals : CharOperation :: equals;
+		IPrefixMatcherCharArray prefixMatcher = prefixMatch 
+				? CharOperation.equals(name, CharOperation.ALL_PREFIX) 
+						? (x, y, isCaseSensitive) -> true
+						: CharOperation::prefixEquals
+				: CharOperation::equals;
 
 		int count= this.packageFragmentRoots.length;
 		for (int i= 0; i < count; i++) {
@@ -1503,23 +1331,13 @@ public class NameLookup implements SuffixConstants {
 			IPackageFragmentRoot root= this.packageFragmentRoots[i];
 			IModuleDescription module = null;
 			if (root instanceof JrtPackageFragmentRoot) {
-				if (!prefixMatcher.matches(name, root.getElementName().toCharArray())) {
+				if (!prefixMatcher.matches(name, root.getElementName().toCharArray(), false)) {
 					continue;
 				}
 			}
-			module = getModule((PackageFragmentRoot) root);
-			if (module != null) {
-				if (prefixMatcher.matches(name, module.getElementName().toCharArray()))
+			module = getModuleDescription(root, this.rootToModule, this.rootToResolvedEntries::get);
+			if (module != null && prefixMatcher.matches(name, module.getElementName().toCharArray(), false)) {
 				requestor.acceptModule(module);
-			} else {
-				String modName = root.getPath().removeFileExtension().lastSegment();
-				if (CharOperation.equals(modName.toCharArray(), name)) {
-					//            ^^^^^^ Only complete matches, at this point, as we don't propose automatic module names.
-					ClasspathEntry entry = (ClasspathEntry) this.rootToResolvedEntries.get(root);
-					if (entry != null && entry.isAutomaticModule()) {
-						requestor.acceptModule(new AutoModule(modName));
-					}
-				}
 			}
 		}
 	}
