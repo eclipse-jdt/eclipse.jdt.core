@@ -171,6 +171,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		testTypeAnnotations27();
 		testPackageAnnotations();
 		testBug520540();
+		testEnumConstArguments();
 	}
 	
 	public void testLambdaSpecifics() {
@@ -1025,6 +1026,26 @@ public class Java8ElementProcessor extends BaseProcessor {
 			typeElements.remove(string);
 		}
 		assertEquals("found incorrect types", 0, typeElements.size());
+	}
+	public void testEnumConstArguments() {
+		TypeElement annotatedType = _elementUtils.getTypeElement("targets.bug521812.MyEnum");
+		List<? extends Element> enclosedElements = annotatedType.getEnclosedElements();
+		ExecutableElement constr = null;
+		for (Element element : enclosedElements) {
+			if (element.getSimpleName().toString().equals("<init>")) {
+				constr = (ExecutableElement) element;
+			}
+		}
+		assertNotNull("constructor should not be null", constr);
+		List<? extends VariableElement> parameters = constr.getParameters();
+		ExecutableType asType = (ExecutableType) constr.asType();
+		List<? extends TypeMirror> parameterTypes = asType.getParameterTypes();
+		assertEquals("param count and param type count should be same", parameters.size(), parameterTypes.size());
+		for(int i = 0; i < parameters.size(); i++) {
+			VariableElement param = parameters.get(i);
+			TypeMirror asType2 = param.asType();
+			assertEquals("Parameter type should be same", param.asType(), asType2);
+		}
 	}
 	private void createPackageBinary() throws IOException {
 		String path = packageName.replace('.', '/');

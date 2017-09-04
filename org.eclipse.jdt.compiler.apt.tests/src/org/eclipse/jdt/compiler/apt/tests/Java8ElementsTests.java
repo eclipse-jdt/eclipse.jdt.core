@@ -346,6 +346,10 @@ public class Java8ElementsTests extends TestCase {
 		assertEquals(true, success);
 		assertEquals("succeeded", System.getProperty(JAVA8_ANNOTATION_PROC));
 	}
+	public void testEnumConstArgumentsBinary() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testEnumConstArguments", null, "bug521812");
+	}
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
 		internalTest(compiler, processor, testMethod, null);
 	}
