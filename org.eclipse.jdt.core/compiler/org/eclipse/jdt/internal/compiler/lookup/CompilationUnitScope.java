@@ -417,11 +417,6 @@ void faultInImports() {
 			}
 		}
 		if ((importReference.bits & ASTNode.OnDemand) != 0) {
-			if (CharOperation.equals(compoundName, this.currentPackageName)) {
-				problemReporter().unusedImport(importReference); // since skipped, must be reported now
-				continue nextImport;
-			}
-
 			Binding importBinding = findImport(compoundName, compoundName.length);
 			if (!importBinding.isValidBinding()) {
 				problemReporter().importProblem(importReference, importBinding);

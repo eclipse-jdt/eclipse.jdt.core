@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3257,5 +3257,23 @@ public class StaticImportTest extends AbstractComparableTest {
 				"	}\n" + 
 				"}"
 		});
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=521859
+	// [compiler] Invalid static import that resolves to a package is not reported as an error
+	public void testBug521859() {
+		runNegativeTest(
+			new String[] {
+				"pack1/Test.java",
+				"package pack1;\n" +
+				"import static pack1.*;\n" +
+				"public class Test {\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in pack1\\Test.java (at line 2)\n" + 
+			"	import static pack1.*;\n" + 
+			"	              ^^^^^\n" + 
+			"Only a type can be imported. pack1 resolves to a package\n" + 
+			"----------\n");
 	}
 }
