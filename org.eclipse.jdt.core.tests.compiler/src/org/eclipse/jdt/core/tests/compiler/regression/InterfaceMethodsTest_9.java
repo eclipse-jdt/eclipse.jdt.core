@@ -295,4 +295,17 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 			"The method name(String) of type A must override or implement a supertype method\n" + 
 			"----------\n");
 	}
+	public void testBug521743() {
+		runConformTest(
+			new String[] {
+				"FI.java",
+				"interface FI {\n" + 
+				"    private <T> void foo(Class c){}\n" + 
+				"}\n" + 
+				"interface FI2 extends FI {\n" + 
+				"    default <T> void foo(Class<T> c) {}\n" + 
+				"}"
+			}, 
+			"");
+	}
 }
