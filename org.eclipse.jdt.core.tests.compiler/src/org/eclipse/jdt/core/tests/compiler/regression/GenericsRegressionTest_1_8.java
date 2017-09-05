@@ -8265,4 +8265,30 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+
+	public void testBug521822() {
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.List;\n" + 
+				"interface I<U> {\n" + 
+				"    List<U> foo(int i);\n" + 
+				"}\n" + 
+				"class X<T> {\n" + 
+				"    List<T> t;\n" + 
+				"    X(I<T> i) {\n" + 
+				"        this.t = i.foo(0);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class Y<T> extends X<T> {\n" + 
+				"    Y(I<T> t) {super(t);}\n" + 
+				"}\n" + 
+				"class Z {\n" + 
+				"    static List<?> method(int ... i) {return null;}\n" + 
+				"}\n" + 
+				"public class Test  {\n" + 
+				"    static X x = new Y<>(Z::method);\n" + 
+				"}\n"
+			});
+	}
 }
