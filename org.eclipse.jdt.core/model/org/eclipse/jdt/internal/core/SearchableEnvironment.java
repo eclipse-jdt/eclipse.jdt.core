@@ -130,7 +130,11 @@ public class SearchableEnvironment
 		if (this.owner != null) {
 			String source = this.owner.findSource(typeName, packageName);
 			if (source != null) {
-				ICompilationUnit cu = new BasicCompilationUnit(source.toCharArray(), CharOperation.splitOn('.', packageName.toCharArray()), typeName + Util.defaultJavaExtension());
+				ICompilationUnit cu = new BasicCompilationUnit(
+						source.toCharArray(),
+						CharOperation.splitOn('.', packageName.toCharArray()),
+						typeName + Util.defaultJavaExtension(),
+						moduleContext);
 				return new NameEnvironmentAnswer(cu, null);
 			}
 		}

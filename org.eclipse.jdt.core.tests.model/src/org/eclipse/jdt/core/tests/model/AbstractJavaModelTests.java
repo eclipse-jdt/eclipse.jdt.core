@@ -74,6 +74,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected boolean displayName = false;
 	protected String endChar = ",";
 
+	protected static boolean isJRE9 = false;
+	static {
+		String javaVersion = System.getProperty("java.version");
+		if (javaVersion.length() > 3) {
+			javaVersion = javaVersion.substring(0, 3);
+		}
+		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK9) {
+			isJRE9 = true;
+		}
+	}
+
 	/**
 	 * Internal synonym for constant AST.JSL9
 	 * to alleviate deprecation warnings once AST.JLS9 is deprecated in future.
@@ -1295,8 +1307,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return createJava9Project(name, new String[]{"src"});
 	}
 	protected IJavaProject createJava9Project(String name, String[] srcFolders) throws CoreException {
-		String bootModPath = System.getProperty("java.home") + File.separator +"/lib/jrt-fs.jar";
-		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(new Path(bootModPath), null, null, null, null, false);
+		String javaHome = System.getProperty("java.home") + File.separator;
+		Path bootModPath = new Path(javaHome +"/lib/jrt-fs.jar");
+		Path sourceAttachment = new Path(javaHome +"/lib/src.zip");
+		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(bootModPath, sourceAttachment, null, null, null, false);
 		IJavaProject project = this.createJavaProject(name, srcFolders, new String[0],
 				new String[0], "bin", "9");
 		IClasspathEntry[] old = project.getRawClasspath();

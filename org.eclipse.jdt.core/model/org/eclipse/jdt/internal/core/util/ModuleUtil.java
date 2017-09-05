@@ -124,7 +124,10 @@ public class ModuleUtil {
 							String pack = fragment.getElementName();
 							for (ICompilationUnit iUnit : units) {
 								org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceFile = 
-										new BasicCompilationUnit(iUnit.getSource().toCharArray(), CharOperation.splitOn('.', pack.toCharArray()), iUnit.getPath().toOSString());
+										new BasicCompilationUnit(iUnit.getSource().toCharArray(),
+												CharOperation.splitOn('.', pack.toCharArray()),
+												iUnit.getPath().toOSString(),
+												iUnit);
 								toCompile.add(sourceFile);
 							}
 						}

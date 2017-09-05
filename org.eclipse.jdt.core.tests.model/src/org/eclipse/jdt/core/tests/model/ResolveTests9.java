@@ -16,15 +16,18 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -216,6 +219,27 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 			deleteResource(providesFile);
 			if (modInfo != null)
 				deleteResource(modInfo);
+		}
+	}
+
+	public void testClassFileInModule1() throws CoreException, IOException {
+		if (!isJRE9) {
+			System.err.println("Test "+getName()+" requires a JRE 9");
+			return;
+		}
+		IJavaProject javaProject = createJava9Project("Test");
+		try {
+			IType type = javaProject.findType("java.util.zip.ZipFile");
+			IClassFile classFile = type.getClassFile();
+			String contents = classFile.getBuffer().getContents();
+			int start = contents.indexOf("this(");
+			IJavaElement[] selected = classFile.codeSelect(start, 4);
+			assertElementsEqual(
+					"Unexpected elements",
+					"ZipFile(java.io.File, int) [in ZipFile [in ZipFile.class [in java.util.zip [in <module:java.base>]]]]",
+					selected);
+		} finally {
+			deleteProject(javaProject);
 		}
 	}
 }

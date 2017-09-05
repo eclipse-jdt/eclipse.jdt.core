@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModularClassFile;
 import org.eclipse.jdt.core.IModuleDescription;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -47,12 +48,16 @@ public class BasicCompilationUnit implements ICompilationUnit {
 	protected char[] moduleName;
 	protected String encoding;
 
-public BasicCompilationUnit(char[] contents, char[][] packageName, String fileName) {
+private BasicCompilationUnit(char[] contents, char[][] packageName, String fileName) {
 	this.contents = contents;
 	this.fileName = fileName.toCharArray();
 	this.packageName = packageName;
 }
 
+/**
+ * @deprecated Should pass a javaElement via {@link BasicCompilationUnit#BasicCompilationUnit(char[], char[][], String, IJavaElement)}.
+ */
+@Deprecated
 public BasicCompilationUnit(char[] contents, char[][] packageName, String fileName, String encoding) {
 	this(contents, packageName, fileName);
 	this.encoding = encoding;
@@ -75,30 +80,41 @@ private void initAttributes(IJavaElement javaElement) {
 	if (javaElement != null) {
 		try {
 				IModuleDescription module = null;
-				IJavaProject javaProject = javaElement.getJavaProject();
 
-				switch (javaElement.getElementType()) {
-					case IJavaElement.CLASS_FILE:
-						if (javaElement instanceof IModularClassFile)
-							module = ((IModularClassFile) javaElement).getModule();
-						else
-							module = ((ClassFile) javaElement).getPackageFragmentRoot().getModuleDescription();
-						break;
-					case IJavaElement.COMPILATION_UNIT:
-						IFile file = (IFile) javaElement.getResource();
-						if (file != null) {
-							this.encoding = file.getCharset();
-						}
-						break;
-					default:
-						break;
+				search: while (javaElement != null) {
+					switch (javaElement.getElementType()) {
+						case IJavaElement.JAVA_PROJECT:
+							module = ((IJavaProject) javaElement).getModuleDescription();
+							break search;
+						case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+							module = ((IPackageFragmentRoot) javaElement).getModuleDescription();
+							break search;
+						case IJavaElement.CLASS_FILE:
+							if (javaElement instanceof IModularClassFile) {
+								module = ((IModularClassFile) javaElement).getModule();
+								break search;
+							}
+							break;
+						case IJavaElement.COMPILATION_UNIT:
+							IFile file = (IFile) javaElement.getResource();
+							if (file != null) {
+								this.encoding = file.getCharset();
+							}
+							module = ((org.eclipse.jdt.core.ICompilationUnit) javaElement).getModule();
+							if (module != null)
+								break search;
+							break;
+						default:
+							break;
+					}
+					javaElement = javaElement.getParent();
 				}
 
 				if (module != null) {
 					this.moduleName = module.getElementName().toCharArray();
 				}
 				if (this.encoding == null) {
-					IProject project = (IProject) javaProject.getResource();
+					IProject project = javaElement.getJavaProject().getProject();
 					if (project != null) {
 						this.encoding = project.getDefaultCharset();
 					}

@@ -91,7 +91,7 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 		IBuffer buffer = getBuffer();
 		char[] contents;
 		if (buffer != null && (contents = buffer.getCharacters()) != null) {
-			BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, TypeConstants.MODULE_INFO_FILE_NAME_STRING);
+			BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, TypeConstants.MODULE_INFO_FILE_NAME_STRING, this);
 			return super.codeSelect(cu, offset, length, owner);
 		} else {
 			// has no associated source
