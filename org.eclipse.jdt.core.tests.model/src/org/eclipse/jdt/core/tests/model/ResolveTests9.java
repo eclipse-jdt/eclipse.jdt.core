@@ -20,12 +20,17 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -240,6 +245,63 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 					selected);
 		} finally {
 			deleteProject(javaProject);
+		}
+	}
+
+	public void testUnnamedNamedConflict() throws CoreException, IOException {
+		if (!isJRE9) {
+			System.err.println("Test "+getName()+" requires a JRE 9");
+			return;
+		}
+		IJavaProject mod = null;
+		IJavaProject test = null;
+		try {
+			mod = createJava9Project("mod");
+			createFolder("mod/src/p1/p2");
+			createFile("mod/src/p1/p2/C.java", "package p1.p2;\n public class C {}\n");
+			createFile("mod/src/module-info.java",
+					"module mod {\n" +
+					"	exports p1.p2;\n" +
+					"}\n");
+			mod.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			test = createJava9Project("Test");
+			IClasspathAttribute[] attributes = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+			addClasspathEntry(test, JavaCore.newProjectEntry(new Path("/mod"), null, false, attributes, false));
+			createFolder("Test/src/p1/p2");
+			createFile("Test/src/p1/p2/C1.java", "package p1.p2;\n public class C1 {}\n");
+			String source =
+					"package q;\n" +
+					"public class Main {\n" +
+					"	p1.p2.C c;\n" +
+					"	p1.p2.C1 c1;\n" +
+					"}\n";
+			createFolder("Test/src/q");
+			createFile("Test/src/q/Main.java", source);
+			test.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = test.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers", "The package p1.p2 conflicts with a package accessible from another module: mod", markers);
+
+			ICompilationUnit unit = getCompilationUnit("Test/src/q/Main.java");
+
+			// test that we can select both types despite the package conflict:
+			int start = source.indexOf("C c");
+			IJavaElement[] selected = unit.codeSelect(start, 2);
+			assertElementsEqual(
+					"Unexpected elements",
+					"C [in C.java [in p1.p2 [in src [in mod]]]]",
+					selected);
+
+			start = source.indexOf("C1");
+			selected = unit.codeSelect(start, 2);
+			assertElementsEqual(
+					"Unexpected elements",
+					"C1 [in C1.java [in p1.p2 [in src [in Test]]]]",
+					selected);
+		} finally {
+			deleteProject(test);
+			deleteProject(mod);
 		}
 	}
 }

@@ -227,7 +227,7 @@ public Binding getTypeOrPackage(char[] name, ModuleBinding mod) {
 			return new ProblemReferenceBinding(new char[][]{name}, referenceBinding, ProblemReasons.InternalNameProvided);
 		}
 		boolean isSameModule = (this instanceof SplitPackageBinding) ? referenceBinding.module() == mod : this.enclosingModule == mod;
-		if (!isSameModule && !mod.canAccess(referenceBinding.fPackage)) {
+		if (!isSameModule && referenceBinding.isValidBinding() && !mod.canAccess(referenceBinding.fPackage)) {
 			problemBinding = new ProblemReferenceBinding(referenceBinding.compoundName, referenceBinding, ProblemReasons.NotAccessible);
 			break lookForType0;
 		}

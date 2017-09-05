@@ -358,6 +358,7 @@ private ReferenceBinding combine(ReferenceBinding one, ReferenceBinding two, Mod
 	if (two == null) return one;
 	if (!clientModule.canAccess(one.fPackage)) return two;
 	if (!clientModule.canAccess(two.fPackage)) return one;
+	if (one == two) return one; //$IDENTITY-COMPARISON$
 	return new ProblemReferenceBinding(one.compoundName, one, ProblemReasons.Ambiguous); // TODO(SHMOD): use a new problem ID
 }
 /** Collect answers from the oracle concerning the given clientModule (if present) and each of a set of other modules. */
