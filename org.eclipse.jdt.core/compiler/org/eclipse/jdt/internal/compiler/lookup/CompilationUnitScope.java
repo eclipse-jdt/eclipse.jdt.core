@@ -980,7 +980,6 @@ private int checkAndRecordImportBinding(
 						}
 					} else if (resolved.resolvedImport == referenceBinding) {
 						if (importReference.isStatic() != resolved.isStatic()) {
-							problemReporter().duplicateImport(importReference);
 							recordImportBinding(new ImportBinding(compoundName, false, importBinding, importReference));
 						}
 					}

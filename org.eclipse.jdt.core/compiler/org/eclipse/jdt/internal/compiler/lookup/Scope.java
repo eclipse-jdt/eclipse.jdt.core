@@ -1239,19 +1239,6 @@ public abstract class Scope {
 				if (memberType.canBeSeenBy(getCurrentPackage())) {
 					return memberType;
 				}
-				// maybe some type in the compilation unit is extending some class in some package
-				// and the selection is for some protected inner class of that superclass
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235658
-				if (this instanceof CompilationUnitScope) {
-					TypeDeclaration[] types = ((CompilationUnitScope)this).referenceContext.types;
-					if (types != null) {
-						for (int i = 0, max = types.length; i < max; i++) {
-							if (memberType.canBeSeenBy(enclosingType, types[i].binding)) {
-								return memberType;
-							}
-						}
-					}
-				}
 			} else if (memberType.canBeSeenBy(enclosingType, enclosingReceiverType)) {
 				return memberType;
 			}
@@ -3289,11 +3276,12 @@ public abstract class Scope {
 						if (resolvedImport instanceof PackageBinding) {
 							temp = findType(name, (PackageBinding) resolvedImport, currentPackage);
 						} else if (someImport.isStatic()) {
-							temp = findMemberType(name, (ReferenceBinding) resolvedImport); // static imports are allowed to see inherited member types
+							// Imports are always resolved in the CU Scope (bug 520874)
+							temp = compilationUnitScope().findMemberType(name, (ReferenceBinding) resolvedImport); // static imports are allowed to see inherited member types
 							if (temp != null && !temp.isStatic())
 								temp = null;
 						} else {
-							temp = findDirectMemberType(name, (ReferenceBinding) resolvedImport);
+							temp = compilationUnitScope().findDirectMemberType(name, (ReferenceBinding) resolvedImport);
 						}
 						if (TypeBinding.notEquals(temp, type) && temp != null) {
 							if (temp.isValidBinding()) {
