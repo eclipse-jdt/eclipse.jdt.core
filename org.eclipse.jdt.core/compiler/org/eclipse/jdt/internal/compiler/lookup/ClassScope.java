@@ -1228,7 +1228,7 @@ public class ClassScope extends Scope {
 		if (superType.isMemberType()) {
 			ReferenceBinding current = superType.enclosingType();
 			do {
-				if (current.isHierarchyBeingActivelyConnected() && TypeBinding.equalsEquals(current, sourceType)) {
+				if (current.isHierarchyBeingActivelyConnected()) {
 					problemReporter().hierarchyCircularity(sourceType, current, reference);
 					sourceType.tagBits |= TagBits.HierarchyHasProblems;
 					current.tagBits |= TagBits.HierarchyHasProblems;
@@ -1290,11 +1290,16 @@ public class ClassScope extends Scope {
 			org.eclipse.jdt.internal.compiler.ast.TypeReference ref = ((SourceTypeBinding) superType).scope.superTypeReference;
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133071
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=121734
-			if (ref != null && ref.resolvedType != null && ((ReferenceBinding) ref.resolvedType).isHierarchyBeingActivelyConnected()) {
-				problemReporter().hierarchyCircularity(sourceType, superType, reference);
-				sourceType.tagBits |= TagBits.HierarchyHasProblems;
-				superType.tagBits |= TagBits.HierarchyHasProblems;
-				return true;
+			if (ref != null && ref.resolvedType != null) {
+				ReferenceBinding s = (ReferenceBinding) ref.resolvedType;
+				do {
+					if (s.isHierarchyBeingActivelyConnected()) {
+						problemReporter().hierarchyCircularity(sourceType, superType, reference);
+						sourceType.tagBits |= TagBits.HierarchyHasProblems;
+						superType.tagBits |= TagBits.HierarchyHasProblems;
+						return true;
+					}
+				} while ((s = s.enclosingType()) != null);
 			}
 			if (ref != null && ref.resolvedType == null) {
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885 Don't cry foul prematurely.

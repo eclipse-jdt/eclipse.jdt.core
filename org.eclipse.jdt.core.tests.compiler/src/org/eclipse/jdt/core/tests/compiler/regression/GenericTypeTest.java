@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34424,11 +34424,16 @@ public void test1021b() { // should this case be allowed?
 			"	}\n" +
 			"}\n",
 		},
-		"----------\n" +
-		"1. ERROR in p\\SomeClass2.java (at line 3)\n" +
-		"	public abstract class SomeClass2<T> extends M {\n" +
-		"	                                            ^\n" +
-		"Cycle detected: the type SomeClass2<T> cannot extend/implement itself or one of its own member types\n" +
+		"----------\n" + 
+		"1. ERROR in p\\SomeClass2.java (at line 3)\n" + 
+		"	public abstract class SomeClass2<T> extends M {\n" + 
+		"	                                            ^\n" + 
+		"M cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"2. ERROR in p\\SomeClass2.java (at line 4)\n" + 
+		"	public static class M1 extends M2 {}\n" + 
+		"	                               ^^\n" + 
+		"Cycle detected: a cycle exists in the type hierarchy between SomeClass2.M1 and SomeClass2<T>\n" + 
 		"----------\n"
 	);
 }
