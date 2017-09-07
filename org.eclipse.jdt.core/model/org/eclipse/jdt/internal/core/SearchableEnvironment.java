@@ -15,10 +15,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -63,8 +65,8 @@ public class SearchableEnvironment
 	protected IJavaSearchScope searchScope;
 
 	protected boolean checkAccessRestrictions;
-	// moduleName -> IJavaProject | IJavaPackageFragmentRoot (lazily populated)
-	private Map<String,IJavaElement> knownModuleLocations; // null indicates: not using JPMS
+	// moduleName -> IPackageFragmentRoot[](lazily populated)
+	private Map<String,IPackageFragmentRoot[]> knownModuleLocations; // null indicates: not using JPMS
 
 	private ModuleUpdater moduleUpdater;
 	private Map<IPackageFragmentRoot,IModuleDescription> rootToModule;
@@ -124,17 +126,18 @@ public class SearchableEnvironment
 	 * Returns the given type in the the given package if it exists,
 	 * otherwise <code>null</code>.
 	 */
-	protected NameEnvironmentAnswer find(String typeName, String packageName, IJavaElement moduleContext) {
+	protected NameEnvironmentAnswer find(String typeName, String packageName, IPackageFragmentRoot[] moduleContext) {
 		if (packageName == null)
 			packageName = IPackageFragment.DEFAULT_PACKAGE_NAME;
 		if (this.owner != null) {
 			String source = this.owner.findSource(typeName, packageName);
 			if (source != null) {
+				IJavaElement moduleElement = (moduleContext != null && moduleContext.length > 0) ? moduleContext[0] : null;
 				ICompilationUnit cu = new BasicCompilationUnit(
 						source.toCharArray(),
 						CharOperation.splitOn('.', packageName.toCharArray()),
 						typeName + Util.defaultJavaExtension(),
-						moduleContext);
+						moduleElement);
 				return new NameEnvironmentAnswer(cu, null);
 			}
 		}
@@ -232,7 +235,7 @@ public class SearchableEnvironment
 	 * The packages found are passed to:
 	 *    ISearchRequestor.acceptPackage(char[][] packageName)
 	 */
-	public void findPackages(char[] prefix, ISearchRequestor requestor, IJavaElement moduleContext) {
+	public void findPackages(char[] prefix, ISearchRequestor requestor, IPackageFragmentRoot[] moduleContext) {
 		this.nameLookup.seekPackageFragments(
 			new String(prefix),
 			true,
@@ -347,12 +350,12 @@ public class SearchableEnvironment
 		if (compoundTypeName == null) return null;
 
 		boolean isNamedStrategy = LookupStrategy.get(moduleName) == LookupStrategy.Named;
-		IJavaElement moduleLocation = isNamedStrategy ? findModuleContext(moduleName) : null;
+		IPackageFragmentRoot[] moduleLocations = isNamedStrategy ? findModuleContext(moduleName) : null;
 
 		int length = compoundTypeName.length;
 		if (length <= 1) {
 			if (length == 0) return null;
-			return find(new String(compoundTypeName[0]), null, moduleLocation);
+			return find(new String(compoundTypeName[0]), null, moduleLocations);
 		}
 
 		int lengthM1 = length - 1;
@@ -362,7 +365,7 @@ public class SearchableEnvironment
 		return find(
 			new String(compoundTypeName[lengthM1]),
 			CharOperation.toString(packageName),
-			moduleLocation);
+			moduleLocations);
 	}
 
 	/**
@@ -373,11 +376,11 @@ public class SearchableEnvironment
 		if (name == null) return null;
 
 		boolean isNamedStrategy = LookupStrategy.get(moduleName) == LookupStrategy.Named;
-		IJavaElement moduleLocation = isNamedStrategy ? findModuleContext(moduleName) : null;
+		IPackageFragmentRoot[] moduleLocations = isNamedStrategy ? findModuleContext(moduleName) : null;
 		return find(
 			new String(name),
 			packageName == null || packageName.length == 0 ? null : CharOperation.toString(packageName),
-			moduleLocation);
+			moduleLocations);
 	}
 
 	/**
@@ -786,7 +789,7 @@ public class SearchableEnvironment
 		switch (strategy) {
 			case Named:
 				if (this.knownModuleLocations != null) {
-					IJavaElement moduleContext = findModuleContext(moduleName);
+					IPackageFragmentRoot[] moduleContext = findModuleContext(moduleName);
 					if (moduleContext != null) {
 						// (this.owner != null && this.owner.isPackage(pkgName)) // TODO(SHMOD) see old isPackage
 						if (this.nameLookup.isPackage(pkgName, moduleContext)) {
@@ -807,10 +810,12 @@ public class SearchableEnvironment
 				//$FALL-THROUGH$
 			case AnyNamed:
 				char[][] names = CharOperation.NO_CHAR_CHAR;
-				for (IPackageFragmentRoot packageRoot : this.nameLookup.packageFragmentRoots) {
-					if (strategy.matches(packageRoot, loc -> loc instanceof JrtPackageFragmentRoot || getModuleDescription(loc) != null)) {
-						if (this.nameLookup.isPackage(pkgName, packageRoot)) {
-							IModuleDescription moduleDescription = getModuleDescription(packageRoot);
+				IPackageFragmentRoot[] packageRoots = this.nameLookup.packageFragmentRoots;
+				for (IPackageFragmentRoot packageRoot : packageRoots) {
+					IPackageFragmentRoot[] singleton = { packageRoot };
+					if (strategy.matches(singleton, locs -> locs[0] instanceof JrtPackageFragmentRoot || getModuleDescription(locs) != null)) {
+						if (this.nameLookup.isPackage(pkgName, singleton)) {
+							IModuleDescription moduleDescription = getModuleDescription(singleton);
 							char[] aName = moduleDescription != null ? moduleDescription.getElementName().toCharArray() : ModuleBinding.UNNAMED;
 							names = CharOperation.arrayConcat(names, aName);
 						}
@@ -827,7 +832,7 @@ public class SearchableEnvironment
 		switch (strategy) {
 			case Named:
 				if (this.knownModuleLocations != null) {
-					IJavaElement moduleContext = findModuleContext(moduleName);
+					IPackageFragmentRoot[] moduleContext = findModuleContext(moduleName);
 					if (moduleContext != null) {
 						// (this.owner != null && this.owner.isPackage(pkgName)) // TODO(SHMOD) see old isPackage
 						if (this.nameLookup.hasCompilationUnit(pkgName, moduleContext))
@@ -844,9 +849,11 @@ public class SearchableEnvironment
 				}
 				//$FALL-THROUGH$
 			case AnyNamed:
-				for (IPackageFragmentRoot packageRoot : this.nameLookup.packageFragmentRoots) {
-					if (strategy.matches(packageRoot, loc -> loc instanceof JrtPackageFragmentRoot || getModuleDescription(loc) != null)) {
-						if (this.nameLookup.hasCompilationUnit(pkgName, packageRoot))
+				IPackageFragmentRoot[] packageRoots = this.nameLookup.packageFragmentRoots;
+				for (IPackageFragmentRoot packageRoot : packageRoots) {
+					IPackageFragmentRoot[] singleton = { packageRoot };
+					if (strategy.matches(singleton, locs -> locs[0] instanceof JrtPackageFragmentRoot || getModuleDescription(locs) != null)) {
+						if (this.nameLookup.hasCompilationUnit(pkgName, singleton))
 							return true;
 					}
 				}
@@ -856,22 +863,27 @@ public class SearchableEnvironment
 		}
 	}
 
-	private IModuleDescription getModuleDescription(IPackageFragmentRoot root) {
+	private IModuleDescription getModuleDescription(IPackageFragmentRoot[] roots) {
 		if (this.rootToModule == null) {
 			this.rootToModule = new HashMap<>();
 		}
 		Function<IPackageFragmentRoot, IClasspathEntry> rootToEntry = r -> {
 			try {
-				return ((JavaProject) root.getJavaProject()).getClasspathEntryFor(root.getPath());
+				return ((JavaProject) r.getJavaProject()).getClasspathEntryFor(r.getPath());
 			} catch (JavaModelException e) {
 				return null;
 			}
 		};
-		return NameLookup.getModuleDescription(root, this.rootToModule, rootToEntry);
+		for (IPackageFragmentRoot root : roots) {
+			IModuleDescription moduleDescription = NameLookup.getModuleDescription(root, this.rootToModule, rootToEntry);
+			if (moduleDescription != null)
+				return moduleDescription;
+		}
+		return null;
 	}
 
-	private IJavaElement findModuleContext(char[] moduleName) {
-		IJavaElement moduleContext = null;
+	private IPackageFragmentRoot[] findModuleContext(char[] moduleName) {
+		IPackageFragmentRoot[] moduleContext = null;
 		if (this.knownModuleLocations != null && moduleName != null && moduleName.length > 0) {
 			moduleContext = this.knownModuleLocations.get(String.valueOf(moduleName));
 			if (moduleContext == null) {
@@ -881,11 +893,19 @@ public class SearchableEnvironment
 					while (moduleContext == null && current != null) {
 						switch (current.getElementType()) {
 							case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-								if (!((IPackageFragmentRoot) current).isExternal())
+								if (!((IPackageFragmentRoot) current).isExternal()) {
 									current = current.getJavaProject();
+								} else {
+									moduleContext = new IPackageFragmentRoot[] { (IPackageFragmentRoot) current }; // TODO: validate
+									break;
+								}
 								//$FALL-THROUGH$
 							case IJavaElement.JAVA_PROJECT:
-								moduleContext = current;
+								try {
+									moduleContext = getOwnedPackageFragmentRoots((IJavaProject) current);
+								} catch (JavaModelException e) {
+									// silent?
+								}
 								break;
 							default:
 								current = current.getParent();
@@ -940,5 +960,23 @@ public class SearchableEnvironment
 	public void applyModuleUpdates(IUpdatableModule module, UpdateKind kind) {
 		if (this.moduleUpdater != null)
 			this.moduleUpdater.applyModuleUpdates(module, kind);
+	}
+
+	public static IPackageFragmentRoot[] getOwnedPackageFragmentRoots(IJavaProject javaProject) throws JavaModelException {
+		IPackageFragmentRoot[] allRoots = javaProject.getPackageFragmentRoots();
+		IPackageFragmentRoot[] sourceRoots = Arrays.copyOf(allRoots, allRoots.length);
+		int count = 0;
+		for (int i = 0; i < allRoots.length; i++) {
+			IPackageFragmentRoot root = allRoots[i];
+			if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
+				IResource resource = root.getResource();
+				if (resource == null || !resource.getProject().equals(javaProject.getProject()))
+					continue; // outside this project
+			}
+			sourceRoots[count++] = root;
+		}
+		if (count < allRoots.length)
+			return Arrays.copyOf(sourceRoots, count);
+		return sourceRoots;
 	}
 }

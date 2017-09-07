@@ -118,6 +118,9 @@ private void computeClasspathLocations(
 	}
 	IModuleDescription mod = null;
 	
+	String patchedModuleName = pushPatchToFront(classpathEntries);
+	IModule patchedModule = null;
+
 	nextEntry : for (int i = 0, l = classpathEntries.length; i < l; i++) {
 		ClasspathEntry entry = (ClasspathEntry) classpathEntries[i];
 		IPath path = entry.getPath();
@@ -143,12 +146,16 @@ private void computeClasspathLocations(
 					if (!outputFolder.exists())
 						createOutputFolder(outputFolder);
 				}
-				sLocations.add(ClasspathLocation.forSourceFolder(
+				ClasspathLocation sourceLocation = ClasspathLocation.forSourceFolder(
 							(IContainer) target, 
 							outputFolder,
 							entry.fullInclusionPatternChars(), 
 							entry.fullExclusionPatternChars(),
-							entry.ignoreOptionalProblems()));
+							entry.ignoreOptionalProblems());
+				if (patchedModule != null) {
+					combineIntoModuleEntry(sourceLocation, patchedModule, moduleEntries);
+				}
+				sLocations.add(sourceLocation);
 				continue nextEntry;
 
 			case IClasspathEntry.CPE_PROJECT :
@@ -204,7 +211,10 @@ private void computeClasspathLocations(
 						info = IModule.createAutomatic(prereqJavaProject.getElementName(), false, prereqJavaProject.getManifest());
 					ModulePathEntry projectEntry = new ModulePathEntry(prereqJavaProject.getPath(), info,
 							projectLocations.toArray(new ClasspathLocation[projectLocations.size()]));
-					moduleEntries.put(String.valueOf(info.name()), projectEntry);
+					String moduleName = String.valueOf(info.name());
+					moduleEntries.put(moduleName, projectEntry);
+					if (moduleName.equals(patchedModuleName))
+						patchedModule = info;
 				}
 				continue nextEntry;
 
@@ -231,17 +241,7 @@ private void computeClasspathLocations(
 					// TODO: Ideally we need to do something like mapToModulePathEntry using the path and if it is indeed
 					// a module path entry, then add the corresponding entry here, but that would need the target platform
 					if (moduleEntries != null) {
-						if (bLocation instanceof IMultiModuleEntry) {
-							IMultiModuleEntry binaryModulePathEntry = (IMultiModuleEntry) bLocation;
-							for (String moduleName : binaryModulePathEntry.getModuleNames()) {
-								moduleEntries.put(moduleName, binaryModulePathEntry);							
-							}
-						} else if (isOnModulePath) {
-							IModulePathEntry binaryModulePathEntry = new ModulePathEntry(path, bLocation);
-							IModule module = binaryModulePathEntry.getModule();
-							if (module != null)
-								moduleEntries.put(String.valueOf(module.name()), binaryModulePathEntry);
-						}
+						patchedModule = collectModuleEntries(bLocation, path, isOnModulePath, patchedModuleName, moduleEntries);
 					}
 					if (binaryLocationsPerProject != null) { // normal builder mode
 						IProject p = resource.getProject(); // can be the project being built
@@ -264,17 +264,7 @@ private void computeClasspathLocations(
 					ClasspathLocation bLocation = ClasspathLocation.forLibrary(path.toOSString(), accessRuleSet, externalAnnotationPath, isOnModulePath);
 					bLocations.add(bLocation);
 					if (moduleEntries != null) {
-						if (bLocation instanceof IMultiModuleEntry) {
-							IMultiModuleEntry binaryModulePathEntry = (IMultiModuleEntry) bLocation;
-							for (String moduleName : binaryModulePathEntry.getModuleNames()) {
-								moduleEntries.put(moduleName, binaryModulePathEntry);							
-							}
-						} else if (isOnModulePath) {
-							IModulePathEntry binaryModulePathEntry = new ModulePathEntry(path, bLocation);
-							IModule module = binaryModulePathEntry.getModule();
-							if (module != null)
-								moduleEntries.put(String.valueOf(module.name()), binaryModulePathEntry);
-						}
+						patchedModule = collectModuleEntries(bLocation, path, isOnModulePath, patchedModuleName, moduleEntries);
 					}
 				}
 				continue nextEntry;
@@ -326,6 +316,72 @@ private void computeClasspathLocations(
 	
 	if (moduleEntries != null && !moduleEntries.isEmpty())
 		this.modulePathEntries = moduleEntries;
+}
+
+/**
+ * Establish that an entry with --patch-module appears at position 0, if any.
+ * This ensures that in the first iteration we find the patchedModule (see e.g., collectModuleEntries()),
+ * which later can be combined into each src-entry (see combineIntoModuleEntry()).
+ */
+private String pushPatchToFront(IClasspathEntry[] classpathEntries) {
+	String patchedModule = null;
+	for (int i = 0; i < classpathEntries.length; i++) {
+		IClasspathEntry entry = classpathEntries[i];
+		patchedModule = ClasspathEntry.getExtraAttribute(entry, IClasspathAttribute.PATCH_MODULE);
+		if (patchedModule != null) {
+			if (i > 0) {
+				IClasspathEntry tmp = classpathEntries[0];
+				classpathEntries[0] = entry;
+				classpathEntries[i] = tmp;
+			}
+			return patchedModule;
+		}
+	}
+	return null;
+}
+
+/** Returns the patched module if that is served by the current (binary) location. */
+IModule collectModuleEntries(ClasspathLocation bLocation, IPath path, boolean isOnModulePath, String patchedModuleName,
+								Map<String, IModulePathEntry> moduleEntries) {
+	if (bLocation instanceof IMultiModuleEntry) {
+		IMultiModuleEntry binaryModulePathEntry = (IMultiModuleEntry) bLocation;
+		for (String moduleName : binaryModulePathEntry.getModuleNames()) {
+			moduleEntries.put(moduleName, binaryModulePathEntry);
+		}
+		if (patchedModuleName != null) {
+			IModule module = binaryModulePathEntry.getModule(patchedModuleName.toCharArray());
+			if (module != null)
+				return module;
+		}
+	} else if (isOnModulePath) {
+		IModulePathEntry binaryModulePathEntry = new ModulePathEntry(path, bLocation);
+		IModule module = binaryModulePathEntry.getModule();
+		if (module != null) {
+			String moduleName = String.valueOf(module.name());
+			moduleEntries.put(moduleName, binaryModulePathEntry);
+			if (patchedModuleName != null && moduleName.equals(patchedModuleName))
+				return module;
+		}
+	}
+	return null;
+}
+
+void combineIntoModuleEntry(ClasspathLocation sourceLocation, IModule patchedModule, Map<String, IModulePathEntry> moduleEntries) {
+	sourceLocation.setModule(patchedModule);
+	String patchedModuleName = String.valueOf(patchedModule.name());
+	IModulePathEntry mainEntry = moduleEntries.get(patchedModuleName);
+	ClasspathLocation[] combinedLocations = null;
+	if (mainEntry instanceof ModulePathEntry) {
+		ClasspathLocation[] mainLocs = ((ModulePathEntry) mainEntry).locations;
+		combinedLocations = Arrays.copyOf(mainLocs, mainLocs.length+1);
+		combinedLocations[combinedLocations.length-1] = sourceLocation;
+	} else if (mainEntry instanceof ClasspathLocation) {
+		combinedLocations = new ClasspathLocation[] { (ClasspathLocation) mainEntry, sourceLocation };
+	} else {
+		// FIXME: JrtPackageFragmentRoot, ProjectEntry ??
+		System.err.println("ups!");
+	}
+	moduleEntries.put(patchedModuleName, new ModulePathEntry(null, patchedModule, combinedLocations));
 }
 
 protected boolean isOnModulePath(ClasspathEntry entry) {

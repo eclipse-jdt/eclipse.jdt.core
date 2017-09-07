@@ -5170,6 +5170,82 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				deleteProject(auto);
 		}
 	}
+
+	// patch can see unexported type from host (and package accessible method), but not vice versa
+	public void testPatch1() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			IJavaProject mainProject = createJava9Project("org.astro");
+			String[] sources = { 
+				"src/module-info.java",
+				"module org.astro {\n" + // no exports
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public class World {\n" +
+				"	public String name() { return \"world\"; }\n" +
+				"	void internalTest() { }\n" +
+				"	public org.astro.test.WorldTest test;\n" +
+				"}",
+			};
+			createSourceFiles(mainProject, sources);
+
+			IJavaProject patchProject = createJava9Project("org.astro.patch");
+			IClasspathAttribute[] attributes = {
+						JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
+						JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, "org.astro")
+					};
+			addClasspathEntry(patchProject, JavaCore.newProjectEntry(new Path("/org.astro"), null, false, attributes, false));
+			String[] patchSources = {
+				"src/org/astro/test/WorldTest.java",
+				"package org.astro.test;\n" +
+				"import org.astro.*;\n" +
+				"public class WorldTest {\n" +
+				"	void testWorld(World w) {\n" +
+				"		w.name();\n" +
+				"	}\n" +
+				"}\n",
+				"src/org/astro/Test2.java",
+				"package org.astro;\n" +
+				"class Test2 {\n" +
+				"	void test(World w) {\n" +
+				"		w.internalTest();\n" + // package access
+				"	}\n" +
+				"}\n"
+			};
+			createSourceFiles(patchProject, patchSources);
+			
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = mainProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"org.astro.test cannot be resolved to a type", // missing reverse dependency
+					markers);
+
+			this.problemRequestor.reset();
+			ICompilationUnit cu = getCompilationUnit("/org.astro.patch/src/org/astro/test/WorldTest.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+
+			this.problemRequestor.reset();
+			cu = getCompilationUnit("/org.astro/src/org/astro/World.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" + 
+				"1. ERROR in /org.astro/src/org/astro/World.java\n" + 
+				"org.astro.test cannot be resolved to a type\n" +
+				"----------\n",
+				this.problemRequestor);
+
+		} finally {
+			this.deleteProject("org.astro");
+			this.deleteProject("org.astro.patch");
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IModuleDescription;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
@@ -10688,7 +10689,12 @@ public final class CompletionEngine
 	}
 
 	private void findPackagesInCurrentModule() {
-		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this, this.javaProject);
+		try {
+			IPackageFragmentRoot[] moduleRoots = SearchableEnvironment.getOwnedPackageFragmentRoots(this.javaProject);
+			this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this, moduleRoots);
+		} catch (JavaModelException e) {
+			// silent
+		}
 	}
 	private void findPackages(CompletionOnPackageReference packageStatement) {
 		this.completionToken = CharOperation.concatWithAll(packageStatement.tokens, '.');

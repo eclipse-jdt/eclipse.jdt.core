@@ -1368,14 +1368,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * @return the attached external annotation path, or null.
 	 */
 	static String getRawExternalAnnotationPath(IClasspathEntry entry) {
-		IClasspathAttribute[] extraAttributes = entry.getExtraAttributes();
-		for (int i = 0, length = extraAttributes.length; i < length; i++) {
-			IClasspathAttribute attribute = extraAttributes[i];
-			if (IClasspathAttribute.EXTERNAL_ANNOTATION_PATH.equals(attribute.getName())) {
-				return attribute.getValue();
-			}
-		}
-		return null;
+		return getExtraAttribute(entry, IClasspathAttribute.EXTERNAL_ANNOTATION_PATH);
 	}
 
 	private static void invalidExternalAnnotationPath(IProject project) {
@@ -1411,6 +1404,17 @@ public class ClasspathEntry implements IClasspathEntry {
 				javaProject,
 				Messages.bind(Messages.classpath_invalidExternalAnnotationPath, 
 						new String[] { annotationPath.toString(), project.getName(), this.path.toString()}));
+	}
+
+	public static String getExtraAttribute(IClasspathEntry entry, String attributeName) {
+		IClasspathAttribute[] extraAttributes = entry.getExtraAttributes();
+		for (int i = 0, length = extraAttributes.length; i < length; i++) {
+			IClasspathAttribute attribute = extraAttributes[i];
+			if (attributeName.equals(attribute.getName())) {
+				return attribute.getValue();
+			}
+		}
+		return null;
 	}
 
 	public IClasspathEntry getReferencingEntry() {

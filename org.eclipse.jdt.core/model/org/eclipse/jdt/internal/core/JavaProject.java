@@ -3372,7 +3372,30 @@ public class JavaProject
 
 	public IModuleDescription getModuleDescription() throws JavaModelException {
 		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();
-		return info.getModule();
+		IModuleDescription module = info.getModule();
+		if (module != null)
+			return module;
+		for(IClasspathEntry entry : getRawClasspath()) {
+			String mainModule = ClasspathEntry.getExtraAttribute(entry, IClasspathAttribute.PATCH_MODULE);
+			if (mainModule != null) {
+				switch (entry.getEntryKind()) {
+					case IClasspathEntry.CPE_PROJECT:
+						IJavaProject referencedProject = getJavaModel().getJavaProject(entry.getPath().toString());
+						module = referencedProject.getModuleDescription();
+						if (module != null && module.getElementName().equals(mainModule))
+							return module;
+						break;
+					case IClasspathEntry.CPE_LIBRARY:
+					case IClasspathEntry.CPE_CONTAINER:
+						for (IPackageFragmentRoot root : findPackageFragmentRoots(entry)) {
+							module = root.getModuleDescription();
+							if (module != null && module.getElementName().equals(mainModule))
+								return module;
+						}
+				}
+			}
+		}
+		return null;
 	}
 
 	public void setModuleDescription(IModuleDescription module) throws JavaModelException {

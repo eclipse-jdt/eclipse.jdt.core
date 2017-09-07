@@ -23,7 +23,6 @@ import java.util.jar.Manifest;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
@@ -720,7 +719,7 @@ public class NameLookup implements SuffixConstants {
 	 * It means that secondary types may be not found under certain circumstances...
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=118789"
 	 */
-	public Answer findType(String typeName, String packageName, boolean partialMatch, int acceptFlags, boolean checkRestrictions, IJavaElement moduleContext) {
+	public Answer findType(String typeName, String packageName, boolean partialMatch, int acceptFlags, boolean checkRestrictions, IPackageFragmentRoot[] moduleContext) {
 		return findType(typeName,
 			packageName,
 			partialMatch,
@@ -782,7 +781,7 @@ public class NameLookup implements SuffixConstants {
 			boolean waitForIndexes,
 			boolean checkRestrictions,
 			IProgressMonitor monitor,
-			IJavaElement moduleContext) {
+			IPackageFragmentRoot[] moduleContext) {
 		if (packageName == null || packageName.length() == 0) {
 			packageName= IPackageFragment.DEFAULT_PACKAGE_NAME;
 		} else if (typeName.length() > 0 && ScannerHelper.isLowerCase(typeName.charAt(0))) {
@@ -1085,30 +1084,22 @@ public class NameLookup implements SuffixConstants {
 		return this.packageFragments.get(pkgName) != null;
 	}
 
-	public boolean isPackage(String[] pkgName, IJavaElement moduleContext) {
+	public boolean isPackage(String[] pkgName, IPackageFragmentRoot[] moduleContext) {
 		if (moduleContext == null) // includes the case where looking for module UNNAMED or ANY
 			return isPackage(pkgName);
 		
-		switch (moduleContext.getElementType()) {
-			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-				IPackageFragmentRoot moduleRoot = (IPackageFragmentRoot) moduleContext;
-				return moduleRoot.getPackageFragment(String.join(".", pkgName)).exists(); //$NON-NLS-1$
-			case IJavaElement.JAVA_PROJECT:
-				try {
-					IJavaElement element = ((IJavaProject) moduleContext).findElement(new Path(String.join("/", pkgName))); //$NON-NLS-1$
-					if (element instanceof IPackageFragment) {
-						IPackageFragmentRoot root = (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-						return root.getKind() == IPackageFragmentRoot.K_SOURCE;
-					}
-				} catch (JavaModelException e) {
-					return false;
-				}
+		for (IPackageFragmentRoot moduleRoot : moduleContext) {
+			if (moduleRoot.getPackageFragment(String.join(".", pkgName)).exists()) //$NON-NLS-1$
+				return true;
 		}
 		return false;
 	}
 
-	private boolean moduleMatches(IPackageFragmentRoot root, IJavaElement moduleContext) {
-		return moduleContext.equals(moduleContext.getElementType() == IJavaElement.JAVA_PROJECT ? root.getJavaProject() : root);
+	private boolean moduleMatches(IPackageFragmentRoot root, IPackageFragmentRoot[] moduleContext) {
+		for (IPackageFragmentRoot moduleRoot : moduleContext)
+			if (moduleRoot.equals(root))
+				return true;
+		return false;
 	}
 
 	/**
@@ -1157,7 +1148,7 @@ public class NameLookup implements SuffixConstants {
 	 * @param partialMatch partial name matches qualify when <code>true</code>;
 	 *	only exact name matches qualify when <code>false</code>
 	 */
-	public void seekPackageFragments(String name, boolean partialMatch, IJavaElementRequestor requestor, IJavaElement moduleContext) {
+	public void seekPackageFragments(String name, boolean partialMatch, IJavaElementRequestor requestor, IPackageFragmentRoot[] moduleContext) {
 		if (moduleContext == null) {
 			seekPackageFragments(name, partialMatch, requestor);
 			return;
@@ -1166,26 +1157,10 @@ public class NameLookup implements SuffixConstants {
 			seekModuleAwarePartialPackageFragments(name, requestor, moduleContext);
 			return;
 		}
-		switch (moduleContext.getElementType()) {
-			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-				IPackageFragmentRoot moduleRoot = (IPackageFragmentRoot) moduleContext;
-				IPackageFragment fragment = moduleRoot.getPackageFragment(name);
-				if (fragment.exists())
-					requestor.acceptPackageFragment(fragment);
-				break;
-			case IJavaElement.JAVA_PROJECT:
-				try {
-					IJavaProject javaProject = (IJavaProject) moduleContext;
-					for (IPackageFragmentRoot fragmentRoot : javaProject.getPackageFragmentRoots()) {
-						if (!fragmentRoot.isExternal()) {
-							fragment = fragmentRoot.getPackageFragment(name);
-							if (fragment.exists())
-								requestor.acceptPackageFragment(fragment);
-						}
-					}
-				} catch (JavaModelException e) {
-					// silent
-				}
+		for (IPackageFragmentRoot moduleRoot : moduleContext) {
+			IPackageFragment fragment = moduleRoot.getPackageFragment(name);
+			if (fragment.exists())
+				requestor.acceptPackageFragment(fragment);
 		}
 	}
 
@@ -1200,7 +1175,7 @@ public class NameLookup implements SuffixConstants {
 	 *	only exact name matches qualify when <code>false</code>
 	 */
 	public void seekTypes(String pkgName, String name, boolean partialMatch, IJavaElementRequestor requestor, 
-			int acceptFlags, IJavaElement moduleContext, String moduleName) {
+			int acceptFlags, IPackageFragmentRoot[] moduleContext, String moduleName) {
 		Selector selector = new Selector(moduleName);
 		seekPackageFragments(pkgName, true /*partialMatch*/, selector, moduleContext);	
 		if (selector.pkgFragments.size() == 0) return;
@@ -1209,7 +1184,7 @@ public class NameLookup implements SuffixConstants {
 		}
 	}
 	
-	private void seekModuleAwarePartialPackageFragments(String name, IJavaElementRequestor requestor, IJavaElement moduleContext) {
+	private void seekModuleAwarePartialPackageFragments(String name, IJavaElementRequestor requestor, IPackageFragmentRoot[] moduleContext) {
 		boolean allPrefixMatch = CharOperation.equals(name.toCharArray(), CharOperation.ALL_PREFIX);
 		Arrays.stream(this.packageFragments.keyTable)
 		.filter(k -> k != null)
@@ -1219,7 +1194,7 @@ public class NameLookup implements SuffixConstants {
 		});
 	}
 
-	private void checkModulePackages(IJavaElementRequestor requestor, IJavaElement moduleContext, int pkgIndex) {
+	private void checkModulePackages(IJavaElementRequestor requestor, IPackageFragmentRoot[] moduleContext, int pkgIndex) {
 		Object value = this.packageFragments.valueTable[pkgIndex];
 		// reuse existing String[]
 		String[] pkgName = (String[]) this.packageFragments.keyTable[pkgIndex];
@@ -1691,7 +1666,7 @@ public class NameLookup implements SuffixConstants {
 		return false;
 	}
 
-	public boolean hasCompilationUnit(char[][] pkgName, IJavaElement moduleContext) {
+	public boolean hasCompilationUnit(char[][] pkgName, IPackageFragmentRoot[] moduleContext) {
 		String packageName = CharOperation.toString(pkgName);
 		if (packageName == null || packageName.length() == 0) {
 			packageName= IPackageFragment.DEFAULT_PACKAGE_NAME;

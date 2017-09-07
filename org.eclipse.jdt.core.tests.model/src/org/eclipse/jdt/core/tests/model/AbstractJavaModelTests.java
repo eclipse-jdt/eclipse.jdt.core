@@ -2828,6 +2828,18 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected IJavaProject setupModuleProject(String name, String[] srcFolders, String[] sources, IClasspathEntry[] deps) throws CoreException {
 		IJavaProject project = createJava9Project(name, srcFolders);
+		createSourceFiles(project, sources);
+		if (deps != null) {
+			IClasspathEntry[] old = project.getRawClasspath();
+			IClasspathEntry[] newPath = new IClasspathEntry[old.length + deps.length];
+			System.arraycopy(old, 0, newPath, 0, old.length);
+			System.arraycopy(deps, 0, newPath, old.length, deps.length);
+			project.setRawClasspath(newPath, null);
+		}
+		return project;
+	}
+
+	protected void createSourceFiles(IJavaProject project, String[] sources) throws CoreException {
 		IProgressMonitor monitor = new NullProgressMonitor();
 		for (int i = 0; i < sources.length; i+= 2) {
 			IPath path = new Path(sources[i]);
@@ -2838,15 +2850,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			IFile file = project.getProject().getFile(new Path(sources[i]));
 			file.create(new ByteArrayInputStream(sources[i+1].getBytes()), true, monitor);
 		}
-		if (deps != null) {
-			IClasspathEntry[] old = project.getRawClasspath();
-			IClasspathEntry[] newPath = new IClasspathEntry[old.length + deps.length];
-			System.arraycopy(old, 0, newPath, 0, old.length);
-			System.arraycopy(deps, 0, newPath, old.length, deps.length);
-			project.setRawClasspath(newPath, null);
-		}
-		return project;
 	}
+
 	/**
 	 * Check locally for the required JCL files, <jclName>.jar and <jclName>src.zip.
 	 * If not available, copy from the project resources.

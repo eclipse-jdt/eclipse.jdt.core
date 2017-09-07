@@ -145,7 +145,7 @@ public interface IClasspathAttribute {
 	String ADD_EXPORTS = "add-exports"; //$NON-NLS-1$
 
 	/**
-	 * Constant for the name of the add_exports attribute.
+	 * Constant for the name of the add-reads attribute.
 	 * 
 	 * <p>The value of this attribute must adhere to the syntax of <code>javac's</code>
 	 * {@code --add-reads} command line option: {@code <source-module>=<target-module>}.
@@ -154,6 +154,22 @@ public interface IClasspathAttribute {
 	 * @since 3.13 BETA_JAVA9
 	 */
 	String ADD_READS = "add-reads"; //$NON-NLS-1$
+
+	/**
+	 * Constant for the name of the patch-module attribute.
+	 * 
+	 * <p>The value of this attribute must be the name of a module defined in the
+	 * classpath entry, to which this attribute is attached.</p>
+	 * 
+	 * <p>This attribute is supported for classpath entries of kind
+	 * {@link IClasspathEntry#CPE_CONTAINER}, {@link IClasspathEntry#CPE_LIBRARY}
+	 * and {@link IClasspathEntry#CPE_PROJECT}.
+	 * A classpath entry having this attribute must also have the
+	 * {@link #MODULE} attribute with value <code>"true"</code>.</p>
+	 *
+	 * @since 3.13 BETA_JAVA9
+	 */
+	String PATCH_MODULE = "patch-module"; //$NON-NLS-1$
 
 	/**
 	 * Constant for the name of the external annotation path attribute. 
