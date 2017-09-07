@@ -44,6 +44,8 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ClasspathDirectory extends ClasspathLocation {
@@ -303,6 +305,24 @@ public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName
 		}
 	}
 	return false;
+}
+public boolean hasCUDeclaringPackage(String qualifiedPackageName, Function<CompilationUnit, String> pkgNameExtractor) {
+	String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
+	return Stream.of(directoryList(qp2)).anyMatch(entry -> {
+		String entryLC = entry.toLowerCase();
+		boolean hasDeclaration = false;
+		String fullPath = this.path + qp2 + "/" + entryLC; //$NON-NLS-1$
+		String pkgName = null;
+		if (entryLC.endsWith(SUFFIX_STRING_class)) {
+			return true;
+		} else if (entryLC.endsWith(SUFFIX_STRING_java)) {
+			CompilationUnit cu = new CompilationUnit(null, fullPath, this.encoding);
+			pkgName = pkgNameExtractor.apply(cu);
+		}
+		if (pkgName != null && pkgName.equals(qualifiedPackageName))
+			hasDeclaration = true;
+		return hasDeclaration;
+	});
 }
 public void reset() {
 	this.directoryCache = new Hashtable(11);

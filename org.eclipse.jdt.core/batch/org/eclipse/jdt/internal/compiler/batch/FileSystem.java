@@ -24,12 +24,16 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -39,9 +43,12 @@ import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdatesByKind;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -65,6 +72,9 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 		NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly);
 		boolean isPackage(String qualifiedPackageName, /*@Nullable*/String moduleName);
 		default boolean hasModule() { return getModule() != null; }
+		default boolean hasCUDeclaringPackage(String qualifiedPackageName, Function<CompilationUnit, String> pkgNameExtractor) {
+			return hasCompilationUnit(qualifiedPackageName, null);
+		}
 		/**
 		 * Return a list of the jar file names defined in the Class-Path section
 		 * of the jar file manifest if any, null else. Only ClasspathJar (and
@@ -541,18 +551,35 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] pa
 	}
 	return allNames;
 }
-
+private Parser getParser() {
+	Map<String,String> opts = new HashMap<String, String>();
+	opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
+	return new Parser(
+			new ProblemReporter(DefaultErrorHandlingPolicies.exitOnFirstError(), new CompilerOptions(opts), new DefaultProblemFactory(Locale.getDefault())),
+			false);
+}
 @Override
-public boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleName) {
+public boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleName, boolean checkCUs) {
 	String qPackageName = String.valueOf(CharOperation.concatWith(qualifiedPackageName, '/'));
 	String moduleNameString = String.valueOf(moduleName);
 	LookupStrategy strategy = LookupStrategy.get(moduleName);
+	Parser parser = checkCUs ? getParser() : null;
+	Function<CompilationUnit, String> pkgNameExtractor = (sourceUnit) -> {
+		String pkgName = null;	
+		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 1);
+		char[][] name = parser.parsePackageDeclaration(sourceUnit.getContents(), compilationResult);
+		if (name != null) {
+			pkgName = CharOperation.toString(name);
+		}
+		return pkgName;
+	};
 	switch (strategy) {
 		case Named:
 			if (this.moduleLocations != null) {
 				Classpath location = this.moduleLocations.get(moduleNameString);
 				if (location != null)
-					return location.hasCompilationUnit(qPackageName, moduleNameString);
+					return checkCUs ? location.hasCUDeclaringPackage(qPackageName, pkgNameExtractor)
+							: location.hasCompilationUnit(qPackageName, moduleNameString);
 			}
 			return false;
 		default:

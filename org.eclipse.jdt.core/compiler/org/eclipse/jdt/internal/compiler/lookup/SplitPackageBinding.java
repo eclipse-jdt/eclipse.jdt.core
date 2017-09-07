@@ -268,7 +268,7 @@ public class SplitPackageBinding extends PackageBinding {
 		int visibleCount = 0;
 		PackageBinding unique = null;
 		for (PackageBinding incarnation : this.incarnations) {
-			if (incarnation.hasCompilationUnit()) {
+			if (incarnation.hasCompilationUnit(false)) {
 				if (incarnation.enclosingModule == clientModule) {
 					return incarnation; // prefer local package over foreign
 				} else {

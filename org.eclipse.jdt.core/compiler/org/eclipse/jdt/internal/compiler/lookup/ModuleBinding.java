@@ -76,7 +76,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		@Override
 		public boolean isPackageExportedTo(PackageBinding pkg, ModuleBinding client) {
 			// per JLS 7.7.5 an unnamed module exports all its packages
-			return pkg.isDeclaredIn(this) && pkg.hasCompilationUnit();
+			return pkg.isDeclaredIn(this) && pkg.hasCompilationUnit(false);
 		}
 		@Override
 		public boolean isUnnamed() {

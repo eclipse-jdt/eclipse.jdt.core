@@ -109,9 +109,10 @@ public interface IModuleAwareNameEnvironment extends INameEnvironment {
 	/**
 	 * Answer whether the given package (within the given module) contains any compilation unit.
 	 * @param qualifiedPackageName
+	 * @param checkCUs - if true, check contained Compilation Units for a matching package declaration
 	 * @return true iff the package contains at least one compilation unit.
 	 */
-	boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleName);
+	boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleName, boolean checkCUs);
 	
 	/** Get the module with the given name, which must denote a named module. */
 	IModule getModule(char[] moduleName);

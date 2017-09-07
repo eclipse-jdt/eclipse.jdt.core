@@ -389,7 +389,7 @@ public boolean isExported() {
 public PackageBinding getVisibleFor(ModuleBinding module) {
 	return this;
 }
-public boolean hasCompilationUnit() {
+public boolean hasCompilationUnit(boolean checkCUs) {
 	if (this.knownTypes != null) {
 		for (ReferenceBinding knownType : this.knownTypes.valueTable) {
 			if (knownType != null && knownType != LookupEnvironment.TheNotFoundType)
@@ -398,7 +398,7 @@ public boolean hasCompilationUnit() {
 	}
 	if (this.environment.useModuleSystem) {
 		IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
-		return moduleEnv.hasCompilationUnit(this.compoundName, this.enclosingModule.nameForLookup());
+		return moduleEnv.hasCompilationUnit(this.compoundName, this.enclosingModule.nameForLookup(), checkCUs);
 	}
 	return false;
 }

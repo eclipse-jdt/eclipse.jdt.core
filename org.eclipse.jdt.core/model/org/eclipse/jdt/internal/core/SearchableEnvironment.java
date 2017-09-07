@@ -849,7 +849,7 @@ public class SearchableEnvironment
 		}
 	}
 	@Override
-	public boolean hasCompilationUnit(char[][] pkgName, char[] moduleName) {
+	public boolean hasCompilationUnit(char[][] pkgName, char[] moduleName, boolean checkCUs) {
 		LookupStrategy strategy = LookupStrategy.get(moduleName);
 		switch (strategy) {
 			case Named:

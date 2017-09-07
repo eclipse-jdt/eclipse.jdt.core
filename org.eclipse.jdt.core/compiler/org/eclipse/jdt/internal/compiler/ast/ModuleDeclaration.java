@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -254,6 +255,25 @@ public class ModuleDeclaration extends ASTNode {
 		this.binding.setServices(interfaces.toArray(new TypeBinding[interfaces.size()]));
 	}
 
+	public void analyseCode(CompilationUnitScope skope) {
+		analyseModuleGraph(skope);
+		analyseExportedPackages(skope);
+	}
+	
+	private void analyseExportedPackages(CompilationUnitScope skope) {
+		if (this.exports != null) {
+			for (ExportsStatement export : this.exports) {
+				PackageBinding pb = export.resolvedPackage;
+				if (pb == null)
+					continue;
+				if (pb instanceof SplitPackageBinding)
+					pb = ((SplitPackageBinding) pb).getIncarnation(this.binding);
+				if (pb.hasCompilationUnit(true))
+					continue;
+				skope.problemReporter().invalidPackageReference(IProblem.PackageDoesNotExistOrIsEmpty, export);
+			}
+		}
+	}
 	public void analyseModuleGraph(CompilationUnitScope skope) {
 		if (this.requires != null) {
 			// collect transitively:

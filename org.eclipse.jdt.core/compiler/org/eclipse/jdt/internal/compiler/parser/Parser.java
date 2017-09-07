@@ -11062,10 +11062,13 @@ public void goForMethodBody(){
 	this.scanner.recordLineSeparator = false;
 }
 public void goForPackageDeclaration() {
+	goForPackageDeclaration(true);
+}
+public void goForPackageDeclaration(boolean recordLineSeparators) {
 	//tells the scanner to go for package declaration parsing
 
 	this.firstToken = TokenNameQUESTION;
-	this.scanner.recordLineSeparator = true;
+	this.scanner.recordLineSeparator = recordLineSeparators;
 }
 public void goForTypeDeclaration() {
 	//tells the scanner to go for type (interface or class) declaration parsing
@@ -12182,6 +12185,29 @@ public Expression parseLambdaExpression(char[] source, int offset, int length, C
 	return parseExpression(source, offset, length, unit, recordLineSeparators);
 }
 
+public char[][] parsePackageDeclaration(char[] source, CompilationResult result) {
+	initialize();
+	goForPackageDeclaration(false);
+	this.referenceContext =
+			this.compilationUnit =
+				new CompilationUnitDeclaration(
+					problemReporter(),
+					result,
+					source.length);
+	this.scanner.setSource(source);
+	try {
+		parse();
+	} catch (AbortCompilation ex) {
+		this.lastAct = ERROR_ACTION;
+	}
+
+	if (this.lastAct == ERROR_ACTION) {
+		return null;
+	}
+
+	return this.compilationUnit.currentPackage == null ? null : this.compilationUnit.currentPackage.getImportName();
+
+}
 public Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
 
 	initialize();

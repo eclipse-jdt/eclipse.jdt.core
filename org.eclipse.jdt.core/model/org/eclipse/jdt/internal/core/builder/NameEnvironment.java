@@ -528,7 +528,7 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] na
 }
 
 @Override
-public boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleName) {
+public boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleName, boolean checkCUs) {
 	String pkgName = String.valueOf(CharOperation.concatWith(qualifiedPackageName, '/'));
 	LookupStrategy strategy = LookupStrategy.get(moduleName);
 	String modName = LookupStrategy.getStringName(moduleName);

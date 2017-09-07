@@ -3172,4 +3172,123 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				false,
 				outDir);
 	}
+public void testBug521362_emptyFile() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports p1;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p1", "X.java", 
+						"");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files, 
+			buffer,
+			"",
+			"----------\n" + 
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n" + 
+			"	exports p1;\n" + 
+			"	        ^^\n" + 
+			"The package p1 does not exist or is empty\n" + 
+			"----------\n" +
+			"----------\n" + 
+			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p1/X.java\n" + 
+			"Must declare a named package because this compilation unit is associated to the named module \'mod.one\'\n" + 
+			"----------\n" + 
+			"2 problems (2 errors)\n",
+			false,
+			OUTPUT_DIR + File.separator + out);
+	}
+	public void testBug521362_mismatchingdeclaration() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports p1;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p1", "X.java", 
+						"package q;\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files, 
+			buffer,
+			"",
+			"----------\n" + 
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n" + 
+			"	exports p1;\n" + 
+			"	        ^^\n" + 
+			"The package p1 does not exist or is empty\n" + 
+			"----------\n" + 
+			"1 problem (1 error)\n",
+			false,
+			OUTPUT_DIR + File.separator + out);
+	}
+	public void testBug521362_multiplePackages() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports p1;\n" +
+						"	exports p2;\n" +
+						"	exports p3;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p1", "X.java", 
+						"package q;\n");
+		writeFileCollecting(files, moduleLoc + File.separator + "p2", "X.java", 
+				"package q2;\n");
+		writeFileCollecting(files, moduleLoc + File.separator + "p3", "X.java", 
+				"package p3;\n");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files, 
+			buffer,
+			"",
+			"----------\n" + 
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n" + 
+			"	exports p1;\n" + 
+			"	        ^^\n" + 
+			"The package p1 does not exist or is empty\n" + 
+			"----------\n" + 
+			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 3)\n" + 
+			"	exports p2;\n" + 
+			"	        ^^\n" + 
+			"The package p2 does not exist or is empty\n" + 
+			"----------\n" + 
+			"2 problems (2 errors)\n",
+			false,
+			OUTPUT_DIR + File.separator + out);
+	}
 }
