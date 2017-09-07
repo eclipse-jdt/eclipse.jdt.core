@@ -10332,7 +10332,7 @@ public final class CompletionEngine
 					sourceType = (ISourceType) type;
 				}
 			} else {
-				NameEnvironmentAnswer answer = this.nameEnvironment.findType(bindingType.compoundName);
+				NameEnvironmentAnswer answer = this.nameEnvironment.findTypeInModules(bindingType.compoundName, this.unitScope.module());
 				if(answer != null && answer.isSourceType()) {
 					sourceType = answer.getSourceTypes()[0];
 					this.typeCache.put(compoundName, sourceType);
@@ -11905,7 +11905,7 @@ public final class CompletionEngine
 		char[][] theInterfaceType = theInterface.getTypeName();
 		if (theInterfaceType == null) return;
 		SearchPattern pattern  = null;
-		NameEnvironmentAnswer answer =  this.nameEnvironment.findType(theInterfaceType);
+		NameEnvironmentAnswer answer =  this.nameEnvironment.findTypeInModules(theInterfaceType, scope.module());
 		if (answer != null ) {
 			if (answer.isSourceType()) {
 				IType typeHandle = ((SourceTypeElementInfo) answer.getSourceTypes()[0]).getHandle();

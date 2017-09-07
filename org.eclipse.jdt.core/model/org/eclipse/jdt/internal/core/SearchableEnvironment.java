@@ -343,6 +343,28 @@ public class SearchableEnvironment
 	}
 
 	/**
+	 * Find a type in the given module or any module read by it.
+	 * Does not check accessibility / unique visibility, but returns the first observable type found.
+	 * @param compoundTypeName name of the sought type
+	 * @param module start into the module graph
+	 * @return the answer :)
+	 */
+	public NameEnvironmentAnswer findTypeInModules(char[][] compoundTypeName, ModuleBinding module) {
+		char[] nameForLookup = module.nameForLookup();
+		NameEnvironmentAnswer answer = findType(compoundTypeName, nameForLookup);
+		if (answer != null)
+			return answer;
+		if (LookupStrategy.get(nameForLookup) == LookupStrategy.Named) {
+			for (ModuleBinding required : module.getAllRequiredModules()) {
+				answer = findType(compoundTypeName, required.nameForLookup());
+				if (answer != null)
+					return answer;
+			}
+		}
+		return null;
+	}
+
+	/**
 	 * @see org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment#findType(char[][],char[])
 	 */
 	@Override
