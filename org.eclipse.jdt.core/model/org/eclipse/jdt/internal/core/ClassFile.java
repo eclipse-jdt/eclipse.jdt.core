@@ -227,12 +227,13 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 			if (contents != null) {
 				String fileName;
 				String rootPath = root.getPath().toOSString();
+				String rootIdentifier = root.getHandleIdentifier();
 				if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
-					fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + 
-							root.getElementName() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
-				} else {
-					fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+					int slash = rootIdentifier.lastIndexOf('/');
+					if (slash != -1)
+						rootIdentifier = rootIdentifier.substring(0, slash);
 				}
+				fileName = rootIdentifier + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
 				result = new ClassFileReader(contents, fileName.toCharArray(), false);
 			}
 		} else {
