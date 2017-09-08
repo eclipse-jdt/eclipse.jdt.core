@@ -44,7 +44,6 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
@@ -61,18 +60,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	static {
 //		 TESTS_NAMES = new String[] { "test_conflicting_packages" };
 	}
-	private static boolean isJRE9 = false;
 	private String sourceWorkspacePath = null;
 	protected ProblemRequestor problemRequestor;
 	public static Test suite() {
-		String javaVersion = System.getProperty("java.version");
-		if (javaVersion.length() > 3) {
-			javaVersion = javaVersion.substring(0, 3);
-		}
-		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion);
-		if (jdkLevel >= ClassFileConstants.JDK9) {
-			isJRE9 = true;
-		}
 		return buildModelTestSuite(ModuleBuilderTests.class, BYTECODE_DECLARATION_ORDER);
 	}
 	public String getSourceWorkspacePath() {
@@ -5168,6 +5158,98 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				deleteProject(javaProject);
 			if (auto != null)
 				deleteProject(auto);
+		}
+	}
+
+	public void testAutoModule4() throws Exception {
+		if (!isJRE9) return;
+		IJavaProject javaProject = null;
+		IJavaProject javaProject2 = null;
+		try {
+			// auto module as jar:
+			String[] sources = {
+				"p/a/X.java",
+				"package p.a;\n" +
+				"public class X {}\n;",
+			};
+			String[] mfSource = {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n" + 
+				"Automatic-Module-Name: org.eclipse.lib.x\n" // automatic module reads all (incl. mod.one below)
+			};
+			String outputDirectory = Util.getOutputDirectory();
+
+			String jarPath = outputDirectory + File.separator + "lib-x.jar";
+			Util.createJar(sources, mfSource, jarPath, "1.8");
+			
+			// first source module:
+			javaProject = createJava9Project("mod.one", new String[] {"src"});
+			IClasspathAttribute[] attributes = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+			addClasspathEntry(javaProject, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, attributes, false));
+
+			String srcMod =
+				"module mod.one { \n" +
+				"	requires org.eclipse.lib.x;\n" + // creates cycle mod.one -> org.eclipse.lib.x -> mod.one
+				"	exports p.q.api;\n" +
+				"}";
+			createFile("/mod.one/src/module-info.java", srcMod);
+			createFolder("mod.one/src/p/q/api");
+			String srcX =
+				"package p.q.api;\n" +
+				"public class X {\n" +
+				"	p.a.X f;\n" +
+				"}";
+			createFile("/mod.one/src/p/q/api/X.java", srcX);
+
+			// second source module:
+			javaProject2 = createJava9Project("mod.two", new String[] {"src"});
+			addClasspathEntry(javaProject2, JavaCore.newProjectEntry(new Path("/mod.one"), null, false, attributes, false));
+			addClasspathEntry(javaProject2, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, attributes, false));
+			String srcMod2 =
+				"module mod.two { \n" +
+				"	requires mod.one;\n" +
+				"}";
+			createFile("/mod.two/src/module-info.java", srcMod2);
+			createFolder("mod.two/src/p/q");
+			String srcY =
+				"package p.q;\n" +
+				"import p.q.api.X;\n" + // here we saw "The package p.q.api is accessible from more than one module: mod.one, mod.one"
+				"public class Y {\n" +
+				"	X f;\n" +
+				"}";
+			createFile("/mod.two/src/p/q/Y.java", srcY);
+
+			this.problemRequestor.initialize(srcMod.toCharArray());
+			getWorkingCopy("/mod.one/module-info.java", srcMod, true);
+			assertProblems("module-info should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			this.problemRequestor.initialize(srcX.toCharArray());
+			getWorkingCopy("/mod.one/src/p/q/api/X.java", srcX, true);
+			assertProblems("X should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			this.problemRequestor.initialize(srcY.toCharArray());
+			getWorkingCopy("/mod.two/src/p/q/Y.java", srcY, true);
+			assertProblems("Y should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+			
+			javaProject2.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			if (javaProject != null)
+				deleteProject(javaProject);
+			if (javaProject2 != null)
+				deleteProject(javaProject2);
 		}
 	}
 

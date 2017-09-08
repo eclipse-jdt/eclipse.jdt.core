@@ -112,6 +112,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	boolean isAuto = false;
 	private boolean[] isComplete = new boolean[UpdateKind.values().length];
 	private Set<ModuleBinding> transitiveRequires;
+	private boolean isPackageLookupActive = false; // to prevent cyclic lookup caused by synthetic reads edges on behalf of auto-modules.
 
 	/** Packages declared in this module (indexed by qualified name). */
 	HashtableOfPackage declaredPackages; // TODO(SHMOD): measure if this is worth the memory. LE->PackageBinding basically hold the same information
@@ -504,7 +505,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 					// visible but foreign (when current is unnamed or auto):
 					for (char[] declaringModuleName : declaringModuleNames) {
 						ModuleBinding declaringModule = this.environment.root.getModule(declaringModuleName);
-						if (declaringModule != null)
+						if (declaringModule != null && !declaringModule.isPackageLookupActive)
 							binding = SplitPackageBinding.combine(declaringModule.getDeclaredPackage(parentName, name), binding, this);
 					}
 				}
@@ -516,10 +517,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 
 		// enrich with split-siblings from visible modules:
 		if (!isUnnamed()) {
-			for (ModuleBinding required : getAllRequiredModules()) {
-				if (required == this) continue;
-				binding = SplitPackageBinding.combine(required.getVisiblePackage(subPkgCompoundName), binding, this);
-			}
+			binding = combineWithPackagesFromRequired(binding, subPkgCompoundName);
 		}
 		if (binding == null || !binding.isValidBinding())
 			return null;
@@ -603,18 +601,30 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 					if (declaringModuleNames != null) {
 						for (int i = 0; i < declaringModuleNames.length; i++) {
 							ModuleBinding otherModule = this.environment.getModule(declaringModuleNames[i]);
-							if (otherModule != null)
+							if (otherModule != null && !otherModule.isPackageLookupActive)
 								packageBinding = SplitPackageBinding.combine(otherModule.getVisiblePackage(packageBinding.compoundName), packageBinding, this);
 						}
 					}
 				} else {
-					for (ModuleBinding moduleBinding : getAllRequiredModules())
-						packageBinding = SplitPackageBinding.combine(moduleBinding.getVisiblePackage(packageBinding.compoundName), packageBinding, this);
+					packageBinding = combineWithPackagesFromRequired(packageBinding, packageBinding.compoundName);
 				}
 			}
 			this.declaredPackages.put(packageName, packageBinding);
 		}
 		return packageBinding;
+	}
+	
+	private PackageBinding combineWithPackagesFromRequired(PackageBinding currentBinding, char[][] compoundName) {
+		boolean save = this.isPackageLookupActive;
+		this.isPackageLookupActive = true;
+		try {
+			for (ModuleBinding moduleBinding : getAllRequiredModules())
+				if (!moduleBinding.isPackageLookupActive)
+					currentBinding = SplitPackageBinding.combine(moduleBinding.getVisiblePackage(compoundName), currentBinding, this);
+			return currentBinding;
+		} finally {
+			this.isPackageLookupActive = save;
+		}
 	}
 
 	/**
