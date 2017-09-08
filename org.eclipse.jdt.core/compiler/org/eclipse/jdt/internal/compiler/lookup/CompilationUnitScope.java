@@ -453,19 +453,21 @@ void faultInImports() {
 				continue nextImport;
 			} else if (this.environment.useModuleSystem && importBinding instanceof ReferenceBinding) {
 				PackageBinding importedPackage = ((ReferenceBinding) importBinding).fPackage;
-				if (!importedPackage.isValidBinding()) {
-					problemReporter().importProblem(importReference, importedPackage);
-					continue nextImport;
-				}
-				// re-get to find a possible split package:
-				importedPackage = (PackageBinding) findImport(importedPackage.compoundName, false, true);
-				if (importedPackage != null)
-					importedPackage = importedPackage.getVisibleFor(module());
-				if (importedPackage instanceof SplitPackageBinding) {
-					SplitPackageBinding splitPackage = (SplitPackageBinding) importedPackage;
-					int sourceEnd = (int) importReference.sourcePositions[splitPackage.compoundName.length-1];
-					problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, sourceEnd);
-					continue nextImport;
+				if (importedPackage != null) {
+					if (!importedPackage.isValidBinding()) {
+						problemReporter().importProblem(importReference, importedPackage);
+						continue nextImport;
+					}
+					// re-get to find a possible split package:
+					importedPackage = (PackageBinding) findImport(importedPackage.compoundName, false, true);
+					if (importedPackage != null)
+						importedPackage = importedPackage.getVisibleFor(module());
+					if (importedPackage instanceof SplitPackageBinding) {
+						SplitPackageBinding splitPackage = (SplitPackageBinding) importedPackage;
+						int sourceEnd = (int) importReference.sourcePositions[splitPackage.compoundName.length-1];
+						problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, sourceEnd);
+						continue nextImport;
+					}
 				}
 			}
 			// all the code here which checks for valid bindings have been moved to the method 

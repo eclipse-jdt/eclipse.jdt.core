@@ -16,12 +16,12 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-@SuppressWarnings({ "rawtypes" })
-public class GenericsRegressionTest_9 extends AbstractRegressionTest {
+public class GenericsRegressionTest_9 extends AbstractRegressionTest9 {
 
 static {
 //	TESTS_NAMES = new String[] { "testBug488663_006" };
@@ -570,7 +570,61 @@ public void testBug517926() {
 		"The method name() of type new I<X>(){} must override or implement a supertype method\n" + 
 		"----------\n");
 }
-public static Class testClass() {
+public void testBug521815a() {
+	runNegativeTest(
+			new String[] {
+					"a/b/X.java",
+					"package a.b;\n" +
+					"interface I{\n" +
+					"    public static class Inner { }\n" +
+					"}\n" +
+					"class Cl {\n" +
+					"    public static class Inner {}\n" +
+					"}\n" +
+					"public class X extends Cl implements I {}\n",
+					"a/Y.java",
+					"package p;\n" +
+					"import static a.b.X.Inner;\n" +
+					"public class Y {;\n" +
+					"	Inner t;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in a\\Y.java (at line 4)\n" + 
+			"	Inner t;\n" + 
+			"	^^^^^\n" + 
+			"The type Inner is ambiguous\n" + 
+			"----------\n");
+}
+public void testBug521815b() {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_8) {
+		return;
+	}
+	runNegativeTest(
+			new String[] {
+					"a/b/X.java",
+					"package a.b;\n" +
+					"interface I{\n" +
+					"    public static class Inner { }\n" +
+					"}\n" +
+					"class Cl {\n" +
+					"    public static class Inner {}\n" +
+					"}\n" +
+					"public class X extends Cl implements I {}\n",
+					"a/Y.java",
+					"package p;\n" +
+					"import static a.b.X.Inner;\n" +
+					"public class Y {;\n" +
+					"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in a\\Y.java (at line 2)\n" + 
+			"	import static a.b.X.Inner;\n" + 
+			"	              ^^^^^^^^^^^\n" + 
+			"The import a.b.X.Inner is never used\n" + 
+			"----------\n");
+}
+public static Class<GenericsRegressionTest_9> testClass() {
 	return GenericsRegressionTest_9.class;
 }
 
