@@ -79,10 +79,10 @@ public class ModuleLocator extends PatternLocator {
 	protected int referenceType() {
 		return IJavaElement.JAVA_MODULE;
 	}
+	@Override
 	public int resolveLevel(Binding binding) {
 		if (binding == null) return INACCURATE_MATCH;
 		if (!(binding instanceof ModuleBinding)) return IMPOSSIBLE_MATCH;
 		return (matchesName(this.pattern.name, binding.readableName())) ? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
-			
 	}
 }

@@ -1036,13 +1036,544 @@ public void testBug501162_018() throws Exception {
 		deleteProject("second");
 	}
 }
+public void testBug501162_019() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("pack.one",
+				IJavaSearchConstants.PACKAGE, IJavaSearchConstants.REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"src/pack1/X.java [pack.one] EXACT_MATCH\n" +
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_020() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("pack.two",
+				IJavaSearchConstants.PACKAGE, IJavaSearchConstants.REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"src/pack1/X.java [pack.two] EXACT_MATCH\n" +
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_021() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("pack.three",
+				IJavaSearchConstants.PACKAGE, IJavaSearchConstants.REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_022() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("java.base",
+				IJavaSearchConstants.MODULE, IJavaSearchConstants.REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_023() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("zerotest",
+				IJavaSearchConstants.MODULE, IJavaSearchConstants.REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n" +
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_024() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("first",
+				IJavaSearchConstants.MODULE, IJavaSearchConstants.REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_025() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("four",
+				IJavaSearchConstants.MODULE, IJavaSearchConstants.REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_026() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("nomodule",
+				IJavaSearchConstants.MODULE, IJavaSearchConstants.REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_027() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("XOne",
+				IJavaSearchConstants.TYPE, IJavaSearchConstants.REFERENCES, EXACT_RULE);		
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"src/pack1/X.java [XOne] EXACT_MATCH\n" + 
+				"src/pack1/X.java pack1.X.X1 [XOne] EXACT_MATCH\n" +
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_028() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("XFourOne",
+				IJavaSearchConstants.TYPE, IJavaSearchConstants.REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_029() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("ITwo",
+				IJavaSearchConstants.TYPE, IJavaSearchConstants.REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"src/pack1/X.java [ITwo] EXACT_MATCH\n" +
+				"src/pack1/X.java pack1.X.i2 [ITwo] EXACT_MATCH\n" +
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_030() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("IThreeOne",
+				IJavaSearchConstants.TYPE, IJavaSearchConstants.REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_031() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("XThreeOne",
+				IJavaSearchConstants.TYPE, IJavaSearchConstants.REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+public void testBug501162_032() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent =
+			"module zerotest {\n" +
+			"    requires zero;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X.java",
+				"package pack1;\n" +
+				"import pack.one.XOne;\n" +
+				"import pack.two.ITwo;\n" +
+				"public class X {\n" +
+				"    public ITwo i2;\n" +
+				"    public XOne X1;\n" +
+				"}\n");
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		project1.close(); // sync
+		project1.open(null);
+		SearchPattern pattern = SearchPattern.createPattern("zero",
+				IJavaSearchConstants.MODULE, IJavaSearchConstants.DECLARATIONS, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
 public void testBug519211_001() throws CoreException {
 	try {
 
 		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
 		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
-		String fileContent = 
+		String fileContent =
 			"module first {\n" +
 			"    requires second;" +
 			"    provides pack22.I22 with pack1.X11;" +

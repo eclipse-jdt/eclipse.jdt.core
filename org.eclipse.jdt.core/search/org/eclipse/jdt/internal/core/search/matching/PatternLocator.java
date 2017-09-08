@@ -431,7 +431,7 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 			this.match = locator.newTypeParameterReferenceMatch(element, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 		case IJavaElement.JAVA_MODULE:
-			this.match = locator.newTypeReferenceMatch(element, elementBinding, accuracy, offset, reference.sourceEnd-offset+1, reference);
+			this.match = locator.newModuleReferenceMatch(element, elementBinding, accuracy, offset, reference.sourceEnd-offset+1, reference);
 			break;
 	}
 	if (this.match != null) {

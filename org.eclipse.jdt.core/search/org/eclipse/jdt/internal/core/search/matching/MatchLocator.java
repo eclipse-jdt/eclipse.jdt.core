@@ -80,6 +80,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.LambdaFactory;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.ModularClassFile;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
@@ -746,6 +747,8 @@ protected IJavaElement createImportHandle(ImportReference importRef) {
 	if (openable instanceof CompilationUnit)
 		return ((CompilationUnit) openable).getImport(new String(importName));
 
+	if (openable instanceof ModularClassFile)
+		return openable;
 	// binary types do not contain import statements so just answer the top-level type as the element
 	IType binaryType = ((ClassFile) openable).getType();
 	String typeName = binaryType.getElementName();
@@ -1761,7 +1764,7 @@ public PackageReferenceMatch newPackageReferenceMatch(
 		ASTNode reference) {
 	SearchParticipant participant = getParticipant();
 	IResource resource = this.currentPossibleMatch.resource;
-	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
+	boolean insideDocComment = reference != null && (reference.bits & ASTNode.InsideJavadoc) != 0;
 	return new PackageReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
 }
 
@@ -1787,7 +1790,7 @@ public TypeReferenceMatch newTypeReferenceMatch(
 		ASTNode reference) {
 	SearchParticipant participant = getParticipant();
 	IResource resource = this.currentPossibleMatch.resource;
-	boolean insideDocComment = (reference.bits & ASTNode.InsideJavadoc) != 0;
+	boolean insideDocComment = reference != null && (reference.bits & ASTNode.InsideJavadoc) != 0;
 	if (enclosingBinding != null)
 		enclosingElement = ((JavaElement) enclosingElement).resolved(enclosingBinding);
 	return new TypeReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
@@ -1801,6 +1804,28 @@ public TypeReferenceMatch newTypeReferenceMatch(
 	return newTypeReferenceMatch(enclosingElement, enclosingBinding, accuracy, reference.sourceStart, reference.sourceEnd-reference.sourceStart+1, reference);
 }
 
+public ModuleReferenceMatch newModuleReferenceMatch(
+		IJavaElement enclosingElement,
+		Binding enclosingBinding,
+		int accuracy,
+		int offset,
+		int length,
+		ASTNode reference) {
+	SearchParticipant participant = getParticipant();
+	IResource resource = this.currentPossibleMatch.resource;
+	boolean insideDocComment = reference != null ? (reference.bits & ASTNode.InsideJavadoc) != 0 : false;
+	if (enclosingBinding != null)
+		enclosingElement = ((JavaElement) enclosingElement).resolved(enclosingBinding);
+	return new ModuleReferenceMatch(enclosingElement, accuracy, offset, length, insideDocComment, participant, resource);
+}
+
+public ModuleReferenceMatch newModuleReferenceMatch(
+		IJavaElement enclosingElement,
+		Binding enclosingBinding,
+		int accuracy,
+		ASTNode reference) {
+	return newModuleReferenceMatch(enclosingElement, enclosingBinding, accuracy, reference.sourceStart, reference.sourceEnd-reference.sourceStart+1, reference);
+}
 /**
  * Add the possibleMatch to the loop
  *  ->  build compilation unit declarations, their bindings and record their results.
@@ -1873,6 +1898,16 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 						this.patternLocator.mayBeGeneric = mayBeGeneric;
 					}
 				}
+			} else if (this.currentPossibleMatch.openable instanceof ModularClassFile) {
+				boolean mayBeGeneric = this.patternLocator.mayBeGeneric;
+				this.patternLocator.mayBeGeneric = false; // there's no longer generic in class files
+				try {
+					new ModularClassFileMatchLocator().locateMatches(this, (ModularClassFile) this.currentPossibleMatch.openable);
+				}
+				finally {
+					this.patternLocator.mayBeGeneric = mayBeGeneric;
+				}
+				return;
 			}
 			if (!unit.isModuleInfo())
 				return;
@@ -2360,7 +2395,6 @@ protected void reportBinaryMemberDeclaration(IResource resource, IMember binaryM
 	SearchMatch match = newDeclarationMatch(binaryMember, binaryMemberBinding, accuracy, range.getOffset(), range.getLength(), getParticipant(), resource);
 	report(match);
 }
-
 protected void reportMatching(LambdaExpression lambdaExpression,  IJavaElement parent, int accuracy, MatchingNodeSet nodeSet, boolean typeInHierarchy) throws CoreException {
 	IJavaElement enclosingElement = null;
 	// Report the lambda declaration itself.
