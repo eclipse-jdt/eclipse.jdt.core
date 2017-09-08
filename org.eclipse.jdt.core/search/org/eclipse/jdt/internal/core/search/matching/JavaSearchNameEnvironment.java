@@ -40,7 +40,6 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -340,9 +339,9 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] pa
 	for (ClasspathLocation location : this.locationSet) {
 		if (strategy.matches(location, ClasspathLocation::hasModule) ) {
 			if (location.isPackage(qualifiedPackageName, null)) {
-				IModule module = location.getModule();
-				char[] aName = module != null ? module.name() : ModuleBinding.UNNAMED;
-				moduleNames = CharOperation.arrayConcat(moduleNames, aName); // FIXME(SHMOD): handle multiple modules per location https://bugs.eclipse.org/501162#c29
+				char[][] mNames = location.getModulesDeclaringPackage(qualifiedPackageName, null);
+				if (mNames == null || mNames.length == 0) continue;
+				moduleNames = CharOperation.arrayConcat(moduleNames, mNames);
 			}
 		}
 	}

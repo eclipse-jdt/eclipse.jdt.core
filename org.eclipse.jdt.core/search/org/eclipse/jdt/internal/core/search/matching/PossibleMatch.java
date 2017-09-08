@@ -78,12 +78,7 @@ public char[] getContents() {
 					IType type = ((ClassFile) this.openable).getType();
 					contents = sourceMapper.findSource(type, fileName);
 				} else if (this.openable instanceof ModularClassFile) {
-					try {
-						IModuleDescription module = ((ModularClassFile) this.openable).getModule();
-						contents = sourceMapper.findSource(module);
-					} catch (JavaModelException e) {
-						return CharOperation.NO_CHAR;
-					}
+					return CharOperation.NO_CHAR; // do not return contents
 				}
 			}
 		} else {
