@@ -278,10 +278,12 @@ private void computeClasspathLocations(
 		sLocations.toArray(this.sourceLocations);
 		if (moduleEntries != null && (mod = javaProject.getModuleDescription()) != null) {
 			try {
-				SourceModule sourceModule = (SourceModule)mod;
+				AbstractModule sourceModule = (AbstractModule)mod;
 				ModuleDescriptionInfo info = (ModuleDescriptionInfo) sourceModule.getElementInfo();
 				ModulePathEntry projectEntry = new ModulePathEntry(javaProject.getPath(), info, this.sourceLocations);
-				moduleEntries.put(sourceModule.getElementName(), projectEntry);
+				if (!moduleEntries.containsKey(sourceModule.getElementName())) { // can be registered already, if patching
+					moduleEntries.put(sourceModule.getElementName(), projectEntry);
+				}
 			} catch (JavaModelException jme) {
 				// do nothing, probably a non module project
 			}
@@ -371,15 +373,21 @@ void combineIntoModuleEntry(ClasspathLocation sourceLocation, IModule patchedMod
 	String patchedModuleName = String.valueOf(patchedModule.name());
 	IModulePathEntry mainEntry = moduleEntries.get(patchedModuleName);
 	ClasspathLocation[] combinedLocations = null;
-	if (mainEntry instanceof ModulePathEntry) {
+	if (mainEntry instanceof ModulePathEntry.Multi) {
+		((ModulePathEntry.Multi) mainEntry).addPatchLocation(sourceLocation);
+		return;
+	} else if (mainEntry instanceof ClasspathJrt) {
+		combinedLocations = new ClasspathLocation[] { (ClasspathLocation) mainEntry, sourceLocation };
+		moduleEntries.put(patchedModuleName, new ModulePathEntry.Multi(null, patchedModule, combinedLocations));
+		return;
+	} else if (mainEntry instanceof ModulePathEntry) {
 		ClasspathLocation[] mainLocs = ((ModulePathEntry) mainEntry).locations;
 		combinedLocations = Arrays.copyOf(mainLocs, mainLocs.length+1);
 		combinedLocations[combinedLocations.length-1] = sourceLocation;
 	} else if (mainEntry instanceof ClasspathLocation) {
 		combinedLocations = new ClasspathLocation[] { (ClasspathLocation) mainEntry, sourceLocation };
 	} else {
-		// FIXME: JrtPackageFragmentRoot, ProjectEntry ??
-		System.err.println("ups!");
+		throw new IllegalStateException("Cannot patch the module of classpath entry "+mainEntry); //$NON-NLS-1$
 	}
 	moduleEntries.put(patchedModuleName, new ModulePathEntry(null, patchedModule, combinedLocations));
 }

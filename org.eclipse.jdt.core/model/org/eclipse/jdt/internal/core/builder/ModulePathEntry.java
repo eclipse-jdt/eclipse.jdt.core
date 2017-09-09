@@ -15,10 +15,16 @@
 package org.eclipse.jdt.internal.core.builder;
 
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
+import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
 
 /**
  * Represents a project on the module path.
@@ -113,5 +119,50 @@ public class ModulePathEntry implements IModulePathEntry {
 				return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Combines an IMultiModuleEntry with further locations in order to support patch-module.
+	 * Implemented by adding IMultiModuleEntry functionality to ModulePathEntry.
+	 */
+	static public class Multi extends ModulePathEntry implements IMultiModuleEntry {
+
+		Multi(IPath path, IModule module, ClasspathLocation[] locations) {
+			super(path, module, locations);
+		}
+
+		void addPatchLocation(ClasspathLocation location) {
+			this.locations = Arrays.copyOf(this.locations, this.locations.length+1);
+			this.locations[this.locations.length-1] = location;
+			location.setModule(this.module);
+		}
+
+		@Override
+		public IModule getModule(char[] name) {
+			for (ClasspathLocation loc : this.locations) {
+				if (loc instanceof IMultiModuleEntry) {
+					IModule mod = ((IMultiModuleEntry) loc).getModule(name);
+					if (mod != null)
+						return mod;
+				} else {
+					IModule mod = loc.getModule();
+					if (CharOperation.equals(mod.name(), name))
+						return mod;
+				}
+			}
+			return null;
+		}
+
+		@Override
+		public Collection<String> getModuleNames() {
+			Set<String> result = new HashSet<>();
+			for (ClasspathLocation loc : this.locations) {
+				if (loc instanceof IMultiModuleEntry)
+					result.addAll(((IMultiModuleEntry) loc).getModuleNames());
+				else
+					result.add(String.valueOf(loc.getModule().name()));
+			}
+			return result;
+		}
 	}
 }

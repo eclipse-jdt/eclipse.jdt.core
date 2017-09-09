@@ -1307,10 +1307,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return createJava9Project(name, new String[]{"src"});
 	}
 	protected IJavaProject createJava9Project(String name, String[] srcFolders) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, srcFolders, null);
+	}
+	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes) throws CoreException {
 		String javaHome = System.getProperty("java.home") + File.separator;
 		Path bootModPath = new Path(javaHome +"/lib/jrt-fs.jar");
 		Path sourceAttachment = new Path(javaHome +"/lib/src.zip");
-		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(bootModPath, sourceAttachment, null, null, null, false);
+		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(bootModPath, sourceAttachment, null, null, attributes, false);
 		IJavaProject project = this.createJavaProject(name, srcFolders, new String[0],
 				new String[0], "bin", "9");
 		IClasspathEntry[] old = project.getRawClasspath();

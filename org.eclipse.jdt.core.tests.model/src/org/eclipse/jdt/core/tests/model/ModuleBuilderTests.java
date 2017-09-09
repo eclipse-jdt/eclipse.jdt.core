@@ -5328,6 +5328,44 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.deleteProject("org.astro.patch");
 		}
 	}
+
+	// patch can see unexported type from host - JRE
+	public void testPatch2() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			IClasspathAttribute[] attributes = {
+					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
+					JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, "java.base")
+			};
+			IJavaProject patchProject = createJava9ProjectWithJREAttributes("org.astro.patch", new String[]{"src"}, attributes);
+
+			String[] patchSources = {
+				"src/org/astro/Test2.java",
+				"package org.astro;\n" +
+				"class Test2 {\n" +
+				"	int test(jdk.internal.misc.Unsafe unsafe) {\n" +
+				"		return unsafe.addressSize();\n" +
+				"	}\n" +
+				"}\n"
+			};
+			createSourceFiles(patchProject, patchSources);
+			
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+
+			this.problemRequestor.reset();
+			ICompilationUnit cu = getCompilationUnit("/org.astro.patch/src/org/astro/Test2.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+
+		} finally {
+			this.deleteProject("org.astro.patch");
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
