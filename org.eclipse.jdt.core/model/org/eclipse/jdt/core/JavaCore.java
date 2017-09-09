@@ -153,6 +153,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
+import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -173,6 +174,7 @@ import org.eclipse.jdt.internal.core.Region;
 import org.eclipse.jdt.internal.core.SetContainerOperation;
 import org.eclipse.jdt.internal.core.SetVariablesOperation;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
+import org.eclipse.jdt.internal.core.builder.ModuleInfoBuilder;
 import org.eclipse.jdt.internal.core.builder.State;
 import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
@@ -5969,6 +5971,40 @@ public final class JavaCore extends Plugin {
 	 */
 	public static String[] getReferencedModules(IJavaProject project) throws CoreException {
 		return ModuleUtil.getReferencedModules(project);
+	}
+
+	/**
+	 * Compile the given module description in the context of its enclosing Java project
+	 * and add class file attributes using the given map of attribute values.
+	 * <p>In this map, the following keys are supported</p>
+	 * <dl>
+	 * <dt>{@link IAttributeNamesConstants#MODULE_MAIN_CLASS}</dt>
+	 * <dd>The associated value will be used for the <code>ModuleMainClass</code> attribute.</dd>
+	 * <dt>{@link IAttributeNamesConstants#MODULE_PACKAGES}</dt>
+	 * <dd>If the associated value is an empty string, then the compiler will generate a
+	 * <code>ModulePackages</code> attribute with a list of packages that is computed from
+	 * <ul>
+	 * <li>all <code>exports</code> directives
+	 * <li>all <code>opens</code> directives
+	 * <li>the implementation classes of all <code>provides</code> directives.
+	 * </ul>
+	 * If the associated value is not empty, it must be a comma-separated list of package names,
+	 * which will be added to the computed list.
+	 * </dl>
+	 * <p>No other keys are supported in this version, but more keys may be added in the future.</p>
+	 *
+	 * @param module handle for the <code>module-info.java</code> file to be compiled.
+	 * @param classFileAttributes map of attribute names and values to be used during class file generation
+	 * @return the compiled byte code
+	 * 
+	 * @throws JavaModelException
+	 * @throws IllegalArgumentException if the map of classFileAttributes contains an unsupported key.
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static byte[] compileWithAttributes(IModuleDescription module, Map<String,String> classFileAttributes)
+			throws JavaModelException, IllegalArgumentException
+	{
+		return new ModuleInfoBuilder().compileWithAttributes(module, classFileAttributes);
 	}
 
 	/* (non-Javadoc)

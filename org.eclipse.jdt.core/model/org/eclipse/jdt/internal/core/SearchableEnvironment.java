@@ -90,7 +90,7 @@ public class SearchableEnvironment
 			}
 		}
 		if (CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9) {
-			this.moduleUpdater = new ModuleUpdater();
+			this.moduleUpdater = new ModuleUpdater(project);
 			for (IClasspathEntry entry : project.getRawClasspath())
 				this.moduleUpdater.computeModuleUpdates(entry);
 		}

@@ -172,6 +172,19 @@ public interface IClasspathAttribute {
 	String PATCH_MODULE = "patch-module"; //$NON-NLS-1$
 
 	/**
+	 * Constant of the name of the module-main-class attribute.
+	 * The classpath entry holding this attribute must refer to a source folder
+	 * containing the implementation of a module.
+	 * 
+	 * <p>The value of this attribute must be the name of a class defined in this module.
+	 * It will be used for generating the <code>ModuleMainClass</code> attribute
+	 * in <code>module-info.class</code>.</p>
+	 * 
+	 * @since 3.13 BETA_JAVA9
+	 */
+	String MODULE_MAIN_CLASS = "module-main-class"; //$NON-NLS-1$
+
+	/**
 	 * Constant for the name of the external annotation path attribute. 
 	 * 
 	 * <p>The value for this attribute has to be the string representation of a path.

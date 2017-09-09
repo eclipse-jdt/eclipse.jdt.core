@@ -21,6 +21,9 @@ import java.util.function.Consumer;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IModuleDescription;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
@@ -35,14 +38,21 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class ModuleUpdater {
 
+	private JavaProject javaProoject;
+
 	private Map<String,UpdatesByKind> moduleUpdates = new HashMap<>();
+
+	public ModuleUpdater(JavaProject javaProject) {
+		this.javaProoject = javaProject;
+	}
 
 	/**
 	 * Detects any ADD_EXPORTS or ADD_READS classpath attributes, parses the value,
 	 * and collects the resulting module updates.
 	 * @param entry a classpath entry of the current project.
+	 * @throws JavaModelException 
 	 */
-	public void computeModuleUpdates(IClasspathEntry entry) {
+	public void computeModuleUpdates(IClasspathEntry entry) throws JavaModelException {
 		for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
 			String attributeName = attribute.getName();
 			String values = attribute.getValue(); // the attributes considered here may have multiple values separated by ':'
@@ -70,11 +80,16 @@ public class ModuleUpdater {
 						Util.log(IStatus.WARNING, "Invalid argument to add-reads: "+value); //$NON-NLS-1$
 					}
 				}
+			} else if (attributeName.equals(IClasspathAttribute.MODULE_MAIN_CLASS)) {
+				IModuleDescription module = this.javaProoject.getModuleDescription();
+				if (module == null)
+					throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST));
+				addModuleUpdate(module.getElementName(), m -> m.setMainClassName(values.toCharArray()), UpdateKind.MODULE);
 			}
 		}
 	}
 
-	private void addModuleUpdate(String moduleName, Consumer<IUpdatableModule> update, UpdateKind kind) {
+	public void addModuleUpdate(String moduleName, Consumer<IUpdatableModule> update, UpdateKind kind) {
 		UpdatesByKind updates = this.moduleUpdates.get(moduleName);
 		if (updates == null) {
 			this.moduleUpdates.put(moduleName, updates = new UpdatesByKind());

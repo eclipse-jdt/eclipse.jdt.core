@@ -492,6 +492,14 @@ public class ClassFile implements TypeConstants, TypeIds {
 			long targetMask = TagBits.AnnotationForModule;
 			attributesNumber += generateRuntimeAnnotations(annotations, targetMask); 
 		}
+		char[] mainClass = cud.moduleDeclaration.binding.mainClassName;
+		if (mainClass != null) {
+			attributesNumber += generateModuleMainClassAttribute(CharOperation.replaceOnCopy(mainClass, '.', '/'));
+		}
+		char[][] packageNames = cud.moduleDeclaration.binding.getPackageNamesForClassFile();
+		if (packageNames != null) {
+			attributesNumber += generateModulePackagesAttribute(packageNames);
+		}
 
 		// update the number of attributes
 		if (attributeOffset + 2 >= this.contents.length) {
@@ -2876,6 +2884,64 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contentsOffset = localContentsOffset;
 		return 1;
 	}
+
+	private int generateModuleMainClassAttribute(char[] moduleMainClass) {
+		int localContentsOffset = this.contentsOffset;
+		if (localContentsOffset + 8 >= this.contents.length) {
+			resizeContents(8);
+		}
+		int moduleAttributeNameIndex =
+			this.constantPool.literalIndex(AttributeNamesConstants.ModuleMainClass);
+		this.contents[localContentsOffset++] = (byte) (moduleAttributeNameIndex >> 8);
+		this.contents[localContentsOffset++] = (byte) moduleAttributeNameIndex;
+		int attrLength = 2;
+		this.contents[localContentsOffset++] = (byte)(attrLength >> 24);
+		this.contents[localContentsOffset++] = (byte)(attrLength >> 16);
+		this.contents[localContentsOffset++] = (byte)(attrLength >> 8);
+		this.contents[localContentsOffset++] = (byte)attrLength;
+		int moduleNameIndex = this.constantPool.literalIndexForType(moduleMainClass);
+		this.contents[localContentsOffset++] = (byte) (moduleNameIndex >> 8);
+		this.contents[localContentsOffset++] = (byte) moduleNameIndex;
+		this.contentsOffset = localContentsOffset;
+		return 1;
+	}
+
+	private int generateModulePackagesAttribute(char[][] packageNames) {
+		int localContentsOffset = this.contentsOffset;
+		int maxSize = 6 + 2*packageNames.length;
+		if (localContentsOffset + maxSize >= this.contents.length) {
+			resizeContents(maxSize);
+		}
+		int moduleAttributeNameIndex =
+			this.constantPool.literalIndex(AttributeNamesConstants.ModulePackages);
+		this.contents[localContentsOffset++] = (byte) (moduleAttributeNameIndex >> 8);
+		this.contents[localContentsOffset++] = (byte) moduleAttributeNameIndex;
+
+		int attrLengthOffset = localContentsOffset;
+		localContentsOffset+= 4;
+		int packageCountOffset = localContentsOffset;
+		localContentsOffset+= 2;
+		
+		int packagesCount = 0;
+		for (char[] packageName : packageNames) {
+			if (packageName == null || packageName.length == 0) continue;
+			int packageNameIndex = this.constantPool.literalIndexForPackage(packageName);
+			this.contents[localContentsOffset++] = (byte) (packageNameIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) packageNameIndex;
+			packagesCount++;
+		}
+
+		this.contents[packageCountOffset++] = (byte)(packagesCount >> 8);
+		this.contents[packageCountOffset++] = (byte)packagesCount;
+		int attrLength = 2 + 2 * packagesCount;
+		this.contents[attrLengthOffset++] = (byte)(attrLength >> 24);
+		this.contents[attrLengthOffset++] = (byte)(attrLength >> 16);
+		this.contents[attrLengthOffset++] = (byte)(attrLength >> 8);
+		this.contents[attrLengthOffset++] = (byte)attrLength;
+		this.contentsOffset = localContentsOffset;
+		return 1;
+	}
+
 	private void generateElementValue(
 			Expression defaultValue,
 			TypeBinding memberValuePairReturnType,

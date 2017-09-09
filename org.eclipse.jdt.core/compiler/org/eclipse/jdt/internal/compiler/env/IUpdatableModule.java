@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
+
 /**
  * Interface to a module as needed to implement the updates for {@code --add-reads}
  * and {@code --add-exports} command line options (or corresponding classpath attributes).
@@ -57,4 +59,8 @@ public interface IUpdatableModule {
 	void addReads(char[] moduleName);
 	/** Perform an --add-exports update on the module. */
 	void addExports(char[] packageName, char[][] targetModules);
+	/** Define the ModuleMainClass to be recorded in the generated module-info.class. */
+	void setMainClassName(char[] mainClassName);
+	/** Passes names of packages to be recorded in the ModulePackages classfile attribute. */
+	void setPackageNames(SimpleSetOfCharArray packageNames);
 }

@@ -14,13 +14,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -31,7 +37,14 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.util.IAttributeNamesConstants;
+import org.eclipse.jdt.core.util.IClassFileAttribute;
+import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.core.util.IModuleMainClassAttribute;
+import org.eclipse.jdt.core.util.IModulePackagesAttribute;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.core.BinaryModule;
 
@@ -1085,6 +1098,133 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	
 		} finally {
 			deleteProject("Test");
+			deleteProject("mod.zero");
+		}
+	}
+
+	// using classpath attribute
+	public void testModuleAttributes1() throws Exception {
+		try {
+			IJavaProject javaProject = createJava9Project("mod.zero");
+			IClasspathAttribute[] cpMainAttribute = {JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE_MAIN_CLASS, "test0.PQRS")};
+			IClasspathEntry src2 = JavaCore.newSourceEntry(new Path("/mod.zero/src2"), null, null, new Path("/mod.zero/bin"), cpMainAttribute);
+			addClasspathEntry(javaProject, src2);
+			createFolder("/mod.zero/src/test0");
+			createFile("/mod.zero/src/test0/PQRS.java",
+							"package test0;\n" +
+							"\n" +
+							"public class PQRS {}");
+			createFolder("/mod.zero/src/test1");
+			String content = 	"module mod.zero {\n" +
+								"	exports test0;\n" +
+								"}\n";
+			createFolder("/mod.zero/src2");
+			createFile("/mod.zero/src2/module-info.java", content);
+
+			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			String classFile = javaProject.getProject().getLocation().toString()+"/bin/module-info.class";
+			IClassFileReader cfr = ToolFactory.createDefaultClassFileReader(classFile, IClassFileReader.ALL);
+			assertNotNull("Error reading class bytes", cfr);
+			IClassFileAttribute attr = Arrays.stream(cfr.getAttributes())
+					.filter(e -> new String(e.getAttributeName()).equals("ModuleMainClass"))
+					.findFirst()
+					.orElse(null);
+			assertNotNull("ModuleMainClass attribute not found", attr);
+			IModuleMainClassAttribute mainAttribute = (IModuleMainClassAttribute) attr;
+			assertEquals("main attribute value", "test0/PQRS", String.valueOf(mainAttribute.getMainClassName()));
+
+		} finally {
+			deleteProject("mod.zero");
+		}
+	}
+
+	// using dedicated API
+	public void testModuleAttributes2() throws Exception {
+		try {
+			IJavaProject javaProject = createJava9Project("mod.zero");
+
+			createFolder("/mod.zero/src/test0");
+			createFile("/mod.zero/src/test0/SPQR.java",
+							"package test0;\n" +
+							"\n" +
+							"public class SPQR {}");
+
+			createFolder("/mod.zero/src/test1");
+			createFile("/mod.zero/src/test1/Service.java",
+							"package test1;\n" +
+							"\n" +
+							"public interface Service {}");
+
+			createFolder("/mod.zero/src/test2");
+			createFile("/mod.zero/src/test2/Impl.java",
+							"package test2;\n" +
+							"\n" +
+							"public class Impl implements test1.Service {}");
+
+			createFolder("/mod.zero/src/testDont");
+			createFile("/mod.zero/src/testDont/Show.java",
+							"package testDont;\n" +
+							"\n" +
+							"public class Show {}");
+
+			String content = 	"module mod.zero {\n" +
+								"	exports test0;\n" +
+								"	opens test1;\n" +
+								"	provides test1.Service with test2.Impl;\n" +
+								"}\n";
+			createFile("/mod.zero/src/module-info.java", content);
+
+			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			ICompilationUnit unit = getCompilationUnit("/mod.zero/src/module-info.java");
+			IModuleDescription module = unit.getModule();
+
+			Map<String,String> attributes = new HashMap<>();
+			attributes.put(String.valueOf(IAttributeNamesConstants.MODULE_MAIN_CLASS), "test0.SPQR");
+			attributes.put(String.valueOf(IAttributeNamesConstants.MODULE_PACKAGES), "");
+
+			byte[] bytes = JavaCore.compileWithAttributes(module, attributes);
+
+			InputStream byteStream = new ByteArrayInputStream(bytes);
+			IClassFileReader cfr = ToolFactory.createDefaultClassFileReader(byteStream, IClassFileReader.ALL);
+			assertNotNull("Error reading class bytes", cfr);
+			IClassFileAttribute attr = Arrays.stream(cfr.getAttributes())
+					.filter(e -> new String(e.getAttributeName()).equals("ModuleMainClass"))
+					.findFirst()
+					.orElse(null);
+			assertNotNull("Module attribute not found", attr);
+
+			assertNotNull("main attribute", attr);
+			IModuleMainClassAttribute mainAttribute = (IModuleMainClassAttribute) attr;
+			assertEquals("main attribute value", "test0/SPQR", String.valueOf(mainAttribute.getMainClassName()));
+
+			attr = Arrays.stream(cfr.getAttributes())
+					.filter(e -> new String(e.getAttributeName()).equals("ModulePackages"))
+					.findFirst()
+					.orElse(null);
+			assertNotNull("ModulePackages attribute not found", attr);
+			IModulePackagesAttribute packagesAttribute = (IModulePackagesAttribute) attr;
+			String[] packageNames = CharOperation.toStrings(packagesAttribute.getPackageNames());
+			assertEquals("main attribute value", "test0,test1,test2", String.join(",", packageNames));
+
+			// now include testDont in ModulePackages:
+			attributes.put(String.valueOf(IAttributeNamesConstants.MODULE_PACKAGES), "testDont");
+			bytes = JavaCore.compileWithAttributes(module, attributes);
+
+			byteStream = new ByteArrayInputStream(bytes);
+			cfr = ToolFactory.createDefaultClassFileReader(byteStream, IClassFileReader.ALL);
+			assertNotNull("Error reading class bytes", cfr);
+			attr = Arrays.stream(cfr.getAttributes())
+					.filter(e -> new String(e.getAttributeName()).equals("ModulePackages"))
+					.findFirst()
+					.orElse(null);
+			assertNotNull("ModulePackages attribute not found", attr);
+			packagesAttribute = (IModulePackagesAttribute) attr;
+			packageNames = CharOperation.toStrings(packagesAttribute.getPackageNames());
+			assertEquals("main attribute value", "testDont,test0,test1,test2", String.join(",", packageNames));
+
+		} finally {
 			deleteProject("mod.zero");
 		}
 	}

@@ -114,7 +114,7 @@ private void computeClasspathLocations(
 	Map<String, IModulePathEntry> moduleEntries = null;
 	if (CompilerOptions.versionToJdkLevel(javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9) {
 		moduleEntries = new HashMap<>(classpathEntries.length);
-		this.moduleUpdater = new ModuleUpdater();
+		this.moduleUpdater = new ModuleUpdater(javaProject);
 	}
 	IModuleDescription mod = null;
 	
