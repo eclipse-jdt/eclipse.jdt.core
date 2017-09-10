@@ -5329,7 +5329,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
-	// patch can see unexported type from host - JRE
+	// patch can see unexported type from host - JRE patched from two source folders
 	public void testPatch2() throws CoreException, IOException {
 		if (!isJRE9) return;
 		try {
@@ -5337,7 +5337,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
 					JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, "java.base")
 			};
-			IJavaProject patchProject = createJava9ProjectWithJREAttributes("org.astro.patch", new String[]{"src"}, attributes);
+			IJavaProject patchProject = createJava9ProjectWithJREAttributes("org.astro.patch", new String[]{"src", "src2"}, attributes);
 
 			String[] patchSources = {
 				"src/org/astro/Test2.java",
@@ -5346,6 +5346,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	int test(jdk.internal.misc.Unsafe unsafe) {\n" +
 				"		return unsafe.addressSize();\n" +
 				"	}\n" +
+				"}\n",
+				"src2/jdk/internal/misc/Test3.java",
+				"package jdk.internal.misc;\n" +
+				"class Test3 {\n" +
+				"	Signal.NativeHandler handler;\n" + // package access
 				"}\n"
 			};
 			createSourceFiles(patchProject, patchSources);
@@ -5355,6 +5360,55 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			this.problemRequestor.reset();
 			ICompilationUnit cu = getCompilationUnit("/org.astro.patch/src/org/astro/Test2.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+
+		} finally {
+			this.deleteProject("org.astro.patch");
+		}
+	}
+
+	// patch can share a package with its host - jar
+	public void testPatch3() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = {
+				"p/a/X.java",
+				"package p.a;\n" +
+				"class X {}\n;", // package access
+				"module-info.java",
+				"module mod.one {\n" + // no exports
+				"}\n"
+			};
+			String outputDirectory = Util.getOutputDirectory();
+
+			String jarPath = outputDirectory + File.separator + "mod-one.jar";
+			Util.createJar(sources, jarPath, "9");
+
+			IJavaProject patchProject = createJava9Project("mod.one.patch");			
+			IClasspathAttribute[] attributes = {
+					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
+					JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, "mod.one")
+			};
+			addClasspathEntry(patchProject, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, attributes, false));
+
+			String[] patchSources = {
+				"src/p/a/Test2.java",
+				"package p.a;\n" +
+				"class Test2 extends X {\n" +
+				"}\n"
+			};
+			createSourceFiles(patchProject, patchSources);
+			
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+
+			this.problemRequestor.reset();
+			ICompilationUnit cu = getCompilationUnit("/mod.one.patch/src/p/a/Test2.java");
 			cu.getWorkingCopy(this.wcOwner, null);
 			assertProblems(
 				"Unexpected problems",

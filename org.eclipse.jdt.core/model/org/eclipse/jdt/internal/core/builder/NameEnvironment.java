@@ -122,6 +122,12 @@ private void computeClasspathLocations(
 	IModule patchedModule = null;
 
 	nextEntry : for (int i = 0, l = classpathEntries.length; i < l; i++) {
+		if (i == 1) {
+			if (patchedModuleName != null) {
+				// TODO(SHMOD) assert that patchModule has been assigned
+				patchedModuleName = null; // expire, applies to the first entry, only
+			}
+		}
 		ClasspathEntry entry = (ClasspathEntry) classpathEntries[i];
 		IPath path = entry.getPath();
 		Object target = JavaModel.getTarget(path, true);
@@ -241,7 +247,7 @@ private void computeClasspathLocations(
 					// TODO: Ideally we need to do something like mapToModulePathEntry using the path and if it is indeed
 					// a module path entry, then add the corresponding entry here, but that would need the target platform
 					if (moduleEntries != null) {
-						patchedModule = collectModuleEntries(bLocation, path, isOnModulePath, patchedModuleName, moduleEntries);
+						patchedModule = collectModuleEntries(bLocation, path, isOnModulePath, patchedModuleName, patchedModule, moduleEntries);
 					}
 					if (binaryLocationsPerProject != null) { // normal builder mode
 						IProject p = resource.getProject(); // can be the project being built
@@ -264,7 +270,7 @@ private void computeClasspathLocations(
 					ClasspathLocation bLocation = ClasspathLocation.forLibrary(path.toOSString(), accessRuleSet, externalAnnotationPath, isOnModulePath);
 					bLocations.add(bLocation);
 					if (moduleEntries != null) {
-						patchedModule = collectModuleEntries(bLocation, path, isOnModulePath, patchedModuleName, moduleEntries);
+						patchedModule = collectModuleEntries(bLocation, path, isOnModulePath, patchedModuleName, patchedModule, moduleEntries);
 					}
 				}
 				continue nextEntry;
@@ -343,8 +349,8 @@ private String pushPatchToFront(IClasspathEntry[] classpathEntries) {
 }
 
 /** Returns the patched module if that is served by the current (binary) location. */
-IModule collectModuleEntries(ClasspathLocation bLocation, IPath path, boolean isOnModulePath, String patchedModuleName,
-								Map<String, IModulePathEntry> moduleEntries) {
+IModule collectModuleEntries(ClasspathLocation bLocation, IPath path, boolean isOnModulePath,
+								String patchedModuleName, IModule patchedModule, Map<String, IModulePathEntry> moduleEntries) {
 	if (bLocation instanceof IMultiModuleEntry) {
 		IMultiModuleEntry binaryModulePathEntry = (IMultiModuleEntry) bLocation;
 		for (String moduleName : binaryModulePathEntry.getModuleNames()) {
@@ -354,6 +360,7 @@ IModule collectModuleEntries(ClasspathLocation bLocation, IPath path, boolean is
 			IModule module = binaryModulePathEntry.getModule(patchedModuleName.toCharArray());
 			if (module != null)
 				return module;
+			// TODO(SHMOD): report problem: patchedModuleName didn't match a module from this location
 		}
 	} else if (isOnModulePath) {
 		IModulePathEntry binaryModulePathEntry = new ModulePathEntry(path, bLocation);
@@ -361,11 +368,14 @@ IModule collectModuleEntries(ClasspathLocation bLocation, IPath path, boolean is
 		if (module != null) {
 			String moduleName = String.valueOf(module.name());
 			moduleEntries.put(moduleName, binaryModulePathEntry);
-			if (patchedModuleName != null && moduleName.equals(patchedModuleName))
-				return module;
+			if (patchedModuleName != null) {
+				if (moduleName.equals(patchedModuleName))
+					return module;
+				// TODO(SHMOD): report problem: patchedModuleName didn't match a module from this location
+			}
 		}
 	}
-	return null;
+	return patchedModule;
 }
 
 void combineIntoModuleEntry(ClasspathLocation sourceLocation, IModule patchedModule, Map<String, IModulePathEntry> moduleEntries) {
