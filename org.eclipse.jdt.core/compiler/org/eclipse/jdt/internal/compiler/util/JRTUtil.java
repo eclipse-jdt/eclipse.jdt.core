@@ -123,6 +123,11 @@ public class JRTUtil {
 	    return system;
 	}
 
+	/** TEST ONLY (use when changing the "modules.to.load" property). */
+	public static void reset() {
+		images = null;
+	}
+
 	/**
 	 * Given the path of a modular image file, this method walks the archive content and
 	 * notifies the supplied visitor about packages and files visited.

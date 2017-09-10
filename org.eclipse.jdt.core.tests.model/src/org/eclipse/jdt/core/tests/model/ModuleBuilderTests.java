@@ -46,8 +46,10 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.builder.ClasspathJrt;
 import org.eclipse.jdt.internal.core.util.Messages;
 
 import junit.framework.Test;
@@ -5417,7 +5419,84 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				this.problemRequestor);
 
 		} finally {
-			this.deleteProject("org.astro.patch");
+			this.deleteProject("mod.one.patch");
+		}
+	}
+	public void testLimitModules1() throws CoreException, IOException {
+		if (!isJRE9) return;
+		String save = System.getProperty("modules.to.load");
+		JRTUtil.reset();
+		ClasspathJrt.resetCaches();
+		try {
+			// allow for a few more than we are using via limit-modules:
+			System.setProperty("modules.to.load", "java.base,java.desktop,java.datatransfer,java.rmi,java.sql,java.prefs,java.xml");
+			IClasspathAttribute[] attributes = {
+					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
+					JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES, "java.base,java.desktop")
+			};
+			IJavaProject project = createJava9ProjectWithJREAttributes("org.astro", new String[]{"src", "src2"}, attributes);
+
+			String[] sources = {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	requires java.base;\n" +
+				"	requires java.desktop;\n" +
+				"	requires java.datatransfer;\n" + // within the closure of java.desktop
+				"	requires java.sql;\n" + // not included
+				"}\n",
+				"src/org/astro/Test2.java",
+				"package org.astro;\n" +
+				"class Test2 {\n" +
+				"	java.awt.Window window;\n" +
+				"}\n",
+				"src2/org/astro/Test3.java",
+				"package org.astro;\n" +
+				"class Test3 {\n" +
+				"	java.awt.datatransfer.Clipboard clippy;\n" +
+				"}\n"
+			};
+			createSourceFiles(project, sources);
+			
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"java.sql cannot be resolved to a module", // outside limited scope
+					markers);
+
+			this.problemRequestor.reset();
+			ICompilationUnit cu = getCompilationUnit("/org.astro/src/module-info.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" +
+				"1. ERROR in /org.astro/src/module-info.java\n" + 
+				"java.sql cannot be resolved to a module\n" +
+				"----------\n",
+				this.problemRequestor);
+
+			this.problemRequestor.reset();
+			cu = getCompilationUnit("/org.astro/src/org/astro/Test2.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+
+			this.problemRequestor.reset();
+			cu = getCompilationUnit("/org.astro/src/org/astro/Test3.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+
+		} finally {
+			this.deleteProject("org.astro");
+			System.setProperty("modules.to.load", save);
+			JRTUtil.reset();
+			ClasspathJrt.resetCaches();
 		}
 	}
 	protected void assertNoErrors() throws CoreException {

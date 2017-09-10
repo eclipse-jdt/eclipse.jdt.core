@@ -33,8 +33,10 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
- * An instance of this class collects add-exports and add-reads options from a project's
- * class path entries, and performs the corresponding updates when requested by the compiler.
+ * An instance of this class collects <code>add-exports</code> and <code>add-reads</code> options from
+ * a project's class path entries, and performs the corresponding updates when requested by the compiler.
+ * <p>For <code>patch-module</code> and <code>limit-modules</code> see
+ * org.eclipse.jdt.internal.core.builder.ModuleEntryProcessor.</p>
  */
 public class ModuleUpdater {
 

@@ -271,4 +271,9 @@ public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageN
 	// 
 	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false);
 }
+/** TEST ONLY */
+public static void resetCaches() {
+	PackageCache.clear();
+	ModulesCache.clear();
+}
 }

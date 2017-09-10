@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 201y IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import java.net.URI;
 import java.nio.file.FileVisitResult;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -29,6 +30,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
@@ -79,6 +81,10 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
@@ -643,6 +649,9 @@ public class JavaProject
 							if (info.jrtRoots == null || !info.jrtRoots.containsKey(entryPath)) {
 								ObjectVector imageRoots = new ObjectVector();
 								loadModulesInJimage(entryPath, imageRoots, rootToResolvedEntries, resolvedEntry, referringEntry);
+								String limitModules = ClasspathEntry.getExtraAttribute(resolvedEntry, IClasspathAttribute.LIMIT_MODULES);
+								if (limitModules != null)
+									imageRoots = filterLimitedModules(entryPath, imageRoots, limitModules);
 								info.setJrtPackageRoots(entryPath, imageRoots);
 								accumulatedRoots.addAll(imageRoots);
 								rootIDs.add(rootID);
@@ -688,6 +697,69 @@ public class JavaProject
 			accumulatedRoots.add(root);
 			rootIDs.add(rootID);
 			if (rootToResolvedEntries != null) rootToResolvedEntries.put(root, ((ClasspathEntry)resolvedEntry).combineWith((ClasspathEntry) referringEntry));
+		}
+	}
+
+	private ObjectVector filterLimitedModules(IPath jrtPath, ObjectVector imageRoots, String limitModules) {
+		Set<String> limitModulesSet = new HashSet<>(Arrays.asList(limitModules.split(","))); //$NON-NLS-1$
+		ModuleLookup lookup = new ModuleLookup(jrtPath.toFile());
+		// collect all module roots:
+		for (int i = 0; i < imageRoots.size(); i++) {
+			lookup.recordRoot((JrtPackageFragmentRoot) imageRoots.elementAt(i));
+		}
+		// for those contained in limitModules, add the transitive closure:
+		for (int i = 0; i < imageRoots.size(); i++) {
+			String moduleName = ((JrtPackageFragmentRoot) imageRoots.elementAt(i)).moduleName;
+			if (limitModulesSet.contains(moduleName))
+				lookup.addTransitive(moduleName);
+		}
+		// map the result back to package fragment roots:
+		ObjectVector result = new ObjectVector(lookup.resultModuleSet.size());
+		for (IModule mod : lookup.resultModuleSet) {
+			result.add(lookup.getRoot(mod));
+		}
+		return result;
+	}
+
+	/** Helper for computing the transitive closure of a set of modules. */
+	private static class ModuleLookup {
+		File jrtFile;
+		Map<String, JrtPackageFragmentRoot> modNames2Roots = new HashMap<>();
+		Map<String, IModule> modules = new HashMap<>();
+		Set<IModule> resultModuleSet = new HashSet<>();
+		
+		public ModuleLookup(File jrtFile) {
+			this.jrtFile = jrtFile;
+		}
+
+		void recordRoot(JrtPackageFragmentRoot root) {
+			this.modNames2Roots.put(root.moduleName, root);
+		}
+		void addTransitive(String moduleName) {
+			IModule module = getModule(moduleName);
+			if (module != null && this.resultModuleSet.add(module)) {
+				for (IModuleReference reqRef : module.requires())
+					addTransitive(String.valueOf(reqRef.name()));
+			}
+		}
+		private IModule getModule(String moduleName) {
+			IModule result = this.modules.get(moduleName);
+			if (result == null) {
+				JrtPackageFragmentRoot root = this.modNames2Roots.get(moduleName);
+				if (root != null) {
+					try {
+						ClassFileReader classFile = JRTUtil.getClassfile(this.jrtFile, TypeConstants.MODULE_INFO_CLASS_NAME_STRING, root.moduleName);
+						result = classFile.getModuleDeclaration();
+						this.modules.put(moduleName, result);
+					} catch (IOException | ClassFormatException e) {
+						JavaCore.getJavaCore().getLog().log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, "Failed to read module-info.class", e)); //$NON-NLS-1$
+					}
+				}
+			}
+			return result;
+		}
+		JrtPackageFragmentRoot getRoot(IModule module) {
+			return this.modNames2Roots.get(String.valueOf(module.name()));
 		}
 	}
 

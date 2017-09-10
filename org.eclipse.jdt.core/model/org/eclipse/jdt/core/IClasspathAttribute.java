@@ -172,6 +172,23 @@ public interface IClasspathAttribute {
 	String PATCH_MODULE = "patch-module"; //$NON-NLS-1$
 
 	/**
+	 * Constant for the name of the limit-modules attribute.
+	 * 
+	 * <p>The value of this attribute must be a comma-separated list of names of modules
+	 * defined in the classpath entry, to which this attribute is attached.
+	 * The set of modules observable through this entry will be limited to
+	 * the transitive closure of modules in this list.</p>
+	 * 
+	 * <p>This attribute is supported for classpath entries of kind
+	 * {@link IClasspathEntry#CPE_CONTAINER}.
+	 * A classpath entry having this attribute must also have the
+	 * {@link #MODULE} attribute with value <code>"true"</code>.</p>
+	 *
+	 * @since 3.13 BETA_JAVA9
+	 */
+	String LIMIT_MODULES = "limit-modules"; //$NON-NLS-1$
+
+	/**
 	 * Constant of the name of the module-main-class attribute.
 	 * The classpath entry holding this attribute must refer to a source folder
 	 * containing the implementation of a module.
