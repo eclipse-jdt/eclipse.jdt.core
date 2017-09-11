@@ -1790,7 +1790,7 @@ public abstract class Scope {
 				if (interfaceMethod != null) return interfaceMethod;
 				MethodBinding candidate = candidates[0];
 				int reason = ProblemReasons.NotVisible;
-				if (candidate.isStatic() && candidate.declaringClass.isInterface()) {
+				if (candidate.isStatic() && candidate.declaringClass.isInterface() && !candidate.isPrivate()) {
 					if (soureLevel18)
 						reason = ProblemReasons.NonStaticOrAlienTypeReceiver;
 					else

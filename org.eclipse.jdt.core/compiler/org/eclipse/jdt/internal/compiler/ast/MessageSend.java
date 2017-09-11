@@ -862,8 +862,10 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 	} else {
 		// static message invoked through receiver? legal but unoptimal (optional warning).
-		if (!(this.receiver.isImplicitThis() || this.receiver.isSuper() || this.receiverIsType)) {
-			scope.problemReporter().nonStaticAccessToStaticMethod(this, this.binding);
+		if (this.binding.declaringClass.isInterface() && !((isTypeAccess() || this.receiver.isImplicitThis()) && TypeBinding.equalsEquals(this.binding.declaringClass, this.actualReceiverType))) {
+			scope.problemReporter().nonStaticOrAlienTypeReceiver(this, this.binding);
+		} else if (!(this.receiver.isImplicitThis() || this.receiver.isSuper() || this.receiverIsType)) {
+		 	scope.problemReporter().nonStaticAccessToStaticMethod(this, this.binding);
 		}
 		if (!this.receiver.isImplicitThis() && TypeBinding.notEquals(this.binding.declaringClass, this.actualReceiverType)) {
 			scope.problemReporter().indirectAccessToStaticMethod(this, this.binding);

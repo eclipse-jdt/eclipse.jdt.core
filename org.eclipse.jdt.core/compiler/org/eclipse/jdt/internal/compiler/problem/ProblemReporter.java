@@ -4195,6 +4195,20 @@ public void invalidFileNameForPackageAnnotations(Annotation annotation) {
 			annotation.sourceEnd);
 }
 
+public void nonStaticOrAlienTypeReceiver(MessageSend messageSend, MethodBinding method) {
+	this.handle(
+			IProblem.NonStaticOrAlienTypeReceiver,
+			new String[] {
+					new String(method.declaringClass.readableName()),
+			        new String(method.selector),
+			},
+			new String[] {
+					new String(method.declaringClass.shortReadableName()),
+			        new String(method.selector),
+			},
+			(int) (messageSend.nameSourcePosition >>> 32),
+			(int) messageSend.nameSourcePosition);
+}
 public void invalidMethod(MessageSend messageSend, MethodBinding method, Scope scope) {
 	if (isRecoveredName(messageSend.selector)) return;
 
@@ -4276,18 +4290,7 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method, Scope s
 			id = IProblem.StaticMethodRequested;
 			break;
 		case ProblemReasons.NonStaticOrAlienTypeReceiver:
-			this.handle(
-					IProblem.NonStaticOrAlienTypeReceiver,
-					new String[] {
-							new String(method.declaringClass.readableName()),
-					        new String(method.selector),
-					},
-					new String[] {
-							new String(method.declaringClass.shortReadableName()),
-					        new String(method.selector),
-					},
-					(int) (messageSend.nameSourcePosition >>> 32),
-					(int) messageSend.nameSourcePosition);
+			nonStaticOrAlienTypeReceiver(messageSend, method);
 			return;
 		case ProblemReasons.InterfaceMethodInvocationNotBelow18:
 			this.handle(

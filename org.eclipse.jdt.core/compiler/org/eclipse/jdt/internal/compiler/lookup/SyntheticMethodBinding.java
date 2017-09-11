@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *		IBM Corporation - initial API and implementation
  *		Stephan Herrmann - Contribution for
@@ -515,8 +519,12 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.targetMethod = accessedMethod;
 		if (isSuperAccess && receiverType.isInterface() && !accessedMethod.isStatic())
 			this.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccSynthetic;
-		else
-			this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
+		else {
+			if (receiverType.isInterface()) // default is not allowed. TODO: do we need a target level check here?
+				this.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
+			else
+				this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
+		}
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) receiverType;
 		SyntheticMethodBinding[] knownAccessMethods = declaringSourceType.syntheticMethods();

@@ -308,4 +308,92 @@ public class InterfaceMethodsTest_9 extends AbstractComparableTest {
 			}, 
 			"");
 	}
+	public void testBug520795() {
+		runNegativeTest(
+			new String[] {
+				"I.java",
+				"public interface I {\n" +
+				"    private static void foo(){};\n" +
+				"	default void bar() {\n" + 
+				"		foo();\n" + 
+				"	}" +
+				"}\n",
+				"X.java",
+				"public class X {\n" +
+					"public static void main(String[] args) {\n" + 
+					"	I.foo();\n" + 
+					"}" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	I.foo();\n" + 
+			"	  ^^^\n" + 
+			"The method foo() from the type I is not visible\n" + 
+			"----------\n" );
+	}
+	public void testBug520795a() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+					"interface I {\n" +
+					"   private static void foo(){};\n" +
+					"	default void bar() {\n" + 
+					"		foo();\n" + 
+					"	}" +
+					"}\n" +
+					"public static void main(String[] args) {\n" + 
+					"	I.foo();\n" + 
+					"}" +
+				"}\n"
+		});
+	}
+	public void testBug520795b() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+					"public interface I {\n" +
+					"   private static void foo(){};\n" +
+					"	void bar();" +
+					"}\n" +
+					"public static void main(String[] args) {\n" +
+					"	I i = () -> {};\n" +
+					"	i.foo();\n" + 
+					"}" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	i.foo();\n" + 
+			"	  ^^^\n" + 
+			"This static method of interface X.I can only be accessed as X.I.foo\n" + 
+			"----------\n" );
+	}
+	public void testBug520795c() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+					"public interface I {\n" +
+					"   private static void foo(){};\n" +
+					"}\n" +
+					"public interface J extends I {\n" +
+					"   default void goo(){I.super.foo();};\n" +
+					"	void baz();" +
+					"}\n" +
+					"public static void main(String[] args) {\n" +
+					"	J j = () -> {};\n" +
+					"	j.goo();\n" + 
+					"}" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	default void goo(){I.super.foo();};\n" + 
+			"	                           ^^^\n" + 
+			"This static method of interface X.I can only be accessed as X.I.foo\n" + 
+			"----------\n" );
+	}
 }

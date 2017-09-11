@@ -1986,7 +1986,7 @@ protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean re
 	LookupEnvironment environment = scope.environment();
 	for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++) {
 		final MethodBinding method = methods[i];
-		if (method == null || method.isStatic() || method.redeclaresPublicObjectMethod(scope)) 
+		if (method == null || method.isStatic() || method.redeclaresPublicObjectMethod(scope) || method.isPrivate()) 
 			continue;
 		if (!method.isValidBinding()) 
 			throw new InvalidInputException("Not a functional interface"); //$NON-NLS-1$
