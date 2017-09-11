@@ -1003,6 +1003,8 @@ public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBin
 }
 
 public BinaryTypeBinding createBinaryTypeFrom(IBinaryType binaryType, PackageBinding packageBinding, boolean needFieldsAndMethods, AccessRestriction accessRestriction) {
+	if (this != packageBinding.environment)
+		return packageBinding.environment.createBinaryTypeFrom(binaryType, packageBinding, needFieldsAndMethods, accessRestriction);
 	BinaryTypeBinding binaryBinding = new BinaryTypeBinding(packageBinding, binaryType, this);
 
 	// resolve any array bindings which reference the unresolvedType
@@ -1531,6 +1533,8 @@ public ReferenceBinding getResolvedType(char[][] compoundName, Scope scope) {
 	return getResolvedType(compoundName, scope == null ? this.UnNamedModule : scope.module(), scope);
 }
 public ReferenceBinding getResolvedType(char[][] compoundName, ModuleBinding moduleBinding, Scope scope) {
+	if (this.module != moduleBinding)
+		return moduleBinding.environment.getResolvedType(compoundName, moduleBinding, scope);
 	ReferenceBinding type = getType(compoundName, moduleBinding);
 	if (type != null) return type;
 

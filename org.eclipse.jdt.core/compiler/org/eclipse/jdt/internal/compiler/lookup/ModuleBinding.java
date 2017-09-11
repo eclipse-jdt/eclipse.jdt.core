@@ -551,7 +551,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			return null;
 		// remember
 		if (parentName.length == 0)
-			this.environment.knownPackages.put(name, binding);
+			binding.environment.knownPackages.put(name, binding);
 		else
 			binding = parent.addPackage(binding, this, false);
 		return addPackage(binding, false);

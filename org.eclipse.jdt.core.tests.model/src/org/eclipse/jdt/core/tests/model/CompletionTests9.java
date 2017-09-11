@@ -16,8 +16,10 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
 
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -55,9 +57,10 @@ public static Test suite() {
 private void createTypePlus(String folder, String pack, String typeName, String plus, boolean isClass, boolean createFolder) throws CoreException {
 	String filePath;
 	String fileContent;
-	fileContent = "package " + pack + ";\n" + "public " + (isClass ? "class " : "interface ");
+	fileContent = "package " + pack + ";\n" + "public " + (isClass ? "class " : "interface ") + typeName + ' ';
 	if (plus != null) fileContent = fileContent + plus;
-	fileContent = fileContent + typeName + " {}\n";
+	fileContent = fileContent + " {}\n";
+	pack = pack.replace('.', '/');
 	if (createFolder)  createFolder(folder + pack);
 	filePath = folder + pack + "/" + typeName + ".java";
 	createFile(filePath, fileContent);
@@ -583,7 +586,8 @@ public void test486988_0015() throws Exception {
 		ICompilationUnit unit = getCompilationUnit(filePath1);
 		unit.codeComplete(cursorLocation, requestor);
 
-		String expected = "pack11[PACKAGE_REF]{pack11, pack11, null, null, 49}\n" + 
+		String expected = "pack11[PACKAGE_REF]{pack11, pack11, null, null, 49}\n" +
+				"pack11.packinternal[PACKAGE_REF]{pack11.packinternal, pack11.packinternal, null, null, 49}\n" + 
 				"pack12[PACKAGE_REF]{pack12, pack12, null, null, 49}"
 				//+ "\nShow me the type Honey!!"
 				;
@@ -645,6 +649,116 @@ public void testBug518618_001() throws Exception {
 	} finally {
 		deleteProject(project1);
 		deleteProject(project2);
+	}
+}
+// test that types in a module can be correctly resolved including their super types when seen from the unnamed module during completion
+public void testBug522164_src() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+	IJavaProject project2 = createJavaProject("Completion9_2", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		createTypePlus("/Completion9_1/src/", "p.priv", "PrivIfc", null, false, true);
+		createFolder("/Completion9_1/src/p/a");
+		createFile("/Completion9_1/src/p/a/Ifc.java",
+					"package p.a;\n" +
+					"public interface Ifc extends p.priv.PrivIfc {\n" +
+					"	default void test() {};\n" +
+					"}\n");
+		createTypePlus("/Completion9_1/src/", "p.a", "Impl", "implements Ifc", true, false);
+		createFile("/Completion9_1/src/module-info.java",
+					"module mod.one { \n" +
+					"	exports p.a;\n" +
+					"	provides p.a.Ifc with p.a.Impl;\n" +
+					"}");
+		project1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+		IClasspathAttribute[] attributes = {
+			JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true")	
+		};
+		addClasspathEntry(project2, JavaCore.newProjectEntry(new Path("/Completion9_1"), null, false, attributes, false));
+		createFolder("/Completion9_2/src/x");
+		String filePath = "/Completion9_2/src/x/X.java";
+		String completeBehind = "ifc.te";
+		String content =
+					"package x;\n" +
+					"public class X {\n" +
+					"	void test(p.a.Ifc ifc) {\n" +
+					"		" + completeBehind + "\n" +
+					"	}\n" +
+					"}\n";
+		createFile(filePath, content);
+		int cursorLocation = content.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		waitUntilIndexesReady();
+
+		ICompilationUnit unit = getCompilationUnit("/Completion9_2/src/x/X.java");
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "test[METHOD_REF]{test(), Lp.a.Ifc;, ()V, test, 60}";
+		assertResults(expected,	requestor.getResults());
+
+	} finally {
+		deleteProject(project1);
+		deleteProject(project2);
+	}
+}
+// test that types in a module can be correctly resolved including their super types when seen from the unnamed module during completion
+public void testBug522164_jar() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		String[] jarSources = {
+					"module-info.java",
+					"module mod.one { \n" +
+					"	exports p.a;\n" +
+					"	provides p.a.Ifc with p.a.Impl;\n" +
+					"}",
+					"p/priv/PrivIfc.java",
+					"package p.priv;\n" +
+					"public interface PrivIfc {}\n",
+					"p/a/Ifc.java",
+					"package p.a;\n" +
+					"public interface Ifc extends p.priv.PrivIfc {\n" +
+					"	default void test() {};\n" +
+					"}\n",
+					"p/a/Impl.java",
+					"package p.a;\n" +
+					"public class Impl implements Ifc {}\n",
+			};
+		createFolder("/Completion9_1/lib");
+		createJar(jarSources, project1.getProject().getLocation().append("lib").append("mod.one.jar").toOSString(), new String[0], "9");
+		refresh(project1);
+
+		IClasspathAttribute[] attributes = {
+			JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true")	
+		};
+		addClasspathEntry(project1, JavaCore.newLibraryEntry(new Path("/Completion9_1/lib/mod.one.jar"), null, null, null, attributes, false));
+
+		createFolder("/Completion9_1/src/x");
+		String filePath = "/Completion9_1/src/x/X.java";
+		String completeBehind = "ifc.te";
+		String content =
+					"package x;\n" +
+					"public class X {\n" +
+					"	void test(p.a.Ifc ifc) {\n" +
+					"		" + completeBehind + "\n" +
+					"	}\n" +
+					"}\n";
+		createFile(filePath, content);
+		int cursorLocation = content.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		waitUntilIndexesReady();
+
+		ICompilationUnit unit = getCompilationUnit("/Completion9_1/src/x/X.java");
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "test[METHOD_REF]{test(), Lp.a.Ifc;, ()V, test, 60}";
+		assertResults(expected,	requestor.getResults());
+
+	} finally {
+		deleteProject(project1);
 	}
 }
 }
