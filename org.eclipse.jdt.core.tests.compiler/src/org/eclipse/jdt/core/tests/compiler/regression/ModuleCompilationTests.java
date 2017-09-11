@@ -3107,4 +3107,69 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			false,
 			OUTPUT_DIR + File.separator + out);
 	}
+	public void testBug521458a() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String outDir = OUTPUT_DIR + File.separator + "bin";
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
+		createReusableModules(srcDir, outDir, modDir);
+		String moduleLoc = srcDir + File.separator + "mod.three";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod._3_ { \n" +
+						"	requires mod.one;\n" +
+						"	requires mod.two;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + outDir )
+		.append(" -9 ")
+		.append(" -p \"")
+		.append(Util.getJavaClassLibsAsString())
+		.append(modDir.getAbsolutePath())
+		.append("\" ")
+		.append("-classNames mod.one/p.X")
+		.append(" --module-source-path " + "\"" + srcDir + "\"");
+
+		runNegativeModuleTest(files,
+				buffer,
+				"",
+				"module name mod._3_ does not match expected name mod.three\n",
+				false,
+				outDir);
+	}
+	/*
+	 * Disabled because the parser seem to take the module path as mod and not mod.e 
+	 */
+	public void _testBug521458b() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String outDir = OUTPUT_DIR + File.separator + "bin";
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
+		createReusableModules(srcDir, outDir, modDir);
+		String moduleLoc = srcDir + File.separator + "mod.three";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.3 { \n" +
+						"	requires mod.one;\n" +
+						"	requires mod.two;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + outDir )
+		.append(" -9 ")
+		.append(" -p \"")
+		.append(Util.getJavaClassLibsAsString())
+		.append(modDir.getAbsolutePath())
+		.append("\" ")
+		.append("-classNames mod.one/p.X")
+		.append(" --module-source-path " + "\"" + srcDir + "\"");
+
+		runNegativeModuleTest(files,
+				buffer,
+				"",
+				"module name mod.3 does not match expected name mod.three\r\n",
+				false,
+				outDir);
+	}
 }
