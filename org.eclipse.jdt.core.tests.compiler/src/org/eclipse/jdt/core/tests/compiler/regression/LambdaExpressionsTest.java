@@ -6498,6 +6498,31 @@ public void testBug517299() {
 		"Baz.print called - methodReference"
 	);
 }
+public void testBug521808() {
+	runConformTest(
+		new String[] {
+			"Z.java",
+			"interface FI1 {\n" + 
+			"	Object m(Integer... s);\n" + 
+			"}\n" + 
+			"interface FI2<T> {\n" + 
+			"	Object m(T... arg);\n" + 
+			"}\n" + 
+			"public class Z {\n" + 
+			"	static Object m(FI1 fi, Integer v1, Integer v2) {\n" + 
+			"		return fi.m(v1, v2);\n" + 
+			"	}\n" + 
+			"	static <V extends Integer> Object m(FI2<V> fi, V v1, V v2) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public static void main(String argv[]) {\n" + 
+			"		Object obj = m((FI1) (Integer... is) -> is[0] + is[1], 3, 4);\n" + 
+			"		obj = m((Integer... is) -> is[0] + is[1], 3, 4); // Javac compiles, ECJ won't\n" + 
+			"	}\n" + 
+			"}",
+		}
+	);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
