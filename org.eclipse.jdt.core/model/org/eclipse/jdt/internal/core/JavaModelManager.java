@@ -84,6 +84,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.core.runtime.content.IContentTypeManager.ContentTypeChangeEvent;
 import org.eclipse.core.runtime.content.IContentTypeManager.IContentTypeChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
@@ -5406,7 +5407,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		ExternalAnnotationTracker.shutdown(workspace);
 
 		// Stop listening to content-type changes
-		Platform.getContentTypeManager().removeContentTypeChangeListener(this);
+		IContentTypeManager contentTypeManager = Platform.getContentTypeManager();
+		if (contentTypeManager != null) {
+			contentTypeManager.removeContentTypeChangeListener(this);
+		}
 
 		// Stop indexing
 		if (this.indexManager != null) {
