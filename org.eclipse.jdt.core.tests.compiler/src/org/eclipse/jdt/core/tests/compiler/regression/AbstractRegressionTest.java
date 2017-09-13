@@ -196,6 +196,9 @@ static class JavacCompiler {
 			if ("1.6.0_10-beta".equals(rawVersion)) { // b24
 				return 1010;
 			}
+			if ("1.6.0_45".equals(rawVersion)) {
+				return 1045;
+			}
 		}
 		if (version == JavaCore.VERSION_1_7) {
 			if ("1.7.0-ea".equals(rawVersion)) {
@@ -206,6 +209,9 @@ static class JavacCompiler {
 			}
 			if ("1.7.0_25".equals(rawVersion)) {
 				return 2500;
+			}
+			if ("1.7.0_80".equals(rawVersion)) {
+				return 8000;
 			}
 		}
 		if (version == JavaCore.VERSION_1_8) {

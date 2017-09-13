@@ -5659,8 +5659,6 @@ public void testBug454644() {
 // original test case, documenting existing compiler behavior
 public void testBug456459a() {
 	runNegativeTest(
-		false /*skipJavac */,
-		JavacTestOptions.Excuse.JavacHasErrorsEclipseHasWarnings,
 		new String[] {
 			"EnumTest.java",
 			"import java.util.EnumSet;\n" + 
@@ -5682,22 +5680,25 @@ public void testBug456459a() {
 		"	                                      ^^^^^\n" + 
 		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 		"----------\n" + 
-		"2. WARNING in EnumTest.java (at line 9)\n" + 
+		"2. ERROR in EnumTest.java (at line 9)\n" + 
 		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" + 
-		"	                           ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: Unchecked invocation allOf(Class) of the generic method allOf(Class<E>) of type EnumSet\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends T is not a valid substitute for the bounded parameter <E extends Enum<E>> of the type EnumSet<E>\n" + 
 		"----------\n" + 
 		"3. WARNING in EnumTest.java (at line 9)\n" + 
 		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" + 
 		"	                           ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The expression of type EnumSet needs unchecked conversion to conform to EnumSet<? extends T>\n" + 
+		"Type safety: Unchecked invocation allOf(Class) of the generic method allOf(Class<E>) of type EnumSet\n" + 
 		"----------\n" + 
 		"4. WARNING in EnumTest.java (at line 9)\n" + 
 		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" + 
+		"	                           ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type EnumSet needs unchecked conversion to conform to EnumSet<? extends T>\n" + 
+		"----------\n" + 
+		"5. WARNING in EnumTest.java (at line 9)\n" + 
+		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" + 
 		"	                                         ^^^^^^^^\n" +
-		(this.complianceLevel < ClassFileConstants.JDK1_8
-		? "Type safety: The expression of type Class needs unchecked conversion to conform to Class<T&Enum<T&Enum<E>>>\n"
-		: "Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n") +
+		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n" +
 		"----------\n");
 }
 // simple conflict introduced by additional wildcard bound
@@ -6124,6 +6125,25 @@ public void testBug515614() {
 			"",
 		}
 	);
+}
+public void testBug521212() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y<U extends Z> {}\n" + 
+			"class Z {}\n" + 
+			"public class X<T> {\n" + 
+			"    public static <V> Y<? extends V> one() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	public static <V> Y<? extends V> one() {\n" + 
+		"	                    ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends V is not a valid substitute for the bounded parameter <U extends Z> of the type Y<U>\n" + 
+		"----------\n");
 }
 }
 

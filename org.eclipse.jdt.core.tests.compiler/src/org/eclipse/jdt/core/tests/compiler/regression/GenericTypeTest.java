@@ -21875,6 +21875,11 @@ public void test0675() {
 		"	Store<? extends Key<T>> store1;\n" +
 		"	                    ^\n" +
 		"Bound mismatch: The type T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" +
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	Store<? extends Key<? extends T>> store2;\n" + 
+		"	                    ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends T is not a valid substitute for the bounded parameter <E extends Key<E>> of the type Key<E>\n" + 
 		"----------\n",
 		// javac options
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
@@ -40821,9 +40826,8 @@ public void test1166() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179902
-// FIXME javac8 rejects
 public void test1167() {
-	this.runConformTest(
+	this.runNegativeTest(
 		new String[] {
 			"Foo.java",
 			"public class Foo<F extends Enum<F>> {\n" +
@@ -40832,7 +40836,12 @@ public void test1167() {
 			"  }\n" +
 			"}\n", // =================
 		},
-		"");
+		"----------\n" + 
+	"1. ERROR in Foo.java (at line 3)\n" + 
+	"	Bar(Foo<? extends B> bar) {}\n" + 
+	"	        ^^^^^^^^^^^\n" + 
+	"Bound mismatch: The type ? extends B is not a valid substitute for the bounded parameter <F extends Enum<F>> of the type Foo<F>\n" + 
+	"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=169049
 public void test1168() {

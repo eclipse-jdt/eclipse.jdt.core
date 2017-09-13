@@ -347,6 +347,9 @@ public abstract class Scope {
 				if (i == j) continue;
 				ReferenceBinding jType = result[j];
 				if (jType == null) continue;
+				if (isMalformedPair(iType, jType, null)) {
+					return null;
+				}
 				if (iType.isCompatibleWith(jType)) { // if Vi <: Vj, Vj is removed
 					if (result == types) { // defensive copy
 						System.arraycopy(result, 0, result = new ReferenceBinding[length], 0, length);
@@ -382,6 +385,9 @@ public abstract class Scope {
 				if (i == j) continue;
 				TypeBinding jType = result[j];
 				if (jType == null) continue;
+				if (isMalformedPair(iType, jType, scope)) {
+					return null;
+				}
 				if (iType.isCompatibleWith(jType, scope)) { // if Vi <: Vj, Vj is removed
 					if (result == types) { // defensive copy
 						System.arraycopy(result, 0, result = new TypeBinding[length], 0, length);
@@ -442,6 +448,24 @@ public abstract class Scope {
 		return trimmedResult;
 	}
 
+	static boolean isMalformedPair(TypeBinding t1, TypeBinding t2, Scope scope) {
+		// not spec-ed in JLS, but per email communication (2017-09-13) it should be
+		switch (t1.kind()) {
+			case Binding.TYPE:
+			case Binding.GENERIC_TYPE:
+			case Binding.PARAMETERIZED_TYPE:
+			case Binding.RAW_TYPE:
+				if (t1.isClass()) {
+					if (t2.getClass() == TypeVariableBinding.class) {
+						TypeBinding bound = ((TypeVariableBinding) t2).firstBound;
+						if (bound == null || !bound.erasure().isCompatibleWith(t1.erasure())) { // use of erasure is heuristic-based
+							return true; // malformed, because substitution could create a contradiction.
+						}
+					}
+				}
+		}
+		return false;
+	}
 	/**
 	 * Returns an array of types, where original types got substituted given a substitution.
 	 * Only allocate an array if anything is different.
