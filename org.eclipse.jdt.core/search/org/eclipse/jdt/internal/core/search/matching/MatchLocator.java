@@ -1898,7 +1898,8 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 						this.patternLocator.mayBeGeneric = mayBeGeneric;
 					}
 				}
-			} else if (this.currentPossibleMatch.openable instanceof ModularClassFile) {
+			} else if (this.currentPossibleMatch.openable instanceof ModularClassFile &&
+					unit.moduleDeclaration == null) { // no source
 				boolean mayBeGeneric = this.patternLocator.mayBeGeneric;
 				this.patternLocator.mayBeGeneric = false; // there's no longer generic in class files
 				try {
@@ -3045,7 +3046,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 					}
 				}
 			}
-			enclosingElement = anonType != null ? anonType : ((IClassFile)this.currentPossibleMatch.openable).getType() ;
+			enclosingElement = anonType != null ? anonType : ((IOrdinaryClassFile)this.currentPossibleMatch.openable).getType() ;
 		} else {
 			enclosingElement = member.getType(new String(type.name), occurrenceCount);
 		}

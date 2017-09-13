@@ -1598,8 +1598,8 @@ public void testBug501162_033() throws Exception {
 
 		assertSearchResults(
 				"src/pack1/X.java [pack.one] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH",
+				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
+				"lib/bzero.src.501162.jar zero EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
@@ -1637,9 +1637,9 @@ public void testBug501162_034() throws Exception {
 
 		assertSearchResults(
 				"src/pack1/X.java [pack.two] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH",
+				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
+				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
+				"lib/bzero.src.501162.jar zero EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
@@ -1676,17 +1676,17 @@ public void testBug501162_035() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH",
+				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
+				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
+				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
+				"lib/bzero.src.501162.jar zero EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
 		deleteProject("JavaSearchBugs9");
 	}
 }
-public void testBug501162_036() throws Exception {
+public void _testBug501162_036() throws Exception {
 	try {
 		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 		project1.open(null);
@@ -1753,8 +1753,8 @@ public void testBug501162_037() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH",
+				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
+				"lib/bzero.src.501162.jar zero EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
@@ -1791,7 +1791,7 @@ public void testBug501162_038() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH",
+				"lib/bzero.src.501162.jar zero EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
@@ -1828,7 +1828,7 @@ public void testBug501162_039() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH",
+				"lib/bzero.src.501162.jar zero EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
@@ -1904,7 +1904,7 @@ public void testBug501162_041() throws Exception {
 		assertSearchResults(
 				"src/pack1/X.java [XOne] EXACT_MATCH\n" + 
 				"src/pack1/X.java pack1.X.X1 [XOne] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH",
+				"lib/bzero.src.501162.jar zero EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
@@ -1941,7 +1941,7 @@ public void testBug501162_042() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH",
+				"lib/bzero.src.501162.jar zero EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
@@ -1980,7 +1980,7 @@ public void testBug501162_043() throws Exception {
 		assertSearchResults(
 				"src/pack1/X.java [ITwo] EXACT_MATCH\n" +
 				"src/pack1/X.java pack1.X.i2 [ITwo] EXACT_MATCH\n" +
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH\n" + 
+				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" + 
 				"lib/bzero.src.501162.jar pack.one.XOne EXACT_MATCH\n" +
 				"lib/bzero.src.501162.jar pack.one.XOne.itwo EXACT_MATCH\n" +
 				"lib/bzero.src.501162.jar pack.two.XTwo EXACT_MATCH",
@@ -2020,7 +2020,7 @@ public void testBug501162_044() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH\n" +
+				"lib/bzero.src.501162.jar zero EXACT_MATCH\n" +
 				"lib/bzero.src.501162.jar pack.three.XThreeOne EXACT_MATCH",
 			this.resultCollector);
 	}
@@ -2058,7 +2058,7 @@ public void testBug501162_045() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH",
+				"lib/bzero.src.501162.jar zero EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
@@ -2095,7 +2095,7 @@ public void testBug501162_046() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"lib/bzero.src.501162.jar zero [No source] EXACT_MATCH",
+				"lib/bzero.src.501162.jar zero EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
@@ -2110,15 +2110,14 @@ public void _testBug501162_047() throws Exception {
 		String fileContent =
 				"package pack.top;\n" +
 				"import pack.first.Y;\n" +
-				"import pack.first.second.Z;\n" +
+				"//import pack.first.second.Z;\n" +
 				"\n" +
 				"public class X {\n" +
 				"	public Y y;\n" +
-				"	public Z z;\n" +
+				"	//public Z z;\n" +
 				"}\n";
-		createFolder("/JavaSearchBugs9/src/pack");
-		createFolder("/JavaSearchBugs9/src/pack/top");
-		createFile("/JavaSearchBugs9/src/pack/top/X.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/top");
+		createFile("/JavaSearchBugs9/src/top/X.java",	fileContent);
 		project1.close(); // sync
 		project1.open(null);
 
@@ -2165,8 +2164,8 @@ public void _testBug501162_047() throws Exception {
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-				"src/pack/top/X.java [pack.first.Y] EXACT_MATCH\n" +
-				"src/pack/top/X.java pack.top.X.y [Y] EXACT_MATCH",
+				"src/top/X.java [pack.first.Y] EXACT_MATCH\n" +
+				"src/top/X.java pack.top.X.y [Y] EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {

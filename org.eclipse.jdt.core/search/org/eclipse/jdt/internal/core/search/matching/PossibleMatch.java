@@ -78,7 +78,12 @@ public char[] getContents() {
 					IType type = ((ClassFile) this.openable).getType();
 					contents = sourceMapper.findSource(type, fileName);
 				} else if (this.openable instanceof ModularClassFile) {
-					return CharOperation.NO_CHAR; // do not return contents
+					try {
+						IModuleDescription module = ((ModularClassFile) this.openable).getModule();
+						contents = module != null ? sourceMapper.findSource(module) : CharOperation.NO_CHAR; // FIXME(SHMOD)
+					} catch (JavaModelException e) {
+						return CharOperation.NO_CHAR;
+					}
 				}
 			}
 		} else {
