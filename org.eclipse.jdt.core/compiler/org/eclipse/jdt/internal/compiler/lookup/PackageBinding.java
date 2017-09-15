@@ -18,6 +18,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
@@ -28,6 +30,7 @@ public class PackageBinding extends Binding implements TypeConstants {
 
 	public char[][] compoundName;
 	PackageBinding parent;
+	ArrayList<SplitPackageBinding> wrappingSplitPackageBindings;
 	public LookupEnvironment environment;
 	/** Types in this map are either uniquely visible in the current module or ProblemReferenceBindings. */
 	public HashtableOfType knownTypes;
@@ -103,6 +106,18 @@ void addType(ReferenceBinding element) {
 	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
 		if (element.isAnnotationType() || element instanceof UnresolvedReferenceBinding) // unresolved types don't yet have the modifiers set
 			checkIfNullAnnotationType(element);
+
+	if (!element.isUnresolvedType() && this.wrappingSplitPackageBindings != null) {
+		for (SplitPackageBinding splitPackageBinding : this.wrappingSplitPackageBindings) {
+			if (splitPackageBinding.knownTypes != null) {
+				ReferenceBinding prior = splitPackageBinding.knownTypes.get(name);
+				if (prior != null && prior.isUnresolvedType() && !element.isUnresolvedType()) {
+					((UnresolvedReferenceBinding) prior).setResolvedType(element, this.environment);
+					splitPackageBinding.knownTypes.put(name, null); // forces re-checking for conflicts
+				}
+			}
+		}
+	}
 }
 
 ModuleBinding[] getDeclaringModules() {
@@ -401,5 +416,12 @@ public boolean hasCompilationUnit(boolean checkCUs) {
 		return moduleEnv.hasCompilationUnit(this.compoundName, this.enclosingModule.nameForLookup(), checkCUs);
 	}
 	return false;
+}
+
+public void addWrappingSplitPackageBinding(SplitPackageBinding splitPackageBinding) {
+	if (this.wrappingSplitPackageBindings == null) {
+		this.wrappingSplitPackageBindings = new ArrayList<>();
+	}
+	this.wrappingSplitPackageBindings.add(splitPackageBinding);
 }
 }

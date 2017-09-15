@@ -78,7 +78,7 @@ public class InMemoryNameEnvironment9 extends InMemoryNameEnvironment implements
 
 	@Override
 	public boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleName, boolean checkCUs) {
-		return fromFirstClassLib(env -> env.hasCompilationUnit(qualifiedPackageName, moduleName, checkCUs) ? Boolean.TRUE : null);
+		return Boolean.TRUE.equals(fromFirstClassLib(env -> env.hasCompilationUnit(qualifiedPackageName, moduleName, checkCUs) ? Boolean.TRUE : null));
 	}
 
 	@Override

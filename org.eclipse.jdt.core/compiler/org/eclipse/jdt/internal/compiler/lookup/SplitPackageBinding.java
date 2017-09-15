@@ -66,23 +66,22 @@ public class SplitPackageBinding extends PackageBinding {
 		super(initialBinding.compoundName, initialBinding.parent, primaryModule.environment, primaryModule);
 		this.declaringModules = new HashSet<>();
 		this.incarnations = new HashSet<>();
-		if (initialBinding instanceof SplitPackageBinding) {
-			SplitPackageBinding split = (SplitPackageBinding) initialBinding;
-			this.declaringModules.addAll(split.declaringModules);
-			this.incarnations.addAll(split.incarnations);
-		} else {
-			this.declaringModules.add(initialBinding.enclosingModule);
-			this.incarnations.add(initialBinding);
-		}
+		add(initialBinding);
 	}
 	public void add(PackageBinding packageBinding) {
 		if (packageBinding instanceof SplitPackageBinding) {
 			SplitPackageBinding split = (SplitPackageBinding) packageBinding;
 			this.declaringModules.addAll(split.declaringModules);
-			this.incarnations.addAll(split.incarnations);
+			for(PackageBinding incarnation: split.incarnations) {
+				if(this.incarnations.add(incarnation)) {
+					incarnation.addWrappingSplitPackageBinding(this);
+				}
+			}
 		} else {
 			this.declaringModules.add(packageBinding.enclosingModule);
-			this.incarnations.add(packageBinding);
+			if(this.incarnations.add(packageBinding)) {
+				packageBinding.addWrappingSplitPackageBinding(this);
+			}
 		}
 	}
 	PackageBinding addPackage(PackageBinding element, ModuleBinding module) {

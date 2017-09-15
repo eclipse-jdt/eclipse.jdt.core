@@ -51,4 +51,20 @@ public void testBug522327() {
 		}
 	);
 }
+
+public void testBug522326() {
+	runConformTest(
+		new String[] {
+			"nonmodular/ProblemWithNested.java",
+			"package nonmodular;\n" +
+			"\n" +
+			"import java.sql.Connection;\n" +
+			"import java.util.Map.Entry;\n" +
+			"\n" +
+			"public class ProblemWithNested {\n" +
+			"}\n" +
+			"",
+		}
+	);
+}
 }
