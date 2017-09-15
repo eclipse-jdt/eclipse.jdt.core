@@ -531,7 +531,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
 			char[][] declaringModuleNames = moduleEnv.getModulesDeclaringPackage(parentName, name, nameForLookup());
 			if (declaringModuleNames != null) {
-				if (CharOperation.containsEqual(declaringModuleNames, this.moduleName)) {
+				if (!this.isUnnamed() && CharOperation.containsEqual(declaringModuleNames, this.moduleName)) {
 					// declared here, not yet known, so create it now:
 					binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
 				} else {

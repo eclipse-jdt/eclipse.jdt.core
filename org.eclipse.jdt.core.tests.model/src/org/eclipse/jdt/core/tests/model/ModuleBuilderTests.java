@@ -5681,6 +5681,43 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("nonmodular2");
 		}
 	}
+	public void testBug522330() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/javax/net/ServerSocketFactory1.java",
+				"package javax.net;\n" +
+				"\n" +
+				"public class ServerSocketFactory1 {\n" +
+				"}\n" +
+				"\n" +
+				"",
+			};
+			IJavaProject p1 = setupModuleProject("nonmodular1", sources);
+			p1.setOption(JavaCore.COMPILER_COMPLIANCE, "1.8"); // compile with 1.8 compliance to avoid error about package conflict
+			
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {},
+				false/*not exported*/);
+			String[] src = new String[] {
+				"src/nonmodular2/Problem.java",
+				"package nonmodular2;\n" +
+				"\n" +
+				"import javax.net.ServerSocketFactory;\n" +
+				"\n" +
+				"public class Problem  {\n" +
+				"	Object o = ServerSocketFactory.getDefault();\n" +
+				"} \n" +
+				"",
+			};
+			IJavaProject p2 = setupModuleProject("nonmodular2", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			deleteProject("nonmodular1");
+			deleteProject("nonmodular2");
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
