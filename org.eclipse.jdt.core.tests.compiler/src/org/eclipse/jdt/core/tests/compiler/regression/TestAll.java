@@ -165,6 +165,7 @@ public static Test suite() {
 	since_9.add(Deprecated9Test.class);
 	since_9.add(ModuleAttributeTests.class);
 	since_9.add(AutomaticModuleNamingTest.class);
+	since_9.add(UnnamedModuleTest.class);
 	
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
