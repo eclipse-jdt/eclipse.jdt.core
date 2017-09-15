@@ -256,6 +256,8 @@ class JrtFileSystem {
 		return JRTUtil.DEFAULT_MODULE;
 	}
 	public boolean hasClassFile(String qualifiedPackageName, String module) {
+		if (module == null)
+			return false;
 		// easy checks first:
 		String knownModule = this.packageToModule.get(qualifiedPackageName);
 		if (knownModule == null || (knownModule != JRTUtil.MULTIPLE && !knownModule.equals(module)))

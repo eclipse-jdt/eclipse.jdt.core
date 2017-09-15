@@ -5499,6 +5499,60 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			ClasspathJrt.resetCaches();
 		}
 	}
+	public void testBug522398() throws CoreException {
+		if (!isJRE9) return;
+		String save = System.getProperty("modules.to.load");
+		JRTUtil.reset();
+		ClasspathJrt.resetCaches();
+		try {
+			System.setProperty("modules.to.load", "java.base;java.desktop;java.rmi;java.sql;java.xml");
+
+			String[] sources = new String[] {
+				"src/javax/xml/mysubpackage/MyClass.java",
+				"package javax.xml.mysubpackage;\n" +
+				"\n" +
+				"public class MyClass {\n" +
+				"}\n" +
+				"\n" +
+				"",
+				"src/nonmodular/UsesMySubPackage.java",
+				"package nonmodular;\n" +
+				"\n" +
+				"import javax.xml.mysubpackage.MyClass;\n" +
+				"\n" +
+				"public class UsesMySubPackage {\n" +
+				"	public MyClass field;\n" +
+				"}\n" +
+				"",
+			};
+			IJavaProject p1 = setupModuleProject("nonmodular1", sources);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false,
+				new IClasspathAttribute[] {},
+				false/*not exported*/);
+			String[] src = new String[] {
+				"src/nonmodular2/Problem.java",
+				"package nonmodular2;\n" +
+				"\n" +
+				"import javax.xml.XMLConstants;\n" +
+				"\n" +
+				"import nonmodular.UsesMySubPackage;\n" +
+				"\n" +
+				"public class Problem extends nonmodular.UsesMySubPackage {\n" +
+				"	String s = XMLConstants.NULL_NS_URI;\n" +
+				"}\n" +
+				"",
+			};
+			IJavaProject p2 = setupModuleProject("nonmodular2", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			System.setProperty("modules.to.load", save);
+			JRTUtil.reset();
+			ClasspathJrt.resetCaches();
+			deleteProject("nonmodular1");
+			deleteProject("nonmodular2");
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
