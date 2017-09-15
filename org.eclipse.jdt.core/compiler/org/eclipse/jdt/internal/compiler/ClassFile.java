@@ -2752,6 +2752,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) module.exportsCount;
 		for (int i = 0; i < module.exportsCount; i++) {
 			ExportsStatement ref = module.exports[i];
+			if (localContentsOffset + 6 >= this.contents.length) {
+				resizeContents((module.exportsCount - i) * 6);
+			}
 			int nameIndex = this.constantPool.literalIndexForPackage(CharOperation.replaceOnCopy(ref.pkgName, '.', '/'));
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
@@ -2795,6 +2798,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) module.opensCount;
 		for (int i = 0; i < module.opensCount; i++) {
 			OpensStatement ref = module.opens[i];
+			if (localContentsOffset + 6 >= this.contents.length) {
+				resizeContents((module.opensCount - i) * 6);
+			}
 			int nameIndex = this.constantPool.literalIndexForPackage(CharOperation.replaceOnCopy(ref.pkgName, '.', '/'));
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
@@ -2856,6 +2862,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) (module.servicesCount >> 8);
 		this.contents[localContentsOffset++] = (byte) module.servicesCount;
 		for(int i = 0; i < module.servicesCount; i++) {
+			if (localContentsOffset + 4 >= this.contents.length) {
+				resizeContents((module.servicesCount - i) * 4);
+			}
 			int nameIndex = this.constantPool.literalIndexForType(module.services[i].serviceInterface.resolvedType.constantPoolName());
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);

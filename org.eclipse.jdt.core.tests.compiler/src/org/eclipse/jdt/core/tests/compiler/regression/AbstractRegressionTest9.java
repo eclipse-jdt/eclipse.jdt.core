@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,7 +74,7 @@ public class AbstractRegressionTest9 extends AbstractRegressionTest {
 				modCU = compilationUnits[i];
 				compilationUnits[i].module = moduleFiles.get(fileNameString);
 			} else {
-				String modName = this.file2module.get(fileNameString);
+				String modName = this.file2module.get(fileNameString.replace(File.separator, "/"));
 				if (modName != null) {
 					compilationUnits[i].module = modName.toCharArray();
 					if (modCU != null)
