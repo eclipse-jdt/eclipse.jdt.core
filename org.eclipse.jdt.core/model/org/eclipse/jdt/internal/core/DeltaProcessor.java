@@ -1150,6 +1150,7 @@ public class DeltaProcessor {
 					javaProject.computePackageFragmentRoots(
 						javaProject.getResolvedClasspath(),
 						false,
+						true, // respect limit modules
 						null /*no reverse map*/));
 			}
 

@@ -475,7 +475,7 @@ public class JavaProject
 		IClasspathEntry[] resolvedClasspath = getResolvedClasspath();
 
 		// compute the pkg fragment roots
-		IPackageFragmentRoot[] roots = computePackageFragmentRoots(resolvedClasspath, false, null /*no reverse map*/);
+		IPackageFragmentRoot[] roots = computePackageFragmentRoots(resolvedClasspath, false, true, null /*no reverse map*/);
 		info.setChildren(roots);
 		IModuleDescription module = null;
 		IModuleDescription current = null;
@@ -581,6 +581,7 @@ public class JavaProject
 				computePackageFragmentRoots(
 					new IClasspathEntry[]{ resolvedEntry },
 					false, // don't retrieve exported roots
+					true, // respect limit-modules
 					null /* no reverse map */
 				);
 		} catch (JavaModelException e) {
@@ -597,6 +598,7 @@ public class JavaProject
 	 * @param rootIDs HashSet
 	 * @param referringEntry the CP entry (project) referring to this entry, or null if initial project
 	 * @param retrieveExportedRoots boolean
+	 * @param respectLimitModules if true a limit-modules attribute will be evaluated to filter the resulting roots
 	 * @throws JavaModelException
 	 */
 	public void computePackageFragmentRoots(
@@ -605,6 +607,7 @@ public class JavaProject
 		HashSet rootIDs,
 		IClasspathEntry referringEntry,
 		boolean retrieveExportedRoots,
+		boolean respectLimitModules,
 		Map rootToResolvedEntries) throws JavaModelException {
 
 		String rootID = ((ClasspathEntry)resolvedEntry).rootID();
@@ -646,18 +649,21 @@ public class JavaProject
 					if (JavaModel.isFile(target)) {
 						if (JavaModel.isJimage((File) target)) {
 							PerProjectInfo info = getPerProjectInfo();
+							ObjectVector imageRoots;
 							if (info.jrtRoots == null || !info.jrtRoots.containsKey(entryPath)) {
-								ObjectVector imageRoots = new ObjectVector();
+								imageRoots = new ObjectVector();
 								loadModulesInJimage(entryPath, imageRoots, rootToResolvedEntries, resolvedEntry, referringEntry);
+								info.setJrtPackageRoots(entryPath, imageRoots); // unfiltered
+								rootIDs.add(rootID);
+							} else {
+								imageRoots = info.jrtRoots.get(entryPath);
+							}
+							if (respectLimitModules) {
 								String limitModules = ClasspathEntry.getExtraAttribute(resolvedEntry, IClasspathAttribute.LIMIT_MODULES);
 								if (limitModules != null)
 									imageRoots = filterLimitedModules(entryPath, imageRoots, limitModules);
-								info.setJrtPackageRoots(entryPath, imageRoots);
-								accumulatedRoots.addAll(imageRoots);
-								rootIDs.add(rootID);
-							} else {
-								accumulatedRoots.addAll(info.jrtRoots.get(entryPath));
 							}
+							accumulatedRoots.addAll(imageRoots);
 						} else if (JavaModel.isJmod((File) target)) {
 							root = new JModPackageFragmentRoot(entryPath, this);
 						}
@@ -688,6 +694,7 @@ public class JavaProject
 							rootIDs,
 							rootToResolvedEntries == null ? resolvedEntry : ((ClasspathEntry)resolvedEntry).combineWith((ClasspathEntry) referringEntry), // only combine if need to build the reverse map
 							retrieveExportedRoots,
+							respectLimitModules,
 							rootToResolvedEntries);
 					}
 				break;
@@ -827,12 +834,14 @@ public class JavaProject
 	 * Only works with resolved entries
 	 * @param resolvedClasspath IClasspathEntry[]
 	 * @param retrieveExportedRoots boolean
+	 * @param respectLimitModules if true a limit-modules attribute will be evaluated to filter the resulting roots
 	 * @return IPackageFragmentRoot[]
 	 * @throws JavaModelException
 	 */
 	public IPackageFragmentRoot[] computePackageFragmentRoots(
 					IClasspathEntry[] resolvedClasspath,
 					boolean retrieveExportedRoots,
+					boolean respectLimitModules,
 					Map rootToResolvedEntries) throws JavaModelException {
 
 		ObjectVector accumulatedRoots = new ObjectVector();
@@ -842,6 +851,7 @@ public class JavaProject
 			new HashSet(5), // rootIDs
 			null, // inside original project
 			retrieveExportedRoots,
+			respectLimitModules,
 			rootToResolvedEntries);
 		IPackageFragmentRoot[] rootArray = new IPackageFragmentRoot[accumulatedRoots.size()];
 		accumulatedRoots.copyInto(rootArray);
@@ -858,6 +868,7 @@ public class JavaProject
 	 * @param rootIDs HashSet
 	 * @param referringEntry project entry referring to this CP or null if initial project
 	 * @param retrieveExportedRoots boolean
+	 * @param respectLimitModules if true a limit-modules attribute will be evaluated to filter the resulting roots
 	 * @throws JavaModelException
 	 */
 	public void computePackageFragmentRoots(
@@ -866,6 +877,7 @@ public class JavaProject
 		HashSet rootIDs,
 		IClasspathEntry referringEntry,
 		boolean retrieveExportedRoots,
+		boolean respectLimitModules,
 		Map rootToResolvedEntries) throws JavaModelException {
 
 		if (referringEntry == null){
@@ -878,6 +890,7 @@ public class JavaProject
 				rootIDs,
 				referringEntry,
 				retrieveExportedRoots,
+				respectLimitModules,
 				rootToResolvedEntries);
 		}
 	}
@@ -1416,6 +1429,7 @@ public class JavaProject
 						computePackageFragmentRoots(
 							resolveClasspath(new IClasspathEntry[] {entry}),
 							false, // don't retrieve exported roots
+							true, // respect limit-modules
 							null); /*no reverse map*/
 				}
 			}
@@ -1609,7 +1623,7 @@ public class JavaProject
 
 	public IPackageFragmentRoot[] getAllPackageFragmentRoots(Map rootToResolvedEntries) throws JavaModelException {
 
-		return computePackageFragmentRoots(getResolvedClasspath(), true/*retrieveExportedRoots*/, rootToResolvedEntries);
+		return computePackageFragmentRoots(getResolvedClasspath(), true/*retrieveExportedRoots*/, true/*respectLimitModules*/, rootToResolvedEntries);
 	}
 
 	/**
