@@ -14,15 +14,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.provisional;
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
+import org.eclipse.jdt.internal.core.AbstractModule;
 import org.eclipse.jdt.internal.core.JavaProject;
 
 /**
  * Provisional API for use by JDT/UI, which may possibly be removed in a future version.
+ * See <a href="https://bugs.eclipse.org/522391">Bug 522391</a>. 
  */
 public class JavaModelAccess {
 
@@ -45,5 +51,15 @@ public class JavaModelAccess {
 			// according to comment in JavaProject.findPackageFragmentRoots() we assume that this is caused by the project no longer existing
 			return new IPackageFragmentRoot[] {};
 		}
+	}
+
+	/**
+	 * Answer the names of all modules directly required from the given module.
+	 * @param module the module whose "requires" directives are queried
+	 * @return a non-null array of module names
+	 */
+	public static String[] getRequiredModules(IModuleDescription module) throws JavaModelException {
+		IModuleReference[] references = ((AbstractModule) module).getRequiredModules();
+		return Arrays.stream(references).map(ref -> String.valueOf(ref.name())).toArray(String[]::new);
 	}
 }
