@@ -208,6 +208,7 @@ private static Class[] getAllTestClasses() {
 		NullAnnotationModelTests.class,
 		ExternalAnnotations17Test.class,
 		ExternalAnnotations18Test.class,
+		ExternalAnnotations9Test.class,
 
 		// Java model changes related to Java 8
 		JavaElement8Tests.class,
