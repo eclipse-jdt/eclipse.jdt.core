@@ -248,9 +248,10 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 	}
 	
 	@Override
-	public Collection<String> getModuleNames() {
+	public Collection<String> getModuleNames(Collection<String> limitModule) {
 		return ModulesCache.values().stream()
 				.flatMap(entryMap -> entryMap.keySet().stream())
+				.filter(m -> limitModule == null || limitModule.contains(m)) // TODO: implement algo from JEP 261 (root selection & transitive closure)
 				.collect(Collectors.toList());
 	}
 //	protected void addToPackageCache(String fileName, boolean endsWithSep) {

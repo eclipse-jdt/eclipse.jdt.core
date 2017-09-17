@@ -31,7 +31,9 @@ public interface IMultiModuleEntry extends IModulePathEntry {
 
 	/**
 	 * Get the names of all modules served by this entry.
+	 * @param limitModules if non-null, only modules with names in this set and their
+	 * 	transitive closure will be reported.
 	 */
-	Collection<String> getModuleNames();
+	Collection<String> getModuleNames(Collection<String> limitModules);
 
 }

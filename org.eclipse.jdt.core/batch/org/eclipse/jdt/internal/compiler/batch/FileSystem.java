@@ -123,7 +123,7 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 		 */
 		public void acceptModule(IModule module);
 		public String getDestinationPath();
-		Collection<String> getModuleNames();
+		Collection<String> getModuleNames(Collection<String> limitModules);
 	}
 	public interface ClasspathSectionProblemReporter {
 		void invalidClasspathSection(String jarFilePath);
@@ -182,7 +182,7 @@ public FileSystem(String[] classpathNames, String[] initialFileNames, String enc
 		Classpath classpath = getClasspath(classpathNames[i], encoding, null, null);
 		try {
 			classpath.initialize();
-			for (String moduleName : classpath.getModuleNames())
+			for (String moduleName : classpath.getModuleNames(null)) // TODO limit-modules?
 				this.moduleLocations.put(moduleName, classpath);
 			this.classpaths[counter++] = classpath;
 		} catch (IOException e) {
@@ -202,7 +202,7 @@ protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annot
 		final Classpath classpath = paths[i];
 		try {
 			classpath.initialize();
-			for (String moduleName : classpath.getModuleNames())
+			for (String moduleName : classpath.getModuleNames(null)) // TODO limit-modules?
 				this.moduleLocations.put(moduleName, classpath);
 			this.classpaths[counter++] = classpath;
 		} catch(IOException | IllegalArgumentException exception) {

@@ -154,11 +154,11 @@ public class ModulePathEntry implements IModulePathEntry {
 		}
 
 		@Override
-		public Collection<String> getModuleNames() {
+		public Collection<String> getModuleNames(Collection<String> limitModules) {
 			Set<String> result = new HashSet<>();
 			for (ClasspathLocation loc : this.locations) {
 				if (loc instanceof IMultiModuleEntry)
-					result.addAll(((IMultiModuleEntry) loc).getModuleNames());
+					result.addAll(((IMultiModuleEntry) loc).getModuleNames(limitModules));
 				else
 					result.add(String.valueOf(loc.getModule().name()));
 			}

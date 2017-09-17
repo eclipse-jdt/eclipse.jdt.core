@@ -123,7 +123,7 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 		return this.isAutoModule;
 	}
 	@Override
-	public Collection<String> getModuleNames() {
+	public Collection<String> getModuleNames(Collection<String> limitModules) {
 		if (this.module != null)
 			return Collections.singletonList(String.valueOf(this.module.name()));
 		return Collections.emptyList();

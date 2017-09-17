@@ -34,11 +34,13 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.JavaProject;
 
 public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry {
 
@@ -259,13 +261,39 @@ public IModule getModule(char[] moduleName) {
 	return null;
 }
 @Override
-public Collection<String> getModuleNames() {
+public Collection<String> getModuleNames(Collection<String> limitModules) {
 	HashMap<String, SimpleSet> cache = findPackagesInModules(this);
 	if (cache != null)
-		return cache.keySet();
+		return selectModules(cache.keySet(), limitModules);
 	return Collections.emptyList();
 }
 
+private Collection<String> selectModules(Set<String> keySet, Collection<String> limitModules) {
+	Collection<String> rootModules;
+	if (limitModules != null) {
+		Set<String> result = new HashSet<>(keySet);
+		result.retainAll(limitModules);
+		rootModules = result;
+	} else {
+		rootModules = JavaProject.internalDefaultRootModules(keySet, s -> s, m -> getModule(m.toCharArray()));
+	}
+	Set<String> allModules = new HashSet<>(rootModules);
+	for (String mod : rootModules)
+		addRequired(mod, allModules);
+	return allModules;
+}
+
+private void addRequired(String mod, Set<String> allModules) {
+	IModule iMod = getModule(mod.toCharArray());
+	for (IModuleReference requiredRef : iMod.requires()) {
+		IModule reqMod = getModule(requiredRef.name());
+		if (reqMod != null) {
+			String reqModName = String.valueOf(reqMod.name());
+			if (allModules.add(reqModName))
+				addRequired(reqModName, allModules);
+		}
+	}
+}
 @Override
 public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
 	// 

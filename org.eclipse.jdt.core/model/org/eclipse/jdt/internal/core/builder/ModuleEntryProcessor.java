@@ -15,20 +15,15 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
-import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.ModuleUpdater;
 
 /** 
@@ -96,48 +91,17 @@ class ModuleEntryProcessor {
 	// ------------- limit-modules: ---------------
 
 	/**
-	 * Reads a <code>limit-modules</code> attribute, and computes the transitive closure of requested modules. 
-	 * @param javaProject the current java project
+	 * Reads a <code>limit-modules</code> attribute
 	 * @param entry the classpath entry to process
 	 * @return a set of module names or <code>null</code> if the classpath attribute was not set.
 	 * @see IClasspathAttribute#LIMIT_MODULES
 	 */
-	static Set<String> computeLimitModules(JavaProject javaProject, ClasspathEntry entry) {
+	static Set<String> computeLimitModules(ClasspathEntry entry) {
 		String extraAttribute = ClasspathEntry.getExtraAttribute(entry, IClasspathAttribute.LIMIT_MODULES);
 		if (extraAttribute == null)
 			return null;
 		
-		// collect all modules of this CP entry:
-		Map<String, IModule> modules = new HashMap<>();
-		for (IPackageFragmentRoot root : javaProject.findPackageFragmentRoots(entry)) {
-			if (root instanceof JrtPackageFragmentRoot) {
-				IModule module = ((JrtPackageFragmentRoot) root).getModule();
-				if (module != null)
-					modules.put(String.valueOf(module.name()), module);
-			}
-		}
-
 		// collect the transitive closure of modules contained in limitSet
-		Set<String> limitSet = new HashSet<>(Arrays.asList(extraAttribute.split(","))); //$NON-NLS-1$
-		Set<String> result = new HashSet<>(limitSet);
-		for (Map.Entry<String, IModule> moduleEntry: modules.entrySet()) {
-			if (limitSet.contains(moduleEntry.getKey()))
-				addTransitive(moduleEntry.getValue(), modules, result);
-		}
-		return result;
-	}
-
-	private static void addTransitive(IModule module, Map<String, IModule> modules, Set<String> result) {
-		if (module.requires() != null) {
-			for (int i = 0; i < module.requires().length; i++) {
-				IModuleReference requires = module.requires()[i];
-				String requiredName = String.valueOf(requires.name());
-				if (result.add(requiredName)) {
-					IModule requiredModule = modules.get(requiredName);
-					if (requiredModule != null)
-						addTransitive(requiredModule, modules, result);
-				}
-			}
-		}
+		return new HashSet<>(Arrays.asList(extraAttribute.split(","))); //$NON-NLS-1$
 	}
 }

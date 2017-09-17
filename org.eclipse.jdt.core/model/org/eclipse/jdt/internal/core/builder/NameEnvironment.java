@@ -135,7 +135,7 @@ private void computeClasspathLocations(
 		if (target == null) continue nextEntry;
 		boolean isOnModulePath = isOnModulePath(entry);
 
-		Set<String> limitModules = ModuleEntryProcessor.computeLimitModules(javaProject, entry);
+		Set<String> limitModules = ModuleEntryProcessor.computeLimitModules(entry);
 		if (patchedModuleName != null &&  limitModules != null && !limitModules.contains(patchedModuleName)) {
 			// TODO(SHMOD) report an error
 			patchedModuleName = null;
@@ -341,9 +341,8 @@ IModule collectModuleEntries(ClasspathLocation bLocation, IPath path, boolean is
 								String patchedModuleName, IModule patchedModule, Map<String, IModulePathEntry> moduleEntries) {
 	if (bLocation instanceof IMultiModuleEntry) {
 		IMultiModuleEntry binaryModulePathEntry = (IMultiModuleEntry) bLocation;
-		for (String moduleName : binaryModulePathEntry.getModuleNames()) {
-			if (limitModules == null || limitModules.contains(moduleName))
-				moduleEntries.put(moduleName, binaryModulePathEntry);
+		for (String moduleName : binaryModulePathEntry.getModuleNames(limitModules)) {
+			moduleEntries.put(moduleName, binaryModulePathEntry);
 		}
 		if (patchedModuleName != null) {
 			IModule module = binaryModulePathEntry.getModule(patchedModuleName.toCharArray());

@@ -233,9 +233,9 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	}
 
 	@Override
-	public Collection<String> getModuleNames() {
+	public Collection<String> getModuleNames(Collection<String> limitModules) {
 		if (this.jrt != null)
-			return this.jrt.getModuleNames();
+			return this.jrt.getModuleNames(limitModules);
 		return Collections.emptyList();
 	}
 

@@ -5428,11 +5428,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void testLimitModules1() throws CoreException, IOException {
 		if (!isJRE9) return;
 		String save = System.getProperty("modules.to.load");
+		// allow for a few more than we are using via limit-modules:
+		System.setProperty("modules.to.load", "java.base,java.desktop,java.datatransfer,java.rmi,java.sql,java.prefs,java.xml");
 		JRTUtil.reset();
 		ClasspathJrt.resetCaches();
 		try {
-			// allow for a few more than we are using via limit-modules:
-			System.setProperty("modules.to.load", "java.base,java.desktop,java.datatransfer,java.rmi,java.sql,java.prefs,java.xml");
 			IClasspathAttribute[] attributes = {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
 					JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES, "java.base,java.desktop")
@@ -5502,13 +5502,138 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			ClasspathJrt.resetCaches();
 		}
 	}
-	public void testBug522398() throws CoreException {
+	public void testLimitModules2() throws CoreException, IOException {
 		if (!isJRE9) return;
 		String save = System.getProperty("modules.to.load");
+		// allow all
+		System.setProperty("modules.to.load", "");
 		JRTUtil.reset();
 		ClasspathJrt.resetCaches();
 		try {
-			System.setProperty("modules.to.load", "java.base;java.desktop;java.rmi;java.sql;java.xml");
+			IClasspathAttribute[] attributes = {
+					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
+					JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES, "java.se") // test transitive closure
+			};
+			IJavaProject project = createJava9ProjectWithJREAttributes("org.astro", new String[]{"src", "src2"}, attributes);
+
+			String[] sources = {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	requires java.base;\n" +
+				"	requires java.desktop;\n" +
+				"	requires java.datatransfer;\n" +
+				"	requires java.sql;\n" +
+				"}\n",
+				"src/org/astro/Test2.java",
+				"package org.astro;\n" +
+				"class Test2 {\n" +
+				"	java.awt.Window window;\n" +
+				"}\n",
+				"src2/org/astro/Test3.java",
+				"package org.astro;\n" +
+				"class Test3 {\n" +
+				"	java.awt.datatransfer.Clipboard clippy;\n" +
+				"}\n"
+			};
+			createSourceFiles(project, sources);
+			
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"",
+					markers);
+
+			this.problemRequestor.reset();
+			ICompilationUnit cu = getCompilationUnit("/org.astro/src/module-info.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+
+			this.problemRequestor.reset();
+			cu = getCompilationUnit("/org.astro/src/org/astro/Test2.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+
+			this.problemRequestor.reset();
+			cu = getCompilationUnit("/org.astro/src/org/astro/Test3.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+
+		} finally {
+			this.deleteProject("org.astro");
+			System.setProperty("modules.to.load", save);
+			JRTUtil.reset();
+			ClasspathJrt.resetCaches();
+		}
+	}
+	public void testDefaultRootModules() throws CoreException, IOException {
+		if (!isJRE9) return;
+		String save = System.getProperty("modules.to.load");
+		// need to see all modules:
+		System.setProperty("modules.to.load", "");
+		JRTUtil.reset();
+		ClasspathJrt.resetCaches();
+		try {
+
+			IJavaProject project = createJava9Project("org.astro", new String[]{"src"});
+
+			String[] sources = {
+				"src/org/astro/ProblemWithPostConstruct.java",
+				"package org.astro;\n" +
+				"import javax.annotation.PostConstruct;\n" + 
+				"\n" + 
+				"public class ProblemWithPostConstruct {\n" +
+				"	@PostConstruct void init() {}\n" + 
+				"}\n"
+			};
+			createSourceFiles(project, sources);
+			
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers",
+					"The import javax.annotation.PostConstruct cannot be resolved\n" + 
+					"PostConstruct cannot be resolved to a type", // not in default root modules: java.xml.ws.annotation
+					markers);
+			
+			this.problemRequestor.reset();
+			ICompilationUnit cu = getCompilationUnit("/org.astro/src/org/astro/ProblemWithPostConstruct.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" + 
+				"1. ERROR in /org.astro/src/org/astro/ProblemWithPostConstruct.java\n" + 
+				"The import javax.annotation.PostConstruct cannot be resolved\n" + 
+				"----------\n" + 
+				"2. ERROR in /org.astro/src/org/astro/ProblemWithPostConstruct.java\n" + 
+				"PostConstruct cannot be resolved to a type\n" + 
+				"----------\n",
+				this.problemRequestor);
+		} finally {
+			this.deleteProject("org.astro");
+			System.setProperty("modules.to.load", save);
+			JRTUtil.reset();
+			ClasspathJrt.resetCaches();
+		}
+	}
+	public void testBug522398() throws CoreException {
+		if (!isJRE9) return;
+		String save = System.getProperty("modules.to.load");
+		System.setProperty("modules.to.load", "java.base;java.desktop;java.rmi;java.sql;java.xml");
+		JRTUtil.reset();
+		ClasspathJrt.resetCaches();
+		try {
 
 			String[] sources = new String[] {
 				"src/javax/xml/mysubpackage/MyClass.java",

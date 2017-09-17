@@ -31,6 +31,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
@@ -719,25 +720,31 @@ public class JavaProject
 
 	/** Implements selection of root modules per JEP 261. */
 	public static List<String> defaultRootModules(Iterable<IPackageFragmentRoot> allSystemRoots) {
+		return internalDefaultRootModules(allSystemRoots,
+				IPackageFragmentRoot::getElementName,
+				r ->  (r instanceof JrtPackageFragmentRoot) ? ((JrtPackageFragmentRoot) r).getModule() : null);
+	}
+
+	public static <T> List<String> internalDefaultRootModules(Iterable<T> allSystemModules, Function<T,String> getModuleName, Function<T,IModule> getModule) {
 		List<String> result = new ArrayList<>();
 		boolean hasJavaDotSE = false;
-		for (IPackageFragmentRoot root : allSystemRoots) {
-			if ("java.se".equals(root.getElementName())) { //$NON-NLS-1$
-				result.add(root.getElementName());
+		for (T mod : allSystemModules) {
+			String moduleName = getModuleName.apply(mod);
+			if ("java.se".equals(moduleName)) { //$NON-NLS-1$
+				result.add(moduleName);
 				hasJavaDotSE = true;
 				break;
 			}
 		}
-		for (IPackageFragmentRoot root : allSystemRoots) {
-			String moduleName = root.getElementName();
+		for (T mod : allSystemModules) {
+			String moduleName = getModuleName.apply(mod);
 			boolean isJavaDotStart = moduleName.startsWith("java."); //$NON-NLS-1$
 			boolean isPotentialRoot = !isJavaDotStart;	// always include non-java.*
 			if (!hasJavaDotSE)
 				isPotentialRoot |= isJavaDotStart;		// no java.se => add all java.*
 			
-			if (isPotentialRoot && root instanceof JrtPackageFragmentRoot) {
-				JrtPackageFragmentRoot jrtRoot = (JrtPackageFragmentRoot) root;
-				IModule module = jrtRoot.getModule();
+			if (isPotentialRoot) {
+				IModule module = getModule.apply(mod);
 				if (module != null) {
 					for (IPackageExport packageExport : module.exports()) {
 						if (!packageExport.isQualified()) {
