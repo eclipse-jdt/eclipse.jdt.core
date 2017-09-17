@@ -347,7 +347,7 @@ public class ClasspathChange {
 							rootIDs,
 							null, // inside original project
 							false, // don't retrieve exported roots
-							true, // respect limit-modules
+							true, // filter module roots
 							null); /*no reverse map*/
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335986
 						// When a package fragment's corresponding resource is removed from the project, 

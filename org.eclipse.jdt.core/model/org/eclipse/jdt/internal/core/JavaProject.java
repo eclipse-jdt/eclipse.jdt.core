@@ -85,6 +85,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
+import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
@@ -598,7 +599,9 @@ public class JavaProject
 	 * @param rootIDs HashSet
 	 * @param referringEntry the CP entry (project) referring to this entry, or null if initial project
 	 * @param retrieveExportedRoots boolean
-	 * @param respectLimitModules if true a limit-modules attribute will be evaluated to filter the resulting roots
+	 * @param filterModuleRoots if true, roots corresponding to modules will be filtered if applicable:
+	 *    if a limit-modules attribute exists, this is used, otherwise system modules will be filtered
+	 *    according to the rules of root modules per JEP 261.
 	 * @throws JavaModelException
 	 */
 	public void computePackageFragmentRoots(
@@ -607,7 +610,7 @@ public class JavaProject
 		HashSet rootIDs,
 		IClasspathEntry referringEntry,
 		boolean retrieveExportedRoots,
-		boolean respectLimitModules,
+		boolean filterModuleRoots,
 		Map rootToResolvedEntries) throws JavaModelException {
 
 		String rootID = ((ClasspathEntry)resolvedEntry).rootID();
@@ -658,10 +661,17 @@ public class JavaProject
 							} else {
 								imageRoots = info.jrtRoots.get(entryPath);
 							}
-							if (respectLimitModules) {
+							if (filterModuleRoots) {
+								List<String> rootModules = null;
 								String limitModules = ClasspathEntry.getExtraAttribute(resolvedEntry, IClasspathAttribute.LIMIT_MODULES);
-								if (limitModules != null)
-									imageRoots = filterLimitedModules(entryPath, imageRoots, limitModules);
+								if (limitModules != null) {
+									rootModules = Arrays.asList(limitModules.split(",")); //$NON-NLS-1$
+								} else if (isUnNamedModule()) {
+									rootModules = defaultRootModules((Iterable) imageRoots);
+								}
+								if (rootModules != null) {
+									imageRoots = filterLimitedModules(entryPath, imageRoots, rootModules);
+								}
 							}
 							accumulatedRoots.addAll(imageRoots);
 						} else if (JavaModel.isJmod((File) target)) {
@@ -694,7 +704,7 @@ public class JavaProject
 							rootIDs,
 							rootToResolvedEntries == null ? resolvedEntry : ((ClasspathEntry)resolvedEntry).combineWith((ClasspathEntry) referringEntry), // only combine if need to build the reverse map
 							retrieveExportedRoots,
-							respectLimitModules,
+							filterModuleRoots,
 							rootToResolvedEntries);
 					}
 				break;
@@ -707,8 +717,42 @@ public class JavaProject
 		}
 	}
 
-	private ObjectVector filterLimitedModules(IPath jrtPath, ObjectVector imageRoots, String limitModules) {
-		Set<String> limitModulesSet = new HashSet<>(Arrays.asList(limitModules.split(","))); //$NON-NLS-1$
+	/** Implements selection of root modules per JEP 261. */
+	public static List<String> defaultRootModules(Iterable<IPackageFragmentRoot> allSystemRoots) {
+		List<String> result = new ArrayList<>();
+		boolean hasJavaDotSE = false;
+		for (IPackageFragmentRoot root : allSystemRoots) {
+			if ("java.se".equals(root.getElementName())) { //$NON-NLS-1$
+				result.add(root.getElementName());
+				hasJavaDotSE = true;
+				break;
+			}
+		}
+		for (IPackageFragmentRoot root : allSystemRoots) {
+			String moduleName = root.getElementName();
+			boolean isJavaDotStart = moduleName.startsWith("java."); //$NON-NLS-1$
+			boolean isPotentialRoot = !isJavaDotStart;	// always include non-java.*
+			if (!hasJavaDotSE)
+				isPotentialRoot |= isJavaDotStart;		// no java.se => add all java.*
+			
+			if (isPotentialRoot && root instanceof JrtPackageFragmentRoot) {
+				JrtPackageFragmentRoot jrtRoot = (JrtPackageFragmentRoot) root;
+				IModule module = jrtRoot.getModule();
+				if (module != null) {
+					for (IPackageExport packageExport : module.exports()) {
+						if (!packageExport.isQualified()) {
+							result.add(moduleName);
+							break;
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	private ObjectVector filterLimitedModules(IPath jrtPath, ObjectVector imageRoots, List<String> rootModuleNames) {
+		Set<String> limitModulesSet = new HashSet<>(rootModuleNames);
 		ModuleLookup lookup = new ModuleLookup(jrtPath.toFile());
 		// collect all module roots:
 		for (int i = 0; i < imageRoots.size(); i++) {
@@ -834,14 +878,16 @@ public class JavaProject
 	 * Only works with resolved entries
 	 * @param resolvedClasspath IClasspathEntry[]
 	 * @param retrieveExportedRoots boolean
-	 * @param respectLimitModules if true a limit-modules attribute will be evaluated to filter the resulting roots
+	 * @param filterModuleRoots if true, roots corresponding to modules will be filtered if applicable:
+	 *    if a limit-modules attribute exists, this is used, otherwise system modules will be filtered
+	 *    according to the rules of root modules per JEP 261.
 	 * @return IPackageFragmentRoot[]
 	 * @throws JavaModelException
 	 */
 	public IPackageFragmentRoot[] computePackageFragmentRoots(
 					IClasspathEntry[] resolvedClasspath,
 					boolean retrieveExportedRoots,
-					boolean respectLimitModules,
+					boolean filterModuleRoots,
 					Map rootToResolvedEntries) throws JavaModelException {
 
 		ObjectVector accumulatedRoots = new ObjectVector();
@@ -851,7 +897,7 @@ public class JavaProject
 			new HashSet(5), // rootIDs
 			null, // inside original project
 			retrieveExportedRoots,
-			respectLimitModules,
+			filterModuleRoots,
 			rootToResolvedEntries);
 		IPackageFragmentRoot[] rootArray = new IPackageFragmentRoot[accumulatedRoots.size()];
 		accumulatedRoots.copyInto(rootArray);
@@ -868,7 +914,9 @@ public class JavaProject
 	 * @param rootIDs HashSet
 	 * @param referringEntry project entry referring to this CP or null if initial project
 	 * @param retrieveExportedRoots boolean
-	 * @param respectLimitModules if true a limit-modules attribute will be evaluated to filter the resulting roots
+	 * @param filterModuleRoots if true, roots corresponding to modules will be filtered if applicable:
+	 *    if a limit-modules attribute exists, this is used, otherwise system modules will be filtered
+	 *    according to the rules of root modules per JEP 261.
 	 * @throws JavaModelException
 	 */
 	public void computePackageFragmentRoots(
@@ -877,7 +925,7 @@ public class JavaProject
 		HashSet rootIDs,
 		IClasspathEntry referringEntry,
 		boolean retrieveExportedRoots,
-		boolean respectLimitModules,
+		boolean filterModuleRoots,
 		Map rootToResolvedEntries) throws JavaModelException {
 
 		if (referringEntry == null){
@@ -890,7 +938,7 @@ public class JavaProject
 				rootIDs,
 				referringEntry,
 				retrieveExportedRoots,
-				respectLimitModules,
+				filterModuleRoots,
 				rootToResolvedEntries);
 		}
 	}
@@ -3495,6 +3543,20 @@ public class JavaProject
 						Messages.bind(Messages.classpath_duplicateEntryPath, TypeConstants.MODULE_INFO_FILE_NAME_STRING, getElementName())));
 		}
 		info.setModule(module);
+	}
+	
+	private boolean isUnNamedModule() throws JavaModelException {
+		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();
+		IModuleDescription module = info.getModule();
+		if (module != null)
+			return false;
+		for(IClasspathEntry entry : getRawClasspath()) {
+			String mainModule = ClasspathEntry.getExtraAttribute(entry, IClasspathAttribute.PATCH_MODULE);
+			if (mainModule != null)
+				return false;
+
+		}
+		return true;
 	}
 
 	public Manifest getManifest() {
