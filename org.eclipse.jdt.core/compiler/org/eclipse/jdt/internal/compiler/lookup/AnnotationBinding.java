@@ -157,6 +157,8 @@ private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironm
 	if (arraysize > 0) {
 		ReferenceBinding elementType = env.getResolvedType(TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE, null);
 		int index = 0;
+		if ((bits & TagBits.AnnotationForTypeUse) != 0)
+			value[index++] = elementType.getField(TypeConstants.TYPE_USE_TARGET, true);
 		if ((bits & TagBits.AnnotationForAnnotationType) != 0)
 			value[index++] = elementType.getField(TypeConstants.UPPER_ANNOTATION_TYPE, true);
 		if ((bits & TagBits.AnnotationForConstructor) != 0)
@@ -169,8 +171,6 @@ private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironm
 			value[index++] = elementType.getField(TypeConstants.UPPER_PACKAGE, true);
 		if ((bits & TagBits.AnnotationForParameter) != 0)
 			value[index++] = elementType.getField(TypeConstants.UPPER_PARAMETER, true);
-		if ((bits & TagBits.AnnotationForTypeUse) != 0)
-			value[index++] = elementType.getField(TypeConstants.TYPE_USE_TARGET, true);
 		if ((bits & TagBits.AnnotationForTypeParameter) != 0)
 			value[index++] = elementType.getField(TypeConstants.TYPE_PARAMETER_TARGET, true);
 		if ((bits & TagBits.AnnotationForType) != 0)

@@ -35,7 +35,7 @@ public class NoTypeImpl implements NoType, NullType
 	public static final NoType NO_TYPE_PACKAGE = new NoTypeImpl(TypeKind.PACKAGE);
 	public static final NullType NULL_TYPE = new NoTypeImpl(TypeKind.NULL);
 	
-	private NoTypeImpl(TypeKind kind) {
+	public NoTypeImpl(TypeKind kind) {
 		_kind = kind;
 	}
 
@@ -57,6 +57,7 @@ public class NoTypeImpl implements NoType, NullType
 		return _kind;
 	}
 	
+	@Override
 	public String toString()
 	{
 		switch (_kind) {
@@ -69,17 +70,22 @@ public class NoTypeImpl implements NoType, NullType
 			return "void"; //$NON-NLS-1$
 		case PACKAGE:
 			return "package"; //$NON-NLS-1$
+		case MODULE:
+			return "module"; //$NON-NLS-1$
 		}
 	}
 
+	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		return Factory.EMPTY_ANNOTATION_MIRRORS;
 	}
 
+	@Override
 	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
 		return null;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
 		return (A[]) Array.newInstance(annotationType, 0);

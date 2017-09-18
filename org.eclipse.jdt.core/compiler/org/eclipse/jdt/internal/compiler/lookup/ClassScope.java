@@ -1316,9 +1316,11 @@ public class ClassScope extends Scope {
 				}
 			}
 		}
-		if ((superType.tagBits & TagBits.BeginHierarchyCheck) == 0)
+		if ((superType.tagBits & TagBits.BeginHierarchyCheck) == 0) {
 			// ensure if this is a source superclass that it has already been checked
-			((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
+			if (superType.isValidBinding() && !superType.isUnresolvedType())
+				((SourceTypeBinding) superType).scope.connectTypeHierarchyWithoutMembers();
+		}
 		if ((superType.tagBits & TagBits.HierarchyHasProblems) != 0)
 			sourceType.tagBits |= TagBits.HierarchyHasProblems;
 		return false;

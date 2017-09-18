@@ -782,6 +782,9 @@ public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope, boolean
 					this.types[i].traverse(visitor, this.scope);
 				}
 			}
+			if (this.isModuleInfo() && this.moduleDeclaration != null) {
+				this.moduleDeclaration.traverse(visitor, this.scope);
+			}
 		}
 		visitor.endVisit(this, this.scope);
 	} catch (AbortCompilationUnit e) {

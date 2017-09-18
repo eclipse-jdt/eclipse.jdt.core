@@ -116,8 +116,13 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	private Set<ModuleBinding> transitiveRequires;
 	private boolean isPackageLookupActive = false; // to prevent cyclic lookup caused by synthetic reads edges on behalf of auto-modules.
 
-	/** Packages declared in this module (indexed by qualified name). */
-	HashtableOfPackage declaredPackages; // TODO(SHMOD): measure if this is worth the memory. LE->PackageBinding basically hold the same information
+	/**
+	 * Packages declared in this module (indexed by qualified name).
+	 * We consider a package as declared in a module,
+	 * if a compilation unit associated with the module
+	 * declares the package or a subpackage thereof.
+	 */
+	public HashtableOfPackage declaredPackages;
 
 	/** Constructor for the unnamed module. */
 	private ModuleBinding(LookupEnvironment env) {
@@ -469,7 +474,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	 * When asked via the unnamed module or an automatic module all other named modules are considered visible. 
 	 * </p>
 	 */
-	PackageBinding getTopLevelPackage(char[] name) {
+	public PackageBinding getTopLevelPackage(char[] name) {
 		// check caches:
 		PackageBinding binding = this.declaredPackages.get(name);
 		if (binding != null)
@@ -593,7 +598,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	 * read by the current module.
 	 * Accessibility (via package exports) is <strong>not</strong> checked.
 	 */
-	PackageBinding getPackage(char[][] parentPackageName, char[] packageName) {
+	public PackageBinding getPackage(char[][] parentPackageName, char[] packageName) {
 		// Returns a package binding if there exists such a package in the context of this module and it is observable
 		// A package is observable if it is declared in this module or it is exported by some required module
 		if (parentPackageName == null || parentPackageName.length == 0) {

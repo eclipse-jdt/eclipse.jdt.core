@@ -773,6 +773,11 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 			packageBinding = parent.addPackage(packageBinding, this.module, true);
 		}
 	}
+	if (packageBinding instanceof SplitPackageBinding) {
+		PackageBinding incarnation = ((SplitPackageBinding) packageBinding).getIncarnation(this.module);
+		if (incarnation != null)
+			packageBinding = incarnation;
+	}
 	return packageBinding;
 }
 
@@ -1621,8 +1626,8 @@ public ReferenceBinding getType(char[][] compoundName, ModuleBinding mod) {
 	referenceBinding = (ReferenceBinding) BinaryTypeBinding.resolveType(referenceBinding, this, false /* no raw conversion for now */);
 
 	// compoundName refers to a nested type incorrectly (for example, package1.A$B)
-	if (referenceBinding.isNestedType())
-		return new ProblemReferenceBinding(compoundName, referenceBinding, InternalNameProvided);
+//	if (referenceBinding.isNestedType())
+//		return new ProblemReferenceBinding(compoundName, referenceBinding, InternalNameProvided);
 	return referenceBinding;
 }
 

@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -60,7 +61,7 @@ public class ModuleDeclaration extends ASTNode {
 	public int bodyStart;
 	public int bodyEnd; // doesn't include the trailing comment if any.
 	public int modifiersSourceStart;
-	BlockScope scope;
+	public BlockScope scope;
 	public char[][] tokens;
 	public char[] moduleName;
 	public long[] sourcePositions;
@@ -68,6 +69,7 @@ public class ModuleDeclaration extends ASTNode {
 	boolean ignoreFurtherInvestigation;
 	boolean hasResolvedModuleDirectives;
 	boolean hasResolvedPackageDirectives;
+	boolean hasResolvedTypeDirectives;
 	CompilationResult compilationResult;
 
 	public ModuleDeclaration(CompilationResult compilationResult, char[][] tokens, long[] positions) {
@@ -224,6 +226,10 @@ public class ModuleDeclaration extends ASTNode {
 			this.ignoreFurtherInvestigation = true;
 			return;
 		}
+		if (this.hasResolvedTypeDirectives)
+			return;
+
+		this.hasResolvedTypeDirectives = true;
 		ASTNode.resolveAnnotations(this.scope, this.annotations, this.binding);
 
 		Set<TypeBinding> allTypes = new HashSet<TypeBinding>();
@@ -311,6 +317,10 @@ public class ModuleDeclaration extends ASTNode {
 			if (mods != null && mods.size() > 1)
 				skope.problemReporter().conflictingPackagesFromModules(pack, mods, requiresStat.sourceStart, requiresStat.sourceEnd);
 		}
+	}
+
+	public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
+		visitor.visit(this, unitScope);
 	}
 
 	public StringBuffer printHeader(int indent, StringBuffer output) {

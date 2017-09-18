@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2016 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2017 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - fix for 342598
@@ -45,9 +49,11 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -319,6 +325,11 @@ public class Factory {
 					ClassFileConstants.AccStrictfp
 				});
 				break;
+			case MODULE :
+				decodeModifiers(result, modifiers, new int[] {
+						ClassFileConstants.ACC_OPEN,
+						ClassFileConstants.ACC_TRANSITIVE
+				});
 			default:
 				break;
 		}
@@ -348,7 +359,7 @@ public class Factory {
 				return new ErrorTypeElement(this._env, referenceBinding);
 			}
 			if (CharOperation.equals(referenceBinding.sourceName, TypeConstants.PACKAGE_INFO_NAME)) {
-				return new PackageElementImpl(_env, referenceBinding.fPackage);
+				return newPackageElement(referenceBinding.fPackage);
 			}
 			return new TypeElementImpl(_env, referenceBinding, kindHint);
 		case Binding.METHOD:
@@ -357,10 +368,12 @@ public class Factory {
 		case Binding.PARAMETERIZED_TYPE:
 			return new TypeElementImpl(_env, ((ParameterizedTypeBinding)binding).genericType(), kindHint);
 		case Binding.PACKAGE:
-			return new PackageElementImpl(_env, (PackageBinding)binding);
+			return newPackageElement((PackageBinding)binding);
 		case Binding.TYPE_PARAMETER:
 			return new TypeParameterElementImpl(_env, (TypeVariableBinding)binding);
 			// TODO: fill in the rest of these
+		case Binding.MODULE:
+			return new ModuleElementImpl(_env, (ModuleBinding) binding);
 		case Binding.IMPORT:
 		case Binding.ARRAY_TYPE:
 		case Binding.BASE_TYPE:
@@ -380,6 +393,9 @@ public class Factory {
 	 */
 	public PackageElement newPackageElement(PackageBinding binding)
 	{
+		if (binding instanceof SplitPackageBinding && binding.enclosingModule != null) {
+			binding = ((SplitPackageBinding) binding).getIncarnation(binding.enclosingModule);
+		}
 		return new PackageElementImpl(_env, binding);
 	}
 	
@@ -396,6 +412,8 @@ public class Factory {
 			return NoTypeImpl.NO_TYPE_VOID;
 		case PACKAGE:
 			return NoTypeImpl.NO_TYPE_PACKAGE;
+		case MODULE:
+			return new NoTypeImpl(kind);
 		default:
 			throw new IllegalArgumentException();
 		}
@@ -487,6 +505,8 @@ public class Factory {
 
 		case Binding.TYPE_PARAMETER:
 			return new TypeVariableImpl(_env, (TypeVariableBinding) binding);
+		case Binding.MODULE:
+			return getNoType(TypeKind.MODULE);
 		}
 		return null;
 	}
@@ -571,9 +591,9 @@ public class Factory {
 			case 'c':
 				return Character.valueOf((char) b); // narrowing.
 			case 'd':
-				return new Double(b); // widening.
+				return Double.valueOf(b); // widening.
 			case 'f':
-				return new Float(b); // widening.
+				return  Float.valueOf(b); // widening.
 			case 'i':
 				return Integer.valueOf(b); // widening.
 			case 'l':
@@ -599,9 +619,9 @@ public class Factory {
 			case 'c':
 				return Character.valueOf((char) s); // narrowing.
 			case 'd':
-				return new Double(s); // widening.
+				return Double.valueOf(s); // widening.
 			case 'f':
-				return new Float(s); // widening.
+				return Float.valueOf(s); // widening.
 			case 'i':
 				return Integer.valueOf(s); // widening.
 			case 'l':
@@ -627,9 +647,9 @@ public class Factory {
 			case 'c':
 				return value; // exact match
 			case 'd':
-				return new Double(c); // widening.
+				return Double.valueOf(c); // widening.
 			case 'f':
-				return new Float(c); // widening.
+				return Float.valueOf(c); // widening.
 			case 'i':
 				return Integer.valueOf(c); // widening.
 			case 'l':
@@ -656,9 +676,9 @@ public class Factory {
 			case 'c':
 				return Character.valueOf((char) i); // narrowing
 			case 'd':
-				return new Double(i); // widening.
+				return Double.valueOf(i); // widening.
 			case 'f':
-				return new Float(i); // widening.
+				return Float.valueOf(i); // widening.
 			case 'i':
 				return value; // exact match
 			case 'l':
@@ -682,9 +702,9 @@ public class Factory {
 				// completely wrong.
 				return avoidReflectException ? getMatchingDummyValue(expectedType) : value;
 			case 'd':
-				return new Double(l); // widening.
+				return Double.valueOf(l); // widening.
 			case 'f':
-				return new Float(l); // widening.			
+				return Float.valueOf(l); // widening.			
 			case 'l': 
 				return value; // exact match.
 		
@@ -707,7 +727,7 @@ public class Factory {
 				// completely wrong.
 				return avoidReflectException ? getMatchingDummyValue(expectedType) : value;
 			case 'd':
-				return new Double(f); // widening.
+				return Double.valueOf(f); // widening.
 			case 'f':
 				return value; // exact match.
 			default:  				
@@ -877,6 +897,6 @@ public class Factory {
 				}
 			}
 		}
-		return (AnnotationBinding[]) unpackedAnnotations.toArray(new AnnotationBinding [unpackedAnnotations.size()]);
+		return unpackedAnnotations.toArray(new AnnotationBinding [unpackedAnnotations.size()]);
 	}	
 }

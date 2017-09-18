@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 BEA Systems, Inc.
+ * Copyright (c) 2007, 2017 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
@@ -12,9 +16,6 @@
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests;
-
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,6 +42,9 @@ import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 
 /**
  * Helper class to support compilation and results checking for tests running in batch mode.
@@ -98,6 +102,11 @@ public class BatchTestUtils {
 			System.err.println("Compilation failed: " + errorOutput);
 	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
 		}
+		try {
+			manager.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static void compileTree(JavaCompiler compiler, List<String> options, File targetFolder) {
@@ -113,6 +122,66 @@ public class BatchTestUtils {
 		compileTree(compiler, options, targetFolder, useJLS8Processors, null);
 	}
 
+	public static void compileInModuleMode(JavaCompiler compiler, List<String> options, String processor,
+			File targetFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule) {
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+		Iterable<? extends File> location = manager.getLocation(StandardLocation.CLASS_PATH);
+		// create new list containing inputfile
+		List<File> files = new ArrayList<File>();
+		findFilesUnder(targetFolder, files);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		List<String> copyOptions = new ArrayList<>();
+		copyOptions.add("-processor");
+		copyOptions.add(processor);
+		copyOptions.add("-A" + processor);
+		copyOptions.add("-d");
+		copyOptions.add(_tmpBinFolderName);
+		copyOptions.add("-s");
+		copyOptions.add(_tmpGenFolderName);
+		addModuleProcessorPath(copyOptions, getSrcFolderName(), multiModule);
+		copyOptions.add("-XprintRounds");
+		CompilationTask task = compiler.getTask(printWriter, manager, listener, copyOptions, null, units);
+		Boolean result = task.call();
+
+		if (!result.booleanValue()) {
+			String errorOutput = stringWriter.getBuffer().toString();
+			System.err.println("Compilation failed: " + errorOutput);
+	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
+		}
+		List<String> classes = new ArrayList<>();
+		try {
+			System.clearProperty(processor);
+			copyOptions = new ArrayList<>();
+			copyOptions.addAll(options);
+			copyOptions.add("-cp");
+			copyOptions.add(_jls8ProcessorJarPath + File.pathSeparator + _tmpGenFolderName);
+			copyOptions.add("--processor-module-path");
+			copyOptions.add(_jls8ProcessorJarPath);
+			copyOptions.add("--module-path");
+			copyOptions.add(_tmpBinFolderName);
+			classes.add("java.base/java.lang.Object"); // This is required to make sure BTB for Object is fully populated.
+			findClassesUnderModules(Paths.get(_tmpBinFolderName), classes);
+			manager.setLocation(StandardLocation.CLASS_PATH, location);
+			task = compiler.getTask(printWriter, manager, listener, copyOptions, classes, null);
+			result = task.call();
+			if (!result.booleanValue()) {
+				String errorOutput = stringWriter.getBuffer().toString();
+				System.err.println("Compilation failed: " + errorOutput);
+		 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
+			}
+		} catch (IOException e) {
+			// print the stack just in case.
+			e.printStackTrace();
+		}
+		try {
+			manager.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 	public static void compileTree(JavaCompiler compiler, List<String> options,
 			File targetFolder, boolean useJLS8Processors,
 			DiagnosticListener<? super JavaFileObject> listener) {
@@ -138,6 +207,11 @@ public class BatchTestUtils {
 			String errorOutput = stringWriter.getBuffer().toString();
 			System.err.println("Compilation failed: " + errorOutput);
 	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
+		}
+		try {
+			manager.close();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	/*
@@ -180,7 +254,7 @@ public class BatchTestUtils {
 			copyOptions.add("-processorpath");
 			copyOptions.add(_jls8ProcessorJarPath);
 			classes.add("java.lang.Object"); // This is required to make sure BTB for Object is fully populated.
-			findClassesUnder(Paths.get(_tmpBinFolderName), null, classes);
+			findClassesUnder(Paths.get(_tmpBinFolderName), null, classes, null);
 			manager.setLocation(StandardLocation.CLASS_PATH, location);
 			task = compiler.getTask(printWriter, manager, listener, copyOptions, classes, null);
 			result = task.call();
@@ -241,7 +315,11 @@ public class BatchTestUtils {
 		StringWriter writer = new StringWriter();
 		CompilationTask task = compiler.getTask(writer, manager, diagnosticListener, options, null, units);
 		Boolean result = task.call();
-
+		try {
+			manager.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return result.booleanValue();
 	}
 
@@ -265,18 +343,31 @@ public class BatchTestUtils {
 		}
 	}
 
-	protected static void findClassesUnder(Path root, Path folder, List<String> classes) throws IOException {
+	protected static void findClassesUnderModules(Path modulePath, List<String> classes) throws IOException {
+		try (DirectoryStream<Path> stream = Files.newDirectoryStream(modulePath)) {
+	        for (Path entry : stream) {
+	        	if (Files.isDirectory(entry)) {
+	        		findClassesUnder(entry, entry, classes, entry.getFileName().toString());
+	        	}
+	        }
+		}
+	}
+	protected static void findClassesUnder(Path root, Path folder, List<String> classes, String moduleName) throws IOException {
 		if (folder == null) 
 			folder = root;
 		try (DirectoryStream<Path> stream = Files.newDirectoryStream(folder)) {
 	        for (Path entry : stream) {
 	            if (Files.isDirectory(entry)) {
-	            	findClassesUnder(root, entry, classes);
+	            	findClassesUnder(root, entry, classes, moduleName);
 	            } else {
-	            	if (entry.getFileName().toString().endsWith(".class")) {
+	            	String fileName = entry.getFileName().toString();
+					if (fileName.endsWith(".class") && !fileName.startsWith("module-info")) {
 						String className = root.relativize(entry).toString();
 						className = className.substring(0, className.indexOf(".class"));
 						className = className.replace(File.separatorChar, '.');
+						if (moduleName != null) {
+							className = moduleName + "/" + className;
+						}
 						classes.add(className);
 	            	}
 	            }
@@ -372,6 +463,16 @@ public class BatchTestUtils {
 		options.add("-processorpath");
 		options.add(path);
 	}
+	private static void addModuleProcessorPath(List<String> options, String srcFolderName, boolean multiModule) {
+		options.add("--processor-module-path");
+		options.add(_jls8ProcessorJarPath);
+		options.add("--module-path");
+		options.add(_jls8ProcessorJarPath);
+		if (multiModule) {
+			options.add("--module-source-path");
+			options.add(srcFolderName);
+		}
+	}
 
 	public static void tearDown() {
 		new File(_processorJarPath).deleteOnExit();
@@ -446,6 +547,10 @@ public class BatchTestUtils {
 			contents = TestUtils.convertToIndependentLineDelimiter(contents);
 			srcBytes = contents.getBytes();
 		}
+		writeFile(dest, srcBytes);
+	}
+
+	public static void writeFile(File dest, byte[] srcBytes) throws IOException {
 
 		File destFolder = dest.getParentFile();
 		if (!destFolder.exists()) {

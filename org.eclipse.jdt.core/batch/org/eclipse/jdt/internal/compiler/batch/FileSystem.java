@@ -53,7 +53,6 @@ import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants {
 
 	// Keep the type as ArrayList and not List as there are clients that are already written to expect ArrayList.
@@ -143,11 +142,11 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 		 * @param classpaths the given classpath entries
 		 * @return the normalized classpath entries
 		 */
-		public static ArrayList normalize(ArrayList classpaths) {
-			ArrayList normalizedClasspath = new ArrayList();
-			HashSet cache = new HashSet();
-			for (Iterator iterator = classpaths.iterator(); iterator.hasNext(); ) {
-				FileSystem.Classpath classpath = (FileSystem.Classpath) iterator.next();
+		public static ArrayList<Classpath> normalize(ArrayList<Classpath> classpaths) {
+			ArrayList<Classpath> normalizedClasspath = new ArrayList<>();
+			HashSet<Classpath> cache = new HashSet<>();
+			for (Iterator<Classpath> iterator = classpaths.iterator(); iterator.hasNext(); ) {
+				FileSystem.Classpath classpath = iterator.next();
 				if (!cache.contains(classpath)) {
 					normalizedClasspath.add(classpath);
 					cache.add(classpath);
@@ -161,7 +160,7 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 	// Used only in single-module mode when the module descriptor is
 	// provided via command line.
 	protected IModule module;
-	Set knownFileNames;
+	Set<String> knownFileNames;
 	protected boolean annotationsFromClasspath; // should annotation files be read from the classpath (vs. explicit separate path)?
 	private static HashMap<File, Classpath> JRT_CLASSPATH_CACHE = null;
 	
@@ -220,15 +219,15 @@ protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annot
 public static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet) {
 	return getClasspath(classpathName, encoding, false, accessRuleSet, null, null);
 }
-public static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet, Map options) {
+public static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet, Map<String, String> options) {
 	return getClasspath(classpathName, encoding, false, accessRuleSet, null, options);
 }
-public static Classpath getJrtClasspath(String jdkHome, String encoding, AccessRuleSet accessRuleSet, Map options) {
+public static Classpath getJrtClasspath(String jdkHome, String encoding, AccessRuleSet accessRuleSet, Map<String, String> options) {
 	return new ClasspathJrt(new File(convertPathSeparators(jdkHome)), true, accessRuleSet, null);
 }
 public static Classpath getClasspath(String classpathName, String encoding,
 		boolean isSourceOnly, AccessRuleSet accessRuleSet,
-		String destinationPath, Map options) {
+		String destinationPath, Map<String, String> options) {
 	Classpath result = null;
 	File file = new File(convertPathSeparators(classpathName));
 	if (file.isDirectory()) {
@@ -281,10 +280,10 @@ public static Classpath getClasspath(String classpathName, String encoding,
 }
 private void initializeKnownFileNames(String[] initialFileNames) {
 	if (initialFileNames == null) {
-		this.knownFileNames = new HashSet(0);
+		this.knownFileNames = new HashSet<>(0);
 		return;
 	}
-	this.knownFileNames = new HashSet(initialFileNames.length * 2);
+	this.knownFileNames = new HashSet<>(initialFileNames.length * 2);
 	for (int i = initialFileNames.length; --i >= 0;) {
 		File compilationUnitFile = new File(initialFileNames[i]);
 		char[] fileName = null;
@@ -455,48 +454,42 @@ public NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName) 
 			moduleName);
 	return null;
 }
-public char[][][] findTypeNames(char[][] packageName, String[] moduleNames) {
+public char[][][] findTypeNames(char[][] packageName) {
 	char[][][] result = null;
 	if (packageName != null) {
 		String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
 		String qualifiedPackageName2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
 		if (qualifiedPackageName == qualifiedPackageName2) {
 			for (int i = 0, length = this.classpaths.length; i < length; i++) {
-				for (String moduleName : moduleNames) {
-					if (moduleName !=  null && !this.classpaths[i].servesModule(moduleName.toCharArray())) continue;
-					char[][][] answers = this.classpaths[i].findTypeNames(qualifiedPackageName, moduleName);
-					if (answers != null) {
-						// concat with previous answers
-						if (result == null) {
-							result = answers;
-						} else {
-							int resultLength = result.length;
-							int answersLength = answers.length;
-							System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0, resultLength);
-							System.arraycopy(answers, 0, result, resultLength, answersLength);
-						}
+				char[][][] answers = this.classpaths[i].findTypeNames(qualifiedPackageName, null);
+				if (answers != null) {
+					// concat with previous answers
+					if (result == null) {
+						result = answers;
+					} else {
+						int resultLength = result.length;
+						int answersLength = answers.length;
+						System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0, resultLength);
+						System.arraycopy(answers, 0, result, resultLength, answersLength);
 					}
 				}
 			}
 		} else {
 			for (int i = 0, length = this.classpaths.length; i < length; i++) {
 				Classpath p = this.classpaths[i];
-				for (String moduleName : moduleNames) {
-					if (moduleName != null && !p.servesModule(moduleName.toCharArray())) continue;
-					char[][][] answers = (p instanceof ClasspathJar)
-							? p.findTypeNames(qualifiedPackageName, moduleName)
-							: p.findTypeNames(qualifiedPackageName2, moduleName);
-						if (answers != null) {
-							// concat with previous answers
-							if (result == null) {
-								result = answers;
-							} else {
-								int resultLength = result.length;
-								int answersLength = answers.length;
-								System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0, resultLength);
-								System.arraycopy(answers, 0, result, resultLength, answersLength);
-							}
-						}
+				char[][][] answers = !(p instanceof ClasspathDirectory) ? p.findTypeNames(qualifiedPackageName, null)
+						: p.findTypeNames(qualifiedPackageName2, null);
+				if (answers != null) {
+					// concat with previous answers
+					if (result == null) {
+						result = answers;
+					} else {
+						int resultLength = result.length;
+						int answersLength = answers.length;
+						System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0,
+								resultLength);
+						System.arraycopy(answers, 0, result, resultLength, answersLength);
+					}
 				}
 			}
 		}

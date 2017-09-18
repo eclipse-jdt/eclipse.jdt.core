@@ -419,10 +419,7 @@ public class EclipseCompilerImpl extends Main {
 						location = StandardLocation.CLASS_OUTPUT;
 					} else {
 						// TODO: Still possible to end up with a non-null module name without JDK 9 in build path
-						System.out.println("module name:" + new String(modName)); //$NON-NLS-1$
-						System.out.println("CU:" + new String(unitResult.compilationUnit.getFileName())); //$NON-NLS-1$
 						location = this.fileManager.getLocationForModule(StandardLocation.CLASS_OUTPUT, new String(modName));
-						System.out.println("Location from getLocationForModule(): " + location); //$NON-NLS-1$
 					}
 					JavaFileObject javaFileForOutput =
 						this.fileManager.getJavaFileForOutput(

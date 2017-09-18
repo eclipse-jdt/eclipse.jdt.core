@@ -59,6 +59,8 @@ public class CompilerToolJava9Tests extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		this.isJREBelow9 = SourceVersion.latest().compareTo(SourceVersion.RELEASE_8) <= 0;
+		if (isJREBelow9)
+			return;
 		this.compilers = new JavaCompiler[2];
 		this.compilerNames = new String[2];
 		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class);
