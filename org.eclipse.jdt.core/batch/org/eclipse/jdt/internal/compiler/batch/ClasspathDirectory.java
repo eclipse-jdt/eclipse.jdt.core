@@ -319,7 +319,7 @@ public boolean hasCUDeclaringPackage(String qualifiedPackageName, Function<Compi
 			CompilationUnit cu = new CompilationUnit(null, fullPath, this.encoding);
 			pkgName = pkgNameExtractor.apply(cu);
 		}
-		if (pkgName != null && pkgName.equals(qualifiedPackageName))
+		if (pkgName != null && pkgName.equals(qp2.replace(File.separatorChar, '.')))
 			hasDeclaration = true;
 		return hasDeclaration;
 	});

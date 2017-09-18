@@ -3291,4 +3291,49 @@ public void testBug521362_emptyFile() {
 			false,
 			OUTPUT_DIR + File.separator + out);
 	}
+	public void testBug521362_multiplePackages2() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports p1;\n" +
+						"	exports p2;\n" +
+						"	exports p3.p4.p5;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p1", "X.java", 
+						"package q;\n");
+		writeFileCollecting(files, moduleLoc + File.separator + "p2", "X.java", 
+				"package q2;\n");
+		writeFileCollecting(files, moduleLoc + File.separator + "p3" + File.separator + "p4" + File.separator + "p5", "X.java", 
+				"package p3.p4.p5;\n");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files, 
+			buffer,
+			"",
+			"----------\n" + 
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n" + 
+			"	exports p1;\n" + 
+			"	        ^^\n" + 
+			"The package p1 does not exist or is empty\n" + 
+			"----------\n" + 
+			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 3)\n" + 
+			"	exports p2;\n" + 
+			"	        ^^\n" + 
+			"The package p2 does not exist or is empty\n" + 
+			"----------\n" + 
+			"2 problems (2 errors)\n",
+			false,
+			OUTPUT_DIR + File.separator + out);
+	}
 }
