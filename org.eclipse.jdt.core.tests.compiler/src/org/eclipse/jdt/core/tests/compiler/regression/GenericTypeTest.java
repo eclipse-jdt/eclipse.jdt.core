@@ -49377,7 +49377,6 @@ public void test1405()  throws Exception {
 		"Zork cannot be resolved to a type\n" + 
 		"----------\n");
 }
-// FIXME javac8 rejects
 public void test1406() {
 	this.runNegativeTest(
 			new String[] {
@@ -49394,6 +49393,7 @@ public void test1406() {
 				"    }\n" + 
 				"}\n",//-----------------------------------------------------------------------
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_8 ?
 			"----------\n" + 
 			"1. WARNING in GenericTest.java (at line 5)\n" + 
 			"	Set testList = GenericTest.method1(new Class[] { ArrayList.class });\n" + 
@@ -49414,9 +49414,24 @@ public void test1406() {
 			"	public static <I> I method1(Class<List>[] params) {\n" + 
 			"	                                  ^^^^\n" + 
 			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-			"----------\n");
+			"----------\n" :
+				"----------\n" + 
+				"1. WARNING in GenericTest.java (at line 5)\n" + 
+				"	Set testList = GenericTest.method1(new Class[] { ArrayList.class });\n" + 
+				"	^^^\n" + 
+				"Set is a raw type. References to generic type Set<E> should be parameterized\n" + 
+				"----------\n" + 
+				"2. ERROR in GenericTest.java (at line 5)\n" + 
+				"	Set testList = GenericTest.method1(new Class[] { ArrayList.class });\n" + 
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from Object to Set\n" + 
+				"----------\n" +
+				"3. WARNING in GenericTest.java (at line 8)\n" + 
+				"	public static <I> I method1(Class<List>[] params) {\n" + 
+				"	                                  ^^^^\n" + 
+				"List is a raw type. References to generic type List<E> should be parameterized\n" + 
+				"----------\n");
 }
-// FIXME javac8 rejects
 public void test1407() {
 	this.runNegativeTest(
 			new String[] {
@@ -49428,6 +49443,7 @@ public void test1407() {
 				"	}\n" + 
 				"}\n",//-----------------------------------------------------------------------
 			},
+			this.complianceLevel < ClassFileConstants.JDK1_8 ?
 			"----------\n" + 
 			"1. WARNING in Foo.java (at line 4)\n" + 
 			"	Foo l1 = m1((Class)Foo.class);\n" + 
@@ -49443,7 +49459,18 @@ public void test1407() {
 			"	Foo l1 = m1((Class)Foo.class);\n" + 
 			"	             ^^^^^\n" + 
 			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n");
+			"----------\n" : 
+				"----------\n" + 
+				"1. WARNING in Foo.java (at line 4)\n" + 
+				"	Foo l1 = m1((Class)Foo.class);\n" + 
+				"	             ^^^^^\n" + 
+				"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+				"----------\n" + 
+				"2. ERROR in Foo.java (at line 4)\n" + 
+				"	Foo l1 = m1((Class)Foo.class);\n" + 
+				"	         ^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from Object to Foo\n" + 
+				"----------\n");
 }
 public void test1408() {
 	this.runNegativeTest(
@@ -50146,7 +50173,7 @@ public void test1429() {
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	Integer i = m(new Foo<Foo<Integer>>(), new Foo());\n" + 
 				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Type mismatch: cannot convert from Foo<Integer> to Integer\n" + 
+				"Type mismatch: cannot convert from Foo to Integer\n" + 
 				"----------\n" + 
 				"2. WARNING in X.java (at line 4)\n" + 
 				"	Integer i = m(new Foo<Foo<Integer>>(), new Foo());\n" + 

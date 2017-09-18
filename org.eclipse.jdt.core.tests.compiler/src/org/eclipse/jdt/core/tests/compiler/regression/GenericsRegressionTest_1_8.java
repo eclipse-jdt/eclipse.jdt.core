@@ -8398,4 +8398,48 @@ public void testBug508834_comment0() {
 			"The type Test.Inner is not visible\n" +  
 			"----------\n");
 	}
+
+	public void testBug521978() {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"class Foo<T> {\n" + 
+				"	public  Foo(T a1, List<String> a2){ }\n" + 
+				"}\n" + 
+				"class Bar<T> {\n" + 
+				"	Bar(T item) { }\n" + 
+				"}\n" + 
+				"public class Test {\n" + 
+				"	static <T> Bar<T> getBar(T item) {\n" + 
+				"        return new Bar<>(item);\n" + 
+				"    }\n" + 
+				"	static <Q> Foo<Q> method(Bar<? extends Foo<Q>> f) {\n" + 
+				"    	return null;\n" + 
+				"    }\n" + 
+				"	static void test() {\n" + 
+				"		method(getBar(\n" + 
+				"                new Foo<>(\"str\", new ArrayList())\n" + 
+				"            ));\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in Test.java (at line 17)\n" + 
+			"	method(getBar(\n" + 
+			"	^^^^^^\n" + 
+			"The method method(Bar<? extends Foo<Q>>) in the type Test is not applicable for the arguments (Bar<Foo>)\n" + 
+			"----------\n" +
+			"2. WARNING in Test.java (at line 18)\n" + 
+			"	new Foo<>(\"str\", new ArrayList())\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The constructor Foo(Object, List) belongs to the raw type Foo. References to generic type Foo<T> should be parameterized\n" + 
+			"----------\n" +
+			"3. WARNING in Test.java (at line 18)\n" + 
+			"	new Foo<>(\"str\", new ArrayList())\n" + 
+			"	                     ^^^^^^^^^\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"----------\n");
+	}
 }
