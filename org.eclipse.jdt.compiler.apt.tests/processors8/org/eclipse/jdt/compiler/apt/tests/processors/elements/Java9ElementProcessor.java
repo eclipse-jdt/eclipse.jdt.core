@@ -187,6 +187,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		testUnnamedModule3();
 		testUnnamedModule4();
 		testUnnamedModule5();
+		testBug522472();
 	}
 
 	private Element getRoot(Element elem) {
@@ -919,6 +920,43 @@ public class Java9ElementProcessor extends BaseProcessor {
 			}
 		}
 		assertTrue("module not found", found);
+	}
+	public void testBug522472() {
+		Set<? extends Element> rootElements = this.roundEnv.getRootElements();
+		ModuleElement module = null;
+		for (Element element : rootElements) {
+			if (element instanceof ModuleElement) {
+				ModuleElement mod = (ModuleElement) element;
+				if (mod.getQualifiedName().toString().equals("mod.a")) {
+					module = mod;
+					break;
+				}
+			} else if (element instanceof TypeElement) {
+				Element root = getRoot(element);
+				if (root instanceof ModuleElement) {
+					ModuleElement mod = (ModuleElement) root;
+					if (mod.getQualifiedName().toString().equals("mod.a")) {
+						module = mod;
+						break;
+					}
+				}
+			}
+		}
+		assertNotNull("module should not be null", module);
+		List<? extends Element> elements = module.getEnclosedElements();
+		assertEquals("incorrect no of elements", 2, elements.size());
+		List<Element> packages = filterElements(elements, ElementKind.PACKAGE);
+//		ECJ fails the following tests. 
+		for (Element element : packages) {
+			Element enclosingElement = element.getEnclosingElement();
+			assertNotNull("module should not be null", enclosingElement);
+			assertEquals("module should be same", enclosingElement, module);
+		}
+		assertEquals("incorrect packages count", 2, packages.size());
+		List<? extends Directive> directives = module.getDirectives();
+		assertEquals("incorrect no of directives", 3, directives.size());
+		List<Directive> exports = filterDirective(directives, DirectiveKind.EXPORTS);
+		assertEquals("incorrect exports count", 2, exports.size());
 	}
 	private void validateModifiers(ExecutableElement method, Modifier[] expected) {
 		Set<Modifier> modifiers = method.getModifiers();

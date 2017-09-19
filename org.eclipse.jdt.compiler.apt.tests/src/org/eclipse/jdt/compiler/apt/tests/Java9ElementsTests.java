@@ -60,7 +60,14 @@ public class Java9ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest2(compiler, MODULE_PROC, "testRootElements1", null);
 	}
-
+	public void testBug522472() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest2(compiler, MODULE_PROC, "bug522472", "testBug522472", null);
+	}
+	public void _testBug522472Javac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest2(compiler, MODULE_PROC, "bug522472", "testBug522472", null);
+	}
 	public void _testRootElements2Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) {
@@ -530,12 +537,15 @@ public class Java9ElementsTests extends TestCase {
 	 * Tests are run in multi-module mode
 	 */
 	private void internalTest2(JavaCompiler compiler, String processor, String testMethod, String testClass) throws IOException {
+		internalTest2(compiler, processor, "modules", testMethod, testClass);
+	}
+	private void internalTest2(JavaCompiler compiler, String processor, String modLocation, String testMethod, String testClass) throws IOException {
 		if (!canRunJava9()) {
 			return;
 		}
 		System.clearProperty(processor);
 		File srcRoot = TestUtils.concatPath(BatchTestUtils.getSrcFolderName());
-		BatchTestUtils.copyResources("mod_locations/modules", srcRoot);
+		BatchTestUtils.copyResources("mod_locations" + File.separator + modLocation, srcRoot);
 
 		List<String> options = new ArrayList<String>();
 		options.add("-processor");
