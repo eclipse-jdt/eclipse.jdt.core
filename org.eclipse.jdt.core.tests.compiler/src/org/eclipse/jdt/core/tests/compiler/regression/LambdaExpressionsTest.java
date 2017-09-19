@@ -6523,6 +6523,22 @@ public void testBug521808() {
 		}
 	);
 }
+public void testBug522469() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X<R> {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		I<?> i = (X<?> x) -> \"\";\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface I<T> {\n" + 
+			"	String m(X<? extends T> x);\n" + 
+			"}\n"
+		}
+	);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

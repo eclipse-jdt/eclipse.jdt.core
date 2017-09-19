@@ -346,7 +346,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			final TypeBinding expectedParameterType = haveDescriptor && i < this.descriptor.parameters.length ? this.descriptor.parameters[i] : null;
 			argumentType = argumentsTypeElided ? expectedParameterType : this.argumentTypes[i];
 			if (argumentType != null && argumentType != TypeBinding.VOID) {
-				if (haveDescriptor && expectedParameterType != null && argumentType.isValidBinding() && TypeBinding.notEquals(argumentType, expectedParameterType)) {
+				if (haveDescriptor && expectedParameterType != null && argumentType.isValidBinding() && (expectedParameterType.kind() != argumentType.kind() || !argumentType.isEquivalentTo(expectedParameterType))) {
 					if (expectedParameterType.isProperType(true)) {
 						this.scope.problemReporter().lambdaParameterTypeMismatched(argument, argument.type, expectedParameterType);
 						this.resolvedType = null; // continue to type check.
