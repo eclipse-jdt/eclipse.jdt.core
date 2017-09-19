@@ -3053,16 +3053,16 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runNegativeModuleTest(files, 
+		runConformModuleTest(files, 
 			buffer,
 			"",
 			"----------\n" + 
-			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/X.java (at line 1)\n" + 
+			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/X.java (at line 1)\n" + 
 			"	public class X {\n" + 
 			"	^\n" + 
 			"Must declare a named package because this compilation unit is associated to the named module \'mod.one\'\n" + 
 			"----------\n" + 
-			"1 problem (1 error)\n",
+			"1 problem (1 warning)\n",
 			false,
 			OUTPUT_DIR + File.separator + out);
 	}
@@ -3204,10 +3204,10 @@ public void testBug521362_emptyFile() {
 			"The package p1 does not exist or is empty\n" + 
 			"----------\n" +
 			"----------\n" + 
-			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p1/X.java\n" + 
+			"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p1/X.java\n" + 
 			"Must declare a named package because this compilation unit is associated to the named module \'mod.one\'\n" + 
 			"----------\n" + 
-			"2 problems (2 errors)\n",
+			"2 problems (1 error, 1 warning)\n",
 			false,
 			OUTPUT_DIR + File.separator + out);
 	}

@@ -10725,6 +10725,7 @@ public void unnamedPackageInNamedModule(ModuleBinding module) {
 	handle(IProblem.UnnamedPackageInNamedModule,
 			args,
 			args,
+			ProblemSeverities.Warning,
 			0,
 			0);
 }
