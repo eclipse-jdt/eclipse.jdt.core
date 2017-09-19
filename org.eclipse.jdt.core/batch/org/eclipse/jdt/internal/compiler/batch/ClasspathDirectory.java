@@ -311,7 +311,7 @@ public boolean hasCUDeclaringPackage(String qualifiedPackageName, Function<Compi
 	return Stream.of(directoryList(qp2)).anyMatch(entry -> {
 		String entryLC = entry.toLowerCase();
 		boolean hasDeclaration = false;
-		String fullPath = this.path + qp2 + "/" + entryLC; //$NON-NLS-1$
+		String fullPath = this.path + qp2 + "/" + entry; //$NON-NLS-1$
 		String pkgName = null;
 		if (entryLC.endsWith(SUFFIX_STRING_class)) {
 			return true;
