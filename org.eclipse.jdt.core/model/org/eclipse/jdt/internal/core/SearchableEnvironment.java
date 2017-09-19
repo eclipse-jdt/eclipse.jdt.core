@@ -15,11 +15,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -911,6 +914,7 @@ public class SearchableEnvironment
 			if (moduleContext == null) {
 				Answer moduleAnswer = this.nameLookup.findModule(moduleName);
 				if (moduleAnswer != null) {
+					IProject currentProject = moduleAnswer.module.getJavaProject().getProject();
 					IJavaElement current = moduleAnswer.module.getParent();
 					while (moduleContext == null && current != null) {
 						switch (current.getElementType()) {
@@ -931,6 +935,22 @@ public class SearchableEnvironment
 								break;
 							default:
 								current = current.getParent();
+								if (current != null) {
+									try {
+										// detect when an element refers to a resource owned by another project:
+										IResource resource = current.getUnderlyingResource();
+										if (resource != null) {
+											IProject otherProject = resource.getProject();
+											if (otherProject != null && !otherProject.equals(currentProject)) {
+												IJavaProject otherJavaProject = JavaCore.create(otherProject);
+												if (otherJavaProject.exists())
+													moduleContext = getRootsForOutputLocation(otherJavaProject, resource);
+											}
+										}
+									} catch (JavaModelException e) {
+										Util.log(e, "Failed to find package fragment root for " + current); //$NON-NLS-1$
+									}
+								}
 						}
 					}
 					this.knownModuleLocations.put(String.valueOf(moduleName), moduleContext);
@@ -982,6 +1002,32 @@ public class SearchableEnvironment
 	public void applyModuleUpdates(IUpdatableModule module, UpdateKind kind) {
 		if (this.moduleUpdater != null)
 			this.moduleUpdater.applyModuleUpdates(module, kind);
+	}
+
+	private IPackageFragmentRoot[] getRootsForOutputLocation(IJavaProject otherJavaProject, IResource outputLocation) throws JavaModelException {
+		IPath outputPath = outputLocation.getFullPath();
+		List<IPackageFragmentRoot> result = new ArrayList<>();
+		if (outputPath.equals(otherJavaProject.getOutputLocation())) {
+			// collect roots reporting to the default output location:
+			for (IClasspathEntry classpathEntry : otherJavaProject.getRawClasspath()) {
+				if (classpathEntry.getOutputLocation() == null) {
+					for (IPackageFragmentRoot root : otherJavaProject.findPackageFragmentRoots(classpathEntry)) {
+						IResource rootResource = root.getResource();
+						if (rootResource == null || !rootResource.getProject().equals(otherJavaProject.getProject()))
+							continue; // outside this project
+						result.add(root);
+					}
+				}
+			}			
+		}
+		if (!result.isEmpty())
+			return result.toArray(new IPackageFragmentRoot[result.size()]);
+		// search an entry that specifically (and exclusively) reports to the output location:
+		for (IClasspathEntry classpathEntry : otherJavaProject.getRawClasspath()) {
+			if (outputPath.equals(classpathEntry.getOutputLocation()))
+				return otherJavaProject.findPackageFragmentRoots(classpathEntry);
+		}
+		return null;
 	}
 
 	public static IPackageFragmentRoot[] getOwnedPackageFragmentRoots(IJavaProject javaProject) throws JavaModelException {

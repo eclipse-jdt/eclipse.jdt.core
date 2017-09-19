@@ -5718,6 +5718,46 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("nonmodular2");
 		}
 	}
+
+	public void testBug522503() throws Exception {
+		IJavaProject p1 = setupModuleProject("mod.one",
+			new String[] {
+				"src/module-info.java",
+				"module mod.one {\n" +
+				"	exports p1;\n" +
+				"}\n",
+				"src/p1/API.java",
+				"package p1;\n" +
+				"public class API {}\n"
+			});
+		IClasspathAttribute[] attr = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+		IClasspathEntry[] deps = { JavaCore.newLibraryEntry(p1.getOutputLocation(), null, null, null, attr, false) };
+		String[] sources2 = new String[] {
+			"src/module-info.java",
+			"module mod.two {\n" +
+			"	requires mod.one;\n" +
+			"}\n",
+			"src/client/Client.java",
+			"package client;\n" +
+			"import p1.API;\n" +
+			"public class Client {\n" +
+			"	API api;\n" +
+			"}\n"
+		};
+		IJavaProject p2 = setupModuleProject("mod.two", sources2, deps);
+		p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		assertNoErrors();
+
+		this.problemRequestor.reset();
+		ICompilationUnit cu = getCompilationUnit("/mod.two/src/client/Client.java");
+		cu.getWorkingCopy(this.wcOwner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n",
+			this.problemRequestor);
+	}
+
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
