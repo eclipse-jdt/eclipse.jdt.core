@@ -18,6 +18,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IOpenable;
@@ -1520,26 +1521,29 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					typeDeclaration = new ASTNodeFinder(parsedUnit).findType(context);
 				}
 			} else { // binary type
-				ClassFile classFile = (ClassFile) context.getClassFile();
-				BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(classFile);
-				ClassFileReader reader = null;
-				try {
-					reader = BinaryTypeFactory.rawReadType(descriptor, false/*don't fully initialize so as to keep constant pool (used below)*/);
-				} catch (ClassFormatException e) {
-					if (JavaCore.getPlugin().isDebugging()) {
-						e.printStackTrace(System.err);
+				IClassFile iClassFile = context.getClassFile();
+				if (iClassFile instanceof ClassFile) {
+					ClassFile classFile = (ClassFile) iClassFile;
+					BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(classFile);
+					ClassFileReader reader = null;
+					try {
+						reader = BinaryTypeFactory.rawReadType(descriptor, false/*don't fully initialize so as to keep constant pool (used below)*/);
+					} catch (ClassFormatException e) {
+						if (JavaCore.getPlugin().isDebugging()) {
+							e.printStackTrace(System.err);
+						}
 					}
+					if (reader == null) {
+						throw classFile.newNotPresentException();
+					}
+					CompilationResult result = new CompilationResult(reader.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
+					parsedUnit = new CompilationUnitDeclaration(this.parser.problemReporter(), result, 0);
+					HashSetOfCharArrayArray typeNames = new HashSetOfCharArrayArray();
+					
+					BinaryTypeConverter converter = new BinaryTypeConverter(this.parser.problemReporter(), result, typeNames);
+					typeDeclaration = converter.buildTypeDeclaration(context, parsedUnit);
+					parsedUnit.imports = converter.buildImports(reader);
 				}
-				if (reader == null) {
-					throw classFile.newNotPresentException();
-				}
-				CompilationResult result = new CompilationResult(reader.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
-				parsedUnit = new CompilationUnitDeclaration(this.parser.problemReporter(), result, 0);
-				HashSetOfCharArrayArray typeNames = new HashSetOfCharArrayArray();
-
-				BinaryTypeConverter converter = new BinaryTypeConverter(this.parser.problemReporter(), result, typeNames);
-				typeDeclaration = converter.buildTypeDeclaration(context, parsedUnit);
-				parsedUnit.imports = converter.buildImports(reader);
 			}
 
 			if (typeDeclaration != null) {
