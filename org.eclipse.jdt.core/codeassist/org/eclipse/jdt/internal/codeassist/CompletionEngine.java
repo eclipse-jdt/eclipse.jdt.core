@@ -5,10 +5,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     Timo Kinnunen - Contributions for bug 377373 - [subwords] known limitations with JDT 3.8
  *     							Bug 420953 - [subwords] Constructors that don't match prefix not found
