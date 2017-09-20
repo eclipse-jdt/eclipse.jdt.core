@@ -54,7 +54,7 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
  * A processor that explores the java 9 specific elements and validates the lambda and 
  * type annotated elements. To enable this processor, add 
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.elements.Java9ElementProcessor to the command line.
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 @SupportedAnnotationTypes("*")
 public class Java9ElementProcessor extends BaseProcessor {

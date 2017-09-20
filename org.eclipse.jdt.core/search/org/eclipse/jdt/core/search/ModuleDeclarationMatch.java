@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.IJavaElement;
  * This class is intended to be instantiated and subclassed by clients.
  * </p>
  *
- * @since 3.13
+ * @since 3.14
  */
 public class ModuleDeclarationMatch extends SearchMatch {
 

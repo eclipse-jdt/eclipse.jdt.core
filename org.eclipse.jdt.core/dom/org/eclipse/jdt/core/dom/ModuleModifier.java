@@ -32,7 +32,7 @@ import java.util.Map;
  * Note that the value of <b>static</b> does <b>not</b> correspond to the value of {@link Modifier#STATIC}!
  * </p>
  *
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})

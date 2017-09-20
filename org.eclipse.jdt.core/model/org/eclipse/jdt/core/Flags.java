@@ -180,7 +180,7 @@ public final class Flags {
 	 * Module declaration property flag.
 	 * Used to flag a compilation unit or a class file that contains a module declaration.
 	 * 
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int AccModule = ClassFileConstants.AccModule;
 	
@@ -424,7 +424,7 @@ public final class Flags {
 	 *
 	 * @return <code>true</code> if the <code>AccModule</code> flag is included
 	 * @see #AccModule
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */	
 	public static boolean isModule(int flags) {
 		return (flags & AccModule) != 0;

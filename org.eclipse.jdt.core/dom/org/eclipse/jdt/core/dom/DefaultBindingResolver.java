@@ -1627,7 +1627,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	/**
 	 * @see BindingResolver#resolveModule(ModuleDeclaration)
-	 * @since 3.13 BETA_JAVA9	
+	 * @since 3.14	
 	 */
 	@Override
 	IModuleBinding resolveModule(ModuleDeclaration module) {

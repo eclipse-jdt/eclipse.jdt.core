@@ -460,7 +460,7 @@ public interface IPackageFragmentRoot
 	 * contain a module descriptor.
 	 *
 	 * @return the <code>IModuleDescription</code> this root contains.
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public IModuleDescription getModuleDescription();
 }

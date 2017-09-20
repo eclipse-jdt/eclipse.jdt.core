@@ -248,7 +248,7 @@ public final class JavaCore extends Plugin {
 	public static final String USER_LIBRARY_CONTAINER_ID= "org.eclipse.jdt.USER_LIBRARY"; //$NON-NLS-1$
 
 	/**
-	 * @since 3.13
+	 * @since 3.14
 	 */
 	public static final String MODULE_PATH_CONTAINER_ID = "org.eclipse.jdt.MODULE_PATH"; //$NON-NLS-1$
 
@@ -426,7 +426,7 @@ public final class JavaCore extends Plugin {
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_TERMINAL_DEPRECATION = PLUGIN_ID + ".compiler.problem.terminalDeprecation"; //$NON-NLS-1$
@@ -1614,7 +1614,7 @@ public final class JavaCore extends Plugin {
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * 
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_API_LEAKS = PLUGIN_ID + ".compiler.problem.APILeak"; //$NON-NLS-1$
@@ -2943,7 +2943,7 @@ public final class JavaCore extends Plugin {
 	public static final String VERSION_1_8 = "1.8"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 * @category OptionValue
 	 */
 	public static final String VERSION_9 = "9"; //$NON-NLS-1$
@@ -5967,7 +5967,7 @@ public final class JavaCore extends Plugin {
 	 *            the project whose referenced modules to be computed
 	 * @return an array of String containing module names
 	 * @throws CoreException
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static String[] getReferencedModules(IJavaProject project) throws CoreException {
 		return ModuleUtil.getReferencedModules(project);
@@ -5999,7 +5999,7 @@ public final class JavaCore extends Plugin {
 	 * 
 	 * @throws JavaModelException
 	 * @throws IllegalArgumentException if the map of classFileAttributes contains an unsupported key.
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static byte[] compileWithAttributes(IModuleDescription module, Map<String,String> classFileAttributes)
 			throws JavaModelException, IllegalArgumentException

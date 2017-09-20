@@ -101,7 +101,7 @@ public abstract class CategorizedProblem implements IProblem {
 	public static final int CAT_RESTRICTION = 150;
 	/**
 	 * Category for fatal problems relating to modules
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int CAT_MODULE = 160;
 

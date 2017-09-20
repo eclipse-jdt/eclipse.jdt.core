@@ -242,7 +242,7 @@ public class DefaultCodeFormatterConstants {
 	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
 	 * </pre>
 	 * @see #createAlignmentValue(boolean, int, int)
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final String FORMATTER_ALIGNMENT_FOR_MODULE_STATEMENTS = JavaCore.PLUGIN_ID + ".formatter.alignment_for_module_statements";	 //$NON-NLS-1$
 	/**

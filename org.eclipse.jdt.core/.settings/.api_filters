@@ -39,4 +39,12 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="formatter/org/eclipse/jdt/core/formatter/CodeFormatter.java" type="org.eclipse.jdt.core.formatter.CodeFormatter">
+        <filter id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.formatter.CodeFormatter"/>
+                <message_argument value="K_MODULE_INFO"/>
+            </message_arguments>
+        </filter>
+    </resource>
 </component>

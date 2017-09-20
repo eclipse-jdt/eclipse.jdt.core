@@ -19,7 +19,7 @@ package org.eclipse.jdt.core.util;
  *
  * This interface may be implemented by clients.
  *
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 public interface IModulePackagesAttribute extends IClassFileAttribute {
 

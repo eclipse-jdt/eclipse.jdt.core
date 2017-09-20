@@ -98,7 +98,7 @@ public interface IBinding {
 	 *
 	 * @see #getKind()
 	 * @see IModuleBinding
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int MODULE = 7;
 

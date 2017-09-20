@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.core.SearchableEnvironment;
 
 /**
  * Internal implementation of module bindings.
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 class ModuleBinding implements IModuleBinding {
 

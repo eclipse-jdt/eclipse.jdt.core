@@ -139,7 +139,7 @@ public interface IJavaElement extends IAdaptable {
 	 * Constant represents a module descriptor.
 	 * A Java element with this type can be safely cast to {@link IModuleDescription}.
 	 *
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	int JAVA_MODULE = 17;
 

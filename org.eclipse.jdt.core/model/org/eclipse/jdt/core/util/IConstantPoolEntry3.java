@@ -19,7 +19,7 @@ package org.eclipse.jdt.core.util;
  * Its contents is initialized according to its kind.
  *
  * @noimplement This interface is not intended to be implemented by clients.
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 public interface IConstantPoolEntry3 extends IConstantPoolEntry2 {
 	/**

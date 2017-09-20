@@ -1504,7 +1504,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	/*
 	 * @see ASTVisitor#visit(ModuleModifier)
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean visit(ModuleModifier node) {
 		this.result.append(getAttribute(node, ModuleModifier.KEYWORD_PROPERTY).toString());

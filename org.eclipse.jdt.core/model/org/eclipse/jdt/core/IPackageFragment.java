@@ -98,7 +98,7 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * </p>
 	 * @param name the given name
 	 * @return the class file with the specified name in this package
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	IOrdinaryClassFile getOrdinaryClassFile(String name);
 
@@ -107,7 +107,7 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * This is a handle-only method.  The class file may or may not be present.
 	 * If the class file is present, then it is guaranteed to contain an {@link IModuleDescription}.
 	 * 
-	 * @since 3.13 BETA_JAVA
+	 * @since 3.14
 	 * @return the class file representing "module-info.class" in this package.
 	 */
 	IModularClassFile getModularClassFile();
@@ -125,7 +125,7 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
 	 * @return all of the class files in this package fragment
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	IClassFile[] getAllClassFiles() throws JavaModelException;
 	
@@ -158,7 +158,7 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
 	 * @return all of the ordinary class files in this package fragment
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	IOrdinaryClassFile[] getOrdinaryClassFiles() throws JavaModelException;
 

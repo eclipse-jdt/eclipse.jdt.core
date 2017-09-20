@@ -176,19 +176,19 @@ public interface IAttributeNamesConstants {
 
 	/**
 	 * "Module" attribute (added in Java SE 9).
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	char[] MODULE = "Module".toCharArray(); //$NON-NLS-1$
 
 	/**
 	 * "ModulePackages" attribute (added in Java SE 9).
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	char[] MODULE_PACKAGES = "ModulePackages".toCharArray(); //$NON-NLS-1$
 
 	/**
 	 * "ModuleMainClass" attribute (added in Java SE 9).
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	char[] MODULE_MAIN_CLASS = "ModuleMainClass".toCharArray(); //$NON-NLS-1$
 }

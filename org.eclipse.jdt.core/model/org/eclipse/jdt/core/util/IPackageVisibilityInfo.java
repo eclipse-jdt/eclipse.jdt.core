@@ -18,7 +18,7 @@ package org.eclipse.jdt.core.util;
  * Description of an exports/opens info as described in the JVM specifications 4.7.25
  *
  * @noimplement This interface is not intended to be implemented by clients.
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 public interface IPackageVisibilityInfo {
 

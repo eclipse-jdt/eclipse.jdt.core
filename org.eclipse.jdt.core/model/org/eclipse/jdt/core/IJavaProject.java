@@ -420,7 +420,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 *		exception occurs while accessing its corresponding resource
 	 * @return the first module found following this project's module path
 	 * with the given name or <code>null</code> if none is found
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	IModuleDescription findModule(String moduleName, WorkingCopyOwner owner) throws JavaModelException;
 
@@ -606,7 +606,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @return the <code>IModule</code> this project represents.
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	IModuleDescription getModuleDescription() throws JavaModelException;
 

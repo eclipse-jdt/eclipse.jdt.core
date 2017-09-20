@@ -24,7 +24,7 @@ import java.util.List;
  *     <b>requires</b> { ModuleModifier } Name <b>;</b>
  * </pre>
  *
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
  */

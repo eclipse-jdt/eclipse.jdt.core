@@ -597,7 +597,7 @@ public final class JavaConventions {
 	 * @return a status object with code <code>IStatus.OK</code> if
 	 *		the given name is valid as a module name, otherwise a status
 	 *		object indicating what is wrong with the name
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static IStatus validateModuleName(String name, String sourceLevel, String complianceLevel) {
 

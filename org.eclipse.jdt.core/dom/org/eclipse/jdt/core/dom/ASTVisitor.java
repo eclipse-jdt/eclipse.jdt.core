@@ -659,7 +659,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean visit(ExportsDirective node) {
 		return true;
@@ -1073,7 +1073,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean visit(ModuleDeclaration node) {
 		return true;
@@ -1090,7 +1090,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean visit(ModuleModifier node) {
 		return true;
@@ -1173,7 +1173,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean visit(OpensDirective node) {
 		return true;
@@ -1271,7 +1271,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean visit(ProvidesDirective node) {
 		return true;
@@ -1337,7 +1337,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean visit(RequiresDirective node) {
 		return true;
@@ -1750,7 +1750,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean visit(UsesDirective node) {
 		return true;
@@ -2180,7 +2180,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public void endVisit(ExportsDirective node) {
 		// default implementation: do nothing
@@ -2484,7 +2484,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public void endVisit(ModuleDeclaration node) {
 		// default implementation: do nothing
@@ -2497,7 +2497,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public void endVisit(ModuleModifier node) {
 		// default implementation: do nothing
@@ -2560,7 +2560,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public void endVisit(OpensDirective node) {
 		// default implementation: do nothing
@@ -2646,7 +2646,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public void endVisit(ProvidesDirective node) {
 		// default implementation: do nothing
@@ -2684,7 +2684,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public void endVisit(RequiresDirective node) {
 		// default implementation: do nothing
@@ -2992,7 +2992,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public void endVisit(UsesDirective node) {
 		// default implementation: do nothing
