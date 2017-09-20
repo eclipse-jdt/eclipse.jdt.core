@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2015 IBM Corporation and others.
+ * Copyright (c) 2004, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,6 +77,13 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			expectedElement,
 			element
 		);
+	}
+
+	/**
+	 * @deprecated
+	 */
+	static int getJLS8() {
+		return AST.JLS8;
 	}
 
 	/*
@@ -532,7 +539,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[1] = getWorkingCopy("/P/src/Bar.java", barSource, this.wcOwner);
 		
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setProject(getJavaProject("P"));
 		parser.setSource(this.workingCopies[1]);
 		parser.setResolveBindings(true);
@@ -1309,7 +1316,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"}");
 		this.workingCopy.makeConsistent(null);
 		IMethod method = this.workingCopy.getType("X").getMethod("foo", new String[]{"QString;", "I"});
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setProject(getJavaProject("P"));
 		IBinding[] bindings = parser.createBindings(method.getParameters(), null);
 		assertBindingsEqual(
@@ -1328,7 +1335,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				"  void foo(String str, int i) {}\n" +
 				"}");
 		IMethod method = getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"Ljava.lang.String;", "I"});
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setProject(getJavaProject("P"));
 		IBinding[] bindings = parser.createBindings(method.getParameters(), null);
 		assertBindingsEqual(
@@ -1360,7 +1367,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		);
 
 		IJavaElement elem= this.workingCopies[0].codeSelect(xSource.indexOf("foo"), 0)[0];
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setProject(getJavaProject("P"));
 		IBinding[] bindings = parser.createBindings(new IJavaElement[]{ elem }, null);
 		assertBindingsEqual(
@@ -1392,7 +1399,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			IType typeA = javaProject.findType("p.A");
 			
 			IJavaElement[] elems= typeA.getMethod("foo", new String[]{"I", "Z"}).getParameters();
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			ASTParser parser = ASTParser.newParser(getJLS8());
 			parser.setProject(javaProject);
 			IBinding[] bindings = parser.createBindings(elems, null);
 			assertBindingsEqual(
@@ -2622,7 +2629,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 					javaProject.findType("lib.A").getTypeParameters()[0],
 					javaProject.findType("lib.A").getTypeParameters()[1]
 				};
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			ASTParser parser = ASTParser.newParser(getJLS8());
 			parser.setProject(javaProject);
 			IBinding[] bindings = parser.createBindings(elements, null);
 			assertBindingsEqual(
@@ -2655,7 +2662,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 					method.getTypeParameters()[0],
 					method.getTypeParameters()[1]
 				};
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			ASTParser parser = ASTParser.newParser(getJLS8());
 			parser.setProject(javaProject);
 			IBinding[] bindings = parser.createBindings(elements, null);
 			assertBindingsEqual(

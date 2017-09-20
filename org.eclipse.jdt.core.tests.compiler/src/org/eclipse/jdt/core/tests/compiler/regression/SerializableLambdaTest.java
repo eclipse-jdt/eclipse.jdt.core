@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -1574,7 +1578,11 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		"Looking for Testbed.foo\n" +
 		"true",
 		null,true,
-		new String[]{"-Ddummy"});
+		(isJRE9 
+		? new String[] { "--add-opens", "java.base/java.io=ALL-UNNAMED" } 
+		: new String [] { "-Ddummy" })
+		);
+
 		
 		String bootstrapEntries = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "Testbed.class");
 		String expectedOutput = 
@@ -1658,7 +1666,10 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		"Looking for Testbed$MethodRefImpl.<init>\n" +
 		"true",
 		null,true,
-		new String[]{"-Ddummy"});
+		(isJRE9 
+		? new String[] { "--add-opens", "java.base/java.io=ALL-UNNAMED" } 
+		: new String [] { "-Ddummy" })
+		);
 	}
 
 	// Serializable reference expressions that share the same name

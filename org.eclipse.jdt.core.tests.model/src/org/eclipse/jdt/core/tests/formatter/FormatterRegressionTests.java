@@ -14005,4 +14005,42 @@ public void testBug362260g() throws JavaModelException {
 	String input = getCompilationUnit("Formatter", "", "test362260", "G_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test362260", "G_out.java").getSource());
 }
+/**
+ * https://bugs.eclipse.org/506430 - [1.9] Formatter support for module-info.java
+ */
+public void testBug506430a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_9);
+	setPageWidth80();
+	String input = getCompilationUnit("Formatter", "", "test506430", "A_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test506430", "A_out.java") .getSource(),
+			CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
+}
+/**
+ * https://bugs.eclipse.org/506430 - [1.9] Formatter support for module-info.java
+ */
+public void testBug506430b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_9);
+	setPageWidth80();
+	this.formatterPrefs.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE;
+	this.formatterPrefs.blank_lines_before_new_chunk = 2;
+	this.formatterPrefs.blank_lines_before_first_class_body_declaration = 3;
+	this.formatterPrefs.blank_lines_before_field = 1;
+	this.formatterPrefs.indent_body_declarations_compare_to_type_header = false;
+	this.formatterPrefs.insert_space_before_comma_in_multiple_field_declarations = true;
+	this.formatterPrefs.alignment_for_module_statements = Alignment.M_NEXT_PER_LINE_SPLIT;
+	this.formatterPrefs.insert_new_line_at_end_of_file_if_missing = true;
+	String input = getCompilationUnit("Formatter", "", "test506430", "B_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test506430", "B_out.java") .getSource(),
+			CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
+}
+/**
+ * https://bugs.eclipse.org/506430 - [1.9] Formatter support for module-info.java
+ */
+public void testBug506430c() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_9);
+	setPageWidth80();
+	String input = getCompilationUnit("Formatter", "", "test506430", "A_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test506430", "A_out.java") .getSource(),
+			CodeFormatter.K_UNKNOWN | CodeFormatter.F_INCLUDE_COMMENTS);
+}
 }

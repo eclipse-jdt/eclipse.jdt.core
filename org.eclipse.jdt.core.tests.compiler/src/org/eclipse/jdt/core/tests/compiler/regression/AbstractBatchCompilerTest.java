@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 
 public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
@@ -803,7 +804,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 		if (!outputDirectory.isDirectory()) {
 			outputDirectory.mkdirs();
 		}
-		ArrayList<ClasspathLocation> paths = new ArrayList<>(Main.DEFAULT_SIZE_CLASSPATH);
+		ArrayList<FileSystem.Classpath> paths = new ArrayList<>(Main.DEFAULT_SIZE_CLASSPATH);
 		try {
 			(new Main(new PrintWriter(System.out), new PrintWriter(System.err), true/*systemExit*/, null/*options*/, null/*progress*/)).
 				processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, classpathInput, null /* customEncoding */, true /* isSourceOnly */, false /* rejectDestinationPathOnJars*/);
@@ -822,7 +823,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 			assertEquals("unexpected classpaths entries number: ",
 					expectedClasspathEntries == null ? 0 : expectedClasspathEntries.length / 3, l);
 			for (int i = 0, j = 0; i < l ; i++) {
-				ClasspathLocation result = paths.get(i);
+				ClasspathLocation result = (ClasspathLocation) paths.get(i);
 				String expected = expectedClasspathEntries[j++];
 				String actual = result.toString();
 				if (! actual.equals("ClasspathDirectory " + expected + File.separator) &&

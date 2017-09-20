@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - fixed a resource leak warning
@@ -25,6 +29,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import javax.lang.model.SourceVersion;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
@@ -167,6 +172,7 @@ public class FileManagerTests extends TestCase {
 	}
 
 	public void testBug460085() {
+		if (isOnJRE9()) return;
 		try {
 			boolean found = false;
 			EclipseFileManager fileManager = null;
@@ -183,9 +189,16 @@ public class FileManagerTests extends TestCase {
 			fileManager.close();
 			assertTrue("rt.jar not found", found);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			fail(e.getMessage());
 		} 
+	}
+	private boolean isOnJRE9() {
+		try {
+			SourceVersion.valueOf("RELEASE_9");
+		} catch(IllegalArgumentException iae) {
+			return false;
+		}
+		return true;
 	}
 
 	public void testBug466878_getResource_defaultPackage() throws Exception {

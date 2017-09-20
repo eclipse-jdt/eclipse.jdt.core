@@ -51,11 +51,8 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 				&& binding.declaringClass.isBinaryBinding()
 				&& ((binding.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0);
 		if (isEnumConstructor) {
-			if (length == 2) {
-				return Collections.emptyList();
-			}
 			ArrayList<TypeMirror> list = new ArrayList<>();
-			for (int i = 2; i < length; i++) {
+			for (int i = 0; i < length; i++) {
 				list.add(_env.getFactory().newTypeMirror(parameters[i]));
 			}
 			return Collections.unmodifiableList(list);

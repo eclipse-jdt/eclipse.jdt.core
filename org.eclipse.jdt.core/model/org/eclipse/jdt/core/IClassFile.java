@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -13,8 +17,12 @@ package org.eclipse.jdt.core;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
- * Represents an entire binary type (single <code>.class</code> file).
- * A class file has a single child of type <code>IType</code>.
+ * Represents a single <code>.class</code> file, holding the binary form
+ * of either a type or a module:
+ * <ul>
+ * <li>A class file of type {@link IOrdinaryClassFile} has a single child of type <code>IType</code>,</li>
+ * <li>a class file of type {@link IModularClassFile} has a single child of type <code>IModuleDescription</code>.</li>
+ * </ul>
  * Class file elements need to be opened before they can be navigated.
  * If a class file cannot be parsed, its structure remains unknown. Use
  * <code>IJavaElement.isStructureKnown</code> to determine whether this is the
@@ -94,7 +102,10 @@ byte[] getBytes() throws JavaModelException;
  * This is a handle-only method. The type may or may not exist.
  *
  * @return the type contained in this class file
+ * @throws UnsupportedOperationException when invoked on an instance representing a modular class file.
+ * @deprecated should only be used as {@link IOrdinaryClassFile#getType()}.
  */
+@Deprecated
 IType getType();
 /**
  * Returns a working copy on the source associated with this class file using the given

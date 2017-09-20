@@ -65,6 +65,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		return ast.apiLevel() < AST.JLS3 ? INTERNAL_METHOD_RETURN_TYPE_PROPERTY : MethodDeclaration.RETURN_TYPE2_PROPERTY; 
 	} 
 
+	/** @deprecated using deprecated code */
 	private ASTNode createNewExceptionType(AST ast, String name) {
 		return ast.apiLevel() < AST.JLS8 ? ast.newSimpleName(name) : (ASTNode) ast.newSimpleType(ast.newSimpleName(name));
 	}

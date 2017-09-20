@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -32,7 +36,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS2));
 				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS3));
 				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS4));
-				suite.addTest(new ASTVisitorTest(methods[i].getName(), AST.JLS8));
+				suite.addTest(new ASTVisitorTest(methods[i].getName(), getJLS8()));
 			}
 		}
 		return suite;
@@ -299,7 +303,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			this.EC2.setName(this.ast.newSimpleName("d")); //$NON-NLS-1$
 			this.EC2S = "[(ECD[(nSddnS)]ECD)]"; //$NON-NLS-1$
 		}
-		if (this.ast.apiLevel() >= AST.JLS8) {
+		if (this.ast.apiLevel() >= getJLS8()) {
 			this.T3 = this.ast.newSimpleType(this.ast.newSimpleName("W")); //$NON-NLS-1$
 			this.T3S = "[(tS[(nSWWnS)]tS)]"; //$NON-NLS-1$
 			this.T4 = this.ast.newSimpleType(this.ast.newSimpleName("X")); //$NON-NLS-1$
@@ -311,6 +315,12 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	protected void tearDown() throws Exception {
 		this.ast = null;
 		super.tearDown();
+	}
+	/**
+	 * @deprecated
+	 */
+	protected static int getJLS8() {
+		return AST.JLS8;
 	}
 
 	class TestVisitor extends ASTVisitor {
@@ -801,6 +811,14 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			ASTVisitorTest.this.b.append("eMI)"); //$NON-NLS-1$
 		}
 
+		public boolean visit(ModuleDeclaration node) {
+			ASTVisitorTest.this.b.append("(MoD"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(ModuleDeclaration node) {
+			ASTVisitorTest.this.b.append("MoD)"); //$NON-NLS-1$
+		}
+
 		public boolean visit(NullLiteral node) {
 			ASTVisitorTest.this.b.append("(eNL"); //$NON-NLS-1$
 			return isVisitingChildren();
@@ -1154,13 +1172,13 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.b.setLength(0);
 		x1.accept(v1);
 		String result = this.b.toString();
-		String expected = this.ast.apiLevel() < AST.JLS8 ? "[(tA[(tPcharchartP)]tA)]" : "[(tA[(tPcharchartP)][(@ED@ED)]tA)]";
+		String expected = this.ast.apiLevel() < getJLS8() ? "[(tA[(tPcharchartP)]tA)]" : "[(tA[(tPcharchartP)][(@ED@ED)]tA)]";
 		assertTrue(expected.equals(result)); //$NON-NLS-1$
 	}
 
 	/** @deprecated using deprecated code */
 	public void testNameQualifiedType() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		QualifiedName q = this.ast.newQualifiedName(this.N2, this.N3);
@@ -1252,7 +1270,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.b.setLength(0);
 		x1.accept(v1);
 		String result = this.b.toString();
-		String dim = this.ast.apiLevel() < AST.JLS8 ? "" : "[(@ED@ED)]";
+		String dim = this.ast.apiLevel() < getJLS8() ? "" : "[(@ED@ED)]";
 		assertTrue(result.equals("[(eAC"+"[(tA"+this.T1S+ dim +"tA)]"+this.E1S+this.E2S+"[(eAIeAI)]eAC)]")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 	public void testArrayInitializer() {
@@ -1449,7 +1467,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	public void testCreationReference() {
-		if (this.ast.apiLevel() < AST.JLS8)
+		if (this.ast.apiLevel() < getJLS8())
 			return;
 		CreationReference x1 = this.ast.newCreationReference();
 		x1.setType(this.T1);
@@ -1521,7 +1539,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		assertTrue(result.equals("[(ED"+this.JD1S+this.MOD1S+this.MOD2S+this.N1S+this.T1S+this.T2S+this.EC1S+this.EC2S+this.FD1S+this.FD2S+"ED)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testExpressionMethodReference() {
-		if (this.ast.apiLevel() < AST.JLS8)
+		if (this.ast.apiLevel() < getJLS8())
 			return;
 		ExpressionMethodReference x1 = this.ast.newExpressionMethodReference();
 		x1.setExpression(this.E1);
@@ -1542,7 +1560,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		assertTrue(result.equals("[(sEX"+this.E1S+"sEX)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testExtraDimension() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		Dimension x1 = this.ast.newDimension();
@@ -1760,7 +1778,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setName(this.N1);
 		x1.parameters().add(this.V1);
 		x1.parameters().add(this.V2);
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			x1.thrownExceptions().add(this.N2);
 			x1.thrownExceptions().add(this.N3);			
 		} else {
@@ -1774,7 +1792,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = this.b.toString();
 		if (this.ast.apiLevel() == AST.JLS2) {
 			assertEquals("[(MD"+this.JD1S+this.T1S+this.N1S+this.V1S+this.V2S+this.N2S+this.N3S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$
-		} else if (this.ast.apiLevel() < AST.JLS8) {
+		} else if (this.ast.apiLevel() < getJLS8()) {
 			assertEquals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.N1S+this.V1S+this.V2S+this.N2S+this.N3S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$
 		} else {
 			assertEquals("[(MD"+this.JD1S+this.MOD1S+this.MOD2S+this.TP1S+this.T1S+this.N1S+this.V1S+this.V2S+this.T3S+this.T4S+this.B1S+"MD)]", result); //$NON-NLS-1$ //$NON-NLS-2$			
@@ -2067,7 +2085,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		}
 	}
 	public void testSuperMethodReference() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		SuperMethodReference x1 = this.ast.newSuperMethodReference();
@@ -2226,7 +2244,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		assertTrue(result.equals("[(eTL"+this.T1S+"eTL)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	public void testTypeMethodReference() {
-		if (this.ast.apiLevel() < AST.JLS8)
+		if (this.ast.apiLevel() < getJLS8())
 			return;
 		TypeMethodReference x1 = this.ast.newTypeMethodReference();
 		x1.setType(this.T1);

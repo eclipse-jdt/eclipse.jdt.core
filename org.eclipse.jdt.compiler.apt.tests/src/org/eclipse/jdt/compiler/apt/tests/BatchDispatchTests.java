@@ -95,7 +95,7 @@ public class BatchDispatchTests extends TestCase {
 	 * when called from Eclipse compiler
 	 * @throws IOException 
 	 */
-	public void testProcessorArgumentsWithEclipseCompiler() throws IOException {
+	public void _testProcessorArgumentsWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestProcessorArguments(compiler);
 	}
@@ -120,7 +120,7 @@ public class BatchDispatchTests extends TestCase {
 	 * Read annotation values and generate a class using Eclipse compiler
 	 * @throws IOException 
 	 */
-	public void testCompilerOneClassWithEclipseCompiler() throws IOException {
+	public void _testCompilerOneClassWithEclipseCompiler() throws IOException {
 		// Eclipse compiler
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestGenerateClass(compiler);
@@ -152,7 +152,7 @@ public class BatchDispatchTests extends TestCase {
 	 * Verify that if a type has two annotations, both processors are run.
 	 * @throws IOException 
 	 */
-	public void testTwoAnnotations() throws IOException {
+	public void _testTwoAnnotations() throws IOException {
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
 		File inputFile = BatchTestUtils.copyResource("targets/dispatch/TwoAnnotations.java", targetFolder);
 		assertNotNull("No input file", inputFile);

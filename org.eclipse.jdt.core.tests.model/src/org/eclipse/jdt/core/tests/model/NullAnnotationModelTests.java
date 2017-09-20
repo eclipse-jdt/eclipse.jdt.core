@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *******************************************************************************/
@@ -39,7 +43,6 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
@@ -294,7 +297,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"Buildpath problem: the type invalid, which is configured as a null annotation type, cannot be resolved\n" +
 					"----------\n");
 
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
 			parser.setProject(p);
 			parser.setResolveBindings(true);
 			parser.setSource(unit);
@@ -357,7 +360,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			assertEquals("Should have no markers", 0, markers.length);
 
 			// Challenge CompilationUnitResolver:
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
 			parser.setProject(p);
 			parser.setResolveBindings(true);
 			parser.setSource(unit);
@@ -428,7 +431,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			assertEquals("Unexpected marker path", "/P/p1/C1.java", markers[0].getResource().getFullPath().toString());
 
 			// Challenge CompilationUnitResolver:
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
 			parser.setProject(p);
 			parser.setResolveBindings(true);
 			parser.setSource(unit);
@@ -481,7 +484,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			final ICompilationUnit unit = getCompilationUnit("/P/p1/C1.java").getWorkingCopy(this.wcOwner, null);
 			assertNoProblem(c1SourceString.toCharArray(), unit);
 
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
 			parser.setProject(p);
 			parser.setResolveBindings(true);
 			parser.setSource(unit);

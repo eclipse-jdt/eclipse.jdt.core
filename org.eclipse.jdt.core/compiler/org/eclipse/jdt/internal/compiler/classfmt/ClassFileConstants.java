@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -40,6 +44,7 @@ public interface ClassFileConstants {
 	int AccSynthetic    = 0x1000;
 	int AccAnnotation   = 0x2000;
 	int AccEnum         = 0x4000;
+	int AccModule		= 0x8000;
 
 	/**
 	 * From classfile version 52 (compliance 1.8 up), meaning that a formal parameter is mandated
@@ -47,6 +52,13 @@ public interface ClassFileConstants {
 	 */
 	int AccMandated     = 0x8000;
 
+	/**
+	 * Flags in module declaration - since java9
+	 */
+	int ACC_OPEN			= 0x0020;
+	int ACC_TRANSITIVE 		= 0x0020;
+	int ACC_STATIC_PHASE	= 0x0040;
+	int ACC_SYNTHETIC 		= 0x1000;
 	
 	/**
 	 * Other VM flags.
@@ -73,6 +85,8 @@ public interface ClassFileConstants {
 	int MethodHandleTag = 15;
 	int MethodTypeTag = 16;
 	int InvokeDynamicTag = 18;
+	int ModuleTag = 19;
+	int PackageTag = 20;
 
 	int ConstantMethodRefFixedSize = 5;
 	int ConstantClassFixedSize = 3;
@@ -88,6 +102,8 @@ public interface ClassFileConstants {
 	int ConstantMethodHandleFixedSize = 4;
 	int ConstantMethodTypeFixedSize = 3;
 	int ConstantInvokeDynamicFixedSize = 5;
+	int ConstantModuleFixedSize = 3;
+	int ConstantPackageFixedSize = 3;
 
 	// JVMS 4.4.8
 	int MethodHandleRefKindGetField = 1;
@@ -108,7 +124,7 @@ public interface ClassFileConstants {
 	int MAJOR_VERSION_1_6 = 50;
 	int MAJOR_VERSION_1_7 = 51;
 	int MAJOR_VERSION_1_8 = 52;
-	int MAJOR_VERSION_1_9 = 53; // This might change
+	int MAJOR_VERSION_9 = 53;
 
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
@@ -116,7 +132,7 @@ public interface ClassFileConstants {
 	int MINOR_VERSION_3 = 3;
 	int MINOR_VERSION_4 = 4;
 
-	// JDK 1.1 -> 1.9, comparable value allowing to check both major/minor version at once 1.4.1 > 1.4.0
+	// JDK 1.1 -> 9, comparable value allowing to check both major/minor version at once 1.4.1 > 1.4.0
 	// 16 unsigned bits for major, then 16 bits for minor
 	long JDK1_1 = ((long)ClassFileConstants.MAJOR_VERSION_1_1 << 16) + ClassFileConstants.MINOR_VERSION_3; // 1.1. is 45.3
 	long JDK1_2 =  ((long)ClassFileConstants.MAJOR_VERSION_1_2 << 16) + ClassFileConstants.MINOR_VERSION_0;
@@ -126,7 +142,7 @@ public interface ClassFileConstants {
 	long JDK1_6 = ((long)ClassFileConstants.MAJOR_VERSION_1_6 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK1_7 = ((long)ClassFileConstants.MAJOR_VERSION_1_7 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK1_8 = ((long)ClassFileConstants.MAJOR_VERSION_1_8 << 16) + ClassFileConstants.MINOR_VERSION_0;
-	long JDK1_9 = ((long)ClassFileConstants.MAJOR_VERSION_1_9 << 16) + ClassFileConstants.MINOR_VERSION_0;
+	long JDK9 = ((long)ClassFileConstants.MAJOR_VERSION_9 << 16) + ClassFileConstants.MINOR_VERSION_0;
 
 	/*
 	 * cldc1.1 is 45.3, but we modify it to be different from JDK1_1.

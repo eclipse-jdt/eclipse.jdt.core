@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -234,7 +238,8 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 				// top level or member type
 				if (!inProjectOfFocusType) {
 					char[] typeQualifiedName = focusType.getTypeQualifiedName('.').toCharArray();
-					String[] packageName = ((PackageFragment) focusType.getPackageFragment()).names;
+					PackageFragment fragment = (PackageFragment) focusType.getPackageFragment();
+					String[] packageName = fragment.names;
 					if (searchableEnvironment.findType(typeQualifiedName, Util.toCharArrays(packageName)) == null) {
 						// focus type is not visible in this project: no need to go further
 						return;

@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2015 IBM Corporation and others.
+ * Copyright (c) 2004, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Andreas Magnusson <andreas.ch.magnusson@gmail.com>- contribution for bug 151500
@@ -36,6 +40,7 @@ import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.NameLookup;
+import org.eclipse.jdt.internal.core.NamedMember;
 import org.eclipse.jdt.internal.core.SourceMapper;
 
 /**
@@ -50,6 +55,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 
 	protected char[] declarationPackageName;
 	protected char[] declarationTypeName;
+	protected char[] moduleName;
 	protected char[] packageName;
 	protected char[] typeName;
 	protected char[][] parameterPackageNames;
@@ -243,7 +249,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 								IBinaryType info = (IBinaryType) ((BinaryType) type).getElementInfo();
 								char[] source = mapper.findSource(type, info);
 								if (source != null){
-									mapper.mapSource(type, source, info);
+									mapper.mapSource((NamedMember) type, source, info);
 								}
 								paramNames = mapper.getMethodParameterNames(method);
 							}
@@ -377,6 +383,10 @@ public class InternalCompletionProposal extends CompletionProposal {
 		return JavaModelManager.getJavaModelManager().getOpenableCacheSize() / 10;
 	}
 
+	protected char[] getModuleName() {
+		return this.moduleName;
+	}
+
 	protected char[] getPackageName() {
 		return this.packageName;
 	}
@@ -400,6 +410,10 @@ public class InternalCompletionProposal extends CompletionProposal {
 
 	protected void setDeclarationTypeName(char[] declarationTypeName) {
 		this.declarationTypeName = declarationTypeName;
+	}
+
+	protected void setModuleName(char[] moduleName) {
+		this.moduleName = moduleName;
 	}
 
 	protected void setPackageName(char[] packageName) {
@@ -826,7 +840,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 	}
 
 	/**
-	 * Sets the type or package signature of the relevant
+	 * Sets the type or package or module(1.9) signature of the relevant
 	 * declaration in the context, or <code>null</code> if none.
 	 * <p>
 	 * If not set, defaults to none.
@@ -836,7 +850,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 	 * its properties; this method is not intended to be used by other clients.
 	 * </p>
 	 *
-	 * @param signature the type or package signature, or
+	 * @param signature the type or package or module(1.9) signature, or
 	 * <code>null</code> if none
 	 */
 	public void setDeclarationSignature(char[] signature) {

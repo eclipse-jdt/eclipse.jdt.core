@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2016 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    sbandow@bea.com - initial API and implementation
@@ -36,7 +40,7 @@ public class ExceptionHandlingTests extends APTTestBase {
 		IProject project = env.getProject( getProjectName() );
 		IPath srcRoot = getSourcePath();
 		
-		IPath testPath = env.addClass(srcRoot, "test", "Test", getCodeForTest("booleanValue = new Boolean(true)"));
+		IPath testPath = env.addClass(srcRoot, "test", "Test", getCodeForTest("booleanValue = Boolean.valueOf(true)"));
 
 		fullBuild( project.getFullPath() );
 		expectingOnlySpecificProblemFor(testPath, new ExpectedProblem("Test", "Type mismatch: cannot convert from Boolean to boolean", testPath));

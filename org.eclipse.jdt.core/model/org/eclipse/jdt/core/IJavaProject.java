@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -407,6 +411,20 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	IType findType(String packageName, String typeQualifiedName, WorkingCopyOwner owner, IProgressMonitor progressMonitor) throws JavaModelException;
 
 	/**
+	 * Finds the first module with the given name found following this project's module path.
+	 * If the returned module descriptor is part of a compilation unit, its owner is the given owner.
+	 * @param moduleName the given module name
+	 * @param owner the owner of the returned module descriptor's compilation unit
+	 * 
+	 * @exception JavaModelException if this project does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @return the first module found following this project's module path
+	 * with the given name or <code>null</code> if none is found
+	 * @since 3.13 BETA_JAVA9
+	 */
+	IModuleDescription findModule(String moduleName, WorkingCopyOwner owner) throws JavaModelException;
+
+	/**
 	 * Returns all of the existing package fragment roots that exist
 	 * on the classpath, in the order they are defined by the classpath.
 	 *
@@ -574,6 +592,23 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * was created
 	 */
 	IProject getProject();
+
+	/**
+	 * Returns the <code>IModuleDescription</code> this project represents or 
+	 * null if the Java project doesn't represent any named module. A Java 
+	 * project is said to represent a module if any of its source package 
+	 * fragment roots (see {@link IPackageFragmentRoot#K_SOURCE}) contains a 
+	 * valid Java module descriptor, or if one of its classpath entries
+	 * has a valid {@link IClasspathAttribute#PATCH_MODULE} attribute.
+	 * In the latter case the corresponding module description of the
+	 * location referenced by that classpath entry is returned.
+	 * 
+	 * @return the <code>IModule</code> this project represents.
+	 * @exception JavaModelException if this element does not exist or if an
+	 *		exception occurs while accessing its corresponding resource
+	 * @since 3.13 BETA_JAVA9
+	 */
+	IModuleDescription getModuleDescription() throws JavaModelException;
 
 	/**
 	 * Returns the raw classpath for the project, as a list of classpath

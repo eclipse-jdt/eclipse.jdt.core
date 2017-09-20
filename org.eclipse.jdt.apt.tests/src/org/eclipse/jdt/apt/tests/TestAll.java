@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
@@ -24,7 +28,11 @@ import junit.framework.TestSuite;
  * the name of an annotation processor factory class implemented in this plugin.
  */
 public class TestAll extends TestCase {
-	
+
+	static {
+		System.setProperty("modules", "java.base");
+	}
+
 	public TestAll(String testName) 
 	{
 		super(testName);

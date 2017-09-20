@@ -4,7 +4,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -2059,6 +2063,21 @@ public void test339478n() {
 		"----------\n");
 }
 public void test339478o() {
+	String log_18 = 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	new X<>(){\n" + 
+			"	    ^\n" + 
+			"\'<>\' cannot be used with anonymous classes\n" + 
+			"----------\n";
+	String log_9 = 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	void newMethod(){\n" + 
+			"	     ^^^^^^^^^^^\n" + 
+			"The method newMethod() of type new X<Object>(){} must override or implement a supertype method\n" + 
+			"----------\n";
+	String errorMsg = this.complianceLevel < ClassFileConstants.JDK9 ? log_18 : log_9;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2086,14 +2105,42 @@ public void test339478o() {
 		"	    ^\n" + 
 		"\'<>\' cannot be used with anonymous classes\n" + 
 		"----------\n":
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	new X<>(){\n" + 
-			"	    ^\n" + 
-			"\'<>\' cannot be used with anonymous classes\n" + 
-			"----------\n");
+			errorMsg);
 }
 public void test339478p() {
+	String log_18 = 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	X Test = new X<>(){\n" + 
+			"	^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	X Test = new X<>(){\n" + 
+			"	             ^\n" + 
+			"\'<>\' cannot be used with anonymous classes\n" + 
+			"----------\n";
+	String log_9 = 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	X Test = new X<>(){\n" + 
+			"	^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	X Test = new X<>(){\n" + 
+			"			void newMethod(){\n" + 
+			"			}\n" + 
+			"		}.testFunction(\"SUCCESS\");\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from void to X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	void newMethod(){\n" + 
+			"	     ^^^^^^^^^^^\n" + 
+			"The method newMethod() of type new X<Object>(){} must override or implement a supertype method\n" + 
+			"----------\n";
+	String errorMsg = this.complianceLevel < ClassFileConstants.JDK9 ? log_18 : log_9;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2126,17 +2173,7 @@ public void test339478p() {
 		"	             ^\n" + 
 		"\'<>\' cannot be used with anonymous classes\n" + 
 		"----------\n" : 
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	X Test = new X<>(){\n" + 
-			"	^\n" + 
-			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	X Test = new X<>(){\n" + 
-			"	             ^\n" + 
-			"\'<>\' cannot be used with anonymous classes\n" + 
-			"----------\n");
+			errorMsg);
 }
 public void test339478q() {
 	this.runNegativeTest(
@@ -5470,6 +5507,8 @@ public void testBug452194() {
 		"----------\n");
 }
 public void testBug454644() {
+	Map<String,String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 	runNegativeTest(
 		new String[] {
 			"example/CollectionFactory.java",
@@ -5614,14 +5653,12 @@ public void testBug454644() {
 		"	return (Collection<E>) collectionClass.newInstance();\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: Unchecked cast from capture#13-of ? to Collection<E>\n" + 
-		"----------\n"
-		);
+		"----------\n",
+		null, true, options);
 }
 // original test case, documenting existing compiler behavior
 public void testBug456459a() {
 	runNegativeTest(
-		false /*skipJavac */,
-		JavacTestOptions.Excuse.JavacHasErrorsEclipseHasWarnings,
 		new String[] {
 			"EnumTest.java",
 			"import java.util.EnumSet;\n" + 
@@ -5643,22 +5680,25 @@ public void testBug456459a() {
 		"	                                      ^^^^^\n" + 
 		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 		"----------\n" + 
-		"2. WARNING in EnumTest.java (at line 9)\n" + 
+		"2. ERROR in EnumTest.java (at line 9)\n" + 
 		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" + 
-		"	                           ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: Unchecked invocation allOf(Class) of the generic method allOf(Class<E>) of type EnumSet\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends T is not a valid substitute for the bounded parameter <E extends Enum<E>> of the type EnumSet<E>\n" + 
 		"----------\n" + 
 		"3. WARNING in EnumTest.java (at line 9)\n" + 
 		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" + 
 		"	                           ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: The expression of type EnumSet needs unchecked conversion to conform to EnumSet<? extends T>\n" + 
+		"Type safety: Unchecked invocation allOf(Class) of the generic method allOf(Class<E>) of type EnumSet\n" + 
 		"----------\n" + 
 		"4. WARNING in EnumTest.java (at line 9)\n" + 
 		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" + 
+		"	                           ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type EnumSet needs unchecked conversion to conform to EnumSet<? extends T>\n" + 
+		"----------\n" + 
+		"5. WARNING in EnumTest.java (at line 9)\n" + 
+		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" + 
 		"	                                         ^^^^^^^^\n" +
-		(this.complianceLevel < ClassFileConstants.JDK1_8
-		? "Type safety: The expression of type Class needs unchecked conversion to conform to Class<T&Enum<T&Enum<E>>>\n"
-		: "Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n") +
+		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n" +
 		"----------\n");
 }
 // simple conflict introduced by additional wildcard bound
@@ -5992,6 +6032,7 @@ public void testBug469297() {
 			"            return list;\n" + 
 			"        }\n" + 
 			"    \n" + 
+			" @SuppressWarnings(\"deprecation\")\n" +
 			"        static final <L extends List<?>> L newList(Class<L> type) {\n" + 
 			"            try {\n" + 
 			"                return type.newInstance();\n" + 
@@ -6084,6 +6125,25 @@ public void testBug515614() {
 			"",
 		}
 	);
+}
+public void testBug521212() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"class Y<U extends Z> {}\n" + 
+			"class Z {}\n" + 
+			"public class X<T> {\n" + 
+			"    public static <V> Y<? extends V> one() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	public static <V> Y<? extends V> one() {\n" + 
+		"	                    ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends V is not a valid substitute for the bounded parameter <U extends Z> of the type Y<U>\n" + 
+		"----------\n");
 }
 }
 

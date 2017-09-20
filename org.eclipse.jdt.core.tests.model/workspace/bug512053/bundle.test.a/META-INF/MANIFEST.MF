@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: A
+Bundle-SymbolicName: bundle.test.a
+Bundle-Version: 1.0.0.qualifier
+Bundle-RequiredExecutionEnvironment: JavaSE-9
+Import-Package: bundle.test.a.callable
+Export-Package: bundle.test.a
+Private-Package: bundle.test.a.internal
+Service-Component: component.xml

@@ -20,11 +20,11 @@ import javax.lang.model.SourceVersion;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
+import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-
-import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 public class Java8ElementsTests extends TestCase {
 	
@@ -60,7 +60,9 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations");
 	}
-	public void _testTypeAnnotationsWithJavac() throws Exception {
+	public void testTypeAnnotationsWithJavac() throws Exception {
+		if (!canRunJava9())
+			return;
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations");
 	}
@@ -76,7 +78,9 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations2");
 	}
-	public void _testTypeAnnotations2WithJavac() throws Exception {
+	public void testTypeAnnotations2WithJavac() throws Exception {
+		if (!canRunJava9())
+			return;
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations2");
 	}
@@ -84,7 +88,9 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations3");
 	}
-	public void _testTypeAnnotations3WithJavac() throws Exception {
+	public void testTypeAnnotations3WithJavac() throws Exception {
+		if (!canRunJava9())
+			return;
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations3");
 	}
@@ -92,7 +98,9 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations4");
 	}
-	public void _testTypeAnnotations4WithJavac() throws Exception {
+	public void testTypeAnnotations4WithJavac() throws Exception {
+		if (!canRunJava9())
+			return;
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations4");
 	}
@@ -100,7 +108,9 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations5");
 	}
-	public void _testTypeAnnotations5WithJavac() throws Exception {
+	public void testTypeAnnotations5WithJavac() throws Exception {
+		if (!canRunJava9())
+			return;
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations5");
 	}
@@ -108,7 +118,9 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations6");
 	}
-	public void _testTypeAnnotations6WithJavac() throws Exception {   // Disabled for now. Javac 8b108 drops annotations arrays preceding varargs.
+	public void testTypeAnnotations6WithJavac() throws Exception {   // Disabled for now. Javac 8b108 drops annotations arrays preceding varargs.
+		if (!canRunJava9())
+			return;
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations6");
 	}
@@ -148,7 +160,9 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations11");
 	}
-	public void _testTypeAnnotations11WithJavac() throws Exception {
+	public void testTypeAnnotations11WithJavac() throws Exception {
+		if (!canRunJava9())
+			return;
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations11");
 	}
@@ -159,6 +173,10 @@ public class Java8ElementsTests extends TestCase {
 	public void testTypeAnnotations12WithJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations12");
+	}
+	public void _testTypeAnnotations12Binary() throws Exception { // FIXME: disabled after 3 consecutive failures on hudson, which could not be reproduced locally
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testTypeAnnotations12Binary", null, "model9");
 	}
 	public void testTypeAnnotations13() throws Exception {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -297,11 +315,56 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testPackageAnnotations", null, "filer8");
 	}
-	public void testPackageAnnotationsWithJavac() throws Exception {
+	// See Java8ElementProcessor.testPackageAnnotations()
+	public void _testPackageAnnotationsWithJavac() throws Exception {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testPackageAnnotations", null, "filer8");
 	}
-	
+	public void testBug520540a() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testBug520540", null, "bug520540");
+	}
+	public void testBug520540aJavac() throws Exception {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testBug520540", null, "bug520540");
+	}
+	public void testBug520540b() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "bug520540");
+		BatchTestUtils.copyResources("targets/bug520540", targetFolder);
+		List<String> options = new ArrayList<String>();
+		options.add("-cp");
+		options.add(BatchTestUtils._tmpGenFolderName + File.pathSeparatorChar + BatchTestUtils._jls8ProcessorJarPath);
+		options.add("-processor");
+		options.add(JAVA8_ANNOTATION_PROC);
+		options.add("-A" + JAVA8_ANNOTATION_PROC);
+		options.add("-AtestBug520540");
+		options.add("-1.8");
+		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, null, true, false);
+		assertEquals(true, success);
+		assertEquals("succeeded", System.getProperty(JAVA8_ANNOTATION_PROC));
+	}
+	public void testBug520540bJavac() throws Exception {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "bug520540");
+		BatchTestUtils.copyResources("targets/bug520540", targetFolder);
+		List<String> options = new ArrayList<String>();
+		options.add("-cp");
+		options.add(BatchTestUtils._tmpGenFolderName + File.pathSeparatorChar + BatchTestUtils._jls8ProcessorJarPath);
+		options.add("-processorpath");
+		options.add(" ");
+		options.add("-processor");
+		options.add(JAVA8_ANNOTATION_PROC);
+		options.add("-A" + JAVA8_ANNOTATION_PROC);
+		options.add("-AtestBug520540");
+		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, null, true, false);
+		assertEquals(true, success);
+		assertEquals("succeeded", System.getProperty(JAVA8_ANNOTATION_PROC));
+	}
+	public void testEnumConstArgumentsBinary() throws Exception {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testEnumConstArguments", null, "bug521812");
+	}
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
 		internalTest(compiler, processor, testMethod, null);
 	}
@@ -334,9 +397,45 @@ public class Java8ElementsTests extends TestCase {
 		// if not, it will set it to an error value.
 		assertEquals("succeeded", System.getProperty(processor));
 	}
+	private void internalTestWithBinary(JavaCompiler compiler, String processor, String testMethod, String testClass, String resourceArea) throws IOException {
+		if (!canRunJava8()) {
+			return;
+		}
+		System.clearProperty(processor);
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", resourceArea);
+		if (testClass == null || testClass.equals("")) {
+			BatchTestUtils.copyResources("targets/" + resourceArea, targetFolder);
+		} else {
+			BatchTestUtils.copyResource("targets/" + resourceArea + "/" + testClass, targetFolder);
+		}
+		
+
+		List<String> options = new ArrayList<String>();
+		options.add("-A" + processor);
+		options.add("-A" + testMethod);
+		options.add("-processor");
+		options.add(processor);
+		// Javac 1.8 doesn't (yet?) support the -1.8 option
+		if (compiler instanceof EclipseCompiler) {
+			options.add("-1.8");
+		}
+		BatchTestUtils.compileTreeAndProcessBinaries(compiler, options, processor, targetFolder, null);
+
+		// If it succeeded, the processor will have set this property to "succeeded";
+		// if not, it will set it to an error value.
+		assertEquals("succeeded", System.getProperty(processor));
+	}
 	public boolean canRunJava8() {
 		try {
 			SourceVersion.valueOf("RELEASE_8");
+		} catch(IllegalArgumentException iae) {
+			return false;
+		}
+		return true;
+	}
+	public boolean canRunJava9() {
+		try {
+			SourceVersion.valueOf("RELEASE_9");
 		} catch(IllegalArgumentException iae) {
 			return false;
 		}

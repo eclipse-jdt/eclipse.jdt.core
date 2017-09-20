@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -897,6 +901,62 @@ public abstract class ASTNode {
 	public static final int TYPE_METHOD_REFERENCE = 92;
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>ModuleDeclaration</code>.
+	 * @see ModuleDeclaration
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int MODULE_DECLARATION = 93;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>RequiresDirective</code>.
+	 * @see RequiresDirective
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int REQUIRES_DIRECTIVE = 94;
+	
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>ExportsDirective</code>.
+	 * @see ExportsDirective
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int EXPORTS_DIRECTIVE = 95;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>OpensDirective</code>.
+	 * @see OpensDirective
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int OPENS_DIRECTIVE = 96;
+	
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>UsesDirective</code>.
+	 * @see UsesDirective
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int USES_DIRECTIVE = 97;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>ProvidesDirective</code>.
+	 * @see ProvidesDirective
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int PROVIDES_DIRECTIVE = 98;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>ModuleModifier</code>.
+	 * @see ModuleModifier
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int MODULE_MODIFIER = 99;
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -964,6 +1024,8 @@ public abstract class ASTNode {
 				return EnumConstantDeclaration.class;
 			case ENUM_DECLARATION :
 				return EnumDeclaration.class;
+			case EXPORTS_DIRECTIVE :
+				return ExportsDirective.class;
 			case EXPRESSION_METHOD_REFERENCE :
 				return ExpressionMethodReference.class;
 			case EXPRESSION_STATEMENT :
@@ -1010,6 +1072,10 @@ public abstract class ASTNode {
 				return MethodRefParameter.class;
 			case MODIFIER :
 				return Modifier.class;
+			case MODULE_DECLARATION :
+				return ModuleDeclaration.class;
+			case MODULE_MODIFIER :
+				return ModuleModifier.class;
 			case NAME_QUALIFIED_TYPE :
 				return NameQualifiedType.class;
 			case NORMAL_ANNOTATION :
@@ -1018,6 +1084,8 @@ public abstract class ASTNode {
 				return NullLiteral.class;
 			case NUMBER_LITERAL :
 				return NumberLiteral.class;
+			case OPENS_DIRECTIVE :
+				return OpensDirective.class;
 			case PACKAGE_DECLARATION :
 				return PackageDeclaration.class;
 			case PARAMETERIZED_TYPE :
@@ -1030,10 +1098,14 @@ public abstract class ASTNode {
 				return PrefixExpression.class;
 			case PRIMITIVE_TYPE :
 				return PrimitiveType.class;
+			case PROVIDES_DIRECTIVE :
+				return ProvidesDirective.class;
 			case QUALIFIED_NAME :
 				return QualifiedName.class;
 			case QUALIFIED_TYPE :
 				return QualifiedType.class;
+			case REQUIRES_DIRECTIVE :
+				return RequiresDirective.class;
 			case RETURN_STATEMENT :
 				return ReturnStatement.class;
 			case SIMPLE_NAME :
@@ -1082,6 +1154,8 @@ public abstract class ASTNode {
 				return TypeParameter.class;
 			case UNION_TYPE :
 				return UnionType.class;
+			case USES_DIRECTIVE :
+				return UsesDirective.class;
 			case VARIABLE_DECLARATION_EXPRESSION :
 				return VariableDeclarationExpression.class;
 			case VARIABLE_DECLARATION_FRAGMENT :
@@ -1964,18 +2038,33 @@ public abstract class ASTNode {
 	 * @since 3.10
 	 */
 	final void unsupportedIn2_3_4() {
-		if (this.ast.apiLevel < AST.JLS8) {
+		if (this.ast.apiLevel < AST.JLS8_INTERNAL) {
 			throw new UnsupportedOperationException("Operation only supported in JLS8 and later AST"); //$NON-NLS-1$
 		}
 	}
-	
+
+	/**
+     * Checks that this AST operation is not used when
+     * building JLS2, JLS3, JLS4 or JLS8 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties that have been added in JLS9.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is used below JLS9
+	 * @since 3.13 BETA_JAVA9
+	 */
+	final void unsupportedBelow9() {
+		if (this.ast.apiLevel < AST.JLS9_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in JLS9 and later AST"); //$NON-NLS-1$
+		}
+	}
 	/**
      * Checks that this AST operation is only used when
      * building JLS2 level ASTs.
      * <p>
      * Use this method to prevent access to deprecated properties (deprecated in JLS3).
      * </p>
-     * 
+     *
 	 * @exception UnsupportedOperationException if this operation is used in an AST later than JLS2
 	 * @since 3.0
      */
@@ -1998,7 +2087,7 @@ public abstract class ASTNode {
      */
 	// In API Javadocs, add: * @deprecated In the JLS8 API, this method is replaced by {@link #replacement()}.
 	final void supportedOnlyIn2_3_4() {
-	  if (this.ast.apiLevel >= AST.JLS8) {
+	  if (this.ast.apiLevel >= AST.JLS8_INTERNAL) {
 	  	throw new UnsupportedOperationException("Operation only supported in JLS2, JLS3 and JLS4 ASTs"); //$NON-NLS-1$
 	  }
 	}

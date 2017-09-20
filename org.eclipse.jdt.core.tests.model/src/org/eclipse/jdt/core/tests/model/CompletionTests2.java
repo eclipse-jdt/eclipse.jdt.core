@@ -18,7 +18,6 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import junit.framework.ComparisonFailure;
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
@@ -52,8 +51,8 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class CompletionTests2 extends ModifyingResourceTests implements RelevanceConstants {
+@SuppressWarnings({"rawtypes", "unchecked", "hiding"})
+public class CompletionTests2 extends AbstractJavaModelCompletionTests {
 	
 	static {
 //		TESTS_NAMES = new String[]{"testBug373409"};
@@ -176,15 +175,6 @@ public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
 }
 
-protected static void assertResults(String expected, String actual) {
-	try {
-		assertEquals(expected, actual);
-	} catch(ComparisonFailure c) {
-		System.out.println(actual);
-		System.out.println();
-		throw c;
-	}
-}
 static {
 //	TESTS_NAMES = new String[] { "testBug96950" };
 }
@@ -4990,8 +4980,8 @@ public void testBug237469a() throws Exception {
 	} finally {
 		this.deleteProject("PS1");
 		this.deleteProject("PS2");
-		this.deleteExternalFile(externalJar1);
-		this.deleteExternalFile(externalJar2);
+		this.deleteResource(new File(externalJar1));
+		this.deleteResource(new File(externalJar2));
 	}
 }
 public void testBug237469b() throws Exception {
@@ -5103,8 +5093,8 @@ public void testBug237469b() throws Exception {
 	} finally {
 		this.deleteProject("PS1");
 		this.deleteProject("PS2");
-		this.deleteExternalFile(externalJar1);
-		this.deleteExternalFile(externalJar2);
+		this.deleteResource(new File(externalJar1));
+		this.deleteResource(new File(externalJar2));
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=270113

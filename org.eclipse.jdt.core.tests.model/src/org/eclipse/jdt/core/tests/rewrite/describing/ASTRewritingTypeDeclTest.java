@@ -86,7 +86,12 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 	public static Test suite() {
 		return createSuite(ASTRewritingTypeDeclTest.class);
 	}
-
+	/**
+	 * @deprecated references deprecated old AST level
+	 */
+	protected static int getAST8() {
+		return AST.JLS8;
+	}
 	/** @deprecated using deprecated code */
 	public void testTypeDeclChanges_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -1940,7 +1945,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("    interface IC {}\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
-		CompilationUnit astRoot= createAST(AST.JLS8, cu, true, false);
+		CompilationUnit astRoot= createAST(getAST8(), cu, true, false);
 		List types = astRoot.types();
 		TypeDeclaration typeDeclaration = (((TypeDeclaration) types.get(0)).getTypes())[0];
 		ITypeBinding iTypeBinding = typeDeclaration.resolveBinding();
@@ -1954,7 +1959,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		buf.append("    interface IC {}\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
-		CompilationUnit astRoot= createAST(AST.JLS8, cu, true, false);
+		CompilationUnit astRoot= createAST(getAST8(), cu, true, false);
 		List types = astRoot.types();
 		TypeDeclaration outerTypeDeclaration = (TypeDeclaration) types.get(0);
 		TypeDeclaration memberTypeDeclaration = (outerTypeDeclaration.getTypes())[0];

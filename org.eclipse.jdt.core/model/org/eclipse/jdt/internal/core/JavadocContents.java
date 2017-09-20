@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2014 IBM Corporation and others.
+ * Copyright (c) 2009, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -91,14 +95,17 @@ public class JavadocContents {
 		if (index == -1) {
 			index = CharOperation.indexOf(JavadocConstants.PACKAGE_DESCRIPTION_START, this.content, false, 0);
 		}
-		if (index == -1) return null;
-		index = CharOperation.indexOf(JavadocConstants.ANCHOR_SUFFIX, this.content, false, index);
-		if (index == -1) return null;
-		
-		int start = CharOperation.indexOf(JavadocConstants.H2_PREFIX, this.content, false, index);
-		if (start != -1) {
-			start = CharOperation.indexOf(JavadocConstants.H2_SUFFIX, this.content, false, start);
-			if (start != -1) index = start + JavadocConstants.H2_SUFFIX_LENGTH;
+		if (index != -1) {
+			index = CharOperation.indexOf(JavadocConstants.ANCHOR_SUFFIX, this.content, false, index);
+			if (index == -1) return null;
+			
+			int start = CharOperation.indexOf(JavadocConstants.H2_PREFIX, this.content, false, index);
+			if (start != -1) {
+				start = CharOperation.indexOf(JavadocConstants.H2_SUFFIX, this.content, false, start);
+				if (start != -1) index = start + JavadocConstants.H2_SUFFIX_LENGTH;
+			}
+		} else {
+			index = CharOperation.indexOf(JavadocConstants.PACKAGE_DESCRIPTION_START3, this.content, false, 0);
 		}
 		if (index != -1) {
 			int end = CharOperation.indexOf(JavadocConstants.BOTTOM_NAVBAR, this.content, false, index);
@@ -107,6 +114,15 @@ public class JavadocContents {
 			return String.valueOf(CharOperation.subarray(this.content, range[0], range[1]));
 		}
 		return null;
+	}
+	
+	public String getModuleDoc() throws JavaModelException {
+		if (this.content == null) return null;
+		int index = CharOperation.indexOf(JavadocConstants.MODULE_DESCRIPTION_START, this.content, false, 0);
+		if (index == -1) return null;
+		int end = CharOperation.indexOf(JavadocConstants.BOTTOM_NAVBAR, this.content, false, index);
+		if (end == -1) end = this.content.length -1;
+		return String.valueOf(CharOperation.subarray(this.content, index, end));
 	}
 	
 	/*

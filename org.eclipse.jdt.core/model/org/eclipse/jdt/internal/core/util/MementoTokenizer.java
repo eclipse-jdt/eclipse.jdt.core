@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2011 IBM Corporation and others.
+ * Copyright (c) 2004, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -22,7 +26,9 @@ public class MementoTokenizer {
 	public static final String INITIALIZER = Character.toString(JavaElement.JEM_INITIALIZER);
 	public static final String COMPILATIONUNIT = Character.toString(JavaElement.JEM_COMPILATIONUNIT);
 	public static final String CLASSFILE = Character.toString(JavaElement.JEM_CLASSFILE);
+	public static final String MODULAR_CLASSFILE = Character.toString(JavaElement.JEM_MODULAR_CLASSFILE);
 	public static final String TYPE = Character.toString(JavaElement.JEM_TYPE);
+	public static final String MODULE = Character.toString(JavaElement.JEM_MODULE);
 	public static final String PACKAGEDECLARATION = Character.toString(JavaElement.JEM_PACKAGEDECLARATION);
 	public static final String IMPORTDECLARATION = Character.toString(JavaElement.JEM_IMPORTDECLARATION);
 	public static final String LOCALVARIABLE = Character.toString(JavaElement.JEM_LOCALVARIABLE);
@@ -90,8 +96,12 @@ public class MementoTokenizer {
 				return COMPILATIONUNIT;
 			case JavaElement.JEM_CLASSFILE:
 				return CLASSFILE;
+			case JavaElement.JEM_MODULAR_CLASSFILE:
+				return MODULAR_CLASSFILE;
 			case JavaElement.JEM_TYPE:
 				return TYPE;
+			case JavaElement.JEM_MODULE:
+				return MODULE;
 			case JavaElement.JEM_PACKAGEDECLARATION:
 				return PACKAGEDECLARATION;
 			case JavaElement.JEM_IMPORTDECLARATION:
@@ -120,6 +130,7 @@ public class MementoTokenizer {
 				case JavaElement.JEM_COMPILATIONUNIT:
 				case JavaElement.JEM_CLASSFILE:
 				case JavaElement.JEM_TYPE:
+				case JavaElement.JEM_MODULE:
 				case JavaElement.JEM_PACKAGEDECLARATION:
 				case JavaElement.JEM_IMPORTDECLARATION:
 				case JavaElement.JEM_LOCALVARIABLE:

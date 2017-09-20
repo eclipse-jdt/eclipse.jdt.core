@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2009 IBM Corporation and others.
+ * Copyright (c) 2006, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -33,7 +37,18 @@ public interface ITypeRoot extends IJavaElement, IParent, IOpenable, ISourceRefe
  * @return the found primary type of this Java type root, or <code>null</code> if no such a type exists
  */
 IType findPrimaryType();
-
+/**
+ * Returns the module description contained in this type root or null if there is no module
+ * in this type root.
+ * <p>Only subtype {@link IModularClassFile} promises to return non-null.</p>
+ *
+ * @throws JavaModelException 
+ * @since 3.13 BETA_JAVA9
+ * @return the module description contained in the type root or null.
+ */
+default IModuleDescription getModule() throws JavaModelException {
+	return null;
+}
 /**
  * Returns the smallest element within this Java type root that
  * includes the given source position (that is, a method, field, etc.), or

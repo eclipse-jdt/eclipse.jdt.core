@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -34,10 +38,10 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
  * Implementation of a Java file object that corresponds to an entry in a zip/jar file
  */
 public class ArchiveFileObject implements JavaFileObject {
-	private String entryName;
-	private File file;
+	protected String entryName;
+	protected File file;
 	private ZipFile zipFile;
-	private Charset charset;
+	protected Charset charset;
 
 	public ArchiveFileObject(File file, String entryName, Charset charset) {
 		this.entryName = entryName;
@@ -66,16 +70,7 @@ public class ArchiveFileObject implements JavaFileObject {
 		if (getKind() != Kind.CLASS) {
 			return null;
 		}
-		ClassFileReader reader = null;
-		try {
-			try (ZipFile zip = new ZipFile(this.file)) {
-				reader = ClassFileReader.read(zip, this.entryName);
-			}
-		} catch (ClassFormatException e) {
-			// ignore
-		} catch (IOException e) {
-			// ignore
-		}
+		ClassFileReader reader = getClassReader();
 
 		if (reader == null) {
 			return null;
@@ -93,6 +88,19 @@ public class ArchiveFileObject implements JavaFileObject {
 		return null;
 	}
 
+	protected ClassFileReader getClassReader() {
+		ClassFileReader reader = null;
+		try {
+			try (ZipFile zip = new ZipFile(this.file)) {
+				reader = ClassFileReader.read(zip, this.entryName);
+			}
+		} catch (ClassFormatException e) {
+			// ignore
+		} catch (IOException e) {
+			// ignore
+		}
+		return reader;
+	}
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileObject#getKind()
 	 */
@@ -118,16 +126,7 @@ public class ArchiveFileObject implements JavaFileObject {
 		case SOURCE :
 			return NestingKind.TOP_LEVEL;
 		case CLASS :
-			ClassFileReader reader = null;
-			try {
-				try (ZipFile zip = new ZipFile(this.file)) {
-					reader = ClassFileReader.read(zip, this.entryName);
-				}
-			} catch (ClassFormatException e) {
-				// ignore
-			} catch (IOException e) {
-				// ignore
-			}
+			ClassFileReader reader = getClassReader();
 			if (reader == null) {
 				return null;
 			}

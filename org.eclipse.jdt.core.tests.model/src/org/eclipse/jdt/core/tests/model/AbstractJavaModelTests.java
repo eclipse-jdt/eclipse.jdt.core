@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -24,11 +28,13 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
@@ -67,6 +73,24 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected int tabs = 2;
 	protected boolean displayName = false;
 	protected String endChar = ",";
+
+	protected static boolean isJRE9 = false;
+	static {
+		String javaVersion = System.getProperty("java.version");
+		if (javaVersion.length() > 3) {
+			javaVersion = javaVersion.substring(0, 3);
+		}
+		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK9) {
+			isJRE9 = true;
+		}
+	}
+
+	/**
+	 * Internal synonym for constant AST.JSL9
+	 * to alleviate deprecation warnings once AST.JLS9 is deprecated in future.
+	 */
+	protected static final int AST_INTERNAL_JLS9 = AST.JLS9;
 
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}
@@ -1270,7 +1294,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void createJar(String[] javaPathsAndContents, String jarPath, Map options) throws IOException {
 		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, null, jarPath, null, "1.4", options);
 	}
-	
+
 	protected void createJar(String[] javaPathsAndContents, String jarPath, String[] classpath, String compliance) throws IOException {
 		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, null,jarPath, classpath, compliance);
 	}
@@ -1278,7 +1302,27 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void createJar(String[] javaPathsAndContents, String jarPath, String[] classpath, String compliance, Map options) throws IOException {
 		org.eclipse.jdt.core.tests.util.Util.createJar(javaPathsAndContents, null, jarPath, classpath, compliance, options);
 	}
-	
+
+	protected IJavaProject createJava9Project(String name) throws CoreException {
+		return createJava9Project(name, new String[]{"src"});
+	}
+	protected IJavaProject createJava9Project(String name, String[] srcFolders) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, srcFolders, null);
+	}
+	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes) throws CoreException {
+		String javaHome = System.getProperty("java.home") + File.separator;
+		Path bootModPath = new Path(javaHome +"/lib/jrt-fs.jar");
+		Path sourceAttachment = new Path(javaHome +"/lib/src.zip");
+		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(bootModPath, sourceAttachment, null, null, attributes, false);
+		IJavaProject project = this.createJavaProject(name, srcFolders, new String[0],
+				new String[0], "bin", "9");
+		IClasspathEntry[] old = project.getRawClasspath();
+		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];
+		System.arraycopy(old, 0, newPath, 0, old.length);
+		newPath[old.length] = jrtEntry;
+		project.setRawClasspath(newPath, null);
+		return project;
+	}
 	/*
 	}
 	 * Creates a Java project where prj=src=bin and with JCL_LIB on its classpath.
@@ -1682,12 +1726,19 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					}
 					if (lib.indexOf(File.separatorChar) == -1 && lib.charAt(0) != '/' && lib.equals(lib.toUpperCase())) { // all upper case is a var
 						char[][] vars = CharOperation.splitOn(',', lib.toCharArray());
+						IClasspathAttribute[] extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
+						if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK9 
+								&& (lib.startsWith("JCL") || lib.startsWith("CONVERTER_JCL"))) {
+							extraAttributes = new IClasspathAttribute[] {
+								JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true")
+							};
+						}
 						entries[sourceLength+i] = JavaCore.newVariableEntry(
 							new Path(new String(vars[0])),
 							vars.length > 1 ? new Path(new String(vars[1])) : null,
 							vars.length > 2 ? new Path(new String(vars[2])) : null,
 							ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles), // ClasspathEntry.NO_ACCESS_RULES,
-							ClasspathEntry.NO_EXTRA_ATTRIBUTES,
+							extraAttributes,
 							false);
 					} else if (lib.startsWith("org.eclipse.jdt.core.tests.model.")) { // container
 						entries[sourceLength+i] = JavaCore.newContainerEntry(
@@ -1796,8 +1847,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 					javaProject.setOptions(options);
+				} else if ("9".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
+					javaProject.setOptions(options);
 				}
-
 				result[0] = javaProject;
 			}
 		};
@@ -2759,6 +2815,46 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			assertTrue("failed to set classpath", false);
 		}
 	}
+	protected IJavaProject setupModuleProject(String name, String[] sources) throws CoreException {
+		return setupModuleProject(name, sources, false);
+	}
+	protected IJavaProject setupModuleProject(String name, String[] sources, boolean addModulePathContainer) throws CoreException {
+		IClasspathEntry[] deps = null;
+		if (addModulePathContainer) {
+			IClasspathEntry containerEntry = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			deps = new IClasspathEntry[] {containerEntry};
+		}
+		return setupModuleProject(name, sources, deps);
+	}
+	protected IJavaProject setupModuleProject(String name, String[] sources, IClasspathEntry[] deps) throws CoreException {
+		return setupModuleProject(name, new String[]{"src"}, sources, deps);
+	}
+	protected IJavaProject setupModuleProject(String name, String[] srcFolders, String[] sources, IClasspathEntry[] deps) throws CoreException {
+		IJavaProject project = createJava9Project(name, srcFolders);
+		createSourceFiles(project, sources);
+		if (deps != null) {
+			IClasspathEntry[] old = project.getRawClasspath();
+			IClasspathEntry[] newPath = new IClasspathEntry[old.length + deps.length];
+			System.arraycopy(old, 0, newPath, 0, old.length);
+			System.arraycopy(deps, 0, newPath, old.length, deps.length);
+			project.setRawClasspath(newPath, null);
+		}
+		return project;
+	}
+
+	protected void createSourceFiles(IJavaProject project, String[] sources) throws CoreException {
+		IProgressMonitor monitor = new NullProgressMonitor();
+		for (int i = 0; i < sources.length; i+= 2) {
+			IPath path = new Path(sources[i]);
+			IPath parentPath = path.removeLastSegments(1);
+			IFolder folder = project.getProject().getFolder(parentPath);
+			if (!folder.exists())
+				this.createFolder(folder.getFullPath());
+			IFile file = project.getProject().getFile(new Path(sources[i]));
+			file.create(new ByteArrayInputStream(sources[i+1].getBytes()), true, monitor);
+		}
+	}
+
 	/**
 	 * Check locally for the required JCL files, <jclName>.jar and <jclName>src.zip.
 	 * If not available, copy from the project resources.
@@ -2849,7 +2945,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			newJclLibString = "JCL18_FULL";
 			newJclSrcString = "JCL18_SRC"; // Use the same source
 		} else {
-			if (compliance.charAt(2) > '7') {
+			if (compliance.length() < 3) {
+					newJclLibString = "JCL19_LIB";
+					newJclSrcString = "JCL19_SRC";
+			} else if (compliance.charAt(2) > '7') {
 				newJclLibString = "JCL18_LIB";
 				newJclSrcString = "JCL18_SRC";
 			} else if (compliance.charAt(2) > '4') {
@@ -2894,9 +2993,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IPath jclLib = new Path("JCL_LIB");
 		IPath jcl5Lib = new Path("JCL15_LIB");
 		IPath jcl8Lib = new Path("JCL18_LIB");
+		IPath jcl9Lib = new Path("JCL19_LIB");
 		IPath jclFull = new Path("JCL18_FULL");
 
-		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jclFull);
+		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jcl9Lib) || path.equals(jclFull);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		setUpJCLClasspathVariables(compliance, false);
@@ -2934,6 +3034,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 							new String[] {"JCL18_LIB", "JCL18_SRC", "JCL_SRCROOT"},
 							new IPath[] {getExternalJCLPath("1.8"), getExternalJCLSourcePath("1.8"), getExternalJCLRootSourcePath()},
 							null);
+			}
+		} else if ("9".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL19_LIB") == null) {
+				setupExternalJCL("jclMin9");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL19_LIB", "JCL19_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("9"), getExternalJCLSourcePath("9"), getExternalJCLRootSourcePath()},
+					null);
 			}
 		} else {
 			if (JavaCore.getClasspathVariable("JCL_LIB") == null) {

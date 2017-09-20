@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2010 IBM Corporation and others.
+ * Copyright (c) 2006, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -29,8 +33,8 @@ public class ClasspathSourceJar extends ClasspathJar {
 		this.encoding = encoding;
 	}
 
-	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
-		if (!isPackage(qualifiedPackageName))
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+		if (!isPackage(qualifiedPackageName, moduleName))
 			return null; // most common case
 
 		ZipEntry sourceEntry = this.zipFile.getEntry(qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java);
@@ -45,12 +49,14 @@ public class ClasspathSourceJar extends ClasspathJar {
 					if (stream != null)
 						stream.close();
 				}
+				CompilationUnit compilationUnit = new CompilationUnit(
+					contents,
+					qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6) + SUFFIX_STRING_java,
+					this.encoding,
+					this.destinationPath);
+				compilationUnit.module = this.module == null ? null : this.module.name();
 				return new NameEnvironmentAnswer(
-					new CompilationUnit(
-						contents,
-						qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6) + SUFFIX_STRING_java,
-						this.encoding,
-						this.destinationPath),
+					compilationUnit,
 					fetchAccessRestriction(qualifiedBinaryFileName));
 			} catch (IOException e) {
 				// treat as if source file is missing
@@ -58,9 +64,7 @@ public class ClasspathSourceJar extends ClasspathJar {
 		}
 		return null;
 	}
-	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
-		return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
-	}
+
 	public int getMode() {
 		return SOURCE;
 	}

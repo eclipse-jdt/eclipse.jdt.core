@@ -25,6 +25,7 @@
   <packaging>pom</packaging>
 
   <properties>
+    <cbi-jdt-version>3.14.0.v20170830-0152</cbi-jdt-version>
     <tycho.scmUrl>scm:git:git://git.eclipse.org/gitroot/jdt/eclipse.jdt.core.git</tycho.scmUrl>
   </properties>
 

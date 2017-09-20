@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -39,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
@@ -229,6 +234,8 @@ class DefaultBindingResolver extends BindingResolver {
 				return new TypeBinding(this, (org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
 			case Binding.METHOD:
 				return getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) binding);
+			case Binding.MODULE:
+				return getModuleBinding((org.eclipse.jdt.internal.compiler.lookup.ModuleBinding) binding);
 			case Binding.FIELD:
 			case Binding.LOCAL:
 				return getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) binding);
@@ -296,6 +303,20 @@ class DefaultBindingResolver extends BindingResolver {
 		return binding;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.core.dom.BindingResolver#getModuleBinding(org.eclipse.jdt.internal.compiler.lookup.ModuleBinding)
+	 */
+	synchronized IModuleBinding getModuleBinding(org.eclipse.jdt.internal.compiler.lookup.ModuleBinding moduleBinding) {
+		if (moduleBinding != null) {
+			IModuleBinding binding = (IModuleBinding) this.bindingTables.compilerBindingsToASTBindings.get(moduleBinding);
+			if (binding == null) {
+				binding = new ModuleBinding(this, moduleBinding);
+				this.bindingTables.compilerBindingsToASTBindings.put(moduleBinding, binding);
+			}
+			return binding;
+		}
+		return null;
+	}
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -1155,6 +1176,8 @@ class DefaultBindingResolver extends BindingResolver {
 				}
 			}
 		} else if (node instanceof ImportReference) {
+			if ((node.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.inModule) != 0)
+				return null;
 			ImportReference importReference = (ImportReference) node;
 			int importReferenceLength = importReference.tokens.length;
 			if (index >= 0) {
@@ -1373,10 +1396,11 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof ImportReference) {
 			ImportReference importReference = (ImportReference) node;
 			int importReferenceLength = importReference.tokens.length;
+			boolean inModule = (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.inModule) != 0;
 			if (index >= 0) {
 				Binding binding = null;
 				if (this.scope == null) return null;
-				if (importReferenceLength == index) {
+				if (importReferenceLength == index && !inModule) {
 					try {
 						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0, importReference.isStatic());
 					} catch (AbortCompilation e) {
@@ -1384,7 +1408,7 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 				} else {
 					try {
-						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), true, importReference.isStatic());
+						binding = this.scope.getImport(inModule ? importReference.tokens : CharOperation.subarray(importReference.tokens, 0, index), true, importReference.isStatic());
 					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
@@ -1424,6 +1448,18 @@ class DefaultBindingResolver extends BindingResolver {
 			IMethodBinding methodBinding = getMethodBinding(methodDeclaration.binding);
 			if (methodBinding != null) {
 				return methodBinding;
+			}
+		} else if (node instanceof ModuleReference) {
+			ModuleReference moduleReference = (ModuleReference) node;
+			IModuleBinding moduleBinding = getModuleBinding(moduleReference.binding);
+			if (moduleBinding != null) {
+				return moduleBinding;
+			}
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) {
+			org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration = (org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) node;
+			IModuleBinding moduleBinding = getModuleBinding(moduleDeclaration.binding);
+			if (moduleBinding != null) {
+				return moduleBinding;
 			}
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
@@ -1586,6 +1622,30 @@ class DefaultBindingResolver extends BindingResolver {
 		if (valuePair != null) {
 			return getMemberValuePairBinding(valuePair.compilerElementPair);
 		}
+		return null;
+	}
+
+	/**
+	 * @see BindingResolver#resolveModule(ModuleDeclaration)
+	 * @since 3.13 BETA_JAVA9	
+	 */
+	@Override
+	IModuleBinding resolveModule(ModuleDeclaration module) {
+		Object oldNode = this.newAstToOldAst.get(module);
+		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) {
+			org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration = (org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) oldNode;
+			IModuleBinding moduleBinding = getModuleBinding(moduleDeclaration.binding);
+			if (moduleBinding == null) {
+				return null;
+			}
+			this.bindingsToAstNodes.put(moduleBinding, module);
+			String key = moduleBinding.getKey();
+			if (key != null) {
+				this.bindingTables.bindingKeysToBindings.put(key, moduleBinding);
+			}
+			return moduleBinding;
+		}
+
 		return null;
 	}
 

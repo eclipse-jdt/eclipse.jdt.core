@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    IBM Corporation - initial API and implementation
@@ -28,20 +32,21 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.logging.LogRecord;
 
+import javax.lang.model.SourceVersion;
 import javax.tools.FileObject;
 import javax.tools.ForwardingJavaFileObject;
+import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
+import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
-import javax.tools.JavaCompiler.CompilationTask;
-import javax.tools.JavaFileObject.Kind;
-
-import junit.framework.Test;
 
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+
+import junit.framework.Test;
 
 public class CompilerInvocationTests extends AbstractCompilerToolTest {
 	static {
@@ -58,7 +63,14 @@ public static Test suite() {
 public static Class<CompilerInvocationTests> testClass() {
 	return CompilerInvocationTests.class;
 }
-
+private boolean isOnJRE9() {
+	try {
+		SourceVersion.valueOf("RELEASE_9");
+	} catch(IllegalArgumentException iae) {
+		return false;
+	}
+	return true;
+}
 protected void checkClassFiles(String[] fileNames) {
 	for (int i = 0, l = fileNames.length; i < l; i++) {
 		ClassFileReader reader = null;
@@ -83,10 +95,13 @@ void runTest(
 		String expectedErrOutputString, 
 		boolean shouldFlushOutputDirectory,
 		String[] classFileNames) {
+	List<String> opt = options == null ? new ArrayList<>() : new ArrayList<>(options);
+	opt.add("-source");
+	opt.add("1.6");
 	super.runTest(
 		shouldCompileOK,
 		sourceFiles, 
-		new CompilerInvocationTestsArguments(standardJavaFileManager, options, compileFileNames),
+		new CompilerInvocationTestsArguments(standardJavaFileManager, opt, compileFileNames),
 		expectedOutOutputString,
 		expectedErrOutputString,
 		shouldFlushOutputDirectory,
@@ -197,6 +212,7 @@ class GetJavaFileForInputDetector extends GetJavaFileDetector  {
 			return super.openReader(ignoreEncodingErrors);
 		}
 	}
+	@Override
 	JavaFileObject detector(JavaFileObject original) {
 		if (original != null && original.getKind() == this.discriminatingKind
 				&& (this.discriminatingSuffix == null || original.getName().endsWith(this.discriminatingSuffix))) {
@@ -243,6 +259,7 @@ class GetJavaFileForOutputDetector extends GetJavaFileDetector  {
 			return super.openWriter();
 		}
 	}
+	@Override
 	JavaFileObject detector(JavaFileObject original) {
 		if (original != null && original.getKind() == Kind.CLASS
 				&& (this.discriminatingSuffix == null || original.getName().endsWith(this.discriminatingSuffix))) {
@@ -546,6 +563,8 @@ public void test009_options_consumption() throws IOException {
 	StandardJavaFileManager ecjStandardJavaFileManager = 
 		COMPILER.getStandardFileManager(null /* diagnosticListener */, null /* locale */, null /* charset */);
 	for (String option: CompilerToolTests.ONE_ARG_OPTIONS) {
+		if (isOnJRE9() && (option.equals("-extdirs") || option.equals("-endorseddirs")))
+				continue;
 		if (ecjStandardJavaFileManager.isSupportedOption(option) != -1) { // some options that the compiler support could well not be supported by the file manager
 			Iterator<String> remaining = remainingAsList.iterator();
 			assertTrue("does not support " + option + " option", ecjStandardJavaFileManager.handleOption(option, remaining));

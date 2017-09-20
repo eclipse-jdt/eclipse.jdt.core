@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -15,6 +19,9 @@ import java.io.IOException;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -24,6 +31,7 @@ public class CompilationUnit implements ICompilationUnit {
 	public char[] mainTypeName;
 	String encoding;
 	public String destinationPath;
+	public char[] module;
 		// a specific destination path for this compilation unit; coding is
 		// aligned with Main.destinationPath:
 		// == null: unspecified, use whatever value is set by the enclosing
@@ -32,17 +40,21 @@ public class CompilationUnit implements ICompilationUnit {
 		// else: use as the path of the directory into which class files must
 		//       be written.
 	private boolean ignoreOptionalProblems;
+	private CompilationUnit modCU;
+	private ModuleBinding moduleBinding;
 
 public CompilationUnit(char[] contents, String fileName, String encoding) {
 	this(contents, fileName, encoding, null);
 }
 public CompilationUnit(char[] contents, String fileName, String encoding,
 		String destinationPath) {
-	this(contents, fileName, encoding, destinationPath, false);
+	this(contents, fileName, encoding, destinationPath, false, null);
 }
 public CompilationUnit(char[] contents, String fileName, String encoding,
-		String destinationPath, boolean ignoreOptionalProblems) {
+		String destinationPath, boolean ignoreOptionalProblems, String modName) {
 	this.contents = contents;
+	if (modName != null)
+		this.module = modName.toCharArray();
 	char[] fileNameCharArray = fileName.toCharArray();
 	switch(File.separatorChar) {
 		case '/' :
@@ -97,5 +109,29 @@ public boolean ignoreOptionalProblems() {
 }
 public String toString() {
 	return "CompilationUnit[" + new String(this.fileName) + "]";  //$NON-NLS-2$ //$NON-NLS-1$
+}
+public void setModule(CompilationUnit compilationUnit) {
+	this.modCU = compilationUnit;
+}
+@Override
+public char[] getModuleName() {
+	return this.module;
+}
+@Override
+public ModuleBinding module(LookupEnvironment rootEnvironment) {
+	if (this.moduleBinding != null)
+		return this.moduleBinding;
+	if (this.modCU != null)
+		return this.moduleBinding = this.modCU.module(rootEnvironment);
+	if (CharOperation.endsWith(this.fileName, TypeConstants.MODULE_INFO_FILE_NAME)) {
+		this.moduleBinding = rootEnvironment.getModule(this.module);
+		if (this.moduleBinding == null)
+			throw new IllegalStateException("Module should be known"); //$NON-NLS-1$
+		return this.moduleBinding;
+	}
+	return rootEnvironment.UnNamedModule;
+}
+public String getDestinationPath() {
+	return this.destinationPath;
 }
 }

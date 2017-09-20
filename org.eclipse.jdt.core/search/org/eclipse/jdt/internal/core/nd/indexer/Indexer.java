@@ -62,6 +62,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaElementDelta;
@@ -746,7 +747,7 @@ public final class Indexer {
 								}
 								resourceFile.addZipEntry(fileName);
 
-								if (fileName.equals("META-INF/MANIFEST.MF")) { //$NON-NLS-1$
+								if (fileName.equals(TypeConstants.META_INF_MANIFEST_MF)) {
 									try (InputStream inputStream = zipFile.getInputStream(member)) {
 										char[] chars = getInputStreamAsCharArray(inputStream, -1, UTF_8);
 

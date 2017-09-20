@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
@@ -7309,6 +7313,40 @@ public void testBug499725() {
 			"}\n"
 		});
 }
+
+// Redundant type argument specification error for anonymous types should not occur below source level 9 
+public void testBug488663() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
+	String[] testFiles = new String[] {
+			"C.java",
+			"import java.util.Comparator;\n" + 
+			"public class C {\n" + 
+			"	Comparator<String> comparator = new Comparator<String>() { //\n" + 
+			"		@Override\n" + 
+			"		public int compare(String o1, String o2) {\n" + 
+			"			return 0;\n" + 
+			"		}\n" + 
+			"	};\n" + 
+			"}"
+		};
+	if (this.complianceLevel < ClassFileConstants.JDK9) {
+	this.runConformTest(
+		testFiles,
+		"", options);
+	} else {
+		this.runNegativeTest(
+			testFiles, 
+			"----------\n" + 
+			"1. ERROR in C.java (at line 3)\n" + 
+			"	Comparator<String> comparator = new Comparator<String>() { //\n" + 
+			"	                                    ^^^^^^^^^^\n" + 
+			"Redundant specification of type arguments <String>\n" + 
+			"----------\n",
+			null, true, options);
+	}
+}
+
 public void testBug499725a() {
 	runConformTest(
 		new String[] {
@@ -8119,7 +8157,7 @@ public void testBug508834_comment0() {
 				"	public static void main(String[] args) {\n" + 
 				"        List<Integer> integerList = new ArrayList<>();\n" + 
 				"        Set<List<Number>> numbetListSet = Collections.singleton(toWildcardGeneric(integerList));\n" + 
-				"        numbetListSet.iterator().next().add(new Float(1.0));\n" + 
+				"        numbetListSet.iterator().next().add(Float.valueOf(1.0f));\n" + 
 				"        Integer i = integerList.get(0); // Throws ClassCastException\n" + 
 				"    }\n" + 
 				"    \n" + 
@@ -8198,6 +8236,210 @@ public void testBug508834_comment0() {
 			"	String [] z = test2(function, \"\");\n" + 
 			"	                    ^^^^^^^^\n" + 
 			"Type safety: The expression of type Function needs unchecked conversion to conform to Function<String,String>\n" + 
+			"----------\n");
+	}
+
+	public void testBug521159() {
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.*;\n" +
+				"import java.util.stream.*;\n" +
+				"\n" +
+				"interface JarEntry {\n" +
+				"	boolean isDirectory();\n" +
+				"	String getName();\n" +
+				"}\n" +
+				"class VersionedStream {\n" +
+				"	static Stream<JarEntry> stream() { return null; }" +
+				"}\n" +
+				"public class Test {\n" +
+				"	static final String SERVICES_PREFIX = \"META-INF/services/\";\n" +
+				"	Map<Boolean, Set<String>> test() {\n" +
+				"		return VersionedStream.stream()\n" +
+				"			.filter(e -> (! e.isDirectory()))\n" +
+				"			.map(JarEntry::getName)\n" +
+				"			.filter(e -> \n(e.endsWith(\".class\") ^ e.startsWith(SERVICES_PREFIX)))\n" +
+				"			.collect(Collectors.partitioningBy(e -> e.startsWith(SERVICES_PREFIX), Collectors.toSet()));" +
+				"	}\n" +
+				"}\n"
+			});
+	}
+
+	public void testBug521822() {
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.List;\n" + 
+				"interface I<U> {\n" + 
+				"    List<U> foo(int i);\n" + 
+				"}\n" + 
+				"class X<T> {\n" + 
+				"    List<T> t;\n" + 
+				"    X(I<T> i) {\n" + 
+				"        this.t = i.foo(0);\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class Y<T> extends X<T> {\n" + 
+				"    Y(I<T> t) {super(t);}\n" + 
+				"}\n" + 
+				"class Z {\n" + 
+				"    static List<?> method(int ... i) {return null;}\n" + 
+				"}\n" + 
+				"public class Test  {\n" + 
+				"    static X x = new Y<>(Z::method);\n" + 
+				"}\n"
+			});
+	}
+
+	public void testBug521185() {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test<T> {\n" + 
+				"	private static class Inner {" +
+				"		public Inner(){}\n" +	
+				"	}\n" + 
+				"	public Inner get() {\n" + 
+				"		return new Inner();\n" + 
+				"	}\n" + 
+				"}\n",
+				"Z.java",
+				"class Z<T> implements I<T> {\n" + 
+				"	public Z(Runnable r, T... t1) {}\n" + 
+				"	public String toString (T t) {\n" + 
+				"		return t.toString();\n" + 
+				"	}\n" + 
+				"}",
+				"X.java",
+				"public class X {\n" +  
+				"	public static void main(String[] args) {\n" + 
+				"		Test<String> t = new Test<>();\n" + 
+				"		Z z = new Z<>(()->{System.out.println(\"asdad\");}, t.get());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface I<T> {\n" + 
+				"	String toString();\n" + 
+				"}"
+			},
+			"----------\n" +
+			"1. WARNING in Z.java (at line 2)\n" + 
+			"	public Z(Runnable r, T... t1) {}\n" + 
+			"	                          ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter t1\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	Z z = new Z<>(()->{System.out.println(\"asdad\");}, t.get());\n" + 
+			"	^\n" + 
+			"Z is a raw type. References to generic type Z<T> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	Z z = new Z<>(()->{System.out.println(\"asdad\");}, t.get());\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type Test.Inner is not visible\n" + 
+			"----------\n");
+	}
+
+	public void testBug521185a() {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test<T> {\n" + 
+				"	private static class Inner {" +
+				"		public Inner(){}\n" +	
+				"	}\n" + 
+				"	public Inner get() {\n" + 
+				"		return new Inner();\n" + 
+				"	}\n" + 
+				"}\n",
+				"Z.java",
+				"class Z<T> implements I<T> {\n" + 
+				"	public class Q<TT> {\n" + 
+				"		public Q(Runnable r, TT... ts) {}\n" + 
+				"	}\n" +
+				"	public Z(Runnable r, T... t1) {}\n" + 
+				"	public String toString (T t) {\n" + 
+				"		return t.toString();\n" + 
+				"	}\n" + 
+				"}",
+				"X.java",
+				"public class X {\n" +  
+				"	public static void main(String[] args) {\n" + 
+				"		Test<String> t = new Test<>();\n" + 
+				"		Z<Object> zr = new Z<>(null, new Object[0]);\n" + 
+				"		Z.Q zq = zr.new Q<>(null, t.get());\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface I<T> {\n" + 
+				"	String toString();\n" + 
+				"}"
+			},
+			"----------\n" +
+			"1. WARNING in Z.java (at line 3)\n" + 
+			"	public Q(Runnable r, TT... ts) {}\n" + 
+			"	                           ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter ts\n" + 
+			"----------\n" +
+			"2. WARNING in Z.java (at line 5)\n" + 
+			"	public Z(Runnable r, T... t1) {}\n" + 
+			"	                          ^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter t1\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 5)\n" + 
+			"	Z.Q zq = zr.new Q<>(null, t.get());\n" + 
+			"	^^^\n" + 
+			"Z.Q is a raw type. References to generic type Z<T>.Q<TT> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	Z.Q zq = zr.new Q<>(null, t.get());\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The type Test.Inner is not visible\n" +  
+			"----------\n");
+	}
+
+	public void testBug521978() {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"class Foo<T> {\n" + 
+				"	public  Foo(T a1, List<String> a2){ }\n" + 
+				"}\n" + 
+				"class Bar<T> {\n" + 
+				"	Bar(T item) { }\n" + 
+				"}\n" + 
+				"public class Test {\n" + 
+				"	static <T> Bar<T> getBar(T item) {\n" + 
+				"        return new Bar<>(item);\n" + 
+				"    }\n" + 
+				"	static <Q> Foo<Q> method(Bar<? extends Foo<Q>> f) {\n" + 
+				"    	return null;\n" + 
+				"    }\n" + 
+				"	static void test() {\n" + 
+				"		method(getBar(\n" + 
+				"                new Foo<>(\"str\", new ArrayList())\n" + 
+				"            ));\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in Test.java (at line 17)\n" + 
+			"	method(getBar(\n" + 
+			"	^^^^^^\n" + 
+			"The method method(Bar<? extends Foo<Q>>) in the type Test is not applicable for the arguments (Bar<Foo>)\n" + 
+			"----------\n" +
+			"2. WARNING in Test.java (at line 18)\n" + 
+			"	new Foo<>(\"str\", new ArrayList())\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The constructor Foo(Object, List) belongs to the raw type Foo. References to generic type Foo<T> should be parameterized\n" + 
+			"----------\n" +
+			"3. WARNING in Test.java (at line 18)\n" + 
+			"	new Foo<>(\"str\", new ArrayList())\n" + 
+			"	                     ^^^^^^^^^\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n");
 	}
 }

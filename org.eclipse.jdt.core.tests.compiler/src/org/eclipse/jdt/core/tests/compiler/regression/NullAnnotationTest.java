@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *     Till Brychcy <register.eclipse@brychcy.de> - Contribution for
@@ -8122,6 +8126,8 @@ public void testBug457210() {
 }
 public void testBug462790() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // multi catch used
+	Map<String,String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 	runConformTestWithLibs(
 		new String[] {
 			"EclipseBug.java",
@@ -8141,7 +8147,7 @@ public void testBug462790() {
 			"	}\n" + 
 			"}"
 		},
-		getCompilerOptions(),
+		options,
 		"----------\n" + 
 		"1. WARNING in EclipseBug.java (at line 5)\n" + 
 		"	String command = (String)getCommand(commandType);\n" + 

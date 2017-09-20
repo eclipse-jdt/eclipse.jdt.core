@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -849,57 +849,37 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"@interface NonEmpty {\n" +
 				"}\n",
 		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 3)\n" + 
-		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                       ^^^^^^^^^\n" + 
-		"Syntax error, type annotations are illegal here\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 3)\n" + 
-		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                       ^^^^^^^^^\n" + 
-		"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 3)\n" + 
-		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                                       ^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error, type annotations are illegal here\n" + 
-		"----------\n" + 
-		"4. ERROR in X.java (at line 3)\n" + 
-		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                                       ^^^^^^^^^\n" + 
-		"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-		"----------\n" + 
-		"5. ERROR in X.java (at line 3)\n" + 
-		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                                                 ^^^^^^\n" + 
-		"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-		"----------\n" + 
-		"6. WARNING in X.java (at line 3)\n" + 
-		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                                                              ^^^^^^^^^\n" + 
-		"Syntax error, type annotations are illegal here\n" + 
-		"----------\n" + 
-		"7. ERROR in X.java (at line 3)\n" + 
-		"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                                                              ^^^^^^^^^\n" + 
-		"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-		"----------\n" + 
-		"8. ERROR in X.java (at line 4)\n" + 
-		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                     ^^^^^^^^^\n" + 
-		"Syntax error, type annotations are illegal here\n" + 
-		"----------\n" + 
-		"9. ERROR in X.java (at line 4)\n" + 
-		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                                     ^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error, type annotations are illegal here\n" + 
-		"----------\n" + 
-		"10. ERROR in X.java (at line 4)\n" + 
-		"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
-		"	                                                            ^^^^^^^^^\n" + 
-		"Syntax error, type annotations are illegal here\n" + 
-		"----------\n");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+			"	                       ^^^^^^^^^\n" + 
+			"Syntax error, type annotations are illegal here\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+			"	                                       ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type annotations are illegal here\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 3)\n" + 
+			"	System.out.println(int @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+			"	                                                              ^^^^^^^^^\n" + 
+			"Syntax error, type annotations are illegal here\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 4)\n" + 
+			"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+			"	                     ^^^^^^^^^\n" + 
+			"Syntax error, type annotations are illegal here\n" + 
+			"----------\n" + 
+			"5. ERROR in X.java (at line 4)\n" + 
+			"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+			"	                                     ^^^^^^^^^^^^^^^^\n" + 
+			"Syntax error, type annotations are illegal here\n" + 
+			"----------\n" + 
+			"6. ERROR in X.java (at line 4)\n" + 
+			"	System.out.println(X @NonEmpty [] [] @NonEmpty @Empty [] [] @NonEmpty[].class); // illegal!\n" + 
+			"	                                                            ^^^^^^^^^\n" + 
+			"Syntax error, type annotations are illegal here\n" + 
+			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383950
 	// [1.8][compiler] Type annotations must have target type meta annotation TYPE_USE
@@ -4196,7 +4176,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"}\n"
 			}, 
 			"----------\n" + 
-			"1. WARNING in X.java (at line 8)\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
 			"	Class<?> c = int @T [].class; \n" + 
 			"	                 ^^\n" + 
 			"Syntax error, type annotations are illegal here\n" + 

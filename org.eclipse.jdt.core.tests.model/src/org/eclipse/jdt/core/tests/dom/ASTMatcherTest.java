@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,7 +48,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS2));
 				suite.addTest(new ASTMatcherTest(methods[i].getName(), JLS3_INTERNAL));
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
-				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS8));
+				suite.addTest(new ASTMatcherTest(methods[i].getName(), getJLS8()));
 			}
 		}
 		return suite;
@@ -119,6 +119,13 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 
 	/**
+	 * @deprecated
+	 */
+	static int getJLS8() {
+		return AST.JLS8;
+	}
+
+	/**
 	 * @deprecated (not really - just suppressing the warnings
 	 * that come from testing Javadoc.getComment())
 	 *
@@ -140,7 +147,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		this.S1 = this.ast.newContinueStatement();
 		this.S2 = this.ast.newBreakStatement();
 		this.B1 = this.ast.newBlock();
-		if (this.ast.apiLevel() >= AST.JLS8) {
+		if (this.ast.apiLevel() >= getJLS8()) {
 			this.R1 = this.ast.newSimpleType(this.ast.newSimpleName("XYZ"));
 			this.Q1 = this.ast.newSimpleName("XYZ");
 		}
@@ -242,7 +249,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			this.EC2 = this.ast.newEnumConstantDeclaration();
 			this.EC2.setName(this.ast.newSimpleName("G")); //$NON-NLS-1$
 		}
-		if (this.ast.apiLevel() >= AST.JLS8) {
+		if (this.ast.apiLevel() >= getJLS8()) {
 			this.T3 = this.ast.newSimpleType(this.ast.newSimpleName("U")); //$NON-NLS-1$
 			this.T4 = this.ast.newSimpleType(this.ast.newSimpleName("V")); //$NON-NLS-1$
 		}
@@ -721,7 +728,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	/** @deprecated using deprecated code */
 	public void testNameQualifiedType() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		Type x1 = this.ast.newNameQualifiedType(this.ast.newQualifiedName(this.N2, this.N3), this.N1);
@@ -881,7 +888,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399794
 	public void testCreationReference() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		CreationReference x1 = this.ast.newCreationReference();
@@ -946,7 +953,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399794
 	public void testExpressionMethodReference() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		ExpressionMethodReference x1 = this.ast.newExpressionMethodReference();
@@ -1063,14 +1070,14 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			x1.typeParameters().add(this.TP1);
 			x1.typeParameters().add(this.TP2);
 			x1.setReturnType2(this.T1);
-			if (this.ast.apiLevel() >= AST.JLS8) {
+			if (this.ast.apiLevel() >= getJLS8()) {
 				x1.setReceiverType(this.R1);
 			}
 		}
 		x1.setName(this.N1);
 		x1.parameters().add(this.V1);
 		x1.parameters().add(this.V2);
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			x1.thrownExceptions().add(this.N2);
 			x1.thrownExceptions().add(this.N3);			
 		} else {
@@ -1188,7 +1195,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testSuperMethodReference() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		SuperMethodReference x1 = this.ast.newSuperMethodReference();
@@ -1416,7 +1423,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
 	public void testSingleVariableDeclarationVarargsAnnotation() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		SingleVariableDeclaration x1 = this.ast.newSingleVariableDeclaration();
@@ -1429,7 +1436,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=395886
 	public void testQualifiedTypeAnnotation() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		QualifiedType x1 = this.ast.newQualifiedType(this.T1, this.N1);
@@ -1441,7 +1448,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=395886
 	public void testParameterizedQualifiedTypeAnnotation() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		QualifiedType qualifiedType = this.ast.newQualifiedType(this.T1, this.N1); 
@@ -1458,7 +1465,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations1() {	
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		// simpleType with Annotations
@@ -1469,7 +1476,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations2() {		
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
   		// Type arguments at parameterized types
@@ -1484,7 +1491,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations3() {		
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		// type arguments in constructor invocation
@@ -1497,7 +1504,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations4() {		
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		// annotated simple type at class inheritance
@@ -1511,7 +1518,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations5() {	
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		// constructor invocation results
@@ -1524,7 +1531,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations6() {	
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		// simple type in cast expression
@@ -1537,7 +1544,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations7() {		
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		// simple type type tests
@@ -1551,7 +1558,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations8() {	
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		// annotations on wildcard type
@@ -1564,7 +1571,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations9() {		
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		// annotations on constructor declaration - implying on the object returned.
@@ -1577,7 +1584,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations10() {		
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		// annotations on constructor declaration - implying on the object returned.
@@ -1592,7 +1599,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations11() {	
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		// annotated simple type at class inheritance
@@ -1607,7 +1614,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
 	public void testTypeAnnotations12() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		VariableDeclarationFragment x1 = this.ast.newVariableDeclarationFragment();
@@ -1630,7 +1637,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399794
 	public void testTypeMethodReference() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		TypeMethodReference x1 = this.ast.newTypeMethodReference();
@@ -1641,7 +1648,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
 	public void testLambdaExpressions1() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		LambdaExpression x1 = this.ast.newLambdaExpression();
@@ -1654,7 +1661,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
 	public void testLambdaExpressions2() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		LambdaExpression x1 = this.ast.newLambdaExpression();
@@ -1664,7 +1671,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
 	public void testLambdaExpressions3() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		LambdaExpression x1 = this.ast.newLambdaExpression();
@@ -1674,7 +1681,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
 	public void testLambdaExpressions4() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		LambdaExpression x1 = this.ast.newLambdaExpression();
@@ -1688,7 +1695,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		basicMatch(x1);
 	}
 	public void testIntersectionType() {
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			return;
 		}
 		IntersectionType x1 = this.ast.newIntersectionType();
