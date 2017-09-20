@@ -88,7 +88,7 @@ public class CompilationUnit extends ASTNode {
 	/**
 	 * The "module" structural property of this node type (child type: {@link ModuleDeclaration}) (added in JLS9 API).
 	 *
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final ChildPropertyDescriptor MODULE_PROPERTY =
 		new ChildPropertyDescriptor(CompilationUnit.class, "module", ModuleDeclaration.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -105,7 +105,7 @@ public class CompilationUnit extends ASTNode {
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	private static final List PROPERTY_DESCRIPTORS_9_0;
 
@@ -593,7 +593,7 @@ public class CompilationUnit extends ASTNode {
 	 * unit, or <code>null</code> if this compilation unit is not a module info.
 	 *
 	 * @return the module declaration node, or <code>null</code> if none
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public ModuleDeclaration getModule() {
 		unsupportedBelow9();
@@ -1083,7 +1083,7 @@ public class CompilationUnit extends ASTNode {
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used below JLS9
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public void setModule(ModuleDeclaration module) {
 		unsupportedBelow9();

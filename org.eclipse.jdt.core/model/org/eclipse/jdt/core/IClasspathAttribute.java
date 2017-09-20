@@ -126,7 +126,7 @@ public interface IClasspathAttribute {
 	 * entry is considered to be on the module path and will be treated as a
 	 * regular named module or as an automatic module.
 	 *
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	String MODULE = "module"; //$NON-NLS-1$
 
@@ -140,7 +140,7 @@ public interface IClasspathAttribute {
 	 * <p>Classpath entries with this attribute should also have a {@link #MODULE} attribute
 	 * with value <code>"true"</code>.</p>
 	 * 
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	String ADD_EXPORTS = "add-exports"; //$NON-NLS-1$
 
@@ -151,7 +151,7 @@ public interface IClasspathAttribute {
 	 * {@code --add-reads} command line option: {@code <source-module>=<target-module>}.
 	 * The given reads edge will be added at compile time.</p>
 	 * 
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	String ADD_READS = "add-reads"; //$NON-NLS-1$
 
@@ -167,7 +167,7 @@ public interface IClasspathAttribute {
 	 * A classpath entry having this attribute must also have the
 	 * {@link #MODULE} attribute with value <code>"true"</code>.</p>
 	 *
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	String PATCH_MODULE = "patch-module"; //$NON-NLS-1$
 
@@ -184,7 +184,7 @@ public interface IClasspathAttribute {
 	 * A classpath entry having this attribute must also have the
 	 * {@link #MODULE} attribute with value <code>"true"</code>.</p>
 	 *
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	String LIMIT_MODULES = "limit-modules"; //$NON-NLS-1$
 
@@ -197,7 +197,7 @@ public interface IClasspathAttribute {
 	 * It will be used for generating the <code>ModuleMainClass</code> attribute
 	 * in <code>module-info.class</code>.</p>
 	 * 
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	String MODULE_MAIN_CLASS = "module-main-class"; //$NON-NLS-1$
 

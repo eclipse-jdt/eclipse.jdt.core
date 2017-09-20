@@ -26,7 +26,7 @@ import org.eclipse.jdt.core.util.IProvidesInfo;
 import org.eclipse.jdt.core.util.IRequiresInfo;
 
 /**
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 public class ModuleAttribute extends ClassFileAttribute implements IModuleAttribute {
 

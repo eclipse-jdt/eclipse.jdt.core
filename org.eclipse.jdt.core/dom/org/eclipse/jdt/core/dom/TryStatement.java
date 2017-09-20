@@ -52,7 +52,7 @@ public class TryStatement extends Statement {
 
 	/**
 	 * The "resources" structural property of this node type (element type: {@link Expression}) (added in JLS9 API).
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final ChildListPropertyDescriptor RESOURCES2_PROPERTY =
 		new ChildListPropertyDescriptor(TryStatement.class, "resources", Expression.class, CYCLE_RISK); //$NON-NLS-1$
@@ -97,7 +97,7 @@ public class TryStatement extends Statement {
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.12_BETA_JAVA9
+	 * @since 3.14
 	 */
 	private static final List PROPERTY_DESCRIPTORS_9_0;
 

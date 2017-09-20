@@ -883,7 +883,7 @@ public class CompletionProposal {
 	 * <code>"module com.greetings"</code>.
 	 *
 	 * @see #getKind()
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int MODULE_DECLARATION = 28;
 
@@ -896,7 +896,7 @@ public class CompletionProposal {
 	 * <code> "to com.g^"</code> to <code>"to com.greetings</code>
 	 *
 	 * @see #getKind()
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int MODULE_REF = 29;
 	/**

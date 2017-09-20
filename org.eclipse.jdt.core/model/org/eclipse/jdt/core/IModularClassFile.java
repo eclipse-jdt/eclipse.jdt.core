@@ -17,7 +17,7 @@ package org.eclipse.jdt.core;
 /**
  * Represents the class file of a module description ("module-info.class").
  *
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IModularClassFile extends IClassFile {

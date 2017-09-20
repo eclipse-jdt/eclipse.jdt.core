@@ -26,7 +26,7 @@ package org.eclipse.jdt.core.dom;
  * </pre>
  *
  * @noextend This class is not intended to be subclassed by clients.
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 public abstract class ModuleDirective extends ASTNode {
 

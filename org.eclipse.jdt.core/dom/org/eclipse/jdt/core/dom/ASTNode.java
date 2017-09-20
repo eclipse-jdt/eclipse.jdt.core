@@ -904,7 +904,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>ModuleDeclaration</code>.
 	 * @see ModuleDeclaration
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int MODULE_DECLARATION = 93;
 
@@ -912,7 +912,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>RequiresDirective</code>.
 	 * @see RequiresDirective
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int REQUIRES_DIRECTIVE = 94;
 	
@@ -920,7 +920,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>ExportsDirective</code>.
 	 * @see ExportsDirective
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int EXPORTS_DIRECTIVE = 95;
 
@@ -928,7 +928,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>OpensDirective</code>.
 	 * @see OpensDirective
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int OPENS_DIRECTIVE = 96;
 	
@@ -936,7 +936,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>UsesDirective</code>.
 	 * @see UsesDirective
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int USES_DIRECTIVE = 97;
 
@@ -944,7 +944,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>ProvidesDirective</code>.
 	 * @see ProvidesDirective
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int PROVIDES_DIRECTIVE = 98;
 
@@ -952,7 +952,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>ModuleModifier</code>.
 	 * @see ModuleModifier
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int MODULE_MODIFIER = 99;
 
@@ -2051,7 +2051,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is used below JLS9
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	final void unsupportedBelow9() {
 		if (this.ast.apiLevel < AST.JLS9_INTERNAL) {

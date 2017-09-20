@@ -85,7 +85,7 @@ public abstract class CodeFormatter {
 	/**
 	 * Kind used to format a compilation unit
 	 * <p>
-	 * <u>Note:</u> <b>since 3.13 BETA_JAVA9</b>, if the formatted compilation unit is a
+	 * <u>Note:</u> <b>since 3.14</b>, if the formatted compilation unit is a
 	 * module description (i.e. it's named module-info.java), the
 	 * {@link #K_MODULE_INFO} kind must be used instead.
 	 * </p><p>
@@ -122,7 +122,7 @@ public abstract class CodeFormatter {
 	 * also possible to format the comments on the fly by adding the
 	 * {@link #F_INCLUDE_COMMENTS} flag to this kind of format.
 	 * </p>
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final int K_MODULE_INFO = 0x80;
 
@@ -137,7 +137,7 @@ public abstract class CodeFormatter {
 	 * 		<li>{@link #K_CLASS_BODY_DECLARATIONS} <i>(since 3.6)</i></li>
 	 * 		<li>{@link #K_EXPRESSION} <i>(since 3.6)</i></li>
 	 * 		<li>{@link #K_STATEMENTS} <i>(since 3.6)</i></li>
-	 * 		<li>{@link #K_MODULE_INFO} <i>(since 3.13 BETA_JAVA9)</i></li>
+	 * 		<li>{@link #K_MODULE_INFO} <i>(since 3.14)</i></li>
 	 * </ul>
 	 * </p><p>
 	 * Note also that it has an effect only when one or several format comments

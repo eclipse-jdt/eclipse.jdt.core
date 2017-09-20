@@ -134,7 +134,7 @@ public interface IJavaSearchConstants {
 
 	/**
 	 * The searched element is a module.
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 * @category searchFor
 	 */
 	int MODULE= 12;

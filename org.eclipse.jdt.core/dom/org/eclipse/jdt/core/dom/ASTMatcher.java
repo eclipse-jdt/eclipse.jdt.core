@@ -892,7 +892,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean match(ExportsDirective node, Object other) {
 		if (!(other instanceof ExportsDirective)) {
@@ -1583,7 +1583,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean match(ModuleDeclaration node, Object other) {
 		if (!(other instanceof ModuleDeclaration)) {
@@ -1610,7 +1610,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean match(ModuleModifier node, Object other) {
 		if (!(other instanceof ModuleModifier)) {
@@ -1725,7 +1725,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean match(OpensDirective node, Object other) {
 		if (!(other instanceof OpensDirective)) {
@@ -1898,7 +1898,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 
 	 */
 	public boolean match(ProvidesDirective node, Object other) {
@@ -1974,7 +1974,7 @@ public class ASTMatcher {
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
 	 *
-	 *   @since 3.13 BETA_JAVA9
+	 *   @since 3.14
 	 */
 	public boolean match(RequiresDirective node, Object other) {
 		if (!(other instanceof RequiresDirective)) {
@@ -2621,7 +2621,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean match(UsesDirective node, Object other) {
 		if (!(other instanceof UnionType)) {

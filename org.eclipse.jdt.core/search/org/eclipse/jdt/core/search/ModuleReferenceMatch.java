@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.IJavaElement;
  * <p>
  * This class is intended to be instantiated and subclassed by clients.
  * </p>
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 public class ModuleReferenceMatch extends ReferenceMatch {
 

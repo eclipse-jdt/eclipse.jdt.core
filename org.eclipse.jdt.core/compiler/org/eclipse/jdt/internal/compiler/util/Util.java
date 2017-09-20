@@ -239,7 +239,7 @@ public class Util implements SuffixConstants {
 
 	public static final String EMPTY_STRING = new String(CharOperation.NO_CHAR);
 	/**
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final String COMMA_SEPARATOR = new String(CharOperation.COMMA_SEPARATOR);
 	public static final int[] EMPTY_INT_ARRAY= new int[0];

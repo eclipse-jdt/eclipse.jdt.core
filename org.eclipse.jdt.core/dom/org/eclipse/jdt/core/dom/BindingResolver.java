@@ -697,7 +697,7 @@ class BindingResolver {
 	 * @return the binding for the given module declaration, or
 	 *    <code>null</code> if no binding is available
 	 *    
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	IModuleBinding resolveModule(ModuleDeclaration module) {
 		return null;

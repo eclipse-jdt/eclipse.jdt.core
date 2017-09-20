@@ -19,7 +19,7 @@ package org.eclipse.jdt.core.dom;
 /**
  * A module binding represents a module (added in JLS9 API).
  *
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IModuleBinding extends IBinding {

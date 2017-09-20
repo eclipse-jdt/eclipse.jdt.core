@@ -19,7 +19,7 @@ package org.eclipse.jdt.core.util;
  *
  * @noimplement This interface is not intended to be implemented by clients.
  * @noextend This interface is not intended to be extended by clients.
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 public interface IProvidesInfo {
 

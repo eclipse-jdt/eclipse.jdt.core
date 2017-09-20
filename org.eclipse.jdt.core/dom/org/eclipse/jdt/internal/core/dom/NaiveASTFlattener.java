@@ -71,7 +71,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * Internal synonym for {@link AST#JLS8}. Use to alleviate
 	 * deprecation warnings.
 	 * @deprecated
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	private static final int JLS8 = AST.JLS8;
 
@@ -1259,7 +1259,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	/*
 	 * @see ASTVisitor#visit(ModuleModifier)
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public boolean visit(ModuleModifier node) {
 		this.buffer.append(node.getKeyword().toString());

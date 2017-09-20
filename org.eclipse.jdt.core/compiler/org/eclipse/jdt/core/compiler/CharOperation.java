@@ -48,13 +48,13 @@ public final class CharOperation {
 
 	/**
 	 * Constant for all Prefix
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final char[] ALL_PREFIX = new char[] {'*'};
 
 	/**
 	 * Constant for comma
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	public static final char[] COMMA_SEPARATOR = new char[] {','};
 
@@ -204,7 +204,7 @@ public static final char[] append(char[] target, int index, char[] array, int st
  * @param array the array that is concatenated with the prefix character
  * @param prefix the prefix character
  * @return the new array
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 public static final char[] prepend(char prefix, char[] array) {
 	if (array == null)
@@ -872,7 +872,7 @@ public static String charToString(char[] charArray) {
  * 
  * @param stringList
  * @return an array of char[], representing the elements in the input list, or {@code null} if the list was {@code null}.
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 public static char[][] toCharArrays(List<String> stringList) {
 	if (stringList == null)
@@ -1277,7 +1277,7 @@ public static final char[] concat(
  * @return the concatenation of the two arrays inserting the separator character
  * between the two arrays , or null if the two arrays are null. If second array
  * is of zero length, the separator is appended to the first array and returned.
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 public static final char[] concatAll(
 	char[] first,
@@ -1922,7 +1922,7 @@ public static final boolean contains(char[] characters, char[] array) {
  * @param array
  * @param sequence
  * @return true if sequence is equal to an element in array
- * @since 3.13 BETA_JAVA9
+ * @since 3.14
  */
 public static boolean containsEqual(char[][] array, char[] sequence) {
 	for (int i = 0; i < array.length; i++) {

@@ -68,7 +68,7 @@ public interface IModifierConstants {
 
 	/**
 	 * Indicates a module (added in Java SE 9).
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	int ACC_MODULE       = 0x8000;
 
@@ -79,19 +79,19 @@ public interface IModifierConstants {
 	int ACC_MANDATED     = 0x8000;
 	/**
 	 * Indicates an open module in module-info file (added in Java SE 9).
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	int ACC_OPEN			= 0x0020;
 
 	/**
 	 * Indicates a transitive requires in module-info file (added in Java SE 9).
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	int ACC_TRANSITIVE     = 0x0020;
 
 	/**
 	 * Indicates a static requires in module-info file (added in Java SE 9).
-	 * @since 3.13 BETA_JAVA9
+	 * @since 3.14
 	 */
 	int ACC_STATIC_PHASE	= 0x0040;
 }
