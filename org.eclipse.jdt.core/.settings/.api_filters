@@ -13,6 +13,12 @@
                 <message_argument value="3.13.0"/>
             </message_arguments>
         </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="3.13.50"/>
+                <message_argument value="3.13.0"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="future additions have always been announced in the API" id="336658481">
