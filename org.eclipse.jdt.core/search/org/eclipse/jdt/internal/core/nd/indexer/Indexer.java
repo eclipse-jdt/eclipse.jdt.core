@@ -51,11 +51,11 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
 import org.eclipse.core.runtime.preferences.InstanceScope;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -810,8 +810,8 @@ public final class Indexer {
 				Package.logInfo("The path " + element.getPath() + " contained no class files"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			return classesIndexed;
-		} else if (element instanceof IClassFile) {
-			IClassFile classFile = (IClassFile)element;
+		} else if (element instanceof IOrdinaryClassFile) {
+			IOrdinaryClassFile classFile = (IOrdinaryClassFile) element;
 
 			SubMonitor iterationMonitor = subMonitor.split(1);
 			BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(classFile);
