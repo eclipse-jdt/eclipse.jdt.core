@@ -163,7 +163,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 				String entryName = Util.concatWith(((PackageFragment) pkg).names, getElementName(), '/');
 				entryName = root.getClassFilePath(entryName);
 				return getClassFileContent(root, entryName);
-				// BETA_JAVA9 - The below exception is not thrown in new scheme of things. Could cause issues?
+				// Java 9 - The below exception is not thrown in new scheme of things. Could cause issues?
 	//			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
 			} catch (IOException ioe) {
 				throw new JavaModelException(ioe, IJavaModelStatusConstants.IO_EXCEPTION);

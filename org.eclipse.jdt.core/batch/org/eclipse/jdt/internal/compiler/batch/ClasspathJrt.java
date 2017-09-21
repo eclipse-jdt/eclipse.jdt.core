@@ -218,7 +218,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 					}
 				}, JRTUtil.NOTIFY_MODULES);
 			} catch (IOException e) {
-				// TODO: BETA_JAVA9 Should report better
+				// TODO: Java 9 Should report better
 			}
 		}
 	}

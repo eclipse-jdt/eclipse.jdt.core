@@ -97,7 +97,7 @@ static HashMap<String, SimpleSet> findPackagesInModules(final ClasspathJrt jrt) 
 			}
 		}, JRTUtil.NOTIFY_PACKAGES | JRTUtil.NOTIFY_MODULES);
 	} catch (IOException e) {
-		// TODO: BETA_JAVA9 Should report better
+		// TODO: Java 9 Should report better
 	}
 	return packagesInModule;
 }
@@ -137,7 +137,7 @@ public static void loadModules(final ClasspathJrt jrt) {
 				}
 			}, JRTUtil.NOTIFY_MODULES);
 		} catch (IOException e) {
-			// TODO: BETA_JAVA9 Should report better
+			// TODO: Java 9 Should report better
 		}
 	} else {
 //		for (IModuleDeclaration iModule : cache) {

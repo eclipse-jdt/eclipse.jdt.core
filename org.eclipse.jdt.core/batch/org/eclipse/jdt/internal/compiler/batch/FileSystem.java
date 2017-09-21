@@ -268,7 +268,7 @@ public static Classpath getClasspath(String classpathName, String encoding,
 				}
 			}
 		} else if (format == Util.JMOD_FILE) {
-			// TODO BETA_JAVA9: we need new type of classpath to handle Jmod files in batch compiler.
+			// TODO Java 9: we need new type of classpath to handle Jmod files in batch compiler.
 		}
 
 	}
