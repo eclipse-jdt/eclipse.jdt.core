@@ -933,6 +933,13 @@
             <message_arguments>
                 <message_argument value="3.14"/>
                 <message_argument value="3.13"/>
+                <message_argument value="getModularClassFile()"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14"/>
+                <message_argument value="3.13"/>
                 <message_argument value="getOrdinaryClassFile(String)"/>
             </message_arguments>
         </filter>

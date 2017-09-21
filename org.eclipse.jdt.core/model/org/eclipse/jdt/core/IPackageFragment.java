@@ -103,7 +103,7 @@ public interface IPackageFragment extends IParent, IJavaElement, IOpenable, ISou
 	 * This is a handle-only method.  The class file may or may not be present.
 	 * If the class file is present, then it is guaranteed to contain an {@link IModuleDescription}.
 	 * 
-	 * @since 3.13 BETA_JAVA
+	 * @since 3.14
 	 * @return the class file representing "module-info.class" in this package.
 	 */
 	IModularClassFile getModularClassFile();
