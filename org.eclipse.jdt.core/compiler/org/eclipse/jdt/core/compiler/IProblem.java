@@ -1683,7 +1683,7 @@ void setSourceStart(int sourceStart);
 	int RepeatedAnnotationWithContainerAnnotation = TypeRelated + 899;
 	
 	/** @since 3.14 */
-	int AutoManagedVariableResourceNotBelow9 = Syntax + Internal + 876;
+	int AutoManagedVariableResourceNotBelow9 = Syntax + Internal + 1351;
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */
