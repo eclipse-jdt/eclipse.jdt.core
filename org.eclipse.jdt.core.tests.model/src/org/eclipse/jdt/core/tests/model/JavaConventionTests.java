@@ -439,7 +439,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 					validateModuleName("mod,one", VERSIONS[i], VERSIONS[j], IStatus.ERROR, "'mod,one' is not a valid Java identifier");
 					validateModuleName("mod1.one", VERSIONS[i], VERSIONS[j], IStatus.WARNING, "A module name should avoid terminal digits");
 					validateModuleName("mod.one1.two", VERSIONS[i], VERSIONS[j], IStatus.WARNING, "A module name should avoid terminal digits");
-					validateModuleName("java.one", VERSIONS[i], VERSIONS[j], IStatus.WARNING, "'java' is reserved for system modules");
+					validateModuleName("java.one", VERSIONS[i], VERSIONS[j], IStatus.WARNING, "java is reserved for system modules");
 					validateModuleName("mod. one", VERSIONS[i], VERSIONS[j], IStatus.OK, "OK");
 
 					// Now try using keywords
