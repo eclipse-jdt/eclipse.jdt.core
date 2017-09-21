@@ -108,7 +108,7 @@ class ModuleBinding implements IModuleBinding {
 	@Override
 	public boolean isSynthetic() {
 		// TODO Auto-generated method stub
-		// TODO BETA_JAVA9 no reference seen in jvms draft - only in sotm
+		// TODO Java 9 no reference seen in jvms draft - only in sotm
 		// check on version change and after compiler ast implements isSynthetic return this.binding.isSynthetic();
 		
 		return false;

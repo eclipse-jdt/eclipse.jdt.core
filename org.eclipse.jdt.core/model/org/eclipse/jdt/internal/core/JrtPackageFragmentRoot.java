@@ -50,7 +50,7 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 
 	protected boolean computeChildren(OpenableElementInfo info, IResource underlyingResource) throws JavaModelException {
 		final HashtableOfArrayToObject rawPackageInfo = new HashtableOfArrayToObject();
-		final String compliance = CompilerOptions.VERSION_1_8; // TODO: BETA_JAVA9 Revisit
+		final String compliance = CompilerOptions.VERSION_1_8; // TODO: Java 9 Revisit
 
 		// always create the default package
 		rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });

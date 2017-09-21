@@ -200,7 +200,7 @@ public ITypeAnnotationWalker enrichWithExternalAnnotationsFor(ITypeAnnotationWal
 }
 @Override
 public char[] getModule() {
-	// TODO BETA_JAVA9 Auto-generated method stub
+	// TODO Java 9 Auto-generated method stub
 	return null;
 }
 @Override

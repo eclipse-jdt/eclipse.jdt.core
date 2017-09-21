@@ -53,7 +53,7 @@ public class JRTUtil {
 	public static int NOTIFY_MODULES = 0x0004;
 	public static int NOTIFY_ALL = NOTIFY_FILES | NOTIFY_PACKAGES | NOTIFY_MODULES;
 
-	// TODO: BETA_JAVA9 Think about clearing the cache too.
+	// TODO: Java 9 Think about clearing the cache too.
 	private static Map<File, JrtFileSystem> images = null;
 
 	private static final Object lock = new Object();

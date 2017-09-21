@@ -76,7 +76,7 @@ IModule initializeModule() {
 							ClassFileReader cfr = Util.newClassFileReader(m);
 							return cfr.getModuleDeclaration();
 						} catch (ClassFormatException | IOException e) {
-							// TODO BETA_JAVA9 Auto-generated catch block
+							// TODO Java 9 Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
