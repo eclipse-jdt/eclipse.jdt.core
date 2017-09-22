@@ -5759,6 +5759,97 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("mod.two");			
 		}
 	}
+	public void testBug522671() throws Exception {
+		if (!isJRE9) return;
+		try {
+		IJavaProject p1 = setupModuleProject("util",
+			new String[] {
+				"src/module-info.java",
+				"module util {\n" +
+				"	exports my.util;\n" +
+				"}\n" +
+				"",
+				"src/my/util/Data.java",
+				"package my.util;\n" +
+				"public class Data {\n" +
+				"}\n" +
+				"",
+				"src/my/util/AnnotatedInModule.java",
+				"package my.util;\n" +
+				"public abstract class AnnotatedInModule {\n" +
+				"	abstract public Data getTime();\n" +
+				"}\n" +
+				"",
+			});
+		IJavaProject p2 = setupModuleProject("util2",
+			new String[] {
+				"src/module-info.java",
+				"module util2 {\n" +
+				"	exports my.util.nested;\n" +
+				"}\n" +
+				"",
+				"src/my/util/nested/Unrelated.java",
+				"package my.util.nested;\n" +
+				"class Unrelated {\n" +
+				"}\n" +
+				"",
+			});
+		String[] sources3 = {
+			"src/a/other/AnnotatedInOtherNonModule.java",
+			"package a.other;\n" +
+			"import my.util.Data;\n" +
+			"public class AnnotatedInOtherNonModule {\n" +
+			"	Data generationDate;\n" +
+			"}\n" +
+			"",
+		};
+		IClasspathAttribute[] attr = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+		// modulepath
+		IClasspathEntry[] deps3 = { JavaCore.newProjectEntry(p1.getPath(), null, false, attr, false) };
+		IJavaProject p3 = setupModuleProject("other", sources3, deps3);
+
+		String[] sources4 = {
+			"src/test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import a.other.AnnotatedInOtherNonModule;\n" +
+			"import my.util.AnnotatedInModule;\n" +
+			"import my.util.Data;\n" +
+			"\n" +
+			"public class Test extends AnnotatedInOtherNonModule {\n" +
+			"	public Data f(AnnotatedInModule calendar) {\n" +
+			"		return calendar.getTime();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		};
+		IClasspathEntry[] deps4 = { //
+				// modulepath (with split package my.util)
+				JavaCore.newProjectEntry(p1.getPath(), null, false, attr, false), //
+				JavaCore.newProjectEntry(p2.getPath(), null, false, attr, false), //
+				// classpath
+				JavaCore.newProjectEntry(p3.getPath()) //
+		};
+		IJavaProject p4 = setupModuleProject("test", sources4, deps4);
+		p4.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+		assertNoErrors();
+
+		this.problemRequestor.reset();
+		ICompilationUnit cu = getCompilationUnit("/test/src/test/Test.java");
+		cu.getWorkingCopy(this.wcOwner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n",
+			this.problemRequestor);
+		} finally {
+			deleteProject("util");
+			deleteProject("util2");
+			deleteProject("other");
+			deleteProject("test");
+		}
+	}
 
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {

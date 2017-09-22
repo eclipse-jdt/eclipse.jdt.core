@@ -500,6 +500,9 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		PackageBinding binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
 		// remember
 		this.declaredPackages.put(fullFlatName, binding);
+		if (parent == null) {
+			this.environment.knownPackages.put(name, binding);
+		}
 		return binding;
 	}
 	// Given parent is visible in this module, see if there is sub package named name visible in this module
@@ -639,6 +642,9 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				}
 			}
 			this.declaredPackages.put(packageName, packageBinding);
+			if (packageBinding.parent == null) {
+				this.environment.knownPackages.put(packageName, packageBinding);
+			}
 		}
 		return packageBinding;
 	}

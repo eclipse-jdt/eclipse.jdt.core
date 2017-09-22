@@ -1661,17 +1661,11 @@ private ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean 
 	ReferenceBinding binding = getCachedType(compoundName);
 	if (binding == null) {
 		PackageBinding packageBinding = computePackageFrom(compoundName, false /* valid pkg */);
-		if(this.useModuleSystem) {
-			// the package might not have been seen in getCachedType, so retry
-			binding = packageBinding.getType0(compoundName[compoundName.length - 1]);
+		binding = new UnresolvedReferenceBinding(compoundName, packageBinding);
+		if (wasMissingType) {
+			binding.tagBits |= TagBits.HasMissingType; // record it was bound to a missing type
 		}
-		if(binding == null) {
-			binding = new UnresolvedReferenceBinding(compoundName, packageBinding);
-			if (wasMissingType) {
-				binding.tagBits |= TagBits.HasMissingType; // record it was bound to a missing type
-			}
-			packageBinding.addType(binding);
-		}
+		packageBinding.addType(binding);
 	} else if (binding == TheNotFoundType) {
 		// report the missing class file first
 		if (!wasMissingType) {
