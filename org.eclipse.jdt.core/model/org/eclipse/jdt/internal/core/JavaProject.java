@@ -80,6 +80,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.AutomaticModuleNaming;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
@@ -3507,6 +3508,7 @@ public class JavaProject
 		return JavaModelStatus.VERIFIED_OK;
 	}
 
+	@Override
 	public IModuleDescription getModuleDescription() throws JavaModelException {
 		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();
 		IModuleDescription module = info.getModule();
@@ -3533,6 +3535,11 @@ public class JavaProject
 			}
 		}
 		return null;
+	}
+
+	public IModuleDescription getAutomaticModuleDescription() throws JavaModelException {
+		char[] moduleName = AutomaticModuleNaming.determineAutomaticModuleName(getElementName(), false, getManifest());
+		return new AbstractModule.AutoModule(this, String.valueOf(moduleName));
 	}
 
 	public void setModuleDescription(IModuleDescription module) throws JavaModelException {

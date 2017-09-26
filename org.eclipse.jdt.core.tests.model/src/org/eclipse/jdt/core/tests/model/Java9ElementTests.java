@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.provisional.JavaModelAccess;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
@@ -1223,5 +1224,58 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		} finally {
 			deleteProject("mod.zero");
 		}
+	}
+	public void testAutoModule1() throws Exception {
+		try {
+			IJavaProject project1 = createJavaProject("my_mod", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+			project1.open(null);
+			createFolder("/my_mod/src/p/q");
+			createFile("/my_mod/src/p/q/R.java", 
+					"package p.q;\n" +
+					"public class R {\n" +
+					"}");
+
+			IJavaProject project2 = createJava9Project("your.mod", new String[] {"src"});
+			IClasspathAttribute[] attrs = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+			IClasspathEntry dep = JavaCore.newProjectEntry(project1.getPath(), null, false, attrs, false);
+			addClasspathEntry(project2, dep);
+			project2.open(null);
+			createFile("/your.mod/src/module-info.java",
+					"module your.mod{\n" +
+					"	requires my.mod;\n" +
+					"}");
+
+			IModuleDescription mod1 = JavaModelAccess.getAutomaticModuleDescription(project1);
+			assertNotNull("auto module not found via project", mod1);
+
+			IPackageFragmentRoot fragmentRoot = project2.getPackageFragmentRoot(project1.getResource());
+			IModuleDescription mod2 = JavaModelAccess.getAutomaticModuleDescription(fragmentRoot);
+			assertNotNull("auto module not found via package fragment root", mod2);
+
+			assertEquals("names of module descriptions should be equal", mod1.getElementName(), mod2.getElementName());
+
+			for (IModuleDescription m : new IModuleDescription[] {mod1, mod2}) {
+				assertFalse(m.exists()); // exists would imply: included in getParent().getChildren()
+				assertTrue(m.getParent().exists());
+				assertNull(m.getClassFile());
+				assertNull(m.getCompilationUnit());
+				assertNull(m.getDeclaringType());
+				assertNull(m.getTypeRoot());
+				assertEquals(0, m.getChildren().length);
+				assertEquals(IJavaElement.JAVA_MODULE, m.getElementType());
+				assertEquals(0, m.getFlags());
+				assertEquals(m.getParent(), m.getOpenable());
+// these throw exceptions, which is OK after exists() answers false:
+//				assertNull(m.getCorrespondingResource());
+//				assertNull(m.getJavadocRange());
+//				assertNull(m.getSourceRange());
+			}
+			assertEquals(project1, mod1.getParent());
+			assertEquals(fragmentRoot, mod2.getParent());
+		}
+		finally {
+			deleteProject("Java9Elements");
+			deleteProject("Java9Elements2");
+		}	
 	}
 }
