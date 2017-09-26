@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IRegion;
@@ -388,7 +389,7 @@ public void testAnonymousType12() throws CoreException {
  * Ensures that the superclass can be retrieved for a binary inner type.
  */
 public void testBinaryInnerTypeGetSuperclass() throws JavaModelException {
-	IClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "Y$Inner.class");
+	IOrdinaryClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "Y$Inner.class");
 	IType type = cf.getType();
 	ITypeHierarchy h = type.newSupertypeHierarchy(null);
 	IType superclass = h.getSuperclass(type);
@@ -399,7 +400,7 @@ public void testBinaryInnerTypeGetSuperclass() throws JavaModelException {
  * Ensures that the superinterfaces can be retrieved for a binary inner type.
  */
 public void testBinaryInnerTypeGetSuperInterfaces() throws JavaModelException {
-	IClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "Y$Inner.class");
+	IOrdinaryClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "Y$Inner.class");
 	IType type = cf.getType();
 	ITypeHierarchy h = type.newSupertypeHierarchy(null);
 	assertTypesEqual(
@@ -454,7 +455,7 @@ public  void testBinarySubclass() throws JavaModelException {
  * Ensures that the superclass can be retrieved for a binary type's superclass.
  */
 public void testBinaryTypeGetSuperclass() throws JavaModelException {
-	IClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "Y.class");
+	IOrdinaryClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "Y.class");
 	IType type = cf.getType();
 	ITypeHierarchy h= type.newSupertypeHierarchy(null);
 	IType superclass= h.getSuperclass(type);
@@ -466,7 +467,7 @@ public void testBinaryTypeGetSuperclass() throws JavaModelException {
  * This is a relatively deep type hierarchy.
  */
 public void testBinaryTypeGetSuperclass2() throws JavaModelException {
-	IClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "Deep.class");
+	IOrdinaryClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "Deep.class");
 	IType type = cf.getType();
 	ITypeHierarchy h= type.newSupertypeHierarchy(null);
 	IType superclass= h.getSuperclass(type);
@@ -477,7 +478,7 @@ public void testBinaryTypeGetSuperclass2() throws JavaModelException {
  * Ensures that the superinterfaces can be retrieved for a binary type's superinterfaces.
  */
 public void testBinaryTypeGetSuperInterfaces() throws JavaModelException {
-	IClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "X.class");
+	IOrdinaryClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "X.class");
 	IType type = cf.getType();
 	ITypeHierarchy h = type.newSupertypeHierarchy(null);
 	IType[] superInterfaces = h.getSuperInterfaces(type);
@@ -491,7 +492,7 @@ public void testBinaryTypeGetSuperInterfaces() throws JavaModelException {
  * Test with type that has a "rich" super hierarchy
  */
 public void testBinaryTypeGetSuperInterfaces2() throws JavaModelException {
-	IClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "rich", "C.class");
+	IOrdinaryClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "rich", "C.class");
 	IType type = cf.getType();
 	ITypeHierarchy h = type.newSupertypeHierarchy(null);
 	IType[] superInterfaces = h.getSuperInterfaces(type);
@@ -540,7 +541,7 @@ public void testBinaryTypeHiddenByOtherJar() throws CoreException, IOException {
 			externalJar2
 		);
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL_LIB", externalJar1, externalJar2}, "");
-		IType focus = project.getPackageFragmentRoot(externalJar2).getPackageFragment("p").getClassFile("Y.class").getType();
+		IType focus = project.getPackageFragmentRoot(externalJar2).getPackageFragment("p").getOrdinaryClassFile("Y.class").getType();
 		assertHierarchyEquals(
 			"Focus: Y [in Y.class [in p [in " + externalJar2 + "]]]\n" +
 			"Super types:\n" +
@@ -584,7 +585,7 @@ public void testBinaryTypeInDotClassJar() throws CoreException, IOException {
 			externalJar
 		);
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL_LIB", externalJar}, "");
-		IType focus = project.getPackageFragmentRoot(externalJar).getPackageFragment("p").getClassFile("X.class").getType();
+		IType focus = project.getPackageFragmentRoot(externalJar).getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 		assertHierarchyEquals(
 			"Focus: X [in X.class [in p [in " + externalJar + "]]]\n" +
 			"Super types:\n" +
@@ -731,7 +732,7 @@ public void testExternalFolder() throws CoreException, IOException {
 			new HashMap(),
 			getExternalResourcePath("externalLib"));
 		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
-		IClassFile classFile = getClassFile("P", getExternalResourcePath("externalLib"), "p", "X.class");
+		IOrdinaryClassFile classFile = getClassFile("P", getExternalResourcePath("externalLib"), "p", "X.class");
 		ITypeHierarchy hierarchy = classFile.getType().newTypeHierarchy(null);
 		assertHierarchyEquals(
 			"Focus: X [in X.class [in p [in "+ getExternalPath() + "externalLib]]]\n" +
@@ -764,7 +765,7 @@ public void testZIPArchive() throws CoreException, IOException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
 		refreshExternalArchives(p);
 
-		IClassFile classFile = getClassFile("P", getExternalResourcePath("externalLib.abc"), "p", "X.class");
+		IOrdinaryClassFile classFile = getClassFile("P", getExternalResourcePath("externalLib.abc"), "p", "X.class");
 		ITypeHierarchy hierarchy = classFile.getType().newTypeHierarchy(null);
 		assertHierarchyEquals(
 			"Focus: X [in X.class [in p [in "+ getExternalPath() + "externalLib.abc]]]\n" +
@@ -784,7 +785,7 @@ public void testZIPArchive() throws CoreException, IOException {
  */
 public void testFindObject() throws CoreException {
 	// ensure Object.class is closed
-	this.currentProject.getPackageFragmentRoot(getExternalJCLPathString()).getPackageFragment("java.lang").getClassFile("Object.class").close();
+	this.currentProject.getPackageFragmentRoot(getExternalJCLPathString()).getPackageFragment("java.lang").getOrdinaryClassFile("Object.class").close();
 	// find Object to fill internal jar type cache
 	IType type = this.currentProject.findType("java.lang.Object");
 	// create hierarchy
@@ -835,7 +836,7 @@ public void testGeneric01() throws JavaModelException {
  * Ensures that a hierarchy on a generic type can be opened
  */
 public void testGeneric02() throws JavaModelException {
-	IType type = getPackageFragmentRoot("/TypeHierarchy15/lib15.jar").getPackageFragment("util").getClassFile("ArrayList.class").getType();
+	IType type = getPackageFragmentRoot("/TypeHierarchy15/lib15.jar").getPackageFragment("util").getOrdinaryClassFile("ArrayList.class").getType();
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(
 		"Focus: ArrayList [in ArrayList.class [in util [in lib15.jar [in TypeHierarchy15]]]]\n" +
@@ -1175,7 +1176,7 @@ public void testGetAllSuperclassesFromBinary() throws JavaModelException {
 	IJavaElement javaElement = JavaCore.create(getFile(fileName));
 	assertNotNull("Problem to get class file \""+fileName+"\"", javaElement);
 	assertTrue("Invalid type for class file \""+fileName+"\"", javaElement instanceof IClassFile);
-	IType type = ((IClassFile) javaElement).getType();
+	IType type = ((IOrdinaryClassFile) javaElement).getType();
 	ITypeHierarchy hierarchy = type.newSupertypeHierarchy(null); // it works when we use newTypeHierarchy(null)
 	IType[] types = hierarchy.getAllSupertypes(type);
 	assertTypesEqual(
@@ -1193,7 +1194,7 @@ public void testGetAllSuperclassesFromBinary() throws JavaModelException {
  * (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=54043)
  */
 public void testGetAllSuperclassesFromBinary2() throws JavaModelException {
-	IClassFile cf = getClassFile("TypeHierarchy", "test54043.jar", "p54043", "X54043.class");
+	IOrdinaryClassFile cf = getClassFile("TypeHierarchy", "test54043.jar", "p54043", "X54043.class");
 	IType type = cf.getType();
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	IType[] types = hierarchy.getAllSupertypes(type);
@@ -1486,7 +1487,7 @@ public void testGetSupertypesWithProjectRegion() throws JavaModelException {
  */
 public void testGetType() throws JavaModelException {
 	// hierarchy created on a type
-	IClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "Y.class");
+	IOrdinaryClassFile cf = getClassFile("TypeHierarchy", "lib.jar", "binary", "Y.class");
 	IType type = cf.getType();
 	ITypeHierarchy hierarchy = null;
 	try {
@@ -1504,7 +1505,7 @@ public void testGetType() throws JavaModelException {
  * (regression test for bug 58440 type hierarchy incomplete when implementing fully qualified interface)
  */
 public void testImplementBinaryInnerInterface() throws JavaModelException {
-	IClassFile cf = getClassFile("TypeHierarchy", "test58440.jar", "p58440", "Y.class");
+	IOrdinaryClassFile cf = getClassFile("TypeHierarchy", "test58440.jar", "p58440", "Y.class");
 	IType type = cf.getType();
 	ITypeHierarchy hierarchy = type.newTypeHierarchy(null);
 	assertHierarchyEquals(

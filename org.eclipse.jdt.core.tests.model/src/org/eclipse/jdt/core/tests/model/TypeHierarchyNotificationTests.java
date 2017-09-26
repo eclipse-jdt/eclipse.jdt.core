@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -607,7 +607,7 @@ public void testAddRemoveClassFile() throws CoreException {
 		((IFolder) pf.getUnderlyingResource()).getFile("Error.class").create(file.getContents(false), false, null);
 		assertOneChange(h);
 		h.refresh(null);
-		assertEquals("Superclass of MyError should be Error in patch", pf.getClassFile("Error.class").getType(), h.getSuperclass(type));
+		assertEquals("Superclass of MyError should be Error in patch", pf.getOrdinaryClassFile("Error.class").getType(), h.getSuperclass(type));
 
 		// Test removal of 'Error.class'
 		reset();

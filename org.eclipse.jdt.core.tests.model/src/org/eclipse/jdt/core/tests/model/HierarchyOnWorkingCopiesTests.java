@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,9 +16,9 @@ import junit.framework.Test;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaCore;
@@ -189,7 +189,7 @@ public void test228845b() throws CoreException, IOException {
 		primaryCu.getBuffer().setContents(newContents);
 		primaryCu.reconcile(ICompilationUnit.NO_AST, false, null, null);
 		
-		IClassFile cf = getClassFile("P", "myLib.jar", "my.pkg", "X.class");
+		IOrdinaryClassFile cf = getClassFile("P", "myLib.jar", "my.pkg", "X.class");
 		IType typ = cf.getType();
 	
 		ITypeHierarchy h = typ.newTypeHierarchy(null);	

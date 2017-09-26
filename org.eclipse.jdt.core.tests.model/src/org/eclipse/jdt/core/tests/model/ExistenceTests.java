@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,7 +65,7 @@ protected void assertUnderlyingResourceFails(IJavaElement element) {
 public void testBinaryMethodAfterNonExistingMember() throws CoreException {
 	try {
 		IJavaProject project = createJavaProject("P", new String[] {}, new String[] {"JCL_LIB"}, "");
-		IClassFile classFile = project.getPackageFragmentRoot(getExternalJCLPathString()).getPackageFragment("java.lang").getClassFile("Object.class");
+		IOrdinaryClassFile classFile = project.getPackageFragmentRoot(getExternalJCLPathString()).getPackageFragment("java.lang").getOrdinaryClassFile("Object.class");
 		classFile.open(null);
 		IType type = classFile.getType();
 		type.getMethod("foo", new String[0]).exists();

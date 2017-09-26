@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 IBM Corporation and others.
+ * Copyright (c) 2006, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
@@ -47,7 +47,7 @@ protected void assertResults(String expected, String actual) {
 }
 public void testCodeSnippetAssistForBug132665() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "bug132665", "Bug132665.class");
+	IOrdinaryClassFile cf = getClassFile("SnippetCompletion", "class-folder", "bug132665", "Bug132665.class");
 	IType type = cf.getType();
 
 	String snippet =
@@ -67,7 +67,7 @@ public void testCodeSnippetAssistForBug132665() throws JavaModelException {
 }
 public void testCodeSnippetAssistForBug223878() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
-	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "bug223878", "Bug223878.class");
+	IOrdinaryClassFile cf = getClassFile("SnippetCompletion", "class-folder", "bug223878", "Bug223878.class");
 	IType type = cf.getType();
 
 	String snippet =

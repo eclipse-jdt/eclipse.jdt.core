@@ -2013,12 +2013,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Returns the specified compilation unit in the given project, root, and
 	 * package fragment or <code>null</code> if it does not exist.
 	 */
-	public IClassFile getClassFile(String projectName, String rootPath, String packageName, String className) throws JavaModelException {
+	public IOrdinaryClassFile getClassFile(String projectName, String rootPath, String packageName, String className) throws JavaModelException {
 		IPackageFragment pkg= getPackageFragment(projectName, rootPath, packageName);
 		if (pkg == null) {
 			return null;
 		}
-		return pkg.getClassFile(className);
+		return pkg.getOrdinaryClassFile(className);
 	}
 	protected ICompilationUnit getCompilationUnit(String path) {
 		return (ICompilationUnit)JavaCore.create(getFile(path));

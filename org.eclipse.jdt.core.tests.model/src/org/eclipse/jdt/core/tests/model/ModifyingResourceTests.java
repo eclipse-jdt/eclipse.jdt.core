@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -167,8 +167,8 @@ private void expandAll(IJavaElement element, int tab, StringBuffer buffer) throw
 protected void renameProject(String project, String newName) throws CoreException {
 	getProject(project).move(new Path(newName), true, null);
 }
-protected IClassFile getClassFile(String path) {
-	return (IClassFile)JavaCore.create(getFile(path));
+protected IOrdinaryClassFile getClassFile(String path) {
+	return (IOrdinaryClassFile)JavaCore.create(getFile(path));
 }
 protected IFolder getFolder(String path) {
 	return getFolder(new Path(path));
@@ -214,7 +214,7 @@ protected void swapFiles(String firstPath, String secondPath) throws CoreExcepti
 	getWorkspace().run(runnable, null);
 }
 protected IClassFile createClassFile(String libPath, String classFileRelativePath, String contents) throws CoreException {
-	IClassFile classFile = getClassFile(libPath + "/" + classFileRelativePath);
+	IOrdinaryClassFile classFile = getClassFile(libPath + "/" + classFileRelativePath);
 //	classFile.getResource().delete(false, null);
 	Util.delete(classFile.getResource());
 	IJavaProject javaProject = classFile.getJavaProject();

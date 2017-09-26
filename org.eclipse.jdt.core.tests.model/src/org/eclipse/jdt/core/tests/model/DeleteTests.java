@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -107,7 +107,7 @@ public void testDeleteBinaryMethod() throws CoreException {
 		};
 		this.createFile("P1/lib/X.class", bytes);
 
-		IClassFile cf = getClassFile("P1/lib/X.class");
+		IOrdinaryClassFile cf = getClassFile("P1/lib/X.class");
 		IMethod method = cf.getType().getMethod("foo", new String[] {});
 
 		try {
@@ -141,7 +141,7 @@ public void testDeleteBinaryType() throws CoreException {
 		};
 		this.createFile("P1/lib/X.class", bytes);
 
-		IClassFile cf = getClassFile("P1/lib/X.class");
+		IOrdinaryClassFile cf = getClassFile("P1/lib/X.class");
 		IType binaryType = cf.getType();
 
 		try {
@@ -836,7 +836,7 @@ public void testDeleteProjectAfterUsingJar() throws CoreException, IOException {
 			},
 			JavaCore.VERSION_1_4
 		);
-		IClassFile classFile = getClassFile("P78128", "lib.jar", "p", "X.class");
+		IOrdinaryClassFile classFile = getClassFile("P78128", "lib.jar", "p", "X.class");
 		ToolFactory.createDefaultClassFileReader(classFile, IClassFileReader.ALL);
 		Util.delete(javaProject.getProject());
 	} finally {

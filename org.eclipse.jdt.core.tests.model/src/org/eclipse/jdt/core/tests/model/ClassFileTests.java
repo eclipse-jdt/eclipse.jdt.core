@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ public class ClassFileTests extends ModifyingResourceTests {
 
 	IPackageFragmentRoot jarRoot;
 	ICompilationUnit workingCopy;
-	IClassFile classFile;
+	IOrdinaryClassFile classFile;
 
 public ClassFileTests(String name) {
 	super(name);
@@ -242,10 +242,10 @@ protected void tearDown() throws Exception {
 	super.tearDown();
 }
 
-private IClassFile createClassFile(String contents) throws CoreException, IOException {
+private IOrdinaryClassFile createClassFile(String contents) throws CoreException, IOException {
 	IJavaProject project = getJavaProject("P");
 	addLibrary(project, "lib2.jar", "src2.zip", new String[] {"p/X.java", contents}, "1.5");
-	this.classFile =  project.getPackageFragmentRoot(getFile("/P/lib2.jar")).getPackageFragment("p").getClassFile("X.class");
+	this.classFile =  project.getPackageFragmentRoot(getFile("/P/lib2.jar")).getPackageFragment("p").getOrdinaryClassFile("X.class");
 	return this.classFile;
 }
 
@@ -253,7 +253,7 @@ private IClassFile createClassFile(String contents) throws CoreException, IOExce
  * Ensures that the annotations of a binary type are correct
  */
 public void testAnnotations01() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	assertAnnotationsEqual(
 		"@annotated.MyOtherAnnot\n",
 		type.getAnnotations());
@@ -263,7 +263,7 @@ public void testAnnotations01() throws JavaModelException {
  * Ensures that the annotations of a binary method are correct
  */
 public void testAnnotations02() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("method", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyOtherAnnot\n",
@@ -274,7 +274,7 @@ public void testAnnotations02() throws JavaModelException {
  * Ensures that the annotations of a binary field are correct
  */
 public void testAnnotations03() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IField field = type.getField("field");
 	assertAnnotationsEqual(
 		"@annotated.MyOtherAnnot\n",
@@ -285,7 +285,7 @@ public void testAnnotations03() throws JavaModelException {
  * Ensures that an annotation with an int value is correct
  */
 public void testAnnotations04() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo01", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_int=(int)1)\n",
@@ -296,7 +296,7 @@ public void testAnnotations04() throws JavaModelException {
  * Ensures that an annotation with a byte value is correct
  */
 public void testAnnotations05() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo02", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_byte=(byte)2)\n",
@@ -307,7 +307,7 @@ public void testAnnotations05() throws JavaModelException {
  * Ensures that an annotation with a short value is correct
  */
 public void testAnnotations06() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo03", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_short=(short)3)\n",
@@ -318,7 +318,7 @@ public void testAnnotations06() throws JavaModelException {
  * Ensures that an annotation with a char value is correct
  */
 public void testAnnotations07() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo04", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_char='a')\n",
@@ -329,7 +329,7 @@ public void testAnnotations07() throws JavaModelException {
  * Ensures that an annotation with a float value is correct
  */
 public void testAnnotations08() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo05", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_float=1.2f)\n",
@@ -340,7 +340,7 @@ public void testAnnotations08() throws JavaModelException {
  * Ensures that an annotation with a double value is correct
  */
 public void testAnnotations09() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo06", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_double=(double)3.4)\n",
@@ -351,7 +351,7 @@ public void testAnnotations09() throws JavaModelException {
  * Ensures that an annotation with a boolean value is correct
  */
 public void testAnnotations10() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo07", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_boolean=true)\n",
@@ -362,7 +362,7 @@ public void testAnnotations10() throws JavaModelException {
  * Ensures that an annotation with a long value is correct
  */
 public void testAnnotations11() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo08", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_long=123456789L)\n",
@@ -373,7 +373,7 @@ public void testAnnotations11() throws JavaModelException {
  * Ensures that an annotation with a String value is correct
  */
 public void testAnnotations12() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo09", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_string=\"abc\")\n",
@@ -384,7 +384,7 @@ public void testAnnotations12() throws JavaModelException {
  * Ensures that an annotation with an annotation value is correct
  */
 public void testAnnotations13() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo10", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_annot=@annotated.MyOtherAnnot)\n",
@@ -395,7 +395,7 @@ public void testAnnotations13() throws JavaModelException {
  * Ensures that an annotation with a Class value is correct
  */
 public void testAnnotations14() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo11", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_class=java.lang.String.class)\n",
@@ -406,7 +406,7 @@ public void testAnnotations14() throws JavaModelException {
  * Ensures that an annotation with an enumeration value is correct
  */
 public void testAnnotations15() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo12", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_enum=annotated.MyEnum.SECOND)\n",
@@ -417,7 +417,7 @@ public void testAnnotations15() throws JavaModelException {
  * Ensures that an annotation with an array value is correct
  */
 public void testAnnotations16() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo13", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_array={(int)1, (int)2, (int)3})\n",
@@ -429,7 +429,7 @@ public void testAnnotations16() throws JavaModelException {
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=248309 )
  */
 public void testAnnotations17() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("Y.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("Y.class").getType();
 	assertAnnotationsEqual(
 		"@java.lang.annotation.Target({java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.LOCAL_VARIABLE, java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.PACKAGE})\n" + 
 		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)\n" + 
@@ -443,7 +443,7 @@ public void testAnnotations17() throws JavaModelException {
  * Ensures that the annotation of a binary type exists
  */
 public void testAnnotations18() throws JavaModelException {
-	IAnnotation annotation = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType().getAnnotation("annotated.MyOtherAnnot");
+	IAnnotation annotation = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType().getAnnotation("annotated.MyOtherAnnot");
 	assertTrue("Annotation should exist", annotation.exists());
 }
 
@@ -452,7 +452,7 @@ public void testAnnotations18() throws JavaModelException {
  */
 public void testAnnotations19() throws JavaModelException {
 	IPackageFragment packageFragment = this.jarRoot.getPackageFragment("annotated");
-	IClassFile classFile2 = packageFragment.getClassFile("MyAnnotation.class");
+	IOrdinaryClassFile classFile2 = packageFragment.getOrdinaryClassFile("MyAnnotation.class");
 	IType type = classFile2.getType();
 	assertAnnotationsEqual(
 		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)\n",
@@ -463,7 +463,7 @@ public void testAnnotations19() throws JavaModelException {
  */
 public void testAnnotations20() throws JavaModelException {
 	IPackageFragment packageFragment = this.jarRoot.getPackageFragment("annotated");
-	IClassFile classFile2 = packageFragment.getClassFile("MyAnnotation2.class");
+	IOrdinaryClassFile classFile2 = packageFragment.getOrdinaryClassFile("MyAnnotation2.class");
 	IType type = classFile2.getType();
 	assertAnnotationsEqual(
 		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)\n",
@@ -474,7 +474,7 @@ public void testAnnotations20() throws JavaModelException {
  */
 public void testAnnotations21() throws JavaModelException {
 	IPackageFragment packageFragment = this.jarRoot.getPackageFragment("annotated");
-	IClassFile classFile2 = packageFragment.getClassFile("MyAnnotation3.class");
+	IOrdinaryClassFile classFile2 = packageFragment.getOrdinaryClassFile("MyAnnotation3.class");
 	IType type = classFile2.getType();
 	assertAnnotationsEqual(
 		"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS)\n",
@@ -486,7 +486,7 @@ public void testAnnotations21() throws JavaModelException {
  * Ensures that an annotation with a negative int value is correct
  */
 public void testAnnotations22() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo14", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_neg_int=(int)-2)\n",
@@ -498,7 +498,7 @@ public void testAnnotations22() throws JavaModelException {
  * Ensures that an annotation with a negative float value is correct
  */
 public void testAnnotations23() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo15", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_neg_float=-2.0f)\n",
@@ -510,7 +510,7 @@ public void testAnnotations23() throws JavaModelException {
  * Ensures that an annotation with a negative double value is correct
  */
 public void testAnnotations24() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo16", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_neg_double=(double)-2.0)\n",
@@ -522,7 +522,7 @@ public void testAnnotations24() throws JavaModelException {
  * Ensures that an annotation with a negative long value is correct
  */
 public void testAnnotations25() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo17", new String[0]);
 	assertAnnotationsEqual(
 		"@annotated.MyAnnot(_neg_long=-2L)\n",
@@ -533,7 +533,7 @@ public void testAnnotations25() throws JavaModelException {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=342757
  */
 public void testAnnotations26() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("test342757").getClassFile("X$B.class").getType();
+	IType type = this.jarRoot.getPackageFragment("test342757").getOrdinaryClassFile("X$B.class").getType();
 	IMethod[] methods = type.getMethods();
 	String expected =
 			"@test342757.Annot\n" + 
@@ -572,7 +572,7 @@ public void testDotName() throws JavaModelException {
  * Ensure that the exception types of a binary method are correct.
  */
 public void testExceptionTypes1() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"TK;", "TV;"});
 	assertStringsEqual(
 		"Unexpected return type",
@@ -584,7 +584,7 @@ public void testExceptionTypes1() throws JavaModelException {
  * Ensure that the exception types of a binary method is correct.
  */
 public void testExceptionTypes2() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"Lgeneric.X<TT;>;"});
 	assertStringsEqual(
 		"Unexpected return type",
@@ -860,7 +860,7 @@ public void testGetChildrenForCategory02() throws CoreException, IOException {
  * Ensures that the default value for an annotation method is correct.
  */
 public void testDefaultValue1() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("MyAnnot.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("MyAnnot.class").getType();
 	IMethod method = type.getMethod("_int", new String[0]);
 	assertMemberValuePairEquals(
 		"_int=(int)0",
@@ -871,7 +871,7 @@ public void testDefaultValue1() throws JavaModelException {
  * Ensures that the default value for an annotation method is correct.
  */
 public void testDefaultValue2() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("MyAnnot.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("MyAnnot.class").getType();
 	IMethod method = type.getMethod("_annot", new String[0]);
 	assertMemberValuePairEquals(
 		"_annot=@annotated.MyOtherAnnot",
@@ -882,7 +882,7 @@ public void testDefaultValue2() throws JavaModelException {
  * Ensures that the default value for an annotation method is correct.
  */
 public void testDefaultValue3() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("annotated").getClassFile("MyAnnot.class").getType();
+	IType type = this.jarRoot.getPackageFragment("annotated").getOrdinaryClassFile("MyAnnot.class").getType();
 	IMethod method = type.getMethod("_array", new String[0]);
 	assertMemberValuePairEquals(
 		"_array=[unknown]{}",
@@ -894,7 +894,7 @@ public void testDefaultValue3() throws JavaModelException {
  * Ensures that the default value for an regular method is correct.
  */
 public void testDefaultValue4() throws JavaModelException {
-	IType type = getPackageFragmentRoot("P", getExternalJCLPathString(JavaCore.VERSION_1_5)).getPackageFragment("java.lang").getClassFile("Object.class").getType();
+	IType type = getPackageFragmentRoot("P", getExternalJCLPathString(JavaCore.VERSION_1_5)).getPackageFragment("java.lang").getOrdinaryClassFile("Object.class").getType();
 	IMethod method = type.getMethod("toString", new String[0]);
 	assertMemberValuePairEquals(
 		"<null>",
@@ -973,7 +973,7 @@ public void testGetResource() throws Exception {
 		createExternalFolder("externalLib/p");
 		createExternalFile("externalLib/p/X.class", "");
 		createJavaProject("P1", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
-		IClassFile classFile1 = getClassFile("P1", getExternalResourcePath("externalLib"), "p", "X.class");
+		IOrdinaryClassFile classFile1 = getClassFile("P1", getExternalResourcePath("externalLib"), "p", "X.class");
 		assertResourceEquals(
 			"Unexpected resource",
 			"<null>",
@@ -989,7 +989,7 @@ public void testGetResource() throws Exception {
  * (regression test for bug 78520 [model] IType#getSuperInterfaceTypeSignatures() doesn't include type arguments)
  */
 public void testGetSuperclassTypeSignature() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("V.class").getType();
+	IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("V.class").getType();
 	assertEquals(
 		"Unexpected signature",
 		"Lgeneric.X<Ljava.lang.Thread;>;",
@@ -1001,7 +1001,7 @@ public void testGetSuperclassTypeSignature() throws JavaModelException {
  * (regression test for bug 78520 [model] IType#getSuperInterfaceTypeSignatures() doesn't include type arguments)
  */
 public void testGetSuperInterfaceTypeSignatures() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("V.class").getType();
+	IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("V.class").getType();
 	assertStringsEqual(
 		"Unexpected signatures",
 		"Lgeneric.I<Ljava.lang.String;>;\n",
@@ -1027,7 +1027,7 @@ public void testJarLikeRootFolder() throws CoreException {
 		IPackageFragment invalidPkg = p.getPackageFragmentRoot("/P1/classFolder.jar").getPackageFragment("p");
 
 		// ensure that the class file cannot be opened with a valid exception
-		IClassFile openable = invalidPkg.getClassFile("X.class");
+		IOrdinaryClassFile openable = invalidPkg.getOrdinaryClassFile("X.class");
 		JavaModelException expected = null;
 		try {
 			openable.open(null);
@@ -1044,7 +1044,7 @@ public void testJarLikeRootFolder() throws CoreException {
  * Ensures that the parameter names of a binary method with source attached are correct.
  */
 public void testParameterNames01() throws CoreException {
-	IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
+	IMethod method = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
 	String[] parameterNames = method.getParameterNames();
 	assertStringsEqual(
 		"Unexpected parameter names",
@@ -1060,7 +1060,7 @@ public void testParameterNames02() throws CoreException {
 	IPath sourceAttachmentPath = this.jarRoot.getSourceAttachmentPath();
 	try {
 		attachSource(this.jarRoot, null, null);
-		IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
+		IMethod method = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
 		String[] parameterNames = method.getParameterNames();
 		assertStringsEqual(
 			"Unexpected parameter names",
@@ -1076,7 +1076,7 @@ public void testParameterNames02() throws CoreException {
  * Ensure that the type parameter signatures of a binary type are correct.
  */
 public void testParameterTypeSignatures1() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("X.class").getType();
 	assertStringsEqual(
 		"Unexpected type parameters",
 		"T:Ljava.lang.Object;\n",
@@ -1087,7 +1087,7 @@ public void testParameterTypeSignatures1() throws JavaModelException {
  * Ensure that the type parameter signatures of a binary type are correct.
  */
 public void testParameterTypeSignatures2() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("nongeneric").getClassFile("A.class").getType();
+	IType type = this.jarRoot.getPackageFragment("nongeneric").getOrdinaryClassFile("A.class").getType();
 	assertStringsEqual(
 		"Unexpected type parameters",
 		"",
@@ -1098,7 +1098,7 @@ public void testParameterTypeSignatures2() throws JavaModelException {
  * Ensure that the type parameter signatures of a binary type are correct.
  */
 public void testParameterTypeSignatures3() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("Y.class").getType();
+	IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("Y.class").getType();
 	assertStringsEqual(
 		"Unexpected type parameters",
 		"K:Ljava.lang.Object;\n" +
@@ -1110,7 +1110,7 @@ public void testParameterTypeSignatures3() throws JavaModelException {
  * Ensure that the type parameter signatures of a binary type are correct.
  */
 public void testParameterTypeSignatures4() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("Z.class").getType();
+	IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("Z.class").getType();
 	assertStringsEqual(
 		"Unexpected type parameters",
 		"T:Ljava.lang.Object;:Lgeneric.I<-TT;>;\n",
@@ -1121,7 +1121,7 @@ public void testParameterTypeSignatures4() throws JavaModelException {
  * Ensure that the type parameter signatures of a binary type are correct.
  */
 public void testParameterTypeSignatures5() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("W.class").getType();
+	IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("W.class").getType();
 	assertStringsEqual(
 		"Unexpected type parameters",
 		"T:Lgeneric.X<TT;>;\n" +
@@ -1134,7 +1134,7 @@ public void testParameterTypeSignatures5() throws JavaModelException {
  * @deprecated
  */
 public void testParameterTypeSignatures6() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"TK;", "TV;"});
 	assertStringsEqual(
 		"Unexpected type parameters",
@@ -1147,7 +1147,7 @@ public void testParameterTypeSignatures6() throws JavaModelException {
  * Ensures that the raw parameter names of a binary method with source attached are correct.
  */
 public void testRawParameterNames01() throws CoreException {
-	IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
+	IMethod method = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
 	String[] parameterNames = method.getRawParameterNames();
 	assertStringsEqual(
 		"Unexpected parameter names",
@@ -1163,7 +1163,7 @@ public void testRawParameterNames02() throws CoreException {
 	IPath sourceAttachmentPath = this.jarRoot.getSourceAttachmentPath();
 	try {
 		attachSource(this.jarRoot, null, null);
-		IMethod method = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
+		IMethod method = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("X.class").getType().getMethod("foo", new String[] {"TK;", "TV;"});
 		String[] parameterNames = method.getParameterNames();
 		assertStringsEqual(
 			"Unexpected parameter names",
@@ -1179,7 +1179,7 @@ public void testRawParameterNames02() throws CoreException {
  * Ensure that the return type of a binary method is correct.
  */
 public void testReturnType1() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"TK;", "TV;"});
 	assertEquals(
 		"Unexpected return type",
@@ -1191,7 +1191,7 @@ public void testReturnType1() throws JavaModelException {
  * Ensure that the return type of a binary method is correct.
  */
 public void testReturnType2() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"Lgeneric.X<TT;>;"});
 	assertEquals(
 		"Unexpected return type",
@@ -1200,14 +1200,14 @@ public void testReturnType2() throws JavaModelException {
 }
 
 /*
- * Ensures that asking for the source range of a IClassFile in a non-Java project throws a JavaModelException
+ * Ensures that asking for the source range of a IOrdinaryClassFile in a non-Java project throws a JavaModelException
  * (regression test for bug 132494 JavaModelException opening up class file in non java project)
  */
 public void testSourceRange1() throws CoreException { // was testSourceRangeNonJavaProject()
 	try {
 		createProject("Simple");
 		createFile("/Simple/X.class", "");
-		IClassFile classX = getClassFile("/Simple/X.class");
+		IOrdinaryClassFile classX = getClassFile("/Simple/X.class");
 		JavaModelException exception = null;
 		try {
 			classX.getSourceRange();
@@ -1221,14 +1221,14 @@ public void testSourceRange1() throws CoreException { // was testSourceRangeNonJ
 }
 
 /*
- * Ensures that asking for the source range of a IClassFile not on the classpath of a Java project doesn't throw a JavaModelException
+ * Ensures that asking for the source range of a IOrdinaryClassFile not on the classpath of a Java project doesn't throw a JavaModelException
  * (regression test for bug 138507 exception in .class file editor for classes imported via plug-in import)
  */
 public void testSourceRange2() throws CoreException { // was testSourceRangeNotOnClasspath()
 	try {
 		createJavaProject("P2", new String[] {"src"}, "bin");
 		createFile("/P2/bin/X.class", "");
-		IClassFile classX = getClassFile("/P2/bin/X.class");
+		IOrdinaryClassFile classX = getClassFile("/P2/bin/X.class");
 		assertNull("Unxepected source range", classX.getSourceRange());
 	} finally {
 		deleteProject("P2");
@@ -1236,14 +1236,14 @@ public void testSourceRange2() throws CoreException { // was testSourceRangeNotO
 }
 
 /*
- * Ensures that asking for the source range of a IClassFile in proj==src case without the corresponding .java file doesn't throw a JavaModelException
+ * Ensures that asking for the source range of a IOrdinaryClassFile in proj==src case without the corresponding .java file doesn't throw a JavaModelException
  * (regression test for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=221904 )
  */
 public void testSourceRange3() throws CoreException {
 	try {
 		createJavaProject("P2", new String[] {""}, "");
 		createFile("/P2/X.class", "");
-		IClassFile classX = getClassFile("/P2/X.class");
+		IOrdinaryClassFile classX = getClassFile("/P2/X.class");
 		assertNull("Unxepected source range", classX.getSourceRange());
 	} finally {
 		deleteProject("P2");
@@ -1256,7 +1256,7 @@ public void testSourceRange3() throws CoreException {
  * (regression test for bug 101228 JME on code assist)
  */
 public void testTypeParameter() throws CoreException {
-	IClassFile clazz = this.jarRoot.getPackageFragment("generic").getClassFile("X.class");
+	IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("X.class");
 	ITypeParameter typeParameter = clazz.getType().getTypeParameter("T");
 	clazz.close();
 	assertStringsEqual(
@@ -1269,7 +1269,7 @@ public void testTypeParameter() throws CoreException {
  * Ensure that a method with varargs has the AccVarargs flag set.
  */
 public void testVarargs() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("varargs").getClassFile("X.class").getType();
+	IType type = this.jarRoot.getPackageFragment("varargs").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo", new String[]{"Ljava.lang.String;", "[Ljava.lang.Object;"});
 	assertTrue("Should have the AccVarargs flag set", Flags.isVarargs(method.getFlags()));
 }
@@ -1278,7 +1278,7 @@ public void testVarargs() throws JavaModelException {
  * Ensures that a class file can be turned into a working copy and that its children are correct.
  */
 public void testWorkingCopy01() throws CoreException {
-	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	assertElementDescendants(
 		"Unexpected children",
@@ -1296,7 +1296,7 @@ public void testWorkingCopy02() throws CoreException {
 	IPath sourceAttachmentPath = this.jarRoot.getSourceAttachmentPath();
 	try {
 		attachSource(this.jarRoot, null, null);
-		IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+		IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 		assertNull("Should not have source attached", clazz.getSource());
 		this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 		assertElementDescendants(
@@ -1316,7 +1316,7 @@ public void testWorkingCopy02() throws CoreException {
  * Ensures that a class file can be turned into a working copy, modified and that its children are correct.
  */
 public void testWorkingCopy03() throws CoreException {
-	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
 		"package workingcopy;\n" +
@@ -1339,7 +1339,7 @@ public void testWorkingCopy03() throws CoreException {
  * Ensures that a class file working copy cannot be commited
  */
 public void testWorkingCopy04() throws CoreException {
-	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
 		"package workingcopy;\n" +
@@ -1364,7 +1364,7 @@ public void testWorkingCopy04() throws CoreException {
  * Ensures that a type can be created in class file working copy.
  */
 public void testWorkingCopy05() throws CoreException {
-	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	this.workingCopy.createType(
 		"class Y {\n" +
@@ -1386,7 +1386,7 @@ public void testWorkingCopy05() throws CoreException {
  * Ensures that the primary compilation unit of class file working copy is correct.
  */
 public void testWorkingCopy06() throws CoreException {
-	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	this.workingCopy = clazz.getWorkingCopy(owner, null/*no progress*/);
 	ICompilationUnit primary = this.workingCopy.getPrimary();
@@ -1397,7 +1397,7 @@ public void testWorkingCopy06() throws CoreException {
  * Ensures that a class file working copy can be restored from the original source.
  */
 public void testWorkingCopy07() throws CoreException {
-	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 	WorkingCopyOwner owner = new WorkingCopyOwner() {};
 	this.workingCopy = clazz.getWorkingCopy(owner, null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(
@@ -1422,7 +1422,7 @@ public void testWorkingCopy07() throws CoreException {
  * Ensures that a class file working copy can be reconciled against.
  */
 public void testWorkingCopy08() throws CoreException {
-	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 	ProblemRequestor problemRequestor = new ProblemRequestor();
 	WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
 	this.workingCopy = clazz.getWorkingCopy(owner, null/*no progress*/);
@@ -1464,7 +1464,7 @@ public void testWorkingCopy08() throws CoreException {
  * Ensures that types in a class file are hidden when reconciling against if the class file working copy is empty.
  */
 public void testWorkingCopy09() throws CoreException {
-	IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+	IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 	ProblemRequestor problemRequestor = new ProblemRequestor();
 	WorkingCopyOwner owner = newWorkingCopyOwner(problemRequestor);
 	this.workingCopy = clazz.getWorkingCopy(owner, null/*no progress*/);
@@ -1503,7 +1503,7 @@ public void testWorkingCopy10() throws CoreException {
 	IPath sourceAttachmentPath = this.jarRoot.getSourceAttachmentPath();
 	try {
 		attachSource(this.jarRoot, null, null);
-		IClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getClassFile("Y.class");
+		IOrdinaryClassFile clazz = this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("Y.class");
 		assertNull("Should not have source attached", clazz.getSource());
 		this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 		assertSourceEquals(
@@ -1529,7 +1529,7 @@ public void testWorkingCopy10() throws CoreException {
  */
 public void testWorkingCopy11() throws CoreException {
 	IPackageFragment pkg = this.jarRoot.getPackageFragment("workingcopy");
-	IClassFile clazz = pkg.getClassFile("X.class");
+	IOrdinaryClassFile clazz = pkg.getOrdinaryClassFile("X.class");
 	this.workingCopy = clazz.getWorkingCopy(null/*primary owner*/, (IProgressMonitor) null/*no progress*/);
 	this.workingCopy.getBuffer().setContents(	"");
 	this.workingCopy.makeConsistent(null);
@@ -1546,7 +1546,7 @@ public void testWorkingCopy11() throws CoreException {
  */
 public void testGetBytes() throws CoreException {
 	IPackageFragment pkg = this.jarRoot.getPackageFragment("workingcopy");
-	IClassFile clazz = pkg.getClassFile("X.class");
+	IOrdinaryClassFile clazz = pkg.getOrdinaryClassFile("X.class");
 	byte[] bytes = clazz.getBytes();
 	assertNotNull("No bytes", bytes);
 	int length = bytes.length;
@@ -1561,7 +1561,7 @@ public void testGetBytes() throws CoreException {
  * Ensures that the annotations of a binary field are correct
  */
 public void testGenericFieldGetTypeSignature() throws JavaModelException {
-	IType type = this.jarRoot.getPackageFragment("generic").getClassFile("GenericField.class").getType();
+	IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile("GenericField.class").getType();
 	IField field = type.getField("myField");
 	assertEquals(
 		"Wrong type signature",
@@ -1570,7 +1570,7 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 }
 
 	public void testBug246594() throws JavaModelException {
-		IType type = this.jarRoot.getPackageFragment("generic").getClassFile(
+		IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile(
 				"Z.class").getType();
 		ITypeParameter typeParam = type.getTypeParameter("T");
 		assertNotNull(typeParam);
@@ -1581,7 +1581,7 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 	}
 
 	public void testBug246594a() throws JavaModelException {
-		IType type = this.jarRoot.getPackageFragment("generic").getClassFile(
+		IType type = this.jarRoot.getPackageFragment("generic").getOrdinaryClassFile(
 				"X.class").getType();
 		IMethod method = type.getMethod("foo", new String[] { "TK;", "TV;" });
 		ITypeParameter typeParam = method.getTypeParameter("V");
@@ -1604,7 +1604,7 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 					.getPackageFragmentRoot(getFile("/P/lib316937.jar"));
 
 			IType type = packageFragRoot.getPackageFragment("bug316937")
-					.getClassFile("Foo.class").getType();
+					.getOrdinaryClassFile("Foo.class").getType();
 			IType subType = type.getType("Bar");
 			IMethod[] methods = subType.getMethods();
 			assertEquals("Constructros", 1, methods.length);
@@ -1626,7 +1626,7 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 			packageFragRoot = project
 					.getPackageFragmentRoot(getFile("/P/lib316937.jar"));
 			type = packageFragRoot.getPackageFragment("bug316937")
-					.getClassFile("Foo.class").getType();
+					.getOrdinaryClassFile("Foo.class").getType();
 			subType = type.getType("Bar");
 			methods = subType.getMethods();
 			assertEquals("Constructros", 1, methods.length);
@@ -1650,7 +1650,7 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 		class GetClassThread extends Thread {
 			public String childString;
 			public void run(){
-				IClassFile clazz = ClassFileTests.this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+				IOrdinaryClassFile clazz = ClassFileTests.this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 				try {
 					this.childString = expandAll(clazz);
 				} catch (CoreException e) {
@@ -1675,7 +1675,7 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 			assertEquals("Unexpected children", expected, th1.childString);
 			assertEquals("Unexpected children", expected, th2.childString);
 			assertEquals("Unexpected children", expected, th3.childString);
-			IClassFile clazz = ClassFileTests.this.jarRoot.getPackageFragment("workingcopy").getClassFile("X.class");
+			IOrdinaryClassFile clazz = ClassFileTests.this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 			clazz.close();
 		}
 	}
