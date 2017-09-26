@@ -42,6 +42,10 @@ public abstract class AbstractModule extends NamedMember implements IModuleDescr
 			return null; // has no real CompilationUnit nor ClassFile
 		}
 		@Override
+		public IModuleReference[] getRequiredModules() throws JavaModelException {
+			return ModuleDescriptionInfo.NO_REQUIRES;
+		}
+		@Override
 		protected void toStringContent(StringBuffer buffer, String lineDelimiter) throws JavaModelException {
 			buffer.append("automatic module "); //$NON-NLS-1$
 			buffer.append(this.name);
