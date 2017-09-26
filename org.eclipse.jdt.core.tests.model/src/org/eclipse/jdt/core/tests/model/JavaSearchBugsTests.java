@@ -33,7 +33,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
 import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -44,6 +43,7 @@ import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IPackageDeclaration;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -3532,10 +3532,10 @@ public void testBug94718() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=95152"
  */
 public void testBug95152_jar01() throws CoreException {
-	IType type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T1$T12.class").getType();
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getOrdinaryClassFile("T1$T12.class").getType();
 	// search constructor first level member
 	search(type.getMethods()[0], REFERENCES);
-	type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T1$T12$T13.class").getType();
+	type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getOrdinaryClassFile("T1$T12$T13.class").getType();
 	// search constructor second level member
 	search(type.getMethods()[0], REFERENCES);
 	assertSearchResults(
@@ -3544,10 +3544,10 @@ public void testBug95152_jar01() throws CoreException {
 	);
 }
 public void testBug95152_jar02() throws CoreException {
-	IType type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T2$T22.class").getType();
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getOrdinaryClassFile("T2$T22.class").getType();
 	// search constructor first level member
 	search(type.getMethods()[0], REFERENCES);
-	type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T2$T22$T23.class").getType();
+	type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getOrdinaryClassFile("T2$T22$T23.class").getType();
 	// search constructor second level member
 	search(type.getMethods()[0], REFERENCES);
 	assertSearchResults(
@@ -3556,10 +3556,10 @@ public void testBug95152_jar02() throws CoreException {
 	);
 }
 public void testBug95152_jar03() throws CoreException {
-	IType type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T3$T32.class").getType();
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getOrdinaryClassFile("T3$T32.class").getType();
 	// search constructor first level member
 	search(type.getMethods()[0], REFERENCES);
-	type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T3$T32$T33.class").getType();
+	type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getOrdinaryClassFile("T3$T32$T33.class").getType();
 	// search constructor second level member
 	search(type.getMethods()[0], REFERENCES);
 	assertSearchResults(
@@ -3568,10 +3568,10 @@ public void testBug95152_jar03() throws CoreException {
 	);
 }
 public void testBug95152_jar04() throws CoreException {
-	IType type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T4$T42.class").getType();
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getOrdinaryClassFile("T4$T42.class").getType();
 	// search constructor first level member
 	search(type.getMethods()[0], REFERENCES);
-	type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getClassFile("T4$T42$T43.class").getType();
+	type = getPackageFragment("JavaSearchBugs", "lib/b95152.jar", "b95152").getOrdinaryClassFile("T4$T42$T43.class").getType();
 	// search constructor second level member
 	search(type.getMethods()[0], REFERENCES);
 	assertSearchResults(
@@ -6429,7 +6429,7 @@ public void testBug122442i() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=123679"
  */
 public void testBug123679() throws CoreException {
-	IType type = getPackageFragment("JavaSearchBugs", "lib/b123679.jar", "pack").getClassFile("I123679.class").getType();
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b123679.jar", "pack").getOrdinaryClassFile("I123679.class").getType();
 	search(type, REFERENCES);
 	assertSearchResults(
 		"lib/b123679.jar test.<anonymous> EXACT_MATCH\n" +
@@ -6885,7 +6885,7 @@ public void testBug124624_HashMap_CamelCaseSamePartCount() throws CoreException 
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=124645"
  */
 public void testBug124645a() throws CoreException {
-	IClassFile classFile = getClassFile("JavaSearchBugs", "lib/b124645.jar", "xy", "BE_124645.class");
+	IOrdinaryClassFile classFile = getClassFile("JavaSearchBugs", "lib/b124645.jar", "xy", "BE_124645.class");
 	IType type = classFile.getType();
 	search(type, IMPLEMENTORS);
 	assertSearchResults(
@@ -6896,7 +6896,7 @@ public void testBug124645a() throws CoreException {
 	);
 }
 public void testBug124645b() throws CoreException {
-	IClassFile classFile = getClassFile("JavaSearchBugs", "lib/b124645.jar", "test", "BE_124645.class");
+	IOrdinaryClassFile classFile = getClassFile("JavaSearchBugs", "lib/b124645.jar", "test", "BE_124645.class");
 	IType type = classFile.getType();
 	search(type, IMPLEMENTORS);
 	assertSearchResults(
@@ -6911,7 +6911,7 @@ public void testBug124645b() throws CoreException {
 	);
 }
 public void testBug124645c() throws CoreException {
-	IClassFile classFile = getClassFile("JavaSearchBugs", "lib/b124645.jar", "", "BC_124645.class");
+	IOrdinaryClassFile classFile = getClassFile("JavaSearchBugs", "lib/b124645.jar", "", "BC_124645.class");
 	IType type = classFile.getType();
 	search(type, IMPLEMENTORS);
 	assertSearchResults(
@@ -6919,7 +6919,7 @@ public void testBug124645c() throws CoreException {
 	);
 }
 public void testBug124645d() throws CoreException {
-	IClassFile classFile = getClassFile("JavaSearchBugs", "lib/b124645.jar", "", "BI_124645.class");
+	IOrdinaryClassFile classFile = getClassFile("JavaSearchBugs", "lib/b124645.jar", "", "BI_124645.class");
 	IType type = classFile.getType();
 	search(type, IMPLEMENTORS);
 	assertSearchResults(
@@ -6972,7 +6972,7 @@ public void testBug125178() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=126330"
  */
 public void testBug126330() throws CoreException {
-	IType type = getPackageFragment("JavaSearchBugs", "lib/b126330.jar", "").getClassFile("A126330.class").getType();
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b126330.jar", "").getOrdinaryClassFile("A126330.class").getType();
 	search(type, REFERENCES);
 	assertSearchResults(
 		"lib/b126330.jar B126330.a EXACT_MATCH"
@@ -7019,7 +7019,7 @@ public void testBug127628() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=128877"
  */
 public void testBug128877a() throws CoreException {
-	IType type = getPackageFragment("JavaSearchBugs", "lib/b128877.jar", "pack").getClassFile("Test.class").getType();
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b128877.jar", "pack").getOrdinaryClassFile("Test.class").getType();
 	IMethod method = type.getMethod("Test", new String[0]);
 	search(method, REFERENCES);
 	assertSearchResults(
@@ -7027,7 +7027,7 @@ public void testBug128877a() throws CoreException {
 	);
 }
 public void testBug128877b() throws CoreException {
-	IType type = getPackageFragment("JavaSearchBugs", "lib/b128877.jar", "pack").getClassFile("Test.class").getType();
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b128877.jar", "pack").getOrdinaryClassFile("Test.class").getType();
 	IMethod method = type.getMethod("Test", new String[] { "Ljava.lang.String;" });
 	search(method, REFERENCES);
 	assertSearchResults(
@@ -7035,7 +7035,7 @@ public void testBug128877b() throws CoreException {
 	);
 }
 public void testBug128877c() throws CoreException {
-	IType type = getPackageFragment("JavaSearchBugs", "lib/b128877.jar", "pack").getClassFile("Test.class").getType();
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b128877.jar", "pack").getOrdinaryClassFile("Test.class").getType();
 	IMethod method = type.getMethod("foo128877", new String[] { "I" });
 	search(method, REFERENCES);
 	assertSearchResults(
@@ -7401,7 +7401,7 @@ public void testBug137087m_CamelCaseSamePartCount() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=137984"
  */
 public void testBug137984_jar() throws CoreException {
-	IType type = getPackageFragment("JavaSearchBugs", "lib/b137984.jar", "").getClassFile("CJ.class").getType();
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b137984.jar", "").getOrdinaryClassFile("CJ.class").getType();
 	IField field = type.getField("c3");
 	search(field, REFERENCES);
 	assertSearchResults(
@@ -7446,7 +7446,7 @@ public void testBug137984_wc() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=140156"
  */
 public void testBug140156() throws CoreException {
-	IType type = getPackageFragment("JavaSearchBugs", "lib/b140156.jar", "").getClassFile("X.class").getType();
+	IType type = getPackageFragment("JavaSearchBugs", "lib/b140156.jar", "").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethods()[1];
 	assertEquals("Search wrong method!!!", "foo", method.getElementName());
 	search(method, DECLARATIONS);
@@ -14320,7 +14320,7 @@ public void testBug469320_0001() throws CoreException {
 
 		waitUntilIndexesReady();
 		// search
-		IClassFile classFile = getClassFile("ProjectA", "common.jar", "validator", "Validator.class");
+		IOrdinaryClassFile classFile = getClassFile("ProjectA", "common.jar", "validator", "Validator.class");
 		IType type = classFile.getType();
 		IMethod method = type.getMethods()[1];
 		search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);

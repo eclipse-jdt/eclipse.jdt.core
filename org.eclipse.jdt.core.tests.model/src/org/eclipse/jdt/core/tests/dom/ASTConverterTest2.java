@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3563,7 +3563,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48292
 	 */
 	public void test0522() throws JavaModelException {
-		IClassFile classFile = getClassFile("Converter" , "bins", "test0522", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IOrdinaryClassFile classFile = getClassFile("Converter" , "bins", "test0522", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertNotNull("No bytes", classFile.getBytes());
 		assertNotNull(classFile);
 		assertNotNull(classFile.getSource());
@@ -3613,7 +3613,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48292
 	 */
 	public void test0523() throws JavaModelException {
-		IClassFile classFile = getClassFile("Converter" , "bins", "test0523", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IOrdinaryClassFile classFile = getClassFile("Converter" , "bins", "test0523", "Test.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertNotNull(classFile);
 		assertNotNull(classFile.getSource());
 		IType type = classFile.getType();
@@ -3652,7 +3652,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48292
 	 */
 	public void test0524() throws JavaModelException {
-		IClassFile classFile = getClassFile("Converter" , "bins", "test0524", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IOrdinaryClassFile classFile = getClassFile("Converter" , "bins", "test0524", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertNotNull(classFile);
 		assertNotNull(classFile.getSource());
 		IType type = classFile.getType();
@@ -3680,7 +3680,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48292
 	 */
 	public void test0525() throws JavaModelException {
-		IClassFile classFile = getClassFile("Converter" , "bins", "test0525", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IOrdinaryClassFile classFile = getClassFile("Converter" , "bins", "test0525", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertNotNull(classFile);
 		assertNotNull(classFile.getSource());
 		IType type = classFile.getType();
@@ -3716,7 +3716,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48292
 	 */
 	public void test0526() throws JavaModelException {
-		IClassFile classFile = getClassFile("Converter" , "bins", "test0526", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IOrdinaryClassFile classFile = getClassFile("Converter" , "bins", "test0526", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertNotNull(classFile);
 		assertNotNull(classFile.getSource());
 		IType type = classFile.getType();
@@ -3758,7 +3758,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48292
 	 */
 	public void test0527() throws JavaModelException {
-		IClassFile classFile = getClassFile("Converter" , "bins", "test0527", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IOrdinaryClassFile classFile = getClassFile("Converter" , "bins", "test0527", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertNotNull(classFile);
 		assertNotNull(classFile.getSource());
 		IType type = classFile.getType();
@@ -3799,7 +3799,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48292
 	 */
 	public void test0528() throws JavaModelException {
-		IClassFile classFile = getClassFile("Converter" , "bins", "test0528", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IOrdinaryClassFile classFile = getClassFile("Converter" , "bins", "test0528", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertNotNull(classFile);
 		assertNotNull(classFile.getSource());
 		IType type = classFile.getType();
@@ -3828,7 +3828,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48292
 	 */
 	public void test0529() throws JavaModelException {
-		IClassFile classFile = getClassFile("Converter" , "bins", "test0529", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IOrdinaryClassFile classFile = getClassFile("Converter" , "bins", "test0529", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertNotNull(classFile);
 		assertNotNull(classFile.getSource());
 		IType type = classFile.getType();
@@ -3858,7 +3858,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48292
 	 */
 	public void test0530() throws JavaModelException {
-		IClassFile classFile = getClassFile("Converter" , "bins", "test0530", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IOrdinaryClassFile classFile = getClassFile("Converter" , "bins", "test0530", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertNotNull(classFile);
 		assertNotNull(classFile.getSource());
 		IType type = classFile.getType();
@@ -3887,7 +3887,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=48292
 	 */
 	public void test0531() throws JavaModelException {
-		IClassFile classFile = getClassFile("Converter" , "bins", "test0531", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IOrdinaryClassFile classFile = getClassFile("Converter" , "bins", "test0531", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertNotNull(classFile);
 		assertNotNull(classFile.getSource());
 		IType type = classFile.getType();
@@ -3970,7 +3970,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ISourceRange sourceRange = init.getSourceRange();
 		int position = sourceRange.getOffset() + sourceRange.getLength() / 2;
 
-		IClassFile classFile = getClassFile("Converter" , "bins", "test0532", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		IOrdinaryClassFile classFile = getClassFile("Converter" , "bins", "test0532", "A.class"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		assertNotNull(classFile);
 		assertNotNull(classFile.getSource());
 		type = classFile.getType();
@@ -5254,7 +5254,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"  }\n" +
 				"}";
 			addLibrary(p, "test0571.jar", "test0571.zip", new String[] {"X.java", source	}, "1.4");
-			IClassFile classFile = getClassFile("P", "/P/test0571.jar", "", "X$Y.class");
+			IOrdinaryClassFile classFile = getClassFile("P", "/P/test0571.jar", "", "X$Y.class");
 			CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), classFile, 0, true);
 			IProblem[] problems = unit.getProblems();
 			StringBuffer buffer = new StringBuffer();
@@ -5367,7 +5367,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 				"  }/*end*/\n" +
 				"}",
 			}, "1.5");
-			IClassFile classFile = getClassFile("P1", "/P1/lib.jar", "p", "X$Member.class");
+			IOrdinaryClassFile classFile = getClassFile("P1", "/P1/lib.jar", "p", "X$Member.class");
 			ASTNode node = buildAST(classFile);
 			ITypeBinding binding = ((TypeDeclaration) node).resolveBinding();
 			assertBindingKeyEquals("Lp/X<TT;>.Member;", binding.getKey());

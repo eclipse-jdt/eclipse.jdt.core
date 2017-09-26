@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -71,7 +71,7 @@ public void tearDownSuite() throws Exception {
  * Ensures that a binary field cannot be renamed.
  */
 public void testCopyBinaryField() throws JavaModelException {
-	IClassFile cf = getClassFile("P", "/BinaryProject/bin", "", "X.class");
+	IOrdinaryClassFile cf = getClassFile("P", "/BinaryProject/bin", "", "X.class");
 	IField binaryField = cf.getType().getField("bar");
 	copyNegative(binaryField, cf, null, "bar2", false, IJavaModelStatusConstants.READ_ONLY);
 }
@@ -79,7 +79,7 @@ public void testCopyBinaryField() throws JavaModelException {
  * Ensures that a binary method cannot be renamed.
  */
 public void testCopyBinaryMethod() throws JavaModelException {
-	IClassFile cf = getClassFile("P", "/BinaryProject/bin", "", "X.class");
+	IOrdinaryClassFile cf = getClassFile("P", "/BinaryProject/bin", "", "X.class");
 	IMethod binaryMethod = cf.getType().getMethod("foo", new String[] {});
 	copyNegative(binaryMethod, cf, null, "foo2", false, IJavaModelStatusConstants.READ_ONLY);
 }
@@ -87,7 +87,7 @@ public void testCopyBinaryMethod() throws JavaModelException {
  * Ensures that a binary type cannot be copied.
  */
 public void testCopyBinaryType() throws JavaModelException {
-	IClassFile cf = getClassFile("P", "/BinaryProject/bin", "", "X.class");
+	IOrdinaryClassFile cf = getClassFile("P", "/BinaryProject/bin", "", "X.class");
 	IType binaryType = cf.getType();
 	copyNegative(binaryType, cf, null, "Y", false, IJavaModelStatusConstants.READ_ONLY);
 }
@@ -548,7 +548,7 @@ public void testCopyFieldWithInvalidDestination() throws CoreException {
 	IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 	IField fieldSource= typeSource.getField("foo");
 
-	IClassFile cf = getClassFile("P", "/BinaryProject/bin", "", "X.class");
+	IOrdinaryClassFile cf = getClassFile("P", "/BinaryProject/bin", "", "X.class");
 
 	copyNegative(fieldSource, cf.getType(), null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
 }
@@ -567,7 +567,7 @@ public void testCopyFieldWithInvalidDestinationInDifferentProject() throws CoreE
 		IField fieldSource= typeSource.getField("foo");
 
 		this.createJavaProject("P2", new String[] {"src"}, new String[] {"/BinaryProject/bin"}, "bin");
-		IClassFile cf = getClassFile("P2", "/BinaryProject/bin", "", "X.class");
+		IOrdinaryClassFile cf = getClassFile("P2", "/BinaryProject/bin", "", "X.class");
 
 		copyNegative(fieldSource, cf.getType(), null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
 	} finally {
@@ -1875,7 +1875,7 @@ public void testMoveFieldWithInvalidDestination() throws CoreException {
 	IType typeSource = getCompilationUnit("/P/src/X.java").getType("X");
 	IField fieldSource= typeSource.getField("foo");
 
-	IClassFile cf = getClassFile("P", "/BinaryProject/bin", "", "X.class");
+	IOrdinaryClassFile cf = getClassFile("P", "/BinaryProject/bin", "", "X.class");
 
 	moveNegative(fieldSource, cf.getType(), null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
 }
@@ -1894,7 +1894,7 @@ public void testMoveFieldWithInvalidDestinationInDifferentProject() throws CoreE
 		IField fieldSource= typeSource.getField("foo");
 
 		this.createJavaProject("P2", new String[] {"src"}, new String[] {"/BinaryProject/bin"}, "bin");
-		IClassFile cf = getClassFile("P2", "/BinaryProject/bin", "", "X.class");
+		IOrdinaryClassFile cf = getClassFile("P2", "/BinaryProject/bin", "", "X.class");
 
 		moveNegative(fieldSource, cf.getType(), null, null, false, IJavaModelStatusConstants.INVALID_DESTINATION);
 	} finally {

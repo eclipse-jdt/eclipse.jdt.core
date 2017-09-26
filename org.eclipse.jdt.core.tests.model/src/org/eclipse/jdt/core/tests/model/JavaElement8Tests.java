@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBM Corporation and others.
+ * Copyright (c) 2014, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 							"src.zip", new 
 							String[] {"p/Test.java", fileContent},
 							JavaCore.VERSION_1_8);
-				IType type = getPackageFragmentRoot("Bug428178", "lib.jar").getPackageFragment("p").getClassFile("Test.class").getType();
+				IType type = getPackageFragmentRoot("Bug428178", "lib.jar").getPackageFragment("p").getOrdinaryClassFile("Test.class").getType();
 				IMethod method = type.getMethods()[0];
 				assertNotNull("Method should not be null", method);
 				assertTrue("Should be a main method", method.isMainMethod());

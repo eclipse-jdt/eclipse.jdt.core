@@ -1298,6 +1298,7 @@ public void testBug277204e() throws JavaModelException {
 }
 
 // Verify that the binding for a constructor is a method binding
+@SuppressWarnings("deprecation")
 public void testBug381503() throws CoreException, IOException {
 	try {
 		IJavaProject javaProject = createJavaProject("P", new String[] { "src" }, new String[] { "CONVERTER_JCL_LIB" }, "bin");

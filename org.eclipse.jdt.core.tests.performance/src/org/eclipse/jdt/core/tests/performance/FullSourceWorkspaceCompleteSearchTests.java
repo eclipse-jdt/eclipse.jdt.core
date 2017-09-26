@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,10 @@ import junit.framework.*;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
@@ -274,7 +274,7 @@ public void testSearchJavaElementTypeDeclarations() throws CoreException {
 	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Get Object type
-	IClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
+	IOrdinaryClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
 	IType type = object.getType();
 	assertTrue("Cannot find type 'Object'", type != null && type.exists());
 
@@ -303,7 +303,7 @@ public void testSearchJavaElementTypeReferences() throws CoreException {
 	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Get Object type
-	IClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
+	IOrdinaryClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
 	IType type = object.getType();
 	assertTrue("Cannot find type 'Object'", type != null && type.exists());
 
@@ -530,7 +530,7 @@ public void testSearchJavaElementMethodDeclarations() throws CoreException {
 	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Get method 'equals'
-	IClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
+	IOrdinaryClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
 	IType objectType = object.getType();
 	IMethod method = objectType.getMethod("equals", new String[] { "Ljava.lang.Object;" });
 	assertTrue("Cannot find method equals", method != null && method.exists());
@@ -563,7 +563,7 @@ public void testSearchJavaElementMethodReferences() throws CoreException {
 	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Get method 'equals'
-	IClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
+	IOrdinaryClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
 	IType objectType = object.getType();
 	IMethod method = objectType.getMethod("equals", new String[] { "Ljava.lang.Object;" });
 	assertTrue("Cannot find method equals", method != null && method.exists());
@@ -662,7 +662,7 @@ public void testSearchJavaElementConstructorDeclarations() throws CoreException 
 	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Get constructor 'equals'
-	IClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
+	IOrdinaryClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
 	IType objectType = object.getType();
 	IMethod constructor = objectType.getMethod("Object", new String[0]);
 	assertTrue("Cannot find default constructor", constructor != null && constructor.exists());
@@ -695,7 +695,7 @@ public void testSearchJavaElementConstructorReferences() throws CoreException {
 	AbstractJavaModelTests.waitUntilIndexesReady();
 
 	// Get constructor 'equals'
-	IClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
+	IOrdinaryClassFile object = getClassFile(JDT_CORE_PROJECT, "rt.jar", "java.lang", "Object.class");
 	IType objectType = object.getType();
 	IMethod constructor = objectType.getMethod("Object", new String[0]);
 	assertTrue("Cannot find default constructor", constructor != null && constructor.exists());

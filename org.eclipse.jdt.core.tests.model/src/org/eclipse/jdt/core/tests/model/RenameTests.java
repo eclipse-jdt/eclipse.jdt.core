@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -209,7 +209,7 @@ public void tearDownSuite() throws Exception {
  * Ensures that a binary field cannot be renamed.
  */
 public void testRenameBinaryField() throws JavaModelException {
-	IClassFile cf = getClassFile("BinaryProject", "lib", "", "X.class");
+	IOrdinaryClassFile cf = getClassFile("BinaryProject", "lib", "", "X.class");
 	IField binaryField = cf.getType().getField("bar");
 	renameNegative(binaryField, "fred", false, IJavaModelStatusConstants.READ_ONLY);
 }
@@ -217,7 +217,7 @@ public void testRenameBinaryField() throws JavaModelException {
  * Ensures that a binary method cannot be renamed.
  */
 public void testRenameBinaryMethod() throws JavaModelException {
-	IClassFile cf = getClassFile("BinaryProject", "lib", "", "X.class");
+	IOrdinaryClassFile cf = getClassFile("BinaryProject", "lib", "", "X.class");
 	IMethod binaryMethod = cf.getType().getMethods()[0];
 	renameNegative(binaryMethod, "fred", false, IJavaModelStatusConstants.READ_ONLY);
 }
@@ -225,7 +225,7 @@ public void testRenameBinaryMethod() throws JavaModelException {
  * Ensures that a binary type cannot be renamed.
  */
 public void testRenameBinaryType() throws JavaModelException {
-	IClassFile cf = getClassFile("BinaryProject", "lib", "", "X.class");
+	IOrdinaryClassFile cf = getClassFile("BinaryProject", "lib", "", "X.class");
 	IType binaryType = cf.getType();
 	renameNegative(binaryType, "Y", false, IJavaModelStatusConstants.READ_ONLY);
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -413,7 +413,7 @@ public void testInitializerMemento() {
  * Tests that a binary field in an internal jar can be persisted and restored using its memento.
  */
 public void testInternalJarBinaryFieldMemento() throws JavaModelException {
-	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
+	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 	IField field = type.getField("field");
 	assertMemento(
 		"=P/lib\\/myLib.jar<p(X.class[X^field",
@@ -423,7 +423,7 @@ public void testInternalJarBinaryFieldMemento() throws JavaModelException {
  * Tests that a inner binary type and field in an internal jar can be persisted and restored using its memento.
  */
 public void testInternalJarBinaryInnerTypeMemento() throws JavaModelException {
-	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X$Inner.class").getType();
+	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getOrdinaryClassFile("X$Inner.class").getType();
 	assertMemento(
 		"=P/lib\\/myLib.jar<p(X$Inner.class[Inner",
 		type);
@@ -432,7 +432,7 @@ public void testInternalJarBinaryInnerTypeMemento() throws JavaModelException {
  * Tests that a binary method in an internal jar can be persisted and restored using its memento.
  */
 public void testInternalJarBinaryMethodMemento() throws JavaModelException {
-	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
+	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 	IMethod method = type.getMethod("foo", new String[] {"[Ljava.lang.String;"});
 	assertMemento(
 		"=P/lib\\/myLib.jar<p(X.class[X~foo~\\[Ljava.lang.String;",
@@ -442,7 +442,7 @@ public void testInternalJarBinaryMethodMemento() throws JavaModelException {
  * Tests that a binary type in an internal jar can be persisted and restored using its memento.
  */
 public void testInternalJarBinaryTypeMemento() throws JavaModelException {
-	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getClassFile("X.class").getType();
+	IType type = getPackageFragmentRoot("/P/lib/myLib.jar").getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 	assertMemento(
 		"=P/lib\\/myLib.jar<p(X.class[X",
 		type);

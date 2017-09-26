@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -189,7 +189,7 @@ public void testResolveSiblingTypeInInner() throws JavaModelException {
  * Resolve the type "X" within a top level binary type.
  */
 public void testResolveTypeInBinary1() throws JavaModelException {
-	IType type = getPackageFragmentRoot("/TypeResolve/myLib.jar").getPackageFragment("p2").getClassFile("Y.class").getType();
+	IType type = getPackageFragmentRoot("/TypeResolve/myLib.jar").getPackageFragment("p2").getOrdinaryClassFile("Y.class").getType();
 	String[][] types = type.resolveType("X");
 	assertTypesEqual(
 		"p1.X",
@@ -199,7 +199,7 @@ public void testResolveTypeInBinary1() throws JavaModelException {
  * Resolve the type "X" within a member binary type.
  */
 public void testResolveTypeInBinary2() throws JavaModelException {
-	IType type = getPackageFragmentRoot("/TypeResolve/myLib.jar").getPackageFragment("p2").getClassFile("Y$Member.class").getType();
+	IType type = getPackageFragmentRoot("/TypeResolve/myLib.jar").getPackageFragment("p2").getOrdinaryClassFile("Y$Member.class").getType();
 	String[][] types = type.resolveType("X");
 	assertTypesEqual(
 		"p1.X",
@@ -209,7 +209,7 @@ public void testResolveTypeInBinary2() throws JavaModelException {
  * Resolve the type "X" within an anonymous binary type.
  */
 public void testResolveTypeInBinary3() throws JavaModelException {
-	IType type = getPackageFragmentRoot("/TypeResolve/myLib.jar").getPackageFragment("p2").getClassFile("Y$1.class").getType();
+	IType type = getPackageFragmentRoot("/TypeResolve/myLib.jar").getPackageFragment("p2").getOrdinaryClassFile("Y$1.class").getType();
 	String[][] types = type.resolveType("X");
 	assertTypesEqual(
 		"p1.X",
@@ -230,7 +230,7 @@ public void testResolveTypeInBinary4() throws Exception {
 			"  }\n" +
 			"}"
 		}, "1.4");
-		IType type = getPackageFragmentRoot("/TypeResolve/lib212224.jar").getPackageFragment("").getClassFile("X212224$Member.class").getType();
+		IType type = getPackageFragmentRoot("/TypeResolve/lib212224.jar").getPackageFragment("").getOrdinaryClassFile("X212224$Member.class").getType();
 		String[][] types = type.resolveType("int");
 		assertTypesEqual(
 			"<null>",
@@ -384,7 +384,7 @@ public void testParamAnnotations2() throws CoreException, IOException {
 		
 		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P/lib334783.jar"));
-		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		IType type = root.getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 		String annotationString = "@p.Default [in processor [in Test(java.lang.String) [in X [in X.class [in p [in lib334783.jar [in P]]]]]]]";
 		
 		IMethod method = type.getMethods()[1];
@@ -479,7 +479,7 @@ public void testParamAnnotations4() throws CoreException, IOException {
 		
 		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P/lib334783_2.jar"));
-		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		IType type = root.getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 		String annotationString1 = "@p.Default [in processor [in Test(int, java.lang.String, int) [in X [in X.class [in p [in lib334783_2.jar [in P]]]]]]]";
 		String annotationString2 = "@p.Marker [in processor [in Test(int, java.lang.String, int) [in X [in X.class [in p [in lib334783_2.jar [in P]]]]]]]";
 		IMethod method = type.getMethods()[1];
@@ -554,7 +554,7 @@ public void testParamAnnotations5() throws CoreException, IOException {
 		
 		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P/lib334783_3.jar"));
-		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		IType type = root.getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 		String annotationString1 = "@p.Default [in arg1 [in Test(int, java.lang.String, int) [in X [in X.class [in p [in lib334783_3.jar [in P]]]]]]]";
 		String annotationString2 = "@p.Marker [in arg1 [in Test(int, java.lang.String, int) [in X [in X.class [in p [in lib334783_3.jar [in P]]]]]]]";
 		IMethod method = type.getMethods()[1];
@@ -633,7 +633,7 @@ public void testParamAnnotations7() throws CoreException, IOException {
 		
 		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P/lib334783.jar"));
-		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		IType type = root.getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 		
 		IMethod method = type.getMethods()[1];
 		ILocalVariable[] localVariables = method.getParameters();
@@ -675,7 +675,7 @@ public void testParamAnnotations8() throws CoreException, IOException {
 		
 		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P/lib334783_3.jar"));
-		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		IType type = root.getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 		String annotationString1 = "@p.Default [in arg1 [in X(int, java.lang.String, int) [in X [in X.class [in p [in lib334783_3.jar [in P]]]]]]]";
 		String annotationString2 = "@p.Marker [in arg1 [in X(int, java.lang.String, int) [in X [in X.class [in p [in lib334783_3.jar [in P]]]]]]]";
 		IMethod method = type.getMethods()[0];
@@ -729,7 +729,7 @@ public void testParamAnnotations9() throws CoreException, IOException {
 		
 		waitForAutoBuild();
 		IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/P/lib334783.jar"));
-		IType type = root.getPackageFragment("p").getClassFile("X.class").getType();
+		IType type = root.getPackageFragment("p").getOrdinaryClassFile("X.class").getType();
 		String annotationString = "@p.Default [in processor [in Test(java.lang.String) [in X [in X.class [in p [in lib334783.jar [in P]]]]]]]";
 		
 		IMethod method = type.getMethods()[1];

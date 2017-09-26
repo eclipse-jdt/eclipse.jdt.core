@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -959,12 +959,12 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * Returns the specified compilation unit in the given project, root, and
 	 * package fragment or <code>null</code> if it does not exist.
 	 */
-	protected IClassFile getClassFile(IJavaProject project, String rootPath, String packageName, String className) throws JavaModelException {
+	protected IOrdinaryClassFile getClassFile(IJavaProject project, String rootPath, String packageName, String className) throws JavaModelException {
 		IPackageFragment pkg= getPackageFragment(project, rootPath, packageName);
 		if (pkg == null) {
 			return null;
 		}
-		return pkg.getClassFile(className);
+		return pkg.getOrdinaryClassFile(className);
 	}
 
 	/**

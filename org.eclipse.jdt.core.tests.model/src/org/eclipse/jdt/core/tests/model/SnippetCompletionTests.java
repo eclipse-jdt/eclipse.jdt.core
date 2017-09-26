@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
@@ -49,7 +49,7 @@ protected void assertResults(String expected, String actual) {
 }
 public void testCodeSnippetAssistForClassFile() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
-	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass.class");
+	IOrdinaryClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass.class");
 	IType type = cf.getType();
 
 	String snippet =
@@ -108,7 +108,7 @@ public void testCodeSnippetAssistForCompilationUnit() throws JavaModelException 
 
 public void testCodeSnippetAssistForClassFileWithSource() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
-	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "CClass.class");
+	IOrdinaryClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "CClass.class");
 	IType type = cf.getType();
 
 	String snippet =
@@ -171,7 +171,7 @@ public void testCodeSnippetAssistForCompilationUnitWithoutSource() throws JavaMo
 
 public void testCodeSnippetAssistForClassFileInInnerClass() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
-	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass$Inner.class");
+	IOrdinaryClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass$Inner.class");
 	IType type = cf.getType();
 
 	String snippet =
@@ -205,7 +205,7 @@ public void testCodeSnippetAssistForClassFileInInnerClass() throws JavaModelExce
  */
 public void testCodeSnippetAssistForClassFileInInterface() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
-	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "xx.yy", "MyInterface.class");
+	IOrdinaryClassFile cf = getClassFile("SnippetCompletion", "class-folder", "xx.yy", "MyInterface.class");
 	IType type = cf.getType();
 
 	String snippet =
@@ -233,7 +233,7 @@ public void testCodeSnippetAssistForClassFileInInterface() throws JavaModelExcep
  */
 public void testCodeSnippetAssistForClassFileInInterface2() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
-	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "xx.yy", "MyInterface2.class");
+	IOrdinaryClassFile cf = getClassFile("SnippetCompletion", "class-folder", "xx.yy", "MyInterface2.class");
 	IType type = cf.getType();
 
 	String snippet =
@@ -259,7 +259,7 @@ public void testCodeSnippetAssistForClassFileInInterface2() throws JavaModelExce
 }
 public void testCodeSnippetAssistForClassFileWithDollar() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
-	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "test00XX", "Test.class");
+	IOrdinaryClassFile cf = getClassFile("SnippetCompletion", "class-folder", "test00XX", "Test.class");
 	IType type = cf.getType();
 
 	String snippet =
@@ -283,7 +283,7 @@ public void testCodeSnippetAssistForClassFileWithDollar() throws JavaModelExcept
 
 public void testCodeSnippetAssistInsideNumber() throws JavaModelException {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(false,false,true);
-	IClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass.class");
+	IOrdinaryClassFile cf = getClassFile("SnippetCompletion", "class-folder", "aa.bb.cc", "AClass.class");
 	IType type = cf.getType();
 
 	String snippet =
