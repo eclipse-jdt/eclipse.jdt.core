@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -446,4 +450,17 @@ public interface IPackageFragmentRoot
 	 * @since 2.1
 	 */
 	void move(IPath destination, int updateResourceFlags, int updateModelFlags, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
+
+	/**
+	 * Returns the <code>IModuleDescription</code> that this package fragment root contains 
+	 * or <code>null</code> if the root doesn't contain any named module. If present the module
+	 * descriptor is found as a child of the package fragment representing the default package. 
+	 * 
+	 * Note that only one of the source package fragment roots in a Java Project can legally
+	 * contain a module descriptor.
+	 *
+	 * @return the <code>IModuleDescription</code> this root contains.
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public IModuleDescription getModuleDescription();
 }

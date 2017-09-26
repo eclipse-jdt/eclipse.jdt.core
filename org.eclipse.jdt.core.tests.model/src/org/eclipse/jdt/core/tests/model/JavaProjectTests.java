@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - inconsistent initialization of classpath container backed by external class folder, see https://bugs.eclipse.org/320618
@@ -58,7 +62,6 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -2633,7 +2636,7 @@ public void testBug351697() throws Exception {
 		proj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 
 		try {
-			ASTParser parser= ASTParser.newParser(AST.JLS8);
+			ASTParser parser= ASTParser.newParser(AST_INTERNAL_JLS9);
 			parser.setSource(unit);
 			parser.setResolveBindings(true);
 			ASTNode node = parser.createAST(null);

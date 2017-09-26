@@ -184,7 +184,7 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		}
 
 		final BindingRequestor requestor = new BindingRequestor();
-		final ASTParser parser = ASTParser.newParser(AST.JLS8);
+		final ASTParser parser = ASTParser.newParser(AST.JLS9);
 		parser.setResolveBindings(true);
 		parser.setProject(javaProj);
 		parser.setIgnoreMethodBodies(true);

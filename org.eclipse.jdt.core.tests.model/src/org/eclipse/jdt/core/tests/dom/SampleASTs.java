@@ -29,7 +29,13 @@ public class SampleASTs {
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS4_INTERNAL = AST.JLS4;
-	
+
+	/**
+	 * @deprecated
+	 */
+	static int getJLS8() {
+		return AST.JLS8;
+	}
 	/**
 	 * Returns a subtree of sample of AST nodes. The sample includes
 	 * one of each kind (except for BlockComment and LineComment,
@@ -93,7 +99,7 @@ public class SampleASTs {
 			pmt.typeArguments().add(qt);
 			md.setReturnType2(pmt);
 		}
-		if (target.apiLevel() >= AST.JLS8) {
+		if (target.apiLevel() >= getJLS8()) {
 			Dimension ed = target.newDimension();
 			md.extraDimensions().add(ed);
 		}
@@ -180,7 +186,7 @@ public class SampleASTs {
 		z.add(booleanLiteral);
 		CastExpression castExpression = target.newCastExpression();
 		z.add(castExpression);
-		if (target.apiLevel() >= AST.JLS8) {
+		if (target.apiLevel() >= getJLS8()) {
 			IntersectionType it = target.newIntersectionType();
 			castExpression.setType(it);
 		}
@@ -198,7 +204,7 @@ public class SampleASTs {
 		z.add(infixExpression);
 		InstanceofExpression instanceofExpression = target.newInstanceofExpression();
 		z.add(instanceofExpression);
-		if (target.apiLevel() >= AST.JLS8) {
+		if (target.apiLevel() >= getJLS8()) {
 			LambdaExpression lambdaExpression = target.newLambdaExpression();
 			z.add(lambdaExpression);
 		}

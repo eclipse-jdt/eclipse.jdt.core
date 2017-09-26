@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -76,7 +76,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		}
 	}
 	
-	/*package*/ static final int JLS_LATEST = AST.JLS8;
+	/*package*/ static final int JLS_LATEST = AST.JLS9;
 
 	static class ReconcileParticipant extends CompilationParticipant {
 		IJavaElementDelta delta;
@@ -87,10 +87,13 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		public boolean isActive(IJavaProject project) {
 			return true;
 		}
+		/**
+		 * @deprecated
+		 */
 		public void reconcile(ReconcileContext context) {
 			this.delta = context.getDelta();
 			try {
-				this.ast = context.getAST8();
+				this.ast = context.getAST(JLS_LATEST);
 			} catch (JavaModelException e) {
 				assertNull("Unexpected exception", e);
 			}
@@ -106,10 +109,13 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		public boolean isActive(IJavaProject project) {
 			return true;
 		}
+		/**
+		 * @deprecated
+		 */
 		public void reconcile(ReconcileContext context) {
 			this.delta = context.getDelta();
 			try {
-				this.ast = context.getAST8();
+				this.ast = context.getAST(JLS_LATEST);
 				assertTrue("Context should have statement recovery enabled", (context.getReconcileFlags() & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 				assertTrue("Context should have ignore method body enabled", (context.getReconcileFlags() & ICompilationUnit.IGNORE_METHOD_BODIES) != 0);
 			} catch (JavaModelException e) {
@@ -127,10 +133,13 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		public boolean isActive(IJavaProject project) {
 			return true;
 		}
+		/**
+		 * @deprecated
+		 */
 		public void reconcile(ReconcileContext context) {
 			this.delta = context.getDelta();
 			try {
-				this.ast = context.getAST8();
+				this.ast = context.getAST(JLS_LATEST);
 				assertFalse("Context should have statement recovery enabled", (context.getReconcileFlags() & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 				assertTrue("Context should have ignore method body enabled", (context.getReconcileFlags() & ICompilationUnit.IGNORE_METHOD_BODIES) != 0);
 			} catch (JavaModelException e) {
@@ -2988,6 +2997,9 @@ public void testReconcileParticipant04() throws CoreException {
  */
 public void testReconcileParticipant05() throws CoreException {
 	new ReconcileParticipant() {
+		/**
+		 * @deprecated
+		 */
 		public void reconcile(ReconcileContext context) {
 			try {
 				setWorkingCopyContents(
@@ -3023,6 +3035,9 @@ public void testReconcileParticipant05() throws CoreException {
  */
 public void testReconcileParticipant06() throws CoreException {
 	new ReconcileParticipant() {
+		/**
+		 * @deprecated
+		 */
 		public void reconcile(ReconcileContext context) {
 			try {
 				setWorkingCopyContents(
@@ -3106,6 +3121,9 @@ public void testReconcileParticipant08() throws CoreException {
 
 	// reconcile with a participant adding a list of problems
 	new ReconcileParticipant() {
+		/**
+		 * @deprecated
+		 */
 		public void reconcile(ReconcileContext context) {
 			context.putProblems("test.marker", new CategorizedProblem[] {});
 		}
@@ -3124,6 +3142,9 @@ public void testReconcileParticipant08() throws CoreException {
 public void testReconcileParticipant09() throws CoreException {
 	this.workingCopy.makeConsistent(null);
 	new ReconcileParticipant() {
+		/**
+		 * @deprecated
+		 */
 		public void reconcile(ReconcileContext context) {
 			assertTrue("Participant should not be notified of a reconcile", false);
 		}
@@ -3139,6 +3160,9 @@ public void testReconcileParticipant10() throws CoreException {
 	this.workingCopy.makeConsistent(null);
 	final boolean[] participantReconciled = new boolean[1];
 	new ReconcileParticipant() {
+		/**
+		 * @deprecated
+		 */
 		public void reconcile(ReconcileContext context) {
 			participantReconciled[0] = true;
 		}
@@ -3156,6 +3180,9 @@ public void testReconcileParticipant10() throws CoreException {
  */
 public void testReconcileParticipant11() throws CoreException {
 	new ReconcileParticipant() {
+		/**
+		 * @deprecated
+		 */
 		public void reconcile(ReconcileContext context) {
 			context.resetAST();
 		}

@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -18,6 +22,7 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IOpenable;
@@ -40,6 +45,7 @@ import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.codeassist.impl.Engine;
 import org.eclipse.jdt.internal.codeassist.select.SelectionJavadocParser;
 import org.eclipse.jdt.internal.codeassist.select.SelectionNodeFound;
+import org.eclipse.jdt.internal.codeassist.select.SelectionOnPackageVisibilityReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnImportReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnPackageReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnQualifiedTypeReference;
@@ -55,6 +61,8 @@ import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.PackageVisibilityStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -75,15 +83,18 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MemberTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -539,7 +550,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	private boolean checkSelection(
 			char[] source,
 			int selectionStart,
-			int selectionEnd) {
+			int selectionEnd,
+			boolean isModuleInfo) {
 
 		Scanner scanner =
 			new Scanner(
@@ -628,7 +640,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 
 			// compute start and end of the last token
-			scanner.resetTo(nextCharacterPosition, end);
+			scanner.resetTo(nextCharacterPosition, end, isModuleInfo);
 			isolateLastName: do {
 				try {
 					token = scanner.getNextToken();
@@ -678,7 +690,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					}
 				}  
 			} // there could be some innocuous widening, shouldn't matter.
-			scanner.resetTo(selectionStart, selectionEnd);
+			scanner.resetTo(selectionStart, selectionEnd, isModuleInfo);
 
 			boolean expectingIdentifier = true;
 			do {
@@ -940,7 +952,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			System.out.println("SELECTION - Source :"); //$NON-NLS-1$
 			System.out.println(source);
 		}
-		if (!checkSelection(source, selectionSourceStart, selectionSourceEnd)) {
+		boolean isModuleInfo = CharOperation.endsWith(sourceUnit.getFileName(), TypeConstants.MODULE_INFO_FILE_NAME);
+		if (!checkSelection(source, selectionSourceStart, selectionSourceEnd, isModuleInfo)) {
 			return;
 		}
 		if (DEBUG) {
@@ -1015,14 +1028,21 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						}
 					}
 				}
-				if (parsedUnit.types != null || parsedUnit.isPackageInfo()) {
-					if(selectDeclaration(parsedUnit))
-						return;
-					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
-					if ((this.unitScope = parsedUnit.scope)  != null) {
-						try {
+				try {
+					if (parsedUnit.isModuleInfo() && parsedUnit.moduleDeclaration != null) {
+						ModuleDeclaration module = parsedUnit.moduleDeclaration;
+						this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+						module.resolveModuleDirectives(parsedUnit.scope);
+						module.resolvePackageDirectives(parsedUnit.scope);
+						module.resolveTypeDirectives(parsedUnit.scope);
+						acceptPackageVisibilityStatements(module.exports, parsedUnit.scope);
+						acceptPackageVisibilityStatements(module.opens, parsedUnit.scope);
+					} else if (parsedUnit.types != null || parsedUnit.isPackageInfo()) {
+						if(selectDeclaration(parsedUnit))
+							return;
+						this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+						if ((this.unitScope = parsedUnit.scope)  != null) {
 							this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
-							
 							CompilationUnitDeclaration previousUnitBeingCompleted = this.lookupEnvironment.unitBeingCompleted;
 							this.lookupEnvironment.unitBeingCompleted = parsedUnit;
 							parsedUnit.scope.faultInTypes();
@@ -1038,16 +1058,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							if (node != null) {
 								selectLocalDeclaration(node);
 							}
-						} catch (SelectionNodeFound e) {
-							if (e.binding != null) {
-								if(DEBUG) {
-									System.out.println("SELECTION - Selection binding:"); //$NON-NLS-1$
-									System.out.println(e.binding.toString());
-								}
-								// if null then we found a problem in the selection node
-								selectFrom(e.binding, parsedUnit, sourceUnit, e.isDeclaration);
-							}
 						}
+					}
+				} catch (SelectionNodeFound e) {
+					if (e.binding != null) {
+						if(DEBUG) {
+							System.out.println("SELECTION - Selection binding:"); //$NON-NLS-1$
+							System.out.println(e.binding.toString());
+						}
+						// if null then we found a problem in the selection node
+						selectFrom(e.binding, parsedUnit, sourceUnit, e.isDeclaration);
 					}
 				}
 			}
@@ -1084,6 +1104,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 	}
 
+	private void acceptPackageVisibilityStatements(PackageVisibilityStatement[] pvs, Scope scope) {
+		if (pvs != null) {
+			for (PackageVisibilityStatement pv : pvs) {
+				if (pv.pkgRef instanceof SelectionOnPackageVisibilityReference) {
+					this.noProposal = false;
+					this.requestor.acceptPackage(CharOperation.concatWith(((SelectionOnPackageVisibilityReference) pv.pkgRef).tokens, '.'));
+				}
+			}
+		}
+	}
 	private void selectMemberTypeFromImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref, boolean staticOnly) {
 		int fieldLength = lastToken.length;
 		ReferenceBinding[] memberTypes = ref.memberTypes();
@@ -1349,6 +1379,15 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			this.acceptedAnswer = true;
 		} else if(binding instanceof BaseTypeBinding) {
 			this.acceptedAnswer = true;
+		} else if (binding instanceof ModuleBinding) {
+			this.noProposal = false;
+			ModuleBinding moduleBinding = (ModuleBinding) binding;
+			this.requestor.acceptModule(
+					moduleBinding.moduleName,
+					moduleBinding.computeUniqueKey(),
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
+			this.acceptedAnswer = true;
 		}
 	}
 	/*
@@ -1486,26 +1525,29 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					typeDeclaration = new ASTNodeFinder(parsedUnit).findType(context);
 				}
 			} else { // binary type
-				ClassFile classFile = (ClassFile) context.getClassFile();
-				BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(classFile);
-				ClassFileReader reader = null;
-				try {
-					reader = BinaryTypeFactory.rawReadType(descriptor, false/*don't fully initialize so as to keep constant pool (used below)*/);
-				} catch (ClassFormatException e) {
-					if (JavaCore.getPlugin().isDebugging()) {
-						e.printStackTrace(System.err);
+				IClassFile iClassFile = context.getClassFile();
+				if (iClassFile instanceof ClassFile) {
+					ClassFile classFile = (ClassFile) iClassFile;
+					BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(classFile);
+					ClassFileReader reader = null;
+					try {
+						reader = BinaryTypeFactory.rawReadType(descriptor, false/*don't fully initialize so as to keep constant pool (used below)*/);
+					} catch (ClassFormatException e) {
+						if (JavaCore.getPlugin().isDebugging()) {
+							e.printStackTrace(System.err);
+						}
 					}
+					if (reader == null) {
+						throw classFile.newNotPresentException();
+					}
+					CompilationResult result = new CompilationResult(reader.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
+					parsedUnit = new CompilationUnitDeclaration(this.parser.problemReporter(), result, 0);
+					HashSetOfCharArrayArray typeNames = new HashSetOfCharArrayArray();
+					
+					BinaryTypeConverter converter = new BinaryTypeConverter(this.parser.problemReporter(), result, typeNames);
+					typeDeclaration = converter.buildTypeDeclaration(context, parsedUnit);
+					parsedUnit.imports = converter.buildImports(reader);
 				}
-				if (reader == null) {
-					throw classFile.newNotPresentException();
-				}
-				CompilationResult result = new CompilationResult(reader.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
-				parsedUnit = new CompilationUnitDeclaration(this.parser.problemReporter(), result, 0);
-				HashSetOfCharArrayArray typeNames = new HashSetOfCharArrayArray();
-
-				BinaryTypeConverter converter = new BinaryTypeConverter(this.parser.problemReporter(), result, typeNames);
-				typeDeclaration = converter.buildTypeDeclaration(context, parsedUnit);
-				parsedUnit.imports = converter.buildImports(reader);
 			}
 
 			if (typeDeclaration != null) {
@@ -1912,5 +1954,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 			return InheritDocVisitor.CONTINUE;
 		}
+	}
+
+	@Override
+	public void acceptModule(char[] moduleName) {
+		// TODO Auto-generated method stub
+		
 	}
 }

@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 IBM Corporation and others.
+ * Copyright (c) 2006, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -46,9 +50,11 @@ public class EclipseCompiler implements JavaCompiler {
 	private static Set<SourceVersion> SupportedSourceVersions;
 	static {
 		// Eclipse compiler supports all possible versions from version 0 to
-		// version 6
+		// version 8
 		// we don't care about the order
-		EnumSet<SourceVersion> enumSet = EnumSet.range(SourceVersion.RELEASE_0, SourceVersion.RELEASE_6);
+		// TODO: At the moment, we can't have RELEASE_9 here because Eclipse must still be able to run on JRE 8
+		// Come up with a better way to return the version constants.
+		EnumSet<SourceVersion> enumSet = EnumSet.range(SourceVersion.RELEASE_0, SourceVersion.RELEASE_8);
 		// we don't want anybody to modify this list
 		EclipseCompiler.SupportedSourceVersions = Collections.unmodifiableSet(enumSet);
 	}
@@ -114,9 +120,9 @@ public class EclipseCompiler implements JavaCompiler {
 			eclipseCompiler2.fileManager = this.getStandardFileManager(someDiagnosticListener, null, null);
 		}
 
-		eclipseCompiler2.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
-		eclipseCompiler2.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
-		eclipseCompiler2.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+		eclipseCompiler2.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9);
+		eclipseCompiler2.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
+		eclipseCompiler2.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
 
 		ArrayList<String> allOptions = new ArrayList<>();
 		if (options != null) {
@@ -202,6 +208,16 @@ public class EclipseCompiler implements JavaCompiler {
 				Processor[] processors2 = new Processor[temp.size()];
 				temp.toArray(processors2);
 				eclipseCompiler2.processors = processors2;
+			}
+			@Override
+			public void addModules(Iterable<String> mods) {
+				ArrayList<String> temp = new ArrayList<>();
+				for (String mod : mods) {
+					temp.add(mod);
+				}
+				String[] mods2 = new String[temp.size()];
+				temp.toArray(mods2);
+				eclipseCompiler2.modules = mods2;
 			}
 		};
 	}

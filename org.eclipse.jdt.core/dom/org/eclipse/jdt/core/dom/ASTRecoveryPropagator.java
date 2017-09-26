@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2014 IBM Corporation and others.
+ * Copyright (c) 2006, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -51,6 +55,8 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 		this.endingTokens.put(Initializer.class, new int[]{TerminalTokens.TokenNameRBRACE});
 		this.endingTokens.put(MethodDeclaration.class, new int[]{NOTHING, TerminalTokens.TokenNameSEMICOLON});
 		this.endingTokens.put(MethodInvocation.class, new int[]{TerminalTokens.TokenNameRPAREN});
+		this.endingTokens.put(ModuleDeclaration.class, new int[]{TerminalTokens.TokenNameRBRACE});
+		this.endingTokens.put(ModuleDirective.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
 		this.endingTokens.put(NullLiteral.class, new int[]{TerminalTokens.TokenNamenull});
 		this.endingTokens.put(NumberLiteral.class, new int[]{TerminalTokens.TokenNameIntegerLiteral, TerminalTokens.TokenNameLongLiteral, TerminalTokens.TokenNameFloatingPointLiteral, TerminalTokens.TokenNameDoubleLiteral});
 		this.endingTokens.put(PackageDeclaration.class, new int[]{TerminalTokens.TokenNameSEMICOLON});
@@ -192,6 +198,7 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 				case ASTNode.IMPORT_DECLARATION:
 				case ASTNode.INITIALIZER:
 				case ASTNode.METHOD_DECLARATION:
+				case ASTNode.MODULE_DECLARATION:
 				case ASTNode.PACKAGE_DECLARATION:
 				case ASTNode.TYPE_DECLARATION:
 				case ASTNode.MARKER_ANNOTATION:

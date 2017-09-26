@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -171,6 +175,14 @@ public final class Flags {
 	 * @since 3.10
 	 */
 	public static final int AccAnnotationDefault = ClassFileConstants.AccAnnotationDefault;
+	
+	/**
+	 * Module declaration property flag.
+	 * Used to flag a compilation unit or a class file that contains a module declaration.
+	 * 
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int AccModule = ClassFileConstants.AccModule;
 	
 	/**
 	 * Not instantiable.
@@ -406,6 +418,18 @@ public final class Flags {
 		return (flags & AccAnnotationDefault) != 0;
 	}
 	
+	/**
+	 * Returns whether the given integer has the <code>AccModule</code>
+	 * bit set.
+	 *
+	 * @return <code>true</code> if the <code>AccModule</code> flag is included
+	 * @see #AccModule
+	 * @since 3.13 BETA_JAVA9
+	 */	
+	public static boolean isModule(int flags) {
+		return (flags & AccModule) != 0;
+	}
+
 	/**
 	 * Returns a standard string describing the given modifier flags.
 	 * Only modifier flags are included in the output; deprecated,

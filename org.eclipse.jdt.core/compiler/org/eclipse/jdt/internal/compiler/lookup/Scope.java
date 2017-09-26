@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -343,6 +347,9 @@ public abstract class Scope {
 				if (i == j) continue;
 				ReferenceBinding jType = result[j];
 				if (jType == null) continue;
+				if (isMalformedPair(iType, jType, null)) {
+					return null;
+				}
 				if (iType.isCompatibleWith(jType)) { // if Vi <: Vj, Vj is removed
 					if (result == types) { // defensive copy
 						System.arraycopy(result, 0, result = new ReferenceBinding[length], 0, length);
@@ -378,6 +385,9 @@ public abstract class Scope {
 				if (i == j) continue;
 				TypeBinding jType = result[j];
 				if (jType == null) continue;
+				if (isMalformedPair(iType, jType, scope)) {
+					return null;
+				}
 				if (iType.isCompatibleWith(jType, scope)) { // if Vi <: Vj, Vj is removed
 					if (result == types) { // defensive copy
 						System.arraycopy(result, 0, result = new TypeBinding[length], 0, length);
@@ -438,6 +448,24 @@ public abstract class Scope {
 		return trimmedResult;
 	}
 
+	static boolean isMalformedPair(TypeBinding t1, TypeBinding t2, Scope scope) {
+		// not spec-ed in JLS, but per email communication (2017-09-13) it should be
+		switch (t1.kind()) {
+			case Binding.TYPE:
+			case Binding.GENERIC_TYPE:
+			case Binding.PARAMETERIZED_TYPE:
+			case Binding.RAW_TYPE:
+				if (t1.isClass()) {
+					if (t2.getClass() == TypeVariableBinding.class) {
+						TypeBinding bound = ((TypeVariableBinding) t2).firstBound;
+						if (bound == null || !bound.erasure().isCompatibleWith(t1.erasure())) { // use of erasure is heuristic-based
+							return true; // malformed, because substitution could create a contradiction.
+						}
+					}
+				}
+		}
+		return false;
+	}
 	/**
 	 * Returns an array of types, where original types got substituted given a substitution.
 	 * Only allocate an array if anything is different.
@@ -691,7 +719,9 @@ public abstract class Scope {
 		} while (scope != null);
 		return (CompilationUnitScope) lastScope;
 	}
-	
+	public final ModuleBinding module() {
+		return environment().module;
+	}
 	public boolean isLambdaScope() {
 		return false;
 	}
@@ -1232,19 +1262,6 @@ public abstract class Scope {
 			if (enclosingReceiverType == null) {
 				if (memberType.canBeSeenBy(getCurrentPackage())) {
 					return memberType;
-				}
-				// maybe some type in the compilation unit is extending some class in some package
-				// and the selection is for some protected inner class of that superclass
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=235658
-				if (this instanceof CompilationUnitScope) {
-					TypeDeclaration[] types = ((CompilationUnitScope)this).referenceContext.types;
-					if (types != null) {
-						for (int i = 0, max = types.length; i < max; i++) {
-							if (memberType.canBeSeenBy(enclosingType, types[i].binding)) {
-								return memberType;
-							}
-						}
-					}
 				}
 			} else if (memberType.canBeSeenBy(enclosingType, enclosingReceiverType)) {
 				return memberType;
@@ -1797,7 +1814,7 @@ public abstract class Scope {
 				if (interfaceMethod != null) return interfaceMethod;
 				MethodBinding candidate = candidates[0];
 				int reason = ProblemReasons.NotVisible;
-				if (candidate.isStatic() && candidate.declaringClass.isInterface()) {
+				if (candidate.isStatic() && candidate.declaringClass.isInterface() && !candidate.isPrivate()) {
 					if (soureLevel18)
 						reason = ProblemReasons.NonStaticOrAlienTypeReceiver;
 					else
@@ -1953,7 +1970,7 @@ public abstract class Scope {
 		PackageBinding invocationPackage) {
 
 		compilationUnitScope().recordReference(declarationPackage.compoundName, typeName);
-		ReferenceBinding typeBinding = declarationPackage.getType(typeName);
+		ReferenceBinding typeBinding = declarationPackage.getType(typeName, module());
 		if (typeBinding == null)
 			return null;
 
@@ -2749,90 +2766,90 @@ public abstract class Scope {
 	public final ReferenceBinding getJavaIoSerializable() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_IO_SERIALIZABLE);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_IO_SERIALIZABLE, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_IO_SERIALIZABLE, this);
 	}
 
 	public final ReferenceBinding getJavaLangAnnotationAnnotation() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ANNOTATION_ANNOTATION);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_ANNOTATION_ANNOTATION, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_ANNOTATION_ANNOTATION, this);
 	}
 
 	public final ReferenceBinding getJavaLangAssertionError() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ASSERTIONERROR);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_ASSERTIONERROR, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_ASSERTIONERROR, this);
 	}
 
 	public final ReferenceBinding getJavaLangClass() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_CLASS);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_CLASS, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_CLASS, this);
 	}
 
 	public final ReferenceBinding getJavaLangCloneable() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_CLONEABLE);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_CLONEABLE, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_CLONEABLE, this);
 	}
 	public final ReferenceBinding getJavaLangEnum() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ENUM);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_ENUM, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_ENUM, this);
 	}
 
 	public final ReferenceBinding getJavaLangInvokeLambdaMetafactory() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY, this);
 	}
 	
 	public final ReferenceBinding getJavaLangInvokeSerializedLambda() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_SERIALIZEDLAMBDA);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_INVOKE_SERIALIZEDLAMBDA, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_SERIALIZEDLAMBDA, this);
 	}
 
 	public final ReferenceBinding getJavaLangInvokeMethodHandlesLookup() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLES);
-		ReferenceBinding outerType = unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLES, this);
+		ReferenceBinding outerType = unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLES, this);
 		return findDirectMemberType("Lookup".toCharArray(), outerType); //$NON-NLS-1$
 	}
 
 	public final ReferenceBinding getJavaLangIterable() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ITERABLE);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_ITERABLE, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_ITERABLE, this);
 	}
 	public final ReferenceBinding getJavaLangObject() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_OBJECT);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_OBJECT, this);
 	}
 
 	public final ReferenceBinding getJavaLangString() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_STRING);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_STRING, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_STRING, this);
 	}
 
 	public final ReferenceBinding getJavaLangThrowable() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_THROWABLE);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_THROWABLE, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_THROWABLE, this);
 	}
 	
 	public final ReferenceBinding getJavaLangIllegalArgumentException() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ILLEGALARGUMENTEXCEPTION);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_LANG_ILLEGALARGUMENTEXCEPTION, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_ILLEGALARGUMENTEXCEPTION, this);
 	}
 	
 	public final ReferenceBinding getJavaUtilIterator() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_UTIL_ITERATOR);
-		return unitScope.environment.getResolvedType(TypeConstants.JAVA_UTIL_ITERATOR, this);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_UTIL_ITERATOR, this);
 	}
 
 	/* Answer the type binding corresponding to the typeName argument, relative to the enclosingType.
@@ -2913,11 +2930,11 @@ public abstract class Scope {
 		int currentIndex = 1, length = compoundName.length;
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (currentIndex < length) {
-			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]);
+			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module());
 			if (binding == null) {
 				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), null /* no closest match since search for pkg*/, ProblemReasons.NotFound);
 			}
-			if (!binding.isValidBinding())
+			if (!binding.isValidBinding() && binding.problemId() != ProblemReasons.Ambiguous)
 				return new ProblemReferenceBinding(
 					CharOperation.subarray(compoundName, 0, currentIndex),
 					binding instanceof ReferenceBinding ? (ReferenceBinding)((ReferenceBinding)binding).closestMatch() : null,
@@ -2948,7 +2965,7 @@ public abstract class Scope {
 		int currentIndex = 1, length = compoundName.length;
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (currentIndex < length) {
-			binding = packageBinding.getPackage(compoundName[currentIndex++]);
+			binding = packageBinding.getPackage(compoundName[currentIndex++], module());
 			if (binding == null) {
 				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), null /* no closest match since search for pkg*/, ProblemReasons.NotFound);
 			}
@@ -2984,7 +3001,7 @@ public abstract class Scope {
 		if (packageBinding == null)
 			return getType(name);
 
-		Binding binding = packageBinding.getTypeOrPackage(name);
+		Binding binding = packageBinding.getTypeOrPackage(name, module());
 		if (binding == null) {
 			return new ProblemReferenceBinding(
 				CharOperation.arrayConcat(packageBinding.compoundName, name),
@@ -3040,7 +3057,7 @@ public abstract class Scope {
 		if (binding instanceof PackageBinding) {
 			PackageBinding packageBinding = (PackageBinding) binding;
 			while (currentIndex < typeNameLength) {
-				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]); // does not check visibility
+				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module()); // does not check visibility
 				if (binding == null) {
 					char[][] qName = CharOperation.subarray(compoundName, 0, currentIndex);
 					return new ProblemReferenceBinding(
@@ -3261,7 +3278,7 @@ public abstract class Scope {
 			// check if the name is in the current package, skip it if its a sub-package
 			PackageBinding currentPackage = unitScope.fPackage;
 			unitScope.recordReference(currentPackage.compoundName, name);
-			Binding binding = currentPackage.getTypeOrPackage(name);
+			Binding binding = currentPackage.getTypeOrPackage(name, module());
 			if (binding instanceof ReferenceBinding) {
 				ReferenceBinding referenceType = (ReferenceBinding) binding;
 				if ((referenceType.tagBits & TagBits.HasMissingType) == 0) {
@@ -3283,11 +3300,12 @@ public abstract class Scope {
 						if (resolvedImport instanceof PackageBinding) {
 							temp = findType(name, (PackageBinding) resolvedImport, currentPackage);
 						} else if (someImport.isStatic()) {
-							temp = findMemberType(name, (ReferenceBinding) resolvedImport); // static imports are allowed to see inherited member types
+							// Imports are always resolved in the CU Scope (bug 520874)
+							temp = compilationUnitScope().findMemberType(name, (ReferenceBinding) resolvedImport); // static imports are allowed to see inherited member types
 							if (temp != null && !temp.isStatic())
 								temp = null;
 						} else {
-							temp = findDirectMemberType(name, (ReferenceBinding) resolvedImport);
+							temp = compilationUnitScope().findDirectMemberType(name, (ReferenceBinding) resolvedImport);
 						}
 						if (TypeBinding.notEquals(temp, type) && temp != null) {
 							if (temp.isValidBinding()) {
@@ -3376,7 +3394,7 @@ public abstract class Scope {
 			PackageBinding packageBinding = (PackageBinding) binding;
 
 			while (currentIndex < nameLength) {
-				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]);
+				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module());
 				if (binding == null)
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),
@@ -4934,8 +4952,10 @@ public abstract class Scope {
 				break;
 			currentType = currentType.enclosingType();
 		}
+		boolean isInterface = allocationType.isInterface();
+		ReferenceBinding typeToSearch = isInterface ? getJavaLangObject() : allocationType;
 	
-		MethodBinding[] methods = allocationType.getMethods(TypeConstants.INIT, argumentTypes.length);
+		MethodBinding[] methods = typeToSearch.getMethods(TypeConstants.INIT, argumentTypes.length);
 		MethodBinding [] staticFactories = new MethodBinding[methods.length];
 		int sfi = 0;
 		for (int i = 0, length = methods.length; i < length; i++) {
@@ -4953,8 +4973,8 @@ public abstract class Scope {
 			int methodTypeVariablesArity = methodTypeVariables.length;
 			final int factoryArity = classTypeVariablesArity + methodTypeVariablesArity;
 			final LookupEnvironment environment = environment();
-			
-			MethodBinding staticFactory = new SyntheticFactoryMethodBinding(method.original(), environment, originalEnclosingType);
+			MethodBinding targetMethod = isInterface ? new MethodBinding(method.original(), genericType) : method.original();
+			MethodBinding staticFactory = new SyntheticFactoryMethodBinding(targetMethod, environment, originalEnclosingType);
 			staticFactory.typeVariables = new TypeVariableBinding[factoryArity];
 			final SimpleLookupTable map = new SimpleLookupTable(factoryArity);
 			
@@ -5009,12 +5029,12 @@ public abstract class Scope {
 				}
 				switch (substitutedSuperclass.kind()) {
 					case Binding.ARRAY_TYPE :
-						substitutedVariable.setSuperClass(environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null));
+						substitutedVariable.setSuperClass(environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_OBJECT, null));
 						substitutedVariable.setSuperInterfaces(substitutedInterfaces);
 						break;
 					default:
 						if (substitutedSuperclass.isInterface()) {
-							substitutedVariable.setSuperClass(environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null));
+							substitutedVariable.setSuperClass(environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_OBJECT, null));
 							int interfaceCount = substitutedInterfaces.length;
 							System.arraycopy(substitutedInterfaces, 0, substitutedInterfaces = new ReferenceBinding[interfaceCount+1], 1, interfaceCount);
 							substitutedInterfaces[0] = (ReferenceBinding) substitutedSuperclass;
@@ -5031,7 +5051,7 @@ public abstract class Scope {
 			if (staticFactory.thrownExceptions == null) { 
 				staticFactory.thrownExceptions = Binding.NO_EXCEPTIONS;
 			}
-			staticFactories[sfi++] = new ParameterizedMethodBinding((ParameterizedTypeBinding) environment.convertToParameterizedType(staticFactory.declaringClass),
+			staticFactories[sfi++] = new ParameterizedMethodBinding((ParameterizedTypeBinding) environment.convertToParameterizedType(isInterface ? allocationType : staticFactory.declaringClass),
 																												staticFactory);
 		}
 		if (sfi == 0)

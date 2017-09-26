@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -23,6 +27,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -31,11 +36,17 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class ClassFileWorkingCopy extends CompilationUnit {
 
-	public ClassFile classFile;
+	public AbstractClassFile classFile;
 
-public ClassFileWorkingCopy(ClassFile classFile, WorkingCopyOwner owner) {
-	super((PackageFragment) classFile.getParent(), ((BinaryType) classFile.getType()).getSourceFileName(null/*no info available*/), owner);
+public ClassFileWorkingCopy(AbstractClassFile classFile, WorkingCopyOwner owner) {
+	super((PackageFragment) classFile.getParent(), sourceFileName(classFile), owner);
 	this.classFile = classFile;
+}
+private static String sourceFileName(AbstractClassFile classFile) {
+	if (classFile instanceof ModularClassFile)
+		return TypeConstants.MODULE_INFO_FILE_NAME_STRING;
+	else
+		return ((BinaryType) ((ClassFile) classFile).getType()).getSourceFileName(null/*no info available*/);
 }
 
 public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModelException {

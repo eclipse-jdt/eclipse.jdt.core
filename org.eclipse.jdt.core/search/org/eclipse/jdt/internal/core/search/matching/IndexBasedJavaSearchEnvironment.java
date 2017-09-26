@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 Google, Inc and others.
+ * Copyright (c) 2015, 2017 Google, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *   Stefan Xenos (Google) - Initial implementation
@@ -195,6 +199,7 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 					answer = location.findClass(
 						sourceFileName, // doesn't include the file extension
 						qPackageName,
+						null, // TODO(SHMOD): don't have a module name, but while looking in unindexed classpath locations, this is probably OK
 						qSourceFileName);  // doesn't include the file extension
 				}
 			} else {
@@ -212,6 +217,7 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 					location.findClass(
 						binaryFileName,
 						qPackageName,
+						null,  // TODO(SHMOD): don't have a module name, but while looking in unindexed classpath locations, this is probably OK
 						qBinaryFileName);
 			}
 			if (answer != null) {

@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc.
+ * Copyright (c) 2005, 2017 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    tyeung@bea.com - initial API and implementation
@@ -20,8 +24,8 @@ import java.util.List;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 import org.eclipse.jdt.apt.core.internal.util.PackageUtil;
 import org.eclipse.jdt.apt.core.internal.util.SourcePositionImpl;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -223,7 +227,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 		try {
 			// Get all top-level classes -- ignore local, member, and anonymous classes
 			for (IPackageFragment fragment : fragments) {
-				for (IClassFile classFile : fragment.getClassFiles()) {
+				for (IOrdinaryClassFile classFile : fragment.getOrdinaryClassFiles()) {
 					IType type = classFile.getType();
 					if (! (type.isLocal() || type.isMember() || type.isAnonymous()) ) {
 						types.add(type);

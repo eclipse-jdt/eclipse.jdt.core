@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -273,15 +277,15 @@ public abstract class HierarchyBuilder {
 /**
  * Create an ICompilationUnit info from the given compilation unit on disk.
  */
-protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file) {
-	final char[] elementName = handle.getElementName().toCharArray();
-	return new ResourceCompilationUnit(file) {
-		@Override
-		public char[] getFileName() {
-			return elementName;
-		}
-	};
-}
+	protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file) {
+		final char[] elementName = handle.getElementName().toCharArray();
+		return new ResourceCompilationUnit(file, null) {
+			@Override
+			public char[] getFileName() {
+				return elementName;
+			}
+		};
+	}
 	/**
  * Creates the type info from the given class file on disk and
  * adds it to the given list of infos.

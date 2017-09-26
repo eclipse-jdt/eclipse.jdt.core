@@ -1,0 +1,65 @@
+/*******************************************************************************
+ * Copyright (c) 2016 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.jdt.internal.core;
+
+//import org.eclipse.jdt.core.IType;
+//import org.eclipse.jdt.core.JavaModelException;
+//import org.eclipse.jdt.core.compiler.CharOperation;
+//import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+//import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
+
+//public class Module implements org.eclipse.jdt.internal.compiler.env.IModuleDeclaration {
+//
+//	public ClassFile binaryDecl;
+//	public IModuleDeclaration declaration = null;
+//	public boolean isBinary = false;
+//	public SourceType sourceDecl;
+//
+//	public Module(SourceType sourceDecl) {
+//		this.sourceDecl = sourceDecl;
+//	}
+//	public Module(ClassFile binaryDecl) {
+//		this.binaryDecl = binaryDecl;
+//		this.isBinary = true;
+//	}
+//	@Override
+//	public char[] name() {
+//		//
+//		IModuleDeclaration decl = getDeclaration();
+//		return decl == null ? CharOperation.NO_CHAR : decl.name();
+//	}
+//	@Override
+//	public IModuleDeclaration getDeclaration() {
+//		// 
+//		if (this.declaration == null) {
+//			try {
+//				if (this.isBinary) {
+//					IType type = this.binaryDecl.getType();
+//					this.declaration = ((ClassFileReader) (((BinaryType)type).getElementInfo())).getModuleDeclaration();
+//				} else {
+//					this.declaration = (ModuleInfo) this.sourceDecl.getElementInfo();
+//				}
+//			}catch (JavaModelException e) {
+//				// do nothing
+//			}
+//		}
+//		return this.declaration;
+//	}
+//	
+//	public String toString() {
+//		return new String(this.name());
+//		
+//	}
+//}

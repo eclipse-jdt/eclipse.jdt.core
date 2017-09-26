@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2016 IBM Corporation.
+ * Copyright (c) 2013, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -75,15 +76,15 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class Java8ElementProcessor extends BaseProcessor {
 	
-		private static final String[] ELEMENT_NAMES = new String[] {"targets.model8.X", "T", "U", "K", "V", "KK", "VV", "KKK", "VVV"};
-		private static final String[] TYPE_PARAM_ELEMENTS_Z1 = new String[] {"KK", "VV"};
-		private static final String[] TYPE_PARAM_ELEMENTS_Z2 = new String[] {"KKK", "VVV"};
-		String simpleName = "filer8";
-		String packageName = "targets.filer8";
-		int roundNo = 0;
-		boolean reportSuccessAlready = true;
+	private static final String[] ELEMENT_NAMES = new String[] {"targets.model8.X", "T", "U", "K", "V", "KK", "VV", "KKK", "VVV"};
+	private static final String[] TYPE_PARAM_ELEMENTS_Z1 = new String[] {"KK", "VV"};
+	private static final String[] TYPE_PARAM_ELEMENTS_Z2 = new String[] {"KKK", "VVV"};
+	String simpleName = "filer8";
+	String packageName = "targets.filer8";
+	int roundNo = 0;
+	boolean reportSuccessAlready = true;
 		
-	RoundEnvironment roundEnv = null;
+	protected RoundEnvironment roundEnv = null;
 	// Always return false from this processor, because it supports "*".
 	// The return value does not signify success or failure!
 	@Override
@@ -168,7 +169,9 @@ public class Java8ElementProcessor extends BaseProcessor {
 		testRepeatedAnnotations25();
 		testTypeAnnotations26();
 		testTypeAnnotations27();
-		testPackageAnnotations();
+		//testPackageAnnotations();
+		testBug520540();
+		testEnumConstArguments();
 	}
 	
 	public void testLambdaSpecifics() {
@@ -320,10 +323,10 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		List<? extends VariableElement> params = method.getParameters();
 		assertEquals("Incorrect no of params for method bar()", 2, params.size());
-		VariableElement param = (VariableElement) params.get(0);
+		VariableElement param = params.get(0);
 		TypeMirror typeMirror = param.asType();
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=p1)"});
-		param = (VariableElement) params.get(1);
+		param = params.get(1);
 		typeMirror = param.asType();
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=p2)"});
 	}
@@ -405,7 +408,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertNotNull("Method should not be null", method);
 		List<? extends VariableElement> params = method.getParameters();
 		assertEquals("Incorrect no of params for method bar()", 2, params.size());
-		VariableElement param = (VariableElement) params.get(0);
+		VariableElement param = params.get(0);
 		TypeMirror typeMirror = param.asType();
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=p2)"});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
@@ -416,7 +419,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		typeMirror = ((ArrayType) typeMirror).getComponentType();
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=p1)"});
 
-		param = (VariableElement) params.get(1);
+		param = params.get(1);
 		typeMirror = param.asType();
 		verifyAnnotations(typeMirror, new String[]{});
 		assertEquals("Should be an array type", TypeKind.ARRAY, typeMirror.getKind());
@@ -538,7 +541,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		VariableElement field2 = null;
 		for (VariableElement member : ElementFilter.fieldsIn(members)) {
 			if ("_field2".equals(member.getSimpleName().toString())) {
-				field2 = (VariableElement) member;
+				field2 = member;
 				break;
 			}
 		}
@@ -599,8 +602,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		assertTrue("Found unexpected extra elements", expectedElementNames.isEmpty());
 	}
 
-	public void testTypeAnnotations12() {
-		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
+	private void tTypeAnnotations12(TypeElement annotatedType) {
 		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
 		ExecutableElement bar2 = null;
 		ExecutableElement constr = null;
@@ -629,6 +631,16 @@ public class Java8ElementProcessor extends BaseProcessor {
 		type = (ExecutableType) constr2.asType();
 		verifyAnnotations(type, new String[]{});
 	}
+
+	public void testTypeAnnotations12() {
+		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
+		tTypeAnnotations12(annotatedType);
+	}
+
+	public void testTypeAnnotations12Binary() {
+		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model9.X");
+		tTypeAnnotations12(annotatedType);
+	}
 	
 	public void testTypeAnnotations13() {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
@@ -637,7 +649,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		VariableElement field = null;
 		for (VariableElement member : ElementFilter.fieldsIn(members)) {
 			if ("_i".equals(member.getSimpleName().toString())) {
-				field = (VariableElement) member;
+				field = member;
 				break;
 			}
 		}
@@ -974,7 +986,9 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		
 	}
-	public boolean testPackageAnnotations() {
+	// Disabled for now. Javac includes the CLASS element of the package-info in the root element if there's one.
+	// But ECJ includes the Package element.
+	public void testPackageAnnotations() {
 		if ( roundNo++ == 0) {
 			this.reportSuccessAlready = false;
 			try {
@@ -983,20 +997,58 @@ public class Java8ElementProcessor extends BaseProcessor {
 				e.printStackTrace();
 			}
 			System.setProperty(this.getClass().getName(), "Processor did not fully do the job");
-			return false;
 		} else {
 			this.reportSuccessAlready = true;
 			PackageElement packageEl = null;
 			for (Element element : roundEnv.getRootElements()) {
 				if (element.getKind() == ElementKind.PACKAGE) {
 					packageEl = (PackageElement) element;
+				} else {
+					System.out.println(element);
 				}
 			}
 			assertNotNull("Package element should not be null", packageEl);
 			assertEquals("Incorrect package name", simpleName, packageEl.getSimpleName().toString());
 			assertEquals("Incorrect package name", packageName, packageEl.getQualifiedName().toString());
 			assertFalse("Package should not be unnamed", packageEl.isUnnamed()); 
-			return false;
+		}
+	}
+	public void testBug520540() {
+		PackageElement packageElement = _elementUtils.getPackageElement("targets.bug520540");
+		assertNotNull("package element should not be null", packageElement);
+		List<? extends Element> enclosedElements = packageElement.getEnclosedElements();
+		assertEquals("Incorrect no of elements", 5, enclosedElements.size());
+		List<String> typeElements = new ArrayList<>();
+		for (Element element : enclosedElements) {
+			if (element instanceof TypeElement) {
+				typeElements.add(((TypeElement) element).getQualifiedName().toString());
+			}
+		}
+		String[] types = new String[] { "targets.bug520540.GenericType", "targets.bug520540.MyEnum",
+				"targets.bug520540.TypeEx", "targets.bug520540.TypeA", "targets.bug520540.AnnotB" };
+		for (String string : types) {
+			typeElements.remove(string);
+		}
+		assertEquals("found incorrect types", 0, typeElements.size());
+	}
+	public void testEnumConstArguments() {
+		TypeElement annotatedType = _elementUtils.getTypeElement("targets.bug521812.MyEnum");
+		List<? extends Element> enclosedElements = annotatedType.getEnclosedElements();
+		ExecutableElement constr = null;
+		for (Element element : enclosedElements) {
+			if (element.getSimpleName().toString().equals("<init>")) {
+				constr = (ExecutableElement) element;
+			}
+		}
+		assertNotNull("constructor should not be null", constr);
+		List<? extends VariableElement> parameters = constr.getParameters();
+		ExecutableType asType = (ExecutableType) constr.asType();
+		List<? extends TypeMirror> parameterTypes = asType.getParameterTypes();
+		assertEquals("param count and param type count should be same", parameters.size(), parameterTypes.size());
+		for(int i = 0; i < parameters.size(); i++) {
+			VariableElement param = parameters.get(i);
+			TypeMirror asType2 = param.asType();
+			assertEquals("Parameter type should be same", param.asType(), asType2);
 		}
 	}
 	private void createPackageBinary() throws IOException {
@@ -1077,11 +1129,12 @@ public class Java8ElementProcessor extends BaseProcessor {
 		
 		Type[] annots = construct.getAnnotationsByType(Type.class);
 		assertEquals(msg + "Incorrect no of annotations", 1, annots.length);
-		annot = (Type) annots[0];
+		annot = annots[0];
 		assertSame(msg + "Invalid annotation type" , Type.class, annots[0].annotationType());
 		assertEquals(msg + "Invalid annotation value", value, annot.value());
 	}
 	
+	@Override
 	public void reportError(String msg) {
 		throw new AssertionFailedError(msg);
 	}

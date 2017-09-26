@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems Inc. and others
+ * Copyright (c) 2005, 2017 BEA Systems Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    tyeung@bea.com - initial API and implementation
@@ -39,11 +43,11 @@ import org.eclipse.jdt.apt.core.internal.util.TypesUtil;
 import org.eclipse.jdt.apt.core.internal.util.Visitors.AnnotatedNodeVisitor;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.BindingKey;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -83,7 +87,7 @@ import com.sun.mirror.util.Types;
 public class BaseProcessorEnv implements AnnotationProcessorEnvironment 
 {
 	static{
-		final AST ast = AST.newAST(AST.JLS8);
+		final AST ast = AST.newAST(AST.JLS9);
 		EMPTY_AST_UNIT = ast.newCompilationUnit();
 	}
 	public static final CompilationUnit EMPTY_AST_UNIT;
@@ -492,7 +496,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 
 		final BindingRequestor requestor = new BindingRequestor();
-		final ASTParser parser = ASTParser.newParser(AST.JLS8);
+		final ASTParser parser = ASTParser.newParser(AST.JLS9);
 		parser.setResolveBindings(true);
 		parser.setBindingsRecovery(true);
 		parser.setProject(_javaProject);
@@ -556,9 +560,9 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			// If we find package-info, don't use it, but set 
 			// it aside in case it's all we can find.
 			ICompilationUnit compUnit = null;
-			IClassFile classFile = null;
+			IOrdinaryClassFile classFile = null;
 			ICompilationUnit pkgInfoUnit = null;
-			IClassFile pkgInfoClassFile = null;
+			IOrdinaryClassFile pkgInfoClassFile = null;
 			OUTER:
 				for (IPackageFragment frag : pkgFrags) {
 					if (frag.getKind() == IPackageFragmentRoot.K_SOURCE) {
@@ -573,7 +577,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 						}
 					}
 					else { // K_BINARY
-						for (IClassFile file : frag.getClassFiles()) {
+						for (IOrdinaryClassFile file : frag.getOrdinaryClassFiles()) {
 							String cfName = file.getElementName();
 							if ("package-info.class".equals(cfName)) { //$NON-NLS-1$
 								pkgInfoClassFile = file;
@@ -702,7 +706,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
             if( astUnit != null ) return astUnit;
             else{
                 // Note: very expensive operation. we are re-compiling a file with binding information.
-                final ASTParser parser =  ASTParser.newParser(AST.JLS8);
+                final ASTParser parser =  ASTParser.newParser(AST.JLS9);
                 parser.setResolveBindings(true);
         		parser.setBindingsRecovery(true);
                 parser.setSource(unit);
@@ -848,7 +852,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		String bogusKey = BindingKey.createTypeBindingKey("java.lang.Object"); //$NON-NLS-1$
 		String[] keys = new String[] {bogusKey};
 
-		ASTParser p = ASTParser.newParser( AST.JLS8 );
+		ASTParser p = ASTParser.newParser( AST.JLS9 );
 		p.setResolveBindings(true);
 		p.setBindingsRecovery(true);
 		p.setProject( javaProject );
@@ -877,7 +881,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 		
 		CompilationUnitRequestor requestor = new CompilationUnitRequestor();
-		ASTParser p = ASTParser.newParser( AST.JLS8 );
+		ASTParser p = ASTParser.newParser( AST.JLS9 );
 		p.setResolveBindings(true);
 		p.setBindingsRecovery(true);
 		p.setProject( javaProject );

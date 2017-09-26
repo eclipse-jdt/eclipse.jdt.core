@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -1122,6 +1123,8 @@ public void testSeekPackageFragments() throws CoreException {
 		public boolean isCanceled() {
 			return false;
 		}
+		@Override
+		public void acceptModule(IModuleDescription module) {}
 	}
 
 	// first pass: ensure all class are loaded, and ensure that the test works as expected

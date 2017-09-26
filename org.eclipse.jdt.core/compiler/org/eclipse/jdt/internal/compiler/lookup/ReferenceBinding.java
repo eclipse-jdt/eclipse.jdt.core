@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -1608,8 +1612,13 @@ public final boolean isUsed() {
  * Answer true if the receiver is deprecated (or any of its enclosing types)
  */
 public final boolean isViewedAsDeprecated() {
-	return (this.modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0
-			|| getPackage().isViewedAsDeprecated();
+	if ((this.modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0)
+		return true;
+	if (getPackage().isViewedAsDeprecated()) {
+		this.tagBits |= (getPackage().tagBits & TagBits.AnnotationTerminallyDeprecated);
+		return true;
+	}
+	return false;
 }
 
 public ReferenceBinding[] memberTypes() {
@@ -1977,7 +1986,7 @@ protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean re
 	LookupEnvironment environment = scope.environment();
 	for (int i = 0, length = methods == null ? 0 : methods.length; i < length; i++) {
 		final MethodBinding method = methods[i];
-		if (method == null || method.isStatic() || method.redeclaresPublicObjectMethod(scope)) 
+		if (method == null || method.isStatic() || method.redeclaresPublicObjectMethod(scope) || method.isPrivate()) 
 			continue;
 		if (!method.isValidBinding()) 
 			throw new InvalidInputException("Not a functional interface"); //$NON-NLS-1$
@@ -2199,5 +2208,10 @@ public static boolean isConsistentIntersection(TypeBinding[] intersectingTypes) 
 			return false;
 	}
 	return true;
+}
+public ModuleBinding module() {
+	if (this.fPackage != null)
+		return this.fPackage.enclosingModule;
+	return null;
 }
 }

@@ -184,7 +184,7 @@ public class NegativeTests extends TestCase {
 	/*
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=328575 
 	 */
-	public void testNegativeModel10WithEclipseCompiler() throws IOException {
+	public void _testNegativeModel10WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		System.clearProperty(NEGATIVEMODELPROCNAME);
 		System.clearProperty(INHERITED_PROCNAME);

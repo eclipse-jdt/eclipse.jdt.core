@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2017 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
@@ -27,11 +31,13 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.lang.model.AnnotatedConstruct;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
@@ -50,12 +56,14 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodVerifier;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfModule;
 
 /**
  * Utilities for working with language elements.
@@ -553,16 +561,16 @@ public class ElementsImpl implements Elements {
 
 	@Override
 	public PackageElement getPackageElement(CharSequence name) {
-		LookupEnvironment le = _env.getLookupEnvironment();
+		LookupEnvironment le = _env.getLookupEnvironment(); // FIXME(SHMOD): does this lookup need to be module-aware?
 		if (name.length() == 0) {
-			return new PackageElementImpl(_env, le.defaultPackage);
+			return (PackageElement) _env.getFactory().newElement(le.defaultPackage);
 		}
 		char[] packageName = name.toString().toCharArray();
 		PackageBinding packageBinding = le.createPackage(CharOperation.splitOn('.', packageName));
 		if (packageBinding == null) {
 			return null;
 		}
-		return new PackageElementImpl(_env, packageBinding);
+		return (PackageElement) _env.getFactory().newElement(packageBinding);
 	}
 
 	@Override
@@ -610,9 +618,27 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public TypeElement getTypeElement(CharSequence name) {
-		LookupEnvironment le = _env.getLookupEnvironment();
 		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
-		ReferenceBinding binding = le.getType(compoundName);
+		Set<? extends ModuleElement> allModuleElements = getAllModuleElements();
+		for (ModuleElement moduleElement : allModuleElements) {
+			TypeElement t = getTypeElement(compoundName, ((ModuleElementImpl) moduleElement).binding);
+			if (t != null) {
+				return t;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public TypeElement getTypeElement(ModuleElement module, CharSequence name) {
+		ModuleBinding mBinding = ((ModuleElementImpl) module).binding;
+		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
+		return getTypeElement(compoundName, mBinding);
+	}
+
+	private TypeElement getTypeElement(final char[][] compoundName, ModuleBinding mBinding) {
+		LookupEnvironment le = mBinding == null ? _env.getLookupEnvironment() : mBinding.environment;
+		ReferenceBinding binding = mBinding == null ? le.getType(compoundName) : le.getType(compoundName, mBinding);
 		// If we didn't find the binding, maybe it's a nested type;
 		// try finding the top-level type and then working downwards.
 		if (null == binding) {
@@ -702,6 +728,7 @@ public class ElementsImpl implements Elements {
 		}
 	}
 
+	@Override
 	public boolean isFunctionalInterface(TypeElement type) {
 		if (type != null && type.getKind() == ElementKind.INTERFACE) {
 			ReferenceBinding binding = (ReferenceBinding)((TypeElementImpl) type)._binding;
@@ -710,6 +737,96 @@ public class ElementsImpl implements Elements {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public
+	PackageElement getPackageElement(ModuleElement module, CharSequence name) {
+		ModuleBinding mBinding = ((ModuleElementImpl) module).binding;
+		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
+		PackageBinding p = null;
+		if (mBinding != null) {
+			
+			int length = compoundName.length;
+			if (length > 1) {
+				char[][] parent = new char[compoundName.length - 1][];
+				System.arraycopy(compoundName, 0, parent, 0, length - 1);
+				p = mBinding.getPackage(parent, compoundName[length - 1]);
+			} else {
+				p = mBinding.getTopLevelPackage(compoundName[0]);
+			}
+		} else {
+			p = _env.getLookupEnvironment().createPackage(compoundName);
+		}
+		if (p == null || !p.isValidBinding())
+			return null;
+		return (PackageElement) _env.getFactory().newElement(p);
+	}
+
+	@Override
+	public ModuleElement getModuleElement(CharSequence name) {
+		LookupEnvironment lookup = _env.getLookupEnvironment();
+		ModuleBinding binding = lookup.getModule(name.length() == 0 ? ModuleBinding.UNNAMED : name.toString().toCharArray());
+		//TODO: Surely there has to be a better way than calling toString().toCharArray()?
+		if (binding == null) {
+			return null;
+		}
+		return new ModuleElementImpl(_env, binding);
+	}
+
+	@Override
+	public Set<? extends ModuleElement> getAllModuleElements() {
+		LookupEnvironment lookup = _env.getLookupEnvironment();
+		HashtableOfModule knownModules = lookup.knownModules;
+		ModuleBinding[] modules = knownModules.valueTable;
+		if (modules == null || modules.length == 0) {
+			return Collections.emptySet();
+		}
+		Set<ModuleElement> mods = new HashSet<>(modules.length);
+		for (ModuleBinding moduleBinding : modules) {
+			if (moduleBinding == null)
+				continue;
+			ModuleElement element = (ModuleElement) _env.getFactory().newElement(moduleBinding);
+			mods.add(element);
+		}
+		mods.add((ModuleElement) _env.getFactory().newElement(lookup.UnNamedModule));
+		return mods;
+	}
+
+	@Override
+	public Origin getOrigin(Element e) {
+		return Origin.EXPLICIT;
+	}
+
+	@Override
+	public Origin getOrigin(AnnotatedConstruct c, AnnotationMirror a) {
+		return Origin.EXPLICIT;
+	}
+
+	@Override
+	public Origin getOrigin(ModuleElement m, ModuleElement.Directive directive) {
+		return Origin.EXPLICIT;
+	}
+
+	@Override
+	public boolean isBridge(ExecutableElement e) {
+		MethodBinding methodBinding = (MethodBinding) ((ExecutableElementImpl) e)._binding;
+		return methodBinding.isBridge();
+	}
+
+	@Override
+	public ModuleElement getModuleOf(Element elem) {
+		if (elem instanceof ModuleElement) {
+			return (ModuleElement) elem;
+		}
+		Element parent = elem.getEnclosingElement();
+		while (parent != null) {
+			if (parent instanceof ModuleElement) {
+				return (ModuleElement) parent;
+			}
+			parent = parent.getEnclosingElement();
+		}
+		return null;
 	}
 
 }

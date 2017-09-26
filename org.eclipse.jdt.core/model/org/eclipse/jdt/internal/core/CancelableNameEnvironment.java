@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -45,15 +49,13 @@ public class CancelableNameEnvironment extends SearchableEnvironment implements 
 		return super.findType(name, packageName);
 	}
 
-	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes) {
-		return findType(typeName, packageName);
-	}
-
 	public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 		checkCanceled();
 		return super.findType(compoundTypeName);
 	}
-
+	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes, char[] moduleName) {
+		return findType(typeName, packageName, moduleName);
+	}
 	public void findTypes(char[] prefix, boolean findMembers, boolean camelCaseMatch, int searchFor, ISearchRequestor storage, IProgressMonitor progressMonitor) {
 		checkCanceled();
 		super.findTypes(prefix, findMembers, camelCaseMatch, searchFor, storage, progressMonitor);

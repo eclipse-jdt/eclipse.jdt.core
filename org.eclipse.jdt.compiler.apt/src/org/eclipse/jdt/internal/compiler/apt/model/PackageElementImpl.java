@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2017 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
@@ -16,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -29,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -71,11 +77,24 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 			typeNames = ((FileSystem) nameEnvironment).findTypeNames(binding.compoundName);
 		}
 		HashSet<Element> set = new HashSet<>(); 
+		Set<ReferenceBinding> types = new HashSet<>();
 		if (typeNames != null) {
 			for (char[][] typeName : typeNames) {
+				if (typeName == null) continue;
 				ReferenceBinding type = environment.getType(typeName);
 				if (type != null && type.isValidBinding()) {
 					set.add(_env.getFactory().newElement(type));
+					types.add(type);
+				}
+			}
+		}
+		if (binding.knownTypes != null) {
+			ReferenceBinding[] knownTypes = binding.knownTypes.valueTable;
+			for (ReferenceBinding referenceBinding : knownTypes) {
+				if (referenceBinding != null && referenceBinding.isValidBinding() && referenceBinding.enclosingType() == null) {
+					if (!types.contains(referenceBinding)) {
+						set.add(_env.getFactory().newElement(referenceBinding));
+					}
 				}
 			}
 		}
@@ -86,8 +105,11 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 
 	@Override
 	public Element getEnclosingElement() {
-		// packages have no enclosing element
-		return null;
+		PackageBinding pBinding = (PackageBinding) _binding;
+		ModuleBinding module = pBinding.enclosingModule;
+		if (module == null)
+			return null;
+		return new ModuleElementImpl(_env, module);
 	}
 
 	@Override

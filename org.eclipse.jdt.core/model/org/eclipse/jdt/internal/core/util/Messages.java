@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -40,6 +44,7 @@ public final class Messages extends NLS {
 	public static String element_nullName;
 	public static String element_nullType;
 	public static String element_illegalParent;
+	public static String element_moduleInfoNotSupported;
 	public static String javamodel_initialization;
 	public static String javamodel_initializing_delta_state;
 	public static String javamodel_building_after_upgrade;
@@ -212,6 +217,14 @@ public final class Messages extends NLS {
 	public static String convention_package_nameWithBlanks;
 	public static String convention_package_consecutiveDotsName;
 	public static String convention_package_uppercaseName;
+	public static String convention_module_nullName;
+	public static String convention_module_emptyName;
+	public static String convention_module_dotName;
+	public static String convention_module_nameWithBlanks;
+	public static String convention_module_consecutiveDotsName;
+	public static String convention_module_uppercaseName;
+	public static String convention_module_terminalDigits;
+	public static String convention_module_javaName;
 	public static String dom_cannotDetail;
 	public static String dom_nullTypeParameter;
 	public static String dom_nullNameParameter;
@@ -323,6 +336,10 @@ public final class Messages extends NLS {
 	public static String disassembler_extendedannotation_typepath_typeargument;
 	public static String disassembler_extendedannotation_typepath_innertype;
 	public static String disassembler_localvariabletargetheader;
+	public static String disassembler_module_version;
+	public static String disassembler_module_version_none;
+	public static String disassembler_modulepackagesattributeheader;
+	public static String disassembler_modulemainclassattributeheader;
 
 	public static String disassembler_runtimevisibleannotationsattributeheader;
 	public static String disassembler_runtimeinvisibleannotationsattributeheader;

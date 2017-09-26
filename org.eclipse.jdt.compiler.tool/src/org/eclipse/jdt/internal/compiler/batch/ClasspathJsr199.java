@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBM Corporation and others.
+ * Copyright (c) 2015, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     Kenneth Olson - initial API and implementation
@@ -16,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +33,7 @@ import javax.tools.JavaFileObject;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -39,10 +46,17 @@ public class ClasspathJsr199 extends ClasspathLocation {
 
 	private JavaFileManager fileManager;
 	private JavaFileManager.Location location;
+	private ClasspathJrt jrt;
 
 	public ClasspathJsr199(JavaFileManager file, JavaFileManager.Location location) {
 		super(null, null);
 		this.fileManager = file;
+		this.location = location;
+	}
+	public ClasspathJsr199(ClasspathJrt jrt, JavaFileManager file, JavaFileManager.Location location) {
+		super(null, null);
+		this.fileManager = file;
+		this.jrt = jrt;
 		this.location = location;
 	}
 
@@ -53,14 +67,11 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	}
 
 	@Override
-	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
-		return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
-	}
-
-	@Override
-	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String aQualifiedBinaryFileName,
-			boolean asBinaryOnly) {
-
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName,
+			String aQualifiedBinaryFileName, boolean asBinaryOnly) {
+		if (this.jrt != null) {
+			return this.jrt.findClass(typeName, qualifiedPackageName, moduleName, aQualifiedBinaryFileName, asBinaryOnly);
+		}
 		String qualifiedBinaryFileName = File.separatorChar == '/'
 				? aQualifiedBinaryFileName
 				: aQualifiedBinaryFileName.replace(File.separatorChar, '/');
@@ -93,7 +104,10 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	}
 
 	@Override
-	public char[][][] findTypeNames(String aQualifiedPackageName) {
+	public char[][][] findTypeNames(String aQualifiedPackageName, String moduleName) {
+		if (this.jrt != null) {
+			return this.jrt.findTypeNames(aQualifiedPackageName, moduleName);
+		}
 		String qualifiedPackageName = File.separatorChar == '/' ? aQualifiedPackageName : aQualifiedPackageName.replace(
 				File.separatorChar, '/');
 
@@ -136,7 +150,15 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	}
 
 	@Override
-	public boolean isPackage(String aQualifiedPackageName) {
+	public void acceptModule(IModule mod) {
+		// do nothing
+	}
+	
+	@Override
+	public char[][] getModulesDeclaringPackage(String aQualifiedPackageName, String moduleName) {
+		if (this.jrt != null) {
+			return this.jrt.getModulesDeclaringPackage(aQualifiedPackageName, moduleName);
+		}
 		String qualifiedPackageName = File.separatorChar == '/' ? aQualifiedPackageName : aQualifiedPackageName.replace(
 				File.separatorChar, '/');
 
@@ -160,7 +182,14 @@ public class ClasspathJsr199 extends ClasspathLocation {
 		} catch (IOException e) {
 			// treat as if missing
 		}
-		return result;
+		return singletonModuleNameIf(result);
+	}
+	
+	@Override
+	public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
+		if (this.jrt != null)
+			return this.jrt.hasCompilationUnit(qualifiedPackageName, moduleName);
+		return false;
 	}
 
 	@Override
@@ -201,5 +230,35 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	@Override
 	public boolean hasAnnotationFileFor(String qualifiedTypeName) {
 		return false;
+	}
+
+	@Override
+	public Collection<String> getModuleNames(Collection<String> limitModules) {
+		if (this.jrt != null)
+			return this.jrt.getModuleNames(limitModules);
+		return Collections.emptyList();
+	}
+
+	@Override
+	public boolean hasModule() {
+		if (this.jrt != null) {
+			return this.jrt.hasModule();
+		}
+		return super.hasModule();
+	}
+
+	@Override
+	public IModule getModule(char[] name) {
+		if (this.jrt != null) {
+			return this.jrt.getModule(name);
+		}
+		return super.getModule(name);
+	}
+
+	@Override
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName,
+			String moduleName, String qualifiedBinaryFileName) {
+		//
+		return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false);
 	}
 }

@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2016 IBM Corporation and others.
+ * Copyright (c) 2010, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -41,14 +45,12 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 			throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
 		}
 	}
-
-	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
-		return findType(typeName, packageName, true);
+	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName) {
+		return findType(typeName, packageName, true, moduleName);
 	}
-
-	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes) {
+	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes, char[] moduleName) {
 		checkCanceled();
-		NameEnvironmentAnswer answer = super.findType(typeName, packageName);
+		NameEnvironmentAnswer answer = super.findType(typeName, packageName, moduleName);
 		if (answer == null && searchWithSecondaryTypes) {
 			NameEnvironmentAnswer suggestedAnswer = null;
 			String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
@@ -57,6 +59,12 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 			for (int i = 0, length = this.classpaths.length; i < length; i++) {
 				if (!(this.classpaths[i] instanceof ClasspathDirectory)) continue;
 				ClasspathDirectory classpathDirectory = (ClasspathDirectory) this.classpaths[i];
+				LookupStrategy strategy = LookupStrategy.get(moduleName);
+				if (!strategy.matchesWithName(classpathDirectory,
+						loc -> loc.getModule() != null,
+						loc -> loc.servesModule(moduleName))) {
+					continue;
+				}
 				answer = classpathDirectory.findSecondaryInClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
 				if (answer != null) {
 					if (!answer.ignoreIfBetter()) {

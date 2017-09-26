@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - contribution for Bug 300576 - NPE Computing type hierarchy when compliance doesn't match libraries
@@ -831,7 +835,6 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 						parsedUnit.scope.faultInTypes();
 						parsedUnit.resolve();
 					}
-					
 					rememberAllTypes(parsedUnit, cus[i], containsLocalType);
 				}
 			}

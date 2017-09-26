@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -42,6 +46,7 @@ public class ScannerHelper {
 	private static long[][][] Tables;
 	private static long[][][] Tables7;
 	private static long[][][] Tables8;
+	private static long[][][] Tables9;
 
 	public final static int MAX_OBVIOUS = 128;
 	public final static int[] OBVIOUS_IDENT_CHAR_NATURES = new int[MAX_OBVIOUS];
@@ -139,6 +144,9 @@ static void initializeTable17() {
 }
 static void initializeTable18() {
 	Tables8 = initializeTables("unicode6_2"); //$NON-NLS-1$
+}
+static void initializeTable19() {
+	Tables9 = initializeTables("unicode8"); //$NON-NLS-1$
 }
 static long[][][] initializeTables(String unicode_path) {
 	long[][][] tempTable = new long[2][][];
@@ -286,8 +294,8 @@ public static boolean isJavaIdentifierPart(long complianceLevel, int codePoint) 
 			case 14 :
 				return isBitSet(Tables7[PART_INDEX][3], codePoint & 0xFFFF);
 		}
-	} else {
-		// java 7 supports Unicode 6.2
+	} else if (complianceLevel <= ClassFileConstants.JDK1_8) {
+		// java 8 supports Unicode 6.2
 		if (Tables8 == null) {
 			initializeTable18();
 		}
@@ -300,6 +308,21 @@ public static boolean isJavaIdentifierPart(long complianceLevel, int codePoint) 
 				return isBitSet(Tables8[PART_INDEX][2], codePoint & 0xFFFF);
 			case 14 :
 				return isBitSet(Tables8[PART_INDEX][3], codePoint & 0xFFFF);
+		}
+	} else {
+		// java 9 supports Unicode 8
+		if (Tables9 == null) {
+			initializeTable19();
+		}
+		switch((codePoint & 0x1F0000) >> 16) {
+			case 0 :
+				return isBitSet(Tables9[PART_INDEX][0], codePoint & 0xFFFF);
+			case 1 :
+				return isBitSet(Tables9[PART_INDEX][1], codePoint & 0xFFFF);
+			case 2 :
+				return isBitSet(Tables9[PART_INDEX][2], codePoint & 0xFFFF);
+			case 14 :
+				return isBitSet(Tables9[PART_INDEX][3], codePoint & 0xFFFF);
 		}
 	}
 	return false;
@@ -348,7 +371,7 @@ public static boolean isJavaIdentifierStart(long complianceLevel, int codePoint)
 			case 2 :
 				return isBitSet(Tables7[START_INDEX][2], codePoint & 0xFFFF);
 		}
-	} else {
+	} else if (complianceLevel <= ClassFileConstants.JDK1_8) {
 		// java 7 supports Unicode 6
 		if (Tables8 == null) {
 			initializeTable18();
@@ -360,6 +383,19 @@ public static boolean isJavaIdentifierStart(long complianceLevel, int codePoint)
 				return isBitSet(Tables8[START_INDEX][1], codePoint & 0xFFFF);
 			case 2 :
 				return isBitSet(Tables8[START_INDEX][2], codePoint & 0xFFFF);
+		}
+	} else {
+		// java 9 supports Unicode 7
+		if (Tables9 == null) {
+			initializeTable19();
+		}
+		switch((codePoint & 0x1F0000) >> 16) {
+			case 0 :
+				return isBitSet(Tables9[START_INDEX][0], codePoint & 0xFFFF);
+			case 1 :
+				return isBitSet(Tables9[START_INDEX][1], codePoint & 0xFFFF);
+			case 2 :
+				return isBitSet(Tables9[START_INDEX][2], codePoint & 0xFFFF);
 		}
 	}
 	return false;

@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -38,6 +42,8 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IModularClassFile;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ISourceRange;
@@ -49,6 +55,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ExternalFoldersManager;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -69,11 +76,20 @@ public class AttachSourceTests extends ModifyingResourceTests {
 	}
 
 	public static Test suite() {
+		String javaVersion = System.getProperty("java.version");
+		if (javaVersion.length() > 3) {
+			javaVersion = javaVersion.substring(0, 3);
+		}
+		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK9) {
+			isJRE9 = true;
+		}
 		return buildModelTestSuite(AttachSourceTests.class);
 	}
 
 	/** @deprecated using deprecated code */
 	private static final int AST_INTERNAL_JLS2 = AST.JLS2;
+	private static boolean isJRE9 = false;
 
 	private IPackageFragmentRoot pkgFragmentRoot;
 
@@ -1828,6 +1844,56 @@ public void testBug336046() throws Exception {
 			importedProject.getProject().delete(true, true, null);
 		project.getProject().open(null);
 		JavaCore.setOptions(javaCoreOptions);
+	}
+}
+public void testModule1() throws CoreException, IOException {
+	if (!isJRE9) {
+		System.err.println(this.getClass().getName()+'.'+getName()+" needs a Java 9 JRE - skipped");
+		return;
+	}
+	try {
+		IJavaProject javaProject = createJavaProject("Test", new String[]{"src"}, null, "bin", JavaCore.VERSION_9);
+		createFolder("/Test/src/test1");
+		createFile("/Test/src/test1/Test.java",
+			"package test1;\n" +
+			"\n" +
+			"public class Test {}");
+		createFile("/Test/src/module-info.java",
+			"module test {\n" +
+			"	requires mod.one;\n" +
+			"	exports test1;\n" +
+			"}\n");
+
+		String modOneSrc = 
+			"\n" +
+			"/** The no. one module. */\n" +
+			"module mod.one {\n" +
+			"  exports m.o.p;\n" +
+			"}\n";
+		String[] pathAndContents = new String[] {
+			"module-info.java",
+			modOneSrc,
+			"m/o/p/C.java",
+			"package m.o.p;\n" +
+			"public class C {\n" + 
+			"}"
+		};
+		addLibrary(javaProject, "mod.one.jar", "mod.onesrc.zip", pathAndContents, JavaCore.VERSION_9);
+		IPackageFragmentRoot root = javaProject.getPackageFragmentRoot(getFile("/Test/mod.one.jar"));
+		IModularClassFile cf = root.getPackageFragment("").getModularClassFile();
+		assertSourceEquals(
+			"Unexpected source for class file mod.one/module-info.class",
+			modOneSrc,
+			cf.getSource());
+		IModuleDescription module = cf.getModule();
+		ISourceRange javadocRange = module.getJavadocRange();
+		String srcJavadoc = modOneSrc.substring(javadocRange.getOffset(), javadocRange.getOffset()+javadocRange.getLength());
+		assertEquals("javadoc from source", "/** The no. one module. */", srcJavadoc);
+		ISourceRange sourceRange = module.getSourceRange();
+		assertEquals("source start", 1, sourceRange.getOffset()); // start after initial '\n'
+		assertEquals("source end", modOneSrc.length()-2, sourceRange.getLength()); // end before terminal '\n'
+	} finally {
+		deleteProject("Test");
 	}
 }
 }

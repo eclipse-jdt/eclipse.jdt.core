@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -497,7 +501,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (currentIndex < length) {
 			unitScope.recordReference(packageBinding.compoundName, compoundName[currentIndex]);
-			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]);
+			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module());
 			invocationSite.setFieldIndex(currentIndex);
 			if (binding == null) {
 				if (currentIndex == length) {
@@ -643,7 +647,7 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 	foundType : if (binding instanceof PackageBinding) {
 		while (currentIndex < length) {
 			PackageBinding packageBinding = (PackageBinding) binding;
-			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]);
+			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module());
 			if (binding == null) {
 				if (currentIndex == length) {
 					// must be a type if its the last name, otherwise we have no idea if its a package or type

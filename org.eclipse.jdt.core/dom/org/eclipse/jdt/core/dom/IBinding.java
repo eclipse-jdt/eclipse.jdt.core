@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -89,6 +93,16 @@ public interface IBinding {
 	public static final int MEMBER_VALUE_PAIR = 6;
 
 	/**
+	 * Kind constant (value 7) indicating a module binding (added in JLS9 API).
+	 * Bindings of this kind can be safely cast to <code>IModuleBinding</code>.
+	 *
+	 * @see #getKind()
+	 * @see IModuleBinding
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int MODULE = 7;
+
+	/**
 	 * Returns the resolved declaration annotations associated with this binding.
 	 * <ul>
 	 * <li>Package bindings - these are annotations on a package declaration.
@@ -123,7 +137,8 @@ public interface IBinding {
 	 * 	<code>VARIABLE</code>,
 	 * 	<code>METHOD</code>,
 	 * 	<code>ANNOTATION</code>,
-	 * or <code>MEMBER_VALUE_PAIR</code>.
+	 *  <code>MEMBER_VALUE_PAIR</code>, or
+	 * <code>MODULE</code>.
 	 * <p>
 	 * Note that additional kinds might be added in the
 	 * future, so clients should not assume this list is exhaustive and

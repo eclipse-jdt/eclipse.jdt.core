@@ -1,0 +1,4 @@
+class java/util/Map
+get
+ (Ljava/lang/Object;)TV;
+ (Ljava/lang/Object;)T0V;

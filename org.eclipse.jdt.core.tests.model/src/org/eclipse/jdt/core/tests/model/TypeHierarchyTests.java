@@ -50,7 +50,7 @@ public class TypeHierarchyTests extends ModifyingResourceTests {
 	ITypeHierarchy typeHierarchy;
 
 static {
-//	TESTS_NAMES= new String[] { "testBug300576" };
+//	TESTS_NAMES= new String[] { "testBug329663a" };
 }
 public static Test suite() {
 	return buildModelTestSuite(TypeHierarchyTests.class, BYTECODE_DECLARATION_ORDER);
@@ -1898,7 +1898,7 @@ public void testRegion3() throws JavaModelException {
 		h.getAllTypes()
 	);
 }
-public void testRegion4() throws CoreException {
+public void _testRegion4() throws CoreException {
 	try {
 		IJavaProject p1 = createJavaProject("P1");
 		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
@@ -2444,7 +2444,7 @@ public void testBug288698() throws JavaModelException {
  * @throws CoreException
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663"
  */
-public void testBug329663() throws JavaModelException, CoreException {
+public void _testBug329663() throws JavaModelException, CoreException {
 	try {
 		IJavaProject p1 = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[0], "");
 		IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");
@@ -2491,7 +2491,7 @@ public void testBug329663() throws JavaModelException, CoreException {
  * @throws CoreException
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663"
  */
-public void testBug329663a() throws JavaModelException, CoreException {
+public void _testBug329663a() throws JavaModelException, CoreException {
 try {
 	IJavaProject p1 = createJavaProject("P1", new String[] {""}, new String[] {"JCL_LIB"}, new String[0], "");
 	IJavaProject p2 = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, new String[] {"/P1"}, "");

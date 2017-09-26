@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *        Andy Clement - Contributions for
@@ -154,6 +158,14 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 						constantPoolOffsets[i] = readOffset;
 						readOffset += IConstantPoolConstant.CONSTANT_InvokeDynamic_SIZE;
 						break;
+					case IConstantPoolConstant.CONSTANT_Module:
+						constantPoolOffsets[i] = readOffset;
+						readOffset += IConstantPoolConstant.CONSTANT_Module_SIZE;
+						break;
+					case IConstantPoolConstant.CONSTANT_Package:
+						constantPoolOffsets[i] = readOffset;
+						readOffset += IConstantPoolConstant.CONSTANT_Package_SIZE;
+						break;
 					default:
 						throw new ClassFormatException(ClassFormatException.INVALID_TAG_CONSTANT);
 				}
@@ -281,6 +293,12 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 							this.attributes[attributesIndex++] = new RuntimeVisibleTypeAnnotationsAttribute(classFileBytes, this.constantPool, readOffset);
 						} else if (equals(attributeName, IAttributeNamesConstants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS)) {
 							this.attributes[attributesIndex++] = new RuntimeInvisibleTypeAnnotationsAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.MODULE)) {
+							this.attributes[attributesIndex++] = new ModuleAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.MODULE_PACKAGES)) {
+							this.attributes[attributesIndex++] = new ModulePackagesAttribute(classFileBytes, this.constantPool, readOffset);
+						} else if (equals(attributeName, IAttributeNamesConstants.MODULE_MAIN_CLASS)) {
+							this.attributes[attributesIndex++] = new ModuleMainClassAttribute(classFileBytes, this.constantPool, readOffset);
 						} else {
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						}
@@ -442,7 +460,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	 * @see IClassFileReader#isClass()
 	 */
 	public boolean isClass() {
-		return !isInterface();
+		return !(isInterface() || isModule());
 	}
 
 	/**
@@ -450,5 +468,8 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	 */
 	public boolean isInterface() {
 		return (getAccessFlags() & IModifierConstants.ACC_INTERFACE) != 0;
+	}
+	private boolean isModule() {
+		return (getAccessFlags() & IModifierConstants.ACC_MODULE) != 0;
 	}
 }

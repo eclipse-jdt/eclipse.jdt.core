@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    akurtakov@gmail.com - fix compilation with Java 7
@@ -146,6 +150,9 @@ public class ElementProc extends BaseProcessor {
 		}
 		
 		if(!bug300408()) {
+			return false;
+		}
+		if (!examineTypesInPackage()) {
 			return false;
 		}
 
@@ -1037,6 +1044,15 @@ public class ElementProc extends BaseProcessor {
 		String[] arrayString = annoArrayString.value();
 		if (arrayString == null || arrayString.length != 1 || !"foo".equals(arrayString[0])) {
 			reportError(badValue + "AnnoArrayString contents");
+			return false;
+		}
+		return true;
+	}
+	private boolean examineTypesInPackage() {
+		PackageElement pack = _elementUtils.getPackageElement("java.util.concurrent");
+		List<? extends Element> enclosedElements = pack.getEnclosedElements();
+		if (enclosedElements.size() == 0) {
+			reportError("Should find types in package java.util.concurrent");
 			return false;
 		}
 		return true;

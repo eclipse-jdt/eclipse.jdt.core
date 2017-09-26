@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -17,6 +21,7 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
@@ -298,7 +303,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 //			new Exception("TRACE BINARY").printStackTrace(System.out);
 //		    System.out.println();
 		}
-		this.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding, accessRestriction);
+		LookupEnvironment env = packageBinding.environment;
+		env.createBinaryTypeFrom(binaryType, packageBinding, accessRestriction);
 	}
 
 	/**
@@ -427,6 +433,10 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			// build and record parsed units
 			reportProgress(Messages.compilation_beginningToCompile);
 
+			if (this.options.complianceLevel >= ClassFileConstants.JDK9) {
+				// in Java 9 the compiler must never ask the oracle for a module that is contained in the input units:
+				sortModuleDeclarationsFirst(sourceUnits);
+			}
 			if (this.annotationProcessorManager == null) {
 				beginToCompile(sourceUnits);
 			} else {
@@ -472,6 +482,18 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 					Messages.bind(Messages.compilation_unit, String.valueOf(this.totalUnits)));
 			}
 		}
+	}
+
+	private void sortModuleDeclarationsFirst(ICompilationUnit[] sourceUnits) {
+		Arrays.sort(sourceUnits, (u1, u2) -> {
+			char[] fn1 = u1.getFileName();
+			char[] fn2 = u2.getFileName();
+			boolean isMod1 = CharOperation.endsWith(fn1, TypeConstants.MODULE_INFO_FILE_NAME) || CharOperation.endsWith(fn1, TypeConstants.MODULE_INFO_CLASS_NAME);
+			boolean isMod2 = CharOperation.endsWith(fn2, TypeConstants.MODULE_INFO_FILE_NAME) || CharOperation.endsWith(fn2, TypeConstants.MODULE_INFO_CLASS_NAME);
+			if (isMod1 == isMod2)
+				return 0;
+			return isMod1 ? -1 : 1;
+		});
 	}
 
 	class APTProblem {

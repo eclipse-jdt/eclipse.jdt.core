@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -46,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.ClassSignature;
@@ -751,7 +756,7 @@ public class Util {
 	}
 
 	private static IClassFile getClassFile(char[] fileName) {
-		int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
+		int jarSeparator = CharOperation.lastIndexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
 		int pkgEnd = CharOperation.lastIndexOf('/', fileName); // pkgEnd is exclusive
 		if (pkgEnd == -1)
 			pkgEnd = CharOperation.lastIndexOf(File.separatorChar, fileName);
@@ -845,13 +850,17 @@ public class Util {
 						}
 					}
 					if (path != null) {
-						jar = JavaModelManager.getJavaModelManager().getZipFile(path);
-						for (Enumeration e= jar.entries(); e.hasMoreElements();) {
-							ZipEntry member= (ZipEntry) e.nextElement();
-							String entryName= member.getName();
-							if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
-								reader = ClassFileReader.read(jar, entryName);
-								break;
+						if (JavaModelManager.isJrt(path)) {
+							return ClassFileConstants.JDK9;
+						} else {
+							jar = JavaModelManager.getJavaModelManager().getZipFile(path);
+							for (Enumeration e= jar.entries(); e.hasMoreElements();) {
+								ZipEntry member= (ZipEntry) e.nextElement();
+								String entryName= member.getName();
+								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
+									reader = ClassFileReader.read(jar, entryName);
+									break;
+								}
 							}
 						}
 					}
@@ -1480,7 +1489,7 @@ public class Util {
 		if (referenceBinding.isLocalType() || referenceBinding.isAnonymousType()) {
 			// local or anonymous type
 			if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(fileName)) {
-				int jarSeparator = CharOperation.indexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
+				int jarSeparator = CharOperation.lastIndexOf(IDependent.JAR_FILE_ENTRY_SEPARATOR, fileName);
 				int pkgEnd = CharOperation.lastIndexOf('/', fileName); // pkgEnd is exclusive
 				if (pkgEnd == -1)
 					pkgEnd = CharOperation.lastIndexOf(File.separatorChar, fileName);

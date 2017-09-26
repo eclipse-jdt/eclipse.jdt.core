@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Theodora Yeung (tyeung@bea.com) - ensure that JarPackageFragmentRoot make it into cache
@@ -124,7 +128,10 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
+import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.JavaProjectElementInfo.ProjectCache;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
@@ -419,7 +426,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public static class CompilationParticipants {
 
-		private final static int MAX_SOURCE_LEVEL = 8; // 1.1 to 1.8
+		private final static int MAX_SOURCE_LEVEL = 9; // 1.1 to 1.8 and 9
 
 		/*
 		 * The registered compilation participants (a table from int (source level) to Object[])
@@ -545,6 +552,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		 * ...
 		 * 1.6 -> 5
 		 * 1.7 -> 6
+		 * 1.8 -> 7
+		 * 9 -> 8
 		 * null -> 0
 		 */
 		private int indexForSourceLevel(String sourceLevel) {
@@ -565,6 +574,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					return 6;
 				case ClassFileConstants.MAJOR_VERSION_1_8:
 					return 7;
+				case ClassFileConstants.MAJOR_VERSION_9:
+					return 8;
 				default:
 					// all other cases including ClassFileConstants.MAJOR_VERSION_1_1
 					return 0;
@@ -1068,6 +1079,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			PackageFragmentRoot root = (PackageFragmentRoot) project.getPackageFragmentRoot(file.getParent());
 			pkg = root.getPackageFragment(CharOperation.NO_STRINGS);
 		}
+		String fileName = file.getName();
+		if (TypeConstants.MODULE_INFO_CLASS_NAME_STRING.equals(fileName))
+			return pkg.getModularClassFile();
 		return pkg.getClassFile(file.getName());
 	}
 
@@ -1254,6 +1268,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public Map rootPathToRawEntries; // reverse map from a package fragment root's path to the raw entry
 		public Map rootPathToResolvedEntries; // map from a package fragment root's path to the resolved entry
 		public IPath outputLocation;
+		public Map<IPath, ObjectVector> jrtRoots; // A map between a JRT file system (as a string) and the package fragment roots found in it.
 
 		public IEclipsePreferences preferences;
 		public Hashtable options;
@@ -1371,6 +1386,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (this.rawTimeStamp != timeStamp)
 				return null;
 			return setClasspath(this.rawClasspath, referencedEntries, this.outputLocation, this.rawClasspathStatus, newResolvedClasspath, newRootPathToRawEntries, newRootPathToResolvedEntries, newUnresolvedEntryStatus, addClasspathChange);
+		}
+
+		public synchronized void setJrtPackageRoots(IPath jrtPath, ObjectVector roots) {
+			if (this.jrtRoots == null) this.jrtRoots = new HashMap<>();
+			this.jrtRoots.put(jrtPath, roots);
 		}
 
 		/**
@@ -1557,6 +1577,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public static boolean CP_RESOLVE_VERBOSE_ADVANCED = false;
 	public static boolean CP_RESOLVE_VERBOSE_FAILURE = false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;
+	public static boolean JRT_ACCESS_VERBOSE = false;
 	
 	/**
 	 * A cache of opened zip files per thread.
@@ -1565,7 +1586,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private ThreadLocal zipFiles = new ThreadLocal();
 
 	private UserLibraryManager userLibraryManager;
-	
+
+	private ModuleSourcePathManager modulePathManager;
 	/*
 	 * A set of IPaths for jars that are known to not contain a chaining (through MANIFEST.MF) to another library
 	 */
@@ -2746,6 +2768,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return MANAGER.userLibraryManager;
 	}
 
+	public static ModuleSourcePathManager getModulePathManager() {
+		if (MANAGER.modulePathManager == null) {
+			ModuleSourcePathManager modulePathManager = new ModuleSourcePathManager();
+			synchronized(MANAGER) {
+				if (MANAGER.modulePathManager == null) { // ensure another library manager was not set while creating the instance above
+					MANAGER.modulePathManager = modulePathManager;
+				}
+			}
+		}
+		return MANAGER.modulePathManager;
+	}
 	/*
 	 * Returns all the working copies which have the given owner.
 	 * Adds the working copies of the primary owner if specified.
@@ -2787,7 +2820,19 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return this.workspaceScope;
 	}
 
+	public static boolean isJrt(IPath path) {
+		return path.toString().endsWith(JRTUtil.JRT_FS_JAR);
+	}
+
+	public static boolean isJrt(String path) {
+		return isJrt(new Path(path));
+	}
+
 	public void verifyArchiveContent(IPath path) throws CoreException {
+		// TODO: we haven't finalized what path the JRT is represented by. Don't attempt to validate it.
+		if (isJrt(path)) {
+			return;
+		}
 		throwExceptionIfArchiveInvalid(path);
 		// Check if we can determine the archive's validity by examining the index
 		if (JavaIndex.isEnabled()) {
