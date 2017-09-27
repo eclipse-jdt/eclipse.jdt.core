@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
@@ -207,13 +208,12 @@ public class EclipseCompiler implements JavaCompiler {
 			}
 			@Override
 			public void addModules(Iterable<String> mods) {
-				ArrayList<String> temp = new ArrayList<>();
-				for (String mod : mods) {
-					temp.add(mod);
+				if (eclipseCompiler2.rootModules == Collections.EMPTY_SET) {
+					eclipseCompiler2.rootModules = new HashSet<>();
 				}
-				String[] mods2 = new String[temp.size()];
-				temp.toArray(mods2);
-				eclipseCompiler2.modules = mods2;
+				for (String mod : mods) {
+					eclipseCompiler2.rootModules.add(mod);
+				}
 			}
 		};
 	}

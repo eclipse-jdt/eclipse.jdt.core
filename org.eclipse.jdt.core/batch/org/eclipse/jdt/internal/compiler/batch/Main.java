@@ -95,6 +95,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerStats;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -1362,6 +1363,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	private List<String> addonExports = Collections.EMPTY_LIST;
 	private List<String> addonReads = Collections.EMPTY_LIST;
+	public Set<String> rootModules = Collections.EMPTY_SET;
 
 	public Locale compilerLocale;
 	public CompilerOptions compilerOptions; // read-only
@@ -1839,6 +1841,7 @@ public void configure(String[] argv) {
 	final int INSIDE_ADD_READS = 26;
 	final int INSIDE_SYSTEM = 27;
 	final int INSIDE_PROCESSOR_MODULE_PATH_start = 28;
+	final int INSIDE_ADD_MODULES = 29;
 
 	final int DEFAULT = 0;
 	ArrayList<String> bootclasspaths = new ArrayList<>(DEFAULT_SIZE_CLASSPATH);
@@ -2206,6 +2209,10 @@ public void configure(String[] argv) {
 				}
 				if (currentArg.equals("--add-reads")) { //$NON-NLS-1$
 					mode = INSIDE_ADD_READS;
+					continue;
+				}
+				if (currentArg.equals("--add-modules")) { //$NON-NLS-1$
+					mode = INSIDE_ADD_MODULES;
 					continue;
 				}
 				if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
@@ -2805,6 +2812,16 @@ public void configure(String[] argv) {
 				}
 				this.addonReads.add(currentArg);
 				continue;
+			case INSIDE_ADD_MODULES:
+				mode = DEFAULT;
+				if (this.rootModules == Collections.EMPTY_SET) {
+					this.rootModules = new HashSet<>();
+				}
+				StringTokenizer tokenizer = new StringTokenizer(currentArg, ","); //$NON-NLS-1$
+				while (tokenizer.hasMoreTokens()) {
+					this.rootModules.add(tokenizer.nextToken().trim());
+				}
+				continue;
 			case INSIDE_CLASSPATH_start:
 				mode = DEFAULT;
 				index += processPaths(newCommandLineArgs, index, currentArg, classpaths);
@@ -2825,7 +2842,7 @@ public void configure(String[] argv) {
 						this.bind("configure.unexpectedDestinationPathEntry", //$NON-NLS-1$
 							"-extdir")); //$NON-NLS-1$
 				}
-				StringTokenizer tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
+				tokenizer = new StringTokenizer(currentArg,	File.pathSeparator, false);
 				extdirsClasspaths = new ArrayList<>(DEFAULT_SIZE_CLASSPATH);
 				while (tokenizer.hasMoreTokens())
 					extdirsClasspaths.add(tokenizer.nextToken());
@@ -4587,6 +4604,9 @@ public void performCompilation() {
 				// report a warning
 				this.logger.logIncorrectVMVersionForAnnotationProcessing();
 			}
+			if (checkVMVersion(ClassFileConstants.JDK9)) {
+				initRootModules(this.batchCompiler.lookupEnvironment, environment);
+			}
 		}
 
 		// set the non-externally configurable options.
@@ -4630,6 +4650,25 @@ private void printUsage(String sectionID) {
 				this.bind("compiler.copyright") //$NON-NLS-1$
 			}));
 	this.logger.flush();
+}
+private void initRootModules(LookupEnvironment environment, FileSystem fileSystem) {
+	Map<String, String> map = new HashMap<>();
+	for (String m : this.rootModules) {
+		ModuleBinding mod = environment.getModule(m.toCharArray());
+		if (mod == null) {
+			throw new IllegalArgumentException(this.bind("configure.invalidModuleName", m)); //$NON-NLS-1$
+		}
+		PackageBinding[] exports = mod.getExports();
+		for (PackageBinding packageBinding : exports) {
+			String qName = CharOperation.toString(packageBinding.compoundName);
+			String existing = map.get(qName);
+			if (existing != null) {
+				throw new IllegalArgumentException(this.bind("configure.packageConflict", new String[] {qName, existing, m})); //$NON-NLS-1$
+				// report an error and bail out
+			}
+			map.put(qName, m);
+		}
+	}
 }
 private ReferenceBinding[] processClassNames(LookupEnvironment environment) {
 	// check for .class file presence in case of apt processing
