@@ -72,7 +72,6 @@ public class EclipseCompilerImpl extends Main {
 	public JavaFileManager fileManager;
 	protected Processor[] processors;
 	// TODO: This is not yet used anywhere
-	protected String[] modules;
 	public DiagnosticListener<? super JavaFileObject> diagnosticListener;
 
 	public EclipseCompilerImpl(PrintWriter out, PrintWriter err, boolean systemExitWhenFinished) {

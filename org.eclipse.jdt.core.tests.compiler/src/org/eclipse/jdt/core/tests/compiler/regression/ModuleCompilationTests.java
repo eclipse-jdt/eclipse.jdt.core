@@ -36,7 +36,7 @@ import junit.framework.Test;
 public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 
 	static {
-//		 TESTS_NAMES = new String[] { "testBug522164" };
+//		 TESTS_NAMES = new String[] { "testPackageConflict4a" };
 		// TESTS_NUMBERS = new int[] { 1 };
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -2418,6 +2418,335 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				false,
 				"",
 				OUTPUT_DIR + File.separator + out);
+	}
+	public void testPackageConflict4() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		File srcDir = new File(directory);
+
+		String moduleLoc = directory + File.separator + "mod.x";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.x { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.y";
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.y { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runConformModuleTest(files, 
+				buffer,
+				"",
+				"",
+				false);
+		Util.flushDirectoryContent(srcDir);
+		files.clear();
+		writeFileCollecting(files, directory + File.separator + "p", "X.java", 
+						"public class X extends pm.C1 { \n" +
+						"}");
+		buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-path " + "\"" + OUTPUT_DIR + File.separator + out + "\"");
+		runNegativeModuleTest(files, 
+				buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 1)\n" + 
+				"	public class X extends pm.C1 { \n" + 
+				"	                       ^^\n" + 
+				"The package pm is accessible from more than one module: mod.x, mod.y\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false,
+				"package conflict");
+	}
+	/**
+	 * currently disabled because ECJ allows unnamed modules to read from other modules from 
+	 * module-path even if they are not part of root modules.
+	 */
+	public void _testPackageConflict4a() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		File srcDir = new File(directory);
+
+		String moduleLoc = directory + File.separator + "mod.x";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.x { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runConformModuleTest(files, 
+				buffer,
+				"",
+				"",
+				false);
+		Util.flushDirectoryContent(srcDir);
+		files.clear();
+		writeFileCollecting(files, directory + File.separator + "p", "X.java", 
+						"public class X extends pm.C1 { \n" +
+						"}");
+		buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-path " + "\"" + OUTPUT_DIR + File.separator + out + "\"");
+		runNegativeModuleTest(files, 
+				buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 1)\n" + 
+				"	public class X extends pm.C1 { \n" + 
+				"	                       ^^\n" + 
+				"pm cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false,
+				"package conflict");
+	}
+	public void testPackageConflict5() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		File srcDir = new File(directory);
+
+		String moduleLoc = directory + File.separator + "mod.x";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.x { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.y";
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.y { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runConformModuleTest(files, 
+				buffer,
+				"",
+				"",
+				false);
+		Util.flushDirectoryContent(srcDir);
+		files.clear();
+		writeFileCollecting(files, directory + File.separator + "p", "X.java", 
+						"public class X extends pm.C1 { \n" +
+						"}");
+		buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-path " + "\"" + OUTPUT_DIR + File.separator + out + "\"")
+			.append(" --add-modules mod.x,mod.y");
+		runNegativeModuleTest(files, 
+				buffer,
+				"",
+				"The package pm is accessible from more than one module: mod.y, mod.x\n",
+				false,
+				"package conflict");
+		buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-path " + "\"" + OUTPUT_DIR + File.separator + out + "\"")
+			.append(" --add-modules mod.x,mod.z");
+		runNegativeModuleTest(files, 
+				buffer,
+				"",
+				"invalid module name: mod.z\n",
+				false,
+				"invalid module");
+	}
+	public void testPackageConflict6() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		File srcDir = new File(directory);
+
+		String moduleLoc = directory + File.separator + "mod.x";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.x { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.y";
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.y { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runConformModuleTest(files, 
+				buffer,
+				"",
+				"",
+				false);
+		Util.flushDirectoryContent(srcDir);
+		files.clear();
+		writeFileCollecting(files, directory + File.separator + "p", "X.java", 
+						"public class X extends pm.C1 { \n" +
+						"}");
+		buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-path " + "\"" + OUTPUT_DIR + File.separator + out + "\"")
+			.append(" --add-modules mod.x,");
+		runNegativeModuleTest(files, 
+				buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 1)\n" + 
+				"	public class X extends pm.C1 { \n" + 
+				"	                       ^^\n" + 
+				"The package pm is accessible from more than one module: mod.x, mod.y\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false,
+				"package conflict");
+	}
+	public void testPackageConflict7() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		File srcDir = new File(directory);
+
+		String moduleLoc = directory + File.separator + "mod.x";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.x { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.y";
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.y { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runConformModuleTest(files, 
+				buffer,
+				"",
+				"",
+				false);
+		Util.flushDirectoryContent(srcDir);
+		files.clear();
+		writeFileCollecting(files, directory + File.separator + "p", "X.java", 
+						"public class X { \n" +
+						"}");
+		buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-path " + "\"" + OUTPUT_DIR + File.separator + out + "\"")
+			.append(" --add-modules mod.x,mod.y");
+		runNegativeModuleTest(files, 
+				buffer,
+				"",
+				"The package pm is accessible from more than one module: mod.y, mod.x\n",
+				false,
+				"package conflict");
 	}
 	public void testPackageTypeConflict1() {
 		File outputDirectory = new File(OUTPUT_DIR);
