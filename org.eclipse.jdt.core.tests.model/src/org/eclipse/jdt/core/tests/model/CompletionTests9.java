@@ -323,6 +323,40 @@ public void test486988_0009() throws Exception {
 	}
 }
 
+public void test522604_0001() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	IJavaProject project2 = createJavaProject("Completion9_2", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	IJavaProject project3 = createJavaProject("Completion9_3", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project3.open(null);
+		String fileContent =  "module j.s.r {}\n";
+		String filePath = "/Completion9_3/src/module-info.java";
+		createFile(filePath, fileContent);
+
+		project2.open(null);
+		fileContent =  "module j.s {}\n";
+		filePath = "/Completion9_2/src/module-info.java";
+		createFile(filePath, fileContent);
+
+		project1.open(null);
+		filePath = "/Completion9_1/src/module-info.java";
+		fileContent =  "module first {requires j.s. }\n";
+		createFile(filePath, fileContent);
+		String completeBehind = "requires j.s.";
+		int cursorLocation = fileContent.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "[PROPOSAL]{j.s.r, j.s.r, null, null, 49}";
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+		deleteProject(project2);
+	}
+}
+
 public void test486988_0010() throws Exception {
 	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
 	IJavaProject project2 = createJavaProject("Completion9_2", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
@@ -340,7 +374,7 @@ public void test486988_0010() throws Exception {
 		String pack = "/Completion9_2/src/mypack1";
 		createFolder(pack);
 		filePath = pack + "/Y.java";
-		fileContent = "package pack1;\n" +
+		fileContent = "package pack1;\n" + 	
 		"public class Y {}\n";
 		createFile(filePath, fileContent);
 
