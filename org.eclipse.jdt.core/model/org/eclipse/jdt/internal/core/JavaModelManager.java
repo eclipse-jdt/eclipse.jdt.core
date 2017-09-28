@@ -3336,7 +3336,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					if (JavaBuilder.DEBUG) {
 						System.out.println("Touching project " + iProject.getName()); //$NON-NLS-1$
 					}
-					iProject.touch(subMonitor.split(1));
+					if (iProject.isAccessible()) {
+						iProject.touch(subMonitor.split(1));
+					}
 				}
 				return Status.OK_STATUS;
 			}
