@@ -177,7 +177,7 @@ public abstract class FunctionalExpression extends Expression {
 	public TypeBinding resolveType(BlockScope blockScope, boolean skipKosherCheck) {
 		this.constant = Constant.NotAConstant;
 		this.enclosingScope = blockScope;
-		MethodBinding sam = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope, argumentsTypeElided());
+		MethodBinding sam = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope, true);
 		if (sam == null) {
 			blockScope.problemReporter().targetTypeIsNotAFunctionalInterface(this);
 			return null;

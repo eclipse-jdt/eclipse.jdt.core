@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10022,6 +10022,36 @@ public void testBug458332() {
 		"	private static class Data {\n" + 
 		"	                     ^^^^\n" + 
 		"The code of method $deserializeLambda$(SerializedLambda) is exceeding the 65535 bytes limit\n" + 
+		"----------\n");
+}
+public void testBug525303() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface FI<A1 extends C<A2>, A2 extends A3, A3> {\n" + 
+			"	String m(A1 a, A2 b);\n" + 
+			"}\n" + 
+			"class C<T>{}\n" + 
+			"public class X  {\n" + 
+			"	static String method(C<Integer> c, Integer i) {\n" + 
+			"		return \"\";\n" + 
+			"	}\n" + 
+			"    public static void main(String argv[]) {\n" + 
+			"    	FI<?, ?, ?> i = (C<Integer> a, Integer b) -> String.valueOf(a) + String.valueOf(b); // no error here\n" + 
+			"    	FI<?, ?, ?> i2 = X::method; // error here\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	FI<?, ?, ?> i = (C<Integer> a, Integer b) -> String.valueOf(a) + String.valueOf(b); // no error here\n" + 
+		"	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	FI<?, ?, ?> i2 = X::method; // error here\n" + 
+		"	                 ^^^^^^^^^\n" + 
+		"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
 		"----------\n");
 }
 public static Class testClass() {
