@@ -5850,6 +5850,88 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("test");
 		}
 	}
+	public void testBug522671b() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/nonmodular1/HasConstructorWithProperties.java",
+				"package nonmodular1;\n" +
+				"\n" +
+				"import java.util.Properties;\n" +
+				"\n" +
+				"public class HasConstructorWithProperties {\n" +
+				"\n" +
+				"	public HasConstructorWithProperties(Properties loadedProperties) {\n" +
+				"	}\n" +
+				"\n" +
+				"	protected Properties method() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"\n" +
+				"}\n" +
+				"",
+				"src/nonmodular1/HasPropertiesField.java",
+				"package nonmodular1;\n" +
+				"\n" +
+				"import java.util.Properties;\n" +
+				"\n" +
+				"public class HasPropertiesField {\n" +
+				"	Properties properties;\n" +
+				"}\n" +
+				"",
+			};
+			IJavaProject p1 = setupModuleProject("nonmodular1", sources);
+
+			String[] sources2 = new String[] {
+					"src/java/util/dummy/Dummy.java",
+					"package java.util.dummy;\n" +
+					"\n" +
+					"public class Dummy {\n" +
+					"}\n" +
+					"\n" +
+					"",
+				};
+			IJavaProject p2 = setupModuleProject("nonmodular2", sources2);
+			p2.setOption(JavaCore.COMPILER_COMPLIANCE, "1.8"); // compile with 1.8 compliance to avoid error about package conflict
+
+			IClasspathEntry dep1 = JavaCore.newProjectEntry(p1.getPath(), null, false,
+					new IClasspathAttribute[] {},
+					false/*not exported*/);
+			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath(), null, false,
+					new IClasspathAttribute[] {},
+					false/*not exported*/);
+			String[] src = new String[] {
+				"src/test/a/UsesHasPropertiesField.java",
+				"package test.a;\n" +
+				"\n" +
+				"import nonmodular1.HasPropertiesField;\n" +
+				"\n" +
+				"public class UsesHasPropertiesField extends HasPropertiesField {\n" +
+				"}\n" +
+				"",
+				"src/test/b/Test.java",
+				"package test.b;\n" +
+				"\n" +
+				"import java.util.Properties;\n" +
+				"\n" +
+				"import nonmodular1.HasConstructorWithProperties;\n" +
+				"\n" +
+				"public final class Test {\n" +
+				"	public static Object test(Properties cassandraConf) {\n" +
+				"		return new HasConstructorWithProperties(cassandraConf);\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			};
+			IJavaProject p3 = setupModuleProject("nonmodular3", src, new IClasspathEntry[] { dep1, dep2 });
+			p3.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			deleteProject("nonmodular1");
+			deleteProject("nonmodular2");
+			deleteProject("nonmodular3");
+		}
+	}
 
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
