@@ -5103,7 +5103,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				deleteProject(javaProject);
 		}
 	}
-	public void _testAutoModule3() throws Exception {
+	public void testAutoModule3() throws Exception {
 		if (!isJRE9) return;
 		IJavaProject javaProject = null, auto = null;
 		try {
@@ -5134,6 +5134,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"	p.a.X f;\n" +
 				"}";
 			createFile("/mod.one/src/q/X.java", srcX);
+			auto.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 
 			this.problemRequestor.initialize(srcMod.toCharArray());
 			getWorkingCopy("/mod.one/module-info.java", srcMod, true);
@@ -5251,6 +5252,59 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				deleteProject(javaProject);
 			if (javaProject2 != null)
 				deleteProject(javaProject2);
+		}
+	}
+	// like testAutoModule3 without name derived from project, not manifest
+	public void testAutoModule5() throws Exception {
+		if (!isJRE9) return;
+		IJavaProject javaProject = null, auto = null;
+		try {
+			auto = createJava9Project("auto", new String[] {"src"});
+			createFolder("auto/src/p/a");
+			createFile("auto/src/p/a/X.java",
+				"package p.a;\n" +
+				"public class X {}\n;");
+
+			javaProject = createJava9Project("mod.one", new String[] {"src"});
+			IClasspathAttribute[] attributes = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+			addClasspathEntry(javaProject, JavaCore.newProjectEntry(auto.getPath(), null, false, attributes, false));
+
+			String srcMod =
+				"module mod.one { \n" +
+				"	requires auto;\n" +
+				"}";
+			createFile("/mod.one/src/module-info.java", 
+				srcMod);
+			createFolder("mod.one/src/q");
+			String srcX =
+				"package q;\n" +
+				"public class X {\n" +
+				"	p.a.X f;\n" +
+				"}";
+			createFile("/mod.one/src/q/X.java", srcX);
+			auto.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			this.problemRequestor.initialize(srcMod.toCharArray());
+			getWorkingCopy("/mod.one/module-info.java", srcMod, true);
+			assertProblems("module-info should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			this.problemRequestor.initialize(srcX.toCharArray());
+			getWorkingCopy("/mod.one/src/q/X.java", srcX, true);
+			assertProblems("X should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			if (javaProject != null)
+				deleteProject(javaProject);
+			if (auto != null)
+				deleteProject(auto);
 		}
 	}
 
