@@ -14489,4 +14489,41 @@ public void test482775() throws JavaModelException {
 					"wait[METHOD_REF]{wait(long), Ljava.lang.Object;, (J)V, null, null, wait, (millis), [66, 66], " + relevanceObject + "}\n" +
 					"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), [66, 66], " + relevanceObject + "}", requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=525421
+public void testBug525421() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/Complete.java",
+		"class List<T> {\n" + 
+		"}\n" + 
+		"\n" + 
+		"enum Flag {\n" + 
+		"	YES, NO;\n" + 
+		"}\n" + 
+		"\n" + 
+		"public class Complete {\n" + 
+		"	private <T> List<T> emptyList() {\n" + 
+		"		return null;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	static boolean f(List<String> generic, Flag e) {\n" + 
+		"		return generic != null && e == Flag.YES;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	void fails() {\n" + 
+		"		f(emptyList(), Y);\n" + 
+		"	}\n" + 
+		"}\n" + 
+		"");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "emptyList(), Y";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"YES[FIELD_REF]{Flag.YES, LFlag;, LFlag;, YES, null, 104}", 
+			requestor.getResults());
+}
 }
