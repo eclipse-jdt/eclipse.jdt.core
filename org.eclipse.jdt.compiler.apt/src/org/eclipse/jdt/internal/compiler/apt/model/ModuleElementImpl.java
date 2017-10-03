@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -43,7 +42,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 	/**
 	 * In general, clients should call
-	 * {@link Factory#newDeclaredType(ReferenceBinding)} or
+	 * {@link Factory#newDeclaredType(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)} or
 	 * {@link Factory#newElement(org.eclipse.jdt.internal.compiler.lookup.Binding)}
 	 * to create new instances.
 	 */

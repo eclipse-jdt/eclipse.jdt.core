@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2017 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,7 +18,6 @@ import java.util.List;
 
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -32,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
  * Implementation of DeclaredType, which refers to a particular usage or instance of a type.
- * Contrast with {@link TypeElement}, which is an element that potentially defines a family
+ * Contrast with {@link javax.lang.model.element.TypeElement}, which is an element that potentially defines a family
  * of DeclaredTypes.
  */
 public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {

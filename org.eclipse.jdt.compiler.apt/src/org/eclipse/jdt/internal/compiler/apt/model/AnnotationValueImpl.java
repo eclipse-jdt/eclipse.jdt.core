@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 IBM Corporation and others.
+ * Copyright (c) 2005, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,6 @@ import org.eclipse.jdt.internal.compiler.impl.LongConstant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -66,7 +65,7 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 	/**
 	 * @param value
 	 *            The JDT representation of a compile-time constant. See
-	 *            {@link ElementValuePair#getValue()} for possible object types:
+	 *            {@link org.eclipse.jdt.internal.compiler.lookup.ElementValuePair#getValue()} for possible object types:
 	 *            <ul>
 	 *            <li>{@link org.eclipse.jdt.internal.compiler.impl.Constant} for member
 	 *            of primitive type or String</li>

@@ -38,7 +38,6 @@ import org.eclipse.jdt.core.JavaModelException;
 public class ASTConverter9Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
-	private static boolean isJRE9 = false;
 	private static final String jcl9lib = "CONVERTER_JCL9_LIB";
 	
 

@@ -12922,6 +12922,7 @@ public final class CompletionEngine
 		this.offset = prefix.length();
 
 		String encoding = this.compilerOptions.defaultEncoding;
+		@SuppressWarnings("deprecation")
 		BasicCompilationUnit fakeUnit = new BasicCompilationUnit(
 			fakeSource,
 			null,
