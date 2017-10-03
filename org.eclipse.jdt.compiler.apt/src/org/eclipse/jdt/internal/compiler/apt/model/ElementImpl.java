@@ -23,7 +23,6 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.Elements;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
@@ -146,7 +145,7 @@ public abstract class ElementImpl
 	/**
 	 * Subclassed by VariableElementImpl, TypeElementImpl, and ExecutableElementImpl.
 	 * This base implementation suffices for other types.
-	 * @see Elements#hides
+	 * @see javax.lang.model.util.Elements#hides
 	 * @return true if this element hides {@code hidden}
 	 */
 	public boolean hides(Element hidden)
