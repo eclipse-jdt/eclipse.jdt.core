@@ -2887,6 +2887,8 @@ public void testBug519435() throws Exception {
 		org.eclipse.jdt.core.tests.util.Util.createEmptyJar(externalResourcePath, JavaCore.VERSION_1_4);
 		createJavaProject("P", new String[0], new String[] {externalResourcePath}, "");
 		IProject project = getProject("P");
+		waitForManualRefresh();
+		waitForAutoBuild();
 		assertTrue(JavaModelManager.getJavaModelManager().deltaState.getExternalLibTimeStamps().containsKey(file.getFullPath()));
 
 		project.close(null);
