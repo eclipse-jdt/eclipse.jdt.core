@@ -1509,8 +1509,19 @@ private void initializeUsesNullTypeAnnotation() {
 	this.globalOptions.useNullTypeAnnotations = Boolean.FALSE;
 	if (!this.globalOptions.isAnnotationBasedNullAnalysisEnabled || this.globalOptions.originalSourceLevel < ClassFileConstants.JDK1_8)
 		return;
-	ReferenceBinding nullable = this.nullableAnnotation != null ? this.nullableAnnotation.getAnnotationType() : getType(this.getNullableAnnotationName(), this.UnNamedModule); //FIXME(SHMOD) module for null annotations??
-	ReferenceBinding nonNull = this.nonNullAnnotation != null ? this.nonNullAnnotation.getAnnotationType() : getType(this.getNonNullAnnotationName(), this.UnNamedModule);
+	ReferenceBinding nullable;
+	ReferenceBinding nonNull;
+	boolean origMayTolerateMissingType = this.mayTolerateMissingType;
+	this.mayTolerateMissingType = true;
+	try {
+		nullable = this.nullableAnnotation != null ? this.nullableAnnotation.getAnnotationType()
+				: getType(this.getNullableAnnotationName(), this.UnNamedModule); // FIXME(SHMOD) module for null
+																					// annotations??
+		nonNull = this.nonNullAnnotation != null ? this.nonNullAnnotation.getAnnotationType()
+				: getType(this.getNonNullAnnotationName(), this.UnNamedModule);
+	} finally {
+		this.mayTolerateMissingType = origMayTolerateMissingType;
+	}
 	if (nullable == null && nonNull == null)
 		return;
 	if (nullable == null || nonNull == null)

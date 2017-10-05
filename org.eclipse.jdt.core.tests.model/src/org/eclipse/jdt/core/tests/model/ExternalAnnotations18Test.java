@@ -203,12 +203,14 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	}
 
 	void setupJavaProject(String name) throws CoreException, IOException {
-		setupJavaProject(name, false);
+		setupJavaProject(name, false, true);
 	}
 
-	void setupJavaProject(String name, boolean useFullJCL) throws CoreException, IOException {
+	void setupJavaProject(String name, boolean useFullJCL, boolean addAnnotationLib) throws CoreException, IOException {
 		this.project = setUpJavaProject(name, this.compliance, useFullJCL); //$NON-NLS-1$
-		addLibraryEntry(this.project, this.ANNOTATION_LIB, false);
+		if(addAnnotationLib)
+			addLibraryEntry(this.project, this.ANNOTATION_LIB, false);
+
 		Map options = this.project.getOptions(true);
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 		this.project.setOptions(options);
@@ -1962,6 +1964,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	 * Full build.
 	 */
 	public void testBug509715fullBuild() throws Exception {
+		Hashtable options = JavaCore.getOptions();
 		try {
 			setupJavaProject("Bug509715ProjA");
 			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
@@ -1976,6 +1979,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		} finally {
 			deleteProject("Bug509715ProjA");
 			deleteProject("Bug509715ProjB");
+			JavaCore.setOptions(options);
 		}
 	}
 
@@ -2008,7 +2012,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	public void testBug500024dir() throws CoreException, IOException {
 		try {
 			String projectName = "Bug500024";
-			setupJavaProject(projectName, true);
+			setupJavaProject(projectName, true, true);
 			
 			addEeaToVariableEntry("JCL18_FULL", "/"+projectName+"/annots");
 			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("test1", true, null);
@@ -2047,7 +2051,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	public void testBug500024jar() throws CoreException, IOException {
 		try {
 			String projectName = "Bug500024";
-			setupJavaProject(projectName, true);
+			setupJavaProject(projectName, true, true);
 			
 			String projectLoc = this.project.getResource().getLocation().toString();
 			String annotsZip = "/annots.zip";
@@ -2192,5 +2196,16 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertNoProblems(problems);
+	}
+	/** .eaa present, but null annotations not on classpath */
+	public void testBug525649() throws Exception {
+		setupJavaProject("Bug525649", false, false);
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/MyMap.java",
+				MY_MAP_CONTENT
+			}, null);
+		this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+		assertNoMarkers(markers);
 	}
 }
