@@ -306,6 +306,7 @@ public class ExternalAnnotationProvider {
 			if (this.wrapper == null)
 				this.wrapper = new SignatureWrapper(this.source);
 			this.wrapper.start = start;
+			this.wrapper.bracket = -1;
 			return this.wrapper;
 		}
 

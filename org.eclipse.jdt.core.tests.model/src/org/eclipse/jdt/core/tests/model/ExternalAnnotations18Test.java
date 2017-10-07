@@ -2208,4 +2208,71 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
 		assertNoMarkers(markers);
 	}
+	public void testBug525715() throws Exception {
+		myCreateJavaProject("TestLibs");
+		String lib1Content =
+				"package libs;\n" + 
+				"\n" +
+				"public abstract class Lib1<T,U> {\n" +
+				"	public abstract Lib1<T,U> take(Lib1<T,U> x, Object y);\n" +
+				"}\n";
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/Lib1.java",
+				lib1Content								
+			}, null);
+
+		// type check sources:
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+		ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
+				"package tests;\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"import libs.Lib1;\n" + 
+				"\n" + 
+				"@NonNullByDefault\n" + 
+				"public abstract class Test1 extends Lib1<String,String> {\n" + 
+				"	public abstract Lib1<String,String> take(Lib1<String,String> x, Object y);\n" +
+				"}\n",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = cu.reconcile(AST.JLS9, true, null, new NullProgressMonitor());
+		assertProblems(reconciled.getProblems(), new String[] {
+				"Pb(916) Illegal redefinition of parameter x, inherited method from Lib1<String,String> does not constrain this parameter",
+				"Pb(916) Illegal redefinition of parameter y, inherited method from Lib1<String,String> does not constrain this parameter"
+		}, new int[] { 7, 7 });
+
+		// acquire library AST:
+		IType type = this.project.findType("libs.Lib1");
+		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
+		ASTParser parser = ASTParser.newParser(AST.JLS9);
+		parser.setSource(libWorkingCopy);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(false);
+		parser.setBindingsRecovery(false);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		libWorkingCopy.discardWorkingCopy();
+		
+		// find type binding:
+		int start = lib1Content.indexOf("take");
+		ASTNode name = NodeFinder.perform(unit, start, 0);
+		assertTrue("should be simple name", name.getNodeType() == ASTNode.SIMPLE_NAME);
+		ASTNode method = name.getParent();
+		IMethodBinding methodBinding = ((MethodDeclaration)method).resolveBinding();
+		
+		// find annotation file (not yet existing):
+		IFile annotationFile = ExternalAnnotationUtil.getAnnotationFile(this.project, methodBinding.getDeclaringClass(), null);
+		assertFalse("file should not exist", annotationFile.exists());
+		assertEquals("file path", "/TestLibs/annots/libs/Lib1.eea", annotationFile.getFullPath().toString());
+
+		// annotate:
+		String originalSignature = ExternalAnnotationUtil.extractGenericSignature(methodBinding);
+		ExternalAnnotationUtil.annotateMember("libs/Lib1", annotationFile,
+				"take", 
+				originalSignature, 
+				"(L1libs/Lib1<TT;TU;>;L1java/lang/Object;)Llibs/Lib1<TT;TU;>;",
+				MergeStrategy.OVERWRITE_ANNOTATIONS, null);
+		assertTrue("file should exist", annotationFile.exists());
+
+		// check that the error is resolved now:
+		reconciled = cu.reconcile(AST.JLS9, true, null, new NullProgressMonitor());
+		assertNoProblems(reconciled.getProblems());
+	}
 }
