@@ -1154,7 +1154,7 @@ public class ASTParser {
 								// assumed to be "module-info.class" (which has no type):
 								fileNameString = this.typeRoot.getElementName();
 							}
-							sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), fileNameString, this.project);
+							sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), fileNameString, this.typeRoot);
 						} catch(JavaModelException e) {
 							// an error occured accessing the java element
 							StringWriter stringWriter = new StringWriter();
