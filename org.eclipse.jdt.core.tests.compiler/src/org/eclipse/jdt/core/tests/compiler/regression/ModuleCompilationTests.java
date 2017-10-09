@@ -3332,4 +3332,91 @@ public void testBug521362_emptyFile() {
 			false,
 			OUTPUT_DIR + File.separator + out);
 	}
+	/*
+	 * Test that when module-info is the only file being compiled, the class is still
+	 * generated inside the module's sub folder.
+	 */
+	public void testBug500170a() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.sql;\n" +
+						"}");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\" ")
+			.append(moduleLoc + File.separator + "module-info.java");
+
+		Set<String> classFiles = runConformModuleTest(
+				new String[] {
+					"mod.one/module-info.java",
+					"module mod.one { \n" +
+					"	requires java.sql;\n" +
+					"}"
+				},
+				buffer.toString(),
+				"",
+				"",
+				false);
+		String fileName = OUTPUT_DIR + File.separator + out + File.separator + "mod.one" + File.separator + "module-info.class";
+		assertClassFile("Missing modul-info.class: " + fileName, fileName, classFiles);
+	}
+	/*
+	 * Test that no NPE is thrown when the module-info is compiled at a level below 9
+	 */
+	public void testBug500170b() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.sql;\n" +
+						"}");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(files, 
+				buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)\n" + 
+				"	module mod.one { \n" + 
+				"	^^^^^^\n" + 
+				"Syntax error on token \"module\", package expected\n" + 
+				"----------\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)\n" + 
+				"	module mod.one { \n" + 
+				"	^^^^^^^^^^^^^^\n" + 
+				"Syntax error on token(s), misplaced construct(s)\n" + 
+				"----------\n" + 
+				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n" + 
+				"	requires java.sql;\n" + 
+				"	             ^\n" + 
+				"Syntax error on token \".\", , expected\n" + 
+				"----------\n" + 
+				"4. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 3)\n" + 
+				"	}\n" + 
+				"	^\n" + 
+				"Syntax error on token \"}\", delete this token\n" + 
+				"----------\n" + 
+				"4 problems (4 errors)\n",
+				false,
+				OUTPUT_DIR + File.separator + out);
+	}
 }
