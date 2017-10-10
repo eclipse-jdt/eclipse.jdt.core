@@ -5862,6 +5862,70 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
+	public void testBug525522() throws Exception {
+		if (!isJRE9) return;
+		String save = System.getProperty("modules.to.load");
+		System.setProperty("modules.to.load", "java.base;java.desktop;java.rmi;java.sql;java.jnlp");
+		JRTUtil.reset();
+		ClasspathJrt.resetCaches();
+		try {
+			// non-modular substitute for java.jnlp:
+			IClasspathAttribute[] jreAttribs = { JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES, "java.base,java.desktop,java.rmi,java.sql") };
+			IJavaProject jnlp = createJava9ProjectWithJREAttributes("jnlp", new String[] {"src"}, jreAttribs);
+			createFolder("jnlp/src/javax/jnlp");
+			createFile("jnlp/src/javax/jnlp/UnavailableServiceException.java",
+						"package javax.jnlp;\n" +
+						"@SuppressWarnings(\"serial\")\n" +
+						"public class UnavailableServiceException extends Exception {\n" +
+						"}\n");
+			createFile("jnlp/src/javax/jnlp/ServiceManager.java",
+						"package javax.jnlp;\n" +
+						"public class ServiceManager {\n" +
+						"	public static void lookup(String s) throws UnavailableServiceException {}\n" +
+						"}\n");
+
+			// non-modular project consuming the non-modular jnlp, instead of the module from the JRE: 
+			IJavaProject p1 = createJava9ProjectWithJREAttributes("nonmod1", new String[] {"src"}, jreAttribs);
+			addClasspathEntry(p1, JavaCore.newProjectEntry(jnlp.getPath()));
+
+			createFolder("nonmod1/src/test");
+			createFile("nonmod1/src/test/Test.java",
+						"package test;\n" + 
+						"import javax.jnlp.ServiceManager;\n" + 
+						"import javax.jnlp.UnavailableServiceException;\n" + 
+						"\n" + 
+						"public class Test {\n" + 
+						"\n" + 
+						"    void init() {\n" + 
+						"        try {\n" + 
+						"            ServiceManager.lookup(\"\");\n" + 
+						"        } catch (final UnavailableServiceException e) {\n" + 
+						"            e.printStackTrace();\n" + 
+						"        }\n" + 
+						"\n" + 
+						"    }\n" + 
+						"}\n");
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+
+			this.problemRequestor.reset();
+			ICompilationUnit cu = getCompilationUnit("/nonmod1/src/test/Test.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" + 
+				"----------\n",
+				this.problemRequestor);
+
+		} finally {
+			System.setProperty("modules.to.load", save);
+			JRTUtil.reset();
+			ClasspathJrt.resetCaches();
+			deleteProject("jnlp");
+			deleteProject("nonmod1");
+		}
+	}
+
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
