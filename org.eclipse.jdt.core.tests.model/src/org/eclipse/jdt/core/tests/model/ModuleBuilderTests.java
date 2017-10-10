@@ -5808,6 +5808,60 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
+	public void testBug525603() throws Exception {
+		if (!isJRE9) return;
+		IJavaProject javaProject = null;
+		try {
+			String[] sources = {
+				"com/automod1/pack/DummyA.java",
+				"package com.automod1.pack;\n" +
+				"public class DummyA {}\n;"
+			};
+			String outputDirectory = Util.getOutputDirectory();
+	
+			String jarPath = outputDirectory + File.separator + "automod.jar";
+			Util.createJar(sources, jarPath, "1.8");
+			
+			javaProject = createJava9Project("mod1", new String[] {"src"});
+			IClasspathAttribute[] attributes = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+			addClasspathEntry(javaProject, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, attributes, false));
+
+			String srcMod =
+				"module mod1 {\n" + 
+				"	exports com.mod1.pack1;\n" + 
+				"	requires automod;\n" + 
+				"}";
+			createFile("/mod1/src/module-info.java", 
+				srcMod);
+			createFolder("/mod1/src/com/mod1/pack1");
+			String srcX =
+				"package com.mod1.pack1;\n" +
+				"public class Dummy {\n" +
+				"}";
+			createFile("/mod1/src/com/mod1/pack1/Dummy.java", srcX);
+			
+			this.problemRequestor.initialize(srcMod.toCharArray());
+			getWorkingCopy("/mod1/src/module-info.java", srcMod, true);
+			assertProblems("module-info should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			this.problemRequestor.initialize(srcX.toCharArray());
+			getWorkingCopy("/mod1/src/com/mod1/pack1/Dummy.java", srcX, true);
+			assertProblems("X should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			if (javaProject != null)
+				deleteProject(javaProject);
+		}
+	}
+
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
