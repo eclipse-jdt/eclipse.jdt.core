@@ -54,6 +54,7 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeDetector;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeFound;
+import org.eclipse.jdt.internal.codeassist.complete.AssistNodeParentAnnotationArrayInitializer;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnAnnotationOfType;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnArgumentName;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnBranchStatementLabel;
@@ -4194,7 +4195,7 @@ public final class CompletionEngine
 		} else if(parent instanceof MemberValuePair) {
 			MemberValuePair memberValuePair = (MemberValuePair) parent;
 			if(memberValuePair.binding != null) {
-				addExpectedType(memberValuePair.binding.returnType, scope);
+				addExpectedType(memberValuePair.binding.returnType.leafComponentType(), scope);
 			}
 		} else if (parent instanceof NormalAnnotation) {
 			NormalAnnotation annotation = (NormalAnnotation) parent;
@@ -4215,7 +4216,21 @@ public final class CompletionEngine
 						}
 						if (canBeSingleMemberAnnotation) {
 							this.assistNodeCanBeSingleMemberAnnotation = canBeSingleMemberAnnotation;
-							addExpectedType(methodBindings[0].returnType, scope);
+							addExpectedType(methodBindings[0].returnType.leafComponentType(), scope);
+						}
+					}
+				}
+			}
+		} else if (parent instanceof AssistNodeParentAnnotationArrayInitializer) {
+			AssistNodeParentAnnotationArrayInitializer parent1 = (AssistNodeParentAnnotationArrayInitializer) parent;
+			if(parent1.type.resolvedType instanceof ReferenceBinding) {
+				MethodBinding[] methodBindings =
+					((ReferenceBinding)parent1.type.resolvedType).availableMethods();
+				if (methodBindings != null) {
+					for (MethodBinding methodBinding : methodBindings) {
+						if(CharOperation.equals(methodBinding.selector, parent1.name)) {
+							addExpectedType(methodBinding.returnType.leafComponentType(), scope);
+							break;
 						}
 					}
 				}

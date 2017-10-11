@@ -4050,8 +4050,8 @@ public void test0147() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
@@ -4188,8 +4188,8 @@ public void test0150() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
@@ -4234,8 +4234,8 @@ public void test0151() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
@@ -4377,14 +4377,14 @@ public void test0154() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
-		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0154.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+		assertResults(				
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0154, Ltest0154.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0154, Ltest0154.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0154, Ltest0154.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0154.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -4521,14 +4521,14 @@ public void test0157() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0157.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0157, Ltest0157.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0157, Ltest0157.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0157, Ltest0157.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0157.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE +  R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -4569,14 +4569,14 @@ public void test0158() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0158.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0158, Ltest0158.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0158, Ltest0158.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0158, Ltest0158.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0158.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -4713,14 +4713,14 @@ public void test0161() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0161.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0161, Ltest0161.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0161, Ltest0161.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0161, Ltest0161.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED)  + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0161.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE +  R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -4857,14 +4857,14 @@ public void test0164() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0164.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0164, Ltest0164.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0164, Ltest0164.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0164, Ltest0164.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0164.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE +  R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -4905,14 +4905,14 @@ public void test0165() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0165.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0165, Ltest0165.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0165, Ltest0165.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0165, Ltest0165.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0165.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -5055,14 +5055,14 @@ public void test0168() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0168.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0168, Ltest0168.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0168, Ltest0168.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0168, Ltest0168.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0168.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -5205,14 +5205,14 @@ public void test0171() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0171.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0171, Ltest0171.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0171, Ltest0171.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0171, Ltest0171.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0171.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -5255,14 +5255,14 @@ public void test0172() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0172.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0172, Ltest0172.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0172, Ltest0172.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0172, Ltest0172.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0172.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -5399,14 +5399,14 @@ public void test0175() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0175.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0175, Ltest0175.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0175, Ltest0175.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0175, Ltest0175.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0175.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -5543,14 +5543,14 @@ public void test0178() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0178.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0178, Ltest0178.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0178, Ltest0178.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0178, Ltest0178.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0178.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE +  R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -5591,14 +5591,14 @@ public void test0179() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0179.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0179, Ltest0179.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0179, Ltest0179.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0179, Ltest0179.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0179.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -5735,14 +5735,14 @@ public void test0182() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0182.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0182, Ltest0182.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0182, Ltest0182.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0182, Ltest0182.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0182.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -5831,14 +5831,14 @@ public void test0184() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures={S,I,J,F,D,C,B,Ljava.lang.String;}\n" +
-				"expectedTypesKeys={S,I,J,F,D,C,B,Ljava/lang/String;}",
+				"expectedTypesSignatures=null\n" +
+				"expectedTypesKeys=null",
 				result.context);
 
 		assertResults(
+				"zzint[FIELD_REF]{zzint, Ltest0184.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0184, Ltest0184.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0184, Ltest0184.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"zzint[FIELD_REF]{zzint, Ltest0184.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0184, Ltest0184.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -5879,14 +5879,14 @@ public void test0185() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0185.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0185, Ltest0185.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0185, Ltest0185.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0185, Ltest0185.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0185.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -5927,14 +5927,14 @@ public void test0186() throws JavaModelException {
 				"ZZ");
 
 		assertResults(
-				"expectedTypesSignatures=null\n" +
-				"expectedTypesKeys=null",
+				"expectedTypesSignatures={I}\n" +
+				"expectedTypesKeys={I}",
 				result.context);
 
 		assertResults(
-				"zzint[FIELD_REF]{zzint, Ltest0186.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 				"ZZAnnotation[TYPE_REF]{ZZAnnotation, test0186, Ltest0186.ZZAnnotation;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"ZZClass[TYPE_REF]{ZZClass, test0186, Ltest0186.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"ZZClass[TYPE_REF]{ZZClass, test0186, Ltest0186.ZZClass;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"zzint[FIELD_REF]{zzint, Ltest0186.Test;, I, zzint, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				result.proposals);
 	} finally {
 		if(anAnnotation != null) {
@@ -8221,7 +8221,7 @@ public void test0264() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"MyEnum[TYPE_REF]{MyEnum, test, Ltest.MyEnum;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"MyEnum[TYPE_REF]{MyEnum, test, Ltest.MyEnum;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_ENUM + R_EXACT_EXPECTED_TYPE + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127323
@@ -14555,7 +14555,8 @@ public void testBug526590() throws JavaModelException {
 
 	assertResults(
 			"Bug526590[TYPE_REF]{Bug526590, testbug526590, Ltestbug526590.Bug526590;, null, null, 52}\n" + 
-			"value[ANNOTATION_ATTRIBUTE_REF]{value, Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}",
+			"value[ANNOTATION_ATTRIBUTE_REF]{value, Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}\n" +
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 82}",
 			requestor.getResults());
 }
 
@@ -14586,7 +14587,8 @@ public void testBug526590b() throws JavaModelException {
 
 	assertResults(
 			"Bug526590[TYPE_REF]{Bug526590, testbug526590, Ltestbug526590.Bug526590;, null, null, 52}\n" + 
-			"value[ANNOTATION_ATTRIBUTE_REF]{value, Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}",
+			"value[ANNOTATION_ATTRIBUTE_REF]{value, Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}\n" +
+			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 82}",
 			requestor.getResults());
 }
 
