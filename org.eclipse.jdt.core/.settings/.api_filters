@@ -7,6 +7,12 @@
                 <message_argument value="3.13.0"/>
             </message_arguments>
         </filter>
+        <filter comment="API was backported to 4.7.1a" id="926941240">
+            <message_arguments>
+                <message_argument value="3.14.0"/>
+                <message_argument value="3.13.50"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="future additions have always been announced in the API" id="336658481">
