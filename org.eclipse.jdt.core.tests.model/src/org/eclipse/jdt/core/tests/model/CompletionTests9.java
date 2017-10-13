@@ -791,4 +791,34 @@ public void testBug522164_jar() throws Exception {
 		deleteProject(project1);
 	}
 }
+public void test522613_001() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		createTypePlus("/Completion9_1/src/", "pack11", "Driver", "", false /* isClass */, true /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "CCC", "implements pack11.Driver", true /* isClass */, false /* createFolder */);
+		String filePath1 = "/Completion9_1/src/module-info.java";
+		String completeBehind = "with C";
+		String fileContent1 =  "module first {\n"
+				+ "provides pack11.Driver " + completeBehind
+				+ "}\n";
+		createFile(filePath1, fileContent1);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project1.close(); // sync
+		project1.open(null);
+
+		int cursorLocation = fileContent1.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath1);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "CCC[TYPE_REF]{pack11.CCC, pack11, Lpack11.CCC;, null, 49}"
+			;
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+	}
+}
 }
