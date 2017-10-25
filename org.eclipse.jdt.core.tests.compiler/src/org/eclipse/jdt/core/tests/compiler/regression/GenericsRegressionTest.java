@@ -6141,5 +6141,28 @@ public void testBug521212() {
 		"Bound mismatch: The type ? extends V is not a valid substitute for the bounded parameter <U extends Z> of the type Y<U>\n" + 
 		"----------\n");
 }
+public void testBug526423() {
+	runConformTest(
+		new String[] {
+			"test/compileBug/TestCompileBug.java",
+			"package test.compileBug;\n" + 
+			"\n" + 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.LinkedHashMap;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.Map.Entry;\n" + 
+			"\n" + 
+			"public class TestCompileBug {\n" + 
+			"    @SuppressWarnings({ \"rawtypes\" })\n" + 
+			"    private static void cannotCompile(Object token) {\n" + 
+			"    		// change the type to List<Entry> and ArrayList<Entry> and it compiles\n" + 
+			"    		@SuppressWarnings(\"unchecked\")\n" + 
+			"    		List<Map.Entry> identityServicesToTokensMap = new ArrayList<Map.Entry>(((LinkedHashMap) token).entrySet());\n" + 
+			"    }\n" + 
+			"}"
+		}
+	);
+}
 }
 
