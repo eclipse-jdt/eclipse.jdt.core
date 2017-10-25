@@ -6122,43 +6122,6 @@ public void testBug515614() {
 		}
 	);
 }
-public void testBug518157A() {
-	runConformTest(
-		new String[] {
-			"RawClassParameterizationBug.java",
-			"class RawClassParameterizationBug<Oops> {\n" +
-			"\n" +
-			"    public interface Example<K,V> {\n" +
-			"    }\n" +
-			"    \n" +
-			"    public static class DefaultExample<K,V> implements Example<K,V> {\n" +
-			"    }\n" +
-			"    @SuppressWarnings(\"rawtypes\")\n" +
-			"    static final Class<? extends Example> fails = DefaultExample.class;\n" +
-			"}\n" +
-			"",
-		}
-	);
-}
-public void testBug518157B() {
-	runConformTest(
-		new String[] {
-			"AlternateRawClassParameterizationBug.java",
-			"import java.util.Map;\n" +
-			"\n" +
-			"class AlternateRawClassParameterizationBug {\n" +
-			"\n" +
-			"    abstract static class MapEntry<K,V> implements Map.Entry<K, V> {\n" +
-			"    }\n" +
-			"\n" +
-			"    @SuppressWarnings(\"rawtypes\")\n" +
-			"    static final Class<? extends Map.Entry> mapFails = MapEntry.class;\n" +
-			"\n" +
-			"}\n" +
-			"",
-		}
-	);
-}
 public void testBug521212() {
 	runNegativeTest(
 		new String[] {
