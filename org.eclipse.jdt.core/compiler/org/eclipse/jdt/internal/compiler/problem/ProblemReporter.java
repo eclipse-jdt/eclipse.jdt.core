@@ -436,6 +436,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.ContradictoryNullAnnotationsOnBound:
 		case IProblem.ContradictoryNullAnnotationsInferred:
 		case IProblem.ContradictoryNullAnnotationsInferredFunctionType:
+		case IProblem.IllegalParameterNullityRedefinition:
 			return CompilerOptions.NullSpecViolation;
 
 		case IProblem.NullNotCompatibleToFreeTypeVariable:
