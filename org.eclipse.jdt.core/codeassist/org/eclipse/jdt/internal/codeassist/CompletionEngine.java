@@ -2376,7 +2376,7 @@ public final class CompletionEngine
 						contextAccepted = true;
 						processModuleKeywordCompletion(parsedUnit, target, (CompletionOnKeyword) target);
 					} else {
-						if (target.moduleName != null || target.moduleName.equals(CharOperation.NO_CHAR))
+					if (target.moduleName != null || target.moduleName == CharOperation.NO_CHAR)
 							skipSet.add(new String(target.moduleName));
 					}
 				}
@@ -11974,7 +11974,7 @@ public final class CompletionEngine
 				TypeReference[] prevImpls = prevProvides.implementations;
 				for (TypeReference prevImpl : prevImpls) {
 					char[][] typeName = prevImpl.getTypeName();
-					if (typeName.equals(CharOperation.NO_CHAR_CHAR)) continue;
+					if (typeName == CharOperation.NO_CHAR_CHAR) continue;
 					existingImpl.add(CharOperation.toString(typeName));
 				}
 			}
