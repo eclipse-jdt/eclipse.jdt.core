@@ -235,7 +235,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			String preview= evaluateRewrite(cu, rewrite);
 			buf= new StringBuffer();
 			buf.append("module first {\n");
-			buf.append("    requires static  existing;\n");
+			buf.append("    requires static existing;\n");
 			buf.append("    requires module1;\n");
 			buf.append("    requires transitive module2;\n");
 			buf.append("    requires static transitive module3;\n");
@@ -348,7 +348,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			String preview= evaluateRewrite(cu, rewrite);
 			buf= new StringBuffer();
 			buf.append("module first {\n");
-			buf.append("    requires static  transitive  existing;\n");
+			buf.append("    requires static transitive existing;\n");
 			buf.append("    requires module1;\n");
 			buf.append("    requires transitive module2;\n");
 			buf.append("    requires static transitive module3;\n");
