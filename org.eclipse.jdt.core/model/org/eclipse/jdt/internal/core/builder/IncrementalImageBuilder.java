@@ -599,7 +599,6 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 						if (JavaBuilder.DEBUG)
 							System.out.println("Compile this added source file " + typeLocator); //$NON-NLS-1$
 						this.sourceFiles.add(new SourceFile((IFile) resource, md, true));
-						this.sourceFiles.add(new SourceFile((IFile) resource, md, true));
 						String typeName = typePath.toString();
 						if (!this.newState.isDuplicateLocator(typeName, typeLocator)) { // adding dependents results in 2 duplicate errors
 							if (JavaBuilder.DEBUG)

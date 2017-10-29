@@ -340,7 +340,9 @@ public class AptBuilderTests extends APTTestBase
 		incrementalBuild( project.getFullPath() );
 		expectingNoProblems();
 		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.B", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompilingOrder(
+				new String[] { "/org.eclipse.jdt.apt.tests.AptBuilderTestsProject/src/p1/p2/p3/p4/B.java", //$NON-NLS-1$
+						"/org.eclipse.jdt.apt.tests.AptBuilderTestsProject/src/p1/p2/p3/p4/A.java" }); //$NON-NLS-1$
 
 		//
 		//  Now have p1.p2.p3.p4.A w/ an anontation whose processor looks up p1.p2.p3.p4.C by name 
@@ -371,7 +373,10 @@ public class AptBuilderTests extends APTTestBase
 		// file a second time with the Compiler#DebugRequestor 
 		//
 		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.C", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.C", "p1.p2.p3.p4.A"}); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompilingOrder(
+				new String[] { "/org.eclipse.jdt.apt.tests.AptBuilderTestsProject/src/p1/p2/p3/p4/C.java",
+						"/org.eclipse.jdt.apt.tests.AptBuilderTestsProject/src/p1/p2/p3/p4/A.java",
+						"/org.eclipse.jdt.apt.tests.AptBuilderTestsProject/src/p1/p2/p3/p4/A.java" });
 		
 		//
 		// now make sure that p1.p2.p3.p4.C is not compiled when A uses NoOp Annotation
@@ -402,7 +407,8 @@ public class AptBuilderTests extends APTTestBase
 		// file a second time with the Compiler#DebugRequestor 
 		//
 		expectingCompiledClasses(new String[]{"p1.p2.p3.p4.C" }); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingCompilingOrder(new String[]{"p1.p2.p3.p4.C" }); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingCompilingOrder(
+				new String[] { "/org.eclipse.jdt.apt.tests.AptBuilderTestsProject/src/p1/p2/p3/p4/C.java" });
 	}
 
 	/**
