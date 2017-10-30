@@ -6463,6 +6463,41 @@ public void testBug515473() {
 		}
 	);
 }
+public void testBug517299() {
+	runConformTest(
+		new String[] {
+			"example/FooTest.java",
+			"package example;\n" + 
+			"import java.util.function.Consumer;\n" + 
+			"import foo.Foo;\n" + 
+			"public class FooTest {\n" + 
+			"	public void test() {\n" + 
+			"		Foo.Bar foo = new Foo.Bar();\n" + 
+			"		foo.print(\"direct\");\n" + 
+			"		invoke(foo::print, \"methodReference\");\n" + 
+			"	}\n" + 
+			"	private static void invoke(Consumer<String> method, String name) {\n" + 
+			"		method.accept(name);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new FooTest().test();\n" + 
+			"	}\n" + 
+			"}",
+			"foo/Foo.java",
+			"package foo;\n" + 
+			"public abstract class Foo {\n" + 
+			"	public static class Bar extends Baz {}\n" + 
+			"	static class Baz {\n" + 
+			"		public final void print(String name) {\n" + 
+			"			System.out.println(\"Baz.print called - \"+name);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"Baz.print called - direct\n" + 
+		"Baz.print called - methodReference"
+	);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

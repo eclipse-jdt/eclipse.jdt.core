@@ -272,10 +272,26 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		// these cases are either too complicated, impossible to handle or result in significant code duplication 
 		return (this.binding.isVarargs() || 
 				(isConstructorReference() && this.receiverType.syntheticOuterLocalVariables() != null && this.shouldCaptureInstance) ||
-				this.requiresBridges()); // bridges.
+				this.requiresBridges() || // bridges.
+				!isDirectCodeGenPossible());
 		// To fix: We should opt for direct code generation wherever possible.
 	}
-	
+	private boolean isDirectCodeGenPossible() {
+		if (this.syntheticAccessor == null) {
+			if (this.binding != null && isMethodReference()) {
+				if (TypeBinding.notEquals(this.binding.declaringClass, this.lhs.resolvedType.erasure())) {
+					// reference to a method declared by an inaccessible type accessed via a
+					// subtype - normally a bridge method would be present to facilitate
+					// this access, unless the method is final, in which case, direct access to
+					// the method is not possible, an implicit lambda is needed
+					if (!this.binding.declaringClass.canBeSeenBy(this.enclosingScope)) {
+						return !this.binding.isFinal();
+					}
+				}
+			}
+		}
+		return true;
+	}
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		this.actualMethodBinding = this.binding; // grab before synthetics come into play.
 		// Handle some special cases up front and transform them into implicit lambdas.
