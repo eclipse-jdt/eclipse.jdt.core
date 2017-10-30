@@ -13,6 +13,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -5339,7 +5340,14 @@ class ASTConverter {
 
 	protected void setAnnotations(ModuleDeclaration moduleDecl, org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration) {
 		this.scanner.resetTo(moduleDeclaration.declarationSourceStart, moduleDeclaration.sourceStart);
-		this.setModifiers(moduleDecl.annotations(), moduleDeclaration.annotations, moduleDeclaration.sourceStart);
+		List<IExtendedModifier> modifiers = new ArrayList<>();
+		this.setModifiers(modifiers, moduleDeclaration.annotations, moduleDeclaration.sourceStart);
+		for (IExtendedModifier ie : modifiers) {
+			if (!ie.isAnnotation()) {
+				continue; // not setting to malformed.
+			}
+			moduleDecl.annotations().add(ie);
+		}
 	}
 	/**
 	 * @param variableDecl

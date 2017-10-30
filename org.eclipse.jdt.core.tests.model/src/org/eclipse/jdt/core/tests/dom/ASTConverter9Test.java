@@ -799,6 +799,32 @@ public class ASTConverter9Test extends ConverterTestSetup {
 				deleteProject(project2);
 		}
 	}
+	public void testBug526534_0001() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		String content =  "public module first {}";
+		this.workingCopies[0] = getWorkingCopy("/Converter9/src/module-info.java", content);
+
+		try {
+			CompilationUnit unit = (CompilationUnit) runConversion(AST_INTERNAL_JLS9, this.workingCopies[0], false/*no bindings*/);
+			ModuleDeclaration moduleDecl = unit.getModule();
+			assertFalse(moduleDecl.isOpen());
+		} catch (ClassCastException e) {
+			assertFalse(true);
+		}
+	}
+	public void testBug526534_0002() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		String content =  "public open module first {}";
+		this.workingCopies[0] = getWorkingCopy("/Converter9/src/module-info.java", content);
+
+		try {
+			CompilationUnit unit = (CompilationUnit) runConversion(AST_INTERNAL_JLS9, this.workingCopies[0], false/*no bindings*/);
+			ModuleDeclaration moduleDecl = unit.getModule();
+			assertTrue(moduleDecl.isOpen());
+		} catch (ClassCastException e) {
+			assertFalse(true);
+		}
+	}
 
 // Add new tests here
 }
