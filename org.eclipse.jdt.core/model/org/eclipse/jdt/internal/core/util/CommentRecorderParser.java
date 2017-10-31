@@ -151,7 +151,7 @@ public class CommentRecorderParser extends Parser {
 	 */
 	public int flushCommentsDefinedPriorTo(int position) {
 
-		int lastCommentIndex = this.scanner.commentPtr;
+		int lastCommentIndex = getCommentPtr();
 		if (lastCommentIndex < 0) return position; // no comment
 
 		// compute the index of the first obsolete comment
@@ -209,6 +209,34 @@ public class CommentRecorderParser extends Parser {
 		}
 		this.scanner.commentPtr = validCount - 1;
 		return position;
+	}
+
+	protected int getCommentPtr() {
+		int lastComment = this.scanner.commentPtr;
+		if (lastComment == -1 && this.currentElement != null) {
+			// during recovery reuse comments from initial scan ...
+			lastComment = this.commentPtr;
+			if (lastComment >= 0) {
+				// ... but ignore if not suitable ...
+				if (lastComment >= this.scanner.commentStarts.length) {
+					return -1;
+				} else {
+					int start = this.scanner.commentStarts[lastComment];
+					// ... unsuitable if:
+					//     - unknown to the scanner (start == 0)
+					//     - line comment (start < 0)
+					if (start <= 0)
+						return -1;
+					//     - past the current position, or start of previous recovered element
+					int currentStart = this.currentElement.getLastStart();
+					if (currentStart == -1)
+						currentStart = this.scanner.currentPosition;
+					if (start > currentStart)
+						return -1;
+				}
+			}
+		}
+		return lastComment;
 	}
 
 	/*

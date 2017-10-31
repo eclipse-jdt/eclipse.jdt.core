@@ -2610,4 +2610,33 @@ public void testBug495598_001() throws CoreException {
 		deleteFolder("/P/src/a");
 	}
 }
+public void testBug526615() throws CoreException {
+	try {
+		createFolder("P/src/test1");
+		createFile("/P/src/test1/B.java",
+				"package test1;\n" +
+				"public abstract class B {}");
+	
+		StringBuffer buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("/**\n");
+		buf.append(" * Lore ipsum dolor sit amet, consectetur adipisici elit,\n");
+		buf.append(" * sed eiusmod tempor incidunt ut labore et dolore magna aliqua.\n");
+		buf.append(" */\n");
+		buf.append("@SuppressWarnings({\"rawtypes\", \"unchecked\"})\n");
+		buf.append("public class A {\n");
+		buf.append("    B run= new B(\n");
+		buf.append("    static class C {}\n");
+		buf.append("}\n");
+		String contents= buf.toString();
+		createFile("/P/src/test1/A.java", contents);
+	
+		ICompilationUnit cuA= getCompilationUnit("/P/src/test1/A.java");
+		IType typeA = cuA.getTypes()[0];
+		ISourceRange rangeA = typeA.getSourceRange();
+		assertEquals("Start of type A", 15, rangeA.getOffset());
+	} finally {
+		deleteFolder("/P/src/test1");
+	}
+}
 }
