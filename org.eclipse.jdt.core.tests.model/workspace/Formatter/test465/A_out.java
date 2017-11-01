@@ -1,4 +1,6 @@
-scope.problemReporter().typeMismatchErrorActualTypeExpectedType(
-	enclosingInstance,
-	enclosingInstanceType,
-	inheritedBinding.declaringClass.enclosingType());
+scope
+	.problemReporter()
+	.typeMismatchErrorActualTypeExpectedType(
+		enclosingInstance,
+		enclosingInstanceType,
+		inheritedBinding.declaringClass.enclosingType());

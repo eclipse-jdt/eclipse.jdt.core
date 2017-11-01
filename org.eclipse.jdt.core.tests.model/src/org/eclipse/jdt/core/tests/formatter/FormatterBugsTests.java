@@ -12715,4 +12715,20 @@ public void testBug514591b() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/525611 - [formatter] 'Wrap all...' policies for chained method invocations:
+ * wraps inside the last element instead
+ */
+public void testBug525611() {
+	setPageWidth80();
+	this.formatterPrefs.alignment_for_selector_in_method_invocation = Alignment.M_ONE_PER_LINE_SPLIT;
+	String source =
+		"class Test {\n" + 
+		"	String s = aaaaaaa()\n" + 
+		"			.bbbbbbbb()\n" + 
+		"			.ccccccccc()\n" + 
+		"			.ddddddddddddd(\"eeeeeeee\" + \"fffffff\");\n" + 
+		"}";
+	formatSource(source);
+}
 }

@@ -397,7 +397,7 @@ public class WrapPreparator extends ASTVisitor {
 			Collections.reverse(this.wrapIndexes);
 			this.wrapParentIndex = (expression != null) ? this.tm.lastIndexIn(expression, -1)
 					: this.tm.lastIndexIn(invocation, -1);
-			this.wrapGroupEnd = this.tm.firstIndexIn(node.getName(), -1);
+			this.wrapGroupEnd = this.tm.lastIndexIn(node, -1);
 			handleWrap(this.options.alignment_for_selector_in_method_invocation);
 		}
 		return true;
