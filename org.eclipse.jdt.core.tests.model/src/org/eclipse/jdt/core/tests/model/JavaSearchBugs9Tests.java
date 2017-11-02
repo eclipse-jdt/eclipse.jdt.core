@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.ReferenceMatch;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import junit.framework.Test;
@@ -2387,5 +2388,32 @@ public void testBug521221_001() throws Exception {
 		deleteProject("JavaSearchBugs9");
 	}
 }
+public void testBug522455_001() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/MyAnnot.java",
+			"package pack;\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"@Target({ElementType.MODULE})\n" +	
+			"@interface MyAnnot {}\n"
+			);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
+			"import pack.*;\n" +
+			"@MyAnnot\n" +
+			"module mod.one {}");
+	
+	SearchPattern pattern = SearchPattern.createPattern(
+			"MyAnnot",
+			ANNOTATION_TYPE,
+			REFERENCES,
+			EXACT_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults("src/module-info.java mod.one [MyAnnot] EXACT_MATCH");
+}
+
 // Add more tests here
 }
