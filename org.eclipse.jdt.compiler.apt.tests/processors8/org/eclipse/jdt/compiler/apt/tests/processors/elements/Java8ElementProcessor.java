@@ -171,6 +171,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		testTypeAnnotations27();
 		//testPackageAnnotations();
 		testBug520540();
+		testBug526288();
 		testEnumConstArguments();
 	}
 	
@@ -1031,6 +1032,11 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		assertEquals("found incorrect types", 0, typeElements.size());
 	}
+	public void testBug526288() {
+		PackageElement packageElement = _elementUtils.getPackageElement("targets.testBug526288");
+		assertNotNull("package element should not be null", packageElement);
+		assertNull("package should have no enclosing element", packageElement.getEnclosingElement());
+	}
 	public void testEnumConstArguments() {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.bug521812.MyEnum");
 		List<? extends Element> enclosedElements = annotatedType.getEnclosedElements();
@@ -1051,6 +1057,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 			assertEquals("Parameter type should be same", param.asType(), asType2);
 		}
 	}
+	
 	private void createPackageBinary() throws IOException {
 		String path = packageName.replace('.', '/');
 		ClassLoader loader = getClass().getClassLoader();

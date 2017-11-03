@@ -27,6 +27,7 @@ import javax.lang.model.element.PackageElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -101,6 +102,9 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 
 	@Override
 	public Element getEnclosingElement() {
+		if (super._env.getCompiler().options.sourceLevel < ClassFileConstants.JDK9) {
+			return null;
+		}
 		PackageBinding pBinding = (PackageBinding) _binding;
 		ModuleBinding module = pBinding.enclosingModule;
 		if (module == null)
