@@ -6204,6 +6204,53 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
+	public void testBug526054() throws Exception {
+		if (!isJRE9) return;
+		String save = System.getProperty("modules.to.load");
+		System.setProperty("modules.to.load", ""); // load all
+		JRTUtil.reset();
+		ClasspathJrt.resetCaches();
+		try {
+			IJavaProject javaProject = createJava9Project("mod1", new String[] {"src"});
+
+			String srcMod =
+				"module mod1 {\n" + 
+				"	exports com.mod1.pack1;\n" + 
+				"	requires java.xml.ws.annotation;\n" + 
+				"}";
+			createFile("/mod1/src/module-info.java", 
+				srcMod);
+			createFolder("/mod1/src/com/mod1/pack1");
+			String srcX =
+				"package com.mod1.pack1;\n" +
+				"@javax.annotation.Generated(\"com.acme.generator.CodeGen\")\n" +
+				"public class Dummy {\n" +
+				"}";
+			createFile("/mod1/src/com/mod1/pack1/Dummy.java", srcX);
+
+			this.problemRequestor.initialize(srcMod.toCharArray());
+			getWorkingCopy("/mod1/src/module-info.java", srcMod, true);
+			assertProblems("module-info should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			this.problemRequestor.initialize(srcX.toCharArray());
+			getWorkingCopy("/mod1/src/com/mod1/pack1/Dummy.java", srcX, true);
+			assertProblems("Dummy should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			System.setProperty("modules.to.load", save);
+			JRTUtil.reset();
+			ClasspathJrt.resetCaches();
+			deleteProject("mod1");
+		}
+	}
 
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
