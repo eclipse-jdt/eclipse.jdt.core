@@ -61,6 +61,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.provisional.JavaModelAccess;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
@@ -2902,5 +2903,158 @@ public void testBug519435() throws Exception {
 		deleteExternalResource("bug519435.jar");
 		deleteProject("P");
 	}
+}
+// unnamed module performs several modifications
+public void testBug522554_1() throws CoreException {
+	if (!isJRE9) return;
+	IJavaProject prj = null;
+	try {
+		IClasspathAttribute[] jreAttributes = {
+			JavaCore.newClasspathAttribute(IClasspathAttribute.ADD_EXPORTS, "java.activation/com.sun.activation.registries=ALL-UNNAMED"),
+			JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES, "java.se,jdk.security.auth,jdk.security.jgss,jdk.net,java.activation")
+		};
+		prj = createJava9ProjectWithJREAttributes("unnamed", new String[] {"src" }, jreAttributes);
+		createFolder("/unnamed/src/modify");
+		createFile("/unnamed/src/modify/Test.java",
+				"package modify;\n" + 
+				"\n" + 
+				"import com.sun.activation.registries.*; \n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"	LogSupport logger;\n" + 
+				"}\n");
+		prj.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+		IMarker[] markers = prj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers", "",  markers);
+
+		IClasspathEntry systemLibrary = prj.getRawClasspath()[1];
+		assertEquals("Should be system library", getJRE9Path(), systemLibrary.getPath());
+		String argLine = JavaModelAccess.getModuleCLIOptions(prj, systemLibrary);
+		assertEquals("Unexpected CLI options",
+				"--add-exports java.activation/com.sun.activation.registries=ALL-UNNAMED " +
+				"--limit-modules java.se,jdk.net,jdk.security.auth,jdk.security.jgss " +
+				"--add-modules java.activation",
+				argLine);
+	} finally {
+		if (prj != null)
+			deleteProject(prj);
+	}
+}
+// unnamed module adds without limiting
+public void testBug522554_2() throws CoreException {
+	if (!isJRE9) return;
+	IJavaProject prj = null;
+	try {
+		IClasspathAttribute[] jreAttributes = {
+			JavaCore.newClasspathAttribute(IClasspathAttribute.ADD_EXPORTS, "java.activation/com.sun.activation.registries=ALL-UNNAMED"),
+			JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES,
+					"java.se,javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web,jdk.accessibility," +
+					"jdk.attach,jdk.compiler,jdk.httpserver,jdk.jartool,jdk.javadoc,jdk.jconsole,jdk.jdi,jdk.management,jdk.packager," +
+					"jdk.plugin.dom,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,oracle.desktop,oracle.net,jdk.dynalink," +
+					"jdk.incubator.httpclient,jdk.jfr,jdk.jshell,jdk.jsobject,jdk.net,jdk.packager.services,jdk.scripting.nashorn,jdk.xml.dom," +
+					"java.activation")
+		};
+		prj = createJava9ProjectWithJREAttributes("unnamed", new String[] {"src" }, jreAttributes);
+		createFolder("/unnamed/src/modify");
+		createFile("/unnamed/src/modify/Test.java",
+				"package modify;\n" + 
+				"\n" + 
+				"import com.sun.activation.registries.*; \n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"	LogSupport logger;\n" + 
+				"}\n");
+		prj.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+		IMarker[] markers = prj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers", "",  markers);
+
+		IClasspathEntry systemLibrary = prj.getRawClasspath()[1];
+		assertEquals("Should be system library", getJRE9Path(), systemLibrary.getPath());
+		String argLine = JavaModelAccess.getModuleCLIOptions(prj, systemLibrary);
+		assertEquals("Unexpected CLI options",
+				"--add-exports java.activation/com.sun.activation.registries=ALL-UNNAMED " +
+				"--add-modules java.activation",
+				argLine);
+	} finally {
+		if (prj != null)
+			deleteProject(prj);
+	}
+}
+// named module uses the same JDT options
+public void testBug522554_3() throws CoreException {
+	if (!isJRE9) return;
+	IJavaProject prj = null;
+	try {
+		IClasspathAttribute[] jreAttributes = {
+			JavaCore.newClasspathAttribute(IClasspathAttribute.ADD_EXPORTS, "java.activation/com.sun.activation.registries=mod1"),
+			JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES, "java.se,jdk.security.auth,jdk.security.jgss,jdk.net,java.activation")
+		};
+		prj = createJava9ProjectWithJREAttributes("mod1", new String[] {"src" }, jreAttributes);
+		createFolder("/mod1/src/modify");
+		createFile("/mod1/src/modify/Test.java",
+				"package modify;\n" + 
+				"\n" + 
+				"import com.sun.activation.registries.*; \n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"	LogSupport logger;\n" + 
+				"}\n");
+		createFile("/mod1/src/module-info.java",
+				"module mod1 {\n" +
+				"	requires java.activation;\n" +
+				"}\n");
+		prj.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+		IMarker[] markers = prj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers", "",  markers);
+
+		IClasspathEntry systemLibrary = prj.getRawClasspath()[1];
+		assertEquals("Should be system library", getJRE9Path(), systemLibrary.getPath());
+		String argLine = JavaModelAccess.getModuleCLIOptions(prj, systemLibrary);
+		assertEquals("Unexpected CLI options",
+				"--add-exports java.activation/com.sun.activation.registries=mod1 " +
+				"--limit-modules java.activation,java.se,jdk.net,jdk.security.auth,jdk.security.jgss",
+				argLine);
+	} finally {
+		if (prj != null)
+			deleteProject(prj);
+	}
+}
+// module patching
+public void testBug522554_4() throws CoreException {
+	if (!isJRE9) return;
+	IJavaProject prj = null;
+	try {
+		IClasspathAttribute[] jreAttributes = {
+			JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, "java.activation"),
+			JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES, "java.se,jdk.security.auth,jdk.security.jgss,jdk.net,java.activation")
+		};
+		prj = createJava9ProjectWithJREAttributes("mod1", new String[] {"src" }, jreAttributes);
+		createFolder("/mod1/src/modify");
+		createFile("/mod1/src/modify/Test.java",
+				"package modify;\n" + 
+				"\n" + 
+				"import com.sun.activation.registries.*; \n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"	LogSupport logger;\n" + 
+				"}\n");
+		prj.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+		IMarker[] markers = prj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers", "",  markers);
+
+		IClasspathEntry systemLibrary = prj.getRawClasspath()[1];
+		assertEquals("Should be system library", getJRE9Path(), systemLibrary.getPath());
+		String argLine = JavaModelAccess.getModuleCLIOptions(prj, systemLibrary);
+		assertEquals("Unexpected CLI options",
+				"--patch-module java.activation " +
+				"--limit-modules java.activation,java.se,jdk.net,jdk.security.auth,jdk.security.jgss",
+				argLine);
+	} finally {
+		if (prj != null)
+			deleteProject(prj);
+	}
+}
+private IPath getJRE9Path() {
+	return new Path(System.getProperty("java.home") + "/lib/jrt-fs.jar");
 }
 }
