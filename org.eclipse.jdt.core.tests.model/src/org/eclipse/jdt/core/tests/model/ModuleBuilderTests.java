@@ -6252,6 +6252,56 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
+	public void testBug525918() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] { 
+				"src/module-info.java",
+				"import p.MyAbstractDriver;\n" + 
+				"import p.MyAbstractDriverWithProvider;\n" + 
+				"import p.MyDriverInf;\n" + 
+				"import p.MyInfWithProvider;\n" + 
+				"module test {\n" +
+				"	requires java.sql;\n" +
+				"	provides java.sql.Driver with MyDriverInf, MyAbstractDriver, MyInfWithProvider, MyAbstractDriverWithProvider;" +
+				"}",
+				"src/p/MyDriverInf.java",
+				"package p;\n" +
+				"public interface MyDriverInf extends java.sql.Driver { }",
+				"src/p/MyAbstractDriver.java",
+				"package p;\n" +
+				"public abstract class MyAbstractDriver {\n" + 
+				"	public MyAbstractDriver() { }\n" + 
+				"}",
+				"src/p/MyInfWithProvider.java",
+				"package p;\n" +
+				"public interface MyInfWithProvider {\n" + 
+				"	public static java.sql.Driver provider() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n",
+				"src/p/MyAbstractDriverWithProvider.java",
+				"package p;\n" +
+				"public abstract class MyAbstractDriverWithProvider {\n" + 
+				"	public static java.sql.Driver provider() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("test", sources);
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			super.sortMarkers(markers);
+			assertMarkers("Unexpected markers",
+				"Invalid service implementation, the type p.MyAbstractDriver is abstract\n" +
+				"Invalid service implementation, the type p.MyDriverInf is abstract\n" +
+				"Type mismatch: cannot convert from MyAbstractDriver to Driver"
+				, markers);
+		} finally {
+			deleteProject("test");
+		}
+	}
+
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
