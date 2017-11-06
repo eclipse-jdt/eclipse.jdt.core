@@ -1278,4 +1278,32 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			deleteProject("Java9Elements2");
 		}	
 	}
+	public void test526761a() throws Exception {
+		try {
+			IJavaProject project1 = createJava9Project("Java9Elements", new String[] {"work/src/java"});
+			project1.open(null);
+			createFolder("/Java9Elements/work/src/java/test");
+			String fileContent =
+					"package test;\n" +
+					"public class Test {}";
+			createFile("/Java9Elements/work/src/java/test/Test.java", fileContent);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/work/src/java/test/Test.java");
+			IJavaElement parent = unit.getParent();
+			IPackageFragment pkg = (IPackageFragment) parent;
+			IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
+			String id = root.getHandleIdentifier();
+			System.out.println(id);
+			assertTrue("incorrect id", id.matches("=Java9Elements/work\\\\/src\\\\/java"));
+			IJavaElement element = JavaCore.create(id);
+			assertEquals("incorrect element type", IJavaElement.PACKAGE_FRAGMENT_ROOT, element.getElementType());
+			id = "=Java9Elements/work/src/java";
+			IJavaElement element2 = JavaCore.create(id);
+			assertEquals("incorrect element type", IJavaElement.PACKAGE_FRAGMENT_ROOT, element2.getElementType());
+			assertEquals("roots should be same", element, element2);
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
 }
