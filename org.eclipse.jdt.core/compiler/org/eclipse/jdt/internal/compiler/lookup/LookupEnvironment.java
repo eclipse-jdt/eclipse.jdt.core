@@ -211,10 +211,6 @@ public ModuleBinding getModule(char[] name) {
 	return moduleBinding;
 }
 
-@Deprecated
-public ReferenceBinding askForType(char[][] compoundName) {
-	return askForType(compoundName, this.UnNamedModule);
-}
 /**
  * Ask the name environment for a type which corresponds to the compoundName.
  * Answer null if the name cannot be found.
