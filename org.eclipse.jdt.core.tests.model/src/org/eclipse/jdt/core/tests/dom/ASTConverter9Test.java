@@ -826,5 +826,195 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		}
 	}
 
+	public void testBug519493_001() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			String fileContent =
+				"module first {\n" +
+				"    exports pack1;\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			createFolder("/ConverterTests9/src/pack1");
+			createFile("/ConverterTests9/src/pack1/X.java",
+					"package pack1;\n" +
+					"public class X{}\n");
+
+			project1.close(); // sync
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "pack1", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode((CompilationUnit) unit1, 0);
+			ITypeBinding typeBinding = typedeclaration.resolveBinding();
+			IModuleBinding moduleBinding = typeBinding.getModule();
+			assertTrue("Module binding null", moduleBinding != null);
+			String moduleName = moduleBinding.getName();
+			assertTrue("null module name", moduleName != null);
+			assertTrue("wrong module name", moduleName.equals("first"));
+		}
+		finally {
+			deleteProject("ConverterTests9");
+		}
+	}
+	public void testBug519493_002() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			String fileContent =
+				"module first {\n" +
+				"    exports pack1;\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			createFolder("/ConverterTests9/src/pack1");
+			createFile("/ConverterTests9/src/pack1/X.java",
+					"package pack1;\n" +
+					"public class X<T>{}\n");
+
+			project1.close(); // sync
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "pack1", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode((CompilationUnit) unit1, 0);
+			TypeParameter typeParameter = (TypeParameter) typedeclaration.typeParameters().get(0);
+			ITypeBinding typeBinding = typeParameter.resolveBinding();
+			IModuleBinding moduleBinding = typeBinding.getModule();
+			assertTrue("Module binding non-null", moduleBinding == null);
+		}
+		finally {
+			deleteProject("ConverterTests9");
+		}
+	}
+	public void testBug519493_003() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			String fileContent =
+				"module first {\n" +
+				"    exports pack1;\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			createFolder("/ConverterTests9/src/pack1");
+			createFile("/ConverterTests9/src/pack1/X.java",
+					"package pack1;\n" +
+					"public class X{\n" +
+					"    public class Y{}\n" +
+					"}\n");
+
+			project1.close(); // sync
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "pack1", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode((CompilationUnit) unit1, 0);
+			typedeclaration = typedeclaration.getTypes()[0];
+			ITypeBinding typeBinding = typedeclaration.resolveBinding();
+			IModuleBinding moduleBinding = typeBinding.getModule();
+			assertTrue("Module binding null", moduleBinding != null);
+			String moduleName = moduleBinding.getName();
+			assertTrue("null module name", moduleName != null);
+			assertTrue("wrong module name", moduleName.equals("first"));
+		}
+		finally {
+			deleteProject("ConverterTests9");
+		}
+	}
+	public void testBug519493_004() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			String fileContent =
+				"module first {\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			createFile("/ConverterTests9/src/X.java",
+					"public class X{}\n");
+
+			project1.close(); // sync
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode((CompilationUnit) unit1, 0);
+			ITypeBinding typeBinding = typedeclaration.resolveBinding();
+			IModuleBinding moduleBinding = typeBinding.getModule();
+			assertTrue("Module binding null", moduleBinding != null);
+			String moduleName = moduleBinding.getName();
+			assertTrue("null module name", moduleName != null);
+			assertTrue("wrong module name", moduleName.equals("first"));
+		}
+		finally {
+			deleteProject("ConverterTests9");
+		}
+	}
+	public void testBug519493_005() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			createFile("/ConverterTests9/src/X.java",
+					"public class X{}\n");
+
+			project1.close(); // sync
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode((CompilationUnit) unit1, 0);
+			ITypeBinding typeBinding = typedeclaration.resolveBinding();
+			IModuleBinding moduleBinding = typeBinding.getModule();
+			assertTrue("Module binding null", moduleBinding != null);
+			String moduleName = moduleBinding.getName();
+			assertTrue("null module name", moduleName != null);
+			assertTrue("wrong module name", moduleName.equals(""));
+		}
+		finally {
+			deleteProject("ConverterTests9");
+		}
+	}
+	public void testBug519493_006() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			String fileContent =
+				"module first {\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			createFolder("/ConverterTests9/src/pack1");
+			createFile("/ConverterTests9/src/pack1/X.java",
+					"package pack1;\n" +
+					"public class X{\n" +
+					"    public class Y{}\n" +
+					"}\n");
+
+			project1.close(); // sync
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "pack1", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			PackageDeclaration packageDeclaration  = ((CompilationUnit) unit1).getPackage();
+			IPackageBinding packageBinding = packageDeclaration.resolveBinding();
+			IModuleBinding moduleBinding = packageBinding.getModule();
+			assertTrue("Module binding null", moduleBinding != null);
+			String moduleName = moduleBinding.getName();
+			assertTrue("null module name", moduleName != null);
+			assertTrue("wrong module name", moduleName.equals("first"));
+		}
+		finally {
+			deleteProject("ConverterTests9");
+		}
+	}
 // Add new tests here
 }
