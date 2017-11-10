@@ -6648,6 +6648,50 @@ public void testBug517951c() {
 		}
 	);
 }
+public void testBug521818() {
+	runConformTest(
+		new String[] {
+			"test/Main.java",
+			"package test;\n" + 
+			"class C {}\n" + 
+			"class D {\n" + 
+			"	<T extends C & Runnable> D(int i, T t) {" +
+			"		System.out.println(\"D\");\n" +
+			"}\n" + 
+			"}\n" + 
+			"interface Goo {\n" + 
+			"    <T extends C & Runnable> String m(T p);\n" + 
+			"}\n" + 
+			"class A {\n" + 
+			"    public static <K extends Runnable> String bar(K a) {\n" +
+			"		System.out.println(\"Bar\");\n" +
+			"       return null;\n" + 
+			"    }\n" + 
+			"    public static <K extends Runnable> D baz(int i, K a) {\n" +
+			"		System.out.println(\"Baz\");\n" +
+			"       return null;\n" + 
+			"    }\n"+ 
+			"}\n" +  
+			"interface Foo<Z extends C & Runnable> {\n" + 
+			"	D get(int i, Z z);\n" + 
+			"}\n" + 
+			"public class Main  {\n" +  
+			"    public static void main(String[] args) {\n" + 
+			"    	Foo<? extends C> h = A::baz;\n" + 
+			"    	h.get(0,  null);\n" + 
+			"    	Foo<? extends C> h2 = D::new;\n" + 
+			"    	h2.get(0,  null);\n" + 
+			"    	Goo g = A::bar;\n" + 
+			"    	g.m(null);\n" + 
+			"    } \n" + 
+			"}"
+		},
+		"Baz\n" +
+		"D\n" +
+		"Bar"
+		
+	);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

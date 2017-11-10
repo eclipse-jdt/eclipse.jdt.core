@@ -88,6 +88,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
@@ -276,8 +277,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		// To fix: We should opt for direct code generation wherever possible.
 	}
 	private boolean isDirectCodeGenPossible() {
-		if (this.syntheticAccessor == null) {
-			if (this.binding != null && isMethodReference()) {
+		if (this.binding != null) {
+			if (isMethodReference() && this.syntheticAccessor == null) {
 				if (TypeBinding.notEquals(this.binding.declaringClass, this.lhs.resolvedType.erasure())) {
 					// reference to a method declared by an inaccessible type accessed via a
 					// subtype - normally a bridge method would be present to facilitate
@@ -286,6 +287,18 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 					if (!this.binding.declaringClass.canBeSeenBy(this.enclosingScope)) {
 						return !this.binding.isFinal();
 					}
+				}
+			}
+			TypeBinding[] descriptorParams = this.descriptor.parameters;
+			TypeBinding[] origParams = this.binding.original().parameters;
+			TypeBinding[] origDescParams = this.descriptor.original().parameters;
+			int offset = this.receiverPrecedesParameters ? 1 : 0;
+			for (int i = 0; i < descriptorParams.length - offset; i++) {
+				TypeBinding descType = descriptorParams[i + offset];
+				TypeBinding origDescType = origDescParams[i + offset];
+				if (descType.isIntersectionType18() || 
+						(descType.isTypeVariable() && ((TypeVariableBinding) descType).otherUpperBounds() != null)) {
+					return CharOperation.equals(origDescType.signature(), origParams[i].signature());
 				}
 			}
 		}
