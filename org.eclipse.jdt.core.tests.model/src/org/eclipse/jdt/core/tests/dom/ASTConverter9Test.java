@@ -799,6 +799,45 @@ public class ASTConverter9Test extends ConverterTestSetup {
 				deleteProject(project2);
 		}
 	}
+	public void testBug519884_001() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			String fileContent =
+				"module first {\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			createFolder("/ConverterTests9/src/pack");
+			createFile("/ConverterTests9/src/pack/X.java",
+					"package pack;\n" +
+					"import java.MyObject;\n" +
+					"public class X{}");
+
+			project1.close(); // sync
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "pack", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			CompilationUnit cu = (CompilationUnit) unit1;
+			ImportDeclaration importDeclaration = (ImportDeclaration) cu.imports().get(0);
+			QualifiedName qName = (QualifiedName) importDeclaration.getName();
+			Name name = qName.getQualifier();
+			IBinding binding = name.resolveBinding();
+			if (binding != null) {
+				assertTrue("Not PackageBinding", binding instanceof IPackageBinding);
+				IPackageBinding packageBinding = (IPackageBinding) binding;
+				IJavaElement element = packageBinding.getJavaElement();
+				assertTrue("element null", element != null);
+			}
+		} catch (NullPointerException e) {
+			e.printStackTrace();
+			assertFalse("Failed", true);
+		} finally {
+			deleteProject("ConverterTests9");
+		}
+	}
 
 // Add new tests here
 }
