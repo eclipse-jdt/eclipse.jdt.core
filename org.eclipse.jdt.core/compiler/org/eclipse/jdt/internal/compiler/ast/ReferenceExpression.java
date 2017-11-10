@@ -88,6 +88,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
@@ -271,10 +272,38 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		// these cases are either too complicated, impossible to handle or result in significant code duplication 
 		return (this.binding.isVarargs() || 
 				(isConstructorReference() && this.receiverType.syntheticOuterLocalVariables() != null && this.shouldCaptureInstance) ||
-				this.requiresBridges()); // bridges.
+				this.requiresBridges() || // bridges.
+				!isDirectCodeGenPossible());
 		// To fix: We should opt for direct code generation wherever possible.
 	}
-	
+	private boolean isDirectCodeGenPossible() {
+		if (this.binding != null) {
+			if (isMethodReference() && this.syntheticAccessor == null) {
+				if (TypeBinding.notEquals(this.binding.declaringClass, this.lhs.resolvedType.erasure())) {
+					// reference to a method declared by an inaccessible type accessed via a
+					// subtype - normally a bridge method would be present to facilitate
+					// this access, unless the method is final, in which case, direct access to
+					// the method is not possible, an implicit lambda is needed
+					if (!this.binding.declaringClass.canBeSeenBy(this.enclosingScope)) {
+						return !this.binding.isFinal();
+					}
+				}
+			}
+			TypeBinding[] descriptorParams = this.descriptor.parameters;
+			TypeBinding[] origParams = this.binding.original().parameters;
+			TypeBinding[] origDescParams = this.descriptor.original().parameters;
+			int offset = this.receiverPrecedesParameters ? 1 : 0;
+			for (int i = 0; i < descriptorParams.length - offset; i++) {
+				TypeBinding descType = descriptorParams[i + offset];
+				TypeBinding origDescType = origDescParams[i + offset];
+				if (descType.isIntersectionType18() || 
+						(descType.isTypeVariable() && ((TypeVariableBinding) descType).otherUpperBounds() != null)) {
+					return CharOperation.equals(origDescType.signature(), origParams[i].signature());
+				}
+			}
+		}
+		return true;
+	}
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		this.actualMethodBinding = this.binding; // grab before synthetics come into play.
 		// Handle some special cases up front and transform them into implicit lambdas.
