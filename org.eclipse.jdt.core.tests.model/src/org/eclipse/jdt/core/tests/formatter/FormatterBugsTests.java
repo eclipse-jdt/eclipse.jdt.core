@@ -12731,4 +12731,32 @@ public void testBug525611() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/526992 - [formatter] Never indent line comments
+ * on first column - crash in anonymous class inside array declaration
+ */
+public void testBug526992a() {
+	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
+	String source =
+		"public class Test {\n" + 
+		"	Object o = new Object[] { new Object() {\n" + 
+		"//\n" + 
+		"	} };\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/526992 - [formatter] Never indent line comments
+ * on first column - crash in anonymous class inside array declaration
+ */
+public void testBug526992b() {
+	this.formatterPrefs.never_indent_block_comments_on_first_column = true;
+	String source =
+		"public class Test {\n" + 
+		"	Object o = new Object[] { new Object() {\n" + 
+		"/**/\n" + 
+		"	} };\n" + 
+		"}";
+	formatSource(source);
+}
 }

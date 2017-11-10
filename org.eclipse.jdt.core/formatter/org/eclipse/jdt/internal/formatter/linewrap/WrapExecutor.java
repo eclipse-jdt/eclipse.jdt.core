@@ -640,6 +640,8 @@ public class WrapExecutor {
 		WrapPolicy policy = token.getWrapPolicy();
 		if (policy == null)
 			return token.getIndent();
+		if (policy == WrapPolicy.FORCE_FIRST_COLUMN)
+			return 0;
 
 		Token wrapParent = this.tm.get(policy.wrapParentIndex);
 		int wrapIndent = wrapParent.getIndent();
