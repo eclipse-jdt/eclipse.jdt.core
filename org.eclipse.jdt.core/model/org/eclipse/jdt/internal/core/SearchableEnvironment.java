@@ -831,12 +831,21 @@ public class SearchableEnvironment
 			case AnyNamed:
 				char[][] names = CharOperation.NO_CHAR_CHAR;
 				IPackageFragmentRoot[] packageRoots = this.nameLookup.packageFragmentRoots;
+				boolean containsUnnamed = false;
 				for (IPackageFragmentRoot packageRoot : packageRoots) {
 					IPackageFragmentRoot[] singleton = { packageRoot };
 					if (strategy.matches(singleton, locs -> locs[0] instanceof JrtPackageFragmentRoot || getModuleDescription(locs) != null)) {
 						if (this.nameLookup.isPackage(pkgName, singleton)) {
 							IModuleDescription moduleDescription = getModuleDescription(singleton);
-							char[] aName = moduleDescription != null ? moduleDescription.getElementName().toCharArray() : ModuleBinding.UNNAMED;
+							char[] aName;
+							if (moduleDescription != null) {
+								aName = moduleDescription.getElementName().toCharArray();
+							} else {
+								if (containsUnnamed)
+									continue;
+								containsUnnamed = true;
+								aName = ModuleBinding.UNNAMED;
+							}
 							names = CharOperation.arrayConcat(names, aName);
 						}
 					}
