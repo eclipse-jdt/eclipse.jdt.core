@@ -877,8 +877,7 @@ public IModuleDescription getModuleDescription() {
 			}
 		}
 	} catch (JavaModelException e) {
-		e.printStackTrace();
-		//
+		Util.log(e);
 	}
 	return null;
 }
