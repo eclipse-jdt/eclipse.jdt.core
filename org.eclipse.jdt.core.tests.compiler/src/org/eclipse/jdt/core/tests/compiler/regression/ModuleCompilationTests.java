@@ -3748,4 +3748,81 @@ public void testBug521362_emptyFile() {
 				false,
 				OUTPUT_DIR + File.separator + out);
 	}
+	public void testBug522472c() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		File srcDir = new File(directory);
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, 
+				"module-info.java", 
+				"module mod.one { \n" +
+				"	exports x.y.z;\n" +
+				"	exports a.b.c;\n" +
+				"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "x" + File.separator + "y" + File.separator + "z", 
+				"X.java", 
+				"package x.y.z;\n");
+		writeFileCollecting(files, moduleLoc + File.separator + "a" + File.separator + "b" + File.separator + "c",
+				"A.java",
+				"package a.b.c;\n" +
+				"public class A {}");
+
+		moduleLoc = directory + File.separator + "mod.one.a";
+		writeFileCollecting(files, moduleLoc, 
+				"module-info.java", 
+				"module mod.one.a { \n" +
+				"	exports x.y.z;\n" +
+				"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "x" + File.separator + "y" + File.separator + "z", 
+				"X.java", 
+				"package x.y.z;\n" +
+				"public class X {}\n");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\" ");
+
+		runConformModuleTest(files,
+				buffer, 
+				"", 
+				"", 
+				false);
+
+		Util.flushDirectoryContent(srcDir);
+		files.clear();
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFileCollecting(files, moduleLoc, 
+				"module-info.java", 
+				"module mod.two { \n" +
+					"	requires mod.one;\n" +
+					"	requires mod.one.a;\n" +
+				"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p" + File.separator + "q" + File.separator + "r",
+				"Main.java",
+				"package p.q.r;\n" +
+				"import a.b.c.*;\n" +
+				"import x.y.z.*;\n" +
+				"@SuppressWarnings(\"unused\")\n" +
+				"public class Main {"
+				+ "}");
+		buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-path " + "\"" + OUTPUT_DIR + File.separator + out + "\" ")
+			.append(" --module-source-path " + "\"" + directory + "\" ");
+		runConformModuleTest(files, 
+				buffer,
+				"",
+				"",
+				false);
+	}
 }
