@@ -338,6 +338,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					}
 					this.resolvedType = groundType;
 				}
+			} else {
+				reportSamProblem(blockScope, new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType));
+				return this.resolvedType = null;
 			}
 		}
 		boolean genericSignatureNeeded = this.requiresGenericSignature || blockScope.compilerOptions().generateGenericSignatureForLambdaExpressions;
