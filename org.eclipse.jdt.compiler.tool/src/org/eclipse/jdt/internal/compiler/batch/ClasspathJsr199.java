@@ -27,6 +27,7 @@ import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
@@ -42,17 +43,27 @@ public class ClasspathJsr199 extends ClasspathLocation {
 
 	private JavaFileManager fileManager;
 	private JavaFileManager.Location location;
-	private ClasspathJrt jrt;
+	private Classpath jrt;
 
 	public ClasspathJsr199(JavaFileManager file, JavaFileManager.Location location) {
 		super(null, null);
 		this.fileManager = file;
 		this.location = location;
 	}
-	public ClasspathJsr199(ClasspathJrt jrt, JavaFileManager file, JavaFileManager.Location location) {
+	public ClasspathJsr199(Classpath jrt, JavaFileManager file, JavaFileManager.Location location) {
 		super(null, null);
 		this.fileManager = file;
 		this.jrt = jrt;
+		this.location = location;
+	}
+	/*
+	 * Maintain two separate constructors to avoid this being constructed with any other kind of classpath
+	 * (other than ClasspathJrt and ClasspathJep249
+	 */
+	public ClasspathJsr199(ClasspathJep247 older, JavaFileManager file, JavaFileManager.Location location) {
+		super(null, null);
+		this.fileManager = file;
+		this.jrt = older;
 		this.location = location;
 	}
 
@@ -142,7 +153,9 @@ public class ClasspathJsr199 extends ClasspathLocation {
 
 	@Override
 	public void initialize() throws IOException {
-		// nothing to do
+		if (this.jrt != null) {
+			this.jrt.initialize();
+		}
 	}
 
 	@Override
@@ -194,6 +207,9 @@ public class ClasspathJsr199 extends ClasspathLocation {
 			this.fileManager.flush();
 		} catch (IOException e) {
 			// ignore
+		}
+		if (this.jrt != null) {
+			this.jrt.reset();
 		}
 	}
 

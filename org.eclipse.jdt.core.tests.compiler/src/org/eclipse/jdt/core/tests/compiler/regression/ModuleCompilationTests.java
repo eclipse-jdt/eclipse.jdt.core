@@ -3825,4 +3825,553 @@ public void testBug521362_emptyFile() {
 				"",
 				false);
 	}
+	public void testReleaseOption1() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"/** */\n" +
+					"public class X {\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 8 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "",
+		     true);
+		String expectedOutput = "// Compiled from X.java (version 1.8 : 52.0, super bit)";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	public void testReleaseOption2() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"/** */\n" +
+					"public class X {\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 7 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "",
+		     true);
+		String expectedOutput = "// Compiled from X.java (version 1.7 : 51.0, super bit)";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	public void testReleaseOption3() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"/** */\n" +
+					"public class X {\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 6 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "",
+		     true);
+		String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
+			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	public void testReleaseOption4() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"/** */\n" +
+					"public class X {\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 6 -source 1.6 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "option -source is not supported when --release is used\n",
+		     true);
+	}
+	public void testReleaseOption5() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"/** */\n" +
+					"public class X {\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 8 -target 1.8 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "option -target is not supported when --release is used\n",
+		     true);
+	}
+	public void testReleaseOption6() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"/** */\n" +
+					"public class X {\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 5 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "release version 5 is not supported\n",
+		     true);
+	}
+	public void testReleaseOption7() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import java.util.stream.*;\n" +
+					"/** */\n" +
+					"public class X {\n" +
+					"	public Stream<String> emptyStream() {\n" +
+					"		Stream<String> st = Stream.empty();\n" +
+					"		return st;\n" +
+					"	}\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 8 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "",
+		     true);
+	}
+	public void testReleaseOption8() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"/** */\n" +
+					"public class X {\n" +
+					"	public java.util.stream.Stream<String> emptyStream() {\n" +
+					"		return null;\n" +
+					"	}\n" +
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 7 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "----------\n" + 
+    		 "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+    		 "	public java.util.stream.Stream<String> emptyStream() {\n" + 
+    		 "	       ^^^^^^^^^^^^^^^^\n" + 
+    		 "java.util.stream cannot be resolved to a type\n" + 
+    		 "----------\n" + 
+    		 "1 problem (1 error)\n",
+		     true);
+	}
+	public void testReleaseOption9() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  int add(int x, int y);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  public static void main(String[] args) {\n" +
+					"    I i = (x, y) -> {\n" +
+					"      return x + y;\n" +
+					"    };\n" +
+					"  }\n" +
+					"}\n",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 7 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "----------\n" + 
+    		 "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 6)\n" + 
+    		 "	I i = (x, y) -> {\n" + 
+    		 "	      ^^^^^^^^^\n" + 
+    		 "Lambda expressions are allowed only at source level 1.8 or above\n" + 
+    		 "----------\n" + 
+    		 "1 problem (1 error)\n",
+		     true);
+	}
+	public void testReleaseOption10() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.io.*;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		try {\n" + 
+					"			System.out.println();\n" + 
+					"			Reader r = new FileReader(args[0]);\n" + 
+					"			r.read();\n" + 
+					"		} catch(IOException | FileNotFoundException e) {\n" +
+					"			e.printStackTrace();\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 6 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "----------\n" + 
+    		 "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" + 
+    		 "	} catch(IOException | FileNotFoundException e) {\n" + 
+    		 "	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		 "Multi-catch parameters are not allowed for source level below 1.7\n" + 
+    		 "----------\n" + 
+    		 "2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 9)\n" + 
+    		 "	} catch(IOException | FileNotFoundException e) {\n" + 
+    		 "	                      ^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		 "The exception FileNotFoundException is already caught by the alternative IOException\n" + 
+    		 "----------\n" + 
+    		 "2 problems (2 errors)\n",
+		     true);
+	}
+	public void testReleaseOption11() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"	}\n" + 
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\"" +
+		     " -bootclasspath " + OUTPUT_DIR + File.separator + "src " +
+		     " --release 9 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+    		 "option -bootclasspath not supported at compliance level 9 and above\n",
+		     true);
+	}
+	public void _testReleaseOption12() throws Exception {
+		String javaHome = System.getProperty("java.home");
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"	}\n" + 
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\"" +
+		      " --system \"" + javaHome + "\"" +
+		     " --release 6 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "----------\n" + 
+    		 "option --system not supported below compliance level 9",
+		     true);
+	}
+	public void testReleaseOption13() {
+		runConformModuleTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"	}\n" +
+				"}",
+				"module-info.java",
+				"module mod.one { \n" +
+				"	requires java.base;\n" +
+				"}"
+	        },
+			" --release 9 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
+	        "",
+	        "",
+	        true);
+	}
+	public void testReleaseOption14() {
+		runNegativeModuleTest(
+			new String[] {
+				"module-info.java",
+				"module mod.one { \n" +
+				"}"
+	        },
+			" --release 8 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" ",
+	        "",
+	        "----------\n" + 
+    		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)\n" + 
+    		"	module mod.one { \n" + 
+    		"	^^^^^^\n" + 
+    		"Syntax error on token \"module\", package expected\n" + 
+    		"----------\n" + 
+    		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)\n" + 
+    		"	module mod.one { \n" + 
+    		"}\n" + 
+    		"	               ^^^^\n" + 
+    		"Syntax error on tokens, delete these tokens\n" + 
+    		"----------\n" + 
+    		"2 problems (2 errors)\n",
+	        true,
+	        /*not tested with javac*/"");
+	}
+	// Test from https://bugs.eclipse.org/bugs/show_bug.cgi?id=526997
+	public void testReleaseOption15() {
+		runConformModuleTest(
+			new String[] {
+				"foo/Module.java",
+				"package foo;\n" +
+				"public class Module {}\n",
+				"foo/X.java",
+				"package foo;\n" +
+				"public class X { \n" +
+				"	public Module getModule(String name) {\n" + 
+				"		return null;\n" +
+				"	}\n" + 
+				"}"
+	        },
+			" --release 8 \"" + OUTPUT_DIR +  File.separator + "foo" + File.separator + "Module.java\" " +
+			"\"" +  OUTPUT_DIR +  File.separator + "foo" + File.separator + "X.java\" ",
+	        "",
+    		"",
+	        true,
+	        /*not tested with javac*/"");
+	}
+	// Test from https://bugs.eclipse.org/bugs/show_bug.cgi?id=526997
+	public void testReleaseOption16() {
+		runNegativeModuleTest(
+			new String[] {
+				"foo/Module.java",
+				"package foo;\n" +
+				"public class Module {}\n",
+				"bar/X.java",
+				"package bar;\n" +
+				"import foo.*;\n" +
+				"public class X { \n" +
+				"	public Module getModule(String name) {\n" + 
+				"		return null;\n" +
+				"	}\n" + 
+				"}"
+	        },
+			" -source 9 \"" + OUTPUT_DIR +  File.separator + "foo" + File.separator + "Module.java\" " +
+			"\"" +  OUTPUT_DIR +  File.separator + "bar" + File.separator + "X.java\" ",
+	        "",
+	        "----------\n" + 
+    		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/bar/X.java (at line 4)\n" + 
+    		"	public Module getModule(String name) {\n" + 
+    		"	       ^^^^^^\n" + 
+    		"The type Module is ambiguous\n" + 
+    		"----------\n" + 
+    		"1 problem (1 error)\n",
+	        true,
+	        /*not tested with javac*/"");
+	}
+	public void testReleaseOption17() {
+		runNegativeModuleTest(
+			new String[] {
+				"foo/Module.java",
+				"package foo;\n" +
+				"public class Module {}\n",
+				"foo/X.java",
+				"package foo;\n" +
+				"public class X { \n" +
+				"	public Module getModule(String name) {\n" + 
+				"		return null;\n" +
+				"	}\n" + 
+				"}"
+	        },
+			" --release 60 \"" + OUTPUT_DIR +  File.separator + "foo" + File.separator + "Module.java\" " +
+			"\"" +  OUTPUT_DIR +  File.separator + "foo" + File.separator + "X.java\" ",
+	        "",
+    		"release 60 is not found in the system\n",
+	        true,
+	        /*not tested with javac*/"");
+	}
+	public void testReleaseOption18() {
+		runNegativeModuleTest(
+			new String[] {
+				"X.java",
+				"/** */\n" +
+				"public class X {\n" +
+				"}",
+				},
+			" --release 6 -1.8 \"" + OUTPUT_DIR +  File.separator + "foo" + File.separator + "Module.java\" " +
+			"\"" +  OUTPUT_DIR +  File.separator + "foo" + File.separator + "X.java\" ",
+	        "",
+    		"option 1.8 is not supported when --release is used\n",
+	        true,
+	        /*not tested with javac*/"");
+	}
+	public void testReleaseOption19() {
+		runNegativeModuleTest(
+			new String[] {
+			"X.java",
+			"/** */\n" +
+			"public class X {\n" +
+			"}",
+			},
+			" -9 --release 9 \"" + OUTPUT_DIR +  File.separator + "foo" + File.separator + "Module.java\" " +
+			"\"" +  OUTPUT_DIR +  File.separator + "foo" + File.separator + "X.java\" ",
+	        "",
+    		"option 9 is not supported when --release is used\n",
+	        true,
+	        /*not tested with javac*/"");
+	}
+	public void testLimitModules1() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String moduleLoc = directory + File.separator + "mod.x";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.x { \n" +
+						"	exports pm;\n" +
+						"	requires java.sql;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --limit-modules java.base")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+		runNegativeModuleTest(files, buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.x/module-info.java (at line 3)\n" + 
+				"	requires java.sql;\n" + 
+				"	         ^^^^^^^^\n" + 
+				"java.sql cannot be resolved to a module\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false,
+				"is not accessible to clients");
+	}
+	public void testLimitModules2() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String moduleLoc = directory + File.separator + "mod.x";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.x { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"import java.sql.Connection;\n" + 
+						"public class C1 {\n" +
+						"}\n");
+
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --limit-modules java.base")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+		runNegativeModuleTest(files, buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.x/pm/C1.java (at line 2)\n" + 
+				"	import java.sql.Connection;\n" + 
+				"	       ^^^^^^^^\n" + 
+				"The import java.sql cannot be resolved\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false,
+				"is not accessible to clients");
+	}
+	public void testLimitModules3() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+
+		String moduleLoc = directory + File.separator + "mod.x";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.x { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --limit-modules java.sql")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+		runConformModuleTest(files, buffer,
+				"",
+				"",
+				false);
+	}
+	public void testLimitModules4() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String outDir = OUTPUT_DIR + File.separator + "bin";
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
+		createReusableModules(srcDir, outDir, modDir);
+		String moduleLoc = srcDir + File.separator + "mod.three";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.three { \n" +
+						"	requires mod.one;\n" +
+						"	requires mod.two;\n" +
+						"}");
+
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + outDir )
+			.append(" -9 ")
+			.append(" --module-path \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(modDir.getAbsolutePath())
+			.append("\" ")
+			.append(" --limit-modules mod.one,mod.two ")
+			.append(" --module-source-path " + "\"" + srcDir + "\" ");
+		runConformModuleTest(files, buffer,
+				"",
+				"",
+				false);
+	}
+	public void testLimitModules5() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String outDir = OUTPUT_DIR + File.separator + "bin";
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
+		createReusableModules(srcDir, outDir, modDir);
+		String moduleLoc = srcDir + File.separator + "mod.three";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.three { \n" +
+						"	requires mod.one;\n" +
+						"	requires mod.two;\n" +
+						"}");
+
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + outDir )
+			.append(" -9 ")
+			.append(" --module-path \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(modDir.getAbsolutePath())
+			.append("\" ")
+			.append(" --limit-modules mod.one ")
+			.append(" --module-source-path " + "\"" + srcDir + "\" ");
+		runNegativeModuleTest(files, buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 3)\n" + 
+				"	requires mod.two;\n" + 
+				"	         ^^^^^^^\n" + 
+				"mod.two cannot be resolved to a module\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false,
+				"");
+	}
 }
