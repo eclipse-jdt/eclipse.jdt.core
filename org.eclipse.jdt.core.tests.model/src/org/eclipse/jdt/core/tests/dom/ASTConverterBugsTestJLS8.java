@@ -18,6 +18,9 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFlattener;
+import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 
 /**
  * Test suite to verify that DOM/AST bugs are fixed.
@@ -1045,5 +1048,24 @@ public void testBug130778x() throws JavaModelException {
 			"	                 ^\n" +
 			"Syntax error on token \",\", < expected\n",
 			result);
+}
+public void testBug527351() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+
+	this.workingCopies[0] = getWorkingCopy(
+			"/Converter15/src/a/Class1.java",
+			"package a;\n" +
+			"public class Class1 {\n" +
+			"  String value;\n" +
+			"}\n",
+			true/*resolve*/);
+	CompilationUnit cu = (CompilationUnit) buildAST(this.workingCopies[0]);
+	String flattened = ASTRewriteFlattener.asString(cu, new RewriteEventStore());
+	assertEquals("Flattened AST",
+			"package a;" +
+			"public class Class1 {" +
+			"String value;" +
+			"}",
+			flattened);
 }
 }
