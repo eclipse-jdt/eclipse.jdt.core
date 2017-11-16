@@ -10,32 +10,50 @@
  *******************************************************************************/
 package org.eclipse.jdt.compiler.tool.tests;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.ServiceLoader;
 
 import javax.lang.model.SourceVersion;
+import javax.tools.Diagnostic;
+import javax.tools.FileObject;
+import javax.tools.ForwardingJavaFileManager;
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
 import javax.tools.JavaFileManager.Location;
+import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
 import javax.tools.ToolProvider;
+import javax.tools.JavaCompiler.CompilationTask;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.compiler.tool.tests.AbstractCompilerToolTest.CompilerInvocationDiagnosticListener;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 import junit.framework.TestCase;
 
 public class CompilerToolJava9Tests extends TestCase {
+	private static final boolean DEBUG = false;
 	private static final String RESOURCES_DIR = "resources";
 	private JavaCompiler[] compilers;
 	private String[] compilerNames;
@@ -151,6 +169,306 @@ public class CompilerToolJava9Tests extends TestCase {
 			} catch (UnsupportedOperationException ex) {
 				fail(cName + ":Should support getLocationForModule()");
 			}
+		}
+	}
+	public void testOptionRelease1() {
+		if (this.isJREBelow9) return;
+		JavaCompiler compiler = this.compilers[1];
+		String tmpFolder = System.getProperty("java.io.tmpdir");
+		File inputFile = new File(tmpFolder, "X.java");
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(inputFile));
+			writer.write(
+				"package p;\n" +
+				"public class X {}");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
+			@Override
+			public FileObject getFileForInput(Location location, String packageName, String relativeName)
+					throws IOException {
+				if (DEBUG) {
+					System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
+				}
+				return super.getFileForInput(location, packageName, relativeName);
+			}
+			@Override
+			public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind)
+					throws IOException {
+				if (DEBUG) {
+					System.out.println("Create java file for input : " + className + " in location " + location);
+				}
+				return super.getJavaFileForInput(location, className, kind);
+			}
+			@Override
+			public JavaFileObject getJavaFileForOutput(Location location,
+					String className,
+					Kind kind,
+					FileObject sibling) throws IOException {
+
+				if (DEBUG) {
+					System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				}
+				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
+				if (DEBUG) {
+					System.out.println(javaFileForOutput.toUri());
+				}
+				return javaFileForOutput;
+			}
+		};
+		// create new list containing input file
+		List<File> files = new ArrayList<File>();
+		files.add(inputFile);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder);
+		options.add("--release");
+		options.add("8");
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter err = new PrintWriter(errBuffer);
+		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
+			@Override
+			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+				JavaFileObject source = diagnostic.getSource();
+				assertNotNull("No source", source);
+				super.report(diagnostic);
+			}
+		};
+ 		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, listener, options, null, units);
+ 		// check the classpath location
+ 		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
+		Boolean result = task.call();
+		printWriter.flush();
+		printWriter.close();
+ 		if (!result.booleanValue()) {
+ 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+ 	 		assertTrue("Compilation failed ", false);
+ 		}
+ 		ClassFileReader reader = null;
+ 		try {
+			reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), true);
+		} catch (ClassFormatException e) {
+			assertTrue("Should not happen", false);
+		} catch (IOException e) {
+			assertTrue("Should not happen", false);
+		}
+		assertNotNull("No reader", reader);
+		// This needs fix. This test case by design will produce different output every compiler version.
+ 		assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
+		// check that the .class file exist for X
+		assertTrue("delete failed", inputFile.delete());
+	}
+	public void testOptionRelease2() {
+		if (this.isJREBelow9) return;
+		JavaCompiler compiler = this.compilers[1];
+		String tmpFolder = System.getProperty("java.io.tmpdir");
+		File inputFile = new File(tmpFolder, "X.java");
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(inputFile));
+			writer.write(
+				"package p;\n" +
+				"public class X {}");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
+			@Override
+			public FileObject getFileForInput(Location location, String packageName, String relativeName)
+					throws IOException {
+				if (DEBUG) {
+					System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
+				}
+				return super.getFileForInput(location, packageName, relativeName);
+			}
+			@Override
+			public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind)
+					throws IOException {
+				if (DEBUG) {
+					System.out.println("Create java file for input : " + className + " in location " + location);
+				}
+				return super.getJavaFileForInput(location, className, kind);
+			}
+			@Override
+			public JavaFileObject getJavaFileForOutput(Location location,
+					String className,
+					Kind kind,
+					FileObject sibling) throws IOException {
+
+				if (DEBUG) {
+					System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				}
+				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
+				if (DEBUG) {
+					System.out.println(javaFileForOutput.toUri());
+				}
+				return javaFileForOutput;
+			}
+		};
+		// create new list containing input file
+		List<File> files = new ArrayList<File>();
+		files.add(inputFile);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder);
+		options.add("--release");
+		options.add("8");
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter err = new PrintWriter(errBuffer);
+		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
+			@Override
+			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+				JavaFileObject source = diagnostic.getSource();
+				assertNotNull("No source", source);
+				super.report(diagnostic);
+			}
+		};
+ 		CompilationTask task = compiler.getTask(printWriter, forwardingJavaFileManager, listener, options, null, units);
+ 		// check the classpath location
+ 		assertTrue("Has no location CLASS_OUPUT", forwardingJavaFileManager.hasLocation(StandardLocation.CLASS_OUTPUT));
+		Boolean result = task.call();
+		printWriter.flush();
+		printWriter.close();
+ 		if (!result.booleanValue()) {
+ 			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+ 	 		assertTrue("Compilation failed ", false);
+ 		}
+ 		ClassFileReader reader = null;
+ 		try {
+			reader = ClassFileReader.read(new File(tmpFolder, "p/X.class"), true);
+		} catch (ClassFormatException e) {
+			assertTrue("Should not happen", false);
+		} catch (IOException e) {
+			assertTrue("Should not happen", false);
+		}
+		assertNotNull("No reader", reader);
+		// This needs fix. This test case by design will produce different output every compiler version.
+ 		assertEquals("Wrong value", ClassFileConstants.JDK1_8, reader.getVersion());
+		// check that the .class file exist for X
+		assertTrue("delete failed", inputFile.delete());
+	}
+	public void testOptionRelease3() {
+		if (this.isJREBelow9) return;
+		JavaCompiler compiler = this.compilers[1];
+		String tmpFolder = System.getProperty("java.io.tmpdir");
+		File inputFile = new File(tmpFolder, "X.java");
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(inputFile));
+			writer.write(
+				"package p;\n" +
+				"public class X {}");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
+			@Override
+			public FileObject getFileForInput(Location location, String packageName, String relativeName)
+					throws IOException {
+				if (DEBUG) {
+					System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
+				}
+				return super.getFileForInput(location, packageName, relativeName);
+			}
+			@Override
+			public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind)
+					throws IOException {
+				if (DEBUG) {
+					System.out.println("Create java file for input : " + className + " in location " + location);
+				}
+				return super.getJavaFileForInput(location, className, kind);
+			}
+			@Override
+			public JavaFileObject getJavaFileForOutput(Location location,
+					String className,
+					Kind kind,
+					FileObject sibling) throws IOException {
+
+				if (DEBUG) {
+					System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+				}
+				JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
+				if (DEBUG) {
+					System.out.println(javaFileForOutput.toUri());
+				}
+				return javaFileForOutput;
+			}
+		};
+		// create new list containing input file
+		List<File> files = new ArrayList<File>();
+		files.add(inputFile);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder);
+		options.add("--release");
+		options.add("8");
+		options.add("-source");
+		options.add("7");
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter err = new PrintWriter(errBuffer);
+		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
+			@Override
+			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+				JavaFileObject source = diagnostic.getSource();
+				assertNotNull("No source", source);
+				super.report(diagnostic);
+			}
+		};
+		try {
+			compiler.getTask(printWriter, forwardingJavaFileManager, listener, options, null, units);
+			fail("compilation didn't fail as expected");
+		} catch(IllegalArgumentException iae) {
+			assertEquals("option -source is not supported when --release is used", iae.getMessage());
 		}
 	}
 	public void testGetJavaFileObjects() {

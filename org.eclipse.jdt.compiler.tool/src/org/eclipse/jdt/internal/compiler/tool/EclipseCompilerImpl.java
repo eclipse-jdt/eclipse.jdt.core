@@ -55,6 +55,7 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
@@ -71,7 +72,6 @@ public class EclipseCompilerImpl extends Main {
 	Iterable<? extends JavaFileObject> compilationUnits;
 	public JavaFileManager fileManager;
 	protected Processor[] processors;
-	// TODO: This is not yet used anywhere
 	public DiagnosticListener<? super JavaFileObject> diagnosticListener;
 
 	public EclipseCompilerImpl(PrintWriter out, PrintWriter err, boolean systemExitWhenFinished) {
@@ -472,6 +472,7 @@ public class EclipseCompilerImpl extends Main {
 			String customEncoding) {
 		// Sometimes this gets called too early there by losing locations set after that point.
 		// The code is now moved to handleLocations() which is invoked just before compilation
+		validateClasspathOptions(bootclasspaths, endorsedDirClasspaths, extdirsClasspaths);
 	}
 
 	protected void handleLocations() {
@@ -531,9 +532,20 @@ public class EclipseCompilerImpl extends Main {
 			}
 		} else if (javaFileManager != null) {
 			File javaHome = Util.getJavaHome();
-			if (Util.getJDKLevel(javaHome) >= ClassFileConstants.JDK9) { 
-				ClasspathJrt jrt = (ClasspathJrt) FileSystem.getJrtClasspath(javaHome.toString(), null, null, null);
-				Classpath classpath = new ClasspathJsr199(jrt, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
+			long jdkLevel = Util.getJDKLevel(javaHome);
+			if (jdkLevel >= ClassFileConstants.JDK9) {
+				Classpath system = null;
+				if (this.releaseVersion != null && this.complianceLevel < jdkLevel) {
+					String versionFromJdkLevel = CompilerOptions.versionFromJdkLevel(this.complianceLevel);
+					if (versionFromJdkLevel.length() >= 3) {
+						versionFromJdkLevel = versionFromJdkLevel.substring(2);
+					}
+					// TODO: Revisit for access rules
+					system = FileSystem.getOlderSystemRelease(javaHome.getAbsolutePath(), versionFromJdkLevel, null);
+				} else {
+					system = FileSystem.getJrtClasspath(javaHome.toString(), null, null, null);
+				}						
+				Classpath classpath = new ClasspathJsr199(system, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
 				fileSystemClasspaths.add(classpath);
 			} else {
 				Classpath classpath = new ClasspathJsr199(this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
