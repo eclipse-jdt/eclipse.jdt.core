@@ -14,6 +14,7 @@ package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.lang.model.element.Element;
@@ -178,5 +179,17 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	@Override
 	public String toString() {
 		return new String(((VariableBinding) _binding).name);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		final VariableElementImpl other = (VariableElementImpl) obj;
+		return Objects.equals(this._binding, other._binding);
 	}
 }
