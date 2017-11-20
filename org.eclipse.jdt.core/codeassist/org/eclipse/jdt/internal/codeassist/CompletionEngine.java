@@ -18,6 +18,7 @@ package org.eclipse.jdt.internal.codeassist;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -154,12 +155,12 @@ import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.PackageVisibilityStatement;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.ProvidesStatement;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
-import org.eclipse.jdt.internal.compiler.ast.ProvidesStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
@@ -231,10 +232,10 @@ import org.eclipse.jdt.internal.core.InternalNamingConventions;
 import org.eclipse.jdt.internal.core.JavaElementRequestor;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.ModuleSourcePathManager;
+import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceMethodElementInfo;
 import org.eclipse.jdt.internal.core.SourceType;
-import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.matching.IndexBasedJavaSearchEnvironment;
@@ -11951,9 +11952,9 @@ public final class CompletionEngine
 		IJavaSearchScope searchScope = BasicSearchEngine.createJavaSearchScope(new IJavaElement[] {this.javaProject});
 		class ImplSearchRequestor extends SearchRequestor {
 			String prefix;
-			List<String> filter;
+			LinkedHashSet<String> filter;
 			public List<IType> types = new ArrayList<>();
-			public ImplSearchRequestor(char[] prefixToken, List<String> filter) {
+			public ImplSearchRequestor(char[] prefixToken, LinkedHashSet<String> filter) {
 				this.prefix = (prefixToken == CharOperation.ALL_PREFIX) ? null : new String(prefixToken);
 				this.filter = filter;
 			}
@@ -11979,7 +11980,7 @@ public final class CompletionEngine
 			}
 		}
 		try {
-			List<String> existingImpl = new ArrayList<>();
+			LinkedHashSet<String> existingImpl = new LinkedHashSet<>();
 			char[][] theInterfaceName = theInterface.getTypeName();
 			// filter out existing implementations of the same interfaces
 			for (int i = 0, l = this.moduleDeclaration.servicesCount; i < l; ++i) {
