@@ -14526,4 +14526,68 @@ public void testBug525421() throws JavaModelException {
 			"YES[FIELD_REF]{Flag.YES, LFlag;, LFlag;, YES, null, 104}", 
 			requestor.getResults());
 }
+
+
+public void testBug526590() throws JavaModelException {
+	// test for abstract method in abstract class
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/testbug526590/Bug526590.java",
+			"package testbug526590;\n" +
+			"public abstract class Bug526590 {\n" +
+			"  public abstract void foo(@QQAnnotation() String param);\n" +
+			"}");
+	//SuppressWarnings
+
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/testbug526590/QQAnnotation.java",
+		"package testbug526590;"+
+		"public @interface QQAnnotation {\n"+
+		"String[] value();\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "@QQAnnotation(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Bug526590[TYPE_REF]{Bug526590, testbug526590, Ltestbug526590.Bug526590;, null, null, 52}\n" + 
+			"value[ANNOTATION_ATTRIBUTE_REF]{value, Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}",
+			requestor.getResults());
+}
+
+public void testBug526590b() throws JavaModelException {
+	// test for abstract method in interface
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/testbug526590/Bug526590.java",
+			"package testbug526590;\n" +
+			"public interface Bug526590 {\n" +
+			"  void foo(@QQAnnotation() String param);\n" +
+			"}");
+	//SuppressWarnings
+
+	this.workingCopies[1] = getWorkingCopy(
+		"/Completion/src/testbug526590/QQAnnotation.java",
+		"package testbug526590;"+
+		"public @interface QQAnnotation {\n"+
+		"String[] value();\n"+
+		"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "@QQAnnotation(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"Bug526590[TYPE_REF]{Bug526590, testbug526590, Ltestbug526590.Bug526590;, null, null, 52}\n" + 
+			"value[ANNOTATION_ATTRIBUTE_REF]{value, Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}",
+			requestor.getResults());
+}
+
 }
