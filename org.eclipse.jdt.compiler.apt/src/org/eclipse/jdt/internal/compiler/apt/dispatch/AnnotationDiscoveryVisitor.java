@@ -125,6 +125,9 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 				return false;
 			}
 			((SourceTypeBinding) fieldBinding.declaringClass).resolveTypeFor(fieldBinding);
+			if (fieldDeclaration.binding == null) {
+				return false;
+			}
 			this.resolveAnnotations(scope, annotations, fieldBinding);
 		}
 		return false;
