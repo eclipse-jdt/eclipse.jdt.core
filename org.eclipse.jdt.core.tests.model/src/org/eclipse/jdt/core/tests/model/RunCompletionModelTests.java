@@ -33,8 +33,7 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 			COMPLETION_SUITES.add(CompletionTests3.class);
 			COMPLETION_SUITES.add(CompletionTests_1_5.class);
 			COMPLETION_SUITES.add(CompletionTests18.class);
-			// TODO uncomment after bug509050 is done
-			//COMPLETION_SUITES.add(CompletionTests9.class);
+			COMPLETION_SUITES.add(CompletionTests9.class);
 			COMPLETION_SUITES.add(CompletionContextTests.class);
 			COMPLETION_SUITES.add(CompletionContextTests_1_5.class);
 			COMPLETION_SUITES.add(CompletionWithMissingTypesTests.class);
