@@ -300,7 +300,7 @@ public void testResolveTypeWithTypeImport() throws JavaModelException {
 /**
  * Resolve the type "String".
  */
-public void testResolveString() throws JavaModelException {
+public void test_ResolveString() throws JavaModelException {
 	String[][] types = resolveType("String", "TypeResolve");
 	assertTypesEqual(
 		"java.lang.String",
