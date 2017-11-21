@@ -6302,6 +6302,73 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
+	public void testBug527576() throws Exception {
+		if (!isJRE9) return;
+		IJavaProject javaProject = null;
+		try {
+			
+			javaProject = createJava9Project("mod1", new String[] {"src"});
+			String[] sources = {
+					"org/junit/Assert.java",
+					"package org.junit;\n" +
+					"public class Assert {}\n;"
+				};
+		
+			Path jarPath = new Path('/' + javaProject.getProject().getName() + '/' + "localjunit.jar");
+			Util.createJar(sources, javaProject.getProject().getWorkspace().getRoot().getFile(jarPath).getRawLocation().toOSString(), "1.8");
+			javaProject.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+
+			addClasspathEntry(javaProject, JavaCore.newLibraryEntry(jarPath, null, null, null, null, false));
+
+			String srcMod =
+				"module mod1 {\n" +
+				"}";
+			createFile("/mod1/src/module-info.java", 
+				srcMod);
+			createFolder("/mod1/src/com/mod1/pack1");
+			String srcX =
+				"package com.mod1.pack1;\n" +
+				"import org.junit.Assert;\n" +
+				"public class Dummy extends Assert {\n" +
+				"}";
+			createFile("/mod1/src/com/mod1/pack1/Dummy.java", srcX);
+			
+			this.problemRequestor.initialize(srcMod.toCharArray());
+			getWorkingCopy("/mod1/src/module-info.java", srcMod, true);
+			assertProblems("module-info should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			this.problemRequestor.initialize(srcX.toCharArray());
+			getWorkingCopy("/mod1/src/com/mod1/pack1/Dummy.java", srcX, true);
+			assertProblems("X should have errors because Assert should not be visible",
+					"----------\n" + 
+					"1. ERROR in /mod1/src/com/mod1/pack1/Dummy.java (at line 2)\n" + 
+					"	import org.junit.Assert;\n" + 
+					"	       ^^^\n" + 
+					"The import org cannot be resolved\n" + 
+					"----------\n" + 
+					"2. ERROR in /mod1/src/com/mod1/pack1/Dummy.java (at line 3)\n" + 
+					"	public class Dummy extends Assert {\n" + 
+					"	                           ^^^^^^\n" + 
+					"Assert cannot be resolved to a type\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = javaProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers", 
+					"The import org cannot be resolved\n" + 
+					"Assert cannot be resolved to a type", 
+					markers);
+		} finally {
+			if (javaProject != null)
+				deleteProject(javaProject);
+		}
+	}
+
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

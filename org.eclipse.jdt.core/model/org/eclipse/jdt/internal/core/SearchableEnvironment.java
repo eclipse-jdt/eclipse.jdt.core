@@ -1034,6 +1034,10 @@ public class SearchableEnvironment
 		for (int i = 0; i < allRoots.length; i++) {
 			IPackageFragmentRoot root = allRoots[i];
 			if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
+				if(root instanceof JarPackageFragmentRoot) {
+					// don't treat jars in a project as part of the project's module
+					continue;
+				}
 				IResource resource = root.getResource();
 				if (resource == null || !resource.getProject().equals(javaProject.getProject()))
 					continue; // outside this project
