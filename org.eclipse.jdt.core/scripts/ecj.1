@@ -19,7 +19,7 @@ Here is a summary of all the options, grouped by type.  Explanations are in the 
 .ul
 Module Options
 .sp
-.B --add-exports \--add-modules \--add-reads \-p|--module-path \--module-source-path \ --processor-module-path \--system
+.B --add-exports \--add-modules \--add-reads \--limit-modules \-p|--module-path \--module-source-path \ --processor-module-path \--system
 .sp
 .ul
 ClassPath Options
@@ -77,6 +77,10 @@ Extend the default set of root modules with a list of comma separated modules.
 .B
 .IP  "--add-reads <source-module>=<target-module>
 A command line form of a requires clause equivalent to adding requires source-module in target modules module-info file.
+
+.B
+.IP  "--limit-modules <module 1>,<module 2>,...,<module P>" 
+Limit the observable modules to the list of comma separated modules.
 
 .B
 .IP  "-p|--module-path <dir 1>;<dir 2>;...;<dir P>" 
