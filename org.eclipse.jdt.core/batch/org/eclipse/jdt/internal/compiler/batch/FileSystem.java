@@ -217,16 +217,23 @@ private void initializeModuleLocations(Set<String> limitedModules) {
 	// First create the mapping of all module/Classpath
 	// since the second iteration of getModuleNames() can't be relied on for 
 	// to get the right origin of module
-	Map<String, Classpath> moduleMap = new HashMap<>();
-	for (Classpath c : this.classpaths) {
-		for (String moduleName : c.getModuleNames(null)) {
-			moduleMap.put(moduleName, c);
+	if (limitedModules == null) {
+		for (Classpath c : this.classpaths) {
+			for (String moduleName : c.getModuleNames(null))
+				this.moduleLocations.put(moduleName, c);
 		}
-	}
-	for (Classpath c : this.classpaths) {
-		for (String moduleName : c.getModuleNames(limitedModules, m -> getModuleFromEnvironment(m.toCharArray()))) {
-			Classpath classpath = moduleMap.get(moduleName);
-			this.moduleLocations.put(moduleName, classpath);
+	} else {
+		Map<String, Classpath> moduleMap = new HashMap<>();
+		for (Classpath c : this.classpaths) {
+			for (String moduleName : c.getModuleNames(null)) {
+				moduleMap.put(moduleName, c);
+			}
+		}
+		for (Classpath c : this.classpaths) {
+			for (String moduleName : c.getModuleNames(limitedModules, m -> getModuleFromEnvironment(m.toCharArray()))) {
+				Classpath classpath = moduleMap.get(moduleName);
+				this.moduleLocations.put(moduleName, classpath);
+			}
 		}
 	}
 }
