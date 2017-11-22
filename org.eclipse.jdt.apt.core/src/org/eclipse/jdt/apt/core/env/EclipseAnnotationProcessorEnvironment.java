@@ -34,6 +34,7 @@ public interface EclipseAnnotationProcessorEnvironment extends
 	/**
 	 * @return a messager for registering diagnostics.
 	 */
+	@Override
 	EclipseMessager getMessager();
 	
 	/**

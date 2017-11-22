@@ -48,7 +48,8 @@ public class BuildFilerImpl extends FilerImpl {
      * @param typeName - canonical (fully qualified) name of the type being written 
      * @return -a stream for writing to the new file 
      */
-    public OutputStream createClassFile(String typeName) throws IOException 
+    @Override
+	public OutputStream createClassFile(String typeName) throws IOException 
     {
     	if (typeName == null)
     		throw new IllegalArgumentException("Type name cannot be null"); //$NON-NLS-1$
@@ -106,7 +107,8 @@ public class BuildFilerImpl extends FilerImpl {
      * @param charsetName - the name of the charset to use, or null if none is being explicitly specified 
      * @return - a writer for the new file 
      */
-    public PrintWriter createTextFile(Filer.Location loc, String pkg, File relPath, String charsetName) 
+    @Override
+	public PrintWriter createTextFile(Filer.Location loc, String pkg, File relPath, String charsetName) 
         throws IOException 
     {
     	if (relPath == null)
@@ -149,7 +151,8 @@ public class BuildFilerImpl extends FilerImpl {
      * @param relPath - final pathname components of the file 
      * @return a stream for writing to the new file 
      */
-    public OutputStream createBinaryFile(Filer.Location loc, String pkg, File relPath)
+    @Override
+	public OutputStream createBinaryFile(Filer.Location loc, String pkg, File relPath)
         throws IOException 
     {
     	if (relPath == null)

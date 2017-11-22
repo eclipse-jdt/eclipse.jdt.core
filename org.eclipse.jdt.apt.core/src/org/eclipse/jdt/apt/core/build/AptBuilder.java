@@ -48,6 +48,7 @@ public class AptBuilder implements IApplication {
 	 * @see #EXIT_RESTART
 	 * @see #EXIT_RELAUNCH
 	 */
+	@Override
 	public Object start(IApplicationContext context) throws Exception {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IProgressMonitor progressMonitor = new SystemOutProgressMonitor();
@@ -57,6 +58,7 @@ public class AptBuilder implements IApplication {
 		return IApplication.EXIT_OK;
 	}
 
+	@Override
 	public void stop() {
 		// nothing to do
 	}
@@ -66,11 +68,13 @@ public class AptBuilder implements IApplication {
 	 */
 	private static class SystemOutProgressMonitor extends NullProgressMonitor {
 
+		@Override
 		public void beginTask(String name, int totalWork) {
 			if (name != null && name.length() > 0)
 				System.out.println(name);
 		}
 
+		@Override
 		public void subTask(String name) {
 			if (name != null && name.length() > 0)
 				System.out.println(name);

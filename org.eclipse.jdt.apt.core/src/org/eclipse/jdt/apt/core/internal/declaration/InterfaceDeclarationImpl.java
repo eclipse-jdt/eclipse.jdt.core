@@ -29,27 +29,32 @@ public class InterfaceDeclarationImpl extends TypeDeclarationImpl implements Int
         assert binding.isInterface() : "binding does not represents an interface."; //$NON-NLS-1$
     }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitInterfaceDeclaration(this);
     }
 
-    public Collection<? extends MethodDeclaration> getMethods()
+    @Override
+	public Collection<? extends MethodDeclaration> getMethods()
     {
         return _getMethods();
     }
 
     // start of implementation of InterfaceType API
-    public void accept(TypeVisitor visitor)
+    @Override
+	public void accept(TypeVisitor visitor)
     {
         visitor.visitInterfaceType(this);
     }
 
-    public InterfaceDeclaration getDeclaration()
+    @Override
+	public InterfaceDeclaration getDeclaration()
     {
         return (InterfaceDeclaration)super.getDeclaration();
     }
     // end of implementation of InterfaceType API
 
-    public MirrorKind kind(){ return MirrorKind.TYPE_INTERFACE; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.TYPE_INTERFACE; }
 }

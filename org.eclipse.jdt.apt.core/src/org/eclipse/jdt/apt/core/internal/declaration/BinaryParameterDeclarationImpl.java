@@ -59,24 +59,28 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
         _executable = executable;
     }
     
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitParameterDeclaration(this);
     }  
  
-    public Collection<Modifier> getModifiers()
+    @Override
+	public Collection<Modifier> getModifiers()
     {
 		// TODO
 		// we don't store this information. so simply return nothing for now.
         return Collections.emptyList();
     }
     
-    public String getDocComment()
+    @Override
+	public String getDocComment()
     {
         return null;
     }
     
-    public String getSimpleName()
+    @Override
+	public String getSimpleName()
     {
         final SingleVariableDeclaration decl = (SingleVariableDeclaration)getAstNode();
         if( decl == null ) return ARG + _paramIndex;
@@ -84,12 +88,14 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
         return name == null ? ARG : name.toString();
     }
 
-    public SourcePosition getPosition()
+    @Override
+	public SourcePosition getPosition()
     {
         return null;
     }        
     
-    public TypeMirror getType()
+    @Override
+	public TypeMirror getType()
     {
         final TypeMirror mirrorType = Factory.createTypeMirror(getTypeBinding(), _env);
         if( mirrorType == null )
@@ -97,37 +103,46 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
         return mirrorType;
     }
     
-    public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
+    @Override
+	public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
     {
 		final IMethodBinding methodBinding = _executable.getDeclarationBinding();
 		final IAnnotationBinding[] paramAnnos = methodBinding.getParameterAnnotations(_paramIndex); 
         return _getAnnotation(annotationClass, paramAnnos);
     }
 
-    public Collection<AnnotationMirror> getAnnotationMirrors()
+    @Override
+	public Collection<AnnotationMirror> getAnnotationMirrors()
     {
 		final IMethodBinding methodBinding = _executable.getDeclarationBinding();
 		final IAnnotationBinding[] paramAnnos = methodBinding.getParameterAnnotations(_paramIndex); 
         return _getAnnotationMirrors(paramAnnos);
     }    
     
+	@Override
 	public boolean isBindingBased(){ return true; }
 	
+	@Override
 	public boolean isFromSource(){ return false; }
 
-    ASTNode getAstNode(){ return null; }
+    @Override
+	ASTNode getAstNode(){ return null; }
 
-    public IFile getResource(){ return null; }
+    @Override
+	public IFile getResource(){ return null; }
     
     private ITypeBinding getTypeBinding(){ return _type; }
     
-    public MirrorKind kind(){ return MirrorKind.FORMAL_PARAMETER; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.FORMAL_PARAMETER; }
     
-    public IBinding getDeclarationBinding(){
+    @Override
+	public IBinding getDeclarationBinding(){
     	throw new UnsupportedOperationException("should never be invoked on a BinaryParameterDeclaration"); //$NON-NLS-1$
     }
     
-    public boolean equals(Object obj){
+    @Override
+	public boolean equals(Object obj){
         if( obj instanceof BinaryParameterDeclarationImpl ){
             final BinaryParameterDeclarationImpl otherParam = (BinaryParameterDeclarationImpl)obj;
             return otherParam._paramIndex == _paramIndex  &&
@@ -136,7 +151,8 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
         return false;
     }
     
-    public int hashCode(){
+    @Override
+	public int hashCode(){
     	final String methodKey = _executable.getDeclarationBinding().getKey();
     	int hashcode = 0;
     	if( methodKey != null )
@@ -144,7 +160,8 @@ public class BinaryParameterDeclarationImpl extends DeclarationImpl implements P
     	return hashcode + _paramIndex; 
     }  
     
-    public String toString(){		
+    @Override
+	public String toString(){		
         final StringBuilder builder = new StringBuilder();
         builder.append(getTypeBinding().getName());
         builder.append(' ');

@@ -107,18 +107,21 @@ public class BuildEnv extends AbstractCompilationEnv
 				"constructed " + this + " for " + _filesWithAnnotation.length + " files"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
-    public Filer getFiler()
+    @Override
+	public Filer getFiler()
     {
 		checkValid();
         return _filer;
     }
-    public PackageDeclaration getPackage(String name)
+    @Override
+	public PackageDeclaration getPackage(String name)
     {
 		checkValid();
 		return super.getPackage(name);
     }
 
-    public TypeDeclaration getTypeDeclaration(String name)
+    @Override
+	public TypeDeclaration getTypeDeclaration(String name)
     {
 		checkValid();		
 		TypeDeclaration decl = super.getTypeDeclaration(name);
@@ -158,7 +161,8 @@ public class BuildEnv extends AbstractCompilationEnv
 	 *  3) retrieving type or package by name
 	 *  4) add or remove listeners
 	 */
-    public void close(){
+    @Override
+	public void close(){
     	if( isClosed() ) 
     		return;
     	_markerInfos = null;
@@ -181,7 +185,8 @@ public class BuildEnv extends AbstractCompilationEnv
      * @param msg the message on the marker
      * @param line the line number of where the marker should be
      */
-    void addMessage(IFile resource, 
+    @Override
+	void addMessage(IFile resource, 
        		        int start, 
     				int end,
                     Severity severity, 
@@ -263,7 +268,8 @@ public class BuildEnv extends AbstractCompilationEnv
     	_markerInfos.add(new MarkerInfo(start, end, severity, msg, line));
     }
     
-    public Map<String, AnnotationTypeDeclaration> getAnnotationTypes()
+    @Override
+	public Map<String, AnnotationTypeDeclaration> getAnnotationTypes()
     {
     	checkValid();
     	assert _astRoot != null && _file != null && !_batchMode : 
@@ -395,6 +401,7 @@ public class BuildEnv extends AbstractCompilationEnv
 		super.completedProcessing();
 	}
 	
+	@Override
 	public List<? extends CategorizedProblem> getProblems(){
 		if( !_problems.isEmpty() )
 			EnvUtil.updateProblemLength(_problems, getAstCompilationUnit());
@@ -402,6 +409,7 @@ public class BuildEnv extends AbstractCompilationEnv
 	}
 	
 	// Implementation for EclipseAnnotationProcessorEnvironment
+	@Override
 	public CompilationUnit getAST()
 	{
 		if( _batchMode ) 
@@ -409,6 +417,7 @@ public class BuildEnv extends AbstractCompilationEnv
 		return _astRoot;
 	}
 
+	@Override
 	public void addTypeDependency(final String fullyQualifiedTypeName )
 	{
 		if(!_batchMode){			
@@ -422,6 +431,7 @@ public class BuildEnv extends AbstractCompilationEnv
 	 * if we are in batch mode. Otherwise, just the types from the file that's currently
 	 * being processed.
 	 */
+	@Override
 	protected List<AbstractTypeDeclaration> searchLocallyForTypeDeclarations()
     {
 		if( !_batchMode )
@@ -456,6 +466,7 @@ public class BuildEnv extends AbstractCompilationEnv
 		}
 	}
 	
+	@Override
 	protected Map<ASTNode, List<Annotation>> getASTNodesWithAnnotations()
     {
 		if( !_batchMode )
@@ -467,6 +478,7 @@ public class BuildEnv extends AbstractCompilationEnv
         return astNode2Anno;
     }
 	
+	@Override
 	protected IFile getFileForNode(final ASTNode node)
 	{
 		if( !_batchMode )
@@ -486,6 +498,7 @@ public class BuildEnv extends AbstractCompilationEnv
 	 * @return the compilation unit that defines the given binding or null if no 
 	 * match is found.
 	 */
+	@Override
 	protected CompilationUnit searchLocallyForBinding(final IBinding binding)
 	{
 		if( !_batchMode )
@@ -506,6 +519,7 @@ public class BuildEnv extends AbstractCompilationEnv
 	 * @return the compilation unit that defines the given binding or null if no 
 	 * match is found.
 	 */
+	@Override
 	protected IFile searchLocallyForIFile(final IBinding binding)
 	{
 		if( !_batchMode )
@@ -525,6 +539,7 @@ public class BuildEnv extends AbstractCompilationEnv
      * If the file is not one of those that this environment is currently processing,
      * return null;
      */
+	@Override
 	public CompilationUnit getASTFrom(final IFile file)
 	{
 		if( file == null ) 
@@ -545,6 +560,7 @@ public class BuildEnv extends AbstractCompilationEnv
 	 * If in batch mode, one of the asts being processed (no guarantee which
 	 * one will be returned.  
 	 */
+	@Override
 	protected AST getCurrentDietAST(){
 		
 		if( _astRoot != null )
@@ -564,7 +580,8 @@ public class BuildEnv extends AbstractCompilationEnv
 		// to minimize the amount of notification.
 		try{
 	        final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
-	            public void run(IProgressMonitor monitor)
+	            @Override
+				public void run(IProgressMonitor monitor)
 	            {		
 	                for( MarkerInfo markerInfo : _markerInfos ){	                  
 						try{
@@ -602,6 +619,7 @@ public class BuildEnv extends AbstractCompilationEnv
 		CallbackRequestor(ICompilationUnit[] parseUnits) {
 			super(parseUnits);
 		}
+		@Override
 		public void acceptBinding(String bindingKey, IBinding binding) {
 			// If we have recieved the last ast we have requested,
 			// then assign the asts, then begin dispatch

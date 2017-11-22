@@ -97,6 +97,7 @@ public class AnnotationValueImpl implements EclipseMirrorObject, AnnotationValue
 		assert _parent != null : "missing element"; //$NON-NLS-1$
 	}
 
+	@Override
 	@SuppressWarnings("rawtypes") // DOM AST API returns raw collections
     public SourcePosition getPosition()
     {
@@ -187,10 +188,13 @@ public class AnnotationValueImpl implements EclipseMirrorObject, AnnotationValue
 		}
 	}
 
-    public Object getValue(){ return _value; }
+    @Override
+	public Object getValue(){ return _value; }
 
-    public MirrorKind kind(){ return MirrorKind.ANNOTATION_VALUE; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.ANNOTATION_VALUE; }
 
+	@Override
 	public BaseProcessorEnv getEnvironment(){
 		return _env;
 	}

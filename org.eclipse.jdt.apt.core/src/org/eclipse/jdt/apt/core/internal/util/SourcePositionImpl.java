@@ -73,9 +73,12 @@ public class SourcePositionImpl implements SourcePosition
         assert decl != null : "missing declaration [decl] == null."; //$NON-NLS-1$
 	}
     
-    public int line(){ return _line; }
-    public int column(){ return _column; }
-    public File file(){
+    @Override
+	public int line(){ return _line; }
+    @Override
+	public int column(){ return _column; }
+    @Override
+	public File file(){
         IResource resource = getResource();
         if( resource == null ) return null;
         final IPath absPath = resource.getRawLocation();
@@ -98,7 +101,8 @@ public class SourcePositionImpl implements SourcePosition
 		throw new IllegalStateException();
     }
     
-    public String toString()
+    @Override
+	public String toString()
     {
     	StringBuilder buffer = new StringBuilder();
     	buffer.append("offset = "); //$NON-NLS-1$

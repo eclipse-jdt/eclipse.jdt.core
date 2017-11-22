@@ -41,7 +41,8 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
 		_env.validateTypeName(typeName);
     }
 	
-    public void close()
+    @Override
+	public void close()
     {	
     	try {
 	    	String contents = _sw.toString();

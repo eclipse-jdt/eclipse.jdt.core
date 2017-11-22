@@ -32,12 +32,14 @@ public class ASTBasedMethodDeclarationImpl
 		super(astNode, file, env);
 	}
 	
+	@Override
 	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitMethodDeclaration(this);
     }
 	
-    public TypeMirror getReturnType()
+    @Override
+	public TypeMirror getReturnType()
     {
     	final org.eclipse.jdt.core.dom.MethodDeclaration methodAstNode = getMethodAstNode();
     	final Type retType = methodAstNode.getReturnType2();
@@ -57,6 +59,7 @@ public class ASTBasedMethodDeclarationImpl
         }
     }
     
-    public MirrorKind kind(){ return MirrorKind.METHOD; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.METHOD; }
 
 }

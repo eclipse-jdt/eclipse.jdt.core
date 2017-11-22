@@ -49,5 +49,6 @@ public interface EnumType extends ClassType {
     /**
      * {@inheritDoc}
      */
-    EnumDeclaration getDeclaration();
+    @Override
+	EnumDeclaration getDeclaration();
 }

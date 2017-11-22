@@ -32,11 +32,13 @@ public abstract class ASTBasedMemberDeclarationImpl
 		super(astNode, file, env);
 	}
 	
+	@Override
 	public void accept(DeclarationVisitor visitor) {
         visitor.visitMemberDeclaration(this);
 	}
     
-    public TypeDeclaration getDeclaringType()
+    @Override
+	public TypeDeclaration getDeclaringType()
     {
 	    final AbstractTypeDeclaration parentType = getContainingTypeAstNode();
 	    // most likely a mal-formed text.
@@ -49,7 +51,8 @@ public abstract class ASTBasedMemberDeclarationImpl
 	    return Factory.createReferenceType(parentTypeBinding, _env);
     }
     
-    public String getDocComment()
+    @Override
+	public String getDocComment()
     {   
     	final ASTNode node = getAstNode();        	
     	

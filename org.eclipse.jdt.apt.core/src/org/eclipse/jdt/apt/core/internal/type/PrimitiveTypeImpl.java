@@ -27,12 +27,14 @@ public class PrimitiveTypeImpl implements PrimitiveType, EclipseMirrorType
 		assert binding != null;
         _binding = binding;        
     }
-    public void accept(TypeVisitor visitor)
+    @Override
+	public void accept(TypeVisitor visitor)
     {
         visitor.visitPrimitiveType(this);
     }
 
-    public PrimitiveType.Kind getKind()
+    @Override
+	public PrimitiveType.Kind getKind()
     {
 		final String name = getTypeBinding().getName();
 		if( "int".equals(name) ) //$NON-NLS-1$
@@ -55,12 +57,16 @@ public class PrimitiveTypeImpl implements PrimitiveType, EclipseMirrorType
 			throw new IllegalStateException("unrecognized primitive type " + _binding); //$NON-NLS-1$
     }
     
-    public String toString(){ return _binding.getName(); }
+    @Override
+	public String toString(){ return _binding.getName(); }
 
-    public ITypeBinding getTypeBinding(){ return _binding; }
+    @Override
+	public ITypeBinding getTypeBinding(){ return _binding; }
 
-    public MirrorKind kind(){ return MirrorKind.TYPE_PRIMITIVE; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.TYPE_PRIMITIVE; }
 	
+	@Override
 	public boolean equals(final Object obj)
 	{
 		try{
@@ -71,11 +77,14 @@ public class PrimitiveTypeImpl implements PrimitiveType, EclipseMirrorType
 		}
 	}
 	
+	@Override
 	public BaseProcessorEnv getEnvironment(){ return null; }
 	
+	@Override
 	public boolean isAssignmentCompatible(EclipseMirrorType left) {
 		return getTypeBinding().isAssignmentCompatible(left.getTypeBinding());
 	}
+	@Override
 	public boolean isSubTypeCompatible(EclipseMirrorType type) {
 		return getTypeBinding().isSubTypeCompatible(type.getTypeBinding());
 	}

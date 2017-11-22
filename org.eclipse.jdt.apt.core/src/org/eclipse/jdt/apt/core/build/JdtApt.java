@@ -57,7 +57,8 @@ public class JdtApt extends Java {
         }
     }
     
-    public void execute() throws BuildException {
+    @Override
+	public void execute() throws BuildException {
 	    if(workspace == null) {
 	        throw new BuildException("Must set a workspace"); //$NON-NLS-1$
 	    }

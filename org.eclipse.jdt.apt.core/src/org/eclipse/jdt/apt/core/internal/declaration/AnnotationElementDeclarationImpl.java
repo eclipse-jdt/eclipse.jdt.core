@@ -33,12 +33,14 @@ public class AnnotationElementDeclarationImpl extends MethodDeclarationImpl impl
         super(binding, env);
     }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitAnnotationTypeElementDeclaration(this);
     }
 
-    public AnnotationTypeDeclaration getDeclaringType()
+    @Override
+	public AnnotationTypeDeclaration getDeclaringType()
     {
         return (AnnotationTypeDeclaration)super.getDeclaringType();
     }
@@ -49,7 +51,8 @@ public class AnnotationElementDeclarationImpl extends MethodDeclarationImpl impl
 	 *         Return null if the annotation element is part of a seconary type that is defined outside
 	 *         the file associated with the environment. 
 	 */
-    public AnnotationValue getDefaultValue()
+    @Override
+	public AnnotationValue getDefaultValue()
     {   
 		final IMethodBinding binding = getDeclarationBinding();
 		final Object defaultValue = binding.getDefaultValue();
@@ -65,7 +68,9 @@ public class AnnotationElementDeclarationImpl extends MethodDeclarationImpl impl
 		return null;
 	}
 
-    public Collection<ParameterDeclaration> getParameters(){ return Collections.emptyList(); }
+    @Override
+	public Collection<ParameterDeclaration> getParameters(){ return Collections.emptyList(); }
 
-    public MirrorKind kind(){ return MirrorKind.ANNOTATION_ELEMENT; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.ANNOTATION_ELEMENT; }
 }

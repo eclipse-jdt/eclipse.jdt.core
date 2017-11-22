@@ -85,10 +85,12 @@ public class AptCompilationParticipant extends CompilationParticipant
 	private AptCompilationParticipant()	{
 	}
 	
+	@Override
 	public boolean isAnnotationProcessor(){
 		return true;
 	}
 	
+	@Override
 	public void buildStarting(BuildContext[] files, boolean isBatch){
 		// this gets called multiple times during a build.
 		// This gets called:
@@ -99,10 +101,12 @@ public class AptCompilationParticipant extends CompilationParticipant
 			_isBatch = isBatch;
 	}
 	
+	@Override
 	public void buildFinished(IJavaProject project) {
 		buildComplete();
 	}
 	
+	@Override
 	public void processAnnotations(BuildContext[] allfiles) {	
 		// This should not happen. There should always be file that that needs 
 		// building when 
@@ -195,6 +199,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 		}
 	}
 	
+	@Override
 	public void reconcile(ReconcileContext context){
 		final ICompilationUnit workingCopy = context.getWorkingCopy();
 		if( workingCopy == null ) 
@@ -213,6 +218,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 		APTDispatchRunnable.runAPTDuringReconcile(context, aptProject, factories);
 	}
 	
+	@Override
 	public void cleanStarting(IJavaProject javaProject){
 		IProject p = javaProject.getProject();
 		
@@ -235,10 +241,12 @@ public class AptCompilationParticipant extends CompilationParticipant
 	 * Even if there are no processors on the factory path, apt may still
 	 * be involved during a clean.
 	 */
+	@Override
 	public boolean isActive(IJavaProject project){
 		return AptConfig.isEnabled(project);
 	}
 	
+	@Override
 	public int aboutToBuild(IJavaProject project) {
 		if (AptConfig.isEnabled(project)) {
 			// setup the classpath and make sure the generated source folder is on disk.

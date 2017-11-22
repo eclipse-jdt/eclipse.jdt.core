@@ -43,7 +43,8 @@ public class AnnotationInvocationHandler implements InvocationHandler
         _clazz = clazz;
     }
 
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
+    @Override
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable
     {
         final String methodName = method.getName();
         if( args == null || args.length == 0 )

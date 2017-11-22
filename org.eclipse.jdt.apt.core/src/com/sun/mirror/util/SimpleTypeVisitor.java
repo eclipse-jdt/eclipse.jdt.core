@@ -61,7 +61,8 @@ public class SimpleTypeVisitor implements TypeVisitor {
      * The implementation does nothing.
      * @param t the type to visit
      */
-    public void visitTypeMirror(TypeMirror t) {
+    @Override
+	public void visitTypeMirror(TypeMirror t) {
     }
 
     /**
@@ -70,7 +71,8 @@ public class SimpleTypeVisitor implements TypeVisitor {
      * {@link #visitTypeMirror visitTypeMirror}.
      * @param t the type to visit
      */
-    public void visitPrimitiveType(PrimitiveType t) {
+    @Override
+	public void visitPrimitiveType(PrimitiveType t) {
 	visitTypeMirror(t);
     }
 
@@ -80,7 +82,8 @@ public class SimpleTypeVisitor implements TypeVisitor {
      * {@link #visitTypeMirror visitTypeMirror}.
      * @param t the type to visit
      */
-    public void visitVoidType(VoidType t) {
+    @Override
+	public void visitVoidType(VoidType t) {
 	visitTypeMirror(t);
     }
 
@@ -90,7 +93,8 @@ public class SimpleTypeVisitor implements TypeVisitor {
      * {@link #visitTypeMirror visitTypeMirror}.
      * @param t the type to visit
      */
-    public void visitReferenceType(ReferenceType t) {
+    @Override
+	public void visitReferenceType(ReferenceType t) {
 	visitTypeMirror(t);
     }
 
@@ -100,7 +104,8 @@ public class SimpleTypeVisitor implements TypeVisitor {
      * {@link #visitReferenceType visitReferenceType}.
      * @param t the type to visit
      */
-    public void visitDeclaredType(DeclaredType t) {
+    @Override
+	public void visitDeclaredType(DeclaredType t) {
 	visitReferenceType(t);
     }
 
@@ -110,7 +115,8 @@ public class SimpleTypeVisitor implements TypeVisitor {
      * {@link #visitDeclaredType visitDeclaredType}.
      * @param t the type to visit
      */
-    public void visitClassType(ClassType t) {
+    @Override
+	public void visitClassType(ClassType t) {
 	visitDeclaredType(t);
     }
 
@@ -120,7 +126,8 @@ public class SimpleTypeVisitor implements TypeVisitor {
      * {@link #visitClassType visitClassType}.
      * @param t the type to visit
      */
-    public void visitEnumType(EnumType t) {
+    @Override
+	public void visitEnumType(EnumType t) {
 	visitClassType(t);
     }
 
@@ -130,7 +137,8 @@ public class SimpleTypeVisitor implements TypeVisitor {
      * {@link #visitDeclaredType visitDeclaredType}.
      * @param t the type to visit
      */
-    public void visitInterfaceType(InterfaceType t) {
+    @Override
+	public void visitInterfaceType(InterfaceType t) {
 	visitDeclaredType(t);
     }
 
@@ -140,7 +148,8 @@ public class SimpleTypeVisitor implements TypeVisitor {
      * {@link #visitInterfaceType visitInterfaceType}.
      * @param t the type to visit
      */
-    public void visitAnnotationType(AnnotationType t) {
+    @Override
+	public void visitAnnotationType(AnnotationType t) {
 	visitInterfaceType(t);
     }
 
@@ -150,7 +159,8 @@ public class SimpleTypeVisitor implements TypeVisitor {
      * {@link #visitReferenceType visitReferenceType}.
      * @param t the type to visit
      */
-    public void visitArrayType(ArrayType t) {
+    @Override
+	public void visitArrayType(ArrayType t) {
 	visitReferenceType(t);
     }
 
@@ -160,7 +170,8 @@ public class SimpleTypeVisitor implements TypeVisitor {
      * {@link #visitReferenceType visitReferenceType}.
      * @param t the type to visit
      */
-    public void visitTypeVariable(TypeVariable t) {
+    @Override
+	public void visitTypeVariable(TypeVariable t) {
 	visitReferenceType(t);
     }
 
@@ -170,7 +181,8 @@ public class SimpleTypeVisitor implements TypeVisitor {
      * {@link #visitTypeMirror visitTypeMirror}.
      * @param t the type to visit
      */
-    public void visitWildcardType(WildcardType t) {
+    @Override
+	public void visitWildcardType(WildcardType t) {
 	visitTypeMirror(t);
     }
 }

@@ -28,10 +28,12 @@ public class ASTBasedConstructorDeclarationImpl
 		super(astNode, file, env);
 	}
 	
+	@Override
 	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitConstructorDeclaration(this);
     }
     
-    public MirrorKind kind(){ return MirrorKind.CONSTRUCTOR; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.CONSTRUCTOR; }
 }

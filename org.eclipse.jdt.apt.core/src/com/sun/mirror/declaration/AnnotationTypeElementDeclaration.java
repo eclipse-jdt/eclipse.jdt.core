@@ -54,5 +54,6 @@ public interface AnnotationTypeElementDeclaration extends MethodDeclaration {
     /**
      * {@inheritDoc}
      */
-    AnnotationTypeDeclaration getDeclaringType();
+    @Override
+	AnnotationTypeDeclaration getDeclaringType();
 }

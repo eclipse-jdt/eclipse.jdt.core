@@ -63,6 +63,7 @@ public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnot
 				"constructed " + this + " for " + _workingCopy.getElementName()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
+	@Override
 	void addMessage(
 			IFile resource, 
 		    int start, 
@@ -87,6 +88,7 @@ public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnot
 		_problems.add(createProblem(resource, start, end, severity, msg, line, arguments));
 	}
 	
+	@Override
 	public CompilationUnit getASTFrom(final IFile file){
 		if( _file.equals(file) )
 			return _astRoot;
@@ -94,11 +96,13 @@ public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnot
 			return null;
 	}
 	
+	@Override
 	public void addTypeDependency(String fullyQualifiedTypeName) {
 		// do not store type dependency during reconcile.
 		return;
 	}
 	
+	@Override
 	public Filer getFiler(){ 
     	return new ReconcileFilerImpl(this);
     }

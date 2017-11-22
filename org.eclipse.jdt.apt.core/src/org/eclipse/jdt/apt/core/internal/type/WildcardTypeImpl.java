@@ -35,12 +35,14 @@ public class WildcardTypeImpl implements WildcardType, EclipseMirrorType
         assert env != null : "missing environment"; //$NON-NLS-1$
     }
     
-    public void accept(TypeVisitor visitor)
+    @Override
+	public void accept(TypeVisitor visitor)
     {
         visitor.visitWildcardType(this);
     }
 
-    public Collection<ReferenceType> getLowerBounds()
+    @Override
+	public Collection<ReferenceType> getLowerBounds()
     {
         final ITypeBinding bound = _binding.getBound();
         // no bound or has an upper bound.
@@ -52,7 +54,8 @@ public class WildcardTypeImpl implements WildcardType, EclipseMirrorType
         return Collections.singletonList(mirror);
     }
 
-    public Collection<ReferenceType> getUpperBounds()
+    @Override
+	public Collection<ReferenceType> getUpperBounds()
     {
         final ITypeBinding bound = _binding.getBound();
         // no bound or has a lower bound.
@@ -64,25 +67,33 @@ public class WildcardTypeImpl implements WildcardType, EclipseMirrorType
         return Collections.singletonList(mirror);
     }
 
-    public String toString(){ return _binding.toString(); }
-    public int hashCode(){ return _binding.hashCode(); }
-    public boolean equals(Object obj)
+    @Override
+	public String toString(){ return _binding.toString(); }
+    @Override
+	public int hashCode(){ return _binding.hashCode(); }
+    @Override
+	public boolean equals(Object obj)
     {
         if(obj instanceof WildcardTypeImpl )
             return ((WildcardTypeImpl)obj)._binding.isEqualTo(_binding);
         return false;
     }
 
-    public MirrorKind kind(){ return MirrorKind.TYPE_WILDCARD; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.TYPE_WILDCARD; }
 
-    public ITypeBinding getTypeBinding(){ return _binding; }
+    @Override
+	public ITypeBinding getTypeBinding(){ return _binding; }
 	
+	@Override
 	public BaseProcessorEnv getEnvironment(){ return _env; }
 
+	@Override
 	public boolean isAssignmentCompatible(EclipseMirrorType left) {
 		return false;
 	}
 
+	@Override
 	public boolean isSubTypeCompatible(EclipseMirrorType type) {
 		return false;
 	}

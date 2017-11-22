@@ -63,7 +63,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
         assert _annotated   != null : "missing the declaration that is annotated with this annotation."; //$NON-NLS-1$
     }
 
-    public AnnotationType getAnnotationType()
+    @Override
+	public AnnotationType getAnnotationType()
     {
         final ITypeBinding binding = _domAnnotation.getAnnotationType();
         if( binding == null || binding.isRecovered() ){
@@ -80,7 +81,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
         	return (AnnotationType)Factory.createReferenceType(binding, _env);
     }
 
-    public Map<AnnotationTypeElementDeclaration, AnnotationValue> getElementValues()
+    @Override
+	public Map<AnnotationTypeElementDeclaration, AnnotationValue> getElementValues()
     {
 		final IMemberValuePairBinding[] pairs = _domAnnotation.getDeclaredMemberValuePairs();
 		if (pairs.length == 0) {
@@ -109,7 +111,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
         return result;
     }
 
-    public SourcePosition getPosition()
+    @Override
+	public SourcePosition getPosition()
     {
 		if( isFromSource() ){
 			final CompilationUnit unit = _annotated.getCompilationUnit();
@@ -247,7 +250,8 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
 
 
 
-    public MirrorKind kind(){ return MirrorKind.ANNOTATION_MIRROR; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.ANNOTATION_MIRROR; }
 
     boolean isFromSource()
 	{
@@ -290,6 +294,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
 
     CompilationUnit getCompilationUnit() { return _annotated.getCompilationUnit(); }
 
+	@Override
 	public BaseProcessorEnv getEnvironment(){ return _env; }
 
 	public IFile getResource()

@@ -29,7 +29,8 @@ import com.sun.mirror.util.Declarations;
 
 public class DeclarationsUtil implements Declarations
 {
-    public boolean hides(MemberDeclaration sub, MemberDeclaration sup) {
+    @Override
+	public boolean hides(MemberDeclaration sub, MemberDeclaration sup) {
 		
 		// A declaration cannot hide itself
 		if (sub == sup || sub.equals(sup))
@@ -118,7 +119,8 @@ public class DeclarationsUtil implements Declarations
 		return targetPackage.equals(viewerPackage);
 	}
 
-    public boolean overrides(MethodDeclaration sub, MethodDeclaration sup) {
+    @Override
+	public boolean overrides(MethodDeclaration sub, MethodDeclaration sup) {
         final IMethodBinding subBinding = (IMethodBinding)getBinding(sub);
         final IMethodBinding supBinding = (IMethodBinding)getBinding(sup);
         if(subBinding == null || supBinding == null) return false;

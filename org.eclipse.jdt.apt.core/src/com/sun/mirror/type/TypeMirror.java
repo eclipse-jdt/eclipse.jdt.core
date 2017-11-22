@@ -66,7 +66,8 @@ public interface TypeMirror {
      *
      * @return a string representation of this type
      */
-    String toString();
+    @Override
+	String toString();
 
     /**
      * Tests whether two types represent the same type.
@@ -75,7 +76,8 @@ public interface TypeMirror {
      * @return <tt>true</tt> if the specified object represents the same
      *		type as this.
      */
-    boolean equals(Object obj);
+    @Override
+	boolean equals(Object obj);
 
     /**
      * Applies a visitor to this type.

@@ -32,12 +32,14 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorType
         assert env != null : "missing environment"; //$NON-NLS-1$
     }
 
-    public void accept(TypeVisitor visitor)
+    @Override
+	public void accept(TypeVisitor visitor)
     {
         visitor.visitArrayType(this);
     }
 
-    public EclipseMirrorType getComponentType()
+    @Override
+	public EclipseMirrorType getComponentType()
     {
 		final ITypeBinding elementType = _arrayBinding.getElementType();
         final int dimension = _arrayBinding.getDimensions();
@@ -59,7 +61,8 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorType
         return mirror;
     }
 
-    public String toString(){ 
+    @Override
+	public String toString(){ 
     	final ITypeBinding elementType = _arrayBinding.getElementType();
     	final StringBuilder buffer = new StringBuilder();
     	String name = elementType.getQualifiedName();
@@ -70,25 +73,32 @@ public class ArrayTypeImpl implements ArrayType, EclipseMirrorType
 		return buffer.toString();
     }
 
-    public boolean equals(Object obj)
+    @Override
+	public boolean equals(Object obj)
     {
         if( obj instanceof ArrayTypeImpl )
             return _arrayBinding == ((ArrayTypeImpl)obj)._arrayBinding; //$IDENTITY-COMPARISON$
         return false;
     }
 
-    public ITypeBinding getTypeBinding(){ return _arrayBinding; }
+    @Override
+	public ITypeBinding getTypeBinding(){ return _arrayBinding; }
 
-    public int hashCode(){ return _arrayBinding.hashCode(); }
+    @Override
+	public int hashCode(){ return _arrayBinding.hashCode(); }
 
-    public MirrorKind kind(){ return MirrorKind.TYPE_ARRAY; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.TYPE_ARRAY; }
 	
+	@Override
 	public BaseProcessorEnv getEnvironment(){ return _env; }
 
+	@Override
 	public boolean isAssignmentCompatible(EclipseMirrorType left) {
 		return isSubTypeCompatible(left);
 	}
 
+	@Override
 	public boolean isSubTypeCompatible(EclipseMirrorType type) {
 		if (type.kind() == MirrorKind.TYPE_CLASS)
 			return "java.lang.Object".equals(type.getTypeBinding().getQualifiedName()); //$NON-NLS-1$

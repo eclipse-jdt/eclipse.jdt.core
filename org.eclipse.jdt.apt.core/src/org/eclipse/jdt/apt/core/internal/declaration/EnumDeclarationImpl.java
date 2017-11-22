@@ -35,12 +35,14 @@ public class EnumDeclarationImpl extends ClassDeclarationImpl implements EnumDec
         assert binding.isEnum() : "binding is not an enum."; //$NON-NLS-1$
     }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitEnumDeclaration(this);
     }
 
-    public Collection<EnumConstantDeclaration> getEnumConstants()
+    @Override
+	public Collection<EnumConstantDeclaration> getEnumConstants()
     {
         final ITypeBinding enumBinding = getDeclarationBinding();
         final IVariableBinding[] fields = enumBinding.getDeclaredFields();
@@ -58,15 +60,18 @@ public class EnumDeclarationImpl extends ClassDeclarationImpl implements EnumDec
     // start of implementation of EnumType API
     
     // end of implementation of EnumType API
-    public void accept(TypeVisitor visitor)
+    @Override
+	public void accept(TypeVisitor visitor)
     {
         visitor.visitEnumType(this);
     }
 
-    public EnumDeclaration getDeclaration()
+    @Override
+	public EnumDeclaration getDeclaration()
     {
         return (EnumDeclaration)super.getDeclaration();
     }
 
-    public MirrorKind kind(){ return MirrorKind.TYPE_ENUM; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.TYPE_ENUM; }
 }

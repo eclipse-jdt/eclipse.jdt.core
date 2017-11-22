@@ -50,6 +50,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 	
 	public GeneratedResourceChangeListener(){}
 	
+	@Override
 	public void resourceChanged(IResourceChangeEvent event) 
 	{
 		if ( event.getType() == IResourceChangeEvent.PRE_CLOSE )
@@ -133,6 +134,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 	 */
 	private class PostChangeVisitor implements IResourceDeltaVisitor {
 
+		@Override
 		public boolean visit(IResourceDelta delta) throws CoreException {
 			if( delta.getKind() == IResourceDelta.REMOVED ){
 				if (AptPlugin.DEBUG_GFM) {
@@ -153,6 +155,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		private final Set<IProject> _addGenFolderTo = new HashSet<>();
 		// any projects that is closed or about to be deleted
 		private final Set<IProject> _removedProjects = new HashSet<>();
+		@Override
 		public boolean visit(IResourceDelta delta) throws CoreException 
 		{
 			IResource r = delta.getResource();

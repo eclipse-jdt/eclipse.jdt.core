@@ -54,5 +54,6 @@ public interface AnnotationTypeDeclaration extends InterfaceDeclaration {
      * @return the annotation type elements of this annotation type,
      * or an empty collection if there are none
      */
-    Collection<AnnotationTypeElementDeclaration> getMethods();
+    @Override
+	Collection<AnnotationTypeElementDeclaration> getMethods();
 }

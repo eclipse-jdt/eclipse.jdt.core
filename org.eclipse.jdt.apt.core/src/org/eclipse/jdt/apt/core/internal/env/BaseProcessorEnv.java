@@ -191,20 +191,24 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		return Collections.unmodifiableMap(options);
 	}
 
+	@Override
 	public Types getTypeUtils()
     {
 		return new TypesUtil(this);
     }
 	
+	@Override
 	public Declarations getDeclarationUtils()
     {
         return new DeclarationsUtil();
     }
 	
+	@Override
 	public void addListener(AnnotationProcessorListener listener) {
 		throw new UnsupportedOperationException("Not supported!"); //$NON-NLS-1$
 	}
 	
+	@Override
 	public void removeListener(AnnotationProcessorListener listener) {
 		throw new UnsupportedOperationException("Not supported!"); //$NON-NLS-1$
 	}
@@ -216,7 +220,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
      * This implementation is different from the API specification in that it does not return
      * all included source types in the universe.
      */
-    public Collection<TypeDeclaration> getTypeDeclarations()
+    @Override
+	public Collection<TypeDeclaration> getTypeDeclarations()
     {
     	final List<ITypeBinding> bindings = getTypeBindings();
 		if( bindings.isEmpty() )
@@ -266,12 +271,14 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		}
 	}
     
-    public Collection<TypeDeclaration> getSpecifiedTypeDeclarations()
+    @Override
+	public Collection<TypeDeclaration> getSpecifiedTypeDeclarations()
     {
         return getTypeDeclarations();
     }
     
-    public Collection<Declaration> getDeclarationsAnnotatedWith(AnnotationTypeDeclaration a)
+    @Override
+	public Collection<Declaration> getDeclarationsAnnotatedWith(AnnotationTypeDeclaration a)
     {
     	 final ITypeBinding annotationType = TypesUtil.getTypeBinding(a);
          if( annotationType == null  || !annotationType.isAnnotation()) return Collections.emptyList();
@@ -394,10 +401,12 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		return astUnit.findDeclaringNode(binding.getKey());
     }
     
-    public Map<String, String> getOptions(){ return _options; }
+    @Override
+	public Map<String, String> getOptions(){ return _options; }
     
     // does not generate dependencies
-    public TypeDeclaration getTypeDeclaration(String name)
+    @Override
+	public TypeDeclaration getTypeDeclaration(String name)
     {	
     	if( name == null || name.length() == 0 ) return null;
 
@@ -477,11 +486,13 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			private IBinding _result = null;
 			private int _kind;
 			
+			@Override
 			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 				if( source == unit ){		
 					_modelCompUnit2astCompUnit.put(source, ast);
 				}
 			}
+			@Override
 			public void acceptBinding(String bindingKey, IBinding binding)
 			{
 				if( binding != null ) {
@@ -527,6 +538,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		return getTypeDeclaration(name);
 	}
     
+	@Override
 	public PackageDeclaration getPackage(String name)
 	{
 		if (name == null)
@@ -715,11 +727,13 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
         }
     }
     
-    public Filer getFiler(){ 
+    @Override
+	public Filer getFiler(){ 
     	throw new UnsupportedOperationException("Not supported: the EnvironmentFactory API is for type system navigation only"); //$NON-NLS-1$
     }    
 
-    public Messager getMessager(){ 
+    @Override
+	public Messager getMessager(){ 
     	throw new UnsupportedOperationException("Not supported: the EnvironmentFactory API is for type system navigation only"); //$NON-NLS-1$
     }
     
@@ -821,6 +835,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 			this.parseUnits = parseUnits;
 		}
 		
+		@Override
 		public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 			for( int i=0, len = asts.length; i<len; i++ ){
 				if( source == parseUnits[i] ){
@@ -870,6 +885,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		class CompilationUnitRequestor extends ASTRequestor
 		{	
 			CompilationUnit domUnit = EMPTY_AST_UNIT;
+			@Override
 			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 				if( source == compilationUnit )
 					domUnit = ast;			

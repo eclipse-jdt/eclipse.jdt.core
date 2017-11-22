@@ -87,6 +87,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 	public static final String JAVA5_FACTORY_NAME = "com.sun.mirror.apt.AnnotationProcessorFactory"; //$NON-NLS-1$
 	public static final String JAVA6_FACTORY_NAME = "javax.annotation.processing.Processor"; //$NON-NLS-1$
 	
+	@Override
 	public void start(BundleContext context) throws Exception {
 		thePlugin = this;
 		super.start(context);
@@ -121,6 +122,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 			trace("registered resource change listener"); //$NON-NLS-1$
 	}
 
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		super.stop(context);
 
@@ -181,6 +183,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 		return new Status(IStatus.INFO, PLUGIN_ID, STATUS_EXCEPTION, message, e);
 	}
 	
+	@Override
 	public void optionsChanged(DebugOptions options) {
 		DEBUG = options.getBooleanOption(APT_DEBUG_OPTION, false);
 		DEBUG_GFM = options.getBooleanOption(APT_DEBUG_GFM_OPTION, false);

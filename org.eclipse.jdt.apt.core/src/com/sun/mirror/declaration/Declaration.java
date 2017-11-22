@@ -68,7 +68,8 @@ public interface Declaration {
      * @return <tt>true</tt> if the specified object represents the same
      *		declaration as this
      */
-    boolean equals(Object obj);
+    @Override
+	boolean equals(Object obj);
 
     /**
      * Returns the text of the documentation ("javadoc") comment of

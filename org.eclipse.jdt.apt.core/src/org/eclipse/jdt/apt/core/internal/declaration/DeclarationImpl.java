@@ -33,6 +33,7 @@ public abstract class DeclarationImpl extends EclipseDeclarationImpl {
 		_binding = binding;
 	}
 	
+	@Override
 	public boolean equals(Object obj)
     {
         if(obj instanceof DeclarationImpl)
@@ -41,6 +42,7 @@ public abstract class DeclarationImpl extends EclipseDeclarationImpl {
         return false;
     }
 	
+	@Override
 	public int hashCode(){ 
     	final String key = getDeclarationBinding().getKey();
     	return key == null ? 0 : key.hashCode(); 
@@ -55,7 +57,8 @@ public abstract class DeclarationImpl extends EclipseDeclarationImpl {
      */
     public abstract IBinding getDeclarationBinding();
     
-    public Collection<Modifier> getModifiers()
+    @Override
+	public Collection<Modifier> getModifiers()
     {
         final int modBits = getDeclarationBinding().getModifiers();
         final List<Modifier> mods = new ArrayList<>(4);
@@ -84,18 +87,22 @@ public abstract class DeclarationImpl extends EclipseDeclarationImpl {
         return mods;
     }
     
-    public boolean isBindingBased(){ return true; }
+    @Override
+	public boolean isBindingBased(){ return true; }
  
-    ASTNode getAstNode(){
+    @Override
+	ASTNode getAstNode(){
         if( !isFromSource() ) return null;
         return _env.getASTNodeForBinding(getDeclarationBinding());      
     }
 
-    CompilationUnit getCompilationUnit(){
+    @Override
+	CompilationUnit getCompilationUnit(){
         if( !isFromSource() ) return null;
         return _env.getCompilationUnitForBinding(getDeclarationBinding());
     }
 
+	@Override
 	public IFile getResource(){
         if( isFromSource() ){
             final IBinding binding = getDeclarationBinding();

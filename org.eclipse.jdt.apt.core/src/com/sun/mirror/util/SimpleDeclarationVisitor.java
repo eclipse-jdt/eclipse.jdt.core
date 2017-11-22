@@ -61,7 +61,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * The implementation does nothing.
      * @param d the declaration to visit
      */
-    public void visitDeclaration(Declaration d) {
+    @Override
+	public void visitDeclaration(Declaration d) {
     }
 
     /**
@@ -70,7 +71,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitDeclaration visitDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitPackageDeclaration(PackageDeclaration d) {
+    @Override
+	public void visitPackageDeclaration(PackageDeclaration d) {
 	visitDeclaration(d);
     }
 
@@ -80,7 +82,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitDeclaration visitDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitMemberDeclaration(MemberDeclaration d) {
+    @Override
+	public void visitMemberDeclaration(MemberDeclaration d) {
 	visitDeclaration(d);
     }
 
@@ -90,7 +93,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitMemberDeclaration visitMemberDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitTypeDeclaration(TypeDeclaration d) {
+    @Override
+	public void visitTypeDeclaration(TypeDeclaration d) {
 	visitMemberDeclaration(d);
     }
 
@@ -100,7 +104,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitTypeDeclaration visitTypeDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitClassDeclaration(ClassDeclaration d) {
+    @Override
+	public void visitClassDeclaration(ClassDeclaration d) {
 	visitTypeDeclaration(d);
     }
 
@@ -110,7 +115,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitClassDeclaration visitClassDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitEnumDeclaration(EnumDeclaration d) {
+    @Override
+	public void visitEnumDeclaration(EnumDeclaration d) {
 	visitClassDeclaration(d);
     }
 
@@ -120,7 +126,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitTypeDeclaration visitTypeDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitInterfaceDeclaration(InterfaceDeclaration d) {
+    @Override
+	public void visitInterfaceDeclaration(InterfaceDeclaration d) {
 	visitTypeDeclaration(d);
     }
 
@@ -130,7 +137,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitInterfaceDeclaration visitInterfaceDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitAnnotationTypeDeclaration(AnnotationTypeDeclaration d) {
+    @Override
+	public void visitAnnotationTypeDeclaration(AnnotationTypeDeclaration d) {
 	visitInterfaceDeclaration(d);
     }
 
@@ -140,7 +148,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitMemberDeclaration visitMemberDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitFieldDeclaration(FieldDeclaration d) {
+    @Override
+	public void visitFieldDeclaration(FieldDeclaration d) {
 	visitMemberDeclaration(d);
     }
 
@@ -150,7 +159,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitFieldDeclaration visitFieldDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitEnumConstantDeclaration(EnumConstantDeclaration d) {
+    @Override
+	public void visitEnumConstantDeclaration(EnumConstantDeclaration d) {
 	visitFieldDeclaration(d);
     }
 
@@ -160,7 +170,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitMemberDeclaration visitMemberDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitExecutableDeclaration(ExecutableDeclaration d) {
+    @Override
+	public void visitExecutableDeclaration(ExecutableDeclaration d) {
 	visitMemberDeclaration(d);
     }
 
@@ -170,7 +181,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitExecutableDeclaration visitExecutableDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitConstructorDeclaration(ConstructorDeclaration d) {
+    @Override
+	public void visitConstructorDeclaration(ConstructorDeclaration d) {
 	visitExecutableDeclaration(d);
     }
 
@@ -180,7 +192,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitExecutableDeclaration visitExecutableDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitMethodDeclaration(MethodDeclaration d) {
+    @Override
+	public void visitMethodDeclaration(MethodDeclaration d) {
 	visitExecutableDeclaration(d);
     }
 
@@ -190,7 +203,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitMethodDeclaration visitMethodDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitAnnotationTypeElementDeclaration(
+    @Override
+	public void visitAnnotationTypeElementDeclaration(
 	    AnnotationTypeElementDeclaration d) {
 	visitMethodDeclaration(d);
     }
@@ -201,7 +215,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitDeclaration visitDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitParameterDeclaration(ParameterDeclaration d) {
+    @Override
+	public void visitParameterDeclaration(ParameterDeclaration d) {
 	visitDeclaration(d);
     }
 
@@ -211,7 +226,8 @@ public class SimpleDeclarationVisitor implements DeclarationVisitor {
      * {@link #visitDeclaration visitDeclaration}.
      * @param d the declaration to visit
      */
-    public void visitTypeParameterDeclaration(TypeParameterDeclaration d) {
+    @Override
+	public void visitTypeParameterDeclaration(TypeParameterDeclaration d) {
 	visitDeclaration(d);
     }
 }

@@ -141,6 +141,7 @@ public abstract class AbstractCompilationEnv
 		return _requestor.createBindings(new String[] {key})[0];
 	}
 
+	@Override
 	public void addListener(AnnotationProcessorListener listener)
     {
 		checkValid();
@@ -149,7 +150,8 @@ public abstract class AbstractCompilationEnv
 		_listeners.add(listener);
     }
 
-    public void removeListener(AnnotationProcessorListener listener)
+    @Override
+	public void removeListener(AnnotationProcessorListener listener)
     {
 		checkValid();
         if( _listeners == null ) return;
@@ -165,6 +167,7 @@ public abstract class AbstractCompilationEnv
 		return new HashSet<>(_listeners);
 	}
 	
+	@Override
 	public Map<String, String> getOptions()
     {
         final HashMap<String, String> options = new HashMap<>(_options);
@@ -174,10 +177,12 @@ public abstract class AbstractCompilationEnv
 	
 	abstract public CompilationUnit getASTFrom(final IFile file);
 	
+	@Override
 	public CompilationUnit getAST(){
 		return _astRoot;
 	}
 	
+	@Override
 	public EclipseMessager getMessager()
     {
 		checkValid();
@@ -216,6 +221,7 @@ public abstract class AbstractCompilationEnv
     	return newProblem;
     }
 	
+	@Override
 	public abstract Filer getFiler();
 	
 	public void addGeneratedSourceFile( IFile f, boolean contentsChanged ) {

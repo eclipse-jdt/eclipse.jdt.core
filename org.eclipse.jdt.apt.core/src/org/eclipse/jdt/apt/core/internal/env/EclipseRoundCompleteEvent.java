@@ -27,9 +27,13 @@ public class EclipseRoundCompleteEvent extends RoundCompleteEvent
 	{	
 		private final BuildEnv _env;
 		State(BuildEnv env){ _env = env; }
+		@Override
 		public boolean classFilesCreated() { return _env.hasGeneratedClassFiles(); }		
+		@Override
 		public boolean errorRaised() {  return _env.hasRaisedErrors(); }			
+		@Override
 		public boolean sourceFilesCreated() {  return _env.hasGeneratedSourceFiles(); }			
+		@Override
 		public boolean finalRound() {
 			// apt terminates when there are no new generated source files 
 			return !_env.hasGeneratedSourceFiles(); 

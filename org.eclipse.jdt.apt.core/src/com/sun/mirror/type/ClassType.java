@@ -55,7 +55,8 @@ public interface ClassType extends DeclaredType {
     /**
      * {@inheritDoc}
      */
-    ClassDeclaration getDeclaration();
+    @Override
+	ClassDeclaration getDeclaration();
 
     /**
      * Returns the class type that is a direct supertype of this one.

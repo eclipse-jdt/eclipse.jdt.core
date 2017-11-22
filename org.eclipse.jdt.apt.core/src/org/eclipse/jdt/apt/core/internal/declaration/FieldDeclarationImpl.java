@@ -28,12 +28,14 @@ public class FieldDeclarationImpl extends MemberDeclarationImpl implements Field
         assert binding.isField() : "binding doesn't represent a field"; //$NON-NLS-1$
     }
     
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitFieldDeclaration(this);
     }
 
-    public String getConstantExpression()
+    @Override
+	public String getConstantExpression()
     {
         final IVariableBinding field = getDeclarationBinding();
         final Object constant = field.getConstantValue();
@@ -41,27 +43,31 @@ public class FieldDeclarationImpl extends MemberDeclarationImpl implements Field
         return constant.toString();   
     }
 
-    public Object getConstantValue()
+    @Override
+	public Object getConstantValue()
     {
         final IVariableBinding field = getDeclarationBinding();
         return field.getConstantValue();
     }
 
-    public TypeDeclaration getDeclaringType()
+    @Override
+	public TypeDeclaration getDeclaringType()
     {
         final IVariableBinding field = getDeclarationBinding();
         final ITypeBinding outer = field.getDeclaringClass();
         return Factory.createReferenceType(outer, _env);
     }
 
-    public String getSimpleName()
+    @Override
+	public String getSimpleName()
     {
 		final IVariableBinding field = getDeclarationBinding();
         final String name = field.getName();
         return name == null ? "" : name; //$NON-NLS-1$
     }
 
-    public TypeMirror getType()
+    @Override
+	public TypeMirror getType()
     {
         final IVariableBinding field = getDeclarationBinding();
         final TypeMirror typeMirror = Factory.createTypeMirror( field.getType(), _env );
@@ -70,12 +76,14 @@ public class FieldDeclarationImpl extends MemberDeclarationImpl implements Field
         return typeMirror;
     }
 
-    public IVariableBinding getDeclarationBinding()
+    @Override
+	public IVariableBinding getDeclarationBinding()
     {
         return (IVariableBinding)_binding;
     }
     
-    public String toString()
+    @Override
+	public String toString()
     {
     /*
     	final StringBuilder buffer = new StringBuilder();
@@ -90,9 +98,11 @@ public class FieldDeclarationImpl extends MemberDeclarationImpl implements Field
     	return getSimpleName();
     }
 
-    public MirrorKind kind(){ return MirrorKind.FIELD; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.FIELD; }
 
-    public boolean isFromSource()
+    @Override
+	public boolean isFromSource()
     {
         final ITypeBinding type = getDeclarationBinding().getDeclaringClass();
         return ( type != null && type.isFromSource() );

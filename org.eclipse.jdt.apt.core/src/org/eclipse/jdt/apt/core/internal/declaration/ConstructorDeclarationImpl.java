@@ -26,14 +26,17 @@ public class ConstructorDeclarationImpl extends ExecutableDeclarationImpl implem
         assert binding.isConstructor() : "binding does not represent a constructor"; //$NON-NLS-1$
     }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitConstructorDeclaration(this);
     }
 
-    public MirrorKind kind(){ return MirrorKind.CONSTRUCTOR; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.CONSTRUCTOR; }
 
-    public String toString()
+    @Override
+	public String toString()
     {
         final StringBuilder buffer = new StringBuilder();
         final IMethodBinding methodBinding = getDeclarationBinding();

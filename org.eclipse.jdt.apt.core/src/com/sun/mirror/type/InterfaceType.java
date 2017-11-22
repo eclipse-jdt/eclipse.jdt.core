@@ -56,5 +56,6 @@ public interface InterfaceType extends DeclaredType {
     /**
      * {@inheritDoc}
      */
-    InterfaceDeclaration getDeclaration();
+    @Override
+	InterfaceDeclaration getDeclaration();
 }

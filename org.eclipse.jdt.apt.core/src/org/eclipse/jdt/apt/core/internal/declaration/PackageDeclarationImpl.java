@@ -82,28 +82,33 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 
     public IPackageBinding getPackageBinding(){ return (IPackageBinding)_binding; }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitPackageDeclaration(this);
     }
     
-    public <A extends Annotation> A getAnnotation(Class<A> anno)
+    @Override
+	public <A extends Annotation> A getAnnotation(Class<A> anno)
     {
 		return _getAnnotation(anno, getPackageBinding().getAnnotations());
     }
 
-    public Collection<AnnotationMirror> getAnnotationMirrors()
+    @Override
+	public Collection<AnnotationMirror> getAnnotationMirrors()
     {	
 		return _getAnnotationMirrors(getPackageBinding().getAnnotations());
     }
 
-    public Collection<AnnotationTypeDeclaration> getAnnotationTypes()
+    @Override
+	public Collection<AnnotationTypeDeclaration> getAnnotationTypes()
     {
 		// jdt currently have no support for package declaration.
 		return Collections.emptyList();	
     }
 
-    public Collection<ClassDeclaration> getClasses() {
+    @Override
+	public Collection<ClassDeclaration> getClasses() {
     	initFragments();
     	List<IType> types = getTypesInPackage(_pkgFragments);
 		List<ClassDeclaration> classes = new ArrayList<>();
@@ -123,7 +128,8 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 		return classes;
     }
 
-    public Collection<EnumDeclaration> getEnums() {
+    @Override
+	public Collection<EnumDeclaration> getEnums() {
     	initFragments();
     	List<IType> types = getTypesInPackage(_pkgFragments);
 		List<EnumDeclaration> enums = new ArrayList<>();
@@ -139,7 +145,8 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 		return enums;
     }
 
-    public Collection<InterfaceDeclaration> getInterfaces() {
+    @Override
+	public Collection<InterfaceDeclaration> getInterfaces() {
     	initFragments();
     	List<IType> types = getTypesInPackage(_pkgFragments);
 		List<InterfaceDeclaration> interfaces = new ArrayList<>();
@@ -155,18 +162,21 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 		return interfaces;
     }
 
-    public String getDocComment()
+    @Override
+	public String getDocComment()
     {
         return null;
     }
 
-    public Collection<Modifier> getModifiers()
+    @Override
+	public Collection<Modifier> getModifiers()
     {
         // package doesn't have modifiers.
         return Collections.emptyList();
     }
 
-    public SourcePosition getPosition()
+    @Override
+	public SourcePosition getPosition()
     {
 		if (_hideSourcePosition)
 			return null;
@@ -185,12 +195,14 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
         
     }
 
-    public String getQualifiedName()
+    @Override
+	public String getQualifiedName()
     {
 		return getPackageBinding().getName();
     }   
 
-    public String getSimpleName()
+    @Override
+	public String getSimpleName()
     {
         IPackageBinding pkg = getPackageBinding();
         final String[] components = pkg.getNameComponents();
@@ -198,12 +210,16 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
         return components[components.length - 1];
     }
 
-    public MirrorKind kind(){ return MirrorKind.PACKAGE; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.PACKAGE; }
 
-    public String toString(){ return getQualifiedName(); }
+    @Override
+	public String toString(){ return getQualifiedName(); }
 	
+	@Override
 	public IPackageBinding getDeclarationBinding(){ return (IPackageBinding)_binding; }
 
+	@Override
 	public boolean isFromSource(){ return _typeDecl != null && _typeDecl.isFromSource(); }
 	
 	/**

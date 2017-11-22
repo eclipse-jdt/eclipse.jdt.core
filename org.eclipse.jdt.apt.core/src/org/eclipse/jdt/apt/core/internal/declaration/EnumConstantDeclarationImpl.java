@@ -26,15 +26,18 @@ public class EnumConstantDeclarationImpl extends FieldDeclarationImpl implements
         assert binding.isEnumConstant() : "binding does not represent an enum constant"; //$NON-NLS-1$
     }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitEnumConstantDeclaration(this);
     }
 
-    public EnumDeclaration getDeclaringType()
+    @Override
+	public EnumDeclaration getDeclaringType()
     {
         return (EnumDeclaration)super.getDeclaringType();
     }
 
-    public MirrorKind kind(){ return MirrorKind.ENUM_CONSTANT; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.ENUM_CONSTANT; }
 }

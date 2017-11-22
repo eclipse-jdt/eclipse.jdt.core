@@ -64,6 +64,7 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 		_file = file;
 	}
 	
+	@Override
 	public Collection<Modifier> getModifiers()
 	{
 		int modBits = 0;
@@ -109,13 +110,15 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 		
 	}
 	
+	@Override
 	public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
     {
 		final IAnnotationBinding[] instances = getAnnotationInstancesFromAST();
 		return _getAnnotation(annotationClass, instances);
     }
 
-    public Collection<AnnotationMirror> getAnnotationMirrors()
+    @Override
+	public Collection<AnnotationMirror> getAnnotationMirrors()
     {
 		final IAnnotationBinding[] instances = getAnnotationInstancesFromAST();
 		return _getAnnotationMirrors(instances);		
@@ -169,20 +172,25 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 		return instances;
 	}
 	
+	@Override
 	public boolean isFromSource(){ return true; }
 	
+	@Override
 	ASTNode getAstNode(){
 		return _astNode;
 	}   
 
-    CompilationUnit getCompilationUnit(){
+    @Override
+	CompilationUnit getCompilationUnit(){
         return (CompilationUnit)_astNode.getRoot();
     }
 
+	@Override
 	public IFile getResource(){
 		return _file;
 	}
 	
+	@Override
 	public SourcePosition getPosition()
 	{
 		final ASTNode node = getRangeNode();
@@ -198,8 +206,10 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
     
 	}
 	
+	@Override
 	public boolean isBindingBased(){ return false; }
 	
+	@Override
 	public boolean equals(Object obj)
     {
         if(obj instanceof ASTBasedDeclarationImpl)
@@ -208,6 +218,7 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
         return false;
     }
 	
+	@Override
 	public int hashCode(){ 
 		return _astNode.hashCode();
 	}

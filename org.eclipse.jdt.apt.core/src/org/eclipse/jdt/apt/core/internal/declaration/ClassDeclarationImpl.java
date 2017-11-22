@@ -41,7 +41,8 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
         assert !binding.isInterface();
     }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitClassDeclaration(this);
     }
@@ -75,7 +76,8 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
     	}
     }
 
-    public Collection<ConstructorDeclaration> getConstructors()
+    @Override
+	public Collection<ConstructorDeclaration> getConstructors()
     {
     	final List<ConstructorDeclaration> results = new ArrayList<>();
     	if( isFromSource() ){
@@ -118,6 +120,7 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
 
     }
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public Collection<MethodDeclaration> getMethods()
     {
@@ -125,12 +128,14 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
     }
 
     // Start of implementation of ClassType API
-    public void accept(TypeVisitor visitor)
+    @Override
+	public void accept(TypeVisitor visitor)
     {
         visitor.visitClassType(this);
     }
 
-    public ClassType getSuperclass()
+    @Override
+	public ClassType getSuperclass()
     {
         final ITypeBinding superClass = getDeclarationBinding().getSuperclass();
 		if ( superClass == null )
@@ -141,11 +146,13 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
             return Factory.createErrorClassType(superClass);
     }
 
-    public ClassDeclaration getDeclaration()
+    @Override
+	public ClassDeclaration getDeclaration()
     {
         return (ClassDeclaration)super.getDeclaration();        
     }
     // End of implementation of ClassType API
 
-    public MirrorKind kind(){ return MirrorKind.TYPE_CLASS; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.TYPE_CLASS; }
 }

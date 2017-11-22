@@ -42,38 +42,48 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
         _name = name;
     }
 
-    public Collection<TypeMirror> getActualTypeArguments(){ return Collections.emptyList(); }
+    @Override
+	public Collection<TypeMirror> getActualTypeArguments(){ return Collections.emptyList(); }
 
-    public DeclaredType getContainingType(){ return null; }
+    @Override
+	public DeclaredType getContainingType(){ return null; }
 
-    public String toString(){ return _name; }
+    @Override
+	public String toString(){ return _name; }
 
-    public void accept(TypeVisitor visitor)
+    @Override
+	public void accept(TypeVisitor visitor)
     {
         visitor.visitTypeMirror(this);
     }
 
-    public Collection<InterfaceType> getSuperinterfaces(){ return Collections.emptyList(); }
+    @Override
+	public Collection<InterfaceType> getSuperinterfaces(){ return Collections.emptyList(); }
 
-    public MirrorKind kind(){ return MirrorKind.TYPE_ERROR; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.TYPE_ERROR; }
 	
+	@Override
 	public BaseProcessorEnv getEnvironment(){ return null; }
 
     public static final class ErrorClass extends ErrorType implements ClassType
     {
         public ErrorClass(final String name){ super(name); }
 
-        public void accept(TypeVisitor visitor)
+        @Override
+		public void accept(TypeVisitor visitor)
         {
             visitor.visitClassType(this);
         }
 
-        public ClassType getSuperclass()
+        @Override
+		public ClassType getSuperclass()
         {
             return null;
         }
 
-        public ClassDeclaration getDeclaration(){ return null; }		
+        @Override
+		public ClassDeclaration getDeclaration(){ return null; }		
 		
     }
 
@@ -81,24 +91,28 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
     {
         public ErrorInterface(final String name){ super(name); }
 
-        public void accept(TypeVisitor visitor)
+        @Override
+		public void accept(TypeVisitor visitor)
         {
             visitor.visitInterfaceType(this);
         }
 
-        public InterfaceDeclaration getDeclaration(){ return null; }
+        @Override
+		public InterfaceDeclaration getDeclaration(){ return null; }
     }
 
     public static final class ErrorAnnotation extends ErrorInterface implements AnnotationType
     {
         public ErrorAnnotation(final String name){ super(name); }
 
-        public void accept(TypeVisitor visitor)
+        @Override
+		public void accept(TypeVisitor visitor)
         {
             visitor.visitAnnotationType(this);
         }
 
-        public AnnotationTypeDeclaration getDeclaration(){ return null; }
+        @Override
+		public AnnotationTypeDeclaration getDeclaration(){ return null; }
     }
     
     public static final class ErrorArrayType extends ErrorType implements ArrayType 
@@ -110,18 +124,22 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
     		_dimension = dimension;
     	}
     	
-    	public void accept(TypeVisitor visitor)
+    	@Override
+		public void accept(TypeVisitor visitor)
         {
             visitor.visitArrayType(this);
         }
     	
-    	public TypeDeclaration getDeclaration() { return null; }
+    	@Override
+		public TypeDeclaration getDeclaration() { return null; }
     	
-    	public TypeMirror getComponentType() {
+    	@Override
+		public TypeMirror getComponentType() {
     		return new ErrorClass(_name);
     	}
     	
-    	public String toString()
+    	@Override
+		public String toString()
     	{
     		final StringBuilder buffer = new StringBuilder();
     		buffer.append(_name);
@@ -131,14 +149,17 @@ public abstract class ErrorType implements DeclaredType, ReferenceType, EclipseM
     	}
     }
 
+	@Override
 	public ITypeBinding getTypeBinding() {
 		return null;
 	}
 
+	@Override
 	public boolean isAssignmentCompatible(EclipseMirrorType left) {
 		return false;
 	}
 
+	@Override
 	public boolean isSubTypeCompatible(EclipseMirrorType type) {
 		return false;
 	}

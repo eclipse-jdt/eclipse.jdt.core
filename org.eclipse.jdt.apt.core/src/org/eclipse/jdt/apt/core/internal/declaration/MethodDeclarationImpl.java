@@ -30,7 +30,8 @@ public class MethodDeclarationImpl extends ExecutableDeclarationImpl implements 
         assert !binding.isConstructor() : "binding does not represent a method."; //$NON-NLS-1$
     }
 
-    public TypeMirror getReturnType()
+    @Override
+	public TypeMirror getReturnType()
     {
         final IMethodBinding methodBinding = getDeclarationBinding();
         final ITypeBinding retType = methodBinding.getReturnType();
@@ -40,14 +41,17 @@ public class MethodDeclarationImpl extends ExecutableDeclarationImpl implements 
         return type;
     }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitMethodDeclaration(this);
     }
 
-    public MirrorKind kind(){ return MirrorKind.METHOD; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.METHOD; }
 
-    public String toString()
+    @Override
+	public String toString()
     {
         final StringBuilder buffer = new StringBuilder();
         final IMethodBinding methodBinding = getDeclarationBinding();

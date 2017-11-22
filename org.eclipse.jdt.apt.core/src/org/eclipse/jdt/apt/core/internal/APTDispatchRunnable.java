@@ -69,6 +69,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			_gfm = gfm;
 		}
 
+		@Override
 		public void run(AbstractCompilationEnv env) {
 			// This is a ReconcileEnvCallback, so we better be dealing with a ReconcileEnv!
 			ReconcileEnv reconcileEnv = (ReconcileEnv)env;
@@ -220,6 +221,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 
 	}	
 	
+	@Override
 	public void run(IProgressMonitor monitor) 
 	{	
 		build();
@@ -269,6 +271,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				   "should never be invoked unless we are in build mode!"; //$NON-NLS-1$
 			
 			EnvCallback buildCallback = new EnvCallback() {
+				@Override
 				public void run(AbstractCompilationEnv env) {
 					build((BuildEnv)env);
 				}

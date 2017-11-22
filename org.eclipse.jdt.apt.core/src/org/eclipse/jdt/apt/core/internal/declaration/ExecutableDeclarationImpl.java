@@ -33,47 +33,56 @@ public abstract class ExecutableDeclarationImpl
         super(binding, env);
     }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitExecutableDeclaration(this);
     }
 
-    public TypeDeclaration getDeclaringType()
+    @Override
+	public TypeDeclaration getDeclaringType()
     {
         final IMethodBinding methodBinding = getDeclarationBinding();        
         return Factory.createReferenceType(methodBinding.getDeclaringClass(), _env);
     }
 
-    public Collection<TypeParameterDeclaration> getFormalTypeParameters()
+    @Override
+	public Collection<TypeParameterDeclaration> getFormalTypeParameters()
     {
     	return ExecutableUtil.getFormalTypeParameters(this, _env);
     }
-    public Collection<ParameterDeclaration> getParameters()
+    @Override
+	public Collection<ParameterDeclaration> getParameters()
     {
     	return ExecutableUtil.getParameters(this, _env);
     }
 
-    public Collection<ReferenceType> getThrownTypes()
+    @Override
+	public Collection<ReferenceType> getThrownTypes()
     {
     	return ExecutableUtil.getThrownTypes(this, _env);
     }
 
-    public boolean isVarArgs()
+    @Override
+	public boolean isVarArgs()
     {
         return getDeclarationBinding().isVarargs();
     }
 
-    public String getSimpleName()
+    @Override
+	public String getSimpleName()
     {
 		return getDeclarationBinding().getName();
     }
 
-    public IMethodBinding getDeclarationBinding()
+    @Override
+	public IMethodBinding getDeclarationBinding()
     {
         return (IMethodBinding)_binding;
     }
 
-    public boolean isFromSource()
+    @Override
+	public boolean isFromSource()
     {
         final ITypeBinding type = getDeclarationBinding().getDeclaringClass();
         return ( type != null && type.isFromSource() );

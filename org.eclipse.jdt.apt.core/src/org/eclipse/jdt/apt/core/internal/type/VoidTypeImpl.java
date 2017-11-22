@@ -28,23 +28,30 @@ public class VoidTypeImpl implements VoidType, EclipseMirrorType
 		_binding = binding;
 	}
     
-    public void accept(TypeVisitor visitor)
+    @Override
+	public void accept(TypeVisitor visitor)
     {
         visitor.visitVoidType(this);
     }
 
-    public String toString(){ return "void"; } //$NON-NLS-1$
+    @Override
+	public String toString(){ return "void"; } //$NON-NLS-1$
 	
+	@Override
 	public ITypeBinding getTypeBinding(){return _binding;}
 
-    public MirrorKind kind(){ return MirrorKind.TYPE_VOID; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.TYPE_VOID; }
 	
+	@Override
 	public BaseProcessorEnv getEnvironment(){ return null; }
 
+	@Override
 	public boolean isAssignmentCompatible(EclipseMirrorType left) {
 		return false;
 	}
 
+	@Override
 	public boolean isSubTypeCompatible(EclipseMirrorType type) {
 		return false;
 	}

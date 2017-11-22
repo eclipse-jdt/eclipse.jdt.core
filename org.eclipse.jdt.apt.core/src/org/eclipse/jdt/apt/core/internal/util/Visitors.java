@@ -56,30 +56,38 @@ public class Visitors {
         public AnnotationVisitor(final List<Annotation> annotations)
         { _annotations = annotations; }
 
-        public boolean visit(MarkerAnnotation annotation)
+        @Override
+		public boolean visit(MarkerAnnotation annotation)
         {
             _annotations.add(annotation);
             return false;
         }
 
-        public boolean visit(SingleMemberAnnotation annotation)
+        @Override
+		public boolean visit(SingleMemberAnnotation annotation)
         {
             _annotations.add(annotation);
             return false;
         }
 
-        public boolean visit(NormalAnnotation annotation)
+        @Override
+		public boolean visit(NormalAnnotation annotation)
         {
             _annotations.add(annotation);
             return false;
         }
 
         // make sure we don't hit Arguments other than formal parameters.
-        public boolean visit(Block blk){ return false; }
-        public boolean visit(DoStatement doStatement){ return false; }
-        public boolean visit(ForStatement forStatement){ return false; }
-        public boolean visit(IfStatement ifStatement){ return false; }
-        public boolean visit(TryStatement tryStatement){ return false; }
+        @Override
+		public boolean visit(Block blk){ return false; }
+        @Override
+		public boolean visit(DoStatement doStatement){ return false; }
+        @Override
+		public boolean visit(ForStatement forStatement){ return false; }
+        @Override
+		public boolean visit(IfStatement ifStatement){ return false; }
+        @Override
+		public boolean visit(TryStatement tryStatement){ return false; }
         
         public void reset(){ _annotations.clear(); }
     }
@@ -106,6 +114,7 @@ public class Visitors {
 		/**
 		 * visit package declaration
 		 */
+		@Override
 		public boolean visit(org.eclipse.jdt.core.dom.PackageDeclaration node)
         {
 			final List<Annotation> annotations = node.annotations();
@@ -118,7 +127,8 @@ public class Visitors {
 		/**
 		 * visit class and interface declaration
 		 */
-        public boolean visit(org.eclipse.jdt.core.dom.TypeDeclaration node)
+        @Override
+		public boolean visit(org.eclipse.jdt.core.dom.TypeDeclaration node)
         {
             visitBodyDeclaration(node);
             return true;
@@ -127,7 +137,8 @@ public class Visitors {
 		/**
 		 * visit annotation type declaration
 		 */
-        public boolean visit(org.eclipse.jdt.core.dom.AnnotationTypeDeclaration node)
+        @Override
+		public boolean visit(org.eclipse.jdt.core.dom.AnnotationTypeDeclaration node)
         {
             visitBodyDeclaration(node);
             return true;
@@ -136,7 +147,8 @@ public class Visitors {
 		/**
 		 * visit enum type declaration
 		 */
-        public boolean visit(org.eclipse.jdt.core.dom.EnumDeclaration node)
+        @Override
+		public boolean visit(org.eclipse.jdt.core.dom.EnumDeclaration node)
         {
             visitBodyDeclaration(node);
             return true;
@@ -145,7 +157,8 @@ public class Visitors {
 		/**
 		 * visit field declaration
 		 */
-        public boolean visit(org.eclipse.jdt.core.dom.FieldDeclaration node)
+        @Override
+		public boolean visit(org.eclipse.jdt.core.dom.FieldDeclaration node)
         {
             visitBodyDeclaration(node);
             return true;
@@ -154,7 +167,8 @@ public class Visitors {
 		/**
 		 * visit enum constant declaration
 		 */
-        public boolean visit(org.eclipse.jdt.core.dom.EnumConstantDeclaration node)
+        @Override
+		public boolean visit(org.eclipse.jdt.core.dom.EnumConstantDeclaration node)
         {
             visitBodyDeclaration(node);
             return true;
@@ -163,7 +177,8 @@ public class Visitors {
 		/**
 		 * visit method declaration
 		 */
-        public boolean visit(MethodDeclaration node)
+        @Override
+		public boolean visit(MethodDeclaration node)
         {
             visitBodyDeclaration(node);
             return true;
@@ -172,7 +187,8 @@ public class Visitors {
 		/**
 		 * visit annotation type member
 		 */
-        public boolean visit(AnnotationTypeMemberDeclaration node)
+        @Override
+		public boolean visit(AnnotationTypeMemberDeclaration node)
         {
             visitBodyDeclaration(node);
             return true;
@@ -196,6 +212,7 @@ public class Visitors {
 		/**
 		 * visiting formal parameter declaration.
 		 */
+		@Override
 		public boolean visit(SingleVariableDeclaration node)
 		{
 			final List<IExtendedModifier> extMods = node.modifiers();
@@ -215,13 +232,17 @@ public class Visitors {
 		/**
 		 * @return false so we skip everything beyond declaration level.
 		 */
-        public boolean visit(Block node)
+        @Override
+		public boolean visit(Block node)
         {   // so we don't look into anything beyond declaration level.
             return false;
         }
-        public boolean visit(MarkerAnnotation node){ return false; }
-        public boolean visit(NormalAnnotation node){ return false; }
-        public boolean visit(SingleMemberAnnotation node){ return false; }
+        @Override
+		public boolean visit(MarkerAnnotation node){ return false; }
+        @Override
+		public boolean visit(NormalAnnotation node){ return false; }
+        @Override
+		public boolean visit(SingleMemberAnnotation node){ return false; }
     }
 	
     /**
@@ -250,35 +271,43 @@ public class Visitors {
     	/**
     	 * We only visit nodes that can have annotations on them
     	 */
-    	public boolean visit(AnnotationTypeDeclaration node) {
+    	@Override
+		public boolean visit(AnnotationTypeDeclaration node) {
     		return internalVisit(node);
     	}
     	
-    	public boolean visit(AnnotationTypeMemberDeclaration node) {
+    	@Override
+		public boolean visit(AnnotationTypeMemberDeclaration node) {
     		return internalVisit(node);
     	}
     	
-    	public boolean visit(EnumDeclaration node) {
+    	@Override
+		public boolean visit(EnumDeclaration node) {
     		return internalVisit(node);
     	}
     	
-    	public boolean visit(EnumConstantDeclaration node) {
+    	@Override
+		public boolean visit(EnumConstantDeclaration node) {
     		return internalVisit(node);
     	}
     	
-    	public boolean visit(FieldDeclaration node) {
+    	@Override
+		public boolean visit(FieldDeclaration node) {
     		return internalVisit(node);
     	}
     	
-    	public boolean visit(MethodDeclaration node) {
+    	@Override
+		public boolean visit(MethodDeclaration node) {
     		return internalVisit(node);
     	}
     	
-    	public boolean visit(TypeDeclaration node) {
+    	@Override
+		public boolean visit(TypeDeclaration node) {
     		return internalVisit(node);
     	}
     	
-    	public boolean visit(SingleVariableDeclaration node) {
+    	@Override
+		public boolean visit(SingleVariableDeclaration node) {
     		return internalVisit(node);
     	}
     	
@@ -321,13 +350,17 @@ public class Visitors {
     	/**
 		 * @return false so we skip everything beyond declaration level.
 		 */
-        public boolean visit(Block node)
+        @Override
+		public boolean visit(Block node)
         {   // so we don't look into anything beyond declaration level.
             return false;
         }
-        public boolean visit(MarkerAnnotation node){ return false; }
-        public boolean visit(NormalAnnotation node){ return false; }
-        public boolean visit(SingleMemberAnnotation node){ return false; }
+        @Override
+		public boolean visit(MarkerAnnotation node){ return false; }
+        @Override
+		public boolean visit(NormalAnnotation node){ return false; }
+        @Override
+		public boolean visit(SingleMemberAnnotation node){ return false; }
     }
 	/**
 	 * Responsible for finding the ending offset of the tighest ast node match that starts 
@@ -382,7 +415,8 @@ public class Visitors {
     			_endingOffsets[i] = 0;
     	}
     	
-    	public void preVisit(ASTNode node) 
+    	@Override
+		public void preVisit(ASTNode node) 
     	{
     		final int startingOffset = node.getStartPosition();
     		final int endingOffset = startingOffset + node.getLength();

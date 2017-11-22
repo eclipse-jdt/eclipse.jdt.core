@@ -43,6 +43,7 @@ import java.util.*;
 public class AnnotationProcessors {
     static class NoOpAP implements AnnotationProcessor {
 	NoOpAP() {}
+	@Override
 	public void process(){}
     }
 
@@ -78,6 +79,7 @@ public class AnnotationProcessors {
 	 * Invokes the <tt>process</tt> method of each component processor,
 	 * in the order in which the processors were passed to the constructor.
 	 */
+	@Override
 	public void process() { 
 	    for(AnnotationProcessor ap: aps)
 		ap.process();

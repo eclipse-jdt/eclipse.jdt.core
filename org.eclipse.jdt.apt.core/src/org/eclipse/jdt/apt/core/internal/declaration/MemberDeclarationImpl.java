@@ -29,18 +29,21 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
         super(binding, env);
     }
     
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitMemberDeclaration(this);
     }
     
-    public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
+    @Override
+	public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
     {
 		final IAnnotationBinding[] instances = getAnnotationInstances();
 		return _getAnnotation(annotationClass, instances);
     }
 
-    public Collection<AnnotationMirror> getAnnotationMirrors()
+    @Override
+	public Collection<AnnotationMirror> getAnnotationMirrors()
     {
 		final IAnnotationBinding[] instances = getAnnotationInstances();
 		return _getAnnotationMirrors(instances);		
@@ -70,7 +73,8 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
 		return instances;
 	}
 
-    public String getDocComment()
+    @Override
+	public String getDocComment()
     {
         if( isFromSource()){
         	final ASTNode node = getAstNode();        	
@@ -98,7 +102,8 @@ public abstract class MemberDeclarationImpl extends DeclarationImpl implements M
 	 *         if the declaration is (or is part of) a secondary type that is defined 
 	 *         outside of the file associated with the environment.
 	 */
-    public SourcePosition getPosition()
+    @Override
+	public SourcePosition getPosition()
     {
         if( isFromSource() ){
 			final ASTNode node = getRangeNode();

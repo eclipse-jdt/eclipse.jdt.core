@@ -29,28 +29,33 @@ public class AnnotationDeclarationImpl extends InterfaceDeclarationImpl implemen
         assert binding.isAnnotation() : "binding does not represent a annotation "; //$NON-NLS-1$
     }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitAnnotationTypeDeclaration(this);
     }
 
-    @SuppressWarnings("unchecked") // _getMethods() return type is too broadly specified
+    @Override
+	@SuppressWarnings("unchecked") // _getMethods() return type is too broadly specified
 	public Collection<AnnotationTypeElementDeclaration> getMethods()
     {
         return (Collection<AnnotationTypeElementDeclaration>)_getMethods();
     }
 
     // start of implementation of AnnotationType API
-    public void accept(TypeVisitor visitor)
+    @Override
+	public void accept(TypeVisitor visitor)
     {
         visitor.visitAnnotationType(this);
     }
 
-    public AnnotationTypeDeclaration getDeclaration()
+    @Override
+	public AnnotationTypeDeclaration getDeclaration()
     {
         return (AnnotationTypeDeclaration)super.getDeclaration();
     }
     // end of implementation of AnnotationType API
 
-    public MirrorKind kind(){ return MirrorKind.TYPE_ANNOTATION; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.TYPE_ANNOTATION; }
 }

@@ -45,5 +45,6 @@ public interface EnumConstantDeclaration extends FieldDeclaration {
     /**
      * {@inheritDoc}
      */
-    EnumDeclaration getDeclaringType();
+    @Override
+	EnumDeclaration getDeclaringType();
 }

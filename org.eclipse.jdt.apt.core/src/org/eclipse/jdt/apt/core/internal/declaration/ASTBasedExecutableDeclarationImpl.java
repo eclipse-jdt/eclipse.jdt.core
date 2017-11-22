@@ -37,32 +37,38 @@ public abstract class ASTBasedExecutableDeclarationImpl
 		super(astNode, file, env);
 	}
 	
+	@Override
 	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitExecutableDeclaration(this);
     }
 	
-    public Collection<TypeParameterDeclaration> getFormalTypeParameters()
+    @Override
+	public Collection<TypeParameterDeclaration> getFormalTypeParameters()
     {
     	return ExecutableUtil.getFormalTypeParameters(this, _env);
     }
     
-    public Collection<ParameterDeclaration> getParameters()
+    @Override
+	public Collection<ParameterDeclaration> getParameters()
     {
     	return ExecutableUtil.getParameters(this, _env);
     }
 
-    public Collection<ReferenceType> getThrownTypes()
+    @Override
+	public Collection<ReferenceType> getThrownTypes()
     {
     	return ExecutableUtil.getThrownTypes(this, _env);
     }
 
-    public boolean isVarArgs()
+    @Override
+	public boolean isVarArgs()
     {
         return getMethodAstNode().isVarargs();
     }
 
-    public String getSimpleName()
+    @Override
+	public String getSimpleName()
     {
     	final org.eclipse.jdt.core.dom.MethodDeclaration methodAstNode = getMethodAstNode(); 
     	final SimpleName nameNode = methodAstNode.getName();
@@ -73,7 +79,8 @@ public abstract class ASTBasedExecutableDeclarationImpl
 		return (org.eclipse.jdt.core.dom.MethodDeclaration)_astNode; 
 	}
     
-    public String toString()
+    @Override
+	public String toString()
     {
         final StringBuilder buffer = new StringBuilder();
         final org.eclipse.jdt.core.dom.MethodDeclaration methodAstNode = getMethodAstNode();

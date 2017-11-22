@@ -47,19 +47,22 @@ public class ASTBasedFieldDeclarationImpl
 			   "parent isn't a field declaration"; //$NON-NLS-1$
     }
 	
+	@Override
 	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitFieldDeclaration(this);
     }
 
-    public String getConstantExpression()
+    @Override
+	public String getConstantExpression()
     {
         final Object constant = getConstantValue();
         if( constant == null ) return null;
         return constant.toString();   
     }
 
-    public Object getConstantValue()
+    @Override
+	public Object getConstantValue()
     {
     	final VariableDeclarationFragment fragment = getAstNode();
     	final Expression initializer = fragment.getInitializer();
@@ -67,13 +70,15 @@ public class ASTBasedFieldDeclarationImpl
         return initializer.resolveConstantExpressionValue();
     }
     
-    public String getSimpleName() {
+    @Override
+	public String getSimpleName() {
 		final VariableDeclarationFragment fragment = getAstNode();			
 		final SimpleName nameNode = fragment.getName();
 		return nameNode == null ? EMPTY_STRING : nameNode.getIdentifier();
 	}
 
-    public TypeMirror getType()
+    @Override
+	public TypeMirror getType()
     {
         final org.eclipse.jdt.core.dom.FieldDeclaration fieldASTNode = getFieldDeclarationAstNode();
         final Type type = fieldASTNode.getType();
@@ -91,7 +96,8 @@ public class ASTBasedFieldDeclarationImpl
         }
     }
     
-    public String toString()
+    @Override
+	public String toString()
     {
     	/*
     	final org.eclipse.jdt.core.dom.FieldDeclaration fieldASTNode = getFieldDeclarationAstNode(); 
@@ -108,9 +114,11 @@ public class ASTBasedFieldDeclarationImpl
     	return getSimpleName();
     }
 
-    public MirrorKind kind(){ return MirrorKind.FIELD; }    
+    @Override
+	public MirrorKind kind(){ return MirrorKind.FIELD; }    
     
-    VariableDeclarationFragment getAstNode()
+    @Override
+	VariableDeclarationFragment getAstNode()
     {
     	return (VariableDeclarationFragment)_astNode;
     }

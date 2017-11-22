@@ -42,12 +42,14 @@ public class SourceParameterDeclarationImpl
     	super( astNode, file, env);
     }
     
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitParameterDeclaration(this);
     }  
     
-    public TypeMirror getType()
+    @Override
+	public TypeMirror getType()
     {
     	final SingleVariableDeclaration astNode = getAstNode();
     	final Type  type = astNode.getType();
@@ -79,28 +81,34 @@ public class SourceParameterDeclarationImpl
     	}
     }
     
-    public String getSimpleName()
+    @Override
+	public String getSimpleName()
     {
     	final Name nameNode = getAstNode().getName();
     	return nameNode == null ? EMPTY_STRING : nameNode.toString();
     }
     
-    public String getDocComment()
+    @Override
+	public String getDocComment()
     {   
     	return EMPTY_STRING;
     }
     
-    SingleVariableDeclaration getAstNode()
+    @Override
+	SingleVariableDeclaration getAstNode()
     {
     	return (SingleVariableDeclaration)_astNode;
     }  
     
-    public MirrorKind kind(){ return MirrorKind.FORMAL_PARAMETER; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.FORMAL_PARAMETER; }
     
-    public String toString(){
+    @Override
+	public String toString(){
     	return _astNode.toString();
     }
 	
+	@Override
 	public boolean equals(Object obj){
         if( obj instanceof SourceParameterDeclarationImpl ){
             final SourceParameterDeclarationImpl otherParam = (SourceParameterDeclarationImpl)obj;
@@ -109,6 +117,7 @@ public class SourceParameterDeclarationImpl
         return false;
     }
 	
+	@Override
 	public int hashCode(){
 		return _astNode.hashCode();
     }

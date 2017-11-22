@@ -49,5 +49,6 @@ public interface AnnotationType extends InterfaceType {
     /**
      * {@inheritDoc}
      */
-    AnnotationTypeDeclaration getDeclaration();
+    @Override
+	AnnotationTypeDeclaration getDeclaration();
 }

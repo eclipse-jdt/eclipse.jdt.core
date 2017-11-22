@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IExecutableExtensionFactory;
 public class AptCompilationParticipantExtensionFactory implements
 		IExecutableExtensionFactory {
 
+	@Override
 	public Object create() throws CoreException {
 		return AptCompilationParticipant.getInstance();
 	}

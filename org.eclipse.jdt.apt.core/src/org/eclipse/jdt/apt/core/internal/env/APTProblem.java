@@ -48,6 +48,7 @@ class APTProblem extends CategorizedProblem
 		_markerType = isNonReconcile ? AptPlugin.APT_NONRECONCILE_COMPILATION_PROBLEM_MARKER : AptPlugin.APT_COMPILATION_PROBLEM_MARKER;
 	}
 
+	@Override
 	public int getID() {
 		// If we have arguments, then we're quick-fixable
 		if (_arguments != null) {
@@ -58,54 +59,67 @@ class APTProblem extends CategorizedProblem
 		}
 	}
 	
+	@Override
 	public String[] getArguments() {	
 		return _arguments == null ? NO_ARGS : (String[])_arguments.clone();
 	}
 	
+	@Override
 	public String getMessage() {	
 		return _message;
 	}
 	
+	@Override
 	public char[] getOriginatingFileName() {		
 		return _resource.getName().toCharArray();
 	}
 	
+	@Override
 	public int getSourceStart() {
 		return _startingOffset;
 	}
 	
+	@Override
 	public int getSourceEnd() {	
 		return _endingOffset;
 	}
 	
+	@Override
 	public int getSourceLineNumber() {		
 		return _line;
 	}
 	
+	@Override
 	public void setSourceStart(int sourceStart) {
 		_startingOffset = sourceStart;
 	}	
 	
+	@Override
 	public void setSourceEnd(int sourceEnd) {
 		_endingOffset = sourceEnd;
 	}
 	
+	@Override
 	public void setSourceLineNumber(int lineNumber) {
 		_line = lineNumber;		
 	}
 	
+	@Override
 	public boolean isError() {
 		return _severity == Severity.ERROR;
 	}
 	
+	@Override
 	public boolean isWarning() {
 		return _severity == Severity.WARNING;
 	}
 
+	@Override
 	public boolean isInfo() {
 		return _severity == Severity.INFO;
 	}
 	
+	@Override
 	public String toString()
 	{
 		return _message == null ? "<null message>" : _message ;  //$NON-NLS-1$

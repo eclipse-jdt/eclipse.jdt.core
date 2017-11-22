@@ -52,30 +52,35 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         super(binding, env);
     }
 
-    public String getQualifiedName()
+    @Override
+	public String getQualifiedName()
     {
         ITypeBinding type = getTypeBinding();
         return type.getQualifiedName();      
     }
 
-    public String getSimpleName()
+    @Override
+	public String getSimpleName()
     {
     	ITypeBinding type = getTypeBinding();
     	return type.getName();        
     }
 
-    public PackageDeclaration getPackage()
+    @Override
+	public PackageDeclaration getPackage()
     {
         ITypeBinding binding = getDeclarationBinding();
 		return new PackageDeclarationImpl(binding.getPackage(), this, _env, false);        
     }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitTypeDeclaration(this);
     }
 
-    public ITypeBinding getTypeBinding(){ return (ITypeBinding)_binding; }
+    @Override
+	public ITypeBinding getTypeBinding(){ return (ITypeBinding)_binding; }
     
 	private void getASTFields(
     		final AbstractTypeDeclaration typeDecl, 
@@ -101,7 +106,8 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     	}
     }
 
-    public Collection<FieldDeclaration> getFields()
+    @Override
+	public Collection<FieldDeclaration> getFields()
     {
     	final List<FieldDeclaration> results = new ArrayList<>();
     	final ITypeBinding typeBinding = getDeclarationBinding();
@@ -141,7 +147,8 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         return results;
     }
 
-    public Collection<TypeDeclaration> getNestedTypes()
+    @Override
+	public Collection<TypeDeclaration> getNestedTypes()
     {
         final ITypeBinding[] memberTypes = getDeclarationBinding().getDeclaredTypes();
         final List<TypeDeclaration> results = new ArrayList<>(memberTypes.length);
@@ -153,7 +160,8 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         return results;
     }
 
-    public Collection<TypeParameterDeclaration> getFormalTypeParameters()
+    @Override
+	public Collection<TypeParameterDeclaration> getFormalTypeParameters()
     {
         final ITypeBinding[] typeParams = getDeclarationBinding().getTypeParameters();
         final List<TypeParameterDeclaration> results = new ArrayList<>(typeParams.length);
@@ -165,7 +173,8 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         return results;
     }    
 
-    public TypeDeclaration getDeclaringType()
+    @Override
+	public TypeDeclaration getDeclaringType()
     {
         final ITypeBinding decl = getDeclarationBinding();
         if( decl.isMember() )
@@ -174,7 +183,8 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     }
 
     // Start of implementation of DeclaredType API
-    public Collection<TypeMirror> getActualTypeArguments()
+    @Override
+	public Collection<TypeMirror> getActualTypeArguments()
     {
         final ITypeBinding type = getTypeBinding();
         final ITypeBinding[] typeArgs = type.getTypeArguments();
@@ -193,20 +203,23 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         return result;
     }
 
-    public DeclaredType getContainingType()
+    @Override
+	public DeclaredType getContainingType()
     {
         final ITypeBinding outer = getTypeBinding().getDeclaringClass();
         return Factory.createReferenceType(outer, _env);
     }
 
-    public TypeDeclaration getDeclaration()
+    @Override
+	public TypeDeclaration getDeclaration()
     {
         final ITypeBinding declBinding = getDeclarationBinding();
         if( declBinding == _binding ) return this;
         else return Factory.createReferenceType(declBinding, _env);
     }
     
-    public Collection<InterfaceType> getSuperinterfaces()
+    @Override
+	public Collection<InterfaceType> getSuperinterfaces()
     {
         final ITypeBinding[] superInterfaceBindings = getDeclarationBinding().getInterfaces();
         if( superInterfaceBindings == null || superInterfaceBindings.length == 0 )
@@ -227,7 +240,8 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 
     // End of implementation of DeclaredType API
 
-    public ITypeBinding getDeclarationBinding()
+    @Override
+	public ITypeBinding getDeclarationBinding()
     {	
         final ITypeBinding type = getTypeBinding();
         return type.getTypeDeclaration();
@@ -319,16 +333,19 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         return results;
     }
     
-    public String toString()
+    @Override
+	public String toString()
     {		
     	return getQualifiedName();
     }
 
-    public boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }
+    @Override
+	public boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }
 
     // This is not just a call to ITypeBinding.isAssignmentCompatible(),
     // because that can fail in the so-called "multiverse" case where the
     // left and right types are drawn from different parser instances.
+	@Override
 	public boolean isAssignmentCompatible(EclipseMirrorType left) {
 		ITypeBinding leftBinding = left.getTypeBinding();
 		if (leftBinding.isPrimitive()) {
@@ -339,6 +356,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 		return isSubTypeCompatible(left);
 	}
 	
+	@Override
 	public boolean isSubTypeCompatible(EclipseMirrorType type) {
 		// Operate on erasures - ignore generics for now
 		// Also ignore boxing for now

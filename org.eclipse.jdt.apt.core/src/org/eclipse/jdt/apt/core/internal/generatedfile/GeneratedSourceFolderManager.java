@@ -438,7 +438,8 @@ public class GeneratedSourceFolderManager {
 		}
 		
 		final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
-	        public void run(IProgressMonitor monitor)
+	        @Override
+			public void run(IProgressMonitor monitor)
 	        {		
             	try {
             		IResource parent = srcFolder.getParent();

@@ -179,7 +179,8 @@ import org.eclipse.jdt.core.dom.SimpleName;
     			_endingOffsets[i] = 0;
     	}
     	
-    	public void preVisit(ASTNode node) 
+    	@Override
+		public void preVisit(ASTNode node) 
     	{
     		final int startingOffset = node.getStartPosition();
     		final int endingOffset = startingOffset + node.getLength();

@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.IJavaProject;
  */
 public class WorkingCopyCleanupListener implements IElementChangedListener 
 {
+	@Override
 	public void elementChanged(ElementChangedEvent event) 
 	{
 		Object o = event.getSource();

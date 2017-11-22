@@ -51,7 +51,8 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
         _env = env;
     }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitDeclaration(this);     
     }        
@@ -140,6 +141,7 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
     
     public abstract boolean isBindingBased(); 
 	
+	@Override
 	public BaseProcessorEnv getEnvironment(){ return _env; }
 	
 	/**

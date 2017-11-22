@@ -44,22 +44,26 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements
 		assert binding.isTypeVariable();
     }
 
-    public void accept(DeclarationVisitor visitor)
+    @Override
+	public void accept(DeclarationVisitor visitor)
     {
         visitor.visitTypeParameterDeclaration(this);
     }
 
-    public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
+    @Override
+	public <A extends Annotation> A getAnnotation(Class<A> annotationClass)
     {
         return null;
     }
 
-    public Collection<AnnotationMirror> getAnnotationMirrors()
+    @Override
+	public Collection<AnnotationMirror> getAnnotationMirrors()
     {
         return Collections.emptyList();
     }
 
-    public Collection<ReferenceType> getBounds()
+    @Override
+	public Collection<ReferenceType> getBounds()
     {
         final ITypeBinding[] bounds = getDeclarationBinding().getTypeBounds();
         if( bounds == null || bounds.length == 0 )
@@ -75,17 +79,20 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements
         return result;
     }
 
-    public String getDocComment()
+    @Override
+	public String getDocComment()
     {
         return null;
     }
 
-    public Collection<Modifier> getModifiers()
+    @Override
+	public Collection<Modifier> getModifiers()
     {
         return Collections.emptyList();
     }
 
-    public Declaration getOwner()
+    @Override
+	public Declaration getOwner()
     {
 		return Factory.createDeclaration(getOwnerBinding(), _env);    
     }
@@ -100,7 +107,8 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements
 		return owner;
 	}
     
-    public SourcePosition getPosition()
+    @Override
+	public SourcePosition getPosition()
     {
         if( isFromSource() )
         {
@@ -118,40 +126,50 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements
             return null;
     }
 
-    public String getSimpleName()
+    @Override
+	public String getSimpleName()
     {
         final ITypeBinding typeVar = getDeclarationBinding();
         return typeVar.getName();
     }
 
     // Start of implementation of TypeVariable API
-    public void accept(TypeVisitor visitor)
+    @Override
+	public void accept(TypeVisitor visitor)
     {
         visitor.visitTypeVariable(this);
     }
 
-    public TypeParameterDeclaration getDeclaration()
+    @Override
+	public TypeParameterDeclaration getDeclaration()
     {
         return this;
     }
     // End of implementation of TypeVariable API
 
-    public String toString()
+    @Override
+	public String toString()
     {
         return getSimpleName();
     }
 
-    public MirrorKind kind(){ return MirrorKind.TYPE_PARAMETER_VARIABLE; }
+    @Override
+	public MirrorKind kind(){ return MirrorKind.TYPE_PARAMETER_VARIABLE; }
 	
+	@Override
 	public ITypeBinding getDeclarationBinding(){ return (ITypeBinding) _binding; }
+	@Override
 	public ITypeBinding getTypeBinding() { return (ITypeBinding)_binding;}
 
+	@Override
 	public boolean isFromSource(){ return getDeclarationBinding().isFromSource(); }
 
+	@Override
 	public boolean isAssignmentCompatible(EclipseMirrorType left) {
 		return isSubTypeCompatible(left);
 	}
 
+	@Override
 	public boolean isSubTypeCompatible(EclipseMirrorType type) {
 		if (type.kind() == MirrorKind.TYPE_PARAMETER_VARIABLE) {
 			TypeParameterDeclarationImpl other = (TypeParameterDeclarationImpl) type;

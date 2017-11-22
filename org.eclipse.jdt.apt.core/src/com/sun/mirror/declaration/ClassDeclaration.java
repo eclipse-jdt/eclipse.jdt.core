@@ -86,5 +86,6 @@ public interface ClassDeclaration extends TypeDeclaration {
     /**
      * {@inheritDoc}
      */
-    Collection<MethodDeclaration> getMethods();
+    @Override
+	Collection<MethodDeclaration> getMethods();
 }

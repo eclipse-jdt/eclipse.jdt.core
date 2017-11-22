@@ -21,6 +21,7 @@ class ClassServiceFactory implements IServiceFactory {
 		_clazz = clazz;
 	}
 
+	@Override
 	public Object newInstance() throws CoreException {
 		try {
 			return _clazz.newInstance();
@@ -33,6 +34,7 @@ class ClassServiceFactory implements IServiceFactory {
 		}
 	}
 	
+	@Override
 	public String toString() {
 		if (_clazz == null) {
 			return "unknown (null)"; //$NON-NLS-1$

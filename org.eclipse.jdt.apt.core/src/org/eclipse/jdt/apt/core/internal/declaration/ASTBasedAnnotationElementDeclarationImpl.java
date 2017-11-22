@@ -40,10 +40,12 @@ public class ASTBasedAnnotationElementDeclarationImpl
 		super(astNode, file, env);
 	}
 
+	@Override
 	public void accept(DeclarationVisitor visitor) {
 		visitor.visitAnnotationTypeElementDeclaration(this);
 	}
 
+	@Override
 	public AnnotationTypeDeclaration getDeclaringType() {
 		return (AnnotationTypeDeclaration) super.getDeclaringType();
 	}
@@ -55,6 +57,7 @@ public class ASTBasedAnnotationElementDeclarationImpl
 	 *         element is part of a seconary type that is defined outside the
 	 *         file associated with the environment.
 	 */
+	@Override
 	public AnnotationValue getDefaultValue() {
 		
 		final AnnotationTypeMemberDeclaration decl = getMemberAstNode();
@@ -75,16 +78,19 @@ public class ASTBasedAnnotationElementDeclarationImpl
 		return null;
 	}
 	
+	@Override
 	public boolean isVarArgs(){ return false; }
 
-    public String getSimpleName()
+    @Override
+	public String getSimpleName()
     {
     	final AnnotationTypeMemberDeclaration memberAstNode = getMemberAstNode(); 
     	final SimpleName nameNode = memberAstNode.getName();
     	return nameNode == null ? EMPTY_STRING : nameNode.getIdentifier();
     }  
     
-    public TypeMirror getReturnType()
+    @Override
+	public TypeMirror getReturnType()
     {
     	final AnnotationTypeMemberDeclaration memberAstNode = getMemberAstNode();
     	final Type retType = memberAstNode.getType();
@@ -104,6 +110,7 @@ public class ASTBasedAnnotationElementDeclarationImpl
         }
     }
 	
+	@Override
 	public String toString()
     {
         final StringBuilder buffer = new StringBuilder();
@@ -118,10 +125,12 @@ public class ASTBasedAnnotationElementDeclarationImpl
         return buffer.toString();
     }
 
+	@Override
 	public Collection<ParameterDeclaration> getParameters() {
 		return Collections.emptyList();
 	}
 
+	@Override
 	public MirrorKind kind() {
 		return MirrorKind.ANNOTATION_ELEMENT;
 	}

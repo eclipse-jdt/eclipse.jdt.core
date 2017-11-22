@@ -70,7 +70,8 @@ public enum Modifier {
     /**
      * Returns this modifier's name in lowercase.
      */
-    public String toString() {
+    @Override
+	public String toString() {
 	if (lowercase == null) {
 	   lowercase = name().toLowerCase(java.util.Locale.US); 
 	}

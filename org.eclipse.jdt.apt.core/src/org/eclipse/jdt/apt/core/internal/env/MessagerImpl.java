@@ -44,6 +44,7 @@ public class MessagerImpl implements Messager, EclipseMessager
     		print(pos, Severity.ERROR, msg, arguments);
     }
 	
+	@Override
 	public void printError(ASTNode node, String msg)
 	{
 		if( node == null )
@@ -57,7 +58,8 @@ public class MessagerImpl implements Messager, EclipseMessager
 		_env.addMessage(_env.getFile(), start, node.getLength() + start, Severity.ERROR, msg, line, null );
 	}
 
-    public void printError(String msg)
+    @Override
+	public void printError(String msg)
     {
         print(Severity.ERROR, msg, null);
     }
@@ -72,6 +74,7 @@ public class MessagerImpl implements Messager, EclipseMessager
     		print(pos, Severity.INFO, msg, arguments);
     }
 	
+	@Override
 	public void printNotice(ASTNode node, String msg)
 	{
 		if( node == null )
@@ -85,7 +88,8 @@ public class MessagerImpl implements Messager, EclipseMessager
 		_env.addMessage(_env.getFile(), start, node.getLength() + start, Severity.INFO, msg, line, null );
 	}
 
-    public void printNotice(String msg)
+    @Override
+	public void printNotice(String msg)
     {
        print(Severity.INFO, msg, null);
     }
@@ -100,6 +104,7 @@ public class MessagerImpl implements Messager, EclipseMessager
     		print(pos, Severity.WARNING, msg, arguments);
     }
 	
+	@Override
 	public void printWarning(ASTNode node, String msg)
 	{
 		if( node == null )
@@ -113,23 +118,28 @@ public class MessagerImpl implements Messager, EclipseMessager
 		_env.addMessage(_env.getFile(), start, node.getLength() + start, Severity.WARNING, msg, line, null);
 	}
 
-    public void printWarning(String msg)
+    @Override
+	public void printWarning(String msg)
     {
         print(Severity.WARNING, msg, null);
     }
     
-    public void printError(SourcePosition pos, String msg) {
+    @Override
+	public void printError(SourcePosition pos, String msg) {
 		printError(pos, msg, null);
 	}
 
+	@Override
 	public void printWarning(SourcePosition pos, String msg) {
 		printWarning(pos, msg, null);
 	}
 
+	@Override
 	public void printNotice(SourcePosition pos, String msg) {
 		printNotice(pos, msg, null);
 	}
 	
+	@Override
 	public void printFixableError(SourcePosition pos, String msg, String pluginId, String errorId) {
 		if (pluginId == null) {
 			throw new IllegalArgumentException("pluginId cannot be null"); //$NON-NLS-1$
@@ -140,6 +150,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		printError(pos, msg, new String[] {pluginId, errorId});
 	}
 	
+	@Override
 	public void printFixableWarning(SourcePosition pos, String msg, String pluginId, String errorId) {
 		if (pluginId == null) {
 			throw new IllegalArgumentException("pluginId cannot be null"); //$NON-NLS-1$
@@ -150,6 +161,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		printWarning(pos, msg, new String[] {pluginId, errorId});
 	}
 	
+	@Override
 	public void printFixableNotice(SourcePosition pos, String msg, String pluginId, String errorId) {
 		if (pluginId == null) {
 			throw new IllegalArgumentException("pluginId cannot be null"); //$NON-NLS-1$
@@ -160,6 +172,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		printNotice(pos, msg, new String[] {pluginId, errorId});
 	}
 	
+	@Override
 	public void printFixableError(String msg, String pluginId, String errorId) {
 		if (pluginId == null) {
 			throw new IllegalArgumentException("pluginId cannot be null"); //$NON-NLS-1$
@@ -170,6 +183,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		print(Severity.ERROR, msg, new String[] {pluginId, errorId});
 	}
 	
+	@Override
 	public void printFixableWarning(String msg, String pluginId, String errorId) {
 		if (pluginId == null) {
 			throw new IllegalArgumentException("pluginId cannot be null"); //$NON-NLS-1$
@@ -180,6 +194,7 @@ public class MessagerImpl implements Messager, EclipseMessager
 		print(Severity.WARNING, msg, new String[] {pluginId, errorId});
 	}
 	
+	@Override
 	public void printFixableNotice(String msg, String pluginId, String errorId) {
 		if (pluginId == null) {
 			throw new IllegalArgumentException("pluginId cannot be null"); //$NON-NLS-1$

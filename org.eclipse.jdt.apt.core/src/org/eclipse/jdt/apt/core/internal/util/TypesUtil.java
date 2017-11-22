@@ -48,7 +48,8 @@ public class TypesUtil implements Types
         assert env != null : "null environment."; //$NON-NLS-1$
     }
     
-    public ArrayType getArrayType(TypeMirror componentType)
+    @Override
+	public ArrayType getArrayType(TypeMirror componentType)
     {
         if( componentType == null ) return null;
         if( componentType instanceof EclipseMirrorType ){
@@ -119,7 +120,8 @@ public class TypesUtil implements Types
 		return null;
     }
 
-    public com.sun.mirror.type.DeclaredType getDeclaredType(DeclaredType containing, TypeDeclaration decl, TypeMirror... typeArgs)
+    @Override
+	public com.sun.mirror.type.DeclaredType getDeclaredType(DeclaredType containing, TypeDeclaration decl, TypeMirror... typeArgs)
     {
 		if( decl == null ) return null;
 	
@@ -167,12 +169,14 @@ public class TypesUtil implements Types
 		}	
     }
 
-    public com.sun.mirror.type.DeclaredType getDeclaredType(TypeDeclaration decl, TypeMirror... typeArgs)
+    @Override
+	public com.sun.mirror.type.DeclaredType getDeclaredType(TypeDeclaration decl, TypeMirror... typeArgs)
     {
 		return getDeclaredType(null, decl, typeArgs);		
     }
 
-    public TypeMirror getErasure(TypeMirror t)
+    @Override
+	public TypeMirror getErasure(TypeMirror t)
     {	
         if( t == null ) return null;
         
@@ -201,7 +205,8 @@ public class TypesUtil implements Types
                                                     " Found " + t.getClass().getName());	 //$NON-NLS-1$
 	}
 
-    public PrimitiveType getPrimitiveType(PrimitiveType.Kind kind)
+    @Override
+	public PrimitiveType getPrimitiveType(PrimitiveType.Kind kind)
     {
         if( kind == null ) return null;
         switch(kind)
@@ -219,7 +224,8 @@ public class TypesUtil implements Types
         }
     }
 
-    public TypeVariable getTypeVariable(TypeParameterDeclaration tparam)
+    @Override
+	public TypeVariable getTypeVariable(TypeParameterDeclaration tparam)
     {
         if( tparam == null ) return null;
         if( tparam instanceof TypeParameterDeclarationImpl)
@@ -229,12 +235,14 @@ public class TypesUtil implements Types
                                                     " Found " + tparam.getClass().getName()); //$NON-NLS-1$
     }
 
-    public VoidType getVoidType()
+    @Override
+	public VoidType getVoidType()
     {
         return _env.getVoidType();
     }
 
-    public WildcardType getWildcardType(Collection<ReferenceType> upperBounds, Collection<ReferenceType> lowerBounds)
+    @Override
+	public WildcardType getWildcardType(Collection<ReferenceType> upperBounds, Collection<ReferenceType> lowerBounds)
     {		
         final String boundKey;
         final char boundKind;
@@ -265,7 +273,8 @@ public class TypesUtil implements Types
     /**
      * @return true iff t2 = t1 does not require explicit casting and not cause an error.
      */
-    public boolean isAssignable(TypeMirror t1, TypeMirror t2)
+    @Override
+	public boolean isAssignable(TypeMirror t1, TypeMirror t2)
     {
     	EclipseMirrorType left = (EclipseMirrorType)t1;
     	EclipseMirrorType right = (EclipseMirrorType)t2;
@@ -273,7 +282,8 @@ public class TypesUtil implements Types
     	
     }
 
-    public boolean isSubtype(TypeMirror t1, TypeMirror t2)
+    @Override
+	public boolean isSubtype(TypeMirror t1, TypeMirror t2)
     {
     	EclipseMirrorType left = (EclipseMirrorType)t1;
     	EclipseMirrorType right = (EclipseMirrorType)t2;

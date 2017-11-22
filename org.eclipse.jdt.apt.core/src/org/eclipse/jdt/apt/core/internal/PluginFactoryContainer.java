@@ -52,11 +52,13 @@ public class PluginFactoryContainer extends FactoryContainer
 		return true;
 	}
 
+	@Override
 	protected Map<String, String> loadFactoryNames() {
 		// The list is populated when factory plugins are loaded.
 		return new LinkedHashMap<>();
 	}
 	
+	@Override
 	public String getId() {
 		return id;
 	}

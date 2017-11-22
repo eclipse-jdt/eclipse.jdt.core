@@ -65,7 +65,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitDeclaration(Declaration d) {
+    @Override
+	public void visitDeclaration(Declaration d) {
 	d.accept(pre);
 	d.accept(post);
     }
@@ -75,7 +76,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitPackageDeclaration(PackageDeclaration d) {
+    @Override
+	public void visitPackageDeclaration(PackageDeclaration d) {
 	d.accept(pre);
 
 	for(ClassDeclaration classDecl: d.getClasses()) {
@@ -94,7 +96,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitMemberDeclaration(MemberDeclaration d) {
+    @Override
+	public void visitMemberDeclaration(MemberDeclaration d) {
 	visitDeclaration(d);
     }
 
@@ -103,7 +106,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitTypeDeclaration(TypeDeclaration d) {
+    @Override
+	public void visitTypeDeclaration(TypeDeclaration d) {
 	d.accept(pre);
 
 	for(TypeParameterDeclaration tpDecl: d.getFormalTypeParameters()) {
@@ -130,7 +134,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitClassDeclaration(ClassDeclaration d) {
+    @Override
+	public void visitClassDeclaration(ClassDeclaration d) {
 	d.accept(pre);
 
 	for(TypeParameterDeclaration tpDecl: d.getFormalTypeParameters()) {
@@ -161,7 +166,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitEnumDeclaration(EnumDeclaration d) {
+    @Override
+	public void visitEnumDeclaration(EnumDeclaration d) {
 	visitClassDeclaration(d);
     }
 
@@ -170,7 +176,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitInterfaceDeclaration(InterfaceDeclaration d) {
+    @Override
+	public void visitInterfaceDeclaration(InterfaceDeclaration d) {
 	visitTypeDeclaration(d);
     }
 
@@ -179,7 +186,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitAnnotationTypeDeclaration(AnnotationTypeDeclaration d) {
+    @Override
+	public void visitAnnotationTypeDeclaration(AnnotationTypeDeclaration d) {
 	visitInterfaceDeclaration(d);
     }
 
@@ -188,7 +196,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitFieldDeclaration(FieldDeclaration d) {
+    @Override
+	public void visitFieldDeclaration(FieldDeclaration d) {
 	visitMemberDeclaration(d);
     }
 
@@ -197,7 +206,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitEnumConstantDeclaration(EnumConstantDeclaration d) {
+    @Override
+	public void visitEnumConstantDeclaration(EnumConstantDeclaration d) {
 	visitFieldDeclaration(d);
     }
 
@@ -206,7 +216,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitExecutableDeclaration(ExecutableDeclaration d) {
+    @Override
+	public void visitExecutableDeclaration(ExecutableDeclaration d) {
 	d.accept(pre);
 
 	for(TypeParameterDeclaration tpDecl: d.getFormalTypeParameters()) {
@@ -225,7 +236,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitConstructorDeclaration(ConstructorDeclaration d) {
+    @Override
+	public void visitConstructorDeclaration(ConstructorDeclaration d) {
 	visitExecutableDeclaration(d);
     }
 
@@ -234,7 +246,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitMethodDeclaration(MethodDeclaration d) {
+    @Override
+	public void visitMethodDeclaration(MethodDeclaration d) {
 	visitExecutableDeclaration(d);
     }
 
@@ -243,7 +256,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitAnnotationTypeElementDeclaration(
+    @Override
+	public void visitAnnotationTypeElementDeclaration(
 	    AnnotationTypeElementDeclaration d) {
 	visitMethodDeclaration(d);
     }
@@ -253,7 +267,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitParameterDeclaration(ParameterDeclaration d) {
+    @Override
+	public void visitParameterDeclaration(ParameterDeclaration d) {
 	visitDeclaration(d);
     }
 
@@ -262,7 +277,8 @@ class DeclarationScanner implements DeclarationVisitor {
      *
      * @param d the declaration to visit
      */
-    public void visitTypeParameterDeclaration(TypeParameterDeclaration d) {
+    @Override
+	public void visitTypeParameterDeclaration(TypeParameterDeclaration d) {
 	visitDeclaration(d);
     }
 }

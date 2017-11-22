@@ -70,7 +70,8 @@ public abstract class RoundCompleteEvent extends java.util.EventObject {
     /**
      * Return source.
      */
-    public AnnotationProcessorEnvironment getSource() {
+    @Override
+	public AnnotationProcessorEnvironment getSource() {
 	return (AnnotationProcessorEnvironment)super.getSource();
     }
 }

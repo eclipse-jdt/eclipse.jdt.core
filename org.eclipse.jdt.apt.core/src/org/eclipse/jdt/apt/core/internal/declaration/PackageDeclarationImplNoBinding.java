@@ -38,44 +38,54 @@ public class PackageDeclarationImplNoBinding implements PackageDeclaration {
 		this.fragments = fragments;
 	}
 
+	@Override
 	public String getQualifiedName() {
 		return fragments[0].getElementName();
 	}
 
+	@Override
 	public Collection<ClassDeclaration> getClasses() {
 		return Collections.emptyList();
     }
 
-    public Collection<EnumDeclaration> getEnums() {
+    @Override
+	public Collection<EnumDeclaration> getEnums() {
 		return Collections.emptyList();
     }
 
-    public Collection<InterfaceDeclaration> getInterfaces() {
+    @Override
+	public Collection<InterfaceDeclaration> getInterfaces() {
 		return Collections.emptyList();
     }
 
+	@Override
 	public Collection<AnnotationTypeDeclaration> getAnnotationTypes() {
 		return Collections.emptyList();
 	}
 
+	@Override
 	public String getDocComment() {
 		// Packages have no comments
 		return null;
 	}
 
+	@Override
 	public Collection<AnnotationMirror> getAnnotationMirrors() {
 		return Collections.emptyList();
 	}
 
+	@Override
 	public <A extends Annotation> A getAnnotation(Class<A> arg0) {
 		return null;
 	}
 
+	@Override
 	public Collection<Modifier> getModifiers() {
 		// Packages do not have modifiers
 		return Collections.emptyList();
 	}
 
+	@Override
 	public String getSimpleName() {
 		String components = getQualifiedName();
 		int dotIndex = components.indexOf("."); //$NON-NLS-1$
@@ -84,11 +94,13 @@ public class PackageDeclarationImplNoBinding implements PackageDeclaration {
 		return components.substring(dotIndex + 1);
 	}
 
+	@Override
 	public SourcePosition getPosition() {
 		// non-source, we do not have a source position
 		return null;
 	}
 
+	@Override
 	public void accept(final DeclarationVisitor visitor) {
 		visitor.visitDeclaration(this);
 		visitor.visitPackageDeclaration(this);

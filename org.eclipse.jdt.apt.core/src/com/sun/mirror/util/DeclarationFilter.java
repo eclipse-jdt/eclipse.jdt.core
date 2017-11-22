@@ -138,7 +138,8 @@ public class DeclarationFilter {
     public static DeclarationFilter getFilter(
 					     final Collection<Modifier> mods) {
 	return new DeclarationFilter() {
-	    public boolean matches(Declaration d) {
+	    @Override
+		public boolean matches(Declaration d) {
 		return d.getModifiers().containsAll(mods);
 	    }
 	};
@@ -158,7 +159,8 @@ public class DeclarationFilter {
     public static DeclarationFilter getFilter(
 				     final Class<? extends Declaration> kind) {
 	return new DeclarationFilter() {
-	    public boolean matches(Declaration d) {
+	    @Override
+		public boolean matches(Declaration d) {
 		return kind.isInstance(d);
 	    }
 	};
@@ -176,7 +178,8 @@ public class DeclarationFilter {
 	final DeclarationFilter f1 = this;
 	final DeclarationFilter f2 = f;
 	return new DeclarationFilter() {
-	    public boolean matches(Declaration d) {
+	    @Override
+		public boolean matches(Declaration d) {
 		return f1.matches(d) && f2.matches(d);
 	    }
 	};
@@ -194,7 +197,8 @@ public class DeclarationFilter {
 	final DeclarationFilter f1 = this;
 	final DeclarationFilter f2 = f;
 	return new DeclarationFilter() {
-	    public boolean matches(Declaration d) {
+	    @Override
+		public boolean matches(Declaration d) {
 		return f1.matches(d) || f2.matches(d);
 	    }
 	};
@@ -209,7 +213,8 @@ public class DeclarationFilter {
      */
     public DeclarationFilter not() {
 	return new DeclarationFilter() {
-	    public boolean matches(Declaration d) {
+	    @Override
+		public boolean matches(Declaration d) {
 		return !DeclarationFilter.this.matches(d);
 	    }
 	};
@@ -306,6 +311,7 @@ public class DeclarationFilter {
 	    mod2 = m2;
 	}
 
+	@Override
 	public boolean matches(Declaration d) {
 	    Collection<Modifier> mods = d.getModifiers();
 	    if (mod1 == null) {	// looking for package private

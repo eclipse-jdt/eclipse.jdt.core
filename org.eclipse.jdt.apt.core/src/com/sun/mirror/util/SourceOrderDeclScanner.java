@@ -121,6 +121,7 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 	    }
 	}
 
+	@Override
 	public int compare(Declaration d1, Declaration d2) {
 	    if (equals(d1, d2))
 		return 0;
@@ -168,7 +169,8 @@ class SourceOrderDeclScanner extends DeclarationScanner {
      *
      * @param d the declaration to visit
      */
-    public void visitTypeDeclaration(TypeDeclaration d) {
+    @Override
+	public void visitTypeDeclaration(TypeDeclaration d) {
 	d.accept(pre);
 
 	SortedSet<Declaration> decls = new 
@@ -201,7 +203,8 @@ class SourceOrderDeclScanner extends DeclarationScanner {
      *
      * @param d the declaration to visit
      */
-    public void visitClassDeclaration(ClassDeclaration d) {
+    @Override
+	public void visitClassDeclaration(ClassDeclaration d) {
 	d.accept(pre);
 
 	SortedSet<Declaration> decls = new 
@@ -233,7 +236,8 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 	d.accept(post);
     }
     
-    public void visitExecutableDeclaration(ExecutableDeclaration d) {
+    @Override
+	public void visitExecutableDeclaration(ExecutableDeclaration d) {
 	d.accept(pre);
 
 	SortedSet<Declaration> decls = new 
