@@ -749,10 +749,12 @@ public void testBug230944b() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=231263"
  */
 public void testBug231263() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("bugs.b231263", "BadFormattingSample.java");
 }
 public void testBug231263a() throws JavaModelException {
 	this.formatterPrefs.comment_line_length = 40;
+	useOldJavadocTagsFormatting();
 	formatUnit("bugs.b231263", "X.java");
 }
 
@@ -841,6 +843,7 @@ public void testBug232285j() throws JavaModelException {
  */
 public void testBug232488() throws JavaModelException {
 	this.formatterPrefs.comment_line_length = 40;
+	useOldJavadocTagsFormatting();
 	formatUnit("bugs.b232488", "X01.java");
 }
 
@@ -2486,6 +2489,7 @@ public void testBug237051c() throws JavaModelException {
 }
 public void testBug237051d() throws JavaModelException {
 	useOldCommentWidthCounting();
+	useOldJavadocTagsFormatting();
 	String source =
 		"public class X {\n" +
 		"\n" +
@@ -3166,6 +3170,7 @@ public void testBug239130_clearBlankLines_preserveLineBreaks() throws JavaModelE
 // duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=196124
 public void testBug239130_196124_default() throws JavaModelException {
 	useOldCommentWidthCounting();
+	useOldJavadocTagsFormatting();
 	String source = 
 		"public class X {\n" + 
 		"\n" + 
@@ -3200,6 +3205,7 @@ public void testBug239130_196124_default() throws JavaModelException {
 }
 public void testBug239130_196124() throws JavaModelException {
 	this.formatterPrefs.join_lines_in_comments = false;
+	useOldJavadocTagsFormatting();
 	String source = 
 		"public class X {\n" + 
 		"\n" + 
@@ -4291,6 +4297,7 @@ public void testBug260011_05() throws JavaModelException {
 }
 public void testBug260011_06() throws JavaModelException {
 	useOldCommentWidthCounting();
+	useOldJavadocTagsFormatting();
 	String source = 
 		"public interface Test {\n" + 
 		"\n" + 
@@ -4907,6 +4914,7 @@ public void testBug260381k() throws JavaModelException {
 }
 public void testBug260381_wksp1_01() throws JavaModelException {
 	useOldCommentWidthCounting();
+	useOldJavadocTagsFormatting();
 	String source =
 		"package wksp1;\n" +
 		"\n" +
@@ -4946,6 +4954,7 @@ public void testBug260381_wksp1_01() throws JavaModelException {
 	);
 }
 public void testBug260381_wksp2_01() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	String source = 
 		"package wksp2;\n" + 
 		"public interface I01 {\n" + 
@@ -4986,6 +4995,7 @@ public void testBug260381_wksp2_01() throws JavaModelException {
 	);
 }
 public void testBug260381_wksp2_01b() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	String source = 
 		"package wksp2;\n" + 
 		"public interface I01b {\n" + 
@@ -5026,6 +5036,7 @@ public void testBug260381_wksp2_01b() throws JavaModelException {
 	);
 }
 public void testBug260381_wksp2_01c() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	String source = 
 		"package wksp2;\n" + 
 		"public interface I01c {\n" + 
@@ -5193,6 +5204,7 @@ public void testBug260381_wksp2_03b() throws JavaModelException {
 }
 public void testBug260381_wksp2_04() throws JavaModelException {
 	useOldCommentWidthCounting();
+	useOldJavadocTagsFormatting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -5255,6 +5267,7 @@ public void testBug260381_wksp2_04() throws JavaModelException {
 }
 public void testBug260381_wksp2_05() throws JavaModelException {
 	useOldCommentWidthCounting();
+	useOldJavadocTagsFormatting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -5339,6 +5352,7 @@ public void testBug260381_wksp2_05() throws JavaModelException {
 }
 public void testBug260381_wksp2_06() throws JavaModelException {
 	useOldCommentWidthCounting();
+	useOldJavadocTagsFormatting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -5402,6 +5416,7 @@ public void testBug260381_wksp2_06() throws JavaModelException {
 }
 public void testBug260381_wksp2_07() throws JavaModelException {
 	useOldCommentWidthCounting();
+	useOldJavadocTagsFormatting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -6747,6 +6762,7 @@ public void testBug309835d() {
 	);
 }
 public void testBug309835_wksp1_01() {
+	useOldJavadocTagsFormatting();
 	String source = 
 		"public class X01 {\n" + 
 		"\n" + 
@@ -6772,6 +6788,7 @@ public void testBug309835_wksp1_01() {
 }
 public void testBug309835_wksp1_02() {
 	useOldCommentWidthCounting();
+	useOldJavadocTagsFormatting();
 	String source = 
 		"public class X02 {\n" + 
 		"\n" + 
@@ -6837,6 +6854,7 @@ public void testBug309835_wksp2_01() {
  */
 public void testBug311864() throws JavaModelException {
 	useOldCommentWidthCounting();
+	useOldJavadocTagsFormatting();
 	this.formatterPrefs.use_tags = true;
 	String source =
 		"public class Test {\n" + 
@@ -7387,7 +7405,6 @@ public void testBug479292b() {
  * https://bugs.eclipse.org/121728 - [formatter] Code formatter thinks <P> generic class parameter is a HTML <p> tag
  */
 public void testBug121728() {
-	this.formatterPrefs.comment_insert_new_line_for_parameter = false;
 	String source = 
 			"/**\n" + 
 			" * Test Class\n" + 

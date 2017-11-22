@@ -7483,6 +7483,7 @@ public void testBug320754_03() throws JavaModelException {
  */
 public void testBug328240() {
 	useOldCommentWidthCounting();
+	useOldJavadocTagsFormatting();
 	String source =
 		"package com.example;\n" +
 		"\n" +

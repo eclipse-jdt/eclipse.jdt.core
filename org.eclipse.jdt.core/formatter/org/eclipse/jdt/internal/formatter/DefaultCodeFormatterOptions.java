@@ -2809,12 +2809,12 @@ public class DefaultCodeFormatterOptions {
 		this.comment_format_header = false;
 		this.comment_format_html = true;
 		this.comment_format_source = true;
-		this.comment_indent_parameter_description = true;
-		this.comment_indent_root_tags = true;
+		this.comment_indent_parameter_description = false;
+		this.comment_indent_root_tags = false;
 		this.comment_align_tags_names_descriptions = false;
-		this.comment_align_tags_descriptions_grouped = false;
+		this.comment_align_tags_descriptions_grouped = true;
 		this.comment_insert_empty_line_before_root_tags = true;
-		this.comment_insert_new_line_for_parameter = true;
+		this.comment_insert_new_line_for_parameter = false;
 		this.comment_new_lines_at_block_boundaries = true;
 		this.comment_new_lines_at_javadoc_boundaries = true;
 		this.comment_line_length = 80;

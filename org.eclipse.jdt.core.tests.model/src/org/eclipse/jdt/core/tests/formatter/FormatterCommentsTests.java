@@ -536,6 +536,7 @@ public void testLines09() throws JavaModelException {
  * Test formatter preferences example
  */
 public void testPreferencesExample01() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("example", "X01.java");
 }
 public void testPreferencesExample02() throws JavaModelException {
@@ -548,9 +549,11 @@ public void testPreferencesExample04() throws JavaModelException {
 	formatUnit("example", "X04.java");
 }
 public void testPreferencesExample05() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("example", "X05.java");
 }
 public void testPreferencesExample06() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("example", "X06.java");
 }
 // NOT_FIXED_YET: https://bugs.eclipse.org/bugs/show_bug.cgi?id=196124
@@ -558,11 +561,13 @@ public void _testPreferencesExample07() throws JavaModelException {
 	formatUnit("example", "X07.java");
 }
 public void testPreferencesExample08() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	formatUnit("example", "X08.java");
 }
 public void testPreferencesExample09() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("example", "X09.java");
 }
 public void testPreferencesExample10() throws JavaModelException {
@@ -583,18 +588,23 @@ public void testPreferencesExample13() throws JavaModelException {
 	formatUnit("example", "X13.java");
 }
 public void testPreferencesExample14() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("example", "X14.java");
 }
 public void testPreferencesExample14a() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("example", "X14a.java");
 }
 public void testPreferencesExample14b() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("example", "X14b.java");
 }
 public void testPreferencesExample14c() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("example", "X14c.java");
 }
 public void testPreferencesExample14d() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("example", "X14d.java");
 }
 public void testPreferencesExample15a() throws JavaModelException {
@@ -607,9 +617,11 @@ public void testPreferencesExample15c() throws JavaModelException {
 	formatUnit("example", "X15c.java");
 }
 public void testPreferencesExample16a() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("example", "X16a.java");
 }
 public void testPreferencesExample16b() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	formatUnit("example", "X16b.java");
@@ -618,9 +630,11 @@ public void testPreferencesExample17a() throws JavaModelException {
 	formatUnit("example", "X17a.java");
 }
 public void testPreferencesExample17b() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("example", "X17b.java");
 }
 public void testPreferencesExample17c() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("example", "X17c.java");
 }
 
@@ -644,6 +658,7 @@ public void testTagOthers01() throws JavaModelException {
 	formatUnit("tags.others", "X01.java");
 }
 public void testTagOthers02() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) tag description is not indented when an empty line exists in the description
 	formatUnit("tags.others", "X02.java");
@@ -656,23 +671,29 @@ public void testTagOthers03() throws JavaModelException {
  * Test formatter @param
  */
 public void testTagParam01() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("tags.param", "X01.java");
 }
 public void testTagParam02() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("tags.param", "X02.java");
 }
 public void testTagParam03() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) tag description is not indented when an empty line exists in the description
 	formatUnit("tags.param", "X03.java");
 }
 public void testTagParam04() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("tags.param", "X04.java");
 }
 public void testTagParam05() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("tags.param", "X05.java");
 }
 public void testTagParam06() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("tags.param", "X06.java");
 }
 
@@ -683,18 +704,22 @@ public void testTagSee01() throws JavaModelException {
 	formatUnit("tags.see", "X01.java");
 }
 public void testTagSee02() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("tags.see", "X02.java");
 }
 public void testTagSee03() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("tags.see", "X03.java");
 }
 public void testTagSee04() throws JavaModelException {
 	formatUnit("tags.see", "X04.java");
 }
 public void testTagSee05() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("tags.see", "X05.java");
 }
 public void testTagSee06() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("tags.see", "X06.java");
 }
 
@@ -723,6 +748,7 @@ public void testTagLink03b() throws JavaModelException {
 	formatUnit("tags.link", "X03b.java");
 }
 public void testTagLink04() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("tags.link", "X04.java");
 }
 
@@ -964,17 +990,20 @@ public void testBlockComments19() throws JavaModelException {
  */
 // Full source performances 3.0
 public void testWkspEclipse01() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) tag description is not indented when an empty line exists in the description
 	formatUnit("wksp.eclipse", "X01.java");
 }
 public void testWkspEclipse02() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) fixed space after open html tag
 	formatUnit("wksp.eclipse", "X02.java");
 }
 public void testWkspEclipse02b() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) fixed extra space after open html tag
@@ -988,9 +1017,11 @@ public void _testWkspEclipse04() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X04.java");
 }
 public void testWkspEclipse05() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("wksp.eclipse", "X05.java");
 }
 public void testWkspEclipse06() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("wksp.eclipse", "X06.java");
 }
 public void testWkspEclipse07() throws JavaModelException {
@@ -1013,6 +1044,7 @@ public void testWkspEclipse09() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X09.java");
 }
 public void testWkspEclipse10() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("wksp.eclipse", "X10.java");
 }
 public void testWkspEclipse11() throws JavaModelException {
@@ -1035,9 +1067,11 @@ public void testWkspEclipse12b() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X12b.java");
 }
 public void testWkspEclipse13() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("wksp.eclipse", "X13.java");
 }
 public void testWkspEclipse14() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) fixed description in inline tag we should be formatted as text
 	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
@@ -1050,6 +1084,7 @@ public void testWkspEclipse16() throws JavaModelException {
 	// Difference with old formatter:
 	// 1) Allow split between text tokens when max length is reached
 	// TODO verify that this behavior is OK
+	useOldJavadocTagsFormatting();
 	formatUnit("wksp.eclipse", "X16.java");
 }
 public void testWkspEclipse17() throws JavaModelException {
@@ -1059,6 +1094,7 @@ public void testWkspEclipse17() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X17.java");
 }
 public void testWkspEclipse18() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) fixed description in inline tag we should be formatted as text
 	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231297
@@ -1067,6 +1103,7 @@ public void testWkspEclipse18() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X18.java");
 }
 public void testWkspEclipse19() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) fixed extra space between link tag name and reference
 	// 2) fixed description in inline tag we should be formatted as text
@@ -1079,6 +1116,7 @@ public void testWkspEclipse20() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X20.java");
 }
 public void testWkspEclipse21() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) tag description is not indented when an empty line exists in the description
@@ -1093,6 +1131,7 @@ public void testWkspEclipse22() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X22.java");
 }
 public void testWkspEclipse23() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) fixed issue with javadoc line start (' *' instead of expected  ' * ')
@@ -1101,6 +1140,7 @@ public void testWkspEclipse23() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X23.java");
 }
 public void testWkspEclipse24() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=231800
@@ -1118,12 +1158,15 @@ public void testWkspEclipse26() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X26.java");
 }
 public void testWkspEclipse27() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("wksp.eclipse", "X27.java");
 }
 public void testWkspEclipse28() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("wksp.eclipse", "X28.java");
 }
 public void testWkspEclipse28b() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("wksp.eclipse", "X28b.java");
 }
 // NOT_FIXED_YET: https://bugs.eclipse.org/bugs/show_bug.cgi?id=248543
@@ -1131,15 +1174,18 @@ public void _testWkspEclipse28c() throws JavaModelException {
 	formatUnit("wksp.eclipse", "X28c.java");
 }
 public void testWkspEclipse28d() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) Do not split line when it will start with '@'
 	// 		see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=229683
 	formatUnit("wksp.eclipse", "X28d.java");
 }
 public void testWkspEclipse29() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("wksp.eclipse", "X29.java");
 }
 public void testWkspEclipse30() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	formatUnit("wksp.eclipse", "X30.java");
 }
 public void testWkspEclipse31() throws JavaModelException {
@@ -1173,6 +1219,7 @@ public void testWkspGanymede02() throws JavaModelException {
 	formatUnit("wksp.ganymede", "X02.java");
 }
 public void testWkspGanymede03() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) fixed description in inline tag we should be formatted as text
@@ -1181,6 +1228,7 @@ public void testWkspGanymede03() throws JavaModelException {
 	formatUnit("wksp.ganymede", "X03.java");
 }
 public void testWkspGanymede04() throws JavaModelException {
+	useOldJavadocTagsFormatting();
 	// Difference with old formatter:
 	// 1) fixed wrong max length with immutable tags
 	// 2) fixed string split

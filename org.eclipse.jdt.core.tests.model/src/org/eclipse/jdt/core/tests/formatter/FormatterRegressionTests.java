@@ -107,6 +107,16 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private void setFormatterOptions80() {
 		this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(80));
 	}
+	
+	/* 
+	 * helper function for tests that are compatible with earlier Javadoc formatting rules
+	 */
+	protected void useOldJavadocTagsFormatting() {
+		this.formatterPrefs.comment_insert_new_line_for_parameter = true;
+		this.formatterPrefs.comment_align_tags_descriptions_grouped = false;
+		this.formatterPrefs.comment_indent_root_tags = true;
+		this.formatterPrefs.comment_indent_parameter_description = true;
+	}
 
 	/**
 	 * Helper function for tests that are expect comment width counted from the
@@ -8378,6 +8388,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780
 		preferences.comment_indent_root_tags = false;
+		preferences.comment_align_tags_descriptions_grouped = false;
  		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test574", "A.java", CodeFormatter.K_JAVA_DOC, false);//$NON-NLS-1$ //$NON-NLS-2$
 	}
