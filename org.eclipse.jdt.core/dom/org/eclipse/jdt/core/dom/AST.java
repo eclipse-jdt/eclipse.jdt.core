@@ -218,6 +218,29 @@ public final class AST {
 	 * @since 3.14
 	 */
 	/*package*/ static final int JLS9_INTERNAL = JLS9;
+	
+	/**
+	 * Constant for indicating the AST API that handles JLS10.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 10 Edition (JLS10).
+	 * JLS10 is a superset of all earlier versions of the
+	 * Java language, and the JLS10 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 10 (aka JDK 10).
+	 * </p>
+	 *
+	 * @since 3.14
+	 */
+	public static final int JLS10 = 10;
+
+	/**
+	 * Internal synonym for {@link #JLS10}. Use to alleviate
+	 * deprecation warnings once JLS10 is deprecated
+	 * @since 3.14
+	 */
+	/*package*/ static final int JLS10_INTERNAL = JLS10;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants

@@ -128,6 +128,11 @@ public interface ClassFileConstants {
 	int MINOR_VERSION_3 = 3;
 	int MINOR_VERSION_4 = 4;
 
+	// This is not really a minor version at all, JDK 10 uses major 53, minor 0 like JDK 9
+	int MINOR_VERSION_MASK = 0xffff;
+	int PSEUDO_MINOR_VERSION = 0x8000;
+	int PSEUDO_MINOR_VERSION_1 = PSEUDO_MINOR_VERSION + 1;
+
 	// JDK 1.1 -> 9, comparable value allowing to check both major/minor version at once 1.4.1 > 1.4.0
 	// 16 unsigned bits for major, then 16 bits for minor
 	long JDK1_1 = ((long)ClassFileConstants.MAJOR_VERSION_1_1 << 16) + ClassFileConstants.MINOR_VERSION_3; // 1.1. is 45.3
@@ -139,6 +144,7 @@ public interface ClassFileConstants {
 	long JDK1_7 = ((long)ClassFileConstants.MAJOR_VERSION_1_7 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK1_8 = ((long)ClassFileConstants.MAJOR_VERSION_1_8 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK9 = ((long)ClassFileConstants.MAJOR_VERSION_9 << 16) + ClassFileConstants.MINOR_VERSION_0;
+	long JDK10 = ((long)ClassFileConstants.MAJOR_VERSION_9 << 16) + ClassFileConstants.PSEUDO_MINOR_VERSION_1;
 
 	/*
 	 * cldc1.1 is 45.3, but we modify it to be different from JDK1_1.

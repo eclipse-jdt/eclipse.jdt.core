@@ -215,6 +215,7 @@ public class CompilerOptions {
 	public static final String VERSION_1_7 = "1.7"; //$NON-NLS-1$
 	public static final String VERSION_1_8 = "1.8"; //$NON-NLS-1$
 	public static final String VERSION_9 = "9"; //$NON-NLS-1$
+	public static final String VERSION_10 = "10"; //$NON-NLS-1$
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String INFO = "info"; //$NON-NLS-1$
@@ -780,6 +781,9 @@ public class CompilerOptions {
 			case ClassFileConstants.MAJOR_VERSION_9 :
 				if (jdkLevel == ClassFileConstants.JDK9)
 					return VERSION_9;
+				// JDK10 uses same major version ad JDK9
+				if (jdkLevel == ClassFileConstants.JDK10)
+					return VERSION_10;
 				break;
 		}
 		return Util.EMPTY_STRING; // unknown version
@@ -814,6 +818,10 @@ public class CompilerOptions {
 				switch (version.charAt(0)) {
 					case '9':
 						return ClassFileConstants.JDK9;
+					case '1':
+						if (version.length() > 1 && version.charAt(1) == '0') {
+							return ClassFileConstants.JDK10; // Psedudo level for JDK 10
+						}
 					// No default - let it go through the remaining checks.
 				}
 			}

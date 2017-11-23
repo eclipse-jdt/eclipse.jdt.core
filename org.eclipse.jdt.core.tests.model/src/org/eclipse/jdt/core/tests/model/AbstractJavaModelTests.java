@@ -87,6 +87,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * to alleviate deprecation warnings once AST.JLS9 is deprecated in future.
 	 */
 	protected static final int AST_INTERNAL_JLS9 = AST.JLS9;
+	protected static final int AST_INTERNAL_JLS10 = AST.JLS10;
 
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}

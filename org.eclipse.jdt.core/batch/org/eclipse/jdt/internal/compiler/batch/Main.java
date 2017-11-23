@@ -5225,7 +5225,30 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
 				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
 			}
+		} else if (CompilerOptions.VERSION_10.equals(version)) {
+			if (this.didSpecifySource) {
+				Object source = this.options.get(CompilerOptions.OPTION_Source);
+				if (CompilerOptions.VERSION_1_3.equals(source)
+						|| CompilerOptions.VERSION_1_4.equals(source)) {
+					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+				} else if (CompilerOptions.VERSION_1_5.equals(source)
+						|| CompilerOptions.VERSION_1_6.equals(source)) {
+					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+				} else if (CompilerOptions.VERSION_1_7.equals(source)) {
+					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+				} else if (CompilerOptions.VERSION_1_8.equals(source)) {
+					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+				} else if (CompilerOptions.VERSION_9.equals(source)) {
+					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
+				} else if (CompilerOptions.VERSION_10.equals(source)) {
+					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
+				}
+			} else {
+				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_10);
+				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
+			}
 		}
+
 	} else if (this.didSpecifySource) {
 		Object version = this.options.get(CompilerOptions.OPTION_Source);
 		// default is source 1.3 target 1.2 and compliance 1.4
@@ -5244,6 +5267,12 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 		} else if (CompilerOptions.VERSION_1_8.equals(version)) {
 			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+		} else if (CompilerOptions.VERSION_9.equals(version)) {
+			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9);
+			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
+		} else if (CompilerOptions.VERSION_10.equals(version)) {
+			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_10);
+			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
 		}
 	}
 
