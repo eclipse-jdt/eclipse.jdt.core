@@ -632,6 +632,9 @@ public void test012(){
         "                       specify where to find source files for multiple modules\n" +
         "    -p --module-path <directories separated by " + File.pathSeparator + ">\n" +
         "                       specify where to find application modules\n" +
+        "    --processor-module-path <directories separated by " + File.pathSeparator + ">\n" +
+        "                       specify module path where annotation processors\n" + 
+        "                       can be found\n" +
         "    --system <jdk>      Override location of system modules\n" +
         "    --add-exports <module>/<package>=<other-module>(,<other-module>)*\n" +
         "                       specify additional package exports clauses to the\n" +
