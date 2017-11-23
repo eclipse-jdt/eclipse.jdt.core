@@ -738,7 +738,7 @@ public class InferenceContext18 {
 				// If F<A'1, ..., A'm> is a well-formed type, ...
 				ParameterizedTypeBinding ptb = blockScope.environment().createParameterizedType(genericType, aprime, targetTypeWithWildCards.enclosingType());
 				TypeVariableBinding[] vars = ptb.genericType().typeVariables();
-				ParameterizedTypeBinding captured = ptb.capture(blockScope, -1, -1);
+				ParameterizedTypeBinding captured = ptb.capture(blockScope, lambda.sourceStart, lambda.sourceEnd);
 				for (int i = 0; i < vars.length; i++) {
 					if (vars[i].boundCheck(captured, aprime[i], blockScope, lambda) == BoundCheckStatus.MISMATCH)
 						return null;
