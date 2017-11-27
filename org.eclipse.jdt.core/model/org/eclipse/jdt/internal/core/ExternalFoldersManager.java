@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.core.resources.IFolder;
@@ -42,6 +41,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
@@ -59,6 +59,7 @@ public class ExternalFoldersManager {
 	private final AtomicInteger counter = new AtomicInteger(0);
 	/* Singleton instance */
 	private static ExternalFoldersManager MANAGER;
+	private RefreshJob refreshJob;
 
 	private ExternalFoldersManager() {
 		// Prevent instantiation
@@ -277,6 +278,7 @@ public class ExternalFoldersManager {
 	public IProject getExternalFoldersProject() {
 		return ResourcesPlugin.getWorkspace().getRoot().getProject(EXTERNAL_PROJECT_NAME);
 	}
+
 	public IProject createExternalFoldersProject(IProgressMonitor monitor) throws CoreException {
 		IProject project = getExternalFoldersProject();
 		if (!project.isAccessible()) {
@@ -381,27 +383,16 @@ public class ExternalFoldersManager {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=313153
 	// Use the same RefreshJob if the job is still available
-	private void runRefreshJob(Collection<IPath> paths) {
-		Job[] jobs = Job.getJobManager().find(ResourcesPlugin.FAMILY_MANUAL_REFRESH);
-		RefreshJob refreshJob = null;
-		if (jobs != null) {
-			for (int index = 0; index < jobs.length; index++) {
-				// We are only concerned about ExternalFolderManager.RefreshJob
-				if(jobs[index] instanceof RefreshJob) {
-					refreshJob =  (RefreshJob) jobs[index];
-					refreshJob.addFoldersToRefresh(paths);
-					if (refreshJob.getState() == Job.NONE) {
-						refreshJob.schedule();
-					}
-					break;
-				}
-			}
+	private synchronized void runRefreshJob(Collection<IPath> paths) {
+		if (paths == null || paths.isEmpty()) {
+			return;
 		}
-		if (refreshJob == null) {
-			refreshJob = new RefreshJob(new Vector<>(paths));
-			refreshJob.schedule();
+		if (this.refreshJob == null) {
+			this.refreshJob = new RefreshJob();
 		}
+		this.refreshJob.addFoldersToRefresh(paths);
 	}
+
 	/*
 	 * Refreshes the external folders referenced on the classpath of the given source project
 	 */
@@ -424,16 +415,13 @@ public class ExternalFoldersManager {
 
 				externalFolders.addAll(foldersInProject);
 			}
-			if (externalFolders == null)
-				return;
-
 			runRefreshJob(externalFolders);
 
 		} catch (CoreException e) {
 			Util.log(e, "Exception while refreshing external project"); //$NON-NLS-1$
 		}
-		return;
 	}
+
 	public void refreshReferences(IProject source, IProgressMonitor monitor) {
 		IProject externalProject = getExternalFoldersProject();
 		if (source.equals(externalProject))
@@ -442,29 +430,27 @@ public class ExternalFoldersManager {
 			return;
 		try {
 			Set<IPath> externalFolders = getExternalFolders(((JavaProject) JavaCore.create(source)).getResolvedClasspath());
-			if (externalFolders == null)
-				return;
-
 			runRefreshJob(externalFolders);
 		} catch (CoreException e) {
 			Util.log(e, "Exception while refreshing external project"); //$NON-NLS-1$
 		}
-		return;
 	}
 
 	public IFolder removeFolder(IPath externalFolderPath) {
 		return getFolders().remove(externalFolderPath);
 	}
 
-	class RefreshJob extends Job {
-		Vector<IPath> externalFolders = null;
-		RefreshJob(Vector<IPath> externalFolders){
+	static class RefreshJob extends Job {
+
+		final LinkedHashSet<IPath> externalFolders;
+
+		RefreshJob(){
 			super(Messages.refreshing_external_folders);
-			this.externalFolders = externalFolders;
 			// bug 476059: don't interrupt autobuild by using rule and system flag.
 			setSystem(true);
 			IWorkspace workspace = ResourcesPlugin.getWorkspace();
 			setRule(workspace.getRuleFactory().refreshRule(workspace.getRoot()));
+			this.externalFolders = new LinkedHashSet<>();
 		}
 
 		public boolean belongsTo(Object family) {
@@ -473,43 +459,47 @@ public class ExternalFoldersManager {
 
 		/*
 		 * Add the collection of paths to be refreshed to the already
-		 * existing list of paths.
+		 * existing set of paths and schedules the job
 		 */
 		public void addFoldersToRefresh(Collection<IPath> paths) {
-			if (!paths.isEmpty() && this.externalFolders == null) {
-				this.externalFolders = new Vector<>();
+			boolean shouldSchedule;
+			synchronized (this.externalFolders) {
+				this.externalFolders.addAll(paths);
+				shouldSchedule = !this.externalFolders.isEmpty();
 			}
-			Iterator<IPath> it = paths.iterator();
-			while(it.hasNext()) {
-				IPath path = it.next();
-				if (!this.externalFolders.contains(path)) {
-					this.externalFolders.add(path);
-				}
+			if (shouldSchedule) {
+				schedule();
 			}
 		}
 
 		protected IStatus run(IProgressMonitor pm) {
-			try {
-				if (this.externalFolders == null)
-					return Status.OK_STATUS;
-				IPath externalPath = null;
-				for (int index = 0; index < this.externalFolders.size(); index++ ) {
-					if ((externalPath = this.externalFolders.get(index)) != null) {
-						IFolder folder = getFolder(externalPath);
-						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321358
-						if (folder != null)
-							folder.refreshLocal(IResource.DEPTH_INFINITE, pm);
+			MultiStatus errors = new MultiStatus(JavaCore.PLUGIN_ID, IStatus.OK,
+					"Exception while refreshing external folders", null); //$NON-NLS-1$
+			while (true) {
+				IPath externalPath;
+				synchronized (this.externalFolders) {
+					if (this.externalFolders.isEmpty()) {
+						return errors.isOK()? Status.OK_STATUS : errors;
 					}
-					// Set the processed ones to null instead of removing the element altogether,
-					// so that they will not be considered as duplicates.
-					// This will also avoid elements being shifted to the left every time an element
-					// is removed. However, there is a risk of Collection size to be increased more often.
-					this.externalFolders.setElementAt(null, index);
+					// keep the path in the list to avoid re-adding it while we are working
+					externalPath = this.externalFolders.iterator().next();
 				}
-			} catch (CoreException e) {
-				return e.getStatus();
+
+				try {
+					IFolder folder = getExternalFoldersManager().getFolder(externalPath);
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321358
+					if (folder != null) {
+						folder.refreshLocal(IResource.DEPTH_INFINITE, pm);
+					}
+				} catch (CoreException e) {
+					errors.merge(e.getStatus());
+				} finally {
+					// we should always remove the path to avoid endless loop trying to refresh it
+					synchronized (this.externalFolders) {
+						this.externalFolders.remove(externalPath);
+					}
+				}
 			}
-			return Status.OK_STATUS;
 		}
 	}
 
