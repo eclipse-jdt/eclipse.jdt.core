@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -53,7 +54,7 @@ public class ExternalFoldersManager {
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$
 	private Map folders;
 	private Set pendingFolders; // subset of keys of 'folders', for which linked folders haven't been created yet.
-	private int counter = 0;
+	private final AtomicInteger counter = new AtomicInteger(0);
 	/* Singleton instance */
 	private static ExternalFoldersManager MANAGER;
 
@@ -134,22 +135,32 @@ public class ExternalFoldersManager {
 
 	private IFolder addFolder(IPath externalFolderPath, IProject externalFoldersProject, boolean scheduleForCreation) {
 		Map knownFolders = getFolders();
-		Object existing = knownFolders.get(externalFolderPath);
-		if (existing != null) {
-			return (IFolder) existing;
+
+		Object existing;
+		synchronized (this) {
+			existing = knownFolders.get(externalFolderPath);
+			if (existing != null) {
+				return (IFolder) existing;
+			}
 		}
+
 		IFolder result;
 		do {
-			result = externalFoldersProject.getFolder(LINKED_FOLDER_NAME + this.counter++);
+			result = externalFoldersProject.getFolder(LINKED_FOLDER_NAME + this.counter.incrementAndGet());
 		} while (result.exists());
-		if (scheduleForCreation) {
-			synchronized(this) {
+
+		synchronized (this) {
+			if (scheduleForCreation) {
 				if (this.pendingFolders == null)
 					this.pendingFolders = Collections.synchronizedSet(new HashSet());
+				this.pendingFolders.add(externalFolderPath);
 			}
-			this.pendingFolders.add(externalFolderPath);
+			existing = knownFolders.get(externalFolderPath);
+			if (existing != null) {
+				return (IFolder) existing;
+			}
+			knownFolders.put(externalFolderPath, result);
 		}
-		knownFolders.put(externalFolderPath, result);
 		return result;
 	}
 
@@ -173,10 +184,18 @@ public class ExternalFoldersManager {
 									IProject externalFoldersProject, IProgressMonitor monitor) throws CoreException {
 
 		IFolder result = addFolder(externalFolderPath, externalFoldersProject, false);
-		if (!result.exists())
-			result.createLink(externalFolderPath, IResource.ALLOW_MISSING_LOCAL, monitor);
-		else if (refreshIfExistAlready)
+		if (!result.exists()) {
+			try {
+				result.createLink(externalFolderPath, IResource.ALLOW_MISSING_LOCAL, monitor);
+			} catch (CoreException e) {
+				// If we managed to create the folder in the meantime, don't complain
+				if (!result.exists()) {
+					throw e;
+				}
+			}
+		} else if (refreshIfExistAlready) {
 			result.refreshLocal(IResource.DEPTH_INFINITE,  monitor);
+		}
 		return result;
 	}
 
