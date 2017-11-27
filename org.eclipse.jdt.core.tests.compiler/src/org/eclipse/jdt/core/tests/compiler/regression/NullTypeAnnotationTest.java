@@ -17077,4 +17077,331 @@ public void testBug530971_locally_redundant() {
 		""
 	);
 }
+public void testBug518839() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullApi");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES, "annotation.NonNullFields");
+	customOptions.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.IGNORE);
+
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullApi.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"\n" +
+			"@TypeQualifierDefault({ElementType.METHOD, ElementType.PARAMETER})\n" +
+			"public @interface NonNullApi {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullFields.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"\n" +
+			"@TypeQualifierDefault(ElementType.FIELD)\n" +
+			"public @interface NonNullFields {\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+			"annotation/TypeQualifierDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"\n" +
+			"public @interface TypeQualifierDefault {\n" +
+			"    ElementType[] value();\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		""
+	);
+	runNegativeTestWithLibs(
+		new String[] {
+			"nn_api/NNApi.java",
+			"package nn_api;\n" +
+			"\n" +
+			"public class NNApi {\n" +
+			"    public String f;\n" +
+			"\n" +
+			"    public Object m(Object p) {\n" +
+			"        if (p != null) { // warning\n" +
+			"            //\n" +
+			"        }\n" +
+			"        return null; // warning\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+			"nn_api/package-info.java",
+			"@annotation.NonNullApi\n" +
+			"package nn_api;\n" +
+			"",
+			"nn_api_and_fields/NNApiAndFields.java",
+			"package nn_api_and_fields;\n" +
+			"\n" +
+			"public class NNApiAndFields {\n" +
+			"    public String f; // warning 1\n" +
+			"\n" +
+			"    public Object m(Object p) {\n" +
+			"        if (p != null) { // warning 2\n" +
+			"            //\n" +
+			"        }\n" +
+			"        return null; // warning 3\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+			"nn_api_and_fields/package-info.java",
+			"@annotation.NonNullApi\n" +
+			"@annotation.NonNullFields\n" +
+			"package nn_api_and_fields;\n" +
+			"",
+			"nn_fields/NNFields.java",
+			"package nn_fields;\n" +
+			"\n" +
+			"public class NNFields {\n" +
+			"    public String f; // warning\n" +
+			"\n" +
+			"    public Object m(Object p) {\n" +
+			"        if (p != null) {\n" +
+			"            //\n" +
+			"        }\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+			"nn_fields/package-info.java",
+			"@annotation.NonNullFields\n" +
+			"package nn_fields;\n" +
+			"",
+		}, 
+		customOptions,
+		"----------\n" + 
+		"1. ERROR in nn_api\\NNApi.java (at line 7)\n" + 
+		"	if (p != null) { // warning\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable p is specified as @NonNull\n" + 
+		"----------\n" + 
+		"2. ERROR in nn_api\\NNApi.java (at line 10)\n" + 
+		"	return null; // warning\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in nn_api_and_fields\\NNApiAndFields.java (at line 4)\n" + 
+		"	public String f; // warning 1\n" + 
+		"	              ^\n" + 
+		"The @NonNull field f may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in nn_api_and_fields\\NNApiAndFields.java (at line 7)\n" + 
+		"	if (p != null) { // warning 2\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable p is specified as @NonNull\n" + 
+		"----------\n" + 
+		"3. ERROR in nn_api_and_fields\\NNApiAndFields.java (at line 10)\n" + 
+		"	return null; // warning 3\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in nn_fields\\NNFields.java (at line 4)\n" + 
+		"	public String f; // warning\n" + 
+		"	              ^\n" + 
+		"The @NonNull field f may not have been initialized\n" + 
+		"----------\n"
+	);
+}
+public void testBug518839_BTB() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullApi");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES, "annotation.NonNullFields");
+	customOptions.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.IGNORE);
+
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullApi.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"\n" +
+			"@TypeQualifierDefault({ElementType.METHOD, ElementType.PARAMETER})\n" +
+			"public @interface NonNullApi {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullFields.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"\n" +
+			"@TypeQualifierDefault(ElementType.FIELD)\n" +
+			"public @interface NonNullFields {\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+			"annotation/TypeQualifierDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"\n" +
+			"public @interface TypeQualifierDefault {\n" +
+			"    ElementType[] value();\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	// compile with jdt annotations, so no warnings are created.
+	runConformTestWithLibs(
+		false,
+		new String[] {
+			"nn_api/NNApi.java",
+			"package nn_api;\n" +
+			"\n" +
+			"public class NNApi {\n" +
+			"    public String f;\n" +
+			"\n" +
+			"    public Object m(Object p) {\n" +
+			"        if (p != null) { // warning\n" +
+			"            //\n" +
+			"        }\n" +
+			"        return null; // warning\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+			"nn_api/package-info.java",
+			"@annotation.NonNullApi\n" +
+			"package nn_api;\n" +
+			"",
+			"nn_api_and_fields/NNApiAndFields.java",
+			"package nn_api_and_fields;\n" +
+			"\n" +
+			"public class NNApiAndFields {\n" +
+			"    public String f; // warning 1\n" +
+			"\n" +
+			"    public Object m(Object p) {\n" +
+			"        if (p != null) { // warning 2\n" +
+			"            //\n" +
+			"        }\n" +
+			"        return null; // warning 3\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+			"nn_api_and_fields/package-info.java",
+			"@annotation.NonNullApi\n" +
+			"@annotation.NonNullFields\n" +
+			"package nn_api_and_fields;\n" +
+			"",
+			"nn_fields/NNFields.java",
+			"package nn_fields;\n" +
+			"\n" +
+			"public class NNFields {\n" +
+			"    public String f; // warning\n" +
+			"\n" +
+			"    public Object m(Object p) {\n" +
+			"        if (p != null) {\n" +
+			"            //\n" +
+			"        }\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+			"nn_fields/package-info.java",
+			"@annotation.NonNullFields\n" +
+			"package nn_fields;\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runNegativeTestWithLibs(
+		new String[] {
+			"btbtest/BTBTest.java",
+			"package btbtest;\n" +
+			"\n" +
+			"import nn_api.NNApi;\n" +
+			"import nn_api_and_fields.NNApiAndFields;\n" +
+			"import nn_fields.NNFields;\n" +
+			"\n" +
+			"public class BTBTest {\n" +
+			"    void api(NNApi p) {\n" +
+			"        if (p.m(null) == null) { // 2 warnings\n" +
+			"        }\n" +
+			"        p.f = null;\n" +
+			"    }\n" +
+			"\n" +
+			"    void apiAndFields(NNApiAndFields p) {\n" +
+			"        if (p.m(null) == null) { // 2 warnings\n" +
+			"        }\n" +
+			"        p.f = null; // warning\n" +
+			"    }\n" +
+			"\n" +
+			"    void fields(NNFields p) {\n" +
+			"        if (p.m(null) == null) {\n" +
+			"        }\n" +
+			"        p.f = null; // warning\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		"----------\n" + 
+		"1. ERROR in btbtest\\BTBTest.java (at line 9)\n" + 
+		"	if (p.m(null) == null) { // 2 warnings\n" + 
+		"	    ^^^^^^^^^\n" + 
+		"Null comparison always yields false: The method m(Object) cannot return null\n" + 
+		"----------\n" + 
+		"2. ERROR in btbtest\\BTBTest.java (at line 9)\n" + 
+		"	if (p.m(null) == null) { // 2 warnings\n" + 
+		"	        ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"3. ERROR in btbtest\\BTBTest.java (at line 15)\n" + 
+		"	if (p.m(null) == null) { // 2 warnings\n" + 
+		"	    ^^^^^^^^^\n" + 
+		"Null comparison always yields false: The method m(Object) cannot return null\n" + 
+		"----------\n" + 
+		"4. ERROR in btbtest\\BTBTest.java (at line 15)\n" + 
+		"	if (p.m(null) == null) { // 2 warnings\n" + 
+		"	        ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n" + 
+		"5. ERROR in btbtest\\BTBTest.java (at line 17)\n" + 
+		"	p.f = null; // warning\n" + 
+		"	      ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" + 
+		"6. ERROR in btbtest\\BTBTest.java (at line 23)\n" + 
+		"	p.f = null; // warning\n" + 
+		"	      ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n"
+	);
+}
 }

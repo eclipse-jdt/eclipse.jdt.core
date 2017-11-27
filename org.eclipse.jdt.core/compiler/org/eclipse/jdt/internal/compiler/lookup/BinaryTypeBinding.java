@@ -74,6 +74,8 @@ null is NOT a valid value for a non-public field... it just means the field is n
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class BinaryTypeBinding extends ReferenceBinding {
 
+	public static final char[] TYPE_QUALIFIER_DEFAULT = "TypeQualifierDefault".toCharArray(); //$NON-NLS-1$
+
 	private static final IBinaryMethod[] NO_BINARY_METHODS = new IBinaryMethod[0];
 
 	// all of these fields are ONLY guaranteed to be initialized if accessed using their public accessor method
@@ -1903,6 +1905,7 @@ boolean setNullDefault(int newNullDefault) {
 /** given an application of @NonNullByDefault convert the annotation argument (if any) into a bitvector a la {@link Binding#NullnessDefaultMASK} */
 // pre: null annotation analysis is enabled
 static int getNonNullByDefaultValue(IBinaryAnnotation annotation, LookupEnvironment environment) {
+
 	char[] annotationTypeName = annotation.getTypeName();
 	char[][] typeName = signature2qualifiedTypeName(annotationTypeName);
 	IBinaryElementValuePair[] elementValuePairs = annotation.getElementValuePairs();
@@ -1912,6 +1915,9 @@ static int getNonNullByDefaultValue(IBinaryAnnotation annotation, LookupEnvironm
 		if (annotationType == null) return 0;
 		if (annotationType.isUnresolvedType())
 			annotationType = ((UnresolvedReferenceBinding) annotationType).resolve(environment, false);
+		int nullness = evaluateTypeQualifierDefault(annotationType);
+		if (nullness != 0)
+			return nullness;
 		MethodBinding[] annotationMethods = annotationType.methods();
 		if (annotationMethods != null && annotationMethods.length == 1) {
 			Object value = annotationMethods[0].getDefaultValue();
@@ -1928,6 +1934,32 @@ static int getNonNullByDefaultValue(IBinaryAnnotation annotation, LookupEnvironm
 		// empty argument: cancel all defaults from enclosing scopes
 		return NULL_UNSPECIFIED_BY_DEFAULT;
 	}
+}
+
+public static int evaluateTypeQualifierDefault(ReferenceBinding annotationType) {
+	for (AnnotationBinding annotationOnAnnotation : annotationType.getAnnotations()) {
+		if(CharOperation.equals(annotationOnAnnotation.getAnnotationType().compoundName[annotationOnAnnotation.type.compoundName.length-1], TYPE_QUALIFIER_DEFAULT)) {
+			ElementValuePair[] pairs2 = annotationOnAnnotation.getElementValuePairs();
+			if(pairs2 != null) {
+				for (ElementValuePair elementValuePair : pairs2) {
+					char[] name = elementValuePair.getName();
+					if(CharOperation.equals(name, TypeConstants.VALUE)) {
+						int nullness = 0;
+						Object value = elementValuePair.getValue();
+						if(value instanceof Object[]) {
+							Object[] values = (Object[]) value;
+							for (Object value1 : values)
+								nullness |= Annotation.nullLocationBitsFromElementTypeAnnotationValue(value1);
+						} else {
+							nullness |= Annotation.nullLocationBitsFromElementTypeAnnotationValue(value);								
+						}
+						return nullness;
+					}
+				}
+			}
+		}
+	}
+	return 0;
 }
 
 static char[][] signature2qualifiedTypeName(char[] typeSignature) {

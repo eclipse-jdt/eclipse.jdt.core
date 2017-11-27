@@ -439,6 +439,11 @@ public abstract class Annotation extends Expression {
 		} else if (value != null) {
 			// non-boolean value signals type annotations, evaluate from DefaultLocation[] to bitvector a la Binding#NullnessDefaultMASK:
 			tagBits |= nullLocationBitsFromAnnotationValue(value);
+		} else {
+			int result = BinaryTypeBinding.evaluateTypeQualifierDefault(annotationType);
+			if(result != 0) {
+				return result;
+			}
 		}
 		return tagBits;
 	}
@@ -507,6 +512,52 @@ public abstract class Annotation extends Expression {
 		}
 		return 0;
 	}
+	
+	public static int nullLocationBitsFromElementTypeAnnotationValue(Object value) {
+		if (value instanceof Object[]) {
+			if (((Object[]) value).length == 0) {					// ({})
+				return Binding.NULL_UNSPECIFIED_BY_DEFAULT;
+			} else {												// ({vals...})
+				int bits = 0;
+				for (Object single : (Object[])value)
+					bits |= evaluateElementTypeNullnessLocation(single);
+				return bits;
+			}
+		} else {													// (val)
+			return evaluateElementTypeNullnessLocation(value);
+		}
+	}
+
+	private static int evaluateElementTypeNullnessLocation(Object value) {
+		char[] name = null;
+		if (value instanceof FieldBinding) {
+			name = ((FieldBinding) value).name;
+		} else if (value instanceof EnumConstantSignature) {
+			name = ((EnumConstantSignature) value).getEnumConstantName();
+		} else if (value instanceof ElementValuePair.UnresolvedEnumConstant) {
+			name = ((ElementValuePair.UnresolvedEnumConstant) value).getEnumConstantName();
+		} else if (value instanceof BooleanConstant) {
+			return ((BooleanConstant)value).booleanValue() ? Binding.NONNULL_BY_DEFAULT : Binding.NULL_UNSPECIFIED_BY_DEFAULT;
+		}
+		if (name != null) {
+			switch (name.length) {
+				case 5:
+					if (CharOperation.equals(name, TypeConstants.UPPER_FIELD))
+						return Binding.DefaultLocationField;
+					break;
+				case 6:
+					if (CharOperation.equals(name, TypeConstants.UPPER_METHOD))
+						return Binding.DefaultLocationReturnType;
+					break;
+				case 9:
+					if (CharOperation.equals(name, TypeConstants.UPPER_PARAMETER))
+						return Binding.DefaultLocationParameter;
+					break;
+			}
+		}
+		return 0;
+	}
+
 	
 	static String getRetentionName(long tagBits) {
 		if ((tagBits & TagBits.AnnotationRuntimeRetention) == TagBits.AnnotationRuntimeRetention) {
