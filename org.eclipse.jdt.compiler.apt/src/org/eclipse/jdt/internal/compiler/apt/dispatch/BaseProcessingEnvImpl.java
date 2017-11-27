@@ -56,7 +56,7 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 		_addedUnits = new ArrayList<>();
 		_addedClassFiles = new ArrayList<>();
 		_deletedUnits = new ArrayList<>();
-		_elementUtils = new ElementsImpl(this);
+		_elementUtils = ElementsImpl.create(this);
 		_typeUtils = new TypesImpl(this);
 		_factory = new Factory(this);
 		_errorRaised = false;
