@@ -17,6 +17,7 @@ package org.eclipse.jdt.internal.core;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -302,10 +303,9 @@ public class ExternalFoldersManager {
 				// .project or folder on disk have been deleted, recreate them
 				IPath stateLocation = JavaCore.getPlugin().getStateLocation();
 				IPath projectPath = stateLocation.append(EXTERNAL_PROJECT_NAME);
-				projectPath.toFile().mkdirs();
 				try {
-				    FileOutputStream output = new FileOutputStream(projectPath.append(".project").toOSString()); //$NON-NLS-1$
-				    try {
+					Files.createDirectories(projectPath.toFile().toPath());
+					try (FileOutputStream output = new FileOutputStream(projectPath.append(".project").toOSString())){ //$NON-NLS-1$
 				        output.write((
 				        		"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + //$NON-NLS-1$
 				        		"<projectDescription>\n" + //$NON-NLS-1$
@@ -318,8 +318,6 @@ public class ExternalFoldersManager {
 				        		"	<natures>\n" + //$NON-NLS-1$
 				        		"	</natures>\n" + //$NON-NLS-1$
 				        		"</projectDescription>").getBytes()); //$NON-NLS-1$
-				    } finally {
-				        output.close();
 				    }
 				} catch (IOException e) {
 					// fallback to re-creating the project
