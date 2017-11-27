@@ -21,9 +21,9 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -78,23 +78,23 @@ public class ExternalFoldersManager {
 	 * Returns a set of external paths to external folders referred to on the given classpath.
 	 * Returns <code>null</code> if there are none.
 	 */
-	public static HashSet getExternalFolders(IClasspathEntry[] classpath) {
+	public static Set getExternalFolders(IClasspathEntry[] classpath) {
 		if (classpath == null)
 			return null;
-		HashSet folders = null;
+		Set folders = null;
 		for (int i = 0; i < classpath.length; i++) {
 			IClasspathEntry entry = classpath[i];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 				IPath entryPath = entry.getPath();
 				if (isExternalFolderPath(entryPath)) {
 					if (folders == null)
-						folders = new HashSet();
+						folders = new LinkedHashSet();
 					folders.add(entryPath);
 				}
 				IPath attachmentPath = entry.getSourceAttachmentPath();
 				if (isExternalFolderPath(attachmentPath)) {
 					if (folders == null)
-						folders = new HashSet();
+						folders = new LinkedHashSet();
 					folders.add(attachmentPath);
 				}
 			}
@@ -153,7 +153,7 @@ public class ExternalFoldersManager {
 		synchronized (this) {
 			if (scheduleForCreation) {
 				if (this.pendingFolders == null)
-					this.pendingFolders = new HashSet();
+					this.pendingFolders = new LinkedHashSet();
 				this.pendingFolders.add(externalFolderPath);
 			}
 			existing = knownFolders.get(externalFolderPath);
@@ -248,8 +248,8 @@ public class ExternalFoldersManager {
 
 	private ArrayList getFoldersToCleanUp(IProgressMonitor monitor) throws CoreException {
 		DeltaProcessingState state = JavaModelManager.getDeltaState();
-		HashMap roots = state.roots;
-		HashMap sourceAttachments = state.sourceAttachments;
+		Map roots = state.roots;
+		Map sourceAttachments = state.sourceAttachments;
 		if (roots == null && sourceAttachments == null)
 			return null;
 		Map knownFolders = getFolders();
@@ -350,7 +350,7 @@ public class ExternalFoldersManager {
 
 	private Map getFolders() {
 		if (this.folders == null) {
-			Map tempFolders = new HashMap();
+			Map tempFolders = new LinkedHashMap();
 			IProject project = getExternalFoldersProject();
 			try {
 				if (!project.isAccessible()) {
@@ -407,19 +407,19 @@ public class ExternalFoldersManager {
 	public void refreshReferences(final IProject[] sourceProjects, IProgressMonitor monitor) {
 		IProject externalProject = getExternalFoldersProject();
 		try {
-			HashSet externalFolders = null;
+			Set externalFolders = null;
 			for (int index = 0; index < sourceProjects.length; index++) {
 				if (sourceProjects[index].equals(externalProject))
 					continue;
 				if (!JavaProject.hasJavaNature(sourceProjects[index]))
 					continue;
 
-				HashSet foldersInProject = getExternalFolders(((JavaProject) JavaCore.create(sourceProjects[index])).getResolvedClasspath());
+				Set foldersInProject = getExternalFolders(((JavaProject) JavaCore.create(sourceProjects[index])).getResolvedClasspath());
 
 				if (foldersInProject == null || foldersInProject.size() == 0)
 					continue;
 				if (externalFolders == null)
-					externalFolders = new HashSet();
+					externalFolders = new LinkedHashSet();
 
 				externalFolders.addAll(foldersInProject);
 			}
@@ -440,7 +440,7 @@ public class ExternalFoldersManager {
 		if (!JavaProject.hasJavaNature(source))
 			return;
 		try {
-			HashSet externalFolders = getExternalFolders(((JavaProject) JavaCore.create(source)).getResolvedClasspath());
+			Set externalFolders = getExternalFolders(((JavaProject) JavaCore.create(source)).getResolvedClasspath());
 			if (externalFolders == null)
 				return;
 
