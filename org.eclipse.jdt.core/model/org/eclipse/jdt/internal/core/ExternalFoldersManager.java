@@ -152,7 +152,7 @@ public class ExternalFoldersManager {
 		synchronized (this) {
 			if (scheduleForCreation) {
 				if (this.pendingFolders == null)
-					this.pendingFolders = Collections.synchronizedSet(new HashSet());
+					this.pendingFolders = new HashSet();
 				this.pendingFolders.add(externalFolderPath);
 			}
 			existing = knownFolders.get(externalFolderPath);
@@ -215,7 +215,7 @@ public class ExternalFoldersManager {
 		// To avoid race condition (from addFolder and removeFolder, load the map elements into an array and clear the map immediately.
 		// The createLinkFolder being in the synchronized block can cause a deadlock and hence keep it out of the synchronized block.
 		Object[] arrayOfFolders = null;
-		synchronized (this.pendingFolders) {
+		synchronized (this) {
 			arrayOfFolders = this.pendingFolders.toArray();
 			this.pendingFolders.clear();
 		}
