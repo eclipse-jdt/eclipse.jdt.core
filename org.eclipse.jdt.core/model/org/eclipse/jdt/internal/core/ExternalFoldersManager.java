@@ -317,7 +317,14 @@ public class ExternalFoldersManager {
 		IProjectDescription desc = project.getWorkspace().newProjectDescription(project.getName());
 		IPath stateLocation = JavaCore.getPlugin().getStateLocation();
 		desc.setLocation(stateLocation.append(EXTERNAL_PROJECT_NAME));
-		project.create(desc, IResource.HIDDEN, monitor);
+		try {
+			project.create(desc, IResource.HIDDEN, monitor);
+		} catch (CoreException e) {
+			// If we managed to create the project in the meantime, don't complain
+			if (!project.exists()) {
+				throw e;
+			}
+		}
 	}
 
 	public IFolder getFolder(IPath externalFolderPath) {
