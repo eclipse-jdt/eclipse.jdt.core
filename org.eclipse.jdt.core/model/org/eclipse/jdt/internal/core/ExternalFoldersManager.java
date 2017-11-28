@@ -24,7 +24,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -49,12 +51,11 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class ExternalFoldersManager {
 	private static final String EXTERNAL_PROJECT_NAME = ".org.eclipse.jdt.core.external.folders"; //$NON-NLS-1$
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$
-	private Map folders;
-	private Set pendingFolders; // subset of keys of 'folders', for which linked folders haven't been created yet.
+	private Map<IPath, IFolder> folders;
+	private Set<IPath> pendingFolders; // subset of keys of 'folders', for which linked folders haven't been created yet.
 	private final AtomicInteger counter = new AtomicInteger(0);
 	/* Singleton instance */
 	private static ExternalFoldersManager MANAGER;
@@ -78,23 +79,23 @@ public class ExternalFoldersManager {
 	 * Returns a set of external paths to external folders referred to on the given classpath.
 	 * Returns <code>null</code> if there are none.
 	 */
-	public static Set getExternalFolders(IClasspathEntry[] classpath) {
+	public static Set<IPath> getExternalFolders(IClasspathEntry[] classpath) {
 		if (classpath == null)
 			return null;
-		Set folders = null;
+		Set<IPath> folders = null;
 		for (int i = 0; i < classpath.length; i++) {
 			IClasspathEntry entry = classpath[i];
 			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 				IPath entryPath = entry.getPath();
 				if (isExternalFolderPath(entryPath)) {
 					if (folders == null)
-						folders = new LinkedHashSet();
+						folders = new LinkedHashSet<>();
 					folders.add(entryPath);
 				}
 				IPath attachmentPath = entry.getSourceAttachmentPath();
 				if (isExternalFolderPath(attachmentPath)) {
 					if (folders == null)
-						folders = new LinkedHashSet();
+						folders = new LinkedHashSet<>();
 					folders.add(attachmentPath);
 				}
 			}
@@ -135,13 +136,13 @@ public class ExternalFoldersManager {
 	}
 
 	private IFolder addFolder(IPath externalFolderPath, IProject externalFoldersProject, boolean scheduleForCreation) {
-		Map knownFolders = getFolders();
+		Map<IPath, IFolder> knownFolders = getFolders();
 
-		Object existing;
+		IFolder existing;
 		synchronized (this) {
 			existing = knownFolders.get(externalFolderPath);
 			if (existing != null) {
-				return (IFolder) existing;
+				return existing;
 			}
 		}
 
@@ -153,12 +154,12 @@ public class ExternalFoldersManager {
 		synchronized (this) {
 			if (scheduleForCreation) {
 				if (this.pendingFolders == null)
-					this.pendingFolders = new LinkedHashSet();
+					this.pendingFolders = new LinkedHashSet<>();
 				this.pendingFolders.add(externalFolderPath);
 			}
 			existing = knownFolders.get(externalFolderPath);
 			if (existing != null) {
-				return (IFolder) existing;
+				return existing;
 			}
 			knownFolders.put(externalFolderPath, result);
 		}
@@ -231,14 +232,13 @@ public class ExternalFoldersManager {
 	}
 
 	public void cleanUp(IProgressMonitor monitor) throws CoreException {
-		ArrayList toDelete = getFoldersToCleanUp(monitor);
+		List<Entry<IPath, IFolder>> toDelete = getFoldersToCleanUp(monitor);
 		if (toDelete == null)
 			return;
-		for (Iterator iterator = toDelete.iterator(); iterator.hasNext();) {
-			Map.Entry entry = (Map.Entry) iterator.next();
-			IFolder folder = (IFolder) entry.getValue();
+		for (Entry<IPath, IFolder> entry : toDelete) {
+			IFolder folder = entry.getValue();
 			folder.delete(true, monitor);
-			IPath key = (IPath) entry.getKey();
+			IPath key = entry.getKey();
 			this.folders.remove(key);
 		}
 		IProject project = getExternalFoldersProject();
@@ -246,24 +246,26 @@ public class ExternalFoldersManager {
 			project.delete(true, monitor);
 	}
 
-	private ArrayList getFoldersToCleanUp(IProgressMonitor monitor) throws CoreException {
+	private List<Entry<IPath, IFolder>> getFoldersToCleanUp(IProgressMonitor monitor) throws CoreException {
 		DeltaProcessingState state = JavaModelManager.getDeltaState();
+		@SuppressWarnings("rawtypes")
 		Map roots = state.roots;
+		@SuppressWarnings("rawtypes")
 		Map sourceAttachments = state.sourceAttachments;
 		if (roots == null && sourceAttachments == null)
 			return null;
-		Map knownFolders = getFolders();
-		ArrayList result = null;
+		Map<IPath, IFolder> knownFolders = getFolders();
+		List<Entry<IPath, IFolder>> result = null;
 		synchronized (knownFolders) {
-			Iterator iterator = knownFolders.entrySet().iterator();
+			Iterator<Entry<IPath, IFolder>> iterator = knownFolders.entrySet().iterator();
 			while (iterator.hasNext()) {
-				Map.Entry entry = (Map.Entry) iterator.next();
-				IPath path = (IPath) entry.getKey();
+				Entry<IPath, IFolder> entry = iterator.next();
+				IPath path = entry.getKey();
 				if ((roots != null && !roots.containsKey(path))
 						&& (sourceAttachments != null && !sourceAttachments.containsKey(path))) {
 					if (entry.getValue() != null) {
 						if (result == null)
-							result = new ArrayList();
+							result = new ArrayList<>();
 						result.add(entry);
 					}
 				}
@@ -345,12 +347,12 @@ public class ExternalFoldersManager {
 	}
 
 	public IFolder getFolder(IPath externalFolderPath) {
-		return (IFolder) getFolders().get(externalFolderPath);
+		return getFolders().get(externalFolderPath);
 	}
 
-	private Map getFolders() {
+	private Map<IPath, IFolder> getFolders() {
 		if (this.folders == null) {
-			Map tempFolders = new LinkedHashMap();
+			Map<IPath, IFolder> tempFolders = new LinkedHashMap<>();
 			IProject project = getExternalFoldersProject();
 			try {
 				if (!project.isAccessible()) {
@@ -363,11 +365,10 @@ public class ExternalFoldersManager {
 					}
 				}
 				IResource[] members = project.members();
-				for (int i = 0, length = members.length; i < length; i++) {
-					IResource member = members[i];
+				for (IResource member : members) {
 					if (member.getType() == IResource.FOLDER && member.isLinked() && member.getName().startsWith(LINKED_FOLDER_NAME)) {
 						IPath externalFolderPath = member.getLocation();
-						tempFolders.put(externalFolderPath, member);
+						tempFolders.put(externalFolderPath, (IFolder) member);
 					}
 				}
 			} catch (CoreException e) {
@@ -380,7 +381,7 @@ public class ExternalFoldersManager {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=313153
 	// Use the same RefreshJob if the job is still available
-	private void runRefreshJob(Collection paths) {
+	private void runRefreshJob(Collection<IPath> paths) {
 		Job[] jobs = Job.getJobManager().find(ResourcesPlugin.FAMILY_MANUAL_REFRESH);
 		RefreshJob refreshJob = null;
 		if (jobs != null) {
@@ -397,7 +398,7 @@ public class ExternalFoldersManager {
 			}
 		}
 		if (refreshJob == null) {
-			refreshJob = new RefreshJob(new Vector(paths));
+			refreshJob = new RefreshJob(new Vector<>(paths));
 			refreshJob.schedule();
 		}
 	}
@@ -407,19 +408,19 @@ public class ExternalFoldersManager {
 	public void refreshReferences(final IProject[] sourceProjects, IProgressMonitor monitor) {
 		IProject externalProject = getExternalFoldersProject();
 		try {
-			Set externalFolders = null;
+			Set<IPath> externalFolders = null;
 			for (int index = 0; index < sourceProjects.length; index++) {
 				if (sourceProjects[index].equals(externalProject))
 					continue;
 				if (!JavaProject.hasJavaNature(sourceProjects[index]))
 					continue;
 
-				Set foldersInProject = getExternalFolders(((JavaProject) JavaCore.create(sourceProjects[index])).getResolvedClasspath());
+				Set<IPath> foldersInProject = getExternalFolders(((JavaProject) JavaCore.create(sourceProjects[index])).getResolvedClasspath());
 
 				if (foldersInProject == null || foldersInProject.size() == 0)
 					continue;
 				if (externalFolders == null)
-					externalFolders = new LinkedHashSet();
+					externalFolders = new LinkedHashSet<>();
 
 				externalFolders.addAll(foldersInProject);
 			}
@@ -440,7 +441,7 @@ public class ExternalFoldersManager {
 		if (!JavaProject.hasJavaNature(source))
 			return;
 		try {
-			Set externalFolders = getExternalFolders(((JavaProject) JavaCore.create(source)).getResolvedClasspath());
+			Set<IPath> externalFolders = getExternalFolders(((JavaProject) JavaCore.create(source)).getResolvedClasspath());
 			if (externalFolders == null)
 				return;
 
@@ -452,12 +453,12 @@ public class ExternalFoldersManager {
 	}
 
 	public IFolder removeFolder(IPath externalFolderPath) {
-		return (IFolder) getFolders().remove(externalFolderPath);
+		return getFolders().remove(externalFolderPath);
 	}
 
 	class RefreshJob extends Job {
-		Vector externalFolders = null;
-		RefreshJob(Vector externalFolders){
+		Vector<IPath> externalFolders = null;
+		RefreshJob(Vector<IPath> externalFolders){
 			super(Messages.refreshing_external_folders);
 			this.externalFolders = externalFolders;
 			// bug 476059: don't interrupt autobuild by using rule and system flag.
@@ -474,13 +475,13 @@ public class ExternalFoldersManager {
 		 * Add the collection of paths to be refreshed to the already
 		 * existing list of paths.
 		 */
-		public void addFoldersToRefresh(Collection paths) {
+		public void addFoldersToRefresh(Collection<IPath> paths) {
 			if (!paths.isEmpty() && this.externalFolders == null) {
-				this.externalFolders = new Vector();
+				this.externalFolders = new Vector<>();
 			}
-			Iterator it = paths.iterator();
+			Iterator<IPath> it = paths.iterator();
 			while(it.hasNext()) {
-				Object path = it.next();
+				IPath path = it.next();
 				if (!this.externalFolders.contains(path)) {
 					this.externalFolders.add(path);
 				}
@@ -493,7 +494,7 @@ public class ExternalFoldersManager {
 					return Status.OK_STATUS;
 				IPath externalPath = null;
 				for (int index = 0; index < this.externalFolders.size(); index++ ) {
-					if ((externalPath = (IPath)this.externalFolders.get(index)) != null) {
+					if ((externalPath = this.externalFolders.get(index)) != null) {
 						IFolder folder = getFolder(externalPath);
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321358
 						if (folder != null)
