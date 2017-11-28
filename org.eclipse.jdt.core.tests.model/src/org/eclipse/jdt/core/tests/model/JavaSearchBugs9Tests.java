@@ -40,7 +40,7 @@ public class JavaSearchBugs9Tests extends AbstractJavaSearchTests {
 
 	static {
 //	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//	TESTS_NAMES = new String[] {"testBug521221_001"};
+//	TESTS_NAMES = new String[] {"testBug519151_012"};
 }
 
 public JavaSearchBugs9Tests(String name) {
@@ -2414,6 +2414,709 @@ public void testBug522455_001() throws CoreException {
 			null);
 	assertSearchResults("src/module-info.java mod.one [MyAnnot] EXACT_MATCH");
 }
+public void testBug519151_001() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/X.java",
+			"package pack;\n" +
+			"class X {}\n"
+			);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
+			"import pack.*;\n" +
+			"module mod.one {}");
+	SearchPattern pattern = SearchPattern.createPattern("mod.one:pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults("src/pack/X.java pack.X [X] EXACT_MATCH");
+}
+public void testBug519151_002() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/X.java",
+			"package pack;\n" +
+			"class X {}\n"
+			);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
+			"import pack.*;\n" +
+			"module mod.one {}");
+	SearchPattern pattern = SearchPattern.createPattern("pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults("src/pack/X.java pack.X [X] EXACT_MATCH");
+}
+public void testBug519151_003() throws CoreException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/pack/X.java",
+			"package pack;\n" +
+			"class X {}\n"
+			);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
+			"import pack.*;\n" +
+			"module mod.one {}");
+	SearchPattern pattern = SearchPattern.createPattern(":pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults("");
+}
+public void testBug519151_004() throws Exception {
+	try {
 
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		SearchPattern pattern = SearchPattern.createPattern("first:pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+
+public void testBug519151_005() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		SearchPattern pattern = SearchPattern.createPattern("pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH\n" +
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+
+public void testBug519151_006() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		SearchPattern pattern = SearchPattern.createPattern(":pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults("",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+
+public void testBug519151_007() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		SearchPattern pattern = SearchPattern.createPattern("pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH\n" +
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+public void testBug519151_008() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		SearchPattern pattern = SearchPattern.createPattern("pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH\n" +
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+public void testBug519151_009() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		SearchPattern pattern = SearchPattern.createPattern("first,second:pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH\n"+
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+public void testBug519151_010() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		String needle = " first, second:pack.X"; // with white space
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH\n"+
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+public void testBug519151_011() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module mod.first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module mod.second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		String needle = "mod.:pack.X";
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH\n"+
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+
+public void testBug519151_012() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module mod.first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module mod.second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		String needle = "mod.*:pack.X";
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, SearchPattern.R_PATTERN_MATCH);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH\n" +
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+
+public void _testBug519151_0X1() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module mod.first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module mod.second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		String needle = "0mod.*:pack.X"; // Pattern
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH\n"+
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+
+public void _testBug519151_0X2() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module mod.first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module mod.second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		String needle = "0mod\\.s.*:pack.X"; // Pattern
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+
+public void _testBug519151_0X3() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module mod.first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module mod.second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+
+		IJavaProject project3 = createJavaProject("third", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project3.open(null);
+		addClasspathEntry(project3, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String thirdFile = 
+				"module third {\n" +
+				"}\n";
+		createFile("/third/src/module-info.java",	thirdFile);
+		createFolder("/third/src/pack");
+		createFile("/third/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project3.getPath()));
+
+		project1.close(); // sync
+		project2.close();
+		project3.close();
+		project3.open(null);
+		project2.open(null);
+		project1.open(null);
+		
+		String needle = "0mod\\.f.*,mod\\.s.*:pack.X"; // Pattern
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH\n" +
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+		deleteProject("third");
+	}
+}
+
+public void _testBug519151_0X4() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module mod.first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module mod.second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+
+		IJavaProject project3 = createJavaProject("third", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project3.open(null);
+		addClasspathEntry(project3, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String thirdFile = 
+				"module third {\n" +
+				"}\n";
+		createFile("/third/src/module-info.java",	thirdFile);
+		createFolder("/third/src/pack");
+		createFile("/third/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project3.getPath()));
+
+		project1.close(); // sync
+		project2.close();
+		project3.close();
+		project3.open(null);
+		project2.open(null);
+		project1.open(null);
+		
+		String needle = "0mod\\.f.*,mod\\.s.*:pack.X"; // Pattern
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH\n" +
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+		deleteProject("third");
+	}
+}
 // Add more tests here
 }

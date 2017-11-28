@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,9 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -75,6 +78,9 @@ public int resolveLevel(Binding binding) {
 		case TYPE_SUFFIX : // nothing
 	}
 
+	if (matchModule(this.pattern, type) == IMPOSSIBLE_MATCH) {
+		return IMPOSSIBLE_MATCH;
+	}
 	// fully qualified name
 	if (this.pattern instanceof QualifiedTypeDeclarationPattern) {
 		QualifiedTypeDeclarationPattern qualifiedPattern = (QualifiedTypeDeclarationPattern) this.pattern;
@@ -101,6 +107,28 @@ protected int resolveLevelForType(char[] simpleNamePattern, char[] qualification
 	char[] fullQualificationPattern = CharOperation.concat(qualificationPattern, enclosingNamePattern, '.');
 	if (CharOperation.equals(this.pattern.pkg, CharOperation.concatWith(type.getPackage().compoundName, '.')))
 		return resolveLevelForType(simpleNamePattern, fullQualificationPattern, type);
+	return IMPOSSIBLE_MATCH;
+}
+private int matchModule(TypeDeclarationPattern typePattern, TypeBinding type) {
+	if (!(type instanceof ReferenceBinding)) 
+		return INACCURATE_MATCH; // a safety net, should not come here for error free code.
+	ReferenceBinding reference = (ReferenceBinding) type;
+	ModuleBinding module = reference.module();	
+	if (module == null || module.moduleName == null || typePattern.moduleNames == null)
+		return POSSIBLE_MATCH; //can't determine, say possible to all.
+	String bindModName = new String(module.moduleName);
+
+	if (typePattern.modulePatterns == null) {// use 'normal' matching
+		for (char[] m : typePattern.moduleNames) { // match any in the list
+			int ret = matchNameValue(m, module.moduleName);
+			if (ret != IMPOSSIBLE_MATCH) return ret;
+		}
+	} else {// use pattern matching
+		for (Pattern p : typePattern.modulePatterns) {
+			Matcher matcher = p.matcher(bindModName);
+			if (matcher.matches()) return ACCURATE_MATCH;
+		}
+	}
 	return IMPOSSIBLE_MATCH;
 }
 public String toString() {

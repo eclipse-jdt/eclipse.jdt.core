@@ -1440,6 +1440,15 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  * 			<li>'?' is treated as a wildcard when it is inside &lt;&gt; (i.e. it must be put on first position of the type argument)</li>
  * 		</ul>
  * 		</div>
+ * 		Since 3.14 for Java 9, Type Declaration Patterns can have module names also embedded with the following syntax
+ * 		<p><b><code>[moduleName1[,moduleName2,..]]:[qualification '.']typeName ['&lt;' typeArguments '&gt;']</code></b></p>
+ *			<p>Examples:</p>
+ *			<ul>
+ * 				<li><code>java.base:java.lang.Object</code></li>
+ *				<li><code>mod.one, mod.two:pack.X</code> find declaration in the list of given modules.</li>
+ *				<li><code>:pack.X</code> find in the unnamed module.</li> 
+ *			</ul>
+ *			<p>
  * 	</li>
  * 	<li>Method patterns have the following syntax:
  * 		<p><b><code>[declaringType '.'] ['&lt;' typeArguments '&gt;'] methodName ['(' parameterTypes ')'] [returnType]</code></b></p>
@@ -2188,8 +2197,14 @@ private static SearchPattern createTypePattern(char[] simpleName, char[] package
 	}
 	return null;
 }
-
 private static SearchPattern createTypePattern(String patternString, int limitTo, int matchRule, char indexSuffix) {
+	String[] arr = patternString.split(String.valueOf(IIndexConstants.MODULE_SEPARATOR));
+	String moduleName = null;
+	if (arr.length == 2) {
+		moduleName = arr[0];
+		patternString = arr[1];
+	}
+	char[] patModName = moduleName != null ? moduleName.toCharArray() : null;
 	// use 1.7 as the source level as there are more valid tokens in 1.7 mode
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=376673
 	Scanner scanner = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_7/*sourceLevel*/, null /*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
@@ -2270,14 +2285,14 @@ private static SearchPattern createTypePattern(String patternString, int limitTo
 	}
 	switch (limitTo) {
 		case IJavaSearchConstants.DECLARATIONS : // cannot search for explicit member types
-			return new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, indexSuffix, matchRule);
+			return new QualifiedTypeDeclarationPattern(patModName, qualificationChars, typeChars, indexSuffix, matchRule);
 		case IJavaSearchConstants.REFERENCES :
 			return new TypeReferencePattern(qualificationChars, typeChars, typeSignature, indexSuffix, matchRule);
 		case IJavaSearchConstants.IMPLEMENTORS :
 			return new SuperTypeReferencePattern(qualificationChars, typeChars, SuperTypeReferencePattern.ONLY_SUPER_INTERFACES, indexSuffix, matchRule);
 		case IJavaSearchConstants.ALL_OCCURRENCES :
 			return new OrPattern(
-				new QualifiedTypeDeclarationPattern(qualificationChars, typeChars, indexSuffix, matchRule),// cannot search for explicit member types
+				new QualifiedTypeDeclarationPattern(patModName, qualificationChars, typeChars, indexSuffix, matchRule),// cannot search for explicit member types
 				new TypeReferencePattern(qualificationChars, typeChars, typeSignature, indexSuffix, matchRule));
 		default:
 			return new TypeReferencePattern(qualificationChars, typeChars, typeSignature, limitTo, indexSuffix, matchRule);
