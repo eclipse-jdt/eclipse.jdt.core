@@ -46,3 +46,4 @@ Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: %providerName
 Eclipse-BundleShape: dir
+Automatic-Module-Name: org.eclipse.jdt.apt.tests

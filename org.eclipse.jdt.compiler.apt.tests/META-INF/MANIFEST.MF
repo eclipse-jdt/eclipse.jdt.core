@@ -21,3 +21,4 @@ Import-Package: org.eclipse.jdt.internal.compiler.tool;resolution:=optional
 Eclipse-BundleShape: dir
 Bundle-ClassPath: java9/java9api.jar,
  .
+Automatic-Module-Name: org.eclipse.jdt.compiler.apt.tests

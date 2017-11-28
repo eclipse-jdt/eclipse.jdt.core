@@ -7,3 +7,4 @@ Bundle-Version: 2.1.100.qualifier
 Export-Package: org.eclipse.jdt.annotation
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: %providerName
+Automatic-Module-Name: org.eclipse.jdt.annotation

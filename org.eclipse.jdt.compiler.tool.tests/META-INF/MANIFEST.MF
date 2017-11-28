@@ -15,3 +15,4 @@ Require-Bundle: org.eclipse.jdt.core;bundle-version="3.2.2",
 Export-Package: org.eclipse.jdt.compiler.tool.tests
 Import-Package: org.eclipse.jdt.internal.compiler.tool
 Eclipse-BundleShape: dir
+Automatic-Module-Name: org.eclipse.jdt.compiler.tool.tests
