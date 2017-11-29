@@ -188,7 +188,7 @@ protected void addModuleNames(char[] modNames) {
 		}
 	} else { // 'normal' matching - flag if don't care conditions are passed
 		for (int i = 0; i < len; ++i) {
-			String name = names[i] = names[i].trim();
+			names[i] = names[i].trim();
 		}
 	}
 	this.moduleNames = new char[len][];
