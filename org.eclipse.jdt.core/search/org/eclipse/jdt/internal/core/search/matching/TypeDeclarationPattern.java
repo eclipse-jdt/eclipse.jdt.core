@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.index.*;
@@ -27,6 +28,8 @@ public char[][] enclosingTypeNames;
 public char[][] moduleNames = null;
 private boolean allowModuleRegex = false; // enable to try experimental Module Regex Match
 /* package */ Pattern[] modulePatterns = null;
+public boolean moduleGraph = false;
+/* package */ char[][] moduleGraphElements = null;
 
 // set to CLASS_SUFFIX for only matching classes
 // set to INTERFACE_SUFFIX for only matching interfaces
@@ -177,6 +180,7 @@ protected void addModuleNames(char[] modNames) {
 	if (modNames == null) {
 		return;
 	}
+	final String explicit_unnamed = new String(IJavaSearchConstants.ALL_UNNAMED);
 	String[] names = new String(modNames).split(String.valueOf(CharOperation.COMMA_SEPARATOR));
 	int len = names.length;
 	if (this.allowModuleRegex && len > 0 && names[0] != null && names[0].length() > 0 
@@ -189,6 +193,8 @@ protected void addModuleNames(char[] modNames) {
 	} else { // 'normal' matching - flag if don't care conditions are passed
 		for (int i = 0; i < len; ++i) {
 			names[i] = names[i].trim();
+			if (explicit_unnamed.equals(names[i]))
+				names[i] = ""; //$NON-NLS-1$
 		}
 	}
 	this.moduleNames = new char[len][];

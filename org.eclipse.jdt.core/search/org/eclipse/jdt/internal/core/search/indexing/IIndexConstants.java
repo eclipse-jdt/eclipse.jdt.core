@@ -45,7 +45,6 @@ public interface IIndexConstants {
 	char SEPARATOR= '/';
 	char PARAMETER_SEPARATOR= ',';
 	char SECONDARY_SUFFIX = 'S';
-	char MODULE_SEPARATOR= ':';
 
 	char[] ONE_STAR = new char[] {'*'};
 	char[][] ONE_STAR_CHAR = new char[][] {ONE_STAR};
