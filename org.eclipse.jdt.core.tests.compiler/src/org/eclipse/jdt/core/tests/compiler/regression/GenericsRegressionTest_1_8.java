@@ -8605,4 +8605,35 @@ public void testBug508834_comment0() {
 				
 		});
 	}
+	public void testBug528045() {
+		runConformTest(new String[] {
+				"test/Test.java",
+				"package test;\n" + 
+				"\n" + 
+				"interface List<A0> {\n" + 
+				"	List<A0> append(List<A0> other);\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface Function<A1, B1> {\n" + 
+				"	B1 f(A1 a);\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface BiFunction<A2, B2, C2> {\n" + 
+				"	C2 f(A2 a, B2 b);\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface Stream<A3> {\n" + 
+				"	<B3> B3 foldLeft(Function<B3, Function<A3, B3>> f, B3 b);\n" + 
+				"\n" + 
+				"	<C3> C3 foldLeft(BiFunction<C3, A3, C3> f, C3 b);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"	<A> List<A> f(Stream<List<A>> map, List<A> nil) {\n" + 
+				"		return map.foldLeft(List::append, nil);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				""
+		});
+	}
 }
