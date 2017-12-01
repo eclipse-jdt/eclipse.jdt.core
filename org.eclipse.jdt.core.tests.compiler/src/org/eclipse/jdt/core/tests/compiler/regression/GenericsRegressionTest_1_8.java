@@ -8636,4 +8636,34 @@ public void testBug508834_comment0() {
 				""
 		});
 	}
+	public void testBug528046() {
+		runConformTest(new String[] {
+				"test2/Test.java",
+				"package test2;\n" + 
+				"\n" + 
+				"interface Supplier<A0> {\n" + 
+				"	A0 f();\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface Function<A1, B2> {\n" + 
+				"	B2 f(A1 a);\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface P {\n" + 
+				"	<A3> void lazy(Supplier<A3> f);\n" + 
+				"\n" + 
+				"	<A4> void lazy(Function<Object, A4> f);\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Nil<A5> {\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Test {\n" + 
+				"	static void test(P p) {\n" + 
+				"		p.lazy(Nil::new);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				""
+		});
+	}
 }

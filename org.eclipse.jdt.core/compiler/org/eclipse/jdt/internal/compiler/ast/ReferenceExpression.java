@@ -1160,7 +1160,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         		*/
         	}
         	for (int i = 0, length = this.potentialMethods.length; i < length; i++) {
-        		if (!this.potentialMethods[i].isStatic()) {
+			if (!this.potentialMethods[i].isStatic() && !this.potentialMethods[i].isConstructor()) {
         			return true;
         		}
         	}
