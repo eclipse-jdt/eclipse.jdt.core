@@ -1387,6 +1387,19 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			deleteProject("Java9Elements");
 		}	
 	}
+	public void test528058() throws Exception {
+		try {
+			IJavaProject project1 = createJava9Project("Java9Elements", new String[] {"work/src/java"});
+			project1.open(null);
+			IJavaElement object = project1.findElement(new Path("java/lang/Object.class"));
+			String id = object.getHandleIdentifier();
+			IJavaElement object2 = JavaCore.create(id);
+			assertEquals("elements should be the same", object, object2);
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
 	private IJavaProject createJavaProjectWithBaseSql() throws CoreException {
 		IJavaProject project1 = createJava9Project("Java9Elements", new String[] {"src"});
 		project1.open(null);
