@@ -8666,4 +8666,43 @@ public void testBug508834_comment0() {
 				""
 		});
 	}
+	public void testBug519380() {
+		runConformTest(
+			new String[] {
+				"TestLambda.java",
+				"import java.util.*;\n" +
+				"import java.util.function.*;\n" +
+				"public class TestLambda {\n" + 
+				"\n" + 
+				"    protected static <K, V> Map<K, V> newMap(final Function<K, V> loader) {\n" + 
+				"        return new HashMap<>();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private final Map<Integer, Integer> working = newMap(key -> {\n" + 
+				"\n" + 
+				"        final List<String> strings = new ArrayList<>();\n" + 
+				"\n" + 
+				"        final String[] array = strings.toArray(new String[strings.size()]);\n" + 
+				"        foo(array);\n" + 
+				"\n" + 
+				"        return null;\n" + 
+				"    });\n" + 
+				"\n" + 
+				"    private final Map<Void, Void> notWorking = newMap(key -> {\n" + 
+				"\n" + 
+				"        final List<String> strings = new ArrayList<>();\n" + 
+				"\n" + 
+				"        // This line seems to be the root of all evils\n" + 
+				"        foo(strings.toArray(new String[strings.size()]));\n" + 
+				"\n" + 
+				"        return null;\n" + 
+				"    });\n" + 
+				"\n" + 
+				"    private void foo(final String[] x) {}\n" + 
+				"\n" + 
+				"    private void foo(final Integer[] x) {}\n" + 
+				"\n" + 
+				"}\n"
+			});
+	}
 }
