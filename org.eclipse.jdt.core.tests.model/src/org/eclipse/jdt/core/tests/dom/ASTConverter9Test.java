@@ -1055,5 +1055,71 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			deleteProject("ConverterTests9");
 		}
 	}
+	public void testBug527749_001() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent =
+				"module first {\n" +
+				"    requires second;\n" +
+				"    exports pack1 to test;\n" +
+				"    opens pack1 to test;\n" +
+				"    provides pack22.I22 with pack1.X11, pack1.X12;\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			createFolder("/ConverterTests9/src/pack1");
+			createFile("/ConverterTests9/src/pack1/X11.java",
+					"package pack1;\n" +
+					"public class X11 implements pack22.I22{}\n");
+			createFile("/ConverterTests9/src/pack1/X12.java",
+					"package pack1;\n" +
+					"public class X12 implements pack22.I22{}\n");
+
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project2.open(null);
+			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String secondFile =
+					"module second {\n" +
+					"    exports pack22 to first;\n" +
+					"}";
+			createFile("/second/src/module-info.java",	secondFile);
+			createFolder("/second/src/pack22");
+			createFile("/second/src/pack22/I22.java",
+					"package pack22;\n" +
+					"public interface I22 {}\n");
+
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+			project1.close(); // sync
+			project2.close();
+			project2.open(null);
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
+			checkSourceRange(moduleDecl1, fileContent, fileContent);
+
+			IModuleBinding moduleBinding = moduleDecl1.resolveBinding();
+			assertTrue("Module Binding null", moduleBinding != null);
+			String name = moduleBinding.getName();
+			assertTrue("Module Name null", name != null);
+			assertTrue("Wrong Module Name", name.equals("first"));
+
+			ProvidesDirective providesDirective = (ProvidesDirective) moduleDecl1.moduleStatements().get(3);
+			List<Name> impls = providesDirective.implementations();
+			for (Name name1 : impls) {
+				IBinding binding = name1.resolveBinding();
+				assertNotNull(binding);
+				assertTrue("wrong binding", binding.getJavaElement().getElementName().startsWith("X"));
+			}
+		}
+		finally {
+			deleteProject("ConverterTests9");
+			deleteProject("second");
+		}
+	}
 // Add new tests here
 }
