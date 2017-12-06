@@ -2428,7 +2428,7 @@ public void testBug519151_001() throws CoreException {
 			"import pack.*;\n" +
 			"module mod.one {}");
 	String needle = "mod.one" + this.module_separator + "pack.X";
-	SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+	SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
 	new SearchEngine(this.workingCopies).search(pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			getJavaSearchWorkingCopiesScope(),
@@ -2445,7 +2445,7 @@ public void testBug519151_002() throws CoreException {
 	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
 			"import pack.*;\n" +
 			"module mod.one {}");
-	SearchPattern pattern = SearchPattern.createPattern("pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+	SearchPattern pattern = SearchPattern.createPattern("pack.X", IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
 	new SearchEngine(this.workingCopies).search(pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			getJavaSearchWorkingCopiesScope(),
@@ -2463,7 +2463,7 @@ public void testBug519151_003() throws CoreException {
 			"import pack.*;\n" +
 			"module mod.one {}");
 	String needle = this.module_separator + "pack.X";
-	SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+	SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
 	new SearchEngine(this.workingCopies).search(pattern,
 			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
 			getJavaSearchWorkingCopiesScope(),
@@ -2506,7 +2506,7 @@ public void testBug519151_004() throws Exception {
 		project1.open(null);
 		
 		String needle = "first" + this.module_separator + "pack.X";
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -2554,7 +2554,7 @@ public void testBug519151_005() throws Exception {
 		project2.open(null);
 		project1.open(null);
 		
-		SearchPattern pattern = SearchPattern.createPattern("pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		SearchPattern pattern = SearchPattern.createPattern("pack.X", IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -2604,7 +2604,7 @@ public void testBug519151_006() throws Exception {
 		project1.open(null);
 		
 		String needle = this.module_separator + "pack.X";
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -2647,7 +2647,7 @@ public void testBug519151_007() throws Exception {
 		project2.open(null);
 		project1.open(null);
 		
-		SearchPattern pattern = SearchPattern.createPattern("pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		SearchPattern pattern = SearchPattern.createPattern("pack.X", IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -2687,7 +2687,7 @@ public void testBug519151_008() throws Exception {
 		project2.open(null);
 		project1.open(null);
 		
-		SearchPattern pattern = SearchPattern.createPattern("pack.X", IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		SearchPattern pattern = SearchPattern.createPattern("pack.X", IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -2736,7 +2736,7 @@ public void testBug519151_009() throws Exception {
 		project1.open(null);
 		
 		String needle = "first,second" + this.module_separator + "pack.X";
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -2785,7 +2785,7 @@ public void testBug519151_010() throws Exception {
 		project1.open(null);
 		
 		String needle = " first, second"+ this.module_separator +"pack.X"; // with white space
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, ERASURE_RULE);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -2834,7 +2834,7 @@ public void testBug519151_011() throws Exception {
 		project1.open(null);
 		
 		String needle = "mod."+ this.module_separator +"pack.X";
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, DECLARATIONS, SearchPattern.R_PREFIX_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -2884,7 +2884,7 @@ public void testBug519151_012() throws Exception {
 		project1.open(null);
 		
 		String needle = "mod.*" + this.module_separator + "pack.X";
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, DECLARATIONS, SearchPattern.R_PATTERN_MATCH);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, DECLARATIONS, SearchPattern.R_PATTERN_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -2934,7 +2934,7 @@ public void testBug519151_013() throws Exception {
 		project1.open(null);
 		
 		String needle = "first" + this.module_separator + "pack.Y";
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -2998,7 +2998,7 @@ public void testBug519151_014() throws Exception {
 		project1.open(null);
 		
 		String needle = "third" + this.module_separator + "pack.X";
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -3064,7 +3064,7 @@ public void testBug519151_015() throws Exception {
 		project1.open(null);
 		
 		String needle = "mod.second,third" + this.module_separator + "pack.X";
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -3131,7 +3131,7 @@ public void testBug519151_016() throws Exception {
 		project1.open(null);
 		
 		String needle = "non.existant.module" + this.module_separator + "pack.X";
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -3195,7 +3195,7 @@ public void testBug519151_017() throws Exception {
 		project1.open(null);
 		
 		String needle = this.module_separator + "pack.X";
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -3246,7 +3246,7 @@ public void testBug519151_018() throws Exception {
 		project1.open(null);
 		
 		String needle = this.module_separator + "pack.X";
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -3298,7 +3298,7 @@ public void testBug519151_019() throws Exception {
 		project1.open(null);
 		
 		String needle = this.explicit_unnamed + this.module_separator + "pack.X"; // "ALL-UNNAMED/pack.X"
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, IJavaSearchConstants.MODULE_GRAPH, SearchPattern.R_PATTERN_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -3352,7 +3352,7 @@ public void testBug519151_020() throws Exception {
 		String module1 = this.explicit_unnamed; // "ALL-UNNAMED/pack.X"
 		String module2 = "mod.second";
 		String needle = module1 + "," + module2 + this.module_separator + "pack.X"; // "ALL-UNNAMED,second/pack.X"
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_PATTERN_MATCH);
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_PATTERN_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
@@ -3414,7 +3414,7 @@ public void testBug519151_021() throws Exception {
 		String module1 = this.explicit_unnamed; // "ALL-UNNAMED/pack.X"
 		String module2 = "mod.second";
 		String needle = module1 + "," + module2 + this.module_separator + "pack.X"; // "ALL-UNNAMED,second/pack.X"
-		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.CLASS, IJavaSearchConstants.MODULE_GRAPH,
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.TYPE, IJavaSearchConstants.MODULE_GRAPH,
 				SearchPattern.R_PATTERN_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
@@ -3429,6 +3429,53 @@ public void testBug519151_021() throws Exception {
 		deleteProject("JavaSearchBugs9");
 		deleteProject("second");
 		deleteProject("third");
+	}
+}
+public void testBug519151_022() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first {\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack");
+		createFile("/JavaSearchBugs9/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack");
+		createFile("/second/src/pack/X.java",
+				"package pack;\n" +
+				"public class X {}\n");
+
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		SearchPattern pattern = SearchPattern.createPattern("first/X", IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/pack/X.java pack.X [X] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
 	}
 }
 public void _testBug519151_0X1() throws Exception {
