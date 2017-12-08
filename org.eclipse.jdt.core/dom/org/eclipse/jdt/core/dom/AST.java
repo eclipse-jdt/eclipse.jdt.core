@@ -231,7 +231,7 @@ public final class AST {
 	 * up to and including Java SE 10 (aka JDK 10).
 	 * </p>
 	 *
-	 * @since 3.14
+	 * @since 3.15
 	 */
 	public static final int JLS10 = 10;
 

@@ -781,6 +781,8 @@ public class CompilerOptions {
 			case ClassFileConstants.MAJOR_VERSION_9 :
 				if (jdkLevel == ClassFileConstants.JDK9)
 					return VERSION_9;
+				break;
+			case ClassFileConstants.MAJOR_VERSION_10 :
 				// JDK10 uses same major version ad JDK9
 				if (jdkLevel == ClassFileConstants.JDK10)
 					return VERSION_10;
@@ -820,7 +822,7 @@ public class CompilerOptions {
 						return ClassFileConstants.JDK9;
 					case '1':
 						if (version.length() > 1 && version.charAt(1) == '0') {
-							return ClassFileConstants.JDK10; // Psedudo level for JDK 10
+							return ClassFileConstants.JDK10; // Level for JDK 10
 						}
 					// No default - let it go through the remaining checks.
 				}

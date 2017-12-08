@@ -281,13 +281,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.constantPool = new ConstantPool(this);
 		final CompilerOptions options = typeBinding.scope.compilerOptions();
 		this.targetJDK = options.targetJDK;
-		// Since targetJDK levels are actually major+minor classfile versions, but JDK10
-		// doesn't introduce a new major version, we use a pseudo minor version, which we
-		// must strip here.
-		this.targetJDK = options.targetJDK;
-		if ((this.targetJDK & ClassFileConstants.PSEUDO_MINOR_VERSION) != 0) {
-			this.targetJDK &= ~ClassFileConstants.MINOR_VERSION_MASK;
-		}
 		this.produceAttributes = options.produceDebugAttributes;
 		this.referenceBinding = typeBinding;
 		this.isNestedType = typeBinding.isNestedType();
