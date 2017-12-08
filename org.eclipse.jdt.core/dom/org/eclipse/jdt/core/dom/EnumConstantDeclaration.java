@@ -144,6 +144,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
@@ -151,6 +152,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == JAVADOC_PROPERTY) {
 			if (get) {
@@ -183,6 +185,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == MODIFIERS2_PROPERTY) {
 			return modifiers();
@@ -197,6 +200,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on BodyDeclaration.
 	 */
+	@Override
 	final ChildPropertyDescriptor internalJavadocProperty() {
 		return JAVADOC_PROPERTY;
 	}
@@ -204,6 +208,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on BodyDeclaration.
 	 */
+	@Override
 	final ChildListPropertyDescriptor internalModifiers2Property() {
 		return MODIFIERS2_PROPERTY;
 	}
@@ -211,6 +216,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on BodyDeclaration.
 	 */
+	@Override
 	final SimplePropertyDescriptor internalModifiersProperty() {
 		// this property will not be asked for (node type did not exist in JLS2)
 		return null;
@@ -219,6 +225,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final int getNodeType0() {
 		return ENUM_CONSTANT_DECLARATION;
 	}
@@ -226,6 +233,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	ASTNode clone0(AST target) {
 		EnumConstantDeclaration result = new EnumConstantDeclaration(target);
 		result.setSourceRange(getStartPosition(), getLength());
@@ -242,6 +250,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
@@ -250,6 +259,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
@@ -371,6 +381,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int memSize() {
 		return super.memSize() + 3 * 4;
 	}
@@ -378,6 +389,7 @@ public class EnumConstantDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int treeSize() {
 		return
 			memSize()

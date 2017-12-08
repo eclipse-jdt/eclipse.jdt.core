@@ -60,12 +60,14 @@ public class RuntimeInvisibleTypeAnnotationsAttribute
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IRuntimeInvisibleTypeAnnotationsAttribute.getExtendedAnnotations()
 	 */
+	@Override
 	public IExtendedAnnotation[] getExtendedAnnotations() {
 		return this.extendedAnnotations;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IRuntimeInvisibleTypeAnnotationsAttribute.getExtendedAnnotationsNumber()
 	 */
+	@Override
 	public int getExtendedAnnotationsNumber() {
 		return this.extendedAnnotationsNumber;
 	}

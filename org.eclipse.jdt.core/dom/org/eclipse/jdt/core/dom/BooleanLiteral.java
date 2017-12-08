@@ -85,6 +85,7 @@ public class BooleanLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
@@ -92,6 +93,7 @@ public class BooleanLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean newValue) {
 		if (property == BOOLEAN_VALUE_PROPERTY) {
 			if (get) {
@@ -108,6 +110,7 @@ public class BooleanLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final int getNodeType0() {
 		return BOOLEAN_LITERAL;
 	}
@@ -115,6 +118,7 @@ public class BooleanLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	ASTNode clone0(AST target) {
 		BooleanLiteral result = new BooleanLiteral(target);
 		result.setSourceRange(getStartPosition(), getLength());
@@ -125,6 +129,7 @@ public class BooleanLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
@@ -133,6 +138,7 @@ public class BooleanLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	void accept0(ASTVisitor visitor) {
 		visitor.visit(this);
 		visitor.endVisit(this);
@@ -165,6 +171,7 @@ public class BooleanLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int memSize() {
 		return BASE_NODE_SIZE + 1 * 4;
 	}
@@ -172,6 +179,7 @@ public class BooleanLiteral extends Expression {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int treeSize() {
 		return memSize();
 	}

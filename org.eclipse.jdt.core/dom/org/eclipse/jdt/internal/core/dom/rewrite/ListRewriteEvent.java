@@ -73,6 +73,7 @@ public class ListRewriteEvent extends RewriteEvent {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.corext.dom.ASTRewriteChange#getChangeKind()
 	 */
+	@Override
 	public int getChangeKind() {
 		if (this.listEntries != null) {
 			for (int i= 0; i < this.listEntries.size(); i++) {
@@ -88,6 +89,7 @@ public class ListRewriteEvent extends RewriteEvent {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.corext.dom.ASTRewriteChange#isListChange()
 	 */
+	@Override
 	public boolean isListRewrite() {
 		return true;
 	}
@@ -95,6 +97,7 @@ public class ListRewriteEvent extends RewriteEvent {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.corext.dom.RewriteEvent#getChildren()
 	 */
+	@Override
 	public RewriteEvent[] getChildren() {
 		List entries= getEntries();
 		return (RewriteEvent[]) entries.toArray(new RewriteEvent[entries.size()]);
@@ -103,6 +106,7 @@ public class ListRewriteEvent extends RewriteEvent {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.corext.dom.RewriteEvent#getOriginalNode()
 	 */
+	@Override
 	public Object getOriginalValue() {
 		return this.originalNodes;
 	}
@@ -110,6 +114,7 @@ public class ListRewriteEvent extends RewriteEvent {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.corext.dom.RewriteEvent#getNewValue()
 	 */
+	@Override
 	public Object getNewValue() {
 		List entries= getEntries();
 		ArrayList res= new ArrayList(entries.size());
@@ -196,6 +201,7 @@ public class ListRewriteEvent extends RewriteEvent {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		StringBuffer buf= new StringBuffer();
 		buf.append(" [list change\n\t"); //$NON-NLS-1$

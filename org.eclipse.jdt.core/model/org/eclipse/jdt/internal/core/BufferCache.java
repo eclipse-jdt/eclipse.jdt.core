@@ -41,6 +41,7 @@ public BufferCache(int size, int overflow) {
  * <p>NOTE: this triggers an external removal of this buffer
  * by closing the buffer.
  */
+@Override
 protected boolean close(LRUCacheEntry entry) {
 	IBuffer buffer= (IBuffer) entry.value;
 
@@ -71,6 +72,7 @@ void closeBuffers() {
 	/**
 	 * Returns a new instance of the reciever.
 	 */
+	@Override
 	protected LRUCache newInstance(int size, int newOverflow) {
 		return new BufferCache(size, newOverflow);
 	}

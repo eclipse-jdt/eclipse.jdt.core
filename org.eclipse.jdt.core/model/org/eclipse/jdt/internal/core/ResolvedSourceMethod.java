@@ -29,12 +29,14 @@ public class ResolvedSourceMethod extends SourceMethod {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.SourceMethod#getKey()
 	 */
+	@Override
 	public String getKey() {
 		return this.uniqueKey;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.IMethod#isResolved()
 	 */
+	@Override
 	public boolean isResolved() {
 		return true;
 	}
@@ -42,6 +44,7 @@ public class ResolvedSourceMethod extends SourceMethod {
 	/**
 	 * @private Debugging purposes
 	 */
+	@Override
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 		super.toStringInfo(tab, buffer, info, showResolvedInfo);
 		if (showResolvedInfo) {
@@ -51,6 +54,7 @@ public class ResolvedSourceMethod extends SourceMethod {
 		}
 	}
 
+	@Override
 	public JavaElement unresolved() {
 		SourceRefElement handle = new SourceMethod(this.parent, this.name, this.parameterTypes);
 		handle.occurrenceCount = this.occurrenceCount;

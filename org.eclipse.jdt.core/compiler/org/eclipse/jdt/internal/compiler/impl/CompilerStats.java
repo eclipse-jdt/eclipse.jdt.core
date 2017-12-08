@@ -35,6 +35,7 @@ public long elapsedTime() {
 /**
  * @see java.lang.Comparable#compareTo(java.lang.Object)
  */
+@Override
 public int compareTo(Object o) {
 	CompilerStats otherStats = (CompilerStats) o;
 	long time1 = elapsedTime();

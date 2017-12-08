@@ -23,6 +23,7 @@ public class VerboseElementCache extends ElementCache {
 		this.name = name;
 	}
 
+	@Override
 	protected boolean makeSpace(int space) {
 		if (this.beingAdded == null) return super.makeSpace(space);
 		String fillingRatio = toStringFillingRation(this.name);
@@ -37,6 +38,7 @@ public class VerboseElementCache extends ElementCache {
 		return result;
 	}
 
+	@Override
 	public Object put(Object key, Object value) {
 		try {
 			if (this.beingAdded == null)

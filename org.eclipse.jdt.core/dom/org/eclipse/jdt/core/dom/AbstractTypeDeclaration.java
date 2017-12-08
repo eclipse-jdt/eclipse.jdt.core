@@ -250,6 +250,7 @@ public abstract class AbstractTypeDeclaration extends BodyDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int memSize() {
 		return super.memSize() + 2 * 4;
 	}

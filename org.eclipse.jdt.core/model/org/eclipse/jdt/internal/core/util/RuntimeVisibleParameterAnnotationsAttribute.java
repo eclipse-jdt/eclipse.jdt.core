@@ -56,12 +56,14 @@ public class RuntimeVisibleParameterAnnotationsAttribute
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IRuntimeVisibleParameterAnnotations#getAnnotations()
 	 */
+	@Override
 	public IParameterAnnotation[] getParameterAnnotations() {
 		return this.parameterAnnotations;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IRuntimeVisibleParameterAnnotations#getParametersNumber()
 	 */
+	@Override
 	public int getParametersNumber() {
 		return this.parametersNumber;
 	}

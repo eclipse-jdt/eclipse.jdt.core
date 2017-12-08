@@ -56,12 +56,14 @@ public LRUCacheEnumerator(LRUEnumeratorElement firstElement) {
 /**
  * Returns true if more elements exist.
  */
+@Override
 public boolean hasMoreElements() {
 	return this.elementQueue != null;
 }
 /**
  * Returns the next element.
  */
+@Override
 public Object nextElement() {
 	Object temp = this.elementQueue.value;
 	this.elementQueue = this.elementQueue.next;

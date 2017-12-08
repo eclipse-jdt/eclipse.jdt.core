@@ -274,6 +274,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			this.requestor = requestor;
 		} else {
 			this.requestor = new ICompilerRequestor(){
+				@Override
 				public void acceptResult(CompilationResult result){
 					if (DebugRequestor.isActive()){
 						DebugRequestor.acceptDebugResult(result);
@@ -292,6 +293,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	/**
 	 * Add an additional binary type
 	 */
+	@Override
 	public void accept(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		if (this.options.verbose) {
 			this.out.println(
@@ -307,6 +309,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	 * Add an additional compilation unit into the loop
 	 *  ->  build compilation unit declarations, their bindings and record their results.
 	 */
+	@Override
 	public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
 		// Switch the current policy and compilation result for this unit to the requested one.
 		CompilationResult unitResult =
@@ -350,6 +353,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	/**
 	 * Add additional source types
 	 */
+	@Override
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		this.problemReporter.abortDueToInternalError(
 			Messages.bind(Messages.abort_againstSourceModel, new String[] { String.valueOf(sourceTypes[0].getName()), String.valueOf(sourceTypes[0].getFileName()) }));

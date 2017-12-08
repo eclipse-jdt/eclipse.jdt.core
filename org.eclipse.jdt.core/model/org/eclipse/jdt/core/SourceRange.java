@@ -50,6 +50,7 @@ public final class SourceRange implements ISourceRange {
 	/*
 	 * @see Object#equals(Object)
 	 */
+	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof ISourceRange))
 			return false;
@@ -59,12 +60,14 @@ public final class SourceRange implements ISourceRange {
 	/**
 	 * @see ISourceRange
 	 */
+	@Override
 	public int getLength() {
 		return this.length;
 	}
 	/**
 	 * @see ISourceRange
 	 */
+	@Override
 	public int getOffset() {
 		return this.offset;
 	}
@@ -72,10 +75,12 @@ public final class SourceRange implements ISourceRange {
 	/*
 	 * @see Object#hashCode()
 	 */
+	@Override
 	public int hashCode() {
 		return this.length ^ this.offset;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("[offset="); //$NON-NLS-1$

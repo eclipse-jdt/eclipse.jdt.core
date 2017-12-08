@@ -30,6 +30,7 @@ public class CompletionOnJavadocParamNameReference extends JavadocSingleNameRefe
 	/**
 	 * @param flags The completionFlags to set.
 	 */
+	@Override
 	public void addCompletionFlags(int flags) {
 		this.completionFlags |= flags;
 	}
@@ -39,6 +40,7 @@ public class CompletionOnJavadocParamNameReference extends JavadocSingleNameRefe
 	 *
 	 * @return int Flags of the javadoc completion node.
 	 */
+	@Override
 	public int getCompletionFlags() {
 		return this.completionFlags;
 	}
@@ -46,6 +48,7 @@ public class CompletionOnJavadocParamNameReference extends JavadocSingleNameRefe
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.AllocationExpression#printExpression(int, java.lang.StringBuffer)
 	 */
+	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("<CompletionOnJavadocParamNameReference:"); //$NON-NLS-1$
 		if (this.token != null) super.printExpression(indent, output);
@@ -55,6 +58,7 @@ public class CompletionOnJavadocParamNameReference extends JavadocSingleNameRefe
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.SingleNameReference#reportError(org.eclipse.jdt.internal.compiler.lookup.BlockScope)
 	 */
+	@Override
 	public TypeBinding reportError(BlockScope scope) {
 		return null;
 	}

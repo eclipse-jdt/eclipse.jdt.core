@@ -167,6 +167,7 @@ void acceptModule(byte[] content) {
 		}
 	}
 }
+@Override
 public void cleanup() {
 	if (this.annotationZipFile != null) {
 		try {
@@ -177,6 +178,7 @@ public void cleanup() {
 	}
 }
 
+@Override
 public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof ClasspathJrt)) return false;
@@ -210,10 +212,12 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	return null;
 }
 
+@Override
 public IPath getProjectRelativePath() {
 	return null;
 }
 
+@Override
 public int hashCode() {
 	return this.zipFilename == null ? super.hashCode() : this.zipFilename.hashCode();
 }
@@ -231,14 +235,17 @@ public boolean isPackage(String qualifiedPackageName, String moduleName) {
 	return JRTUtil.getModulesDeclaringPackage(new File(this.zipFilename), qualifiedPackageName, moduleName) != null;
 }
 
+@Override
 public String toString() {
 	String start = "Classpath jrt file " + this.zipFilename; //$NON-NLS-1$
 	return start;
 }
 
+@Override
 public String debugPathString() {
 	return this.zipFilename;
 }
+@Override
 public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 	String fileName = new String(typeName);
 	return findClass(fileName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, asBinaryOnly);

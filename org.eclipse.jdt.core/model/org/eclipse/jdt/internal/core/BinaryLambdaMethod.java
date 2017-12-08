@@ -22,6 +22,7 @@ public class BinaryLambdaMethod extends LambdaMethod {
 	/*
 	 * @see JavaElement#getPrimaryElement(boolean)
 	 */
+	@Override
 	public IJavaElement getPrimaryElement(boolean checkOwner) {
 		return this;
 	}
@@ -29,6 +30,7 @@ public class BinaryLambdaMethod extends LambdaMethod {
 	/*
 	 * @see IMember#isBinary()
 	 */
+	@Override
 	public boolean isBinary() {
 		return true;
 	}

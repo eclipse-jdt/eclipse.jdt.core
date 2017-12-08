@@ -145,6 +145,7 @@ public final class ModuleModifier extends ASTNode {
 		 * @return the keyword for the module modifier
 		 * @see #toKeyword(String)
 		 */
+		@Override
 		public String toString() {
 			return this.keyword;
 		}
@@ -248,6 +249,7 @@ public final class ModuleModifier extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	void accept0(ASTVisitor visitor) {
 		visitor.visit(this);
 		visitor.endVisit(this);
@@ -256,6 +258,7 @@ public final class ModuleModifier extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	ASTNode clone0(AST target) {
 		ModuleModifier result = new ModuleModifier(target);
 		result.setSourceRange(getStartPosition(), getLength());
@@ -290,6 +293,7 @@ public final class ModuleModifier extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final int getNodeType0() {
 		return MODULE_MODIFIER;
 	}
@@ -297,6 +301,7 @@ public final class ModuleModifier extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
 		if (property == KEYWORD_PROPERTY) {
 			if (get) {
@@ -313,6 +318,7 @@ public final class ModuleModifier extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
@@ -338,6 +344,7 @@ public final class ModuleModifier extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int memSize() {
 		// treat ModifierKeyword as free
 		return BASE_NODE_SIZE + 1 * 4;
@@ -346,6 +353,7 @@ public final class ModuleModifier extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
@@ -354,6 +362,7 @@ public final class ModuleModifier extends ASTNode {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int treeSize() {
 		return memSize();
 	}

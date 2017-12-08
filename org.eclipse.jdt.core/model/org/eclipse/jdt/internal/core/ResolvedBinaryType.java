@@ -29,6 +29,7 @@ public class ResolvedBinaryType extends BinaryType {
 		this.uniqueKey = uniqueKey;
 	}
 
+	@Override
 	public String getFullyQualifiedParameterizedName() throws JavaModelException {
 		return getFullyQualifiedParameterizedName(getFullyQualifiedName('.'), this.uniqueKey);
 	}
@@ -36,6 +37,7 @@ public class ResolvedBinaryType extends BinaryType {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.BinaryType#getKey()
 	 */
+	@Override
 	public String getKey() {
 		return this.uniqueKey;
 	}
@@ -48,6 +50,7 @@ public class ResolvedBinaryType extends BinaryType {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.BinaryType#isResolved()
 	 */
+	@Override
 	public boolean isResolved() {
 		return true;
 	}
@@ -55,6 +58,7 @@ public class ResolvedBinaryType extends BinaryType {
 	/**
 	 * @private Debugging purposes
 	 */
+	@Override
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 		super.toStringInfo(tab, buffer, info, showResolvedInfo);
 		if (showResolvedInfo) {
@@ -64,6 +68,7 @@ public class ResolvedBinaryType extends BinaryType {
 		}
 	}
 
+	@Override
 	public JavaElement unresolved() {
 		SourceRefElement handle = new BinaryType(this.parent, this.name);
 		handle.occurrenceCount = this.occurrenceCount;

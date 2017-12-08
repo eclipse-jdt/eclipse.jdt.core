@@ -34,6 +34,7 @@ public class AssistSourceField extends ResolvedSourceField {
 		this.infoCache = infoCache;
 	}
 
+	@Override
 	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
 		return this.infoCache.get(this);
 	}
@@ -41,6 +42,7 @@ public class AssistSourceField extends ResolvedSourceField {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.SourceField#getKey()
 	 */
+	@Override
 	public String getKey() {
 		if (this.uniqueKey == null) {
 			Binding binding = (Binding) this.bindingCache.get(this);
@@ -60,19 +62,23 @@ public class AssistSourceField extends ResolvedSourceField {
 		return this.uniqueKey;
 	}
 
+	@Override
 	public boolean isResolved() {
 		getKey();
 		return this.isResolved;
 	}
 
+	@Override
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info,boolean showResolvedInfo) {
 		super.toStringInfo(tab, buffer, info, showResolvedInfo && isResolved());
 	}
 
+	@Override
 	public IAnnotation getAnnotation(String annotationName) {
 		return new AssistAnnotation(this, annotationName, this.infoCache);
 	}
 
+	@Override
 	public IType getType(String typeName, int count) {
 		AssistSourceType type = new AssistSourceType(this, typeName, this.bindingCache, this.infoCache);
 		type.occurrenceCount = count;

@@ -41,6 +41,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 
 	public TypeReference type;
 
+	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		return flowInfo;
 	}
@@ -56,6 +57,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#genericTypeArguments()
 	 */
+	@Override
 	public TypeBinding[] genericTypeArguments() {
 		return null;
 	}
@@ -65,6 +67,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	 */
 	public abstract int getKind();
 
+	@Override
 	public InferenceContext18 freshInferenceContext(Scope scope) {
 		return null;
 	}
@@ -72,6 +75,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
 	 */
+	@Override
 	public boolean isSuperAccess() {
 		return false;
 	}
@@ -79,10 +83,12 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isTypeAccess()
 	 */
+	@Override
 	public boolean isTypeAccess() {
 		return false;
 	}
 
+	@Override
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 		printAsExpression(indent, output);
 		switch(getKind()) {
@@ -120,6 +126,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 		return output;
 	}
 
+	@Override
 	public void resolve(BlockScope scope) {
 		// do nothing by default (redefined for local variables)
 	}
@@ -127,6 +134,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#setActualReceiverType(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)
 	 */
+	@Override
 	public void setActualReceiverType(ReferenceBinding receiverType) {
 		// do nothing by default
 	}
@@ -134,6 +142,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#setDepth(int)
 	 */
+	@Override
 	public void setDepth(int depth) {
 
 		this.hiddenVariableDepth = depth;
@@ -142,6 +151,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#setFieldIndex(int)
 	 */
+	@Override
 	public void setFieldIndex(int depth) {
 		// do nothing by default
 	}

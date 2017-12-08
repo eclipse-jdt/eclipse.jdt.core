@@ -42,6 +42,7 @@ public InnerClassInfo(byte classFileBytes[], int offsets[], int offset) {
  * For example, java.lang.String is java/lang/String.
  * @return char[]
  */
+@Override
 public char[] getEnclosingTypeName() {
 	if (!this.readOuterClassName) {
 		// read outer class name
@@ -62,6 +63,7 @@ public char[] getEnclosingTypeName() {
  * defined by the VM spec.
  * @return int
  */
+@Override
 public int getModifiers() {
 	if (this.accessFlags == -1) {
 		// read access flag
@@ -76,6 +78,7 @@ public int getModifiers() {
  * For example, p1.p2.A.M is p1/p2/A$M.
  * @return char[]
  */
+@Override
 public char[] getName() {
 	if (!this.readInnerClassName) {
 		// read the inner class name
@@ -108,6 +111,7 @@ public char[] getSourceName() {
  * Answer the string representation of the receiver
  * @return java.lang.String
  */
+@Override
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	if (getName() != null) {

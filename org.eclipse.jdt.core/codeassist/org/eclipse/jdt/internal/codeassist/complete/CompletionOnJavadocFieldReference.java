@@ -53,6 +53,7 @@ public class CompletionOnJavadocFieldReference extends JavadocFieldReference imp
 	/**
 	 * @param flags The completionFlags to set.
 	 */
+	@Override
 	public void addCompletionFlags(int flags) {
 		this.completionFlags |= flags;
 	}
@@ -78,6 +79,7 @@ public class CompletionOnJavadocFieldReference extends JavadocFieldReference imp
 	 *
 	 * @return int Flags of the javadoc completion node.
 	 */
+	@Override
 	public int getCompletionFlags() {
 		return this.completionFlags;
 	}
@@ -85,6 +87,7 @@ public class CompletionOnJavadocFieldReference extends JavadocFieldReference imp
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference#internalResolveType(org.eclipse.jdt.internal.compiler.lookup.Scope)
 	 */
+	@Override
 	protected TypeBinding internalResolveType(Scope scope) {
 
 		if (this.token != null) {
@@ -105,6 +108,7 @@ public class CompletionOnJavadocFieldReference extends JavadocFieldReference imp
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.JavadocFieldReference#printExpression(int, java.lang.StringBuffer)
 	 */
+	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("<CompleteOnJavadocFieldReference:"); //$NON-NLS-1$
 		super.printExpression(indent, output);

@@ -55,6 +55,7 @@ class PackageBinding implements IPackageBinding {
 		this.resolver = resolver;
 	}
 
+	@Override
 	public IAnnotationBinding[] getAnnotations() {
 		try {
 			INameEnvironment nameEnvironment = this.binding.environment.nameEnvironment;
@@ -137,6 +138,7 @@ class PackageBinding implements IPackageBinding {
 	/*
 	 * @see IBinding#getName()
 	 */
+	@Override
 	public String getName() {
 		if (this.name == null) {
 			computeNameAndComponents();
@@ -147,6 +149,7 @@ class PackageBinding implements IPackageBinding {
 	/*
 	 * @see IPackageBinding#isUnnamed()
 	 */
+	@Override
 	public boolean isUnnamed() {
 		return getName().equals(UNNAMED);
 	}
@@ -154,6 +157,7 @@ class PackageBinding implements IPackageBinding {
 	/*
 	 * @see IPackageBinding#getNameComponents()
 	 */
+	@Override
 	public String[] getNameComponents() {
 		if (this.components == null) {
 			computeNameAndComponents();
@@ -164,6 +168,7 @@ class PackageBinding implements IPackageBinding {
 	/*
 	 * @see IBinding#getKind()
 	 */
+	@Override
 	public int getKind() {
 		return IBinding.PACKAGE;
 	}
@@ -171,6 +176,7 @@ class PackageBinding implements IPackageBinding {
 	/*
 	 * @see IBinding#getModifiers()
 	 */
+	@Override
 	public int getModifiers() {
 		return Modifier.NONE;
 	}
@@ -178,6 +184,7 @@ class PackageBinding implements IPackageBinding {
 	/*
 	 * @see IBinding#isDeprecated()
 	 */
+	@Override
 	public boolean isDeprecated() {
 		return false;
 	}
@@ -185,6 +192,7 @@ class PackageBinding implements IPackageBinding {
 	/**
 	 * @see IBinding#isRecovered()
 	 */
+	@Override
 	public boolean isRecovered() {
 		return false;
 	}
@@ -192,6 +200,7 @@ class PackageBinding implements IPackageBinding {
 	/**
 	 * @see IBinding#isSynthetic()
 	 */
+	@Override
 	public boolean isSynthetic() {
 		return false;
 	}
@@ -199,6 +208,7 @@ class PackageBinding implements IPackageBinding {
 	/*
 	 * @see IBinding#getJavaElement()
 	 */
+	@Override
 	public IJavaElement getJavaElement() {
 		INameEnvironment nameEnvironment = this.binding.environment.nameEnvironment; // a package binding always has a LooupEnvironment set
 		if (!(nameEnvironment instanceof SearchableEnvironment)) return null;
@@ -222,6 +232,7 @@ class PackageBinding implements IPackageBinding {
 	/*
 	 * @see IBinding#getKey()
 	 */
+	@Override
 	public String getKey() {
 		return new String(this.binding.computeUniqueKey());
 	}
@@ -230,6 +241,7 @@ class PackageBinding implements IPackageBinding {
 	 * @see IBinding#isEqualTo(Binding)
 	 * @since 3.1
 	 */
+	@Override
 	public boolean isEqualTo(IBinding other) {
 		if (other == this) {
 			// identical binding - equal (key or no key)
@@ -273,6 +285,7 @@ class PackageBinding implements IPackageBinding {
 	 * For debugging purpose only.
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		return this.binding.toString();
 	}

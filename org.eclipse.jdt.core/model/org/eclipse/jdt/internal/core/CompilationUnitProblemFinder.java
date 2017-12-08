@@ -91,6 +91,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	/**
 	 * Add additional source types
 	 */
+	@Override
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 		// ensure to jump back to toplevel type for first one (could be a member)
 		while (sourceTypes[0].getEnclosingType() != null) {
@@ -155,6 +156,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	 */
 	protected static ICompilerRequestor getRequestor() {
 		return new ICompilerRequestor() {
+			@Override
 			public void acceptResult(CompilationResult compilationResult) {
 				// default requestor doesn't handle compilation results back
 			}
@@ -280,6 +282,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	 * Fix for bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=60689.
 	 * @see org.eclipse.jdt.internal.compiler.Compiler#initializeParser()
 	 */
+	@Override
 	public void initializeParser() {
 		this.parser = new CommentRecorderParser(this.problemReporter, this.options.parseLiteralExpressionsAsConstants);
 	}

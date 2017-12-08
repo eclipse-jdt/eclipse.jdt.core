@@ -29,6 +29,7 @@ public class ResolvedSourceField extends SourceField {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.SourceField#getKey()
 	 */
+	@Override
 	public String getKey() {
 		return this.uniqueKey;
 	}
@@ -36,6 +37,7 @@ public class ResolvedSourceField extends SourceField {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.IField#isResolved()
 	 */
+	@Override
 	public boolean isResolved() {
 		return true;
 	}
@@ -43,6 +45,7 @@ public class ResolvedSourceField extends SourceField {
 	/**
 	 * @private Debugging purposes
 	 */
+	@Override
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 		super.toStringInfo(tab, buffer, info, showResolvedInfo);
 		if (showResolvedInfo) {
@@ -52,6 +55,7 @@ public class ResolvedSourceField extends SourceField {
 		}
 	}
 
+	@Override
 	public JavaElement unresolved() {
 		SourceRefElement handle = new SourceField(this.parent, this.name);
 		handle.occurrenceCount = this.occurrenceCount;

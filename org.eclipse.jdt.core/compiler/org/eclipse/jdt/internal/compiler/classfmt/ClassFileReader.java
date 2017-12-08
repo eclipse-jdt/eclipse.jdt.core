@@ -536,6 +536,7 @@ private void decodeTypeAnnotations(int offset, boolean runtimeVisible) {
 /**
  * @return the annotations or null if there is none.
  */
+@Override
 public IBinaryAnnotation[] getAnnotations() {
 	return this.annotations;
 }
@@ -543,6 +544,7 @@ public IBinaryAnnotation[] getAnnotations() {
 /**
  * @return the type annotations or null if there is none.
  */
+@Override
 public IBinaryTypeAnnotation[] getTypeAnnotations() {
 	return this.typeAnnotations;
 }
@@ -568,6 +570,7 @@ public int[] getConstantPoolOffsets() {
 	return this.constantPoolOffsets;
 }
 
+@Override
 public char[] getEnclosingMethod() {
 	if (this.enclosingNameAndTypeIndex <= 0) {
 		return null;
@@ -592,6 +595,7 @@ public char[] getEnclosingMethod() {
  * Answer the resolved compoundName of the enclosing type
  * or null if the receiver is a top level type.
  */
+@Override
 public char[] getEnclosingTypeName() {
 	return this.enclosingTypeName;
 }
@@ -600,12 +604,14 @@ public char[] getEnclosingTypeName() {
  * Answer the receiver's this.fields or null if the array is empty.
  * @return org.eclipse.jdt.internal.compiler.api.IBinaryField[]
  */
+@Override
 public IBinaryField[] getFields() {
 	return this.fields;
 }
 /**
  * @see IBinaryType#getModule()
  */
+@Override
 public char[] getModule() {
 	return this.moduleName;
 }
@@ -622,10 +628,12 @@ public IBinaryModule getModuleDeclaration() {
 /**
  * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
  */
+@Override
 public char[] getFileName() {
 	return this.classFileName;
 }
 
+@Override
 public char[] getGenericSignature() {
 	return this.signature;
 }
@@ -665,6 +673,7 @@ public char[] getInnerSourceName() {
  * For example, java.lang.String is java/lang/String.
  * @return char[][]
  */
+@Override
 public char[][] getInterfaceNames() {
 	return this.interfaceNames;
 }
@@ -677,6 +686,7 @@ public char[][] getInterfaceNames() {
  *
  * @return org.eclipse.jdt.internal.compiler.api.IBinaryNestedType[]
  */
+@Override
 public IBinaryNestedType[] getMemberTypes() {
 	// we might have some member types of the current type
 	if (this.innerInfos == null) return null;
@@ -731,6 +741,7 @@ public IBinaryNestedType[] getMemberTypes() {
  * Answer the receiver's this.methods or null if the array is empty.
  * @return org.eclipse.jdt.internal.compiler.api.env.IBinaryMethod[]
  */
+@Override
 public IBinaryMethod[] getMethods() {
 	return this.methods;
 }
@@ -782,6 +793,7 @@ public static void main(String[] args) throws ClassFormatException, IOException 
 	System.err.println('}');
 }
 */
+@Override
 public char[][][] getMissingTypeNames() {
 	return this.missingTypeNames;
 }
@@ -792,6 +804,7 @@ public char[][][] getMissingTypeNames() {
  * Set the AccDeprecated and AccSynthetic bits if necessary
  * @return int
  */
+@Override
 public int getModifiers() {
 	int modifiers;
 	if (this.innerInfo != null) {
@@ -811,10 +824,12 @@ public int getModifiers() {
  * For example, java.lang.String is java/lang/String.
  * @return char[]
  */
+@Override
 public char[] getName() {
 	return this.className;
 }
 
+@Override
 public char[] getSourceName() {
 	if (this.sourceName != null)
 		return this.sourceName;
@@ -845,10 +860,12 @@ public char[] getSourceName() {
  * For example, java.lang.String is java/lang/String.
  * @return char[]
  */
+@Override
 public char[] getSuperclassName() {
 	return this.superclassName;
 }
 
+@Override
 public long getTagBits() {
 	return this.tagBits;
 }
@@ -1311,6 +1328,7 @@ private void initialize() throws ClassFormatException {
  *
  * @return <CODE>boolean</CODE>
  */
+@Override
 public boolean isAnonymous() {
 	if (this.innerInfo == null) return false;
 	char[] innerSourceName = this.innerInfo.getSourceName();
@@ -1322,6 +1340,7 @@ public boolean isAnonymous() {
  * or the unresolved source form of the type.
  * @return boolean
  */
+@Override
 public boolean isBinaryType() {
 	return true;
 }
@@ -1331,6 +1350,7 @@ public boolean isBinaryType() {
  *
  * @return <CODE>boolean</CODE>
  */
+@Override
 public boolean isLocal() {
 	if (this.innerInfo == null) return false;
 	if (this.innerInfo.getEnclosingTypeName() != null) return false;
@@ -1343,6 +1363,7 @@ public boolean isLocal() {
  *
  * @return <CODE>boolean</CODE>
  */
+@Override
 public boolean isMember() {
 	if (this.innerInfo == null) return false;
 	if (this.innerInfo.getEnclosingTypeName() == null) return false;
@@ -1364,10 +1385,12 @@ public boolean isNestedType() {
  *
  * @return char[]
  */
+@Override
 public char[] sourceFileName() {
 	return this.sourceFileName;
 }
 
+@Override
 public String toString() {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
 	java.io.PrintWriter print = new java.io.PrintWriter(out);

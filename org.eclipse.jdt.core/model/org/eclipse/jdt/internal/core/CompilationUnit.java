@@ -68,6 +68,7 @@ public CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner own
 /*
  * @see ICompilationUnit#applyTextEdit(TextEdit, IProgressMonitor)
  */
+@Override
 public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws JavaModelException {
 	IBuffer buffer = getBuffer();
 	if (buffer instanceof IBuffer.ITextEditCapability) {
@@ -89,6 +90,7 @@ public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws Ja
 /*
  * @see ICompilationUnit#becomeWorkingCopy(IProblemRequestor, IProgressMonitor)
  */
+@Override
 public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	JavaModelManager.PerWorkingCopyInfo perWorkingCopyInfo = manager.getPerWorkingCopyInfo(this, false/*don't create*/, true /*record usage*/, null/*no problem requestor needed*/);
@@ -103,10 +105,12 @@ public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonit
 /*
  * @see ICompilationUnit#becomeWorkingCopy(IProgressMonitor)
  */
+@Override
 public void becomeWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
 	IProblemRequestor requestor = this.owner == null ? null : this.owner.getProblemRequestor(this);
 	becomeWorkingCopy(requestor, monitor);
 }
+@Override
 protected boolean buildStructure(OpenableElementInfo info, final IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	CompilationUnitElementInfo unitInfo = (CompilationUnitElementInfo) info;
 
@@ -219,11 +223,13 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 public CompilationUnit cloneCachingContents() {
 	return new CompilationUnit((PackageFragment) this.parent, this.name, this.owner) {
 		private char[] cachedContents;
+		@Override
 		public char[] getContents() {
 			if (this.cachedContents == null)
 				this.cachedContents = CompilationUnit.this.getContents();
 			return this.cachedContents;
 		}
+		@Override
 		public CompilationUnit originalFromClone() {
 			return CompilationUnit.this;
 		}
@@ -232,6 +238,7 @@ public CompilationUnit cloneCachingContents() {
 /*
  * @see Openable#canBeRemovedFromCache
  */
+@Override
 public boolean canBeRemovedFromCache() {
 	if (getPerWorkingCopyInfo() != null) return false; // working copies should remain in the cache until they are destroyed
 	return super.canBeRemovedFromCache();
@@ -239,12 +246,14 @@ public boolean canBeRemovedFromCache() {
 /*
  * @see Openable#canBufferBeRemovedFromCache
  */
+@Override
 public boolean canBufferBeRemovedFromCache(IBuffer buffer) {
 	if (getPerWorkingCopyInfo() != null) return false; // working copy buffers should remain in the cache until working copy is destroyed
 	return super.canBufferBeRemovedFromCache(buffer);
 }/*
  * @see IOpenable#close
  */
+@Override
 public void close() throws JavaModelException {
 	if (getPerWorkingCopyInfo() != null) return; // a working copy must remain opened until it is discarded
 	super.close();
@@ -252,6 +261,7 @@ public void close() throws JavaModelException {
 /*
  * @see Openable#closing
  */
+@Override
 protected void closing(Object info) {
 	if (getPerWorkingCopyInfo() == null) {
 		super.closing(info);
@@ -261,6 +271,7 @@ protected void closing(Object info) {
  * @see ICodeAssist#codeComplete(int, ICompletionRequestor)
  * @deprecated
  */
+@Override
 public void codeComplete(int offset, ICompletionRequestor requestor) throws JavaModelException {
 	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY);
 }
@@ -268,6 +279,7 @@ public void codeComplete(int offset, ICompletionRequestor requestor) throws Java
  * @see ICodeAssist#codeComplete(int, ICompletionRequestor, WorkingCopyOwner)
  * @deprecated
  */
+@Override
 public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopyOwner workingCopyOwner) throws JavaModelException {
 	if (requestor == null) {
 		throw new IllegalArgumentException("Completion requestor cannot be null"); //$NON-NLS-1$
@@ -278,6 +290,7 @@ public void codeComplete(int offset, ICompletionRequestor requestor, WorkingCopy
  * @see ICodeAssist#codeComplete(int, ICodeCompletionRequestor)
  * @deprecated - use codeComplete(int, ICompletionRequestor)
  */
+@Override
 public void codeComplete(int offset, final ICodeCompletionRequestor requestor) throws JavaModelException {
 
 	if (requestor == null){
@@ -287,46 +300,60 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 	codeComplete(
 		offset,
 		new ICompletionRequestor(){
+			@Override
 			public void acceptAnonymousType(char[] superTypePackageName,char[] superTypeName,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance){
 				// ignore
 			}
+			@Override
 			public void acceptClass(char[] packageName, char[] className, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
 				requestor.acceptClass(packageName, className, completionName, modifiers, completionStart, completionEnd);
 			}
+			@Override
 			public void acceptError(IProblem error) {
 				// was disabled in 1.0
 			}
+			@Override
 			public void acceptField(char[] declaringTypePackageName, char[] declaringTypeName, char[] fieldName, char[] typePackageName, char[] typeName, char[] completionName, int modifiers, int completionStart, int completionEnd, int relevance) {
 				requestor.acceptField(declaringTypePackageName, declaringTypeName, fieldName, typePackageName, typeName, completionName, modifiers, completionStart, completionEnd);
 			}
+			@Override
 			public void acceptInterface(char[] packageName,char[] interfaceName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance) {
 				requestor.acceptInterface(packageName, interfaceName, completionName, modifiers, completionStart, completionEnd);
 			}
+			@Override
 			public void acceptKeyword(char[] keywordName,int completionStart,int completionEnd, int relevance){
 				requestor.acceptKeyword(keywordName, completionStart, completionEnd);
 			}
+			@Override
 			public void acceptLabel(char[] labelName,int completionStart,int completionEnd, int relevance){
 				requestor.acceptLabel(labelName, completionStart, completionEnd);
 			}
+			@Override
 			public void acceptLocalVariable(char[] localVarName,char[] typePackageName,char[] typeName,int modifiers,int completionStart,int completionEnd, int relevance){
 				// ignore
 			}
+			@Override
 			public void acceptMethod(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance){
 				// skip parameter names
 				requestor.acceptMethod(declaringTypePackageName, declaringTypeName, selector, parameterPackageNames, parameterTypeNames, returnTypePackageName, returnTypeName, completionName, modifiers, completionStart, completionEnd);
 			}
+			@Override
 			public void acceptMethodDeclaration(char[] declaringTypePackageName,char[] declaringTypeName,char[] selector,char[][] parameterPackageNames,char[][] parameterTypeNames,char[][] parameterNames,char[] returnTypePackageName,char[] returnTypeName,char[] completionName,int modifiers,int completionStart,int completionEnd, int relevance){
 				// ignore
 			}
+			@Override
 			public void acceptModifier(char[] modifierName,int completionStart,int completionEnd, int relevance){
 				requestor.acceptModifier(modifierName, completionStart, completionEnd);
 			}
+			@Override
 			public void acceptPackage(char[] packageName,char[] completionName,int completionStart,int completionEnd, int relevance){
 				requestor.acceptPackage(packageName, completionName, completionStart, completionEnd);
 			}
+			@Override
 			public void acceptType(char[] packageName,char[] typeName,char[] completionName,int completionStart,int completionEnd, int relevance){
 				requestor.acceptType(packageName, typeName, completionName, completionStart, completionEnd);
 			}
+			@Override
 			public void acceptVariableName(char[] typePackageName,char[] typeName,char[] varName,char[] completionName,int completionStart,int completionEnd, int relevance){
 				// ignore
 			}
@@ -336,24 +363,28 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor)
  */
+@Override
 public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
 	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY);
 }
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.core.runtime.IProgressMonitor)
  */
+@Override
 public void codeComplete(int offset, CompletionRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
 	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY, monitor);
 }
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
  */
+@Override
 public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner workingCopyOwner) throws JavaModelException {
 	codeComplete(offset, requestor, workingCopyOwner, null);
 }
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner, org.eclipse.core.runtime.IProgressMonitor)
  */
+@Override
 public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) throws JavaModelException {
 	codeComplete(
 			this,
@@ -368,12 +399,14 @@ public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyO
 /**
  * @see ICodeAssist#codeSelect(int, int)
  */
+@Override
 public IJavaElement[] codeSelect(int offset, int length) throws JavaModelException {
 	return codeSelect(offset, length, DefaultWorkingCopyOwner.PRIMARY);
 }
 /**
  * @see ICodeAssist#codeSelect(int, int, WorkingCopyOwner)
  */
+@Override
 public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner workingCopyOwner) throws JavaModelException {
 	return super.codeSelect(this, offset, length, workingCopyOwner);
 }
@@ -381,12 +414,14 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner workin
  * @see IWorkingCopy#commit(boolean, IProgressMonitor)
  * @deprecated
  */
+@Override
 public void commit(boolean force, IProgressMonitor monitor) throws JavaModelException {
 	commitWorkingCopy(force, monitor);
 }
 /**
  * @see ICompilationUnit#commitWorkingCopy(boolean, IProgressMonitor)
  */
+@Override
 public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws JavaModelException {
 	CommitWorkingCopyOperation op= new CommitWorkingCopyOperation(this, force);
 	op.runOperation(monitor);
@@ -394,6 +429,7 @@ public void commitWorkingCopy(boolean force, IProgressMonitor monitor) throws Ja
 /**
  * @see ISourceManipulation#copy(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
  */
+@Override
 public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
 		throw new IllegalArgumentException(Messages.operation_nullContainer);
@@ -409,12 +445,14 @@ public void copy(IJavaElement container, IJavaElement sibling, String rename, bo
 /**
  * Returns a new element info for this element.
  */
+@Override
 protected Object createElementInfo() {
 	return new CompilationUnitElementInfo();
 }
 /**
  * @see ICompilationUnit#createImport(String, IJavaElement, IProgressMonitor)
  */
+@Override
 public IImportDeclaration createImport(String importName, IJavaElement sibling, IProgressMonitor monitor) throws JavaModelException {
 	return createImport(importName, sibling, Flags.AccDefault, monitor);
 }
@@ -423,6 +461,7 @@ public IImportDeclaration createImport(String importName, IJavaElement sibling, 
  * @see ICompilationUnit#createImport(String, IJavaElement, int, IProgressMonitor)
  * @since 3.0
  */
+@Override
 public IImportDeclaration createImport(String importName, IJavaElement sibling, int flags, IProgressMonitor monitor) throws JavaModelException {
 	CreateImportOperation op = new CreateImportOperation(importName, this, flags);
 	if (sibling != null) {
@@ -435,6 +474,7 @@ public IImportDeclaration createImport(String importName, IJavaElement sibling, 
 /**
  * @see ICompilationUnit#createPackageDeclaration(String, IProgressMonitor)
  */
+@Override
 public IPackageDeclaration createPackageDeclaration(String pkg, IProgressMonitor monitor) throws JavaModelException {
 
 	CreatePackageDeclarationOperation op= new CreatePackageDeclarationOperation(pkg, this);
@@ -444,6 +484,7 @@ public IPackageDeclaration createPackageDeclaration(String pkg, IProgressMonitor
 /**
  * @see ICompilationUnit#createType(String, IJavaElement, boolean, IProgressMonitor)
  */
+@Override
 public IType createType(String content, IJavaElement sibling, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (!exists()) {
 		//autogenerate this compilation unit
@@ -467,6 +508,7 @@ public IType createType(String content, IJavaElement sibling, boolean force, IPr
 /**
  * @see ISourceManipulation#delete(boolean, IProgressMonitor)
  */
+@Override
 public void delete(boolean force, IProgressMonitor monitor) throws JavaModelException {
 	IJavaElement[] elements= new IJavaElement[] {this};
 	getJavaModel().delete(elements, force, monitor);
@@ -475,6 +517,7 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
  * @see IWorkingCopy#destroy()
  * @deprecated
  */
+@Override
 public void destroy() {
 	try {
 		discardWorkingCopy();
@@ -486,6 +529,7 @@ public void destroy() {
 /*
  * @see ICompilationUnit#discardWorkingCopy
  */
+@Override
 public void discardWorkingCopy() throws JavaModelException {
 	// discard working copy and its children
 	DiscardWorkingCopyOperation op = new DiscardWorkingCopyOperation(this);
@@ -497,6 +541,7 @@ public void discardWorkingCopy() throws JavaModelException {
  *
  * @see Object#equals(java.lang.Object)
  */
+@Override
 public boolean equals(Object obj) {
 	if (!(obj instanceof CompilationUnit)) return false;
 	CompilationUnit other = (CompilationUnit)obj;
@@ -505,6 +550,7 @@ public boolean equals(Object obj) {
 /**
  * @see ICompilationUnit#findElements(IJavaElement)
  */
+@Override
 public IJavaElement[] findElements(IJavaElement element) {
 	if (element instanceof IType && ((IType) element).isLambda()) {
 		return null;
@@ -564,6 +610,7 @@ public IJavaElement[] findElements(IJavaElement element) {
 /**
  * @see ICompilationUnit#findPrimaryType()
  */
+@Override
 public IType findPrimaryType() {
 	String typeName = Util.getNameWithoutJavaLikeExtension(getElementName());
 	IType primaryType= getType(typeName);
@@ -577,6 +624,7 @@ public IType findPrimaryType() {
  * @see IWorkingCopy#findSharedWorkingCopy(IBufferFactory)
  * @deprecated
  */
+@Override
 public IJavaElement findSharedWorkingCopy(IBufferFactory factory) {
 
 	// if factory is null, default factory must be used
@@ -588,6 +636,7 @@ public IJavaElement findSharedWorkingCopy(IBufferFactory factory) {
 /**
  * @see ICompilationUnit#findWorkingCopy(WorkingCopyOwner)
  */
+@Override
 public ICompilationUnit findWorkingCopy(WorkingCopyOwner workingCopyOwner) {
 	CompilationUnit cu = new CompilationUnit((PackageFragment)this.parent, getElementName(), workingCopyOwner);
 	if (workingCopyOwner == DefaultWorkingCopyOwner.PRIMARY) {
@@ -605,6 +654,7 @@ public ICompilationUnit findWorkingCopy(WorkingCopyOwner workingCopyOwner) {
 /**
  * @see ICompilationUnit#getAllTypes()
  */
+@Override
 public IType[] getAllTypes() throws JavaModelException {
 	IJavaElement[] types = getTypes();
 	int i;
@@ -629,12 +679,14 @@ public IType[] getAllTypes() throws JavaModelException {
 /**
  * @see IMember#getCompilationUnit()
  */
+@Override
 public ICompilationUnit getCompilationUnit() {
 	return this;
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getContents()
  */
+@Override
 public char[] getContents() {
 	IBuffer buffer = getBufferManager().getBuffer(this);
 	if (buffer == null) {
@@ -689,6 +741,7 @@ public char[] getContents() {
  *
  * @see IJavaElement#getCorrespondingResource()
  */
+@Override
 public IResource getCorrespondingResource() throws JavaModelException {
 	PackageFragmentRoot root = getPackageFragmentRoot();
 	if (root == null || root.isArchive()) {
@@ -700,6 +753,7 @@ public IResource getCorrespondingResource() throws JavaModelException {
 /**
  * @see ICompilationUnit#getElementAt(int)
  */
+@Override
 public IJavaElement getElementAt(int position) throws JavaModelException {
 
 	IJavaElement e= getSourceElementAt(position);
@@ -709,18 +763,21 @@ public IJavaElement getElementAt(int position) throws JavaModelException {
 		return e;
 	}
 }
+@Override
 public String getElementName() {
 	return this.name;
 }
 /**
  * @see IJavaElement
  */
+@Override
 public int getElementType() {
 	return COMPILATION_UNIT;
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.env.IDependent#getFileName()
  */
+@Override
 public char[] getFileName(){
 	return getPath().toString().toCharArray();
 }
@@ -728,6 +785,7 @@ public char[] getFileName(){
 /*
  * @see JavaElement
  */
+@Override
 public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner workingCopyOwner) {
 	switch (token.charAt(0)) {
 		case JEM_IMPORTDECLARATION:
@@ -755,18 +813,21 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 /**
  * @see JavaElement#getHandleMementoDelimiter()
  */
+@Override
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_COMPILATIONUNIT;
 }
 /**
  * @see ICompilationUnit#getImport(String)
  */
+@Override
 public IImportDeclaration getImport(String importName) {
 	return getImportContainer().getImport(importName);
 }
 /**
  * @see ICompilationUnit#getImportContainer()
  */
+@Override
 public IImportContainer getImportContainer() {
 	return new ImportContainer(this);
 }
@@ -775,6 +836,7 @@ public IImportContainer getImportContainer() {
 /**
  * @see ICompilationUnit#getImports()
  */
+@Override
 public IImportDeclaration[] getImports() throws JavaModelException {
 	IImportContainer container= getImportContainer();
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
@@ -806,6 +868,7 @@ public ITypeRoot getTypeRoot() {
 /**
  * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getMainTypeName()
  */
+@Override
 public char[] getMainTypeName(){
 	return Util.getNameWithoutJavaLikeExtension(getElementName()).toCharArray();
 }
@@ -813,6 +876,7 @@ public char[] getMainTypeName(){
  * @see IWorkingCopy#getOriginal(IJavaElement)
  * @deprecated
  */
+@Override
 public IJavaElement getOriginal(IJavaElement workingCopyElement) {
 	// backward compatibility
 	if (!isWorkingCopy()) return null;
@@ -827,6 +891,7 @@ public IJavaElement getOriginal(IJavaElement workingCopyElement) {
  * @see IWorkingCopy#getOriginalElement()
  * @deprecated
  */
+@Override
 public IJavaElement getOriginalElement() {
 	// backward compatibility
 	if (!isWorkingCopy()) return null;
@@ -836,18 +901,21 @@ public IJavaElement getOriginalElement() {
 /*
  * @see ICompilationUnit#getOwner()
  */
+@Override
 public WorkingCopyOwner getOwner() {
 	return isPrimary() || !isWorkingCopy() ? null : this.owner;
 }
 /**
  * @see ICompilationUnit#getPackageDeclaration(String)
  */
+@Override
 public IPackageDeclaration getPackageDeclaration(String pkg) {
 	return new PackageDeclaration(this, pkg);
 }
 /**
  * @see ICompilationUnit#getPackageDeclarations()
  */
+@Override
 public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException {
 	ArrayList list = getChildrenOfType(PACKAGE_DECLARATION);
 	IPackageDeclaration[] array= new IPackageDeclaration[list.size()];
@@ -857,6 +925,7 @@ public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException 
 /**
  * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getPackageName()
  */
+@Override
 public char[][] getPackageName() {
 	PackageFragment packageFragment = (PackageFragment) getParent();
 	if (packageFragment == null) return CharOperation.NO_CHAR_CHAR;
@@ -866,6 +935,7 @@ public char[][] getPackageName() {
 /**
  * @see IJavaElement#getPath()
  */
+@Override
 public IPath getPath() {
 	PackageFragmentRoot root = getPackageFragmentRoot();
 	if (root == null) return new Path(getElementName()); // working copy not in workspace
@@ -885,12 +955,14 @@ public JavaModelManager.PerWorkingCopyInfo getPerWorkingCopyInfo() {
 /*
  * @see ICompilationUnit#getPrimary()
  */
+@Override
 public ICompilationUnit getPrimary() {
 	return (ICompilationUnit)getPrimaryElement(true);
 }
 /*
  * @see JavaElement#getPrimaryElement(boolean)
  */
+@Override
 public IJavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner && isPrimary()) return this;
 	return new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
@@ -898,6 +970,7 @@ public IJavaElement getPrimaryElement(boolean checkOwner) {
 /*
  * @see Openable#resource(PackageFragmentRoot)
  */
+@Override
 public IResource resource(PackageFragmentRoot root) {
 	if (root == null) return null; // working copy not in workspace
 	return ((IContainer) ((Openable) this.parent).resource(root)).getFile(new Path(getElementName()));
@@ -905,6 +978,7 @@ public IResource resource(PackageFragmentRoot root) {
 /**
  * @see ISourceReference#getSource()
  */
+@Override
 public String getSource() throws JavaModelException {
 	IBuffer buffer = getBuffer();
 	if (buffer == null) return ""; //$NON-NLS-1$
@@ -913,18 +987,21 @@ public String getSource() throws JavaModelException {
 /**
  * @see ISourceReference#getSourceRange()
  */
+@Override
 public ISourceRange getSourceRange() throws JavaModelException {
 	return ((CompilationUnitElementInfo) getElementInfo()).getSourceRange();
 }
 /**
  * @see ICompilationUnit#getType(String)
  */
+@Override
 public IType getType(String typeName) {
 	return new SourceType(this, typeName);
 }
 /**
  * @see ICompilationUnit#getTypes()
  */
+@Override
 public IType[] getTypes() throws JavaModelException {
 	ArrayList list = getChildrenOfType(TYPE);
 	IType[] array= new IType[list.size()];
@@ -934,6 +1011,7 @@ public IType[] getTypes() throws JavaModelException {
 /**
  * @see IJavaElement
  */
+@Override
 public IResource getUnderlyingResource() throws JavaModelException {
 	if (isWorkingCopy() && !isPrimary()) return null;
 	return super.getUnderlyingResource();
@@ -942,6 +1020,7 @@ public IResource getUnderlyingResource() throws JavaModelException {
  * @see IWorkingCopy#getSharedWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
  * @deprecated
  */
+@Override
 public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
 
 	// if factory is null, default factory must be used
@@ -953,18 +1032,21 @@ public IJavaElement getSharedWorkingCopy(IProgressMonitor pm, IBufferFactory fac
  * @see IWorkingCopy#getWorkingCopy()
  * @deprecated
  */
+@Override
 public IJavaElement getWorkingCopy() throws JavaModelException {
 	return getWorkingCopy(null);
 }
 /**
  * @see ICompilationUnit#getWorkingCopy(IProgressMonitor)
  */
+@Override
 public ICompilationUnit getWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
 	return getWorkingCopy(new WorkingCopyOwner() {/*non shared working copy*/}, null/*no problem requestor*/, monitor);
 }
 /**
  * @see ITypeRoot#getWorkingCopy(WorkingCopyOwner, IProgressMonitor)
  */
+@Override
 public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) throws JavaModelException {
 	return getWorkingCopy(workingCopyOwner, null, monitor);
 }
@@ -972,6 +1054,7 @@ public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProgr
  * @see IWorkingCopy#getWorkingCopy(IProgressMonitor, IBufferFactory, IProblemRequestor)
  * @deprecated
  */
+@Override
 public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory factory, IProblemRequestor problemRequestor) throws JavaModelException {
 	return getWorkingCopy(BufferFactoryWrapper.create(factory), problemRequestor, monitor);
 }
@@ -979,6 +1062,7 @@ public IJavaElement getWorkingCopy(IProgressMonitor monitor, IBufferFactory fact
  * @see ICompilationUnit#getWorkingCopy(WorkingCopyOwner, IProblemRequestor, IProgressMonitor)
  * @deprecated
  */
+@Override
 public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 	if (!isPrimary()) return this;
 
@@ -997,12 +1081,14 @@ public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProbl
 /**
  * @see Openable#hasBuffer()
  */
+@Override
 protected boolean hasBuffer() {
 	return true;
 }
 /*
  * @see ICompilationUnit#hasResourceChanged()
  */
+@Override
 public boolean hasResourceChanged() {
 	if (!isWorkingCopy()) return false;
 
@@ -1014,6 +1100,7 @@ public boolean hasResourceChanged() {
 	if (resource == null) return false;
 	return ((CompilationUnitElementInfo)info).timestamp != resource.getModificationStamp();
 }
+@Override
 public boolean ignoreOptionalProblems() {
 	return getPackageFragmentRoot().ignoreOptionalProblems();
 }
@@ -1021,6 +1108,7 @@ public boolean ignoreOptionalProblems() {
  * @see IWorkingCopy#isBasedOn(IResource)
  * @deprecated
  */
+@Override
 public boolean isBasedOn(IResource resource) {
 	if (!isWorkingCopy()) return false;
 	if (!getResource().equals(resource)) return false;
@@ -1029,6 +1117,7 @@ public boolean isBasedOn(IResource resource) {
 /**
  * @see IOpenable#isConsistent()
  */
+@Override
 public boolean isConsistent() {
 	return !JavaModelManager.getJavaModelManager().getElementsOutOfSynchWithBuffers().contains(this);
 }
@@ -1038,6 +1127,7 @@ public boolean isPrimary() {
 /**
  * @see Openable#isSourceElement()
  */
+@Override
 protected boolean isSourceElement() {
 	return true;
 }
@@ -1064,6 +1154,7 @@ protected IStatus validateCompilationUnit(IResource resource) {
 /*
  * @see ICompilationUnit#isWorkingCopy()
  */
+@Override
 public boolean isWorkingCopy() {
 	// For backward compatibility, non primary working copies are always returning true; in removal
 	// delta, clients can still check that element was a working copy before being discarded.
@@ -1072,6 +1163,7 @@ public boolean isWorkingCopy() {
 /**
  * @see IOpenable#makeConsistent(IProgressMonitor)
  */
+@Override
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
 	makeConsistent(NO_AST, false/*don't resolve bindings*/, 0 /* don't perform statements recovery */, null/*don't collect problems but report them*/, monitor);
 }
@@ -1103,6 +1195,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(int astLevel, boo
 /**
  * @see ISourceManipulation#move(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
  */
+@Override
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
 		throw new IllegalArgumentException(Messages.operation_nullContainer);
@@ -1120,6 +1213,7 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 /**
  * @see Openable#openBuffer(IProgressMonitor, Object)
  */
+@Override
 protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
 
 	// create buffer
@@ -1181,6 +1275,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	}
 	return buffer;
 }
+@Override
 protected void openAncestors(HashMap newElements, IProgressMonitor monitor) throws JavaModelException {
 	if (!isWorkingCopy()) {
 		super.openAncestors(newElements, monitor);
@@ -1198,6 +1293,7 @@ public CompilationUnit originalFromClone() {
  * @see ICompilationUnit#reconcile()
  * @deprecated
  */
+@Override
 public IMarker[] reconcile() throws JavaModelException {
 	reconcile(NO_AST, false/*don't force problem detection*/, false, null/*use primary owner*/, null/*no progress monitor*/);
 	return null;
@@ -1205,6 +1301,7 @@ public IMarker[] reconcile() throws JavaModelException {
 /**
  * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)
  */
+@Override
 public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) throws JavaModelException {
 	reconcile(NO_AST, forceProblemDetection? ICompilationUnit.FORCE_PROBLEM_DETECTION : 0, null/*use primary owner*/, monitor);
 }
@@ -1213,6 +1310,7 @@ public void reconcile(boolean forceProblemDetection, IProgressMonitor monitor) t
  * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)
  * @since 3.0
  */
+@Override
 public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 		int astLevel,
 		boolean forceProblemDetection,
@@ -1225,6 +1323,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
  * @see ICompilationUnit#reconcile(int, boolean, WorkingCopyOwner, IProgressMonitor)
  * @since 3.0
  */
+@Override
 public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 		int astLevel,
 		boolean forceProblemDetection,
@@ -1237,6 +1336,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 	return reconcile(astLevel, flags, workingCopyOwner, monitor);
 }
 
+@Override
 public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 		int astLevel,
 		int reconcileFlags,
@@ -1270,6 +1370,7 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 /**
  * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)
  */
+@Override
 public void rename(String newName, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (newName == null) {
 		throw new IllegalArgumentException(Messages.operation_nullName);
@@ -1282,6 +1383,7 @@ public void rename(String newName, boolean force, IProgressMonitor monitor) thro
 /*
  * @see ICompilationUnit
  */
+@Override
 public void restore() throws JavaModelException {
 
 	if (!isWorkingCopy()) return;
@@ -1296,6 +1398,7 @@ public void restore() throws JavaModelException {
 /**
  * @see IOpenable
  */
+@Override
 public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
 	if (isWorkingCopy()) {
 		// no need to save the buffer for a working copy (this is a noop)
@@ -1309,6 +1412,7 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
 /**
  * Debugging purposes
  */
+@Override
 protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	if (!isPrimary()) {
 		buffer.append(tabString(tab));
@@ -1340,6 +1444,7 @@ protected void updateTimeStamp(CompilationUnit original) throws JavaModelExcepti
 	((CompilationUnitElementInfo) getElementInfo()).timestamp = timeStamp;
 }
 
+@Override
 protected IStatus validateExistence(IResource underlyingResource) {
 	// check if this compilation unit can be opened
 	if (!isWorkingCopy()) { // no check is done on root kind or exclusion pattern for working copies
@@ -1356,6 +1461,7 @@ protected IStatus validateExistence(IResource underlyingResource) {
 	return JavaModelStatus.VERIFIED_OK;
 }
 
+@Override
 public ISourceRange getNameRange() {
 	return null;
 }

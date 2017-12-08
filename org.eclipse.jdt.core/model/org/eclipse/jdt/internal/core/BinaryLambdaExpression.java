@@ -30,6 +30,7 @@ public class BinaryLambdaExpression extends LambdaExpression {
 	/*
 	 * @see JavaElement#getPrimaryElement(boolean)
 	 */
+	@Override
 	public IJavaElement getPrimaryElement(boolean checkOwner) {
 		return this;
 	}
@@ -37,6 +38,7 @@ public class BinaryLambdaExpression extends LambdaExpression {
 	/*
 	 * @see IMember#isBinary()
 	 */
+	@Override
 	public boolean isBinary() {
 		return true;
 	}

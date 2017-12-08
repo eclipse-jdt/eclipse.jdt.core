@@ -57,12 +57,14 @@ public class RuntimeInvisibleAnnotationsAttribute
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IRuntimeInvisibleAnnotations#getAnnotations()
 	 */
+	@Override
 	public IAnnotation[] getAnnotations() {
 		return this.annotations;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IRuntimeInvisibleAnnotations#getAnnotationsNumber()
 	 */
+	@Override
 	public int getAnnotationsNumber() {
 		return this.annotationsNumber;
 	}

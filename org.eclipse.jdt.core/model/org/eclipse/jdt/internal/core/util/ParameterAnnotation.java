@@ -60,12 +60,14 @@ public class ParameterAnnotation extends ClassFileStruct implements IParameterAn
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IParameterAnnotation#getAnnotations()
 	 */
+	@Override
 	public IAnnotation[] getAnnotations() {
 		return this.annotations;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IParameterAnnotation#getAnnotationsNumber()
 	 */
+	@Override
 	public int getAnnotationsNumber() {
 		return this.annotationsNumber;
 	}

@@ -110,6 +110,7 @@ public class SourceMapper
 			this.name = name;
 		}
 
+		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
@@ -118,6 +119,7 @@ public class SourceMapper
 			return result;
 		}
 
+		@Override
 		public boolean equals(Object obj) {
 			if (this == obj)
 				return true;
@@ -138,6 +140,7 @@ public class SourceMapper
 				return false;
 			return true;
 		}
+		@Override
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append('(').append(this.parent).append('.').append(this.name).append(')');
@@ -310,6 +313,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void acceptImport(
 			int declarationStart,
 			int declarationEnd,
@@ -349,6 +353,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void acceptLineSeparatorPositions(int[] positions) {
 		//do nothing
 	}
@@ -356,6 +361,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void acceptPackage(ImportReference importReference) {
 		//do nothing
 	}
@@ -363,6 +369,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void acceptProblem(CategorizedProblem problem) {
 		//do nothing
 	}
@@ -679,6 +686,7 @@ public class SourceMapper
 			ArrayList sortedRoots = new ArrayList(tempRoots);
 			if (size > 1) {
 				Collections.sort(sortedRoots, new Comparator() {
+					@Override
 					public int compare(Object o1, Object o2) {
 						IPath path1 = (IPath) o1;
 						IPath path2 = (IPath) o2;
@@ -745,6 +753,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void enterType(TypeInfo typeInfo) {
 
 		this.typeDepth++;
@@ -867,6 +876,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void enterCompilationUnit() {
 		// do nothing
 	}
@@ -874,6 +884,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void enterConstructor(MethodInfo methodInfo) {
 		enterAbstractMethod(methodInfo);
 	}
@@ -881,6 +892,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void enterField(FieldInfo fieldInfo) {
 		if (this.typeDepth >= 0) {
 			this.memberDeclarationStart[this.typeDepth] = fieldInfo.declarationStart;
@@ -899,6 +911,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void enterInitializer(
 		int declarationSourceStart,
 		int modifiers) {
@@ -908,6 +921,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void enterMethod(MethodInfo methodInfo) {
 		enterAbstractMethod(methodInfo);
 	}
@@ -1000,6 +1014,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void exitType(int declarationEnd) {
 		if (this.typeDepth >= 0) {
 			IType currentType = this.types[this.typeDepth];
@@ -1016,6 +1031,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void exitCompilationUnit(int declarationEnd) {
 		//do nothing
 	}
@@ -1023,6 +1039,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void exitConstructor(int declarationEnd) {
 		exitAbstractMethod(declarationEnd);
 	}
@@ -1030,6 +1047,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void exitField(int initializationStart, int declarationEnd, int declarationSourceEnd) {
 		if (this.typeDepth >= 0) {
 			IType currentType = this.types[this.typeDepth];
@@ -1045,6 +1063,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void exitInitializer(int declarationEnd) {
 		// implements abstract method
 	}
@@ -1052,6 +1071,7 @@ public class SourceMapper
 	/**
 	 * @see ISourceElementRequestor
 	 */
+	@Override
 	public void exitMethod(int declarationEnd, Expression defaultValue) {
 		exitAbstractMethod(declarationEnd);
 	}

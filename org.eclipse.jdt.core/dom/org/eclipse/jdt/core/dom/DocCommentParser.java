@@ -91,6 +91,7 @@ class DocCommentParser extends AbstractCommentParser {
 		this.docComment.setComment(new String(this.source, start, length));
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("javadoc: ").append(this.docComment).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
@@ -101,6 +102,7 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createArgumentReference(char[], java.lang.Object, int)
 	 */
+	@Override
 	protected Object createArgumentReference(char[] name, int dim, boolean isVarargs, Object typeRef, long[] dimPositions, long argNamePos) throws InvalidInputException {
 		try {
 			MethodRefParameter argument = this.ast.newMethodRefParameter();
@@ -157,6 +159,7 @@ class DocCommentParser extends AbstractCommentParser {
 /* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createFieldReference()
 	 */
+	@Override
 	protected Object createFieldReference(Object receiver) throws InvalidInputException {
 		try {
 			MemberRef fieldRef = this.ast.newMemberRef();
@@ -185,6 +188,7 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createMethodReference(java.lang.Object[])
 	 */
+	@Override
 	protected Object createMethodReference(Object receiver, List arguments) throws InvalidInputException {
 		try {
 			// Create method ref
@@ -224,6 +228,7 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createTag()
 	 */
+	@Override
 	protected void createTag() {
 		TagElement tagElement = this.ast.newTagElement();
 		int position = this.scanner.currentPosition;
@@ -259,6 +264,7 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createTypeReference()
 	 */
+	@Override
 	protected Object createTypeReference(int primitiveToken) {
 		int size = this.identifierLengthStack[this.identifierLengthPtr];
 		String[] identifiers = new String[size];
@@ -334,6 +340,7 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseIdentifierTag(boolean)
 	 */
+	@Override
 	protected boolean parseIdentifierTag(boolean report) {
 		if (super.parseIdentifierTag(report)) {
 			createTag();
@@ -355,6 +362,7 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseTag(int)
 	 */
+	@Override
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
 
 		// Read tag name
@@ -598,6 +606,7 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushParamName(java.lang.Object)
 	 */
+	@Override
 	protected boolean pushParamName(boolean isTypeParam) {
 		int idIndex = isTypeParam ? 1 : 0;
 		final SimpleName name = new SimpleName(this.ast);
@@ -636,6 +645,7 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushSeeRef(java.lang.Object)
 	 */
+	@Override
 	protected boolean pushSeeRef(Object statement) {
 		TagElement seeTag = this.ast.newTagElement();
 		ASTNode node = (ASTNode) statement;
@@ -675,6 +685,7 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushText(int, int)
 	 */
+	@Override
 	protected void pushText(int start, int end) {
 
 		// Create text element
@@ -722,6 +733,7 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushThrowName(java.lang.Object)
 	 */
+	@Override
 	protected boolean pushThrowName(Object typeRef) {
 		TagElement throwsTag = this.ast.newTagElement();
 		switch (this.tagValue) {
@@ -741,6 +753,7 @@ class DocCommentParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#refreshInlineTagPosition(int)
 	 */
+	@Override
 	protected void refreshInlineTagPosition(int previousPosition) {
 		if (this.astPtr != -1) {
 			TagElement previousTag = (TagElement) this.astStack[this.astPtr];
@@ -761,6 +774,7 @@ class DocCommentParser extends AbstractCommentParser {
 	/*
 	 * Add stored tag elements to associated comment.
 	 */
+	@Override
 	protected void updateDocComment() {
 		for (int idx = 0; idx <= this.astPtr; idx++) {
 			this.docComment.tags().add(this.astStack[idx]);

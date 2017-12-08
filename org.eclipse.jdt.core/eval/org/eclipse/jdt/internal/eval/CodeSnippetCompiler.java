@@ -56,6 +56,7 @@ public class CodeSnippetCompiler extends Compiler {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.Compiler#initializeParser()
 	 */
+	@Override
 	public void initializeParser() {
 		this.parser =
 			new CodeSnippetParser(

@@ -149,6 +149,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createArgumentReference(char[], java.lang.Object, int)
 	 */
+	@Override
 	protected Object createArgumentReference(char[] name, int dim, boolean isVarargs, Object typeRef, long[] dimPositions, long argNamePos) throws InvalidInputException {
 		try {
 			TypeReference argTypeRef = (TypeReference) typeRef;
@@ -179,6 +180,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createFieldReference()
 	 */
+	@Override
 	protected Object createFieldReference(Object receiver) throws InvalidInputException {
 		try {
 			// Get receiver type
@@ -202,6 +204,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createMethodReference(java.lang.Object[])
 	 */
+	@Override
 	protected Object createMethodReference(Object receiver, List arguments) throws InvalidInputException {
 		try {
 			// Get receiver type
@@ -298,6 +301,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createReturnStatement()
 	 */
+	@Override
 	protected Object createReturnStatement() {
 		return new JavadocReturnStatement(this.scanner.getCurrentTokenStartPosition(),
 					this.scanner.getCurrentTokenEndPosition());
@@ -306,6 +310,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseTagName()
 	 */
+	@Override
 	protected void createTag() {
 		this.tagValue = TAG_OTHERS_VALUE;
 	}
@@ -313,6 +318,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#createTypeReference()
 	 */
+	@Override
 	protected Object createTypeReference(int primitiveToken) {
 		TypeReference typeRef = null;
 		int size = this.identifierLengthStack[this.identifierLengthPtr];
@@ -353,6 +359,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/*
 	 * Parse @throws tag declaration and flag missing description if corresponding option is enabled
 	 */
+	@Override
 	protected boolean parseThrows() {
 		boolean valid = super.parseThrows();
 		this.tagWaitingForDescription = valid && this.reportProblems ? TAG_THROWS_VALUE : NO_TAG_VALUE;
@@ -417,6 +424,7 @@ public class JavadocParser extends AbstractCommentParser {
 		}
 	}
 
+	@Override
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
 
 		// Complain when tag is missing a description
@@ -706,6 +714,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/*
 	 * Parse @param tag declaration and flag missing description if corresponding option is enabled
 	 */
+	@Override
 	protected boolean parseParam() throws InvalidInputException {
 		boolean valid = super.parseParam();
 		this.tagWaitingForDescription = valid && this.reportProblems ? TAG_PARAM_VALUE : NO_TAG_VALUE;
@@ -715,6 +724,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/*
 	 * Push a param name in ast node stack.
 	 */
+	@Override
 	protected boolean pushParamName(boolean isTypeParam) {
 		// Create param reference
 		ASTNode nameRef = null;
@@ -776,6 +786,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/*
 	 * Push a reference statement in ast node stack.
 	 */
+	@Override
 	protected boolean pushSeeRef(Object statement) {
 		if (this.astLengthPtr == -1) { // First push
 			pushOnAstStack(null, true);
@@ -806,6 +817,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#pushText(int, int)
 	 */
+	@Override
 	protected void pushText(int start, int end) {
 		// The tag gets its description => clear the flag
 		this.tagWaitingForDescription = NO_TAG_VALUE;
@@ -814,6 +826,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/*
 	 * Push a throws type ref in ast node stack.
 	 */
+	@Override
 	protected boolean pushThrowName(Object typeRef) {
 		if (this.astLengthPtr == -1) { // First push
 			pushOnAstStack(null, true);
@@ -843,6 +856,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#refreshInlineTagPosition(int)
 	 */
+	@Override
 	protected void refreshInlineTagPosition(int previousPosition) {
 
 		// Signal tag missing description if necessary
@@ -855,10 +869,12 @@ public class JavadocParser extends AbstractCommentParser {
 	/*
 	 * Refresh return statement
 	 */
+	@Override
 	protected void refreshReturnStatement() {
 		((JavadocReturnStatement) this.returnStatement).bits &= ~ASTNode.Empty;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("check javadoc: ").append(this.checkDocComment).append("\n");	//$NON-NLS-1$ //$NON-NLS-2$
@@ -870,6 +886,7 @@ public class JavadocParser extends AbstractCommentParser {
 	/*
 	 * Fill associated comment fields with ast nodes information stored in stack.
 	 */
+	@Override
 	protected void updateDocComment() {
 
 		// Complain when tag is missing a description

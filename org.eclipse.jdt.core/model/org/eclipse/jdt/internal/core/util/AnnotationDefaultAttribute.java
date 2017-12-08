@@ -45,6 +45,7 @@ public class AnnotationDefaultAttribute extends ClassFileAttribute
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IAnnotationDefaultAttribute#getMemberValue()
 	 */
+	@Override
 	public IAnnotationComponentValue getMemberValue() {
 		return this.memberValue;
 	}

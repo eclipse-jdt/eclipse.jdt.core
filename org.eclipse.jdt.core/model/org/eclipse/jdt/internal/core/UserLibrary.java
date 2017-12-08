@@ -72,6 +72,7 @@ public class UserLibrary {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
+	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj.getClass() == getClass()) {
 			UserLibrary other= (UserLibrary) obj;
@@ -90,6 +91,7 @@ public class UserLibrary {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
+	@Override
 	public int hashCode() {
 		int hashCode= 0;
 		if (this.isSystemLibrary) {
@@ -211,6 +213,7 @@ public class UserLibrary {
 		return new UserLibrary(entries, isSystem);
 	}
 
+	@Override
 	public String toString() {
 		if (this.entries == null)
 			return "null"; //$NON-NLS-1$

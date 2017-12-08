@@ -81,6 +81,7 @@ public class PrimitiveType extends AnnotatableType {
 		 *
 		 * @return the standard name of the primitive type
 		 */
+		@Override
 		public String toString() {
 			return this.name;
 		}
@@ -234,6 +235,7 @@ public class PrimitiveType extends AnnotatableType {
 	 * Method declared on AnnotatableType.
 	 * @since 3.10
 	 */
+	@Override
 	final ChildListPropertyDescriptor internalAnnotationsProperty() {
 		return ANNOTATIONS_PROPERTY;
 	}
@@ -241,6 +243,7 @@ public class PrimitiveType extends AnnotatableType {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
@@ -248,6 +251,7 @@ public class PrimitiveType extends AnnotatableType {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == ANNOTATIONS_PROPERTY) {
 			return annotations();
@@ -259,6 +263,7 @@ public class PrimitiveType extends AnnotatableType {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
 		if (property == PRIMITIVE_TYPE_CODE_PROPERTY) {
 			if (get) {
@@ -275,6 +280,7 @@ public class PrimitiveType extends AnnotatableType {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final int getNodeType0() {
 		return PRIMITIVE_TYPE;
 	}
@@ -282,6 +288,7 @@ public class PrimitiveType extends AnnotatableType {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	ASTNode clone0(AST target) {
 		PrimitiveType result = new PrimitiveType(target);
 		result.setSourceRange(getStartPosition(), getLength());
@@ -296,6 +303,7 @@ public class PrimitiveType extends AnnotatableType {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
@@ -304,6 +312,7 @@ public class PrimitiveType extends AnnotatableType {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
@@ -344,6 +353,7 @@ public class PrimitiveType extends AnnotatableType {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int memSize() {
 		// treat Code as free
 		return BASE_NODE_SIZE + 2 * 4;
@@ -352,6 +362,7 @@ public class PrimitiveType extends AnnotatableType {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int treeSize() {
 		return memSize()
 				+ (this.annotations == null ? 0 : this.annotations.listSize());

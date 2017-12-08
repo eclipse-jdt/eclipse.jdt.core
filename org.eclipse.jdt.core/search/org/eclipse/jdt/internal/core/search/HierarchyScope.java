@@ -260,6 +260,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	/* (non-Javadoc)
 	 * @see IJavaSearchScope#encloses(String)
 	 */
+	@Override
 	public boolean encloses(String resourcePath) {
 		return encloses(resourcePath, null);
 	}
@@ -315,6 +316,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	/* (non-Javadoc)
 	 * @see IJavaSearchScope#encloses(IJavaElement)
 	 */
+	@Override
 	public boolean encloses(IJavaElement element) {
 		return encloses(element, null);
 	}
@@ -414,6 +416,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	 * @see IJavaSearchScope#enclosingProjectsAndJars()
 	 * @deprecated
 	 */
+	@Override
 	public IPath[] enclosingProjectsAndJars() {
 		if (this.needsRefresh) {
 			try {
@@ -446,6 +449,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 	/*
 	 * @see AbstractSearchScope#processDelta(IJavaElementDelta)
 	 */
+	@Override
 	public void processDelta(IJavaElementDelta delta, int eventType) {
 		if (this.needsRefresh) return;
 		this.needsRefresh = this.hierarchy == null ? false : ((TypeHierarchy)this.hierarchy).isAffected(delta, eventType);
@@ -458,6 +462,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 			initialize(progressMonitor);
 		}
 	}
+	@Override
 	public String toString() {
 		return "HierarchyScope on " + ((JavaElement)this.focusType).toStringWithAncestors(); //$NON-NLS-1$
 	}

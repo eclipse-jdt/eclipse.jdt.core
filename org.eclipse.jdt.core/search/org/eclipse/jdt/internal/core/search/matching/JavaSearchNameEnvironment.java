@@ -100,6 +100,7 @@ public static Map<String, org.eclipse.jdt.core.ICompilationUnit> getWorkingCopyM
 	return result;
 }
 
+@Override
 public void cleanup() {
 	this.locationSet.clear();
 }

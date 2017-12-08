@@ -219,19 +219,24 @@ static class AnnotationCollector extends ASTVisitor {
 		}
 		return true;
 	}
+	@Override
 	public boolean visit(MarkerAnnotation annotation, BlockScope scope) {
 		return internalVisit(annotation);
 	}
+	@Override
 	public boolean visit(NormalAnnotation annotation, BlockScope scope) {
 		return internalVisit(annotation);
 	}
+	@Override
 	public boolean visit(SingleMemberAnnotation annotation, BlockScope scope) {
 		return internalVisit(annotation);
 	}
+	@Override
 	public boolean visit(Wildcard wildcard, BlockScope scope) {
 		this.currentWildcard = wildcard;
 		return true;
 	}
+	@Override
 	public boolean visit(Argument argument, BlockScope scope) {
 		if ((argument.bits & ASTNode.IsUnionType) == 0) {
 			return true;
@@ -245,6 +250,7 @@ static class AnnotationCollector extends ASTVisitor {
 		}
 		return false;
 	}
+	@Override
 	public boolean visit(Argument argument, ClassScope scope) {
 		if ((argument.bits & ASTNode.IsUnionType) == 0) {
 			return true;
@@ -258,6 +264,7 @@ static class AnnotationCollector extends ASTVisitor {
 		}
 		return false;
 	}
+	@Override
 	public boolean visit(LocalDeclaration localDeclaration, BlockScope scope) {
 		for (int i = 0, max = this.localVariable.initializationCount; i < max; i++) {
 			int startPC = this.localVariable.initializationPCs[i << 1];
@@ -268,6 +275,7 @@ static class AnnotationCollector extends ASTVisitor {
 		}
 		return false;
 	}
+	@Override
 	public void endVisit(Wildcard wildcard, BlockScope scope) {
 		this.currentWildcard = null;
 	}
@@ -332,6 +340,7 @@ public Annotation[][] annotations = null;
 public void aboutToResolve(Scope scope) {
 	// default implementation: do nothing
 }
+@Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	return flowInfo;
 }
@@ -532,6 +541,7 @@ protected TypeBinding internalResolveType(Scope scope, int location) {
 		return this.resolvedType; // pick up value that may have been changed in resolveAnnotations(..)
 	}
 }
+@Override
 public boolean isTypeReference() {
 	return true;
 }
@@ -574,6 +584,7 @@ public TypeBinding resolveSuperType(ClassScope scope) {
 	return superType;
 }
 
+@Override
 public final TypeBinding resolveType(BlockScope blockScope) {
 	return resolveType(blockScope, true /* checkbounds if any */);
 }
@@ -586,6 +597,7 @@ public TypeBinding resolveType(BlockScope scope, boolean checkBounds, int locati
 	return internalResolveType(scope, location);
 }
 
+@Override
 public TypeBinding resolveType(ClassScope scope) {
 	return resolveType(scope, 0);
 }
@@ -617,8 +629,10 @@ public TypeBinding resolveTypeArgument(ClassScope classScope, ReferenceBinding g
 	}
 }
 
+@Override
 public abstract void traverse(ASTVisitor visitor, BlockScope scope);
 
+@Override
 public abstract void traverse(ASTVisitor visitor, ClassScope scope);
 
 protected void resolveAnnotations(Scope scope, int location) {

@@ -32,6 +32,7 @@ public class SelectionJavadoc extends Javadoc {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.Javadoc#print(int, java.lang.StringBuffer)
 	 */
+	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
 		super.print(indent, output);
 		if (this.selectedNode != null) {
@@ -127,6 +128,7 @@ public class SelectionJavadoc extends Javadoc {
 	 *
 	 * @throws SelectionNodeFound
 	 */
+	@Override
 	public void resolve(ClassScope scope) {
 		internalResolve(scope);
 	}
@@ -137,6 +139,7 @@ public class SelectionJavadoc extends Javadoc {
 	 *
 	 * @throws SelectionNodeFound
 	 */
+	@Override
 	public void resolve(MethodScope scope) {
 		internalResolve(scope);
 	}

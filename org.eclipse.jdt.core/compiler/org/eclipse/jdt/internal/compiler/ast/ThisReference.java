@@ -40,6 +40,7 @@ public class ThisReference extends Reference {
 	/*
 	 * @see Reference#analyseAssignment(...)
 	 */
+	@Override
 	public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Assignment assignment, boolean isCompound) {
 
 		return flowInfo; // this cannot be assigned
@@ -70,6 +71,7 @@ public class ThisReference extends Reference {
 		return true;
 	}
 
+	@Override
 	public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
 		return true; // never problematic
 	}
@@ -77,11 +79,13 @@ public class ThisReference extends Reference {
 	/*
 	 * @see Reference#generateAssignment(...)
 	 */
+	@Override
 	public void generateAssignment(BlockScope currentScope, CodeStream codeStream, Assignment assignment, boolean valueRequired) {
 
 		 // this cannot be assigned
 	}
 
+	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 
 		int pc = codeStream.position;
@@ -93,6 +97,7 @@ public class ThisReference extends Reference {
 	/*
 	 * @see Reference#generateCompoundAssignment(...)
 	 */
+	@Override
 	public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion,  boolean valueRequired) {
 
 		 // this cannot be assigned
@@ -101,31 +106,37 @@ public class ThisReference extends Reference {
 	/*
 	 * @see org.eclipse.jdt.internal.compiler.ast.Reference#generatePostIncrement()
 	 */
+	@Override
 	public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 
 		 // this cannot be assigned
 	}
 
+	@Override
 	public boolean isImplicitThis() {
 
 		return (this.bits & IsImplicitThis) != 0;
 	}
 
+	@Override
 	public boolean isThis() {
 
 		return true ;
 	}
 
+	@Override
 	public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 		return FlowInfo.NON_NULL;
 	}
 
+	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output){
 
 		if (isImplicitThis()) return output;
 		return output.append("this"); //$NON-NLS-1$
 	}
 
+	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 
 		this.constant = Constant.NotAConstant;
@@ -144,11 +155,13 @@ public class ThisReference extends Reference {
 		return this.resolvedType;
 	}
 
+	@Override
 	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 
 		visitor.visit(this, blockScope);
 		visitor.endVisit(this, blockScope);
 	}
+	@Override
 	public void traverse(ASTVisitor visitor, ClassScope blockScope) {
 
 		visitor.visit(this, blockScope);

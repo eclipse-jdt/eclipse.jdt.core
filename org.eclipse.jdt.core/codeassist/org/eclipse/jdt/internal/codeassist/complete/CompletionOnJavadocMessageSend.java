@@ -33,6 +33,7 @@ public class CompletionOnJavadocMessageSend extends JavadocMessageSend implement
 	/**
 	 * @param flags The completionFlags to set.
 	 */
+	@Override
 	public void addCompletionFlags(int flags) {
 		this.completionFlags |= flags;
 	}
@@ -58,6 +59,7 @@ public class CompletionOnJavadocMessageSend extends JavadocMessageSend implement
 	 *
 	 * @return int Flags of the javadoc completion node.
 	 */
+	@Override
 	public int getCompletionFlags() {
 		return this.completionFlags;
 	}
@@ -65,6 +67,7 @@ public class CompletionOnJavadocMessageSend extends JavadocMessageSend implement
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.JavadocMessageSend#printExpression(int, java.lang.StringBuffer)
 	 */
+	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("<CompleteOnJavadocMessageSend:"); //$NON-NLS-1$
 		super.printExpression(indent, output);

@@ -106,6 +106,7 @@ public HierarchyResolver(LookupEnvironment lookupEnvironment, HierarchyBuilder b
  * @param binaryType
  * @param packageBinding
  */
+@Override
 public void accept(IBinaryType binaryType, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 	IProgressMonitor progressMonitor = this.builder.hierarchy.progressMonitor;
 	if (progressMonitor != null && progressMonitor.isCanceled())
@@ -123,6 +124,7 @@ public void accept(IBinaryType binaryType, PackageBinding packageBinding, Access
  * Add an additional compilation unit.
  * @param sourceUnit
  */
+@Override
 public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestriction) {
 	//System.out.println("Cannot accept compilation units inside the HierarchyResolver.");
 	this.lookupEnvironment.problemReporter.abortDueToInternalError(
@@ -136,6 +138,7 @@ public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestrict
  * @param sourceTypes
  * @param packageBinding
  */
+@Override
 public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
 	IProgressMonitor progressMonitor = this.builder.hierarchy.progressMonitor;
 	if (progressMonitor != null && progressMonitor.isCanceled())

@@ -79,6 +79,7 @@ public final class BlockComment extends Comment {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
@@ -86,6 +87,7 @@ public final class BlockComment extends Comment {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final int getNodeType0() {
 		return BLOCK_COMMENT;
 	}
@@ -93,6 +95,7 @@ public final class BlockComment extends Comment {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	ASTNode clone0(AST target) {
 		BlockComment result = new BlockComment(target);
 		result.setSourceRange(getStartPosition(), getLength());
@@ -102,6 +105,7 @@ public final class BlockComment extends Comment {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
@@ -110,6 +114,7 @@ public final class BlockComment extends Comment {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	void accept0(ASTVisitor visitor) {
 		visitor.visit(this);
 		visitor.endVisit(this);
@@ -118,6 +123,7 @@ public final class BlockComment extends Comment {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int memSize() {
 		return super.memSize();
 	}
@@ -125,6 +131,7 @@ public final class BlockComment extends Comment {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int treeSize() {
 		return memSize();
 	}

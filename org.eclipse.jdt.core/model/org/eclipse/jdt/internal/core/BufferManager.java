@@ -41,6 +41,7 @@ public class BufferManager {
 	    /**
 	     * @deprecated
 	     */
+		@Override
 		public IBuffer createBuffer(IOpenable owner) {
 			return BufferManager.createBuffer(owner);
 		}

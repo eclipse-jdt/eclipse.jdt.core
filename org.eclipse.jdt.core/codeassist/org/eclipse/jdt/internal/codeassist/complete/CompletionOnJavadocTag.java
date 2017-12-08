@@ -33,6 +33,7 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 	/**
 	 * @param flags The completionFlags to set.
 	 */
+	@Override
 	public void addCompletionFlags(int flags) {
 		this.completionFlags |= flags;
 	}
@@ -42,6 +43,7 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 	 *
 	 * @return int Flags of the javadoc completion node.
 	 */
+	@Override
 	public int getCompletionFlags() {
 		return this.completionFlags;
 	}
@@ -49,6 +51,7 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.AllocationExpression#printExpression(int, java.lang.StringBuffer)
 	 */
+	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("<CompleteOnJavadocTag:"); //$NON-NLS-1$
 		output.append('@');

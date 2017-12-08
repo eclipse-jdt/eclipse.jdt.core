@@ -84,6 +84,7 @@ public OverflowingLRUCache(int size, int overflow) {
 	 *
 	 * @return New copy of this object.
 	 */
+	@Override
 	public Object clone() {
 
 		OverflowingLRUCache newCache = (OverflowingLRUCache)newInstance(this.spaceLimit, this.overflow);
@@ -125,6 +126,7 @@ protected abstract boolean close(LRUCacheEntry entry);
 		}
 		return new LRUCacheEnumerator(head);
 	}
+	@Override
 	public double fillingRatio() {
 		return (this.currentSpace + this.overflow) * 100.0 / this.spaceLimit;
 	}
@@ -159,6 +161,7 @@ public double getLoadFactor() {
 	 *
 	 * @param space Amount of space to free up
 	 */
+	@Override
 	protected boolean makeSpace(int space) {
 
 		int limit = this.spaceLimit;
@@ -227,6 +230,7 @@ public void printStats() {
 			this.clazz = aClass;
 			this.count = 1;
 		}
+		@Override
 		public String toString() {
 			return "Class: " + this.clazz + " has " + this.count + " entries."; //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
 		}
@@ -254,6 +258,7 @@ public void printStats() {
 	 * @param shuffle indicates whether we are just shuffling the queue
 	 * (in which case, the entry table is not modified).
 	 */
+	@Override
 	protected void privateRemoveEntry (LRUCacheEntry entry, boolean shuffle) {
 		privateRemoveEntry(entry, shuffle, true);
 	}
@@ -310,6 +315,7 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 	 * @param value Value of object to add.
 	 * @return added value.
 	 */
+	@Override
 	public Object put(Object key, Object value) {
 		/* attempt to rid ourselves of the overflow, if there is any */
 		if (this.overflow > 0)
@@ -376,6 +382,7 @@ public void setLoadFactor(double newLoadFactor) throws IllegalArgumentException 
 	 *
 	 * @param limit Number of units of cache space
 	 */
+	@Override
 	public void setSpaceLimit(int limit) {
 		if (limit < this.spaceLimit) {
 			makeSpace(this.spaceLimit - limit);
@@ -395,6 +402,7 @@ public void setLoadFactor(double newLoadFactor) throws IllegalArgumentException 
  * Returns a String that represents the value of this object.  This method
  * is for debugging purposes only.
  */
+@Override
 public String toString() {
 	return
 		toStringFillingRation("OverflowingLRUCache ") + //$NON-NLS-1$
@@ -406,6 +414,7 @@ public String toString() {
  *
  * <p>This method will do nothing if timestamps have been disabled.
  */
+@Override
 protected void updateTimestamp(LRUCacheEntry entry) {
 	if (this.timestampsOn) {
 		entry.timestamp = this.timestampCounter++;

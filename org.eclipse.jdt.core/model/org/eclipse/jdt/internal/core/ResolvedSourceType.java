@@ -28,6 +28,7 @@ public class ResolvedSourceType extends SourceType {
 		this.uniqueKey = uniqueKey;
 	}
 
+	@Override
 	public String getFullyQualifiedParameterizedName() throws JavaModelException {
 		return getFullyQualifiedParameterizedName(getFullyQualifiedName('.'), this.uniqueKey);
 	}
@@ -35,6 +36,7 @@ public class ResolvedSourceType extends SourceType {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.SourceType#getKey()
 	 */
+	@Override
 	public String getKey() {
 		return this.uniqueKey;
 	}
@@ -42,6 +44,7 @@ public class ResolvedSourceType extends SourceType {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.SourceType#isResolved()
 	 */
+	@Override
 	public boolean isResolved() {
 		return true;
 	}
@@ -49,6 +52,7 @@ public class ResolvedSourceType extends SourceType {
 	/**
 	 * @private Debugging purposes
 	 */
+	@Override
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 		super.toStringInfo(tab, buffer, info, showResolvedInfo);
 		if (showResolvedInfo) {
@@ -58,6 +62,7 @@ public class ResolvedSourceType extends SourceType {
 		}
 	}
 
+	@Override
 	public JavaElement unresolved() {
 		SourceType handle = new SourceType(this.parent, this.name);
 		handle.occurrenceCount = this.occurrenceCount;

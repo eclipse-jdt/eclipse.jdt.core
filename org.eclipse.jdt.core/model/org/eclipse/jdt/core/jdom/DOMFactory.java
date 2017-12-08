@@ -35,12 +35,14 @@ public DOMFactory() {
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMCompilationUnit createCompilationUnit() {
 	return (new DOMBuilder()).createCompilationUnit();
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMCompilationUnit createCompilationUnit(char[] sourceCode, String name)  {
 	if(sourceCode == null) {
 		return null;
@@ -50,6 +52,7 @@ public IDOMCompilationUnit createCompilationUnit(char[] sourceCode, String name)
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMCompilationUnit createCompilationUnit(String sourceCode, String name) {
 	if(sourceCode == null) {
 		return null;
@@ -59,12 +62,14 @@ public IDOMCompilationUnit createCompilationUnit(String sourceCode, String name)
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMField createField() {
 	return createField("Object aField;"+ this.lineSeparator); //$NON-NLS-1$
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMField createField(String sourceCode) {
 	if(sourceCode == null) {
 		return null;
@@ -74,12 +79,14 @@ public IDOMField createField(String sourceCode) {
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMImport createImport() {
 	return (new DOMBuilder()).createImport();
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMImport createImport(String sourceCode) {
 	if(sourceCode == null) {
 		return null;
@@ -89,12 +96,14 @@ public IDOMImport createImport(String sourceCode) {
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMInitializer createInitializer() {
 	return createInitializer("static {}"+ this.lineSeparator); //$NON-NLS-1$
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMInitializer createInitializer(String sourceCode) {
 	if(sourceCode == null) {
 		return null;
@@ -104,12 +113,14 @@ public IDOMInitializer createInitializer(String sourceCode) {
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMMethod createMethod() {
 	return createMethod("public void newMethod() {"+ this.lineSeparator+"}"+ this.lineSeparator); //$NON-NLS-2$ //$NON-NLS-1$
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMMethod createMethod(String sourceCode) {
 	if(sourceCode == null) {
 		return null;
@@ -119,12 +130,14 @@ public IDOMMethod createMethod(String sourceCode) {
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMPackage createPackage() {
 	return (new DOMBuilder()).createPackage();
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMPackage createPackage(String sourceCode) {
 	if(sourceCode == null) {
 		return null;
@@ -134,24 +147,28 @@ public IDOMPackage createPackage(String sourceCode) {
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMType createType() {
 	return createType("public class AClass {"+ this.lineSeparator +"}"+ this.lineSeparator); //$NON-NLS-2$ //$NON-NLS-1$
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMType createClass() {
 	return createType("public class AClass {"+ this.lineSeparator +"}"+ this.lineSeparator); //$NON-NLS-2$ //$NON-NLS-1$
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMType createInterface() {
 	return createType("public interface AnInterface {"+ this.lineSeparator +"}"+ this.lineSeparator); //$NON-NLS-2$ //$NON-NLS-1$
 }
 /* (non-Javadoc)
  * Method declared on IDOMFactory.
  */
+@Override
 public IDOMType createType(String sourceCode) {
 	if(sourceCode == null) {
 		return null;

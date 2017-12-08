@@ -144,6 +144,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 *
 	 * @since 3.4
 	 */
+	@Override
 	public IJavaElement getEnclosingElement() {
 		if (!this.isExtended) throw new UnsupportedOperationException("Operation only supported in extended context"); //$NON-NLS-1$
 	
@@ -162,6 +163,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 *
 	 * @see org.eclipse.jdt.core.dom.ASTParser#createASTs(ICompilationUnit[], String[], org.eclipse.jdt.core.dom.ASTRequestor, org.eclipse.core.runtime.IProgressMonitor)
 	 */
+	@Override
 	public char[][] getExpectedTypesKeys() {
 		return this.expectedTypesKeys;
 	}
@@ -176,6 +178,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 *
 	 * @see Signature
 	 */
+	@Override
 	public char[][] getExpectedTypesSignatures() {
 		return this.expectedTypesSignatures;
 	}
@@ -187,6 +190,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 * @return offset position in the source file buffer
 	 * @since 3.2
 	 */
+	@Override
 	public int getOffset() {
 		return this.offset;
 	}
@@ -202,6 +206,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 * @return completed token or <code>null</code>
 	 * @since 3.2
 	 */
+	@Override
 	public char[] getToken() {
 		return this.token;
 	}
@@ -217,6 +222,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 * @since 3.2
 	 */
 	// TODO (david) https://bugs.eclipse.org/bugs/show_bug.cgi?id=132558
+	@Override
 	public int getTokenEnd() {
 		return this.tokenEnd;
 	}
@@ -236,6 +242,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 * or possibly a kind unknown to the caller
 	 * @since 3.2
 	 */
+	@Override
 	public int getTokenKind() {
 		return this.tokenKind;
 	}
@@ -257,6 +264,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 *
 	 * @since 3.4
 	 */
+	@Override
 	public int getTokenLocation() {
 		return this.tokenLocation;
 	}
@@ -275,6 +283,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 * @return character index of token start position (inclusive)
 	 * @since 3.2
 	 */
+	@Override
 	public int getTokenStart() {
 		return this.tokenStart;
 	}
@@ -316,6 +325,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 *
 	 * @since 3.4
 	 */
+	@Override
 	public IJavaElement[] getVisibleElements(String typeSignature) {
 		if (!this.isExtended) throw new UnsupportedOperationException("Operation only supported in extended context"); //$NON-NLS-1$
 	
@@ -332,6 +342,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 *
 	 * @since 3.4
 	 */
+	@Override
 	public boolean isExtended() {
 		return this.isExtended;
 	}
@@ -342,6 +353,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 * @return boolean true if completion takes place in a javadoc comment, false otherwise.
 	 * @since 3.2
 	 */
+	@Override
 	public boolean isInJavadoc() {
 		return this.javadoc != 0;
 	}
@@ -361,6 +373,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 * @return boolean true if completion takes place in formal reference of a javadoc tag, false otherwise.
 	 * @since 3.2
 	 */
+	@Override
 	public boolean isInJavadocFormalReference() {
 		return (this.javadoc & CompletionOnJavadoc.FORMAL_REFERENCE) != 0;
 	}
@@ -371,6 +384,7 @@ public class InternalCompletionContext extends CompletionContext {
 	 * @return boolean true if completion takes place in a text area of a javadoc comment, false otherwise.
 	 * @since 3.2
 	 */
+	@Override
 	public boolean isInJavadocText() {
 		return (this.javadoc & CompletionOnJavadoc.TEXT) != 0;
 	}

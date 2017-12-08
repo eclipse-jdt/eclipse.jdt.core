@@ -68,10 +68,12 @@ public class WildcardBinding extends ReferenceBinding {
 		this.typeBits = TypeIds.BitUninitialized;
 	}
 
+	@Override
 	TypeBinding bound() {
 		return this.bound;
 	}
 	
+	@Override
 	int boundKind() {
 		return this.boundKind;
 	}
@@ -209,14 +211,17 @@ public class WildcardBinding extends ReferenceBinding {
 	}
 
 	
+	@Override
 	public ReferenceBinding actualType() {
 		return this.genericType;
 	}
 	
+	@Override
 	TypeBinding[] additionalBounds() {
 		return this.otherBounds;
 	}
 	
+	@Override
 	public int kind() {
 		return this.otherBounds == null ? Binding.WILDCARD_TYPE : Binding.INTERSECTION_TYPE;
 	}
@@ -243,6 +248,7 @@ public class WildcardBinding extends ReferenceBinding {
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#canBeInstantiated()
 	 */
+	@Override
 	public boolean canBeInstantiated() {
 		// cannot be asked per construction
 		return false;
@@ -251,6 +257,7 @@ public class WildcardBinding extends ReferenceBinding {
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#collectMissingTypes(java.util.List)
 	 */
+	@Override
 	public List<TypeBinding> collectMissingTypes(List<TypeBinding> missingTypes) {
 		if ((this.tagBits & TagBits.HasMissingType) != 0) {
 			missingTypes = this.bound.collectMissingTypes(missingTypes);
@@ -266,6 +273,7 @@ public class WildcardBinding extends ReferenceBinding {
 	 *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., CONSTRAINT_EQUAL (0))
 	 *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_SUPER (2))
 	 */
+	@Override
 	public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
 
 		if ((this.tagBits & TagBits.HasTypeVariable) == 0) return;
@@ -506,6 +514,7 @@ public class WildcardBinding extends ReferenceBinding {
 	 * genericTypeKey {rank}*|+|- [boundKey]
 	 * p.X<T> { X<?> ... } --> Lp/X<TT;>;{0}*
 	 */
+	@Override
 	public char[] computeUniqueKey(boolean isLeaf) {
 		char[] genericTypeKey = this.genericType.computeUniqueKey(false/*not a leaf*/);
 		char[] wildCardKey;
@@ -530,14 +539,17 @@ public class WildcardBinding extends ReferenceBinding {
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#constantPoolName()
 	 */
+	@Override
 	public char[] constantPoolName() {
 		return erasure().constantPoolName();
 	}
 
+	@Override
 	public TypeBinding clone(TypeBinding immaterial) {
 		return new WildcardBinding(this.genericType, this.rank, this.bound, this.otherBounds, this.boundKind, this.environment);
 	}
 	
+	@Override
 	public String annotatedDebugName() {
 		StringBuffer buffer = new StringBuffer(16);
 		AnnotationBinding [] annotations = getTypeAnnotations();
@@ -563,6 +575,7 @@ public class WildcardBinding extends ReferenceBinding {
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#debugName()
 	 */
+	@Override
 	public String debugName() {
 	    return toString();
 	}
@@ -570,7 +583,8 @@ public class WildcardBinding extends ReferenceBinding {
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#erasure()
      */
-    public TypeBinding erasure() {
+    @Override
+	public TypeBinding erasure() {
     	if (this.otherBounds == null) {
 	    	if (this.boundKind == Wildcard.EXTENDS)
 		        return this.bound.erasure();
@@ -588,7 +602,8 @@ public class WildcardBinding extends ReferenceBinding {
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()
      */
-    public char[] genericTypeSignature() {
+    @Override
+	public char[] genericTypeSignature() {
         if (this.genericSignature == null) {
             switch (this.boundKind) {
                 case Wildcard.UNBOUND :
@@ -604,10 +619,12 @@ public class WildcardBinding extends ReferenceBinding {
         return this.genericSignature;
     }
 
+	@Override
 	public int hashCode() {
 		return this.genericType.hashCode();
 	}
 
+	@Override
 	public boolean hasTypeBit(int bit) {
 		if (this.typeBits == TypeIds.BitUninitialized) {
 			// initialize from upper bounds
@@ -644,7 +661,8 @@ public class WildcardBinding extends ReferenceBinding {
 	/**
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#isSuperclassOf(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)
      */
-    public boolean isSuperclassOf(ReferenceBinding otherType) {
+    @Override
+	public boolean isSuperclassOf(ReferenceBinding otherType) {
         if (this.boundKind == Wildcard.SUPER) {
             if (this.bound instanceof ReferenceBinding) {
                 return ((ReferenceBinding) this.bound).isSuperclassOf(otherType);
@@ -658,7 +676,8 @@ public class WildcardBinding extends ReferenceBinding {
     /**
      * Returns true if the current type denotes an intersection type: Number & Comparable<?>
      */
-    public boolean isIntersectionType() {
+    @Override
+	public boolean isIntersectionType() {
     	return this.otherBounds != null;
     }
 
@@ -679,6 +698,7 @@ public class WildcardBinding extends ReferenceBinding {
     	return null;
     }
 
+	@Override
 	public boolean isHierarchyConnected() {
 		return this.superclass != null && this.superInterfaces != null;
 	}
@@ -698,6 +718,7 @@ public class WildcardBinding extends ReferenceBinding {
 		this.inRecursiveFunction = false;
 	}
 
+	@Override
 	public boolean isProperType(boolean admitCapture18) {
 		if (this.inRecursiveFunction)
 			return true;
@@ -717,6 +738,7 @@ public class WildcardBinding extends ReferenceBinding {
 		}
 	}
 
+	@Override
 	TypeBinding substituteInferenceVariable(InferenceVariable var, TypeBinding substituteType) {
 		boolean haveSubstitution = false;
 		TypeBinding currentBound = this.bound;
@@ -751,6 +773,7 @@ public class WildcardBinding extends ReferenceBinding {
 	/**
 	 * Returns true if the type is a wildcard
 	 */
+	@Override
 	public boolean isUnboundWildcard() {
 	    return this.boundKind == Wildcard.UNBOUND;
 	}
@@ -758,10 +781,12 @@ public class WildcardBinding extends ReferenceBinding {
     /**
 	 * Returns true if the type is a wildcard
 	 */
+	@Override
 	public boolean isWildcard() {
 	    return true;
 	}
 
+	@Override
 	int rank() {
 		return this.rank;
 	}
@@ -769,7 +794,8 @@ public class WildcardBinding extends ReferenceBinding {
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.Binding#readableName()
      */
-    public char[] readableName() {
+    @Override
+	public char[] readableName() {
         switch (this.boundKind) {
             case Wildcard.UNBOUND :
                 return TypeConstants.WILDCARD_NAME;
@@ -790,7 +816,8 @@ public class WildcardBinding extends ReferenceBinding {
         }
     }
 
-    public char[] nullAnnotatedReadableName(CompilerOptions options, boolean shortNames) {
+    @Override
+	public char[] nullAnnotatedReadableName(CompilerOptions options, boolean shortNames) {
     	StringBuffer buffer = new StringBuffer(10);
     	appendNullAnnotation(buffer, options);
         switch (this.boundKind) {
@@ -851,7 +878,8 @@ public class WildcardBinding extends ReferenceBinding {
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
      */
-    public char[] shortReadableName() {
+    @Override
+	public char[] shortReadableName() {
         switch (this.boundKind) {
             case Wildcard.UNBOUND :
                 return TypeConstants.WILDCARD_NAME;
@@ -875,7 +903,8 @@ public class WildcardBinding extends ReferenceBinding {
     /**
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()
      */
-    public char[] signature() {
+    @Override
+	public char[] signature() {
      	// should not be called directly on a wildcard; signature should only be asked on
     	// original methods or type erasures (which cannot denote wildcards at first level)
 		if (this.signature == null) {
@@ -892,7 +921,8 @@ public class WildcardBinding extends ReferenceBinding {
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#sourceName()
      */
-    public char[] sourceName() {
+    @Override
+	public char[] sourceName() {
         switch (this.boundKind) {
             case Wildcard.UNBOUND :
                 return TypeConstants.WILDCARD_NAME;
@@ -906,7 +936,8 @@ public class WildcardBinding extends ReferenceBinding {
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding#superclass()
      */
-    public ReferenceBinding superclass() {
+    @Override
+	public ReferenceBinding superclass() {
 		if (this.superclass == null) {
 			TypeBinding superType = null;
 			if (this.boundKind == Wildcard.EXTENDS && !this.bound.isInterface()) {
@@ -926,7 +957,8 @@ public class WildcardBinding extends ReferenceBinding {
     /* (non-Javadoc)
      * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superInterfaces()
      */
-    public ReferenceBinding[] superInterfaces() {
+    @Override
+	public ReferenceBinding[] superInterfaces() {
         if (this.superInterfaces == null) {
         	if (typeVariable() != null) {
         		this.superInterfaces = this.typeVariable.superInterfaces();
@@ -954,6 +986,7 @@ public class WildcardBinding extends ReferenceBinding {
         return this.superInterfaces;
     }
 
+	@Override
 	public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceBinding resolvedType, LookupEnvironment env) {
 		boolean affected = false;
 		if (this.genericType == unresolvedType) { //$IDENTITY-COMPARISON$
@@ -979,6 +1012,7 @@ public class WildcardBinding extends ReferenceBinding {
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		if (this.hasTypeAnnotations())
 			return annotatedDebugName();
@@ -1009,6 +1043,7 @@ public class WildcardBinding extends ReferenceBinding {
 		return this.typeVariable;
 	}
 
+	@Override
 	public TypeBinding unannotated() {
 		return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;
 	}
@@ -1061,6 +1096,7 @@ public class WildcardBinding extends ReferenceBinding {
 		return false;
 	}
 
+	@Override
 	public boolean acceptsNonNullDefault() {
 		return false;
 	}

@@ -25,6 +25,7 @@ public class JavaCorePreferenceModifyListener extends PreferenceModifyListener {
 	/* (non-Javadoc)
 	 * @see org.eclipse.core.runtime.preferences.PreferenceModifyListener#preApply(org.eclipse.core.runtime.preferences.IEclipsePreferences)
 	 */
+	@Override
 	public IEclipsePreferences preApply(IEclipsePreferences node) {
 		// the node does not need to be the root of the hierarchy
 		Preferences root = node.node("/"); //$NON-NLS-1$

@@ -72,6 +72,7 @@ protected PackageFragment(PackageFragmentRoot root, String[] names) {
 /**
  * @see Openable
  */
+@Override
 protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
 	// add compilation units/class files from resources
 	HashSet vChildren = new HashSet();
@@ -123,12 +124,14 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
  * Returns true if this fragment contains at least one java resource.
  * Returns false otherwise.
  */
+@Override
 public boolean containsJavaResources() throws JavaModelException {
 	return ((PackageFragmentInfo) getElementInfo()).containsJavaResources();
 }
 /**
  * @see ISourceManipulation
  */
+@Override
 public void copy(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
 		throw new IllegalArgumentException(Messages.operation_nullContainer);
@@ -148,6 +151,7 @@ public void copy(IJavaElement container, IJavaElement sibling, String rename, bo
 /**
  * @see IPackageFragment
  */
+@Override
 public ICompilationUnit createCompilationUnit(String cuName, String contents, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	CreateCompilationUnitOperation op= new CreateCompilationUnitOperation(this, cuName, contents, force);
 	op.runOperation(monitor);
@@ -156,16 +160,19 @@ public ICompilationUnit createCompilationUnit(String cuName, String contents, bo
 /**
  * @see JavaElement
  */
+@Override
 protected Object createElementInfo() {
 	return new PackageFragmentInfo();
 }
 /**
  * @see ISourceManipulation
  */
+@Override
 public void delete(boolean force, IProgressMonitor monitor) throws JavaModelException {
 	IJavaElement[] elements = new IJavaElement[] {this};
 	getJavaModel().delete(elements, force, monitor);
 }
+@Override
 public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof PackageFragment)) return false;
@@ -174,6 +181,7 @@ public boolean equals(Object o) {
 	return Util.equalArraysOrNull(this.names, other.names) &&
 			this.parent.equals(other.parent);
 }
+@Override
 public boolean exists() {
 	// super.exist() only checks for the parent and the resource existence
 	// so also ensure that:
@@ -246,6 +254,7 @@ public IOrdinaryClassFile[] getOrdinaryClassFiles() throws JavaModelException {
  *
  * @see IPackageFragment#getAllClassFiles()
  */
+@Override
 public IClassFile[] getAllClassFiles() throws JavaModelException {
 	if (getKind() == IPackageFragmentRoot.K_SOURCE) {
 		return NO_CLASSFILES;
@@ -267,6 +276,7 @@ public IClassFile[] getClassFiles() throws JavaModelException {
  * @see IPackageFragment#getCompilationUnit(String)
  * @exception IllegalArgumentException if the name does not end with ".java"
  */
+@Override
 public ICompilationUnit getCompilationUnit(String cuName) {
 	if (!org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(cuName)) {
 		throw new IllegalArgumentException(Messages.convention_unit_notJavaName);
@@ -276,6 +286,7 @@ public ICompilationUnit getCompilationUnit(String cuName) {
 /**
  * @see IPackageFragment#getCompilationUnits()
  */
+@Override
 public ICompilationUnit[] getCompilationUnits() throws JavaModelException {
 	if (getKind() == IPackageFragmentRoot.K_BINARY) {
 		return NO_COMPILATION_UNITS;
@@ -289,6 +300,7 @@ public ICompilationUnit[] getCompilationUnits() throws JavaModelException {
 /**
  * @see IPackageFragment#getCompilationUnits(WorkingCopyOwner)
  */
+@Override
 public ICompilationUnit[] getCompilationUnits(WorkingCopyOwner owner) {
 	ICompilationUnit[] workingCopies = JavaModelManager.getJavaModelManager().getWorkingCopies(owner, false/*don't add primary*/);
 	if (workingCopies == null) return JavaModelManager.NO_WORKING_COPY;
@@ -306,6 +318,7 @@ public ICompilationUnit[] getCompilationUnits(WorkingCopyOwner owner) {
 	}
 	return result;
 }
+@Override
 public String getElementName() {
 	if (this.names.length == 0)
 		return DEFAULT_PACKAGE_NAME;
@@ -314,12 +327,14 @@ public String getElementName() {
 /**
  * @see IJavaElement
  */
+@Override
 public int getElementType() {
 	return PACKAGE_FRAGMENT;
 }
 /*
  * @see JavaElement
  */
+@Override
 public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
 	switch (token.charAt(0)) {
 		case JEM_CLASSFILE:
@@ -341,18 +356,21 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 /**
  * @see JavaElement#getHandleMementoDelimiter()
  */
+@Override
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_PACKAGEFRAGMENT;
 }
 /**
  * @see IPackageFragment#getKind()
  */
+@Override
 public int getKind() throws JavaModelException {
 	return ((IPackageFragmentRoot)getParent()).getKind();
 }
 /**
  * Returns an array of non-java resources contained in the receiver.
  */
+@Override
 public Object[] getNonJavaResources() throws JavaModelException {
 	if (isDefaultPackage()) {
 		// We don't want to show non java resources of the default package (see PR #1G58NB8)
@@ -364,6 +382,7 @@ public Object[] getNonJavaResources() throws JavaModelException {
 /**
  * @see IJavaElement#getPath()
  */
+@Override
 public IPath getPath() {
 	PackageFragmentRoot root = getPackageFragmentRoot();
 	if (root.isArchive()) {
@@ -380,6 +399,7 @@ public IPath getPath() {
 /**
  * @see JavaElement#resource()
  */
+@Override
 public IResource resource(PackageFragmentRoot root) {
 	int length = this.names.length;
 	if (length == 0) {
@@ -394,6 +414,7 @@ public IResource resource(PackageFragmentRoot root) {
 /**
  * @see IJavaElement#getUnderlyingResource()
  */
+@Override
 public IResource getUnderlyingResource() throws JavaModelException {
 	IResource rootResource = this.parent.getUnderlyingResource();
 	if (rootResource == null) {
@@ -417,6 +438,7 @@ public IResource getUnderlyingResource() throws JavaModelException {
 		return rootResource;
 	}
 }
+@Override
 public int hashCode() {
 	int hash = this.parent.hashCode();
 	for (int i = 0, length = this.names.length; i < length; i++)
@@ -426,12 +448,14 @@ public int hashCode() {
 /**
  * @see IParent
  */
+@Override
 public boolean hasChildren() throws JavaModelException {
 	return getChildren().length > 0;
 }
 /**
  * @see IPackageFragment#hasSubpackages()
  */
+@Override
 public boolean hasSubpackages() throws JavaModelException {
 	IJavaElement[] packages= ((IPackageFragmentRoot)getParent()).getChildren();
 	int namesLength = this.names.length;
@@ -461,6 +485,7 @@ protected boolean internalIsValidPackageName() {
 /**
  * @see IPackageFragment#isDefaultPackage()
  */
+@Override
 public boolean isDefaultPackage() {
 	return this.names.length == 0;
 }
@@ -470,6 +495,7 @@ protected final boolean isValidPackageName() {
 /**
  * @see ISourceManipulation#move(IJavaElement, IJavaElement, String, boolean, IProgressMonitor)
  */
+@Override
 public void move(IJavaElement container, IJavaElement sibling, String rename, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (container == null) {
 		throw new IllegalArgumentException(Messages.operation_nullContainer);
@@ -489,6 +515,7 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 /**
  * @see ISourceManipulation#rename(String, boolean, IProgressMonitor)
  */
+@Override
 public void rename(String newName, boolean force, IProgressMonitor monitor) throws JavaModelException {
 	if (newName == null) {
 		throw new IllegalArgumentException(Messages.element_nullName);
@@ -501,6 +528,7 @@ public void rename(String newName, boolean force, IProgressMonitor monitor) thro
 /**
  * Debugging purposes
  */
+@Override
 protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
 	if (tab == 0) {
 		super.toStringChildren(tab, buffer, info);
@@ -509,6 +537,7 @@ protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
 /**
  * Debugging purposes
  */
+@Override
 protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(tabString(tab));
 	if (this.names.length == 0) {
@@ -527,6 +556,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 /*
  * @see IJavaElement#getAttachedJavadoc(IProgressMonitor)
  */
+@Override
 public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
 	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getJavaProject().getProject());
 	String cachedJavadoc = null;
@@ -561,6 +591,7 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
 	return contents;
 }
 
+@Override
 protected IStatus validateExistence(IResource underlyingResource) {
 	// check that the name of the package is valid (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=108456)
 	if (!isValidPackageName())

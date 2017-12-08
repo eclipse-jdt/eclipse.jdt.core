@@ -21,24 +21,28 @@ protected ImportMatchLocatorParser(ProblemReporter problemReporter, MatchLocator
 	super(problemReporter, locator);
 	this.reportImportMatch = this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.IMPORT_DECLARATION_TYPE_REFERENCE) != 0;
 }
+@Override
 protected void consumeStaticImportOnDemandDeclarationName() {
 	super.consumeStaticImportOnDemandDeclarationName();
 	if (this.reportImportMatch) {
 		this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
 	}
 }
+@Override
 protected void consumeSingleStaticImportDeclarationName() {
 	super.consumeSingleStaticImportDeclarationName();
 	if (this.reportImportMatch) {
 		this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
 	}
 }
+@Override
 protected void consumeSingleTypeImportDeclarationName() {
 	super.consumeSingleTypeImportDeclarationName();
 	if (this.reportImportMatch) {
 		this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
 	}
 }
+@Override
 protected void consumeTypeImportOnDemandDeclarationName() {
 	super.consumeTypeImportOnDemandDeclarationName();
 	if (this.reportImportMatch) {

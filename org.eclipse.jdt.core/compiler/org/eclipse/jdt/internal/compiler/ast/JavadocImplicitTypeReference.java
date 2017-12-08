@@ -27,6 +27,7 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		this.sourceEnd = pos;
 	}
 	
+	@Override
 	public TypeReference augmentTypeWithAdditionalDimensions(int additionalDimensions, Annotation[][] additionalAnnotations, boolean isVarargs) {
 		return null;
 	}
@@ -34,11 +35,13 @@ public class JavadocImplicitTypeReference extends TypeReference {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
 	 */
+	@Override
 	protected TypeBinding getTypeBinding(Scope scope) {
 		this.constant = Constant.NotAConstant;
 		return this.resolvedType = scope.enclosingReceiverType();
 	}
 
+	@Override
 	public char[] getLastToken() {
 		return this.token;
 	}
@@ -46,6 +49,7 @@ public class JavadocImplicitTypeReference extends TypeReference {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeName()
 	 */
+	@Override
 	public char[][] getTypeName() {
 		if (this.token != null) {
 			char[][] tokens = { this.token };
@@ -53,6 +57,7 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		}
 		return null;
 	}
+	@Override
 	public boolean isThis() {
 		return true;
 	}
@@ -61,6 +66,7 @@ public class JavadocImplicitTypeReference extends TypeReference {
 	 * Resolves type on a Block, Class or CompilationUnit scope.
 	 * We need to modify resoling behavior to avoid raw type creation.
 	 */
+	@Override
 	protected TypeBinding internalResolveType(Scope scope, int location) {
 		// handle the error here
 		this.constant = Constant.NotAConstant;
@@ -114,23 +120,28 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		return this.resolvedType = type;
 	}
 
+	@Override
 	protected void reportInvalidType(Scope scope) {
 		scope.problemReporter().javadocInvalidType(this, this.resolvedType, scope.getDeclarationModifiers());
 	}
+	@Override
 	protected void reportDeprecatedType(TypeBinding type, Scope scope) {
 		scope.problemReporter().javadocDeprecatedType(type, this, scope.getDeclarationModifiers());
 	}
 
+	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}
 
+	@Override
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
 	}
 
+	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		return new StringBuffer();
 	}

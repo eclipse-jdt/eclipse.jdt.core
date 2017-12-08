@@ -40,6 +40,7 @@ public ElementCache(int size, int overflow) {
  * <p>NOTE: this triggers an external removal of this element
  * by closing the element.
  */
+@Override
 protected boolean close(LRUCacheEntry entry) {
 	Openable element = (Openable) entry.key;
 	try {
@@ -73,6 +74,7 @@ protected void ensureSpaceLimit(Object info, IJavaElement parent) {
 /*
  * Returns a new instance of the receiver.
  */
+@Override
 protected LRUCache newInstance(int size, int newOverflow) {
 	return new ElementCache(size, newOverflow);
 }

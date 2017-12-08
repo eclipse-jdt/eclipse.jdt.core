@@ -32,6 +32,7 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 	/**
 	 * @see org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
 	 */
+	@Override
 	public void initializeDefaultPreferences() {
 		// If modified, also modify the method JavaModelManager#getDefaultOptionsNoInitialization()
 		// and also consider updating org.eclipse.jdt.internal.compiler.batch.Main#initializeWarnings(String)

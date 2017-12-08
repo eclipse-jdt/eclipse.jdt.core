@@ -49,18 +49,21 @@ public class AnnotationComponent extends ClassFileStruct implements IAnnotationC
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IAnnotationComponent#getComponentNameIndex()
 	 */
+	@Override
 	public int getComponentNameIndex() {
 		return this.componentNameIndex;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IAnnotationComponent#getComponentName()
 	 */
+	@Override
 	public char[] getComponentName() {
 		return this.componentName;
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.util.IAnnotationComponent#getComponentValue()
 	 */
+	@Override
 	public IAnnotationComponentValue getComponentValue() {
 		return this.componentValue;
 	}

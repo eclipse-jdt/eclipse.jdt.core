@@ -31,6 +31,7 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.BinaryMethod#getKey()
 	 */
+	@Override
 	public String getKey() {
 		return this.uniqueKey;
 	}
@@ -43,6 +44,7 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.IMethod#isResolved()
 	 */
+	@Override
 	public boolean isResolved() {
 		return true;
 	}
@@ -50,6 +52,7 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 	/**
 	 * @private Debugging purposes
 	 */
+	@Override
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 		super.toStringInfo(tab, buffer, info, showResolvedInfo);
 		if (showResolvedInfo) {
@@ -59,6 +62,7 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 		}
 	}
 
+	@Override
 	public JavaElement unresolved() {
 		SourceRefElement handle = new BinaryMethod(this.parent, this.name, this.parameterTypes);
 		handle.occurrenceCount = this.occurrenceCount;

@@ -78,6 +78,7 @@ public void build() {
 	}
 }
 
+@Override
 protected void acceptSecondaryType(ClassFile classFile) {
 	if (this.secondaryTypes != null)
 		this.secondaryTypes.add(classFile.fileName());
@@ -105,6 +106,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 						if (!member.isDerived()) {
 							member.accept(
 								new IResourceVisitor() {
+									@Override
 									public boolean visit(IResource resource) throws CoreException {
 										resource.setDerived(true, null);
 										return resource.getType() != IResource.FILE;
@@ -134,6 +136,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 						: null; // ignore inclusionPatterns if output folder == another source folder... not this one
 				sourceLocation.binaryFolder.accept(
 					new IResourceProxyVisitor() {
+						@Override
 						public boolean visit(IResourceProxy proxy) throws CoreException {
 							if (proxy.getType() == IResource.FILE) {
 								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(proxy.getName())) {
@@ -174,6 +177,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 	}
 }
 
+@Override
 protected void cleanUp() {
 	this.incrementalBuilder = null;
 	this.secondaryTypes = null;
@@ -181,6 +185,7 @@ protected void cleanUp() {
 	super.cleanUp();
 }
 
+@Override
 protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean compilingFirstGroup) {
 	if (additionalUnits != null && this.secondaryTypes == null)
 		this.secondaryTypes = new ArrayList(7);
@@ -199,6 +204,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 	final boolean isAlsoProject = sourceLocation.sourceFolder.equals(this.javaBuilder.currentProject);
 	sourceLocation.sourceFolder.accept(
 		new IResourceProxyVisitor() {
+			@Override
 			public boolean visit(IResourceProxy proxy) throws CoreException {
 				IResource resource = null;
 				switch(proxy.getType()) {
@@ -270,6 +276,7 @@ private void printStats() {
 	System.out.println(", generate: " + compilerStats.generateTime + " ms (" + ((int) (compilerStats.generateTime * 1000.0 / time)) / 10.0 + "%)"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 }
 
+@Override
 protected void processAnnotationResults(CompilationParticipantResult[] results) {
 	// to compile the compilation participant results, we need to incrementally recompile all affected types
 	// whenever the generated types are initially added or structurally changed
@@ -301,6 +308,7 @@ protected void rebuildTypesAffectedBySecondaryTypes() {
 		this.typeLocatorsWithUndefinedTypes);
 }
 
+@Override
 protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] problems) throws CoreException {
 	if (sourceFile == null || problems == null || problems.length == 0) return;
 
@@ -317,6 +325,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 	super.storeProblemsFor(sourceFile, problems);
 }
 
+@Override
 public String toString() {
 	return "batch image builder for:\n\tnew state: " + this.newState; //$NON-NLS-1$
 }

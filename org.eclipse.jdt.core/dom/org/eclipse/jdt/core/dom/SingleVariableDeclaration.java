@@ -241,6 +241,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Method declared on VariableDeclaration.
 	 * @since 3.1
 	 */
+	@Override
 	final ChildPropertyDescriptor internalNameProperty() {
 		return NAME_PROPERTY;
 	}
@@ -249,6 +250,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Method declared on VariableDeclaration.
 	 * @since 3.1
 	 */
+	@Override
 	final SimplePropertyDescriptor internalExtraDimensionsProperty() {
 		return EXTRA_DIMENSIONS_PROPERTY;
 	}
@@ -257,6 +259,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Method declared on VariableDeclaration.
 	 * @since 3.10
 	 */
+	@Override
 	final ChildListPropertyDescriptor internalExtraDimensions2Property() {
 		return EXTRA_DIMENSIONS2_PROPERTY;
 	}
@@ -265,6 +268,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	 * Method declared on VariableDeclaration.
 	 * @since 3.1
 	 */
+	@Override
 	final ChildPropertyDescriptor internalInitializerProperty() {
 		return INITIALIZER_PROPERTY;
 	}
@@ -272,6 +276,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
@@ -279,6 +284,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final int internalGetSetIntProperty(SimplePropertyDescriptor property, boolean get, int value) {
 		if (property == MODIFIERS_PROPERTY) {
 			if (get) {
@@ -303,6 +309,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
 		if (property == VARARGS_PROPERTY) {
 			if (get) {
@@ -319,6 +326,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == TYPE_PROPERTY) {
 			if (get) {
@@ -351,6 +359,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == MODIFIERS2_PROPERTY) {
 			return modifiers();
@@ -368,6 +377,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final int getNodeType0() {
 		return SINGLE_VARIABLE_DECLARATION;
 	}
@@ -375,6 +385,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	ASTNode clone0(AST target) {
 		SingleVariableDeclaration result = new SingleVariableDeclaration(target);
 		result.setSourceRange(getStartPosition(), getLength());
@@ -404,6 +415,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
@@ -412,6 +424,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
@@ -638,6 +651,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int memSize() {
 		// treat Operator as free
 		return BASE_NODE_SIZE + 9 * 4;
@@ -646,6 +660,7 @@ public class SingleVariableDeclaration extends VariableDeclaration {
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
 	 */
+	@Override
 	int treeSize() {
 		return
 			memSize()

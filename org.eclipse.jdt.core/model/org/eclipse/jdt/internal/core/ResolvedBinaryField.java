@@ -30,10 +30,12 @@ public class ResolvedBinaryField extends BinaryField {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.BinaryField#getKey()
 	 */
+	@Override
 	public String getKey() {
 		return this.uniqueKey;
 	}
 
+	@Override
 	public String getKey(boolean forceOpen) {
 		return this.uniqueKey;
 	}
@@ -41,6 +43,7 @@ public class ResolvedBinaryField extends BinaryField {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.IField#isResolved()
 	 */
+	@Override
 	public boolean isResolved() {
 		return true;
 	}
@@ -48,6 +51,7 @@ public class ResolvedBinaryField extends BinaryField {
 	/**
 	 * @private Debugging purposes
 	 */
+	@Override
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 		super.toStringInfo(tab, buffer, info, showResolvedInfo);
 		if (showResolvedInfo) {
@@ -57,6 +61,7 @@ public class ResolvedBinaryField extends BinaryField {
 		}
 	}
 
+	@Override
 	public JavaElement unresolved() {
 		SourceRefElement handle = new BinaryField(this.parent, this.name);
 		handle.occurrenceCount = this.occurrenceCount;
