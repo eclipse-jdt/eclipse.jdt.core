@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -329,5 +331,15 @@ public class CommentRecorderParser extends Parser {
 	protected void resetModifiers() {
 		pushOnCommentsStack(0, this.scanner.commentPtr);
 		super.resetModifiers();
+	}
+	public void resetComments() {
+		this.commentPtr = -1;
+		Arrays.fill(this.commentStarts, 0);
+		Arrays.fill(this.commentStops, 0);
+		Arrays.fill(this.scanner.commentStops, 0);
+		Arrays.fill(this.scanner.commentStarts, 0);
+		Arrays.fill(this.scanner.commentTagStarts, 0);
+		this.scanner.commentPtr = -1; // no comment test with commentPtr value -1
+		this.scanner.lastCommentLinePosition = -1;
 	}
 }

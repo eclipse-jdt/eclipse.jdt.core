@@ -81,7 +81,7 @@ public class Scanner implements TerminalTokens {
 	public int[] commentStarts = new int[COMMENT_ARRAYS_SIZE];
 	public int[] commentTagStarts = new int[COMMENT_ARRAYS_SIZE];
 	public int commentPtr = -1; // no comment test with commentPtr value -1
-	protected int lastCommentLinePosition = -1;
+	public int lastCommentLinePosition = -1;
 
 	// task tag support
 	public char[][] foundTaskTags = null;
