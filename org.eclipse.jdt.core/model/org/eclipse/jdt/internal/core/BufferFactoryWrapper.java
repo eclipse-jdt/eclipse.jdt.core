@@ -31,9 +31,6 @@ public class BufferFactoryWrapper extends WorkingCopyOwner {
 		return new BufferFactoryWrapper(factory);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.WorkingCopyOwner#createBuffer(org.eclipse.jdt.core.ICompilationUnit)
-	 */
 	@Override
 	public IBuffer createBuffer(ICompilationUnit workingCopy) {
 		if (this.factory == null) return super.createBuffer(workingCopy);

@@ -481,11 +481,6 @@ protected IContainer createFolder(IPath packagePath, IContainer outputFolder) th
 	return folder;
 }
 
-
-
-/* (non-Javadoc)
- * @see org.eclipse.jdt.internal.core.builder.ICompilationUnitLocator#fromIFile(org.eclipse.core.resources.IFile)
- */
 @Override
 public ICompilationUnit fromIFile(IFile file) {
 	return findSourceFile(file, true);

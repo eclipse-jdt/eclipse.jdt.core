@@ -39,9 +39,6 @@ public class AssistSourceField extends ResolvedSourceField {
 		return this.infoCache.get(this);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.SourceField#getKey()
-	 */
 	@Override
 	public String getKey() {
 		if (this.uniqueKey == null) {

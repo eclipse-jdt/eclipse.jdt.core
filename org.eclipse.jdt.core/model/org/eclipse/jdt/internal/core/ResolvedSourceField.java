@@ -26,17 +26,11 @@ public class ResolvedSourceField extends SourceField {
 		this.uniqueKey = uniqueKey;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.SourceField#getKey()
-	 */
 	@Override
 	public String getKey() {
 		return this.uniqueKey;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.IField#isResolved()
-	 */
 	@Override
 	public boolean isResolved() {
 		return true;

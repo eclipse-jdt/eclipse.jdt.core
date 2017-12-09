@@ -50,17 +50,11 @@ public boolean equals(Object obj) {
 	return false;
 }
 
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.search.TypeNameMatch#getAccessibility()
- */
 @Override
 public int getAccessibility() {
 	return this.accessibility;
 }
 
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.search.TypeNameMatch#getModifiers()
- */
 @Override
 public int getModifiers() {
 	return this.modifiers;

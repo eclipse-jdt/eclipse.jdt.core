@@ -124,17 +124,11 @@ public class LambdaExpression extends Expression {
 		unsupportedIn2_3_4();
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
 		if (property == PARENTHESES_PROPERTY) {
@@ -149,9 +143,6 @@ public class LambdaExpression extends Expression {
 		return super.internalGetSetBooleanProperty(property, get, value);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == PARAMETERS_PROPERTY) {
@@ -160,10 +151,7 @@ public class LambdaExpression extends Expression {
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
-	
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
+
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == BODY_PROPERTY) {
@@ -178,17 +166,11 @@ public class LambdaExpression extends Expression {
 		return super.internalGetSetChildProperty(property, get, child);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final int getNodeType0() {
 		return LAMBDA_EXPRESSION;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	ASTNode clone0(AST target) {
 		LambdaExpression result = new LambdaExpression(target);
@@ -199,18 +181,12 @@ public class LambdaExpression extends Expression {
 		return result;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
@@ -324,17 +300,11 @@ public class LambdaExpression extends Expression {
 		return this.ast.getBindingResolver().resolveMethod(this);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int memSize() {
 		return BASE_NODE_SIZE + 3 * 4;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int treeSize() {
 		return

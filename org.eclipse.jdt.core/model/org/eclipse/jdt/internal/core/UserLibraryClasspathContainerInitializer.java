@@ -23,17 +23,11 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class UserLibraryClasspathContainerInitializer extends ClasspathContainerInitializer {
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#canUpdateClasspathContainer(org.eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
-	 */
 	@Override
 	public boolean canUpdateClasspathContainer(IPath containerPath, IJavaProject project) {
 		return isUserLibraryContainer(containerPath);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.ClasspathContainerInitializer#getComparisonID(org.eclipse.core.runtime.IPath, org.eclipse.jdt.core.IJavaProject)
-	 */
 	@Override
 	public Object getComparisonID(IPath containerPath, IJavaProject project) {
 		return containerPath;

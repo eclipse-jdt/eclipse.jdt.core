@@ -64,9 +64,7 @@ public int match(TypeReference node, MatchingNodeSet nodeSet) {
 protected int matchContainer() {
 	return CLASS_CONTAINER;
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.internal.core.search.matching.PatternLocator#matchReportReference(org.eclipse.jdt.internal.compiler.ast.ASTNode, org.eclipse.jdt.core.IJavaElement, org.eclipse.jdt.internal.compiler.lookup.Binding, int, org.eclipse.jdt.internal.core.search.matching.MatchLocator)
- */
+
 @Override
 protected void matchReportReference(ASTNode reference, IJavaElement element, Binding elementBinding, int accuracy, MatchLocator locator) throws CoreException {
 	if (elementBinding instanceof ReferenceBinding) {

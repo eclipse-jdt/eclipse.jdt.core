@@ -91,17 +91,11 @@ public final class SingleMemberAnnotation extends Annotation {
 	    unsupportedIn2();
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == TYPE_NAME_PROPERTY) {
@@ -124,25 +118,16 @@ public final class SingleMemberAnnotation extends Annotation {
 		return super.internalGetSetChildProperty(property, get, child);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on BodyDeclaration.
-	 */
 	@Override
 	final ChildPropertyDescriptor internalTypeNameProperty() {
 		return TYPE_NAME_PROPERTY;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final int getNodeType0() {
 		return SINGLE_MEMBER_ANNOTATION;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	ASTNode clone0(AST target) {
 		SingleMemberAnnotation result = new SingleMemberAnnotation(target);
@@ -152,18 +137,12 @@ public final class SingleMemberAnnotation extends Annotation {
 		return result;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
@@ -215,17 +194,11 @@ public final class SingleMemberAnnotation extends Annotation {
 		postReplaceChild(oldChild, value, VALUE_PROPERTY);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int memSize() {
 		return super.memSize() + 1 * 4;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int treeSize() {
 		return

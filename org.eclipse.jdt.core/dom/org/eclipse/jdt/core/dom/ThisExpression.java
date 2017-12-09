@@ -83,17 +83,11 @@ public class ThisExpression extends Expression {
 		super(ast);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == QUALIFIER_PROPERTY) {
@@ -108,17 +102,11 @@ public class ThisExpression extends Expression {
 		return super.internalGetSetChildProperty(property, get, child);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final int getNodeType0() {
 		return THIS_EXPRESSION;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	ASTNode clone0(AST target) {
 		ThisExpression result = new ThisExpression(target);
@@ -127,18 +115,12 @@ public class ThisExpression extends Expression {
 		return result;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
@@ -176,18 +158,12 @@ public class ThisExpression extends Expression {
 		postReplaceChild(oldChild, name, QUALIFIER_PROPERTY);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int memSize() {
 		// treat Operator as free
 		return BASE_NODE_SIZE + 1 * 4;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int treeSize() {
 		return

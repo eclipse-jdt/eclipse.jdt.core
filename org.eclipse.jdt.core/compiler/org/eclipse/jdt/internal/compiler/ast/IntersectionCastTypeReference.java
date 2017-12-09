@@ -48,9 +48,6 @@ public class IntersectionCastTypeReference extends TypeReference {
 		throw new UnsupportedOperationException(); // no syntax for this.
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getLastToken()
-	 */
 	@Override
 	public char[] getLastToken() {
 		return null;
@@ -69,9 +66,6 @@ public class IntersectionCastTypeReference extends TypeReference {
 		return this.typeReferences;
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
-	 */
 	@Override
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds, int location) {
 
@@ -161,18 +155,12 @@ public class IntersectionCastTypeReference extends TypeReference {
 		return (this.resolvedType = intersectionType);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeName()
-	 */
 	@Override
 	public char[][] getTypeName() {
 		// we need to keep a return value that is a char[][]
 		return this.typeReferences[0].getTypeName();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
@@ -184,17 +172,11 @@ public class IntersectionCastTypeReference extends TypeReference {
 		visitor.endVisit(this, scope);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
-	 */
 	@Override
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		throw new UnsupportedOperationException("Unexpected traversal request: IntersectionTypeReference in class scope"); //$NON-NLS-1$
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#printExpression(int, java.lang.StringBuffer)
-	 */
 	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		int length = this.typeReferences == null ? 0 : this.typeReferences.length;

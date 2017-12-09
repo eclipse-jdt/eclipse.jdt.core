@@ -41,9 +41,6 @@ public class NodeRewriteEvent extends RewriteEvent {
 		return this.originalValue;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.corext.dom.RewriteEvent#getChangeKind()
-	 */
 	@Override
 	public int getChangeKind() {
 		if (this.originalValue == this.newValue) {
@@ -61,10 +58,6 @@ public class NodeRewriteEvent extends RewriteEvent {
 		return REPLACED;
 	}
 
-
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.corext.dom.RewriteEvent#isListRewrite()
-	 */
 	@Override
 	public boolean isListRewrite() {
 		return false;
@@ -78,17 +71,11 @@ public class NodeRewriteEvent extends RewriteEvent {
 		this.newValue= newValue;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.corext.dom.RewriteEvent#getChildren()
-	 */
 	@Override
 	public RewriteEvent[] getChildren() {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
 	@Override
 	public String toString() {
 		StringBuffer buf= new StringBuffer();

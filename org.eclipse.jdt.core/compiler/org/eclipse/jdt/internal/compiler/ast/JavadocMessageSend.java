@@ -176,9 +176,6 @@ public class JavadocMessageSend extends MessageSend {
 		return this.resolvedType = this.binding.returnType;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.lookup.InvocationSite#isSuperAccess()
-	 */
 	@Override
 	public boolean isSuperAccess() {
 		return (this.bits & ASTNode.SuperAccess) != 0;

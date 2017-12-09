@@ -65,9 +65,6 @@ public CompilationUnit(PackageFragment parent, String name, WorkingCopyOwner own
 }
 
 
-/*
- * @see ICompilationUnit#applyTextEdit(TextEdit, IProgressMonitor)
- */
 @Override
 public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws JavaModelException {
 	IBuffer buffer = getBuffer();
@@ -87,9 +84,6 @@ public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws Ja
 	return null; // can not happen, there are no compilation units without buffer
 }
 
-/*
- * @see ICompilationUnit#becomeWorkingCopy(IProblemRequestor, IProgressMonitor)
- */
 @Override
 public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonitor monitor) throws JavaModelException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
@@ -102,9 +96,7 @@ public void becomeWorkingCopy(IProblemRequestor problemRequestor, IProgressMonit
 		operation.runOperation(monitor);
 	}
 }
-/*
- * @see ICompilationUnit#becomeWorkingCopy(IProgressMonitor)
- */
+
 @Override
 public void becomeWorkingCopy(IProgressMonitor monitor) throws JavaModelException {
 	IProblemRequestor requestor = this.owner == null ? null : this.owner.getProblemRequestor(this);
@@ -235,32 +227,25 @@ public CompilationUnit cloneCachingContents() {
 		}
 	};
 }
-/*
- * @see Openable#canBeRemovedFromCache
- */
+
 @Override
 public boolean canBeRemovedFromCache() {
 	if (getPerWorkingCopyInfo() != null) return false; // working copies should remain in the cache until they are destroyed
 	return super.canBeRemovedFromCache();
 }
-/*
- * @see Openable#canBufferBeRemovedFromCache
- */
+
 @Override
 public boolean canBufferBeRemovedFromCache(IBuffer buffer) {
 	if (getPerWorkingCopyInfo() != null) return false; // working copy buffers should remain in the cache until working copy is destroyed
 	return super.canBufferBeRemovedFromCache(buffer);
-}/*
- * @see IOpenable#close
- */
+}
+
 @Override
 public void close() throws JavaModelException {
 	if (getPerWorkingCopyInfo() != null) return; // a working copy must remain opened until it is discarded
 	super.close();
 }
-/*
- * @see Openable#closing
- */
+
 @Override
 protected void closing(Object info) {
 	if (getPerWorkingCopyInfo() == null) {
@@ -360,30 +345,21 @@ public void codeComplete(int offset, final ICodeCompletionRequestor requestor) t
 		});
 }
 
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor)
- */
 @Override
 public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
 	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY);
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.core.runtime.IProgressMonitor)
- */
+
 @Override
 public void codeComplete(int offset, CompletionRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
 	codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY, monitor);
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
- */
+
 @Override
 public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner workingCopyOwner) throws JavaModelException {
 	codeComplete(offset, requestor, workingCopyOwner, null);
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner, org.eclipse.core.runtime.IProgressMonitor)
- */
+
 @Override
 public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner workingCopyOwner, IProgressMonitor monitor) throws JavaModelException {
 	codeComplete(
@@ -526,9 +502,7 @@ public void destroy() {
 			e.printStackTrace();
 	}
 }
-/*
- * @see ICompilationUnit#discardWorkingCopy
- */
+
 @Override
 public void discardWorkingCopy() throws JavaModelException {
 	// discard working copy and its children
@@ -782,9 +756,6 @@ public char[] getFileName(){
 	return getPath().toString().toCharArray();
 }
 
-/*
- * @see JavaElement
- */
 @Override
 public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner workingCopyOwner) {
 	switch (token.charAt(0)) {
@@ -898,9 +869,7 @@ public IJavaElement getOriginalElement() {
 
 	return getPrimaryElement();
 }
-/*
- * @see ICompilationUnit#getOwner()
- */
+
 @Override
 public WorkingCopyOwner getOwner() {
 	return isPrimary() || !isWorkingCopy() ? null : this.owner;
@@ -952,24 +921,18 @@ public IPath getPath() {
 public JavaModelManager.PerWorkingCopyInfo getPerWorkingCopyInfo() {
 	return JavaModelManager.getJavaModelManager().getPerWorkingCopyInfo(this, false/*don't create*/, false/*don't record usage*/, null/*no problem requestor needed*/);
 }
-/*
- * @see ICompilationUnit#getPrimary()
- */
+
 @Override
 public ICompilationUnit getPrimary() {
 	return (ICompilationUnit)getPrimaryElement(true);
 }
-/*
- * @see JavaElement#getPrimaryElement(boolean)
- */
+
 @Override
 public IJavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner && isPrimary()) return this;
 	return new CompilationUnit((PackageFragment)getParent(), getElementName(), DefaultWorkingCopyOwner.PRIMARY);
 }
-/*
- * @see Openable#resource(PackageFragmentRoot)
- */
+
 @Override
 public IResource resource(PackageFragmentRoot root) {
 	if (root == null) return null; // working copy not in workspace
@@ -1085,9 +1048,7 @@ public ICompilationUnit getWorkingCopy(WorkingCopyOwner workingCopyOwner, IProbl
 protected boolean hasBuffer() {
 	return true;
 }
-/*
- * @see ICompilationUnit#hasResourceChanged()
- */
+
 @Override
 public boolean hasResourceChanged() {
 	if (!isWorkingCopy()) return false;
@@ -1151,9 +1112,7 @@ protected IStatus validateCompilationUnit(IResource resource) {
 	IJavaProject project = getJavaProject();
 	return JavaConventions.validateCompilationUnitName(getElementName(),project.getOption(JavaCore.COMPILER_SOURCE, true), project.getOption(JavaCore.COMPILER_COMPLIANCE, true));
 }
-/*
- * @see ICompilationUnit#isWorkingCopy()
- */
+
 @Override
 public boolean isWorkingCopy() {
 	// For backward compatibility, non primary working copies are always returning true; in removal
@@ -1380,9 +1339,7 @@ public void rename(String newName, boolean force, IProgressMonitor monitor) thro
 	String[] renamings= new String[] {newName};
 	getJavaModel().rename(elements, dests, renamings, force, monitor);
 }
-/*
- * @see ICompilationUnit
- */
+
 @Override
 public void restore() throws JavaModelException {
 

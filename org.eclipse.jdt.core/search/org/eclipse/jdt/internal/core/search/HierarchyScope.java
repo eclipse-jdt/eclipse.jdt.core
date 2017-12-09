@@ -257,9 +257,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 			}
 		}
 	}
-	/* (non-Javadoc)
-	 * @see IJavaSearchScope#encloses(String)
-	 */
+
 	@Override
 	public boolean encloses(String resourcePath) {
 		return encloses(resourcePath, null);
@@ -313,9 +311,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 			return true; // no fine grained checking requested
 		return encloses(element, null);
 	}
-	/* (non-Javadoc)
-	 * @see IJavaSearchScope#encloses(IJavaElement)
-	 */
+
 	@Override
 	public boolean encloses(IJavaElement element) {
 		return encloses(element, null);
@@ -446,9 +442,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		}
 		buildResourceVector();
 	}
-	/*
-	 * @see AbstractSearchScope#processDelta(IJavaElementDelta)
-	 */
+
 	@Override
 	public void processDelta(IJavaElementDelta delta, int eventType) {
 		if (this.needsRefresh) return;

@@ -32,9 +32,6 @@ public long elapsedTime() {
 	return this.endTime - this.startTime;
 }
 
-/**
- * @see java.lang.Comparable#compareTo(java.lang.Object)
- */
 @Override
 public int compareTo(Object o) {
 	CompilerStats otherStats = (CompilerStats) o;

@@ -31,9 +31,6 @@ public class UnionTypeReference extends TypeReference {
 		this.sourceEnd = typeReferences[length - 1].sourceEnd;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getLastToken()
-	 */
 	@Override
 	public char[] getLastToken() {
 		return null;
@@ -47,9 +44,6 @@ public class UnionTypeReference extends TypeReference {
 		return null; // not supported here - combined with resolveType(...)
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
-	 */
 	@Override
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds, int location) {
 		// return the lub (least upper bound of all type binding) 
@@ -105,18 +99,12 @@ public class UnionTypeReference extends TypeReference {
 		return (this.resolvedType = scope.lowerUpperBound(allExceptionTypes));
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeName()
-	 */
 	@Override
 	public char[][] getTypeName() {
 		// we need to keep a return value that is a char[][]
 		return this.typeReferences[0].getTypeName();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)
-	 */
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
@@ -128,9 +116,6 @@ public class UnionTypeReference extends TypeReference {
 		visitor.endVisit(this, scope);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.ClassScope)
-	 */
 	@Override
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
@@ -142,9 +127,6 @@ public class UnionTypeReference extends TypeReference {
 		visitor.endVisit(this, scope);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Expression#printExpression(int, java.lang.StringBuffer)
-	 */
 	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		int length = this.typeReferences == null ? 0 : this.typeReferences.length;

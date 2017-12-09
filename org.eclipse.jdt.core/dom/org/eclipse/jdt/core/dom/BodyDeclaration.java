@@ -263,9 +263,6 @@ public abstract class BodyDeclaration extends ASTNode {
 		return this.modifiers;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int memSize() {
 		return BASE_NODE_SIZE + 3 * 4;

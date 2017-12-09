@@ -54,9 +54,6 @@ public final class ASTRewriteFormatter {
 			this.positions= new ArrayList();
 		}
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.jdt.core.dom.ASTVisitor#preVisit(ASTNode)
-		 */
 		@Override
 		public void preVisit(ASTNode node) {
 			Object trackData= getEventStore().getTrackedNodeData(node);
@@ -69,9 +66,6 @@ public final class ASTRewriteFormatter {
 			}
 		}
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.jdt.core.dom.ASTVisitor#postVisit(ASTNode)
-		 */
 		@Override
 		public void postVisit(ASTNode node) {
 			Object placeholderData= getPlaceholders().getPlaceholderData(node);
@@ -84,9 +78,6 @@ public final class ASTRewriteFormatter {
 			}
 		}
 
-		/* (non-Javadoc)
-		 * @see org.eclipse.jdt.internal.corext.dom.ASTRewriteFlattener#visit(org.eclipse.jdt.core.dom.Block)
-		 */
 		@Override
 		public boolean visit(Block node) {
 			if (getPlaceholders().isCollapsed(node)) {

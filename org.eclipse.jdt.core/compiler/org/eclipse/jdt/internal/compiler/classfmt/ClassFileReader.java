@@ -665,27 +665,11 @@ public char[] getInnerSourceName() {
 	return null;
 }
 
-/**
- * Answer the resolved names of the receiver's interfaces in the
- * class file format as specified in section 4.2 of the Java 2 VM spec
- * or null if the array is empty.
- *
- * For example, java.lang.String is java/lang/String.
- * @return char[][]
- */
 @Override
 public char[][] getInterfaceNames() {
 	return this.interfaceNames;
 }
 
-/**
- * Answer the receiver's nested types or null if the array is empty.
- *
- * This nested type info is extracted from the inner class attributes. Ask the
- * name environment to find a member type using its compound name
- *
- * @return org.eclipse.jdt.internal.compiler.api.IBinaryNestedType[]
- */
 @Override
 public IBinaryNestedType[] getMemberTypes() {
 	// we might have some member types of the current type
@@ -817,13 +801,6 @@ public int getModifiers() {
 	return modifiers;
 }
 
-/**
- * Answer the resolved name of the type in the
- * class file format as specified in section 4.2 of the Java 2 VM spec.
- *
- * For example, java.lang.String is java/lang/String.
- * @return char[]
- */
 @Override
 public char[] getName() {
 	return this.className;
@@ -852,14 +829,6 @@ public char[] getSourceName() {
 	return this.sourceName = name;
 }
 
-/**
- * Answer the resolved name of the receiver's superclass in the
- * class file format as specified in section 4.2 of the Java 2 VM spec
- * or null if it does not have one.
- *
- * For example, java.lang.String is java/lang/String.
- * @return char[]
- */
 @Override
 public char[] getSuperclassName() {
 	return this.superclassName;
@@ -1322,12 +1291,6 @@ private void initialize() throws ClassFormatException {
 		throw exception;
 	}
 }
-
-/**
- * Answer true if the receiver is an anonymous type, false otherwise
- *
- * @return <CODE>boolean</CODE>
- */
 @Override
 public boolean isAnonymous() {
 	if (this.innerInfo == null) return false;
@@ -1335,21 +1298,11 @@ public boolean isAnonymous() {
 	return (innerSourceName == null || innerSourceName.length == 0);
 }
 
-/**
- * Answer whether the receiver contains the resolved binary form
- * or the unresolved source form of the type.
- * @return boolean
- */
 @Override
 public boolean isBinaryType() {
 	return true;
 }
 
-/**
- * Answer true if the receiver is a local type, false otherwise
- *
- * @return <CODE>boolean</CODE>
- */
 @Override
 public boolean isLocal() {
 	if (this.innerInfo == null) return false;
@@ -1358,11 +1311,6 @@ public boolean isLocal() {
 	return (innerSourceName != null && innerSourceName.length > 0);
 }
 
-/**
- * Answer true if the receiver is a member type, false otherwise
- *
- * @return <CODE>boolean</CODE>
- */
 @Override
 public boolean isMember() {
 	if (this.innerInfo == null) return false;

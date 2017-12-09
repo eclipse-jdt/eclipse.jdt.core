@@ -497,9 +497,6 @@ public class JavaProject
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.JavaElement#close()
-	 */
 	@Override
 	public void close() throws JavaModelException {
 		if (JavaProject.hasJavaNature(this.project)) {

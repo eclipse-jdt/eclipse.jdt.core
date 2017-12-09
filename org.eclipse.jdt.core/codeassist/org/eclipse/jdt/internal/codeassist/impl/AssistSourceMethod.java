@@ -40,9 +40,6 @@ public class AssistSourceMethod extends ResolvedSourceMethod {
 		return this.infoCache.get(this);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.SourceMethod#getKey()
-	 */
 	@Override
 	public String getKey() {
 		if (this.uniqueKey == null) {

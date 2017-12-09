@@ -640,9 +640,7 @@ public boolean isMainMethod() throws JavaModelException {
 public boolean isLambdaMethod() {
 	return false;
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.IMethod#isResolved()
- */
+
 @Override
 public boolean isResolved() {
 	return false;

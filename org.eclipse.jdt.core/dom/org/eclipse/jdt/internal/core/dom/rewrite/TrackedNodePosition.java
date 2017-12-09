@@ -30,9 +30,6 @@ public class TrackedNodePosition implements ITrackedNodePosition {
 		this.node= node;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.corext.dom.ITrackedNodePosition#getStartPosition()
-	 */
 	@Override
 	public int getStartPosition() {
 		if (this.group.isEmpty()) {
@@ -45,9 +42,6 @@ public class TrackedNodePosition implements ITrackedNodePosition {
 		return coverage.getOffset();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.corext.dom.ITrackedNodePosition#getLength()
-	 */
 	@Override
 	public int getLength() {
 		if (this.group.isEmpty()) {

@@ -139,17 +139,11 @@ public class MethodRefParameter extends ASTNode {
 		super(ast);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == TYPE_PROPERTY) {
@@ -172,9 +166,6 @@ public class MethodRefParameter extends ASTNode {
 		return super.internalGetSetChildProperty(property, get, child);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
 		if (property == VARARGS_PROPERTY) {
@@ -189,17 +180,11 @@ public class MethodRefParameter extends ASTNode {
 		return super.internalGetSetBooleanProperty(property, get, value);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final int getNodeType0() {
 		return METHOD_REF_PARAMETER;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	ASTNode clone0(AST target) {
 		MethodRefParameter result = new MethodRefParameter(target);
@@ -212,18 +197,12 @@ public class MethodRefParameter extends ASTNode {
 		return result;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
@@ -341,17 +320,11 @@ public class MethodRefParameter extends ASTNode {
 		postReplaceChild(oldChild, name, NAME_PROPERTY);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int memSize() {
 		return BASE_NODE_SIZE + 2 * 5;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int treeSize() {
 		return

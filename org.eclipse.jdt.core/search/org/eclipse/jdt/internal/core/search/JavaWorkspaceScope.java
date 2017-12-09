@@ -65,9 +65,7 @@ public boolean encloses(String resourcePathString) {
 	 */
 	return true;
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.search.IJavaSearchScope#enclosingProjectsAndJars()
- */
+
 @Override
 public IPath[] enclosingProjectsAndJars() {
 	IPath[] result = this.enclosingPaths;

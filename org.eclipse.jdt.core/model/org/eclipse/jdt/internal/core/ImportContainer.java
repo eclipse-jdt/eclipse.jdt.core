@@ -32,9 +32,7 @@ public boolean equals(Object o) {
 public int getElementType() {
 	return IMPORT_CONTAINER;
 }
-/*
- * @see JavaElement
- */
+
 @Override
 public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner workingCopyOwner) {
 	switch (token.charAt(0)) {
@@ -73,9 +71,7 @@ public IImportDeclaration getImport(String importName) {
 protected IImportDeclaration getImport(String importName, boolean isOnDemand) {
 	return new ImportDeclaration(this, importName, isOnDemand);
 }
-/*
- * @see JavaElement#getPrimaryElement(boolean)
- */
+
 @Override
 public IJavaElement getPrimaryElement(boolean checkOwner) {
 	CompilationUnit cu = (CompilationUnit)this.parent;

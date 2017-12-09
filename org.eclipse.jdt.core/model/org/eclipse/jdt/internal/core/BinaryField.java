@@ -95,9 +95,7 @@ public String getTypeSignature() throws JavaModelException {
 public boolean isEnumConstant() throws JavaModelException {
 	return Flags.isEnum(getFlags());
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.IField#isResolved()
- */
+
 @Override
 public boolean isResolved() {
 	return false;

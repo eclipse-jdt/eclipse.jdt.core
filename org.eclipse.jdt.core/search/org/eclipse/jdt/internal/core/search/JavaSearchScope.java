@@ -436,9 +436,6 @@ private boolean encloses(String enclosingPath, String path, int index) {
 	return false;
 }
 
-/* (non-Javadoc)
- * @see IJavaSearchScope#encloses(IJavaElement)
- */
 @Override
 public boolean encloses(IJavaElement element) {
 	if (this.elements != null) {
@@ -466,9 +463,6 @@ public boolean encloses(IJavaElement element) {
 	return indexOf(fullResourcePathString) >= 0;
 }
 
-/* (non-Javadoc)
- * @see IJavaSearchScope#enclosingProjectsAndJars()
- */
 @Override
 public IPath[] enclosingProjectsAndJars() {
 	return this.enclosingProjectsAndJars;
@@ -494,12 +488,6 @@ private IPath getPath(IJavaElement element, boolean relativeToRoot) {
 	}
 }
 
-/**
- * Get access rule set corresponding to a given path.
- * @param relativePath The path user want to have restriction access
- * @return The access rule set for given path or null if none is set for it.
- * 	Returns specific uninit access rule set when scope does not enclose the given path.
- */
 @Override
 public AccessRuleSet getAccessRuleSet(String relativePath, String containerPath) {
 	int index = indexOf(containerPath, relativePath);
@@ -541,9 +529,6 @@ private String normalize(String path) {
 	return path;
 }
 
-/*
- * @see AbstractSearchScope#processDelta(IJavaElementDelta)
- */
 @Override
 public void processDelta(IJavaElementDelta delta, int eventType) {
 	switch (delta.getKind()) {

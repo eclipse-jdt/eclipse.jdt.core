@@ -51,9 +51,6 @@ public class AssistSourceType extends ResolvedSourceType {
 		return getFullyQualifiedName('.', true/*show parameters*/);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.SourceType#getKey()
-	 */
 	@Override
 	public String getKey() {
 		if (this.uniqueKey == null) {

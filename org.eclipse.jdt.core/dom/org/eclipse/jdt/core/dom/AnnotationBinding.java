@@ -246,10 +246,6 @@ class AnnotationBinding implements IAnnotationBinding {
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.eclipse.jdt.core.dom.IBinding#isRecovered()
-	 */
 	@Override
 	public boolean isRecovered() {
         ReferenceBinding annotationType = this.binding.getAnnotationType();

@@ -1341,13 +1341,6 @@ public final class CompletionEngine
 		
 	}
 
-	/**
-	 * One result of the search consists of a new package.
-	 *
-	 * NOTE - All package names are presented in their readable form:
-	 *    Package names are in the form "a.b.c".
-	 *    The default package is represented by an empty array.
-	 */
 	@Override
 	public void acceptPackage(char[] packageName) {
 
@@ -1397,14 +1390,6 @@ public final class CompletionEngine
 		}
 	}
 
-	/**
-	 * One result of the search consists of a new type.
-	 *
-	 * NOTE - All package and type names are presented in their readable form:
-	 *    Package names are in the form "a.b.c".
-	 *    Nested type names are in the qualified form "A.I".
-	 *    The default package is represented by an empty array.
-	 */
 	@Override
 	public void acceptType(
 		char[] packageName,

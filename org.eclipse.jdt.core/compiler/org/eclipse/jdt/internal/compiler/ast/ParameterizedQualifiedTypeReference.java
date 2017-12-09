@@ -171,9 +171,6 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		return this.typeArguments;
 	}
 	
-	/* (non-Javadoc)
-     * @see org.eclipse.jdt.internal.compiler.ast.ArrayQualifiedTypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
-     */
     @Override
 	protected TypeBinding getTypeBinding(Scope scope) {
         return null; // not supported here - combined with resolveType(...)

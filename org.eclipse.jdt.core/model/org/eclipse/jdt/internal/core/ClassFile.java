@@ -88,9 +88,7 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	((ClassFileInfo) info).readBinaryChildren(this, (HashMap) newElements, typeInfo);
 	return true;
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner, org.eclipse.core.runtime.IProgressMonitor)
- */
+
 @Override
 public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner owner, IProgressMonitor monitor) throws JavaModelException {
 	String source = getSource();

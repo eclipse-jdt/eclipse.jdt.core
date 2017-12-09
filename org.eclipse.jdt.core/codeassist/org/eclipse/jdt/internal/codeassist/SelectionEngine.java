@@ -465,14 +465,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 	}
 
-	/**
-	 * One result of the search consists of a new package.
-	 * @param packageName char[]
-	 *
-	 * NOTE - All package names are presented in their readable form:
-	 *    Package names are in the form "a.b.c".
-	 *    The default package is represented by an empty array.
-	 */
 	@Override
 	public void acceptPackage(char[] packageName) {
 		// implementation of interface method

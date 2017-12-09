@@ -32,9 +32,6 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeBinding(org.eclipse.jdt.internal.compiler.lookup.Scope)
-	 */
 	@Override
 	protected TypeBinding getTypeBinding(Scope scope) {
 		this.constant = Constant.NotAConstant;
@@ -46,9 +43,6 @@ public class JavadocImplicitTypeReference extends TypeReference {
 		return this.token;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.TypeReference#getTypeName()
-	 */
 	@Override
 	public char[][] getTypeName() {
 		if (this.token != null) {

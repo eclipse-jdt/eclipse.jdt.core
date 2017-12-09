@@ -26,16 +26,11 @@ public class ResolvedSourceMethod extends SourceMethod {
 		this.uniqueKey = uniqueKey;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.SourceMethod#getKey()
-	 */
 	@Override
 	public String getKey() {
 		return this.uniqueKey;
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.IMethod#isResolved()
-	 */
+
 	@Override
 	public boolean isResolved() {
 		return true;

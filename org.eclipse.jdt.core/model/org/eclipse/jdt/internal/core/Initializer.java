@@ -86,9 +86,7 @@ public void rename(String newName, boolean force, IProgressMonitor monitor) thro
 public ISourceRange getNameRange() {
 	return null;
 }
-/*
- * @see JavaElement#getPrimaryElement(boolean)
- */
+
 @Override
 public IJavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner) {

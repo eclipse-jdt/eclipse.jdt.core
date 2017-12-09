@@ -48,9 +48,6 @@ public class MemberValuePair extends ASTNode {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#print(int, java.lang.StringBuffer)
-	 */
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
 		output

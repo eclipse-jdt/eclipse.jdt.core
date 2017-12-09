@@ -104,9 +104,7 @@ public Object getConstant() throws JavaModelException {
 public int getElementType() {
 	return FIELD;
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.IField#getKey()
- */
+
 @Override
 public String getKey() {
 	try {
@@ -123,9 +121,7 @@ public String getKey() {
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_FIELD;
 }
-/*
- * @see JavaElement#getPrimaryElement(boolean)
- */
+
 @Override
 public IJavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner) {
@@ -143,15 +139,12 @@ public String getTypeSignature() throws JavaModelException {
 	SourceFieldElementInfo info = (SourceFieldElementInfo) getElementInfo();
 	return info.getTypeSignature();
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.IField#isEnumConstant()
- */@Override
+
+@Override
 public boolean isEnumConstant() throws JavaModelException {
 	return Flags.isEnum(getFlags());
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.IField#isResolved()
- */
+
 @Override
 public boolean isResolved() {
 	return false;

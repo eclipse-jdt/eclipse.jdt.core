@@ -34,9 +34,6 @@ public class ResolvedBinaryType extends BinaryType {
 		return getFullyQualifiedParameterizedName(getFullyQualifiedName('.'), this.uniqueKey);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.BinaryType#getKey()
-	 */
 	@Override
 	public String getKey() {
 		return this.uniqueKey;
@@ -47,9 +44,6 @@ public class ResolvedBinaryType extends BinaryType {
 		return this.uniqueKey;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.BinaryType#isResolved()
-	 */
 	@Override
 	public boolean isResolved() {
 		return true;

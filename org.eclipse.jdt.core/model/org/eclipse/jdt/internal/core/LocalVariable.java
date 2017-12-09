@@ -274,9 +274,6 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 		return this;
 	}
 
-	/*
-	 * @see JavaElement#getHandleMemento(StringBuffer)
-	 */
 	@Override
 	protected void getHandleMemento(StringBuffer buff) {
 		getHandleMemento(buff, true);

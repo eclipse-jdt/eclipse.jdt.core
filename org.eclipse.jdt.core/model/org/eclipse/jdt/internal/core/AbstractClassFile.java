@@ -88,24 +88,17 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 		}
 		codeComplete(offset, new org.eclipse.jdt.internal.codeassist.CompletionRequestorWrapper(requestor), owner);
 	}
-	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor)
-	 */
+
 	@Override
 	public void codeComplete(int offset, CompletionRequestor requestor) throws JavaModelException {
 		codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY);
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.core.runtime.IProgressMonitor)
-	 */
+
 	@Override
 	public void codeComplete(int offset, CompletionRequestor requestor, IProgressMonitor monitor) throws JavaModelException {
 		codeComplete(offset, requestor, DefaultWorkingCopyOwner.PRIMARY, monitor);
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.ICodeAssist#codeComplete(int, org.eclipse.jdt.core.CompletionRequestor, org.eclipse.jdt.core.WorkingCopyOwner)
-	 */
+
 	@Override
 	public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyOwner owner) throws JavaModelException {
 		codeComplete(offset, requestor, owner, null);

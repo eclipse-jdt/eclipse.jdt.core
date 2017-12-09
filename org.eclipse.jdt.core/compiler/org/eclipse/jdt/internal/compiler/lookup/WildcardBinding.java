@@ -580,9 +580,6 @@ public class WildcardBinding extends ReferenceBinding {
 	    return toString();
 	}
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#erasure()
-     */
     @Override
 	public TypeBinding erasure() {
     	if (this.otherBounds == null) {
@@ -599,9 +596,6 @@ public class WildcardBinding extends ReferenceBinding {
     		: this.bound.erasure();
     }
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#signature()
-     */
     @Override
 	public char[] genericTypeSignature() {
         if (this.genericSignature == null) {
@@ -673,9 +667,6 @@ public class WildcardBinding extends ReferenceBinding {
         return false;
     }
 
-    /**
-     * Returns true if the current type denotes an intersection type: Number & Comparable<?>
-     */
     @Override
 	public boolean isIntersectionType() {
     	return this.otherBounds != null;
@@ -770,17 +761,11 @@ public class WildcardBinding extends ReferenceBinding {
 		return this;
 	}
 
-	/**
-	 * Returns true if the type is a wildcard
-	 */
 	@Override
 	public boolean isUnboundWildcard() {
 	    return this.boundKind == Wildcard.UNBOUND;
 	}
 
-    /**
-	 * Returns true if the type is a wildcard
-	 */
 	@Override
 	public boolean isWildcard() {
 	    return true;
@@ -791,9 +776,6 @@ public class WildcardBinding extends ReferenceBinding {
 		return this.rank;
 	}
 	
-    /* (non-Javadoc)
-     * @see org.eclipse.jdt.internal.compiler.lookup.Binding#readableName()
-     */
     @Override
 	public char[] readableName() {
         switch (this.boundKind) {
@@ -875,9 +857,6 @@ public class WildcardBinding extends ReferenceBinding {
 		return this;
 	}
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
-     */
     @Override
 	public char[] shortReadableName() {
         switch (this.boundKind) {
@@ -918,9 +897,6 @@ public class WildcardBinding extends ReferenceBinding {
 		return this.signature;
     }
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#sourceName()
-     */
     @Override
 	public char[] sourceName() {
         switch (this.boundKind) {
@@ -933,9 +909,6 @@ public class WildcardBinding extends ReferenceBinding {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding#superclass()
-     */
     @Override
 	public ReferenceBinding superclass() {
 		if (this.superclass == null) {
@@ -954,9 +927,6 @@ public class WildcardBinding extends ReferenceBinding {
 		return this.superclass;
     }
 
-    /* (non-Javadoc)
-     * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#superInterfaces()
-     */
     @Override
 	public ReferenceBinding[] superInterfaces() {
         if (this.superInterfaces == null) {

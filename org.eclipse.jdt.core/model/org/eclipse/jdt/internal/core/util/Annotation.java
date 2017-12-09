@@ -69,23 +69,16 @@ public class Annotation extends ClassFileStruct implements IAnnotation {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.IAnnotation#getTypeIndex()
-	 */
 	@Override
 	public int getTypeIndex() {
 		return this.typeIndex;
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.IAnnotation#getComponentsNumber()
-	 */
+
 	@Override
 	public int getComponentsNumber() {
 		return this.componentsNumber;
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.IAnnotation#getComponents()
-	 */
+
 	@Override
 	public IAnnotationComponent[] getComponents() {
 		return this.components;
@@ -94,9 +87,7 @@ public class Annotation extends ClassFileStruct implements IAnnotation {
 	int sizeInBytes() {
 		return this.readOffset;
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.util.IAnnotation#getTypeName()
-	 */
+
 	@Override
 	public char[] getTypeName() {
 		return this.typeName;

@@ -153,9 +153,6 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		return (CompilationUnit)getElementToProcess();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.JavaModelOperation#isReadOnly()
-	 */
 	@Override
 	public boolean isReadOnly() {
 		return true;

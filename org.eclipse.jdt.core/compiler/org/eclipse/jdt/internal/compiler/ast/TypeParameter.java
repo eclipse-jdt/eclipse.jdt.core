@@ -156,9 +156,6 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		}	
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#print(int, java.lang.StringBuffer)
-	 */
 	@Override
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 		if (this.annotations != null) {

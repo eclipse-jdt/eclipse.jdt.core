@@ -171,9 +171,7 @@ SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) throws JavaMod
 
 	return mapper;
 }
-/*
- * @see org.eclipse.jdt.core.IPackageFragmentRoot#delete
- */
+
 @Override
 public void delete(
 	int updateResourceFlags,
@@ -283,9 +281,6 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 	}
 }
 
-/*
- * @see org.eclipse.jdt.core.IPackageFragmentRoot#copy
- */
 @Override
 public void copy(
 	IPath destination,
@@ -801,9 +796,7 @@ protected IStatus validateOnClasspath() {
 	}
 	return new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_NOT_ON_CLASSPATH, this);
 }
-/*
- * @see org.eclipse.jdt.core.IPackageFragmentRoot#move
- */
+
 @Override
 public void move(
 	IPath destination,

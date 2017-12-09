@@ -88,9 +88,7 @@ public ISourceRange getNameRange() throws JavaModelException {
 	ImportDeclarationElementInfo info = (ImportDeclarationElementInfo) getElementInfo();
 	return info.getNameRange();
 }
-/*
- * @see JavaElement#getPrimaryElement(boolean)
- */
+
 @Override
 public IJavaElement getPrimaryElement(boolean checkOwner) {
 	CompilationUnit cu = (CompilationUnit)this.parent.getParent();

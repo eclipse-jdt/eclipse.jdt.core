@@ -59,9 +59,6 @@ public AndPattern(SearchPattern leftPattern, SearchPattern rightPattern) {
 	this.current = 0;
 }
 
-/* (non-Javadoc)
- * @see org.eclipse.jdt.internal.core.search.matching.InternalSearchPattern#currentPattern()
- */
 @Override
 public SearchPattern currentPattern() {
 	return this.patterns[this.current++];

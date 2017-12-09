@@ -28,9 +28,7 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 		super(parent, name, parameterTypes);
 		this.uniqueKey = uniqueKey;
 	}
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.BinaryMethod#getKey()
-	 */
+
 	@Override
 	public String getKey() {
 		return this.uniqueKey;
@@ -41,9 +39,6 @@ public class ResolvedBinaryMethod extends BinaryMethod {
 		return this.uniqueKey;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.IMethod#isResolved()
-	 */
 	@Override
 	public boolean isResolved() {
 		return true;

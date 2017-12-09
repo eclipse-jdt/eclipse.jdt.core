@@ -135,9 +135,7 @@ class PackageBinding implements IPackageBinding {
 		ModuleBinding moduleBinding = this.binding.enclosingModule;
 		return moduleBinding != null ? this.resolver.getModuleBinding(moduleBinding) : null;
 	}
-	/*
-	 * @see IBinding#getName()
-	 */
+
 	@Override
 	public String getName() {
 		if (this.name == null) {
@@ -146,17 +144,11 @@ class PackageBinding implements IPackageBinding {
 		return this.name;
 	}
 
-	/*
-	 * @see IPackageBinding#isUnnamed()
-	 */
 	@Override
 	public boolean isUnnamed() {
 		return getName().equals(UNNAMED);
 	}
 
-	/*
-	 * @see IPackageBinding#getNameComponents()
-	 */
 	@Override
 	public String[] getNameComponents() {
 		if (this.components == null) {
@@ -165,25 +157,16 @@ class PackageBinding implements IPackageBinding {
 		return this.components;
 	}
 
-	/*
-	 * @see IBinding#getKind()
-	 */
 	@Override
 	public int getKind() {
 		return IBinding.PACKAGE;
 	}
 
-	/*
-	 * @see IBinding#getModifiers()
-	 */
 	@Override
 	public int getModifiers() {
 		return Modifier.NONE;
 	}
 
-	/*
-	 * @see IBinding#isDeprecated()
-	 */
 	@Override
 	public boolean isDeprecated() {
 		return false;
@@ -205,9 +188,6 @@ class PackageBinding implements IPackageBinding {
 		return false;
 	}
 
-	/*
-	 * @see IBinding#getJavaElement()
-	 */
 	@Override
 	public IJavaElement getJavaElement() {
 		INameEnvironment nameEnvironment = this.binding.environment.nameEnvironment; // a package binding always has a LooupEnvironment set
@@ -229,18 +209,11 @@ class PackageBinding implements IPackageBinding {
 		return pkgs[0];
 	}
 
-	/*
-	 * @see IBinding#getKey()
-	 */
 	@Override
 	public String getKey() {
 		return new String(this.binding.computeUniqueKey());
 	}
 
-	/*
-	 * @see IBinding#isEqualTo(Binding)
-	 * @since 3.1
-	 */
 	@Override
 	public boolean isEqualTo(IBinding other) {
 		if (other == this) {

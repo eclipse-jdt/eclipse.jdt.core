@@ -242,9 +242,6 @@ public class CompilationUnit extends ASTNode {
 		super(ast);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
@@ -260,9 +257,6 @@ public class CompilationUnit extends ASTNode {
 		visitor.endVisit(this);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	ASTNode clone0(AST target) {
 		CompilationUnit result = new CompilationUnit(target);
@@ -579,9 +573,6 @@ public class CompilationUnit extends ASTNode {
 		return this.messages;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final int getNodeType0() {
 		return COMPILATION_UNIT;
@@ -761,9 +752,6 @@ public class CompilationUnit extends ASTNode {
 		this.commentMapper.initialize(this, scanner);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == IMPORTS_PROPERTY) {
@@ -776,9 +764,6 @@ public class CompilationUnit extends ASTNode {
 		return super.internalGetChildListProperty(property);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == MODULE_PROPERTY) {
@@ -801,10 +786,6 @@ public class CompilationUnit extends ASTNode {
 		return super.internalGetSetChildProperty(property, get, child);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 * @since 3.0
-	 */
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
@@ -917,9 +898,6 @@ public class CompilationUnit extends ASTNode {
 		}
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int memSize() {
 		int size = BASE_NODE_SIZE + 8 * 4;
@@ -1142,18 +1120,12 @@ public class CompilationUnit extends ASTNode {
 		this.statementsRecoveryData = data;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int treeSize() {
 		int size = memSize();

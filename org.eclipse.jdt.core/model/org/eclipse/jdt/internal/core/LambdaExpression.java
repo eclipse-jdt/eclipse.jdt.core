@@ -176,9 +176,6 @@ public class LambdaExpression extends SourceType {
 		return JavaElement.JEM_LAMBDA_EXPRESSION;
 	}
 	
-	/*
-	 * @see JavaElement#getHandleMemento(StringBuffer)
-	 */
 	@Override
 	protected void getHandleMemento(StringBuffer buff) {
 		getHandleMemento(buff, true, true);

@@ -39,9 +39,6 @@ protected StringBuffer print(StringBuffer output) {
 	return super.print(output);
 }
 
-/* (non-Javadoc)
- * @see org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern#queryIn(org.eclipse.jdt.internal.core.index.Index)
- */
 @Override
 public EntryResult[] queryIn(Index index) throws IOException {
 	return index.query(CATEGORIES, SECONDARY_PATTERN_KEY, R_PATTERN_MATCH | R_CASE_SENSITIVE);

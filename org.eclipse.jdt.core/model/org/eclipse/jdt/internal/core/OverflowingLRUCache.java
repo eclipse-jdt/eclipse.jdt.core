@@ -308,13 +308,7 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 		next.previous = previous;
 	}
 }
-	/**
-	 * Sets the value in the cache at the given key. Returns the value.
-	 *
-	 * @param key Key of object to add.
-	 * @param value Value of object to add.
-	 * @return added value.
-	 */
+
 	@Override
 	public Object put(Object key, Object value) {
 		/* attempt to rid ourselves of the overflow, if there is any */
@@ -377,11 +371,7 @@ public void setLoadFactor(double newLoadFactor) throws IllegalArgumentException 
 	else
 		throw new IllegalArgumentException(Messages.cache_invalidLoadFactor);
 }
-	/**
-	 * Sets the maximum amount of space that the cache can store
-	 *
-	 * @param limit Number of units of cache space
-	 */
+
 	@Override
 	public void setSpaceLimit(int limit) {
 		if (limit < this.spaceLimit) {

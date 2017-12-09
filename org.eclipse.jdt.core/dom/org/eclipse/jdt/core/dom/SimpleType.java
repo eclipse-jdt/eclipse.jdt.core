@@ -128,17 +128,11 @@ public class SimpleType extends AnnotatableType {
 		return ANNOTATIONS_PROPERTY;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == ANNOTATIONS_PROPERTY) {
@@ -147,10 +141,7 @@ public class SimpleType extends AnnotatableType {
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
-	
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
+
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == NAME_PROPERTY) {
@@ -165,17 +156,11 @@ public class SimpleType extends AnnotatableType {
 		return super.internalGetSetChildProperty(property, get, child);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final int getNodeType0() {
 		return SIMPLE_TYPE;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	ASTNode clone0(AST target) {
 		SimpleType result = new SimpleType(target);
@@ -188,18 +173,12 @@ public class SimpleType extends AnnotatableType {
 		return result;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
@@ -252,18 +231,12 @@ public class SimpleType extends AnnotatableType {
 		postReplaceChild(oldChild, typeName, NAME_PROPERTY);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int memSize() {
 		// treat Code as free
 		return BASE_NODE_SIZE + 2 * 4;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int treeSize() {
 		return

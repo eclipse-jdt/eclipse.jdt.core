@@ -39,9 +39,6 @@ public boolean checkDeprecation(int commentPtr) {
 	return result;
 }
 
-/* (non-Javadoc)
- * @see org.eclipse.jdt.internal.compiler.parser.AbstractCommentParser#parseIdentifierTag()
- */
 @Override
 protected boolean parseIdentifierTag(boolean report) {
 	int end = this.lineEnd+1;
@@ -81,9 +78,6 @@ protected boolean parseIdentifierTag(boolean report) {
 	return false;
 }
 
-/* (non-Javadoc)
- * @see org.eclipse.jdt.internal.compiler.parser.JavadocParser#parseSimpleTag()
- */
 @Override
 protected void parseSimpleTag() {
 

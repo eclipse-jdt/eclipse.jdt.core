@@ -29,9 +29,6 @@ public class SelectionJavadoc extends Javadoc {
 		this.inheritDocSelected = false;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.Javadoc#print(int, java.lang.StringBuffer)
-	 */
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
 		super.print(indent, output);

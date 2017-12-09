@@ -55,9 +55,7 @@ public ISourceRange getNameRange() throws JavaModelException {
 	AnnotatableInfo info = (AnnotatableInfo) getElementInfo();
 	return info.getNameRange();
 }
-/*
- * @see JavaElement#getPrimaryElement(boolean)
- */
+
 @Override
 public IJavaElement getPrimaryElement(boolean checkOwner) {
 	CompilationUnit cu = (CompilationUnit)getAncestor(COMPILATION_UNIT);

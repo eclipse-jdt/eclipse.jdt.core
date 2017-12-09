@@ -161,9 +161,6 @@ public abstract class Annotation extends Expression implements IExtendedModifier
 		return (this instanceof SingleMemberAnnotation);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int memSize() {
 		return BASE_NODE_SIZE + 1 * 4;

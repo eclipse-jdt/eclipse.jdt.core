@@ -32,9 +32,6 @@ public class BatchOperation extends JavaModelOperation {
 		return true;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.JavaModelOperation#executeOperation()
-	 */
 	@Override
 	protected void executeOperation() throws JavaModelException {
 		try {
@@ -54,9 +51,6 @@ public class BatchOperation extends JavaModelOperation {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.JavaModelOperation#verify()
-	 */
 	@Override
 	protected IJavaModelStatus verify() {
 		// cannot verify user defined operation

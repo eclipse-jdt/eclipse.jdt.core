@@ -239,9 +239,7 @@ public boolean equals(Object o) {
 public int hashCode() {
 	return CharOperation.hashCode(getSelector()) + CharOperation.hashCode(getMethodDescriptor());
 }
-/**
- * @return the annotations or null if there is none.
- */
+
 @Override
 public IBinaryAnnotation[] getAnnotations() {
 	return null;
@@ -260,14 +258,7 @@ public char[][] getArgumentNames() {
 public Object getDefaultValue() {
 	return null;
 }
-/**
- * Answer the resolved names of the exception types in the
- * class file format as specified in section 4.2 of the Java 2 VM spec
- * or null if the array is empty.
- *
- * For example, java.lang.String is java/lang/String.
- * @return char[][]
- */
+
 @Override
 public char[][] getExceptionTypeNames() {
 	if (this.exceptionNames == null) {
@@ -286,15 +277,7 @@ public char[] getGenericSignature() {
 	}
 	return null;
 }
-/**
- * Answer the receiver's method descriptor which describes the parameter &
- * return types as specified in section 4.3.3 of the Java 2 VM spec.
- *
- * For example:
- *   - int foo(String) is (Ljava/lang/String;)I
- *   - void foo(Object[]) is (I)[Ljava/lang/Object;
- * @return char[]
- */
+
 @Override
 public char[] getMethodDescriptor() {
 	if (this.descriptor == null) {
@@ -331,12 +314,7 @@ public int getAnnotatedParametersCount() {
 public IBinaryTypeAnnotation[] getTypeAnnotations() {
 	return null;
 }
-/**
- * Answer the name of the method.
- *
- * For a constructor, answer <init> & <clinit> for a clinit method.
- * @return char[]
- */
+
 @Override
 public char[] getSelector() {
 	if (this.name == null) {

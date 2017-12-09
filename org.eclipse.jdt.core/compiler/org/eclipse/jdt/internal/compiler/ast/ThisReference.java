@@ -37,9 +37,6 @@ public class ThisReference extends Reference {
 		this.sourceEnd = sourceEnd;
 	}
 
-	/*
-	 * @see Reference#analyseAssignment(...)
-	 */
 	@Override
 	public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Assignment assignment, boolean isCompound) {
 
@@ -76,9 +73,6 @@ public class ThisReference extends Reference {
 		return true; // never problematic
 	}
 
-	/*
-	 * @see Reference#generateAssignment(...)
-	 */
 	@Override
 	public void generateAssignment(BlockScope currentScope, CodeStream codeStream, Assignment assignment, boolean valueRequired) {
 
@@ -94,18 +88,12 @@ public class ThisReference extends Reference {
 		if ((this.bits & IsImplicitThis) == 0) codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 
-	/*
-	 * @see Reference#generateCompoundAssignment(...)
-	 */
 	@Override
 	public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeStream, Expression expression, int operator, int assignmentImplicitConversion,  boolean valueRequired) {
 
 		 // this cannot be assigned
 	}
 
-	/*
-	 * @see org.eclipse.jdt.internal.compiler.ast.Reference#generatePostIncrement()
-	 */
 	@Override
 	public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream, CompoundAssignment postIncrement, boolean valueRequired) {
 

@@ -87,17 +87,11 @@ public final class TextElement extends ASTNode implements IDocElement {
 		super(ast);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
 		if (property == TEXT_PROPERTY) {
@@ -112,17 +106,11 @@ public final class TextElement extends ASTNode implements IDocElement {
 		return super.internalGetSetObjectProperty(property, get, value);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final int getNodeType0() {
 		return TEXT_ELEMENT;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	ASTNode clone0(AST target) {
 		TextElement result = new TextElement(target);
@@ -131,18 +119,12 @@ public final class TextElement extends ASTNode implements IDocElement {
 		return result;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	void accept0(ASTVisitor visitor) {
 		visitor.visit(this);
@@ -183,9 +165,6 @@ public final class TextElement extends ASTNode implements IDocElement {
 		postValueChange(TEXT_PROPERTY);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int memSize() {
 		int size = BASE_NODE_SIZE + 1 * 4;
@@ -196,9 +175,6 @@ public final class TextElement extends ASTNode implements IDocElement {
 		return size;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int treeSize() {
 		return memSize();

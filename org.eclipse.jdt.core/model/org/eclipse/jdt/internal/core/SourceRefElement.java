@@ -99,9 +99,7 @@ public ASTNode findNode(CompilationUnit ast) {
 		return null;
 	}
 }
-/*
- * @see JavaElement#generateInfos
- */
+
 @Override
 protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
 	Openable openableParent = (Openable)getOpenableParent();

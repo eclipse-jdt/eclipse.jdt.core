@@ -81,17 +81,11 @@ public class NumberLiteral extends Expression {
 		super(ast);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
 		if (property == TOKEN_PROPERTY) {
@@ -106,17 +100,11 @@ public class NumberLiteral extends Expression {
 		return super.internalGetSetObjectProperty(property, get, value);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final int getNodeType0() {
 		return NUMBER_LITERAL;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	ASTNode clone0(AST target) {
 		NumberLiteral result = new NumberLiteral(target);
@@ -125,18 +113,12 @@ public class NumberLiteral extends Expression {
 		return result;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	final boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		// dispatch to correct overloaded match method
 		return matcher.match(this, other);
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	void accept0(ASTVisitor visitor) {
 		visitor.visit(this);
@@ -213,18 +195,13 @@ public class NumberLiteral extends Expression {
 		this.tokenValue = token;
 		postValueChange(TOKEN_PROPERTY);
 	}
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
+
 	@Override
 	int memSize() {
 		int size = BASE_NODE_SIZE + 1 * 4 + stringSize(this.tokenValue);
 		return size;
 	}
 
-	/* (omit javadoc for this method)
-	 * Method declared on ASTNode.
-	 */
 	@Override
 	int treeSize() {
 		return memSize();

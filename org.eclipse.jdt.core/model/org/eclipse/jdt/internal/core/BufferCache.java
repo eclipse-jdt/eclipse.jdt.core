@@ -34,13 +34,7 @@ public BufferCache(int size) {
 public BufferCache(int size, int overflow) {
 	super(size, overflow);
 }
-/**
- * Returns true if the buffer is successfully closed and
- * removed from the cache, otherwise false.
- *
- * <p>NOTE: this triggers an external removal of this buffer
- * by closing the buffer.
- */
+
 @Override
 protected boolean close(LRUCacheEntry entry) {
 	IBuffer buffer= (IBuffer) entry.value;
@@ -69,9 +63,7 @@ void closeBuffers() {
 		((IBuffer) buffers.get(i)).close();
 	}
 }
-	/**
-	 * Returns a new instance of the reciever.
-	 */
+
 	@Override
 	protected LRUCache newInstance(int size, int newOverflow) {
 		return new BufferCache(size, newOverflow);

@@ -40,9 +40,6 @@ public final class Messages {
 			}
 		}
 
-		/* (non-Javadoc)
-		 * @see java.util.Hashtable#put(java.lang.Object, java.lang.Object)
-		 */
 		@Override
 		public synchronized Object put(Object key, Object value) {
 			try {

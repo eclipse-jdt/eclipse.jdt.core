@@ -2375,9 +2375,7 @@ protected void consumeClassBodyopt() {
 	popElement(K_SELECTOR_INVOCATION_TYPE);
 	super.consumeClassBodyopt();
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeClassDeclaration()
- */
+
 @Override
 protected void consumeClassDeclaration() {
 	if (this.astPtr >= 0) {
@@ -2474,9 +2472,6 @@ protected void consumeClassTypeElt() {
 	popElement(K_NEXT_TYPEREF_IS_EXCEPTION);
 }
 
-/* (non-Javadoc)
- * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeCompilationUnit()
- */
 @Override
 protected void consumeCompilationUnit() {
 	this.javadoc = null;

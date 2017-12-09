@@ -553,9 +553,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 		}
 	}
 }
-/*
- * @see IJavaElement#getAttachedJavadoc(IProgressMonitor)
- */
+
 @Override
 public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelException {
 	PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(getJavaProject().getProject());

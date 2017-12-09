@@ -101,9 +101,7 @@ protected void getHandleMemento(StringBuffer buff) {
 protected char getHandleMementoDelimiter() {
 	return JavaElement.JEM_METHOD;
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.IMethod#getKey()
- */
+
 @Override
 public String getKey() {
 	try {
@@ -182,9 +180,6 @@ public String[] getTypeParameterSignatures() throws JavaModelException {
 	return typeParameterSignatures;
 }
 
-/*
- * @see JavaElement#getPrimaryElement(boolean)
- */
 @Override
 public IJavaElement getPrimaryElement(boolean checkOwner) {
 	if (checkOwner) {
@@ -251,9 +246,7 @@ public boolean isMainMethod() throws JavaModelException {
 public boolean isLambdaMethod() {
 	return false;
 }
-/* (non-Javadoc)
- * @see org.eclipse.jdt.core.IMethod#isResolved()
- */
+
 @Override
 public boolean isResolved() {
 	return false;

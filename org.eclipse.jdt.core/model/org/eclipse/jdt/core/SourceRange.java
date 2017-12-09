@@ -47,9 +47,7 @@ public final class SourceRange implements ISourceRange {
 		this.offset = offset;
 		this.length = length;
 	}
-	/*
-	 * @see Object#equals(Object)
-	 */
+
 	@Override
 	public boolean equals(Object obj) {
 		if (!(obj instanceof ISourceRange))
@@ -72,9 +70,6 @@ public final class SourceRange implements ISourceRange {
 		return this.offset;
 	}
 
-	/*
-	 * @see Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		return this.length ^ this.offset;

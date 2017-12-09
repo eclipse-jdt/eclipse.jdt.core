@@ -27,9 +27,6 @@ public class ResolvedBinaryField extends BinaryField {
 		this.uniqueKey = uniqueKey;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.core.BinaryField#getKey()
-	 */
 	@Override
 	public String getKey() {
 		return this.uniqueKey;
@@ -40,9 +37,6 @@ public class ResolvedBinaryField extends BinaryField {
 		return this.uniqueKey;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.core.IField#isResolved()
-	 */
 	@Override
 	public boolean isResolved() {
 		return true;

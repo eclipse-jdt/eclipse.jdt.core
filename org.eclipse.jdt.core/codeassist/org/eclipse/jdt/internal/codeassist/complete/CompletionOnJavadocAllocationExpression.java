@@ -31,9 +31,6 @@ public class CompletionOnJavadocAllocationExpression extends JavadocAllocationEx
 		this.completionFlags |= flags;
 	}
 
-	/**
-	 * @param flags The completionFlags to set.
-	 */
 	@Override
 	public void addCompletionFlags(int flags) {
 		this.completionFlags |= flags;
@@ -55,19 +52,11 @@ public class CompletionOnJavadocAllocationExpression extends JavadocAllocationEx
 		return (this.completionFlags & FORMAL_REFERENCE) != 0;
 	}
 
-	/**
-	 * Get completion node flags.
-	 *
-	 * @return int Flags of the javadoc completion node.
-	 */
 	@Override
 	public int getCompletionFlags() {
 		return this.completionFlags;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.ast.AllocationExpression#printExpression(int, java.lang.StringBuffer)
-	 */
 	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("<CompleteOnJavadocAllocationExpression:"); //$NON-NLS-1$
