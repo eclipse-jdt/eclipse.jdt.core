@@ -385,7 +385,11 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		}
 		buffer.append(')');
 		buffer.append('L');
-		buffer.append(this.resolvedType.constantPoolName());
+		if (this.resolvedType.isIntersectionType18()) {
+			buffer.append(this.descriptor.declaringClass.constantPoolName());
+		} else {
+			buffer.append(this.resolvedType.constantPoolName());
+		}
 		buffer.append(';');
 		if (this.isSerializable) {
 			sourceType.addSyntheticMethod(this);
