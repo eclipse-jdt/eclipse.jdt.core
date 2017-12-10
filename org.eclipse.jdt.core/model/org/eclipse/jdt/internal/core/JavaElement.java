@@ -589,7 +589,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		boolean hadTemporaryCache = manager.hasTemporaryCache();
 		try {
-			HashMap newElements = manager.getTemporaryCache();
+			HashMap<IJavaElement, Object> newElements = manager.getTemporaryCache();
 			generateInfos(info, newElements, monitor);
 			if (info == null) {
 				info = newElements.get(this);

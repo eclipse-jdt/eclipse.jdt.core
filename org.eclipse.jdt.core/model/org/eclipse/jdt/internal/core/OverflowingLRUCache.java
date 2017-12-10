@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.HashMap;
 
 import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
  *
  *	<p>If the cache cannot remove enough old elements to add new elements
  *	it will grow beyond <code>fSpaceLimit</code>. Later, it will attempt to
- *	shink back to the maximum space limit.
+ *	shrink back to the maximum space limit.
  *
  *	The method <code>close</code> should attempt to close the element.  If
  *	the element is successfully closed it will return true and the element will
@@ -48,8 +48,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
  *
  *	@see LRUCache
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
-public abstract class OverflowingLRUCache extends LRUCache {
+public abstract class OverflowingLRUCache<K, V> extends LRUCache<K, V> {
 	/**
 	 * Indicates if the cache has been over filled and by how much.
 	 */
@@ -85,10 +84,10 @@ public OverflowingLRUCache(int size, int overflow) {
 	 * @return New copy of this object.
 	 */
 	@Override
-	public Object clone() {
+	public OverflowingLRUCache<K, V> clone() {
 
-		OverflowingLRUCache newCache = (OverflowingLRUCache)newInstance(this.spaceLimit, this.overflow);
-		LRUCacheEntry qEntry;
+		OverflowingLRUCache<K, V> newCache = (OverflowingLRUCache<K, V>)newInstance(this.spaceLimit, this.overflow);
+		LRUCacheEntry<K, V> qEntry;
 
 		/* Preserve order of entries by copying from oldest to newest */
 		qEntry = this.entryQueueTail;
@@ -103,40 +102,42 @@ public OverflowingLRUCache(int size, int overflow) {
  * removed from the cache, otherwise false.
  *
  * <p>NOTE: this triggers an external remove from the cache
- * by closing the obejct.
+ * by closing the object.
  *
  */
-protected abstract boolean close(LRUCacheEntry entry);
+protected abstract boolean close(LRUCacheEntry<K, V> entry);
 	/**
 	 *	Returns an enumerator of the values in the cache with the most
 	 *	recently used first.
 	 */
-	public Enumeration elements() {
+	public Enumeration<V> elements() {
 		if (this.entryQueue == null)
-			return new LRUCacheEnumerator(null);
-		LRUCacheEnumerator.LRUEnumeratorElement head =
-			new LRUCacheEnumerator.LRUEnumeratorElement(this.entryQueue.value);
-		LRUCacheEntry currentEntry = this.entryQueue.next;
-		LRUCacheEnumerator.LRUEnumeratorElement currentElement = head;
+			return new LRUCacheEnumerator<>(null);
+		LRUCacheEnumerator.LRUEnumeratorElement<V> head =
+			new LRUCacheEnumerator.LRUEnumeratorElement<>(this.entryQueue.value);
+		LRUCacheEntry<K, V> currentEntry = this.entryQueue.next;
+		LRUCacheEnumerator.LRUEnumeratorElement<V> currentElement = head;
 		while(currentEntry != null) {
-			currentElement.next = new LRUCacheEnumerator.LRUEnumeratorElement(currentEntry.value);
+			currentElement.next = new LRUCacheEnumerator.LRUEnumeratorElement<>(currentEntry.value);
 			currentElement = currentElement.next;
 
 			currentEntry = currentEntry.next;
 		}
-		return new LRUCacheEnumerator(head);
+		return new LRUCacheEnumerator<>(head);
 	}
+
 	@Override
 	public double fillingRatio() {
 		return (this.currentSpace + this.overflow) * 100.0 / this.spaceLimit;
 	}
+
 	/**
 	 * For internal testing only.
 	 * This method exposed only for testing purposes!
 	 *
 	 * @return Hashtable of entries
 	 */
-	public java.util.Hashtable getEntryTable() {
+	public java.util.Hashtable<K, LRUCacheEntry<K, V>> getEntryTable() {
 		return this.entryTable;
 	}
 /**
@@ -153,6 +154,7 @@ public double getLoadFactor() {
 	public int getOverflow() {
 		return this.overflow;
 	}
+
 	/**
 	 * Ensures there is the specified amount of free space in the receiver,
 	 * by removing old entries if necessary.  Returns true if the requested space was
@@ -173,7 +175,7 @@ public double getLoadFactor() {
 		/* Free up space by removing oldest entries */
 		int spaceNeeded = (int)((1 - this.loadFactor) * limit);
 		spaceNeeded = (spaceNeeded > space) ? spaceNeeded : space;
-		LRUCacheEntry entry = this.entryQueueTail;
+		LRUCacheEntry<K, V> entry = this.entryQueueTail;
 
 		try {
 			// disable timestamps update while making space so that the previous and next links are not changed
@@ -198,16 +200,18 @@ public double getLoadFactor() {
 		this.overflow = this.currentSpace + space - limit;
 		return false;
 	}
+
 	/**
 	 * Returns a new instance of the reciever.
 	 */
-	protected abstract LRUCache newInstance(int size, int newOverflow);
+protected abstract LRUCache<K, V> newInstance(int size, int newOverflow);
+
 /**
  * For testing purposes only
  */
 public void printStats() {
 	int forwardListLength = 0;
-	LRUCacheEntry entry = this.entryQueue;
+	LRUCacheEntry<K, V> entry = this.entryQueue;
 	while(entry != null) {
 		forwardListLength++;
 		entry = entry.next;
@@ -222,11 +226,10 @@ public void printStats() {
 	}
 	System.out.println("Backward length: " + backwardListLength); //$NON-NLS-1$
 
-	Enumeration keys = this.entryTable.keys();
 	class Temp {
-		public Class clazz;
+		public Class<?> clazz;
 		public int count;
-		public Temp(Class aClass) {
+		public Temp(Class<?> aClass) {
 			this.clazz = aClass;
 			this.count = 1;
 		}
@@ -235,22 +238,22 @@ public void printStats() {
 			return "Class: " + this.clazz + " has " + this.count + " entries."; //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-1$
 		}
 	}
-	java.util.HashMap h = new java.util.HashMap();
-	while(keys.hasMoreElements()) {
-		entry = (LRUCacheEntry)this.entryTable.get(keys.nextElement());
-		Class key = entry.value.getClass();
-		Temp t = (Temp)h.get(key);
+	HashMap<Class<?>, Temp> h = new HashMap<>();
+	for (K k : this.entryTable.keySet()) {
+		entry = this.entryTable.get(k);
+		Class<?> key = entry.value.getClass();
+		Temp t = h.get(key);
 		if (t == null) {
 			h.put(key, new Temp(key));
 		} else {
 			t.count++;
 		}
 	}
-
-	for (Iterator iter = h.values().iterator(); iter.hasNext();){
-		System.out.println(iter.next());
+	for (Temp temp : h.values()) {
+		System.out.println(temp);
 	}
 }
+
 	/**
 	 *	Removes the entry from the entry queue.
 	 *	Calls <code>privateRemoveEntry</code> with the external functionality enabled.
@@ -259,7 +262,7 @@ public void printStats() {
 	 * (in which case, the entry table is not modified).
 	 */
 	@Override
-	protected void privateRemoveEntry (LRUCacheEntry entry, boolean shuffle) {
+	protected void privateRemoveEntry (LRUCacheEntry<K, V> entry, boolean shuffle) {
 		privateRemoveEntry(entry, shuffle, true);
 	}
 /**
@@ -273,7 +276,7 @@ public void printStats() {
  *	@param shuffle indicates whether we are just shuffling the queue
  *	(in which case, the entry table is not modified).
  */
-protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean external) {
+protected void privateRemoveEntry(LRUCacheEntry<K, V> entry, boolean shuffle, boolean external) {
 
 	if (!shuffle) {
 		if (external) {
@@ -292,8 +295,8 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 			}
 		}
 	}
-	LRUCacheEntry previous = entry.previous;
-	LRUCacheEntry next = entry.next;
+	LRUCacheEntry<K, V> previous = entry.previous;
+	LRUCacheEntry<K, V> next = entry.next;
 
 	/* if this was the first entry */
 	if (previous == null) {
@@ -310,14 +313,14 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 }
 
 	@Override
-	public Object put(Object key, Object value) {
+	public V put(K key, V value) {
 		/* attempt to rid ourselves of the overflow, if there is any */
 		if (this.overflow > 0)
 			shrink();
 
 		/* Check whether there's an entry in the cache */
 		int newSpace = spaceFor(value);
-		LRUCacheEntry entry = (LRUCacheEntry) this.entryTable.get (key);
+		LRUCacheEntry<K, V> entry = this.entryTable.get (key);
 
 		if (entry != null) {
 
@@ -356,7 +359,7 @@ protected void privateRemoveEntry(LRUCacheEntry entry, boolean shuffle, boolean 
 	 * @param key Key of object to remove from cache.
 	 * @return Value removed from cache.
 	 */
-	public Object remove(Object key) {
+	public V remove(K key) {
 		return removeKey(key);
 	}
 /**
@@ -405,7 +408,7 @@ public String toString() {
  * <p>This method will do nothing if timestamps have been disabled.
  */
 @Override
-protected void updateTimestamp(LRUCacheEntry entry) {
+protected void updateTimestamp(LRUCacheEntry<K, V> entry) {
 	if (this.timestampsOn) {
 		entry.timestamp = this.timestampCounter++;
 		if (this.entryQueue != entry) {

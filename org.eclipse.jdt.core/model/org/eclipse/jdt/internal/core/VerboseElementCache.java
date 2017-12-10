@@ -13,9 +13,12 @@ package org.eclipse.jdt.internal.core;
 import java.text.NumberFormat;
 import java.util.Date;
 
-public class VerboseElementCache extends ElementCache {
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IOpenable;
 
-	private Object beingAdded;
+public class VerboseElementCache<K extends IJavaElement & IOpenable> extends ElementCache<K> {
+
+	private K beingAdded;
 	private String name;
 
 	public VerboseElementCache(int size, String name) {
@@ -39,7 +42,7 @@ public class VerboseElementCache extends ElementCache {
 	}
 
 	@Override
-	public Object put(Object key, Object value) {
+	public JavaElementInfo put(K key, JavaElementInfo value) {
 		try {
 			if (this.beingAdded == null)
 				this.beingAdded = key;
