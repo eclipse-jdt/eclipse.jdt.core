@@ -60,22 +60,12 @@ class DeclarationScanner implements DeclarationVisitor {
 	this.post = post;
     }
 
-    /**
-     * Visits a declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitDeclaration(Declaration d) {
 	d.accept(pre);
 	d.accept(post);
     }
 
-    /**
-     * Visits a package declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitPackageDeclaration(PackageDeclaration d) {
 	d.accept(pre);
@@ -91,21 +81,11 @@ class DeclarationScanner implements DeclarationVisitor {
 	d.accept(post);
     }
 
-    /**
-     * Visits a member or constructor declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitMemberDeclaration(MemberDeclaration d) {
 	visitDeclaration(d);
     }
 
-    /**
-     * Visits a type declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitTypeDeclaration(TypeDeclaration d) {
 	d.accept(pre);
@@ -129,11 +109,6 @@ class DeclarationScanner implements DeclarationVisitor {
 	d.accept(post);
     }
 
-    /**
-     * Visits a class declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitClassDeclaration(ClassDeclaration d) {
 	d.accept(pre);
@@ -161,61 +136,31 @@ class DeclarationScanner implements DeclarationVisitor {
 	d.accept(post);
     }
 
-    /**
-     * Visits an enum declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitEnumDeclaration(EnumDeclaration d) {
 	visitClassDeclaration(d);
     }
 
-    /**
-     * Visits an interface declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitInterfaceDeclaration(InterfaceDeclaration d) {
 	visitTypeDeclaration(d);
     }
 
-    /**
-     * Visits an annotation type declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitAnnotationTypeDeclaration(AnnotationTypeDeclaration d) {
 	visitInterfaceDeclaration(d);
     }
 
-    /**
-     * Visits a field declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitFieldDeclaration(FieldDeclaration d) {
 	visitMemberDeclaration(d);
     }
 
-    /**
-     * Visits an enum constant declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitEnumConstantDeclaration(EnumConstantDeclaration d) {
 	visitFieldDeclaration(d);
     }
 
-    /**
-     * Visits a method or constructor declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitExecutableDeclaration(ExecutableDeclaration d) {
 	d.accept(pre);
@@ -231,52 +176,27 @@ class DeclarationScanner implements DeclarationVisitor {
 	d.accept(post);
     }
 
-    /**
-     * Visits a constructor declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitConstructorDeclaration(ConstructorDeclaration d) {
 	visitExecutableDeclaration(d);
     }
 
-    /**
-     * Visits a method declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitMethodDeclaration(MethodDeclaration d) {
 	visitExecutableDeclaration(d);
     }
 
-    /**
-     * Visits an annotation type element declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitAnnotationTypeElementDeclaration(
 	    AnnotationTypeElementDeclaration d) {
 	visitMethodDeclaration(d);
     }
 
-    /**
-     * Visits a parameter declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitParameterDeclaration(ParameterDeclaration d) {
 	visitDeclaration(d);
     }
 
-    /**
-     * Visits a type parameter declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitTypeParameterDeclaration(TypeParameterDeclaration d) {
 	visitDeclaration(d);

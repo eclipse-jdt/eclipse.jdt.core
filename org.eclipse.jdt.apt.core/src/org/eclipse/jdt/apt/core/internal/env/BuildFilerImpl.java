@@ -40,14 +40,6 @@ public class BuildFilerImpl extends FilerImpl {
 		_env = env;
 	}
 
-    /**  
-     * Creates a new class file, and returns a stream for writing to it. The 
-     * file's name and path (relative to the root of all newly created class 
-     * files) is based on the name of the type being written. 
-     *  
-     * @param typeName - canonical (fully qualified) name of the type being written 
-     * @return -a stream for writing to the new file 
-     */
     @Override
 	public OutputStream createClassFile(String typeName) throws IOException 
     {

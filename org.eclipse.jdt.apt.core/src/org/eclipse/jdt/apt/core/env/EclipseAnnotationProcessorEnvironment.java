@@ -31,9 +31,6 @@ public interface EclipseAnnotationProcessorEnvironment extends
 	 */	
 	CompilationUnit getAST();
 	
-	/**
-	 * @return a messager for registering diagnostics.
-	 */
 	@Override
 	EclipseMessager getMessager();
 	
