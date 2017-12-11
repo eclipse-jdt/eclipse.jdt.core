@@ -823,6 +823,7 @@ public abstract class Annotation extends Expression {
 		if (this.resolvedType == null) {
 			typeBinding = this.type.resolveType(scope);
 			if (typeBinding == null) {
+				this.resolvedType = new ProblemReferenceBinding(this.type.getTypeName(), null, ProblemReasons.NotFound);
 				return null;
 			}
 			this.resolvedType = typeBinding;

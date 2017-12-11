@@ -5337,4 +5337,23 @@ public void testBug497719_0001() throws JavaModelException {
 		TryStatement tryStatement = (TryStatement)methodDeclaration.getBody().statements().get(2);
 		assertEquals("Try Statement should be malformed", ASTNode.MALFORMED, (tryStatement.getFlags() & ASTNode.MALFORMED));
 }
+public void testBug490698_001() throws JavaModelException {
+	String contents =
+			"package jsr308.myex;\n" +
+			"\n" +
+			"public class X extends @jsr308.myex.X.Anno Object {\n" +
+			"    public class Inner {}\n" +
+			"    void foo(@jsr308.myex.X.Anno X this) {}\n" +
+			"    int o @jsr308.myex.X.Anno[];\n" +
+			"\n" +
+			"	 @jsr308.myex.X.Anno1 X.Inner java;\n" +
+			"    @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE_USE)\n" +
+			"    public @interface Anno {}\n" +
+			"}\n" +
+			"class Y<T> {}\n";
+	this.workingCopy = getWorkingCopy("/Converter18/src/jsr308/myex/X.java", true/*resolve*/);
+	ASTNode node = buildAST(contents, this.workingCopy, false);
+	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+}
+
 }
