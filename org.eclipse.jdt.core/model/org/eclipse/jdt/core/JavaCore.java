@@ -111,9 +111,11 @@
 package org.eclipse.jdt.core;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
@@ -2955,6 +2957,18 @@ public final class JavaCore extends Plugin {
 	 * @category OptionValue
 	 */
 	public static final String VERSION_CLDC_1_1 = "cldc1.1"; //$NON-NLS-1$
+
+	/**
+	 * Returns all {@link JavaCore}{@code #VERSION_*} levels.
+	 * 
+	 * @return all available versions
+	 * @since 3.13
+	 */
+	public static List<String> getAllVersions() {
+		return Arrays.asList(VERSION_CLDC_1_1, VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4, VERSION_1_5,
+				VERSION_1_6, VERSION_1_7, VERSION_1_8, VERSION_9);
+	}
+
 	/**
 	 * Configurable option value: {@value}.
 	 * @since 2.0
