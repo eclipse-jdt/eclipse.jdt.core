@@ -82,23 +82,6 @@ public class BuildFilerImpl extends FilerImpl {
 	
 	public boolean hasGeneratedClassFile(){ return _generatedClassFiles; }
 
-    /**
-     * Creates a new text file, and returns a writer for it. The file is 
-     * located along with either the newly created source or newly created 
-     * binary files. It may be named relative to some package (as are source 
-     * and binary files), and from there by an arbitrary pathname. In a loose 
-     * sense, the pathname of the new file will be the concatenation of loc, 
-     * pkg, and relPath. 
-     * 
-     * A charset for encoding the file may be provided. If none is given, 
-     * the charset used to encode source files (see createSourceFile(String)) will be used. 
-     *
-     * @param loc - location of the new file
-     * @param pkg - package relative to which the file should be named, or the empty string if none
-     * @param relPath - final pathname components of the file
-     * @param charsetName - the name of the charset to use, or null if none is being explicitly specified 
-     * @return - a writer for the new file 
-     */
     @Override
 	public PrintWriter createTextFile(Filer.Location loc, String pkg, File relPath, String charsetName) 
         throws IOException 
@@ -130,19 +113,6 @@ public class BuildFilerImpl extends FilerImpl {
     	}
     }
 
-	/**
-     * Creates a new binary file, and returns a stream for writing to it. The 
-     * file is located along with either the newly created source or newly 
-     * created binary files. It may be named relative to some package (as 
-     * are source and binary files), and from there by an arbitrary pathname. 
-     * In a loose sense, the pathname of the new file will be the concatenation 
-     * of loc, pkg, and relPath. 
-     * 
-     * @param loc - location of the new file
-     * @param pkg - package relative to which the file should be named, or the empty string if none
-     * @param relPath - final pathname components of the file 
-     * @return a stream for writing to the new file 
-     */
     @Override
 	public OutputStream createBinaryFile(Filer.Location loc, String pkg, File relPath)
         throws IOException 

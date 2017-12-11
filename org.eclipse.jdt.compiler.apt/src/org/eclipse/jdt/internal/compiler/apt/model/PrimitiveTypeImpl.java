@@ -56,9 +56,6 @@ public class PrimitiveTypeImpl extends TypeMirrorImpl implements PrimitiveType {
 		return v.visitPrimitive(this, p);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.internal.compiler.apt.model.TypeMirrorImpl#getKind()
-	 */
 	@Override
 	public TypeKind getKind() {
 		return getKind((BaseTypeBinding)_binding);

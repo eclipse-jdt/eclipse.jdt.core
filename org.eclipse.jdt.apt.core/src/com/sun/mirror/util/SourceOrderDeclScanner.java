@@ -198,11 +198,6 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 	d.accept(post);
     }
 
-    /**
-     * Visits a class declaration.
-     *
-     * @param d the declaration to visit
-     */
     @Override
 	public void visitClassDeclaration(ClassDeclaration d) {
 	d.accept(pre);

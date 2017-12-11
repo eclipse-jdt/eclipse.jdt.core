@@ -100,9 +100,6 @@ public class FactoryPath implements IFactoryPath {
 	private final Map<FactoryContainer, Attributes> _path = Collections.synchronizedMap(
 			new LinkedHashMap<FactoryContainer, Attributes>());
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#addExternalJar(java.io.File)
-	 */
 	@Override
 	public void addExternalJar(File jar) {
 		FactoryContainer fc = FactoryPathUtil.newExtJarFactoryContainer(jar);
@@ -110,18 +107,12 @@ public class FactoryPath implements IFactoryPath {
 		internalAdd(fc, a);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#removeExternalJar(java.io.File)
-	 */
 	@Override
 	public void removeExternalJar(File jar) {
 		FactoryContainer fc = FactoryPathUtil.newExtJarFactoryContainer(jar);
 		_path.remove(fc);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#addVarJar(org.eclipse.core.runtime.IPath)
-	 */
 	@Override
 	public void addVarJar(IPath jarPath) {
 		FactoryContainer fc = FactoryPathUtil.newVarJarFactoryContainer(jarPath);
@@ -129,18 +120,12 @@ public class FactoryPath implements IFactoryPath {
 		internalAdd(fc, a);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#removeVarJar(org.eclipse.core.runtime.IPath)
-	 */
 	@Override
 	public void removeVarJar(IPath jarPath) {
 		FactoryContainer fc = FactoryPathUtil.newVarJarFactoryContainer(jarPath);
 		_path.remove(fc);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#addWkspJar(org.eclipse.core.runtime.IPath)
-	 */
 	@Override
 	public void addWkspJar(IPath jarPath) {
 		FactoryContainer fc = FactoryPathUtil.newWkspJarFactoryContainer(jarPath);
@@ -148,18 +133,12 @@ public class FactoryPath implements IFactoryPath {
 		internalAdd(fc, a);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#removeWkspJar(org.eclipse.core.runtime.IPath)
-	 */
 	@Override
 	public void removeWkspJar(IPath jarPath) {
 		FactoryContainer fc = FactoryPathUtil.newWkspJarFactoryContainer(jarPath);
 		_path.remove(fc);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#enablePlugin(java.lang.String)
-	 */
 	@Override
 	public void enablePlugin(String pluginId) throws CoreException {
 		FactoryContainer fc = FactoryPluginManager.getPluginFactoryContainer(pluginId);
@@ -173,9 +152,6 @@ public class FactoryPath implements IFactoryPath {
 		internalAdd(fc, a);
 	}
 
-	/* (non-Javadoc)
-	 * @see org.eclipse.jdt.apt.core.util.IFactoryPath#disablePlugin(java.lang.String)
-	 */
 	@Override
 	public void disablePlugin(String pluginId) {
 		FactoryContainer fc = FactoryPluginManager.getPluginFactoryContainer(pluginId);
