@@ -5355,5 +5355,25 @@ public void testBug490698_001() throws JavaModelException {
 	ASTNode node = buildAST(contents, this.workingCopy, false);
 	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 }
+public void testBug526449_001() throws JavaModelException {
+	String contents =
+			"class com.google.android.gms.common.X {\n" +
+			"    class zzc {\n" +
+			"        void getBytes() {\n" +
+			"            this;\n" +
+			"        }\n" +
+			"    }\n" +
+			"\n" +
+			"    class zze {\n" +
+			"        zza zzLC[] = {\n" +
+			"            new zzc(){}, \n" +
+			"            new zzc(){}\n" +
+			"        };\n" +
+			"    }\n" +
+			"}\n";
+	this.workingCopy = getWorkingCopy("/Converter18/src/jsr308/myex/X.java", true/*resolve*/);
+	ASTNode node = buildAST(contents, this.workingCopy, false);
+	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+}
 
 }
