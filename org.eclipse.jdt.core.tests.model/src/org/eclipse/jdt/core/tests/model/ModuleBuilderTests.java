@@ -6459,6 +6459,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForAutoBuild();
 			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 
 			assertMarkers("Unexpected markers", 
 					"Access restriction: The type \'Image\' is not API (restriction on required library '"+ jrtPath + "')\n" + 

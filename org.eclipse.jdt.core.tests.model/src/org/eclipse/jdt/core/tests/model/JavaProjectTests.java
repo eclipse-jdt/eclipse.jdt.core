@@ -16,7 +16,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -2940,6 +2943,28 @@ public void testBug522554_1() throws CoreException {
 			deleteProject(prj);
 	}
 }
+// unnamed module observes all default modules per JEP 261
+public void testBug522554_2_unlimited() throws CoreException {
+	if (!isJRE9) return;
+	IJavaProject prj = null;
+	try {
+		prj = createJava9Project("unnamed", new String[] { "src" });
+		prj.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+		IMarker[] markers = prj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers", "",  markers);
+
+		IClasspathEntry systemLibrary = prj.getRawClasspath()[1];
+		assertEquals("Should be system library", getJRE9Path(), systemLibrary.getPath());
+		List<String> defaultRootModules = JavaModelAccess.defaultRootModules(Arrays.asList(prj.findPackageFragmentRoots(systemLibrary)));
+		Collections.sort(defaultRootModules);
+		assertEquals("Unexpected default modules",
+				DEFAULT_MODULES,
+				String.join(",", defaultRootModules.toArray(new String[defaultRootModules.size()])));
+	} finally {
+		if (prj != null)
+			deleteProject(prj);
+	}
+}
 // unnamed module adds without limiting
 public void testBug522554_2() throws CoreException {
 	if (!isJRE9) return;
@@ -2947,12 +2972,7 @@ public void testBug522554_2() throws CoreException {
 	try {
 		IClasspathAttribute[] jreAttributes = {
 			JavaCore.newClasspathAttribute(IClasspathAttribute.ADD_EXPORTS, "java.activation/com.sun.activation.registries=ALL-UNNAMED"),
-			JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES,
-					"java.se,javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web,jdk.accessibility," +
-					"jdk.attach,jdk.compiler,jdk.httpserver,jdk.jartool,jdk.javadoc,jdk.jconsole,jdk.jdi,jdk.management,jdk.packager," +
-					"jdk.plugin.dom,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,oracle.desktop,oracle.net,jdk.dynalink," +
-					"jdk.incubator.httpclient,jdk.jfr,jdk.jshell,jdk.jsobject,jdk.net,jdk.packager.services,jdk.scripting.nashorn,jdk.xml.dom," +
-					"java.activation")
+			JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES, DEFAULT_MODULES + ",java.activation")
 		};
 		prj = createJava9ProjectWithJREAttributes("unnamed", new String[] {"src" }, jreAttributes);
 		createFolder("/unnamed/src/modify");

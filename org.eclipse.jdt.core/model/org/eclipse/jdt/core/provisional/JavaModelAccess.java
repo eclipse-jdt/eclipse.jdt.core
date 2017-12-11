@@ -134,7 +134,9 @@ public class JavaModelAccess {
 					case IClasspathAttribute.PATCH_MODULE:
 					case IClasspathAttribute.ADD_EXPORTS:
 					case IClasspathAttribute.ADD_READS:
-						buf.append(OPTION_START).append(optName).append(BLANK).append(classpathAttribute.getValue()).append(BLANK);
+						for (String value : classpathAttribute.getValue().split(COMMA)) {
+							buf.append(OPTION_START).append(optName).append(BLANK).append(value).append(BLANK);
+						}
 						break;
 					case IClasspathAttribute.LIMIT_MODULES:
 						addLimitModules(buf, project, systemLibrary, classpathAttribute.getValue());
