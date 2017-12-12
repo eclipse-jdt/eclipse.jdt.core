@@ -31,6 +31,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -60,7 +61,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-//		 TESTS_NAMES = new String[] { "test_conflicting_packages" };
+		// TESTS_NAMES = new String[] { "testBug528467" };
 	}
 	private String sourceWorkspacePath = null;
 	protected ProblemRequestor problemRequestor;
@@ -6080,6 +6081,147 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			ClasspathJrt.resetCaches();
 			deleteProject("jnlp");
 			deleteProject("nonmod1");
+		}
+	}
+	public void testBug528467a() throws CoreException {
+		if (!isJRE9) return;
+		IJavaProject p1 = createJava9Project("mod.one");
+		try {
+			IClasspathEntry[] rawClasspath = p1.getRawClasspath();
+			String jrtPath = null;
+			for (int i = 0; i < rawClasspath.length; i++) {
+				IClasspathEntry iClasspathEntry = rawClasspath[i];
+				if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY &&
+						iClasspathEntry.getPath().toString().endsWith("jrt-fs.jar")) {
+					jrtPath = iClasspathEntry.getPath().toOSString();
+					IAccessRule[] pathRules = new IAccessRule[1];
+					pathRules[0] = JavaCore.newAccessRule(new Path("java/awt/**"), IAccessRule.K_NON_ACCESSIBLE);
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(iClasspathEntry.getPath(), 
+							iClasspathEntry.getSourceAttachmentPath(), 
+							iClasspathEntry.getSourceAttachmentRootPath(), 
+								pathRules, 
+								iClasspathEntry.getExtraAttributes(), 
+								iClasspathEntry.isExported());
+					rawClasspath[i] = newEntry;
+					break;
+				}
+			}
+			p1.setRawClasspath(rawClasspath, null);
+			createFolder("/mod.one/src/p1");
+			createFile("/mod.one/src/module-info.java",
+					"module mod.one {\n" +
+					"	exports p1;\n" +
+					"	requires java.desktop;\n" +
+					"}\n");
+			createFile("/mod.one/src/p1/X.java",
+					"package p1;\n" +
+							"public class X {\n"
+							+ "    java.awt.Image im = null;\n"
+							+ "}\n");
+
+			waitForManualRefresh();
+			waitForAutoBuild();
+			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			
+			assertMarkers("Unexpected markers", "Access restriction: The type 'Image' is not API (restriction on required library '"+ 
+																							jrtPath + "')", markers);
+		} finally {
+			deleteProject(p1);
+		}
+	}
+	public void testBug528467b() throws CoreException {
+		if (!isJRE9) return;
+		IJavaProject p1 = createJava9Project("mod.one");
+		try {
+			IClasspathEntry[] rawClasspath = p1.getRawClasspath();
+			String jrtPath = null;
+			for (int i = 0; i < rawClasspath.length; i++) {
+				IClasspathEntry iClasspathEntry = rawClasspath[i];
+				if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY &&
+						iClasspathEntry.getPath().toString().endsWith("jrt-fs.jar")) {
+					jrtPath = iClasspathEntry.getPath().toOSString();
+					IAccessRule[] pathRules = new IAccessRule[1];
+					pathRules[0] = JavaCore.newAccessRule(new Path("java/awt/Image"), IAccessRule.K_NON_ACCESSIBLE);
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(iClasspathEntry.getPath(), 
+							iClasspathEntry.getSourceAttachmentPath(), 
+							iClasspathEntry.getSourceAttachmentRootPath(), 
+								pathRules, 
+								iClasspathEntry.getExtraAttributes(), 
+								iClasspathEntry.isExported());
+					rawClasspath[i] = newEntry;
+					break;
+				}
+			}
+			p1.setRawClasspath(rawClasspath, null);
+			createFolder("/mod.one/src/p1");
+			createFile("/mod.one/src/module-info.java",
+					"module mod.one {\n" +
+					"	exports p1;\n" +
+					"	requires java.desktop;\n" +
+					"}\n");
+			createFile("/mod.one/src/p1/X.java",
+					"package p1;\n" +
+					"import java.awt.*;\n" +
+					"public abstract class X extends Image {\n" +
+					"	public Graphics foo() {\n" +
+					"		return getGraphics();\n" +
+					"	}\n"
+					+ "}\n");
+
+			waitForManualRefresh();
+			waitForAutoBuild();
+			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+
+			assertMarkers("Unexpected markers", 
+					"Access restriction: The type \'Image\' is not API (restriction on required library '"+ jrtPath + "')\n" + 
+					"The type Graphics from module java.desktop may not be accessible to clients due to missing \'requires transitive\'\n" + 
+					"Access restriction: The method \'Image.getGraphics()\' is not API (restriction on required library '"+ jrtPath + "')", markers);
+		} finally {
+			deleteProject(p1);
+		}
+	}
+	public void testBug528467c() throws CoreException {
+		if (!isJRE9) return;
+		IJavaProject p1 = createJava9Project("unnamed");
+		try {
+			IClasspathEntry[] rawClasspath = p1.getRawClasspath();
+			String jrtPath = null;
+			for (int i = 0; i < rawClasspath.length; i++) {
+				IClasspathEntry iClasspathEntry = rawClasspath[i];
+				if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY &&
+						iClasspathEntry.getPath().toString().endsWith("jrt-fs.jar")) {
+					jrtPath = iClasspathEntry.getPath().toOSString();
+					IAccessRule[] pathRules = new IAccessRule[1];
+					pathRules[0] = JavaCore.newAccessRule(new Path("java/awt/**"), IAccessRule.K_NON_ACCESSIBLE);
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(iClasspathEntry.getPath(), 
+							iClasspathEntry.getSourceAttachmentPath(), 
+							iClasspathEntry.getSourceAttachmentRootPath(), 
+								pathRules, 
+								iClasspathEntry.getExtraAttributes(), 
+								iClasspathEntry.isExported());
+					rawClasspath[i] = newEntry;
+					break;
+				}
+			}
+			p1.setRawClasspath(rawClasspath, null);
+			createFolder("/unnamed/src/p1");
+			createFile("/unnamed/src/p1/X.java",
+					"package p1;\n" +
+							"public class X {\n"
+							+ "    java.awt.Image im = null;\n"
+							+ "}\n");
+
+			waitForManualRefresh();
+			waitForAutoBuild();
+			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+
+			assertMarkers("Unexpected markers", "Access restriction: The type 'Image' is not API (restriction on required library '"+ 
+																							jrtPath + "')", markers);
+		} finally {
+			deleteProject(p1);
 		}
 	}
 
