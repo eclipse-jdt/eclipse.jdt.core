@@ -6734,6 +6734,27 @@ public void testBug522469a() {
 		"The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" + 
 		"----------\n");
 }
+public void testBug522469b() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"class C<T> {}\n" + 
+			"public class X  {\n" + 
+			"    interface I<T> {\n" + 
+			"        void foo(C<? super Long> l);\n" + 
+			"    }\n" + 
+			"    public static void run() {\n" + 
+			"        I<String> i = (C<? super Number> l) -> {};\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	I<String> i = (C<? super Number> l) -> {};\n" +
+		"	               ^\n" + 
+		"Lambda expression's parameter l is expected to be of type C<? super Long>\n" +
+		"----------\n");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
