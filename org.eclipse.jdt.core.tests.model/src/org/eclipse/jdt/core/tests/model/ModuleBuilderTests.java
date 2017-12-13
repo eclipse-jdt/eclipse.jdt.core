@@ -57,7 +57,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-		 TESTS_NAMES = new String[] { "testBug528467" };
+		// TESTS_NAMES = new String[] { "testBug528467" };
 	}
 	private String sourceWorkspacePath = null;
 	protected ProblemRequestor problemRequestor;
