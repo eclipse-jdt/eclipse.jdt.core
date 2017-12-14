@@ -80,8 +80,11 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 				if (typeName == null) continue;
 				ReferenceBinding type = environment.getType(typeName);
 				if (type != null && type.isValidBinding()) {
-					set.add(_env.getFactory().newElement(type));
-					types.add(type);
+					Element newElement = _env.getFactory().newElement(type);
+					if (newElement.getKind() != ElementKind.PACKAGE) {
+						set.add(newElement);
+						types.add(type);
+					}
 				}
 			}
 		}
@@ -90,7 +93,9 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 			for (ReferenceBinding referenceBinding : knownTypes) {
 				if (referenceBinding != null && referenceBinding.isValidBinding() && referenceBinding.enclosingType() == null) {
 					if (!types.contains(referenceBinding)) {
-						set.add(_env.getFactory().newElement(referenceBinding));
+						Element newElement = _env.getFactory().newElement(referenceBinding);
+						if (newElement.getKind() != ElementKind.PACKAGE)
+							set.add(newElement);
 					}
 				}
 			}
