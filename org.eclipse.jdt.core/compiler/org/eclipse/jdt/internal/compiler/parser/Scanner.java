@@ -2727,7 +2727,7 @@ public final void pushLineSeparator() {
 		if ((this.linePtr >= 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;
 		int length = this.lineEnds.length;
 		if (++this.linePtr >=  length)
-			System.arraycopy(this.lineEnds, 0, this.lineEnds = new int[length + INCREMENT], 0, length);
+			System.arraycopy(this.lineEnds, 0, this.lineEnds = new int[2*length + INCREMENT], 0, length);
 		this.lineEnds[this.linePtr] = separatorPos;
 		// look-ahead for merged cr+lf
 		try {
@@ -2753,7 +2753,7 @@ public final void pushLineSeparator() {
 				if ((this.linePtr >= 0) && (this.lineEnds[this.linePtr] >= separatorPos)) return;
 				int length = this.lineEnds.length;
 				if (++this.linePtr >=  length)
-					System.arraycopy(this.lineEnds, 0, this.lineEnds = new int[length + INCREMENT], 0, length);
+					System.arraycopy(this.lineEnds, 0, this.lineEnds = new int[2*length + INCREMENT], 0, length);
 				this.lineEnds[this.linePtr] = separatorPos;
 			}
 			this.wasAcr = false;
