@@ -8861,4 +8861,22 @@ public void testBug508834_comment0() {
 		};
 		run.runConformTest();
 	}
+	public void testBug528970() throws Exception {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"import java.util.concurrent.atomic.*;\n" +
+				"public class X {\n" +
+				"	public static <T> List<T> returnNull(Class<? extends T> clazz) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main( String[] args )\n" + 
+				"	{\n" + 
+				"		List<AtomicReference<?>> l = returnNull(AtomicReference.class);\n" + 
+				"	}" +
+				"}\n"
+			});
+	}
 }

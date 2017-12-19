@@ -1405,7 +1405,7 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 }
 
 @Override
-public boolean isSubtypeOf(TypeBinding other) {
+public boolean isSubtypeOf(TypeBinding other, boolean simulatingBugJDK8026527) {
 	if (isSubTypeOfRTL(other))
 		return true;
 	// TODO: if this has wildcards, perform capture before the next call:
@@ -1438,13 +1438,13 @@ protected boolean isSubTypeOfRTL(TypeBinding other) {
 	if (other instanceof CaptureBinding) {
 		// for this one kind we must first unwrap the rhs:
 		TypeBinding lower = ((CaptureBinding) other).lowerBound;
-		return (lower != null && isSubtypeOf(lower));
+		return (lower != null && isSubtypeOf(lower, false));
 	}
 	if (other instanceof ReferenceBinding) {
 		TypeBinding[] intersecting = ((ReferenceBinding) other).getIntersectingTypes();
 		if (intersecting != null) {
 			for (int i = 0; i < intersecting.length; i++) {
-				if (!isSubtypeOf(intersecting[i]))
+				if (!isSubtypeOf(intersecting[i], false))
 					return false;
 			}
 			return true;
@@ -2236,9 +2236,9 @@ public static boolean isConsistentIntersection(TypeBinding[] intersectingTypes) 
 		// when invoked during type inference we only want to check inconsistency among real types:
 		if (current.isTypeVariable() || current.isWildcard() || !current.isProperType(true))
 			continue;
-		if (mostSpecific.isSubtypeOf(current))
+		if (mostSpecific.isSubtypeOf(current, false))
 			continue;
-		else if (current.isSubtypeOf(mostSpecific))
+		else if (current.isSubtypeOf(mostSpecific, false))
 			mostSpecific = current;
 		else
 			return false;
