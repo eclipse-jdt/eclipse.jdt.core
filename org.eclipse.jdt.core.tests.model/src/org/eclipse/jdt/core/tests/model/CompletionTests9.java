@@ -28,7 +28,7 @@ public class CompletionTests9 extends AbstractJavaModelCompletionTests {
 
 	static {
 //		TESTS_NUMBERS = new int[] { 19 };
-//		TESTS_NAMES = new String[] {"test486988_001"};
+//		TESTS_NAMES = new String[] {"testBug525203_001"};
 //		TESTS_NAMES = new String[] {"test0001"};
 }
 
@@ -992,4 +992,38 @@ public void test527873_002() throws Exception {
 		deleteProject(project2);
 	}
 }
+public void testBug525203_001() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+	try  {
+		project1.open(null);
+		IClasspathAttribute[] attributes = {};
+		addClasspathEntry(project1, JavaCore.newLibraryEntry(new Path("/Completion/test.second.jar"), null, null, null, attributes, false));
+		addClasspathEntry(project1, JavaCore.newLibraryEntry(new Path("/Completion/test.third.jar"), null, null, null, attributes, false));
+	    addClasspathEntry(project1, JavaCore.newLibraryEntry(new Path("/Completion/test.some.api.jar"), null, null, null, attributes, false));
+
+		createFolder("/Completion9_1/src/x");
+		String content =  "module my.mod { \n" +
+				"requires test.\n" +
+		"}\n";
+		String filePath = "/Completion9_1/src/module-info.java";
+		String completeBehind = "requires test.";
+		createFile(filePath, content);
+		int cursorLocation = content.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		waitUntilIndexesReady();
+
+		ICompilationUnit unit = getCompilationUnit("/Completion9_1/src/module-info.java");
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "[PROPOSAL]{test.second, test.second, null, null, 49}\n" +
+				"[PROPOSAL]{test.some.core.api, test.some.core.api, null, null, 49}\n" +
+				"[PROPOSAL]{test.third.from.manifest, test.third.from.manifest, null, null, 49}";
+		assertResults(expected,	requestor.getResults());
+
+	} finally {
+		deleteProject(project1);
+	}
+}
+
 }

@@ -22,7 +22,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -229,6 +228,7 @@ import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.BinaryTypeConverter;
 import org.eclipse.jdt.internal.core.INamingRequestor;
 import org.eclipse.jdt.internal.core.InternalNamingConventions;
+import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaElementRequestor;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.ModuleSourcePathManager;
@@ -10713,7 +10713,25 @@ public final class CompletionEngine
 		}
 	}
 
+	private HashSet<String> getAllJarModuleNames(IJavaProject javaProject2) {
+		HashSet<String> modules = new HashSet<>();
+		try {
+			for (IPackageFragmentRoot root : javaProject2.getAllPackageFragmentRoots()) {
+				if (root instanceof JarPackageFragmentRoot) {
+					IModuleDescription desc = root.getModuleDescription();
+					desc = desc == null ? ((JarPackageFragmentRoot) root).getAutomaticModuleDescription() : desc;
+					String name = desc != null ? desc.getElementName() : null;
+					if (name != null && name.length() > 0)
+						modules.add(name);
+				}
+			}
+		} catch (JavaModelException e) {
+			// do nothing
+		}
+		return modules;
+	}
 	private void findTargettedModules(char[] prefix, HashSet<String> skipSet) {
+		HashSet<String> probableModules = new HashSet<>();
 		ModuleSourcePathManager mManager = JavaModelManager.getModulePathManager();
 		JavaElementRequestor javaElementRequestor = new JavaElementRequestor();
 		try {
@@ -10721,12 +10739,20 @@ public final class CompletionEngine
 			IModuleDescription[] modules = javaElementRequestor.getModules();
 			for (IModuleDescription module : modules) {
 				String name = module.getElementName();
-				if (name == null || name.equals("") || skipSet.contains(name)) //$NON-NLS-1$
+				if (name == null || name.equals("")) //$NON-NLS-1$
 					continue;
-				this.acceptModule(name.toCharArray());
+				probableModules.add(name);
 			}
 		} catch (JavaModelException e) {
 			// TODO ignore for now
+		}
+		probableModules.addAll(getAllJarModuleNames(this.javaProject));
+		if (prefix != CharOperation.ALL_PREFIX && prefix != null && prefix.length > 0) {
+			probableModules.removeIf(e -> isFailedMatch(prefix, e.toCharArray()));
+		}
+		for (String s : probableModules) {
+			if (!skipSet.contains(s))
+				this.acceptModule(s.toCharArray());
 		}
 	}
 	private void findTargettedModules(CompletionOnModuleReference moduleReference, HashSet<String> skipSet) {
