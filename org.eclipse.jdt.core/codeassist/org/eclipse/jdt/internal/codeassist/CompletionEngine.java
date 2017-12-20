@@ -6754,7 +6754,7 @@ public final class CompletionEngine
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=195346
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=343342
 			if (this.assistNodeIsInsideCase) {
-				if (field.isFinal() && field.isStatic()) {
+				if (field.isFinal()) {
 					if (this.assistNodeIsString){
 						if (field.type == null || field.type.id != TypeIds.T_JavaLangString)
 							continue next;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25767,5 +25767,28 @@ public void testBug508951() throws JavaModelException {
 	assertResults(
 		"XXABC[TYPE_REF]{XXABC, , LXXABC;, null, null, " + (R_DEFAULT + 22) + "}",
 		requestor.getResults());
+}
+public void testBug528938() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/CompletionAfterCase1.java",
+		"public class CompletionAfterCase1 {\n" +
+		"	final int zzz = 5;\n" +
+		"	void foo(){\n" +
+		"		switch(1) {\n" +
+		"			case zz\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "zz";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	assertResults(
+			"zzz[FIELD_REF]{zzz, LCompletionAfterCase1;, I, zzz, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}",
+			requestor.getResults());
 }
 }
