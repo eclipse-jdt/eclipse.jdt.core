@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3356,8 +3356,6 @@ public CompilationUnit[] getCompilationUnits() {
 	if (Util.EMPTY_STRING.equals(defaultEncoding))
 		defaultEncoding = null;
 	
-	Map<String,CompilationUnit> pathToModCU = new HashMap<>();
-
 	for (int round = 0; round < 2; round++) {
 		for (int i = 0; i < fileCount; i++) {
 			char[] charName = this.filenames[i].toCharArray();
@@ -3382,19 +3380,6 @@ public CompilationUnit[] getCompilationUnits() {
 				units[i] = new CompilationUnit(null, fileName, encoding, this.destinationPaths[i],
 						shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()), 
 						this.modNames[i]);
-				if (isModuleInfo) {
-					int lastSlash = CharOperation.lastIndexOf(File.separatorChar, units[i].fileName);
-					if (lastSlash != -1) {
-						pathToModCU.put(String.valueOf(CharOperation.subarray(units[i].fileName, 0, lastSlash)), units[i]);
-					}
-				} else {
-					for (Entry<String, CompilationUnit> entry : pathToModCU.entrySet()) {
-						if (fileName.startsWith(entry.getKey())) { // associate CUs to module by common prefix
-							units[i].setModule(entry.getValue());
-							break;
-						}
-					}
-				}
 			}
 		}
 	}
@@ -3576,12 +3561,18 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 							}
 						} catch (IOException e) {
 							// Files doesn't exist and perhaps doesn't belong in a module, move on to other files
+							// Use empty module name to distinguish from missing module case
+							this.modNames[j] = ""; //$NON-NLS-1$
 						}
 					}
 				}
 			}
 		}
-		
+		for(int j = 0; j < this.filenames.length; j++) {
+			if (this.modNames[j] == null) {
+				throw new IllegalArgumentException(this.bind("configure.notOnModuleSourcePath", new String[] {this.filenames[j]})); //$NON-NLS-1$
+			}
+		}
 	}
 	return result;
 }

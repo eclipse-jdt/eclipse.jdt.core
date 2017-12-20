@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 IBM Corporation and others.
+ * Copyright (c) 2007, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.annotation.processing.Processor;
 import javax.lang.model.SourceVersion;
@@ -126,7 +125,6 @@ public class EclipseCompilerImpl extends Main {
 	public CompilationUnit[] getCompilationUnits() {
 		// This method is largely a copy of Main#getCompilationUnits()
 		if (this.compilationUnits == null) return EclipseCompilerImpl.NO_UNITS;
-		Map<String,CompilationUnit> pathToModCU = new HashMap<>();
 		HashtableOfObject knownFileNames = new HashtableOfObject();
 		ArrayList<CompilationUnit> units = new ArrayList<>();
 		for (int round = 0; round < 2; round++) {
@@ -160,21 +158,6 @@ public class EclipseCompilerImpl extends Main {
 						};
 						units.add(cu);
 						this.javaFileObjectMap.put(cu, javaFileObject);
-						if (isModuleInfo) {
-							int lastSlash = CharOperation.lastIndexOf(File.separatorChar, cu.fileName);
-							if (lastSlash != -1) {
-								pathToModCU.put(String.valueOf(CharOperation.subarray(cu.fileName, 0, lastSlash)), cu);
-							}
-						} else {
-							for (Entry<String, CompilationUnit> entry : pathToModCU.entrySet()) {
-								Path modPath = Paths.get(entry.getKey());
-								Path cuPath = Paths.get(name);
-								while (cuPath != null && cuPath.startsWith(modPath)) {
-									cu.setModule(entry.getValue());
-									break;
-								}
-							}
-						}
 				}
 				i++;
 			}

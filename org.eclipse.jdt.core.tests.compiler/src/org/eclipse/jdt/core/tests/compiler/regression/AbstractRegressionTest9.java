@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 GK Software AG, and others.
+ * Copyright (c) 2017, 2018 GK Software AG, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,19 +62,15 @@ public class AbstractRegressionTest9 extends AbstractRegressionTest {
 		}
 		// record module information in CUs:
 		CompilationUnit[] compilationUnits = Util.compilationUnits(testFiles);
-		CompilationUnit modCU = null;
 		for (int i = 0; i < compilationUnits.length; i++) {
 			char[] fileName = compilationUnits[i].getFileName();
 			String fileNameString = String.valueOf(compilationUnits[i].getFileName());
 			if (CharOperation.endsWith(fileName, TypeConstants.MODULE_INFO_FILE_NAME)) {
-				modCU = compilationUnits[i];
 				compilationUnits[i].module = moduleFiles.get(fileNameString);
 			} else {
 				String modName = this.file2module.get(fileNameString.replace(File.separator, "/"));
 				if (modName != null) {
 					compilationUnits[i].module = modName.toCharArray();
-					if (modCU != null)
-						compilationUnits[i].setModule(modCU);
 				}
 			}
 		}

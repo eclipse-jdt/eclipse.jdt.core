@@ -103,11 +103,12 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 			getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 
 			markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			Arrays.sort(markers, (a,b) -> a.getAttribute(IMarker.CHAR_START, 0) - b.getAttribute(IMarker.CHAR_START, 0));
 			assertMarkers("Unexpected markers",
-					"java.desktop cannot be resolved to a module\n" + 
-					"java.datatransfer cannot be resolved to a module\n" + 
 					"java.awt cannot be resolved to a type\n" + 
-					"java.awt cannot be resolved to a type",
+					"java.awt cannot be resolved to a type\n" +
+					"java.desktop cannot be resolved to a module\n" + 
+					"java.datatransfer cannot be resolved to a module",
 					markers);
 		} finally {
 			this.deleteProject("org.astro");
