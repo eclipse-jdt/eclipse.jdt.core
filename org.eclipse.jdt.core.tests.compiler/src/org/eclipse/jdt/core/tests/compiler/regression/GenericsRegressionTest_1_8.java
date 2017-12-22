@@ -8793,4 +8793,43 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	// no change
+	public void testBug521982_comment1() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	<T> T test(T a, Integer x) { return a; }\n" +
+				"	<T> T test(T a, int x) { return a; }\n" +
+				"	void doit1(Number nIn) {\n" +
+				"		// in assignment context, primitive or boxed target type does not influence overloading\n" +
+				"		Number n1 = test(nIn, 3);\n" +
+				"		int n2 = test(Integer.valueOf(2), Integer.valueOf(3)); // not ambiguous because one inferences succeeds in strict mode\n" +
+				"	}\n" +
+				"	void fun(int i) {}\n" +
+				"	void doit2() {\n" +
+				"		// unboxing allowed if outer invocation is unambiguous\n" +
+				"		fun(test(Integer.valueOf(2), 3));\n" +
+				"	}\n" +
+				"	<T> void fun2(int i, T t) {} // not picked, requires loose mode\n" +
+				"	<T> void fun2(Integer i, T t) {}\n" +
+				"	void doit3() {\n" +
+				"		// primitive arg puts inference to loose mode, then losing during overload resolution\n" +
+				"		fun2(test(Integer.valueOf(2), 3), this);\n" +
+				"	}\n" +
+				"	<T extends Number> void fun3(int i, int j) {} // requires loose mode for param 1\n" +
+				"	<T extends Number> void fun3(Integer i, T t) {} // requires loose mode for param 2\n" +
+				"	void doit4() {\n" +
+				"		// ambiguous because both candidates require loose mode\n" +
+				"		fun3(test(Integer.valueOf(2), 3), 4);\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 24)\n" + 
+			"	fun3(test(Integer.valueOf(2), 3), 4);\n" + 
+			"	^^^^\n" + 
+			"The method fun3(int, int) is ambiguous for the type X\n" + 
+			"----------\n");
+	}
 }
