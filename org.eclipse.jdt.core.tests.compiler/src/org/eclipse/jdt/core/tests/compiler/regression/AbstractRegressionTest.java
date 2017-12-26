@@ -223,9 +223,20 @@ static class JavacCompiler {
 			if ("1.8.0_60".equals(rawVersion)) {
 				return 1500;
 			}
+			if ("1.8.0_131".equals(rawVersion)) {
+				return 1700;
+			}
+			if ("1.8.0_152".equals(rawVersion)) {
+				return 1900;
+			}
 		}
 		if (version == JavaCore.VERSION_9) {
-			return 0000; // We are still in EA
+			if ("9".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("9.0.1".equals(rawVersion)) {
+				return 0100;
+			}
 		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);
 	}
