@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.Hashtable;
 
 import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -137,7 +138,7 @@ protected abstract boolean close(LRUCacheEntry<K, V> entry);
 	 *
 	 * @return Hashtable of entries
 	 */
-	public java.util.Hashtable<K, LRUCacheEntry<K, V>> getEntryTable() {
+	public Hashtable<K, LRUCacheEntry<K, V>> getEntryTable() {
 		return this.entryTable;
 	}
 /**

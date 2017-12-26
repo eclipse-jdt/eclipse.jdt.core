@@ -1283,8 +1283,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public Hashtable options;
 		public Hashtable secondaryTypes;
 		// NB: PackageFragment#getAttachedJavadoc uses this map differently
-		// and stores String data as values.
-		public LRUCache/*<IJavaElement, JavadocContents>*/ javadocCache;
+		// and stores String data, not JavadocContents as values
+		public LRUCache<IJavaElement, Object> javadocCache;
 
 		public PerProjectInfo(IProject project) {
 

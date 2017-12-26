@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.util.LRUCache.LRUCacheEntry;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 
 import junit.framework.Test;
@@ -29,7 +30,6 @@ import junit.framework.Test;
 /**
  * Tests internal Java element cache and buffer cache.
  */
-@SuppressWarnings("rawtypes")
 public class OverflowingCacheTests extends ModifyingResourceTests {
 
 	/**
@@ -51,14 +51,14 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		/**
 		 * The cache this buffer is stored in
 		 */
-		public OverflowingLRUCache cache;
+		public BufferCache<IOpenable> cache;
 
 		/**
 		 * This buffers owner (this buffer's key in this buffer's cache)
 		 */
 		public IOpenable owner;
 
-		public OverflowingTestBuffer(boolean hasUnsavedChanges, OverflowingLRUCache cache) {
+		public OverflowingTestBuffer(boolean hasUnsavedChanges, BufferCache<IOpenable> cache) {
 			super();
 			this.hasUnsavedChanges= hasUnsavedChanges;
 			this.cache= cache;
@@ -180,13 +180,13 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		/**
 		 * The cache this element is stored in
 		 */
-		public OverflowingLRUCache cache;
+		public ElementCache<OverflowingTestOpenable> cache;
 
 		/**
 		 * Constructs a new openable, with unsaved changes as specified,
 		 * that lives in the given cache, and opens it.
 		 */
-		public OverflowingTestOpenable(OverflowingTestBuffer buffer, OverflowingLRUCache cache) {
+		public OverflowingTestOpenable(OverflowingTestBuffer buffer, ElementCache<OverflowingTestOpenable> cache) {
 			super(null);
 			this.buffer = buffer;
 			buffer.owner = this;
@@ -333,7 +333,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int spaceLimit = 10, actualSpaceLimit;
 		int overflow = 0, actualOverflow;
 		int current = 0, actualCurrent;
-		OverflowingLRUCache cache = new BufferCache(spaceLimit);
+		BufferCache<?> cache = new BufferCache<>(spaceLimit);
 
 		actualSpaceLimit = cache.getSpaceLimit();
 		assertEquals("space limit incorrect ", spaceLimit, actualSpaceLimit);
@@ -354,7 +354,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int overflow = 0, actualOverflow;
 		int current = 0, actualCurrent;
 
-		OverflowingLRUCache cache = new BufferCache(spaceLimit);
+		BufferCache<IOpenable> cache = new BufferCache<>(spaceLimit);
 		OverflowingTestBuffer[] buffers= new OverflowingTestBuffer[spaceLimit];
 		OverflowingTestOpenable[] openables= new OverflowingTestOpenable[spaceLimit];
 		for(int i = 0; i < spaceLimit; i++) {
@@ -394,7 +394,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int actualCurrent, predictedCurrent = 334;
 		int entryCount = 1000;
 
-		OverflowingLRUCache cache = new BufferCache(spaceLimit);
+		BufferCache<IOpenable> cache = new BufferCache<>(spaceLimit);
 		OverflowingTestOpenable[] openables = new OverflowingTestOpenable[entryCount];
 		OverflowingTestBuffer[] buffers= new OverflowingTestBuffer[entryCount];
 		for(int i = 0; i < entryCount; i++) {
@@ -437,7 +437,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int spaceLimit = 500;
 		int entryCount = 1000;
 
-		OverflowingLRUCache cache = new BufferCache(spaceLimit);
+		BufferCache<IOpenable> cache = new BufferCache<>(spaceLimit);
 		OverflowingTestOpenable[] openables = new OverflowingTestOpenable[entryCount];
 		OverflowingTestBuffer[] buffers= new OverflowingTestBuffer[entryCount];
 		for (int i = 0; i < entryCount; i++) {
@@ -447,7 +447,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 			cache.put(openables[i], buffers[i]);
 		}
 
-		Hashtable table = cache.getEntryTable();
+		Hashtable<IOpenable, LRUCacheEntry<IOpenable, IBuffer>> table = cache.getEntryTable();
 		assertEquals("Hashtable wrong size", 900, table.size());
 
 		int actualCurrent = cache.getCurrentSpace();
@@ -487,9 +487,9 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 	 * <p>60 compilation units are opened to fill the cache.
 	 */
 	public void testBufferRecycling() throws CoreException {
-		Enumeration openBuffers= BufferManager.getDefaultBufferManager().getOpenBuffers();
+		Enumeration<IBuffer> openBuffers= BufferManager.getDefaultBufferManager().getOpenBuffers();
 		while (openBuffers.hasMoreElements()) {
-			IBuffer buf= (IBuffer)openBuffers.nextElement();
+			IBuffer buf= openBuffers.nextElement();
 			buf.close();
 		}
 		openBuffers= BufferManager.getDefaultBufferManager().getOpenBuffers();
@@ -556,7 +556,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int spaceLimit = 10, actualSpaceLimit;
 		int overflow = 0, actualOverflow;
 		int current = 0, actualCurrent;
-		OverflowingLRUCache cache = new ElementCache(spaceLimit);
+		ElementCache<?> cache = new ElementCache<>(spaceLimit);
 
 		actualSpaceLimit = cache.getSpaceLimit();
 		assertEquals("space limit incorrect ", spaceLimit, actualSpaceLimit);
@@ -577,11 +577,11 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int overflow = 0, actualOverflow;
 		int current = 0, actualCurrent;
 
-		OverflowingLRUCache cache = new ElementCache(spaceLimit);
+		ElementCache<OverflowingTestOpenable> cache = new ElementCache<>(spaceLimit);
 		OverflowingTestOpenable[] openables = new OverflowingTestOpenable[spaceLimit];
 		for(int i = 0; i < spaceLimit; i++) {
 			openables[i] = new OverflowingTestOpenable(new OverflowingTestBuffer(false, null), cache);
-			cache.put(openables[i], Integer.toString(i));
+			cache.put(openables[i], new MockInfo(i));
 			current++;
 		}
 
@@ -595,8 +595,8 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		assertEquals("overflow space incorrect ", overflow, actualOverflow);
 
 		for(int i = spaceLimit - 1; i >= 0; i--) {
-			Object value = cache.get(openables[i]);
-			assertEquals("wrong value (" + i + ")", Integer.toString(i), value);
+			JavaElementInfo value = cache.get(openables[i]);
+			assertEquals("wrong value (" + i + ")", new MockInfo(i), value);
 		}
 	}
 
@@ -615,11 +615,11 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int actualCurrent, predictedCurrent = 334;
 		int entryCount = 1000;
 
-		OverflowingLRUCache cache = new ElementCache(spaceLimit);
+		ElementCache<OverflowingTestOpenable> cache = new ElementCache<>(spaceLimit);
 		OverflowingTestOpenable[] openables = new OverflowingTestOpenable[entryCount];
 		for(int i = 0; i < entryCount; i++) {
 			openables[i] = new OverflowingTestOpenable(new OverflowingTestBuffer(false, null), cache);
-			cache.put(openables[i], Integer.toString(i));
+			cache.put(openables[i], new MockInfo(i));
 		}
 
 		actualSpaceLimit = cache.getSpaceLimit();
@@ -632,8 +632,8 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		assertEquals("overflow space incorrect ", overflow, actualOverflow);
 
 		for(int i = entryCount - 1; i >= entryCount - predictedCurrent; i--) {
-			Object value = cache.get(openables[i]);
-			assertEquals("wrong value (" + i + ")", Integer.toString(i), value);
+			JavaElementInfo value = cache.get(openables[i]);
+			assertEquals("wrong value (" + i + ")", new MockInfo(i), value);
 		}
 
 		// ensure first 500 entries swaped out
@@ -646,7 +646,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 	/**
 	 * Creates an empty ElementCache of size 500, inserts 1000 elements.
 	 * Nine of every ten entries cannot be removed - there are 1000 entries,
-	 * leaving 900 entries which can't be closed. Thetable size should equal
+	 * leaving 900 entries which can't be closed. The table size should equal
 	 * 900 when done with an overflow of 400.
 	 *
 	 * @see #hasUnsavedChanges(int)
@@ -655,14 +655,14 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		int spaceLimit = 500;
 		int entryCount = 1000;
 
-		OverflowingLRUCache cache = new ElementCache(spaceLimit);
+		ElementCache<OverflowingTestOpenable> cache = new ElementCache<>(spaceLimit);
 		OverflowingTestOpenable[] openables = new OverflowingTestOpenable[entryCount];
 		for (int i = 0; i < entryCount; i++) {
 			openables[i] = new OverflowingTestOpenable(new OverflowingTestBuffer(hasUnsavedChanges(i), null), cache);
-			cache.put(openables[i], Integer.toString(i));
+			cache.put(openables[i], new MockInfo(i));
 		}
 
-		Hashtable table = cache.getEntryTable();
+		Hashtable<OverflowingTestOpenable, LRUCacheEntry<OverflowingTestOpenable, JavaElementInfo>> table = cache.getEntryTable();
 		assertEquals("Hashtable wrong size", 900, table.size());
 		int actualCurrent = cache.getCurrentSpace();
 		assertEquals("current space incorrect", 900, actualCurrent);
@@ -672,7 +672,7 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		for (int i = entryCount - 1; i >= 0; i--) {
 			if (hasUnsavedChanges(i)) {
 				Object value = cache.get(openables[i]);
-				assertEquals("wrong value (" + i + ")", Integer.toString(i), value);
+				assertEquals("wrong value (" + i + ")", new MockInfo(i), value);
 			}
 		}
 
@@ -681,12 +681,35 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 			openables[i].save(null, false);
 		}
 		// now add another entry to remove saved openables.
-		cache.put(Integer.toString(1001), new OverflowingTestOpenable(new OverflowingTestBuffer(false, null), cache));
+		cache.put(new OverflowingTestOpenable(new OverflowingTestBuffer(false, null), cache), new MockInfo(1001));
 		// now the size should be back to 500, with 0 overflow
 		actualCurrent = cache.getCurrentSpace();
 		assertEquals("current space incorrect (after flush)", 168, actualCurrent);
 		actualOverflow = cache.getOverflow();
 		assertEquals("overflow space incorrect (after flush)", 0, actualOverflow);
+	}
+
+	static class MockInfo extends JavaElementInfo {
+		private final int index;
+
+		public MockInfo(int i) {
+			this.index = i;
+		}
+
+		@Override
+		public int hashCode() {
+			return this.index;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return obj instanceof MockInfo && this.index == ((MockInfo)obj).index;
+		}
+
+		@Override
+		public String toString() {
+			return Integer.toString(this.index);
+		}
 	}
 
 }

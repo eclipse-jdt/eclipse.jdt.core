@@ -43,7 +43,7 @@ public class LRUCache<K, V> implements Cloneable {
 	 *
 	 * @see LRUCache
 	 */
-	protected static class LRUCacheEntry<K, V> {
+	public static class LRUCacheEntry<K, V> {
 
 		/**
 		 * Hash table key
