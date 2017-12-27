@@ -4069,6 +4069,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 		
 		// Without annotations.
 		runConformTestWithLibs(
+				false /* don't flush output dir */,
 				new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -5110,6 +5111,7 @@ public void testDefault03_bin() {
 		options,
 		"");
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"Y.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -5380,6 +5382,7 @@ public void testBug432977() {
 		getCompilerOptions(),
 		"");
 	runConformTestWithLibs(
+		false /* flush */,
 		new String[] {
 			"Fu.java",
 			"public class Fu {\n" + 
@@ -7465,6 +7468,7 @@ public void testBug453475() {
 			"}\n"
 		}, null, "");
 	runConformTestWithLibs(
+			false /* don't flush */,
 			new String[] {
 			"Test.java",
 			"import java.util.*;\n" + 
@@ -7495,6 +7499,7 @@ public void testBug453475a() {
 			"}\n"
 		}, null, "");
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"NamespaceStorageImpl.java",
 			"import java.util.*;\n" +
@@ -7529,6 +7534,7 @@ public void testBug453475b() {
 			"}\n"
 		}, null, "");
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"Y.java",
 			"import java.util.*;\n" +
@@ -8268,6 +8274,7 @@ public void testBug467032() {
 				"}\n"
 			}, getCompilerOptions(), "");
 	runConformTestWithLibs(
+			false /* don't flush */,
 			new String[] {
 				"Class2.java",
 				"class Class2 {;\n"+
@@ -8431,6 +8438,7 @@ public void testBug447661() {
 		getCompilerOptions(),
 		"");
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"One.java",
 			"import java.util.*;\n" +
@@ -8503,6 +8511,7 @@ public void testBug436091() {
 		"");
 	// re-compile only one of the above:
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"p/Program.java",
 			"package p;\n" +
@@ -8780,6 +8789,7 @@ public void testBug472663() {
 		"");
 	// and now consume Callee.class:
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"test/Caller.java",
 			"package test;\n" + 
@@ -9184,6 +9194,7 @@ public void testBug473713() {
 			"}\n",
 		}, getCompilerOptions(), "");
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"b/B.java",
 			"package b;\n" +
@@ -9392,6 +9403,7 @@ public void testBug484108() {
 		getCompilerOptions(),
 		"");
 	runConformTestWithLibs(
+		false /* don't flush output dir */,
 		new String[] {
 			"test/TestImpl.java",
 			"package test;\n" + 
@@ -10626,7 +10638,9 @@ public void testBug485027() {
 			"}\n"
 	}, getCompilerOptions(), "");
 			
-	runConformTestWithLibs(new String[] {
+	runConformTestWithLibs(
+		false /* don't flush */,
+		new String[] {
 			"Derived.java",
 			"import java.io.Serializable;\n" +
 
@@ -10660,44 +10674,45 @@ public void testBug485565() {
 			""
 		);
 		runConformTestWithLibs(
+			false /* don't flush */,
 			new String[] {
-			"test1/ClassWithLambda.java",
-			"package test1;\n" +
-			"\n" +
-			"import test2.ClassWithRegistry;\n" +
-			"\n" +
-			"// must be compiled before ZClassWithBug\n" +
-			"public class ClassWithLambda {\n" +
-			"	interface Lambda {\n" +
-			"		void f();\n" +
-			"	}\n" +
-			"\n" +
-			"	public static void invoke(Lambda lambda) {\n" +
-			"		lambda.f();\n" +
-			"	}\n" +
-			"\n" +
-			"	public void f() {\n" +
-			"		new ClassWithRegistry(); // must be accessed as class file\n" +
-			"		invoke(() -> java.rmi.registry.Registry.class.hashCode());\n" +
-			"	}\n" +
-			"}\n",
-			"test1/ZClassWithBug.java",
-			"package test1;\n" +
-			"\n" +
-			"import java.rmi.registry.Registry;\n" +
-			"\n" +
-			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
-			"import org.eclipse.jdt.annotation.Nullable;\n" +
-			"\n" +
-			"@NonNullByDefault\n" +
-			"public abstract class ZClassWithBug {\n" +
-			"\n" +
-			"	@Nullable\n" +
-			"	public Registry rmiregistry;\n" +
-			"}\n"
-		}, 
-		getCompilerOptions(),
-		""
+				"test1/ClassWithLambda.java",
+				"package test1;\n" +
+				"\n" +
+				"import test2.ClassWithRegistry;\n" +
+				"\n" +
+				"// must be compiled before ZClassWithBug\n" +
+				"public class ClassWithLambda {\n" +
+				"	interface Lambda {\n" +
+				"		void f();\n" +
+				"	}\n" +
+				"\n" +
+				"	public static void invoke(Lambda lambda) {\n" +
+				"		lambda.f();\n" +
+				"	}\n" +
+				"\n" +
+				"	public void f() {\n" +
+				"		new ClassWithRegistry(); // must be accessed as class file\n" +
+				"		invoke(() -> java.rmi.registry.Registry.class.hashCode());\n" +
+				"	}\n" +
+				"}\n",
+				"test1/ZClassWithBug.java",
+				"package test1;\n" +
+				"\n" +
+				"import java.rmi.registry.Registry;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"@NonNullByDefault\n" +
+				"public abstract class ZClassWithBug {\n" +
+				"\n" +
+				"	@Nullable\n" +
+				"	public Registry rmiregistry;\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			""
 	);
 }
 public void testBug485814() {
@@ -10776,6 +10791,7 @@ public void testBug485581() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"test/FVEHandler.java",
 			"package test;\n" +
@@ -10812,6 +10828,7 @@ public void testBug482752_lambda() {
 		""
 	);
 	runConformTestWithLibs(
+			false /* don't flush */,
 			new String[] {
 				"test/Foo.java",
 				"package test;\n" +
@@ -10853,6 +10870,7 @@ public void testBug482752_methodref() {
 		""
 	);
 	runConformTestWithLibs(
+			false /* don't flush */,
 			new String[] {
 				"test/Foo.java",
 				"package test;\n" +
@@ -11471,6 +11489,7 @@ public void testBug461268nnbd() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"test/Test.java",
 			"package test;\n" +
@@ -12194,6 +12213,7 @@ public void testBug489978() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"test/Usage.java",
 			"package test;\n" +
@@ -12279,6 +12299,7 @@ public void testBug489674() {
 		},
 		options);
 	runConformTestWithLibs(
+			false /* don't flush */,
 			new String[] {
 				"with_other_nullable/P1.java",
 				"package with_other_nullable;\n" +
@@ -12314,6 +12335,7 @@ public void testBug489674() {
 			""
 	);
 	runNegativeTestWithLibs(
+			false /* don't flush */,
 			new String[] {
 				"test/Test4.java",
 				"package test;\n" +
@@ -12347,7 +12369,8 @@ public void testBug489674() {
 			"	P2.f(null);\n" + 
 			"	     ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-			"----------\n"
+			"----------\n",
+			false
 		);
 }
 public void testBug492327() {
@@ -12367,6 +12390,7 @@ public void testBug492327() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"Path.java",
 			"public interface Path extends Watchable {\n" +
@@ -12452,6 +12476,7 @@ public void testBug496591() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"test1/GeneratedMessage.java",
 			"package test1;\n" +
@@ -12620,6 +12645,7 @@ public void testBug492322() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"test2/Derived.java",
 			"package test2;\n" +
@@ -12659,6 +12685,7 @@ public void testBug492322field() {
 		""
 	);
 	runConformTestWithLibs(
+			false /* don't flush */,
 			new String[] {
 				"test2/Derived.java",
 				"package test2;\n" +
@@ -12709,6 +12736,7 @@ public void testBug492322deep() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"test2/Derived.java",
 			"package test2;\n" +
@@ -12759,6 +12787,7 @@ public void testBug492322withGenericBase() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"test2/Derived.java",
 			"package test2;\n" +
@@ -13035,6 +13064,7 @@ public void testBug502112() {
 		},
 		getCompilerOptions());
 	runConformTestWithLibs(
+			false /* don't flush */,
 			new String[] {
 				"util/Optional.java",
 				"package util;\n" +
@@ -13109,6 +13139,7 @@ public void testBug502112b() {
 		},
 		getCompilerOptions());
 	runConformTestWithLibs(
+			false /* don't flush */,
 			new String[] {
 				"util/X.java",
 				"package util;\n" +
@@ -13687,6 +13718,7 @@ public void testBug484926BTB() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"test/Test.java",
 			"package test;\n" +
@@ -13734,6 +13766,7 @@ public void testBug500885() {
 	options.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES, "annot.NonNullByDefault");
 	options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_SECONDARY_NAMES, "annot.NonNull");
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"test2/package-info.java",
 			"@org.eclipse.jdt.annotation.NonNullByDefault package test2;\n",
@@ -13922,6 +13955,7 @@ public void testBug507840() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"nnbd_on_typevar/Usage.java",
 			"package nnbd_on_typevar;\n" +
@@ -13953,6 +13987,7 @@ public void testBug508497() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"B2.java",
 			"class B2 {\n" +
@@ -14007,6 +14042,7 @@ public void testBug509025() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"AnnoLoop.java",
 			"import org.eclipse.jdt.annotation.NonNull;\n" +
@@ -15247,6 +15283,7 @@ public void testBug514091() {
 		""
 	);
 	runConformTestWithLibs(
+		false /* don't flush */,
 		new String[] {
 			"test1/LambdaNN.java",
 			"package test1;\n" +
