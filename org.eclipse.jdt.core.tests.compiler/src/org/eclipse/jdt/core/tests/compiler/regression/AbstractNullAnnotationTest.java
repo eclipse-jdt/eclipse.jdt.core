@@ -194,13 +194,18 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 	void runWarningTestWithLibs(boolean shouldFlushOutputDirectory, String[] testFiles,
 				Map customOptions, String expectedCompilerLog)
 	{
+		runWarningTestWithLibs(shouldFlushOutputDirectory, testFiles, customOptions, expectedCompilerLog, "");
+	}
+	void runWarningTestWithLibs(boolean shouldFlushOutputDirectory, String[] testFiles,
+				Map customOptions, String expectedCompilerLog, String expectedOutput)
+	{
 		runConformTest(
 				shouldFlushOutputDirectory,
 				testFiles,
 				this.LIBS,
 				customOptions,
 				expectedCompilerLog,
-				"",/* expected output */
+				expectedOutput,
 				"",/* expected error */
 				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}

@@ -398,7 +398,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	public void testMissingAnnotationTypes_01() {
-		runNegativeTestWithLibs(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -416,7 +416,9 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	@Missing1 X.@Missing2 U fU;\n" + 
 			"	             ^^^^^^^^\n" + 
 			"Missing2 cannot be resolved to a type\n" + 
-			"----------\n");
+			"----------\n",
+			this.LIBS,
+			true/*shouldFlush*/);
 	}
 
 	// bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
@@ -889,7 +891,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// https://bugs.eclipse.org/403457 - [1.8][compiler] NPE in WildcardBinding.signature
 	public void testBug403457_1() {
-		runNegativeTestWithLibs(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"import java.lang.annotation.ElementType;\n" + 
@@ -916,13 +918,15 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	void goo(Map<@Marker ? extends @Marker Object, @Marker ? super @Marker String> m){}\n" + 
 			"	         ^^^\n" + 
 			"Map cannot be resolved to a type\n" + 
-			"----------\n");
+			"----------\n",
+			this.LIBS,
+			true/*flush*/);
 	}
 
 	// https://bugs.eclipse.org/403457 - [1.8][compiler] NPE in WildcardBinding.signature
 	// variant with null annotations
 	public void testBug403457_2() {
-		runNegativeTestWithLibs(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"// import java.util.Map;\n" +
@@ -943,7 +947,9 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	void goo(Map<@Nullable ? extends @Nullable Object, @Nullable ? super @Nullable String> m){}\n" + 
 			"	         ^^^\n" + 
 			"Map cannot be resolved to a type\n" + 
-			"----------\n");
+			"----------\n",
+			this.LIBS,
+			true/*flush*/);
 	}
 
 	// storing and decoding null-type-annotations to/from classfile: RETURN_TYPE
@@ -1664,7 +1670,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	public void testConditional1() {
-		runNegativeTestWithLibs(
+		runWarningTestWithLibs(
+			true/*flush*/,
 			new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.*;\n"
@@ -1681,6 +1688,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				+ "	}\n"
 				+ "}\n"
 			},
+			getCompilerOptions(),
 			"----------\n" + 
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	return f == 0 ? good : dubious;\n" + 
@@ -1695,7 +1703,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	public void testConditional2() {
-		runNegativeTestWithLibs(
+		runWarningTestWithLibs(
+			true/*flush*/,
 			new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.*;\n"
@@ -1712,6 +1721,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				+ "	}\n"
 				+ "}\n"
 			},
+			getCompilerOptions(),
 			"----------\n" + 
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	return f == 0 ? good : dubious;\n" + 
@@ -1727,7 +1737,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// conditional in argument position
 	public void testConditional3() {
-		runNegativeTestWithLibs(
+		runWarningTestWithLibs(
+			true/*flush*/,
 			new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.*;\n"
@@ -1741,6 +1752,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	void consume(List<@NonNull String> strings) {}\n"
 				+ "}\n"
 			},
+			getCompilerOptions(),
 			"----------\n" + 
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	consume(f == 0 ? good : dubious);\n" + 
@@ -1878,7 +1890,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// types without null annotations are converted (unsafe) to types with detail annotations (type parameter)
 	public void testCompatibility3() {
-		runNegativeTestWithLibs(
+		runWarningTestWithLibs(
+			true/*flush*/,
 			new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.*;\n"
@@ -1902,6 +1915,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				+ "	void acceptNoNulls(List<@NonNull String> noNulls) {}\n"
 				+ "}\n"
 			},
+			getCompilerOptions(),
 			"----------\n" + 
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	return dubious;\n" + 
@@ -1937,7 +1951,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// types without null annotations are converted (unsafe) to types with detail annotations (array content)
 	public void testCompatibility3a() {
-		runNegativeTestWithLibs(
+		runWarningTestWithLibs(
+			true/*flush*/,
 			new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.*;\n"
@@ -1960,6 +1975,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				+ "	void acceptNoNulls(@NonNull String[] noNulls) {}\n"
 				+ "}\n"
 			},
+			getCompilerOptions(),
 			"----------\n" + 
 			"1. WARNING in X.java (at line 4)\n" + 
 			"	return dubious;\n" + 
@@ -2242,7 +2258,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// illegal / unchecked for cast & instanceof with complex type
 	public void testUnsupportedLocation04() {
-		runNegativeTestWithLibs(
+		runNegativeTest(
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -2302,7 +2318,9 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	return (ArrayList<String>) l;\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'ArrayList<@NonNull String>\'\n" + 
-			"----------\n");
+			"----------\n",
+			this.LIBS,
+			true/*flush*/);
 	}
 
 	// illegal instanceof check with annotated type argument
@@ -2607,7 +2625,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// demonstrate that null annotations from the functional interface win, resulting in successful inference but null-safety issues
 	public void testNullTypeInference2e() {
-		runNegativeTestWithLibs(
+		runWarningTestWithLibs(
+			true/*flush*/,
 			new String[] {
 				"PolyNull.java",
 				"import org.eclipse.jdt.annotation.*;\n" + 
@@ -2770,7 +2789,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// missing return type should not cause NPE
 	public void testBug415850_01() {
-		runNegativeTestWithLibs(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.*;\n" +
@@ -2783,7 +2802,9 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	@NonNull foo() {}\n" + 
 			"	         ^^^^^\n" + 
 			"Return type for the method is missing\n" + 
-			"----------\n");
+			"----------\n",
+			this.LIBS,
+			true/*flush*/);
 	}
 	
 	// enum constant inside raw type: initialization must be recognized as conform to the implicitly @NonNull declaration 
@@ -2862,7 +2883,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// don't let type annotations on array dimensions spoil type compatibility
 	public void testBug415850_05() {
-		runNegativeTestWithLibs(
+		runNegativeTest(
 			new String[]{
 				"X.java",
 				"import java.lang.annotation.Target;\n" +
@@ -2883,7 +2904,9 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	int @Marker [][][] i = new @Marker int @Marker [2] @Marker [@Marker bar()] @Marker [];\n" + 
 			"	                                                            ^^^^^^^\n" + 
 			"Syntax error, type annotations are illegal here\n" + 
-			"----------\n"); 
+			"----------\n",
+			this.LIBS,
+			true/*flush*/); 
 	}
 
 	// don't let type annotations on array dimensions spoil type compatibility
@@ -3170,7 +3193,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// variant to challenge duplicate methods, though with different parameter annotations
 	public void testBug416176b() {
-		runNegativeTestWithLibs(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.NonNull;\n" + 
@@ -3185,7 +3208,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	}\n" + 
 				"}\n"
 			},
-			getCompilerOptions(),
 			"----------\n" + 
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	@NonNull T bar(@NonNull T t) {\n" + 
@@ -3196,7 +3218,9 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	@NonNull T bar(@Nullable T t) {\n" + 
 			"	           ^^^^^^^^^^^^^^^^^^\n" + 
 			"Duplicate method bar(T) in type X<T>\n" + 
-			"----------\n");
+			"----------\n",
+			this.LIBS,
+			true/*flush*/);
 	}
 
 	public void testBug416180() {
@@ -3549,7 +3573,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=417113#c25, point 4.
 	public void testSubstitution5() { 
-		runNegativeTestWithLibs(
+		runWarningTestWithLibs(
+			true/*flush*/,
 			new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.NonNull;\n" +
@@ -3930,7 +3955,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");		
 	}
 	public void testWildcardCapture() {
-		runNegativeTestWithLibs(
+		runWarningTestWithLibs(
+			true/*flush*/,
 			new String[] {
 				"X.java",
 				"import java.lang.annotation.ElementType;\n" +
@@ -3964,7 +3990,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");		
 	}
 	public void testWildcardCapture2() {
-		runNegativeTestWithLibs(
+		runConformTestWithLibs(
 			new String[] {
 				"X.java",
 				"import java.lang.annotation.ElementType;\n" +
@@ -4144,7 +4170,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422134, [1.8] NPE in NullAnnotationMatching with inlined lambda expression used with a raw type
 	public void test422134() {
-		runNegativeTestWithLibs(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
@@ -4157,7 +4183,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	}\n" +
 				"}\n"
 			},
-			getCompilerOptions(),
 			"----------\n" + 
 			"1. WARNING in X.java (at line 5)\n" + 
 			"	Collections.sort(new ArrayList(), (o1, o2) -> {\n" + 
@@ -4181,7 +4206,9 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	return o1.compareToIgnoreCase(o1);\n" + 
 			"	          ^^^^^^^^^^^^^^^^^^^\n" + 
 			"The method compareToIgnoreCase(Object) is undefined for the type Object\n" + 
-			"----------\n");		
+			"----------\n",
+			this.LIBS,
+			true/*flush*/);
 	}
 
 	// should not try to analyze arguments of a polymorphic method call
@@ -4229,7 +4256,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 public void testBug424637() {
-	runNegativeTestWithLibs(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"import java.io.IOException;\n" + 
@@ -4249,7 +4276,9 @@ public void testBug424637() {
 		"	Function<Path, Stream<Path>> method = Files::walk;\n" + 
 		"	                                      ^^^^^^^^^^^\n" + 
 		"Unhandled exception type IOException\n" + 
-		"----------\n");
+		"----------\n",
+		this.LIBS,
+		true/*flush*/);
 }
 
 public void testBug424637a() {
@@ -4611,7 +4640,7 @@ public void testTypeBounds4() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429387, [1.8][compiler] AIOOBE in AbstractMethodDeclaration.createArgumentBindings
 public void test429387() {
-	runNegativeTestWithLibs(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"import java.util.function.BiFunction;\n" +
@@ -4629,7 +4658,6 @@ public void test429387() {
 			"}\n" +
 			"}\n"
 		},
-		getCompilerOptions(),
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	static <BT, T extends BT, IS extends IntStream, E extends Exception> IntStreamy<E>\n" + 
@@ -4655,7 +4683,9 @@ public void test429387() {
 		"	return IntStreamy.fromFlatMap(func, mapper, classOfE, maker);\n" + 
 		"	       ^^^^^^^^^^\n" + 
 		"IntStreamy cannot be resolved\n" + 
-		"----------\n");
+		"----------\n",
+		this.LIBS,
+		true/*flush*/);
 }
 public void testBug429403() {
 	runNegativeTestWithLibs(
@@ -4676,7 +4706,7 @@ public void testBug429403() {
 		"----------\n");
 }
 public void testBug430219() {
-    runNegativeTestWithLibs(
+    runNegativeTest(
         new String[] {
             "X.java",
             "import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
@@ -4690,7 +4720,9 @@ public void testBug430219() {
 		"	void foo(int @NonNull [] x) {}\n" +
         "	              ^^^^^^^\n" +
 	   "NonNull cannot be resolved to a type\n" +
-	   "----------\n");
+	   "----------\n",
+	   this.LIBS,
+	   true/*flush*/);
 }
 public void testBug430219a() {
     runConformTestWithLibs(
@@ -5238,7 +5270,7 @@ public void testDefault06_bin() {
 
 // apply default to type bound - method in inner class
 public void testDefault07_bin() {
-	runNegativeTestWithLibs(
+	runConformTestWithLibs(
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -5279,7 +5311,7 @@ public void testDefault07_bin() {
 		"----------\n");
 }
 public void testBug431269() {
-	runNegativeTestWithLibs(
+	runNegativeTest(
 		new String[] {
 			"p/QField.java",
 			"package p;\n" + 
@@ -5336,7 +5368,9 @@ public void testBug431269() {
 		"	return new QField<R, java.lang.Long>(m_root, this, \"lastName\");\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from QField<R,Long> to QField<R,String>\n" + 
-		"----------\n");
+		"----------\n",
+		this.LIBS,
+		true/*flush*/);
 }
 // was inferring null type annotations too aggressively
 public void testBug432223() {
@@ -5522,7 +5556,8 @@ public void testTypeVariable7() {
 public void testTypeVariable7a() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.WARNING); // allow ignoring bad substitution
-	runConformTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -5666,7 +5701,8 @@ public void testTypeVariable10a() {
 // Bug 439516 - [1.8][null] NonNullByDefault wrongly applied to implicit type bound of binary type
 // warning for explicit "<T extends Object>"
 public void testTypeVariable11() {
-	runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
@@ -6895,7 +6931,7 @@ public void testBug434582a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=443467, [1.8][null]InternalError: Unexpected binding type
 public void test443467() throws Exception {
-	runNegativeTestWithLibs(
+	runNegativeTest(
 		new String[] {
 			"BuildIdeMain.java",
 			"import java.nio.file.Path;\n" +
@@ -6915,7 +6951,9 @@ public void test443467() throws Exception {
 		"	filter2.map(p -> new SimpleEntry<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot infer type arguments for SimpleEntry<>\n" + 
-		"----------\n");
+		"----------\n",
+		this.LIBS,
+		true/*flush*/);
 }
 public void testBug445227() {
 	runConformTestWithLibs(
@@ -7025,7 +7063,8 @@ public void test445669() {
 		"----------\n");
 }
 public void testArrayOfArrays() {
-	this.runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"X.java",
 			"import java.util.ArrayList;\n" +
@@ -7038,6 +7077,7 @@ public void testArrayOfArrays() {
 			"   }\n" +
 			"}\n",
 		},
+		getCompilerOptions(),
 		"----------\n" + 
 		"1. WARNING in X.java (at line 6)\n" + 
 		"	String [] @Nullable [] @NonNull [] arr = new String[][][] {};\n" + 
@@ -7208,7 +7248,8 @@ public void testBug446442_comment2c() {
 }
 // merging @NonNull & unannotated in arg-position must answer unannotated
 public void testBug446442_2a() {
-	runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"Test.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -7226,6 +7267,7 @@ public void testBug446442_2a() {
 			"	}; \n" + 
 			"}\n"
 		},
+		getCompilerOptions(),
 		"----------\n" + 
 		"1. WARNING in Test.java (at line 12)\n" + 
 		"	@NonNull Object o = x;\n" + 
@@ -7235,7 +7277,8 @@ public void testBug446442_2a() {
 }
 // merging @NonNull & unannotated in arg-position must answer unannotated - swapped order
 public void testBug446442_2b() {
-	runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"Test.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -7253,6 +7296,7 @@ public void testBug446442_2b() {
 			"	}; \n" + 
 			"}\n"
 		},
+		getCompilerOptions(),
 		"----------\n" + 
 		"1. WARNING in Test.java (at line 12)\n" + 
 		"	@NonNull Object o = x;\n" + 
@@ -7746,7 +7790,7 @@ public void testBug443870() {
 		"");
 }
 public void testBug437072() {
-	runNegativeTestWithLibs(
+	runNegativeTest(
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -7791,13 +7835,16 @@ public void testBug437072() {
 		"	List<@NonNull int> intlist;\n" + 
 		"	              ^^^\n" + 
 		"Syntax error, insert \"Dimensions\" to complete ReferenceType\n" + 
-		"----------\n");
+		"----------\n",
+		this.LIBS,
+		true/*flush*/);
 }
 public void testBug448709() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.WARNING); // ensure program is runnable
 	compilerOptions.put(JavaCore.COMPILER_PB_PESSIMISTIC_NULL_ANALYSIS_FOR_FREE_TYPE_VARIABLES, JavaCore.WARNING); // ensure program is runnable
-	runConformTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"Test.java",
 			"import java.util.*;\n" + 
@@ -7919,7 +7966,8 @@ public void testBug459967_Array_constructor() {
 		"");
 }
 public void testBug459967_Array_constructor_b() {
-	runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -7960,7 +8008,8 @@ public void testBug459967_Array_clone() {
 		"");
 }
 public void testBug459967_Array_clone_b() {
-	runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -8069,7 +8118,8 @@ public void testBug465513() {
 }
 
 public void testBug455180() {
-    runNegativeTestWithLibs(
+    runConformTestWithLibs( // same warning from ecj & javac
+    		true/*flush*/,
             new String[] {
                 "projA/GenericType.java",
                 "package projA;\n"+
@@ -8084,13 +8134,15 @@ public void testBug455180() {
                 "   }\n"+
                 "}\n"
             },
+            getCompilerOptions(),
             "----------\n" +
     		"1. WARNING in projA\\ClassWithRawUsage.java (at line 4)\n" + 
     		"	public java.util.List<GenericType> method() {\n" + 
     		"	                      ^^^^^^^^^^^\n" + 
             "GenericType is a raw type. References to generic type GenericType<T> should be parameterized\n" +
             "----------\n");
-    runNegativeTestWithLibs(
+    runConformTestWithLibs( // same warning from ecj & javac
+    		false/*flush*/,
             new String[] {
                 "projB/ClassThatImports.java",
                 "package projB;\n" +
@@ -8126,7 +8178,8 @@ public void testBug455180WithOtherAnnotation() {
 				"@java.lang.annotation.Target({ java.lang.annotation.ElementType.TYPE_USE })"+
 				"public @interface MyAnnotation {}"
 			}, null, "");
-	runNegativeTestWithLibs(
+	runConformTestWithLibs( // same warning from ecj & javac
+			false/*flush*/,
 			new String[] {
 				"projA/GenericType.java",
 				"package projA;\n"+
@@ -8140,13 +8193,15 @@ public void testBug455180WithOtherAnnotation() {
 				"   }\n"+
 				"}\n"
 			},
+			getCompilerOptions(),
 			"----------\n" +
 			"1. WARNING in projA\\ClassWithRawUsage.java (at line 3)\n" +
 			"	public java.util.List<@proj0.MyAnnotation GenericType> method() {\n" +
 			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"GenericType is a raw type. References to generic type GenericType<T> should be parameterized\n" +
 			"----------\n");
-	runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+			false/*flush*/,
 			new String[] {
 				"projB/ClassThatImports.java",
 				"package projB;\n" +
@@ -8217,7 +8272,7 @@ public void testBug466713c() {
 }
 // variant for https://bugs.eclipse.org/bugs/show_bug.cgi?id=466713#c5
 public void testBug466713d() {
-	runNegativeTestWithLibs(
+	runNegativeTest(
 		new String[] {
 			"MyAnnot.java",
 			"import java.lang.annotation.*;\n" +
@@ -8231,7 +8286,6 @@ public void testBug466713d() {
 			"	}\n" + 
 			"}\n"
 		},
-		getCompilerOptions(),
 		"----------\n" + 
 		"1. ERROR in Bug.java (at line 3)\n" + 
 		"	return o instanceof java.util.Iterator<java.lang. @MyAnnot @org.eclipse.jdt.annotation.Nullable String>;\n" + 
@@ -8242,7 +8296,9 @@ public void testBug466713d() {
 		"	return o instanceof java.util.Iterator<java.lang. @MyAnnot @org.eclipse.jdt.annotation.Nullable String>;\n" + 
 		"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Nullness annotations are not applicable at this location \n" + 
-		"----------\n");
+		"----------\n",
+		this.LIBS,
+		true/*flush*/);
 }
 public void testBug466969() {
 	runConformTestWithLibs(
@@ -8393,7 +8449,8 @@ public void testBug446217() {
 public void testBug456584() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_PESSIMISTIC_NULL_ANALYSIS_FOR_FREE_TYPE_VARIABLES, JavaCore.WARNING);
-	runConformTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"Test.java",
 			"import java.util.*;\n" + 
@@ -9058,7 +9115,8 @@ public void testBug477719() {
 		"");
 }
 public void testBug482247() {
-	runConformTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -10915,7 +10973,8 @@ public void testBug485374() {
 		getCompilerOptions(),
 		""
 	);
-	runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+			false/*flush*/,
 			new String[] {
 			"test2/Import.java",
 				"package test2;\n" +
@@ -12043,7 +12102,8 @@ public void testBug485988WildCardForTVWithNonNullBound() {
 	);
 }
 public void testBug485988WildcardWithGenericBound() {
-	runConformTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"test/Test1.java",
 			"package test;\n" +
@@ -12237,7 +12297,8 @@ public void testBug489978() {
 public void testBug489245() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_PessimisticNullAnalysisForFreeTypeVariables, JavaCore.INFO);
-	runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"test/TestBogusProblemReportOnlyAsInfo.java",
 			"package test;\n" +
@@ -12295,7 +12356,6 @@ public void testBug489674() {
 			"@Retention(RetentionPolicy.CLASS)\n" + 
 			"@Target({ FIELD, METHOD, PARAMETER, LOCAL_VARIABLE })\n" + 
 			"public @interface NonNull {}\n",
-			"}"
 		},
 		options);
 	runConformTestWithLibs(
@@ -12496,7 +12556,7 @@ public void testBug496591() {
 	);
 }	
 public void testBug497698() {
-	runNegativeTestWithLibs(
+	runNegativeTest(
 		new String[] {
 			"test/And.java",
 			"package test;\n" +
@@ -12523,17 +12583,18 @@ public void testBug497698() {
 			"}\n" +
 			"",
 		}, 
-		getCompilerOptions(),
 		"----------\n" + 
 		"1. ERROR in test\\Or.java (at line 7)\n" + 
 		"	public static <V> Or<V> create() {\n" + 
 		"	                  ^^\n" + 
 		"Incorrect number of arguments for type Or<D,V>; it cannot be parameterized with arguments <V>\n" + 
-		"----------\n"
+		"----------\n",
+		this.LIBS,
+		true/*flush*/
 	);
 }
 public void testBug497698raw() {
-	runNegativeTestWithLibs(
+	runNegativeTest(
 		new String[] {
 			"test/And.java",
 			"package test;\n" +
@@ -12560,7 +12621,6 @@ public void testBug497698raw() {
 			"}\n" +
 			"",
 		}, 
-		getCompilerOptions(),
 		"----------\n" + 
 		"1. WARNING in test\\And.java (at line 8)\n" + 
 		"	new Or().create();\n" + 
@@ -12572,11 +12632,13 @@ public void testBug497698raw() {
 		"	public <V1> Or<V1> create() {\n" + 
 		"	            ^^\n" + 
 		"Incorrect number of arguments for type Or<D,V>; it cannot be parameterized with arguments <V1>\n" + 
-		"----------\n"
+		"----------\n",
+		this.LIBS,
+		false/*shouldFlush*/
 	);
 }
 public void testBug497698nestedinraw() {
-	runNegativeTestWithLibs(
+	runNegativeTest(
 		new String[] {
 			"test/And.java",
 			"package test;\n" +
@@ -12605,7 +12667,6 @@ public void testBug497698nestedinraw() {
 			"}\n" +
 			"",
 		}, 
-		getCompilerOptions(),
 		"----------\n" + 
 		"1. WARNING in test\\And.java (at line 7)\n" + 
 		"	public static void createAnd(X.Or x) {\n" + 
@@ -12617,7 +12678,9 @@ public void testBug497698nestedinraw() {
 		"	public <V1> Or<V1> create() {\n" + 
 		"	            ^^\n" + 
 		"Incorrect number of arguments for type X<Z>.Or<D,V>; it cannot be parameterized with arguments <V1>\n" + 
-		"----------\n"
+		"----------\n",
+		this.LIBS,
+		true/*flush*/
 	);
 }
 public void testBug492322() {
@@ -12893,7 +12956,8 @@ public void testBug499597simplified() {
 	);
 }
 public void testBug499597original() {
-	runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"Foo.java",
 			"import static org.eclipse.jdt.annotation.DefaultLocation.*;\n" +
@@ -13890,7 +13954,8 @@ public void testBug501564interface() {
 	);
 }
 public void testBug501464() {
-	runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"Foo.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -14062,7 +14127,8 @@ public void testBug509025() {
 	);
 }
 public void testBug501598() {
-	runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"Foo.java",
 			"import java.util.List;\n" +
@@ -15434,7 +15500,8 @@ public void testBug526555() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.WARNING);
 	
-	runNegativeTestWithLibs(
+	runWarningTestWithLibs(
+		true/*flush*/,
 		new String[] {
 			"ztest/OverrideTest.java",
 			"package ztest;\n" + 
