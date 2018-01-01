@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -283,10 +283,10 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 				if (TypeBinding.notEquals(this.binding.declaringClass, this.lhs.resolvedType.erasure())) {
 					// reference to a method declared by an inaccessible type accessed via a
 					// subtype - normally a bridge method would be present to facilitate
-					// this access, unless the method is final, in which case, direct access to
+					// this access, unless the method is final/static, in which case, direct access to
 					// the method is not possible, an implicit lambda is needed
 					if (!this.binding.declaringClass.canBeSeenBy(this.enclosingScope)) {
-						return !this.binding.isFinal();
+						return !(this.binding.isFinal() || this.binding.isStatic());
 					}
 				}
 			}
