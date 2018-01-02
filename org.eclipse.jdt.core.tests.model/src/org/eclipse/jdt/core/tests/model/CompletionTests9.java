@@ -315,7 +315,7 @@ public void test486988_0009() throws Exception {
 		ICompilationUnit unit = getCompilationUnit(filePath);
 		unit.codeComplete(cursorLocation, requestor);
 
-		String expected = "[PROPOSAL]{org.eclipse.foo, org.eclipse.foo, null, null, 49}";
+		String expected = "[MODULE_REF]{org.eclipse.foo, org.eclipse.foo, null, null, 49}";
 		assertResults(expected,	requestor.getResults());
 	} finally {
 		deleteProject(project1);
@@ -349,7 +349,7 @@ public void test522604_0001() throws Exception {
 		ICompilationUnit unit = getCompilationUnit(filePath);
 		unit.codeComplete(cursorLocation, requestor);
 
-		String expected = "[PROPOSAL]{j.s.r, j.s.r, null, null, 49}";
+		String expected = "[MODULE_REF]{j.s.r, j.s.r, null, null, 49}";
 		assertResults(expected,	requestor.getResults());
 	} finally {
 		deleteProject(project1);
@@ -391,7 +391,7 @@ public void test486988_0010() throws Exception {
 		ICompilationUnit unit = getCompilationUnit(filePath);
 		unit.codeComplete(cursorLocation, requestor);
 
-		String expected = "[PROPOSAL]{com.greetings, com.greetings, null, null, 49}";
+		String expected = "[MODULE_REF]{com.greetings, com.greetings, null, null, 49}";
 		assertResults(expected,	requestor.getResults());
 	} finally {
 		deleteProject(project1);
@@ -990,6 +990,112 @@ public void test527873_002() throws Exception {
 	} finally {
 		deleteProject(project1);
 		deleteProject(project2);
+	}
+}
+public void testBug529123_001() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		String filePath = "/Completion9_1/src/module-info.java";
+		String fileContent =  "module Com";
+		createFile(filePath, fileContent);
+		String completeBehind = "Com";
+		int cursorLocation = fileContent.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "Completion9_1[MODULE_DECLARATION]{Completion9_1, Completion9_1, null, Completion9_1, 31}";
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+	}
+}
+public void testBug529123_002() throws Exception {
+	String pName = "Completion9-1"; // with a -, 
+	IJavaProject project1 = createJavaProject(pName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		String filePath = "/" + pName +"/src/module-info.java";
+		String fileContent =  "module Com";
+		createFile(filePath, fileContent);
+		String completeBehind = "Com";
+		int cursorLocation = fileContent.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "";
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+	}
+}
+public void testBug529123_003() throws Exception {
+	String pName = "529123"; // a number - invalid module name but a valid project name
+	IJavaProject project1 = createJavaProject(pName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		String filePath = "/" + pName +"/src/module-info.java";
+		String fileContent =  "module Com";
+		createFile(filePath, fileContent);
+		String completeBehind = "Com";
+		int cursorLocation = fileContent.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "";
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+	}
+}
+public void testBug529123_004() throws Exception {
+	String pName = "module.name.test"; // with dots
+	IJavaProject project1 = createJavaProject(pName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		String filePath = "/" + pName +"/src/module-info.java";
+		String fileContent =  "module Com";
+		createFile(filePath, fileContent);
+		String completeBehind = "Com";
+		int cursorLocation = fileContent.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "";
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+	}
+}
+public void testBug529123_005() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		String filePath = "/Completion9_1/src/module-info.java";
+		String fileContent =  "module Com";
+		createFile(filePath, fileContent);
+		String completeBehind = "Com";
+		int cursorLocation = fileContent.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "Completion9_1[MODULE_DECLARATION]{Completion9_1, Completion9_1, null, Completion9_1, 31}";
+		String[] actual = requestor.getStringsResult();
+		assertTrue("Null result", actual != null);
+		assertTrue("Incorrect number of elements", actual.length == 1);
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
 	}
 }
 }
