@@ -10092,7 +10092,8 @@ public final class CompletionEngine
 				if (TypeBinding.equalsEquals(memberType, otherType))
 					continue next;
 
-				if (CharOperation.equals(memberType.sourceName, otherType.sourceName, true)) {
+				if (CharOperation.equals(memberType.sourceName, otherType.sourceName, true)
+						&& otherType.isNestedType()) {
 
 					if (memberType.enclosingType().isSuperclassOf(otherType.enclosingType()))
 						continue next;
