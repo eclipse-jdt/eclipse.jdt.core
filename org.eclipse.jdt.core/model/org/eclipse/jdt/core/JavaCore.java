@@ -5911,6 +5911,14 @@ public final class JavaCore extends Plugin {
 				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
 				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
 				break;
+			case ClassFileConstants.MAJOR_VERSION_10:
+				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_10);
+				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_10);
+				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_10);
+				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
+				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
+				break;
 		}
 	}
 
