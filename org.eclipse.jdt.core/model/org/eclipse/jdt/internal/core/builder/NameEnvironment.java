@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -229,7 +229,7 @@ private void computeClasspathLocations(
 						IModuleDescription mod;
 						if ((mod = prereqJavaProject.getModuleDescription()) != null) {
 							SourceModule sourceModule = (SourceModule) mod;
-							info = (ModuleDescriptionInfo) sourceModule.getElementInfo();
+							info = (IModule) sourceModule.getElementInfo();
 						}
 					} catch (JavaModelException jme) {
 						// do nothing, probably a non module project
@@ -311,7 +311,7 @@ private void computeClasspathLocations(
 		if (moduleEntries != null && projectModule != null) {
 			try {
 				AbstractModule sourceModule = (AbstractModule)projectModule;
-				ModuleDescriptionInfo info = (ModuleDescriptionInfo) sourceModule.getElementInfo();
+				IModule info = (IModule) sourceModule.getElementInfo();
 				final ClasspathLocation[] sourceLocations2;
 				if(sLocationsForTest.size() == 0) {
 					sourceLocations2 = this.sourceLocations;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,11 +22,13 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
@@ -127,6 +129,48 @@ public class CompilationUnitProblemFinder extends Compiler {
 
 			if (unit != null) {
 				environment.buildTypeBindings(unit, accessRestriction);
+				environment.completeTypeBindings(unit);
+			}
+		} finally {
+			this.options.complianceLevel = savedComplianceLevel;
+			this.options.sourceLevel = savedSourceLevel;
+		}
+	}
+
+	@Override
+	public void accept(IModule module, LookupEnvironment environment) {
+		IModuleDescription handle = null;
+		if (module instanceof ModuleDescriptionInfo) {
+			handle = ((ModuleDescriptionInfo) module).getHandle();
+		}
+		if (handle == null) {
+			super.accept(module, environment);
+			return;
+		}
+		CompilationResult result =
+				new CompilationResult(TypeConstants.MODULE_INFO_FILE_NAME, 1, 1, this.options.maxProblemsPerUnit);
+			
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259, build the compilation unit in its own sand box.
+		final long savedComplianceLevel = this.options.complianceLevel;
+		final long savedSourceLevel = this.options.sourceLevel;
+		
+		if (environment == null)
+			environment = this.lookupEnvironment;
+		
+		try {
+			IJavaProject project = handle.getJavaProject();
+			this.options.complianceLevel = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_COMPLIANCE, true));
+			this.options.sourceLevel = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_SOURCE, true));
+
+			// need to hold onto this
+			CompilationUnitDeclaration unit =
+				SourceTypeConverter.buildModularCompilationUnit(
+						module,
+						environment.problemReporter,
+						result);
+
+			if (unit != null) {
+				environment.buildTypeBindings(unit, null);
 				environment.completeTypeBindings(unit);
 			}
 		} finally {
