@@ -96,6 +96,106 @@ import org.osgi.framework.Bundle;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 
+	protected class Runner {
+		boolean shouldFlushOutputDirectory = true;
+		// input:
+		String[] testFiles;
+		String[] dependantFiles;
+		String[] classLibraries;
+		// control compilation:
+		Map customOptions;
+		boolean performStatementsRecovery;
+		boolean generateOutput;
+		ICompilerRequestor customRequestor;
+		// compiler result:
+		String expectedCompilerLog;
+		String[] alternateCompilerLogs;
+		boolean showCategory;
+		boolean showWarningToken;
+		// javac:
+		boolean skipJavac;
+		JavacTestOptions javacTestOptions;
+		// execution:
+		boolean forceExecution;
+		String[] vmArguments;
+		String expectedOutputString;
+		String expectedErrorString;
+
+		ASTVisitor visitor;
+
+		@SuppressWarnings("synthetic-access")
+		protected void runConformTest() {
+			runTest(this.shouldFlushOutputDirectory,
+					this.testFiles,
+					this.dependantFiles != null ? this.dependantFiles : new String[] {},
+					this.classLibraries,
+					this.customOptions,
+					this.performStatementsRecovery,
+					new Requestor(
+							this.generateOutput,
+							this.customRequestor,
+							this.showCategory,
+							this.showWarningToken),
+					false,
+					this.expectedCompilerLog,
+					this.alternateCompilerLogs,
+					this.forceExecution,
+					this.vmArguments,
+					this.expectedOutputString,
+					this.expectedErrorString,
+					this.visitor,
+					this.skipJavac ? JavacTestOptions.SKIP : this.javacTestOptions);
+		}
+
+		@SuppressWarnings("synthetic-access")
+		protected void runNegativeTest() {
+			runTest(this.shouldFlushOutputDirectory,
+					this.testFiles,
+					this.dependantFiles != null ? this.dependantFiles : new String[] {},
+					this.classLibraries,
+					this.customOptions,
+					this.performStatementsRecovery,
+					new Requestor(
+							this.generateOutput,
+							this.customRequestor,
+							this.showCategory,
+							this.showWarningToken),
+					true,
+					this.expectedCompilerLog,
+					this.alternateCompilerLogs,
+					this.forceExecution,
+					this.vmArguments,
+					this.expectedOutputString,
+					this.expectedErrorString,
+					this.visitor,
+					this.skipJavac ? JavacTestOptions.SKIP : this.javacTestOptions);
+		}
+
+		@SuppressWarnings("synthetic-access")
+		protected void runWarningTest() {
+			runTest(this.shouldFlushOutputDirectory,
+					this.testFiles,
+					this.dependantFiles != null ? this.dependantFiles : new String[] {},
+					this.classLibraries,
+					this.customOptions,
+					this.performStatementsRecovery,
+					new Requestor(
+							this.generateOutput,
+							this.customRequestor,
+							this.showCategory,
+							this.showWarningToken),
+					false,
+					this.expectedCompilerLog,
+					this.alternateCompilerLogs,
+					this.forceExecution,
+					this.vmArguments,
+					this.expectedOutputString,
+					this.expectedErrorString,
+					this.visitor,
+					this.skipJavac ? JavacTestOptions.SKIP : this.javacTestOptions);
+		}
+	}
+
 	// javac comparison related types, fields and methods - see runJavac for
 	// details
 static class JavacCompiler {
