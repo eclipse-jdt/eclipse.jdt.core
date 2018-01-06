@@ -14043,4 +14043,21 @@ public void testBug506430c() throws JavaModelException {
 	formatSource(input, getCompilationUnit("Formatter", "", "test506430", "A_out.java") .getSource(),
 			CodeFormatter.K_UNKNOWN | CodeFormatter.F_INCLUDE_COMMENTS);
 }
+
+/**
+ * https://bugs.eclipse.org/518235 - [1.8][formatter] Receiver parameter breaks whitespace rule
+ */
+public void testBug518235() throws JavaModelException {
+	String source =
+		"public class Base<T> {\n" + 
+		"	class Base2 {\n" + 
+		"		Base2(Base<T> Base.this) {\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	T foo(@Deprecated Base<T> this, final Base<T> bar1, final Base<T> bar2) {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
 }
