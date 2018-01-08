@@ -2336,6 +2336,8 @@ public final class CompletionEngine
 		this.lookupEnvironment.buildTypeBindings(parsedUnit, null);
 		this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
 		parsedUnit.resolve();
+		this.startPosition = ref.sourceStart;
+		this.endPosition = ref.sourceEnd > ref.sourceStart ? ref.sourceEnd : ref.sourceStart;
 		if ((this.unitScope = parsedUnit.scope) != null) {
 			if (showAll) {
 				char[][] tokens = ref.getTypeName();
