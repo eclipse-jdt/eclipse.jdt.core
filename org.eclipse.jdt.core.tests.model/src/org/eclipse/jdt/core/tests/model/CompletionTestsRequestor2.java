@@ -249,6 +249,9 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		return this.problem == null ? "" : this.problem.getMessage();
 	}
 
+	public CompletionProposal[] getProposals() {
+		return this.proposals;
+	}
 	/*
 	 * Get sorted results in ascending order
 	 */
