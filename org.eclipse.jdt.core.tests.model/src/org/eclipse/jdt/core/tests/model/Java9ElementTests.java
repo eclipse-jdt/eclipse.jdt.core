@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 IBM Corporation and others.
+ * Copyright (c) 2017, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,8 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.provisional.JavaModelAccess;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
@@ -1221,6 +1223,86 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			packageNames = CharOperation.toStrings(packagesAttribute.getPackageNames());
 			assertEquals("main attribute value", "testDont,test0,test1,test2", String.join(",", packageNames));
 
+		} finally {
+			deleteProject("mod.zero");
+		}
+	}
+	public void testModuleAttributes_disassembler_508889_001() throws Exception {
+		try {
+			IJavaProject javaProject = createJava9Project("mod.zero");
+
+			createFolder("/mod.zero/src/test0");
+			createFile("/mod.zero/src/test0/SPQR.java",
+							"package test0;\n" +
+							"\n" +
+							"public class SPQR {}");
+
+			createFolder("/mod.zero/src/test1");
+			createFile("/mod.zero/src/test1/Service.java",
+							"package test1;\n" +
+							"\n" +
+							"public interface Service {}");
+
+			createFolder("/mod.zero/src/test2");
+			createFile("/mod.zero/src/test2/Impl.java",
+							"package test2;\n" +
+							"\n" +
+							"public class Impl implements test1.Service {}");
+
+			createFolder("/mod.zero/src/testDont");
+			createFile("/mod.zero/src/testDont/Show.java",
+							"package testDont;\n" +
+							"\n" +
+							"public class Show {}");
+
+			String content = 	"module mod.zero {\n" +
+								"	exports test0;\n" +
+								"	opens test1;\n" +
+								"	provides test1.Service with test2.Impl;\n" +
+								"}\n";
+			createFile("/mod.zero/src/module-info.java", content);
+
+			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			ICompilationUnit unit = getCompilationUnit("/mod.zero/src/module-info.java");
+			IModuleDescription module = unit.getModule();
+
+			Map<String,String> attributes = new HashMap<>();
+			attributes.put(String.valueOf(IAttributeNamesConstants.MODULE_MAIN_CLASS), "test0.SPQR");
+			attributes.put(String.valueOf(IAttributeNamesConstants.MODULE_PACKAGES), "");
+
+			byte[] bytes = JavaCore.compileWithAttributes(module, attributes);
+
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(bytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			String expectedOutput = "// Compiled from module-info.java (version 9 : 53.0, no super bit)\n" +
+					" module mod.zero  {\n" +
+					"  // Version: \n" +
+					"\n" +
+					"  requires java.base;\n" +
+					"\n" +
+					"  exports test0;\n" +
+					"\n" +
+					"  opens test1;\n" +
+					"\n" +
+					"  provides test1.Service with test2.Impl;\n" +
+					"  \n" +
+					"  Module packages:\n" +
+					"    test0\n" +
+					"    test1\n" +
+					"    test2\n" +
+					"\n" +
+					"  Module main class:\n" +
+					"    test0.SPQR\n" +
+					"\n" +
+					"}";
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
 		} finally {
 			deleteProject("mod.zero");
 		}
