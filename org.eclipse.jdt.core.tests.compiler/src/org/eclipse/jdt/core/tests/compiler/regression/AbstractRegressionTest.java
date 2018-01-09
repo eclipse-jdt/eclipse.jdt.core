@@ -114,6 +114,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		boolean showWarningToken;
 		// javac:
 		boolean skipJavac;
+		public String expectedJavacOutputString;
 		JavacTestOptions javacTestOptions;
 		// execution:
 		boolean forceExecution;
@@ -144,6 +145,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 					this.expectedOutputString,
 					this.expectedErrorString,
 					this.visitor,
+					this.expectedJavacOutputString != null ? this.expectedJavacOutputString : this.expectedOutputString,
 					this.skipJavac ? JavacTestOptions.SKIP : this.javacTestOptions);
 		}
 
@@ -168,6 +170,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 					this.expectedOutputString,
 					this.expectedErrorString,
 					this.visitor,
+					this.expectedJavacOutputString != null ? this.expectedJavacOutputString : this.expectedOutputString,
 					this.skipJavac ? JavacTestOptions.SKIP : this.javacTestOptions);
 		}
 
@@ -192,6 +195,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 					this.expectedOutputString,
 					this.expectedErrorString,
 					this.visitor,
+					this.expectedJavacOutputString != null ? this.expectedJavacOutputString : this.expectedOutputString,
 					this.skipJavac ? JavacTestOptions.SKIP : this.javacTestOptions);
 		}
 	}
@@ -1486,6 +1490,7 @@ protected static class JavacTestOptions {
 			null /* do not check error string */,
 			visitor,
 			// javac options
+			null /* do not check javac output string */,
 			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
 
@@ -1579,6 +1584,7 @@ protected static class JavacTestOptions {
 				expectedSuccessOutputString,
 				null,
 				null,
+				expectedSuccessOutputString,
 				JavacTestOptions.DEFAULT);
 	}
 
@@ -2652,6 +2658,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			expectedOutputString,
 			expectedErrorString,
 			null,
+			expectedOutputString,
 			javacTestOptions);
 	}
 	/** Call this if the compiler randomly produces different error logs. */
@@ -2672,6 +2679,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			null,
 			alternateCompilerErrorLogs,
 			false,
+			null,
 			null,
 			null,
 			null,
@@ -2772,6 +2780,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			String expectedErrorString,
 			final ASTVisitor visitor,
 			// javac options
+			String expectedJavacOutputString,
 			JavacTestOptions javacTestOptions) {
 		// non-javac part
 		if (shouldFlushOutputDirectory)
@@ -2912,7 +2921,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		// javac part
 		if (RUN_JAVAC && javacTestOptions != JavacTestOptions.SKIP) {
 			runJavac(testFiles, expectingCompilerErrors, expectedCompilerLog,
-					expectedOutputString, expectedErrorString, shouldFlushOutputDirectory,
+					expectedJavacOutputString, expectedErrorString, shouldFlushOutputDirectory,
 					javacTestOptions, vmArguments, classLibraries);
 		}
 	}
