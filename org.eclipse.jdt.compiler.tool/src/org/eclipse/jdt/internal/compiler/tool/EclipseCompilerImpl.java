@@ -221,8 +221,9 @@ public class EclipseCompilerImpl extends Main {
 					final int columnNumber) {
 
 				DiagnosticListener<? super JavaFileObject> diagListener = EclipseCompilerImpl.this.diagnosticListener;
+				Diagnostic<JavaFileObject> diagnostic = null;
 				if (diagListener != null) {
-					diagListener.report(new Diagnostic<JavaFileObject>() {
+					diagnostic = new Diagnostic<JavaFileObject>() {
 						@Override
 						public String getCode() {
 							return Integer.toString(problemId);
@@ -275,9 +276,13 @@ public class EclipseCompilerImpl extends Main {
 						public long getStartPosition() {
 							return startPosition;
 						}
-					});
+					};
 				}
-				return super.createProblem(originatingFileName, problemId, problemArguments, messageArguments, severity, startPosition, endPosition, lineNumber, columnNumber);
+				CategorizedProblem problem = super.createProblem(originatingFileName, problemId, problemArguments, messageArguments, severity, startPosition, endPosition, lineNumber, columnNumber);
+				if (problem instanceof DefaultProblem && diagnostic != null) {
+					return new Jsr199ProblemWrapper((DefaultProblem) problem, diagnostic, diagListener);
+				}
+				return problem;
 			}
 			@Override
 			public CategorizedProblem createProblem(
@@ -293,8 +298,9 @@ public class EclipseCompilerImpl extends Main {
 					final int columnNumber) {
 
 				DiagnosticListener<? super JavaFileObject> diagListener = EclipseCompilerImpl.this.diagnosticListener;
+				Diagnostic<JavaFileObject> diagnostic = null;
 				if (diagListener != null) {
-					diagListener.report(new Diagnostic<JavaFileObject>() {
+					diagnostic = new Diagnostic<JavaFileObject>() {
 						@Override
 						public String getCode() {
 							return Integer.toString(problemId);
@@ -350,9 +356,13 @@ public class EclipseCompilerImpl extends Main {
 						public long getStartPosition() {
 							return startPosition;
 						}
-					});
+					};
 				}
-				return super.createProblem(originatingFileName, problemId, problemArguments, elaborationID, messageArguments, severity, startPosition, endPosition, lineNumber, columnNumber);
+				CategorizedProblem problem = super.createProblem(originatingFileName, problemId, problemArguments, elaborationID, messageArguments, severity, startPosition, endPosition, lineNumber, columnNumber);
+				if (problem instanceof DefaultProblem && diagnostic != null) {
+					return new Jsr199ProblemWrapper((DefaultProblem) problem, diagnostic, diagListener);
+				}
+				return problem;
 			}
 		};
 	}
@@ -694,7 +704,7 @@ public class EclipseCompilerImpl extends Main {
 			Iterator iterator = this.extraProblems.iterator(); iterator.hasNext(); ) {
 			final CategorizedProblem problem = (CategorizedProblem) iterator.next();
 			if (this.diagnosticListener != null) {
-				this.diagnosticListener.report(new Diagnostic<JavaFileObject>() {
+				Diagnostic<JavaFileObject> diagnostic = new Diagnostic<JavaFileObject>() {
 					@Override
 					public String getCode() {
 						return null;
@@ -760,8 +770,105 @@ public class EclipseCompilerImpl extends Main {
 					public long getStartPosition() {
 						return getPosition();
 					}
-				});
+				};
+				this.diagnosticListener.report(diagnostic);
 			}
 		}
+	}
+	class Jsr199ProblemWrapper extends DefaultProblem {
+
+		DefaultProblem original;
+		DiagnosticListener<? super JavaFileObject> listener;
+		Diagnostic<JavaFileObject> diagnostic;
+
+		public Jsr199ProblemWrapper(DefaultProblem original, Diagnostic<JavaFileObject> diagnostic, DiagnosticListener<? super JavaFileObject> listener) {
+			super(original.getOriginatingFileName(),
+					original.getMessage(),
+					original.getID(),
+					original.getArguments(),
+					original.severity,
+					original.getSourceStart(),
+					original.getSourceEnd(),
+					original.getSourceLineNumber(),
+					original.column);
+			this.original = original;
+			this.listener = listener;
+			this.diagnostic = diagnostic;
+		}
+		@Override
+		public void reportError() {
+			this.listener.report(this.diagnostic);
+		}
+
+		@Override
+		public String[] getArguments() {
+			return this.original.getArguments();
+		}
+
+		@Override
+		public int getID() {
+			return this.original.getID();
+		}
+
+		@Override
+		public String getMessage() {
+			return this.original.getMessage();
+		}
+
+		@Override
+		public char[] getOriginatingFileName() {
+			return this.original.getOriginatingFileName();
+		}
+
+		@Override
+		public int getSourceEnd() {
+			return this.original.getSourceEnd();
+		}
+
+		@Override
+		public int getSourceLineNumber() {
+			return this.original.getSourceLineNumber();
+		}
+
+		@Override
+		public int getSourceStart() {
+			return this.original.getSourceStart();
+		}
+
+		@Override
+		public boolean isError() {
+			return this.original.isError();
+		}
+
+		@Override
+		public boolean isWarning() {
+			return this.original.isWarning();
+		}
+
+		@Override
+		public void setSourceEnd(int sourceEnd) {
+			this.original.setSourceEnd(sourceEnd);
+		}
+
+		@Override
+		public void setSourceLineNumber(int lineNumber) {
+			this.original.setSourceLineNumber(lineNumber);
+		}
+
+		@Override
+		public void setSourceStart(int sourceStart) {
+			this.original.setSourceStart(sourceStart);
+		}
+
+		@Override
+		public int getCategoryID() {
+			return this.original.getCategoryID();
+		}
+
+		@Override
+		public String getMarkerType() {
+			return this.original.getMarkerType();
+		}
+		
 	}
 }

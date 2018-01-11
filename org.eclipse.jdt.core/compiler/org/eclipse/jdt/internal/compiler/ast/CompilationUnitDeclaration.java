@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.parser.NLSTag;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.HashSetOfInt;
@@ -233,10 +234,17 @@ public TypeDeclaration declarationOfType(char[][] typeName) {
 }
 
 public void finalizeProblems() {
-	if (this.suppressWarningsCount == 0) return;
-	int removed = 0;
-	CategorizedProblem[] problems = this.compilationResult.problems;
 	int problemCount = this.compilationResult.problemCount;
+	CategorizedProblem[] problems = this.compilationResult.problems;
+	if (this.suppressWarningsCount == 0) {
+		 for (int iProblem = 0, length = problemCount; iProblem < length; iProblem++) {
+			 if (problems[iProblem] instanceof DefaultProblem) {
+				 ((DefaultProblem)problems[iProblem]).reportError();
+			 }
+		 }
+		return;
+	}
+	int removed = 0;
 	IrritantSet[] foundIrritants = new IrritantSet[this.suppressWarningsCount];
 	CompilerOptions options = this.scope.compilerOptions();
 	boolean hasMandatoryErrors = false;
@@ -263,8 +271,12 @@ public void finalizeProblems() {
 			int endSuppress = (int) position;
 			if (start < startSuppress) continue nextSuppress;
 			if (end > endSuppress) continue nextSuppress;
-			if (!this.suppressWarningIrritants[iSuppress].isSet(irritant))
+			if (!this.suppressWarningIrritants[iSuppress].isSet(irritant)) {
+				if (problem instanceof DefaultProblem) {
+					((DefaultProblem) problem).reportError();
+				}
 				continue nextSuppress;
+			}
 			// discard suppressed warning
 			removed++;
 			problems[iProblem] = null;
