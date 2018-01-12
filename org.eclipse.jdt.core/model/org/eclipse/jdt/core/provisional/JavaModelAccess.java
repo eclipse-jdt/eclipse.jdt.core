@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.provisional;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -18,8 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
@@ -41,7 +38,6 @@ public class JavaModelAccess {
 
 	private static final String BLANK  = " "; //$NON-NLS-1$
 	private static final String COMMA  = ","; //$NON-NLS-1$
-	private static final String EQUALS = "="; //$NON-NLS-1$
 	private static final String OPTION_START  = "--"; //$NON-NLS-1$
 	private static final String ADD_MODULES   = "--add-modules "; //$NON-NLS-1$
 	private static final String LIMIT_MODULES = "--limit-modules "; //$NON-NLS-1$
@@ -121,12 +117,9 @@ public class JavaModelAccess {
 	 * <li>{@link IClasspathAttribute#ADD_EXPORTS}</li>
 	 * <li>{@link IClasspathAttribute#ADD_READS}</li>
 	 * <li>{@link IClasspathAttribute#LIMIT_MODULES}</li>
-	 * <li>{@link IClasspathAttribute#PATCH_MODULE}</li>
 	 * </ul>
 	 * <p>Note that the {@link IClasspathAttribute#LIMIT_MODULES} value may be split into
 	 * an {@code --add-modules} part and a {@code --limit-modules} part.</p>
-	 * <p>{@link IClasspathAttribute#PATCH_MODULE} entries are translating using the full
-	 * absolute filesystem path of each <em>output</em> location of the given project.</p>
 	 *
 	 * @param project the project holding the main class to be launched
 	 * @param systemLibrary the classpath entry of the given project which represents the JRE System Library
@@ -148,33 +141,10 @@ public class JavaModelAccess {
 					case IClasspathAttribute.LIMIT_MODULES:
 						addLimitModules(buf, project, systemLibrary, classpathAttribute.getValue());
 						break;
-					case IClasspathAttribute.PATCH_MODULE:
-						for (String value : classpathAttribute.getValue().split(COMMA)) {
-							buf.append(OPTION_START).append(optName).append(BLANK).append(value).append(EQUALS);
-							appendOutputFolders(buf, project).append(BLANK);
-						}
-						break;
 				}
 			}
 		}
 		return buf.toString().trim();
-	}
-
-	private static StringBuilder appendOutputFolders(StringBuilder buf, IJavaProject project) throws JavaModelException {
-		IProject iProject = project.getProject();
-		buf.append(prjRelative2fsAbsolute(iProject, project.getOutputLocation()));
-		for (IClasspathEntry entry : project.getRawClasspath()) {
-			IPath outputLocation = entry.getOutputLocation();
-			if (outputLocation != null) {
-				buf.append(File.pathSeparator).append(prjRelative2fsAbsolute(iProject, outputLocation));
-			}
-		}
-		return buf;
-	}
-
-	private static String prjRelative2fsAbsolute(IProject project, IPath folderLocation) {
-		assert project.getFullPath().lastSegment().equals(folderLocation.segment(0)) : "folderLocation should be within given project"; //$NON-NLS-1$
-		return project.getLocation().append(folderLocation.removeFirstSegments(1)).toOSString();
 	}
 
 	private static void addLimitModules(StringBuilder buf, IJavaProject prj, IClasspathEntry systemLibrary, String value) throws JavaModelException {
