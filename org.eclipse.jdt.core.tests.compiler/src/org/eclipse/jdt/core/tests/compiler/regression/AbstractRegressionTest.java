@@ -1992,6 +1992,9 @@ protected void runJavac(
 	if (newOptions.indexOf(" -Xlint") < 0) {
 		newOptions = newOptions.concat(" -Xlint");
 	}
+	if (newOptions.indexOf(" -implicit") < 0) {
+		newOptions = newOptions.concat(" -implicit:none");
+	}
 	if (classLibraries != null) {
 		List<String> filteredLibs = new ArrayList<>();
 		for (String lib : classLibraries) {
@@ -2044,6 +2047,7 @@ protected void runJavac(
 				for (int i = 0, j = 0; i < testFilesLength; i += 2, j++) {
 					sourceFileNames[j] = testFiles[i];
 				}
+
 				// compile
 				long compilerResult = compiler.compile(javacOutputDirectory, newOptions /* options */, sourceFileNames, compilerLog);
 				// check cumulative javac results
