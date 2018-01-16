@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.core.AbstractModule;
@@ -193,5 +194,23 @@ public class JavaModelAccess {
 			return ModuleUpdater.determineModulesOfProjectsWithNonEmptyClasspath(javaProject, javaProject.getExpandedClasspath());
 		} 
 		return Collections.emptySet();
+	}
+
+	/**
+	 * Test if a type is from a location marked as test code (from the perspective of the project where it is defined.) 
+	 * @param type the type that is examined
+	 * @return false, if the corresponding class path entry is found and is not marked as test, otherwise true
+	 * @throws JavaModelException when access to the classpath entry corresponding to the given type fails.
+	 */
+	public static boolean isTestCode(IType type) throws JavaModelException {
+		IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) type.getPackageFragment().getParent();
+		if (packageFragmentRoot.getJavaProject() instanceof JavaProject) {
+			JavaProject javaProject = (JavaProject) packageFragmentRoot.getJavaProject();
+			IClasspathEntry entry = javaProject.getClasspathEntryFor(packageFragmentRoot.getPath());
+			if (entry != null && !entry.isTest()) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
