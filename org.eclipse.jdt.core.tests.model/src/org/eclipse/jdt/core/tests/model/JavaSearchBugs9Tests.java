@@ -3478,6 +3478,36 @@ public void testBug519151_022() throws Exception {
 		deleteProject("second");
 	}
 }
+public void testBug519151_023() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("first", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/lib519151.jar", false);
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project2.open(null);
+		String secondFile = 
+				"module second {\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		addLibraryEntry(project2, "/JavaSearchBugs/lib/lib519151.jar", false);
+		project1.close(); // sync
+		project2.close(); // sync
+		project2.open(null);
+		project1.open(null);
+		waitUntilIndexesReady();
+		SearchPattern pattern = SearchPattern.createPattern("module519151/pack519151.X519151", IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {project1, project2});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"lib/lib519151.jar pack519151.X519151 EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("first");
+		deleteProject("second");
+	}
+}
 public void _testBug519151_0X1() throws Exception {
 	try {
 
