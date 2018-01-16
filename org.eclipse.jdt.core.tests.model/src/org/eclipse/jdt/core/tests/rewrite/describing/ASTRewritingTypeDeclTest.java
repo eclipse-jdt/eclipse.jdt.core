@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -2018,6 +2019,23 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			"@interface Marker {}\n";
 		assertEqualString(preview, expected);
 
+	}
+	public void testBug526097a() throws Exception {
+		IPackageFragment pack1 = this.sourceFolder.getPackageFragment(IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH);
+		StringBuffer buf= new StringBuffer();
+		buf.append("public class T");
+		ICompilationUnit cu= pack1.createCompilationUnit("Test.java", buf.toString(), false, null);
+		CompilationUnit astRoot= createAST(getAST8(), cu, true, false);
+		List<TypeDeclaration> types = astRoot.types();
+		TypeDeclaration typeDeclaration = types.get(0);
+		SimpleName simpleName = typeDeclaration.getName();
+		AST ast= astRoot.getAST();
+		ASTRewrite rewrite= ASTRewrite.create(ast);
+		rewrite.replace(simpleName, ast.newSimpleName("Test"), null);
+		String preview= evaluateRewrite(cu, rewrite);
+		buf= new StringBuffer();
+		buf.append("public class Test");
+		assertEqualString(preview, buf.toString());
 	}
 
 }
