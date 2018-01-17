@@ -260,6 +260,8 @@ private void buildAll() {
 	if (testImageBuilder.sourceLocations.length > 0) {
 		// Note: testImageBuilder *MUST* have a separate output folder, or it will delete the files created by imageBuilder.build() 
 		testImageBuilder.build();
+	} else {
+		testImageBuilder.cleanUp();
 	}
 	recordNewState(imageBuilder.newState);
 }
