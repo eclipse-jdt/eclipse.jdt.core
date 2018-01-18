@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 IBM Corporation and others.
+ * Copyright (c) 2016, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2665,6 +2665,59 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("Test01");
 		}
 	}
+	public void testSystemLibAsJMod_2() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			IJavaProject project = createJava9Project("Test01", new String[]{"src"});
+			IClasspathEntry[] rawClasspath = project.getRawClasspath();
+			IClasspathEntry[] newClasspath = new IClasspathEntry[rawClasspath.length + 1];
+			IClasspathEntry desktop = null;
+			for (int i = 0; i < rawClasspath.length; i++) {
+				IPath path = rawClasspath[i].getPath();
+				if (path.lastSegment().equals("jrt-fs.jar")) {
+					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
+					IClasspathAttribute[] attributes = {
+							JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(),
+							new Path("java.base"), null, attributes, rawClasspath[i].isExported());
+					newClasspath[i] = newEntry;
+					path = path.removeLastSegments(2).append("jmods").append("java.desktop.jmod");
+					desktop = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(),
+							new Path("java.desktop"), null, attributes, rawClasspath[i].isExported());
+				} else {
+					newClasspath[i] = rawClasspath[i];
+				}
+			}
+			newClasspath[rawClasspath.length] = desktop;
+			project.setRawClasspath(newClasspath, null);
+			this.createFile("Test01/src/module-info.java", 
+					"module org.eclipse {\n" + 
+					"	requires java.desktop;\n" + 
+					"	requires java.base;\n" + 
+					"}");
+			waitForManualRefresh();
+			waitForAutoBuild();
+			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			assertMarkers("unexpected markers", "", markers);
+
+			// Check the reconciler
+			ICompilationUnit cu = getCompilationUnit("/Test01/src/module-info.java");
+			cu.getWorkingCopy(this.wcOwner, null);
+			markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			editFile("Test01/src/module-info.java", 
+					"//Just touching \n" +
+					"module org.eclipse {\n" + 
+					"	requires java.desktop;\n" + 
+					"	requires java.base;\n" + 
+					"}");
+			project.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			assertMarkers("unexpected markers", "", markers);
+		} finally {
+			deleteProject("Test01");
+		}
+	}
 	public void testBug510617() throws CoreException {
 		if (!isJRE9) return;
 		try {
@@ -3819,7 +3872,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					false/*not exported*/);
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 
-			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", "", markers);
