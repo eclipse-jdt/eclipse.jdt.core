@@ -57,7 +57,7 @@ protected boolean compiledAllAtOnce;
 private boolean inCompiler;
 
 protected boolean keepStoringProblemMarkers;
-protected SimpleSet filesWithAnnotations = null;
+protected Set<SourceFile> filesWithAnnotations = null;
 
 //2000 is best compromise between space used and speed
 public static int MAX_AT_ONCE = Integer.getInteger(JavaModelManager.MAX_COMPILED_UNITS_AT_ONCE, 2000).intValue();
@@ -108,7 +108,7 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, S
 					// initialize this set so the builder knows to gather CUs that define Annotation types
 					// each Annotation processor participant is then asked to process these files AFTER
 					// the compile loop. The normal dependency loop will then recompile all affected types
-					this.filesWithAnnotations = new SimpleSet(1);
+					this.filesWithAnnotations = new HashSet<>(1);
 					break;
 				}
 			}
@@ -291,7 +291,7 @@ protected void cleanUp() {
 * if they are affected by the changes.
 */
 protected void compile(SourceFile[] units) {
-	if (this.filesWithAnnotations != null && this.filesWithAnnotations.elementSize > 0)
+	if (this.filesWithAnnotations != null && this.filesWithAnnotations.size() > 0)
 		// will add files that have annotations in acceptResult() & then processAnnotations() before exitting this method
 		this.filesWithAnnotations.clear();
 
@@ -629,9 +629,9 @@ protected void processAnnotations(CompilationParticipantResult[] results) {
 		hasAnnotationProcessor = this.javaBuilder.participants[i].isAnnotationProcessor();
 	if (!hasAnnotationProcessor) return;
 
-	boolean foundAnnotations = this.filesWithAnnotations != null && this.filesWithAnnotations.elementSize > 0;
+	boolean foundAnnotations = this.filesWithAnnotations != null && this.filesWithAnnotations.size() > 0;
 	for (int i = results.length; --i >= 0;)
-		results[i].reset(foundAnnotations && this.filesWithAnnotations.includes(results[i].sourceFile));
+		results[i].reset(foundAnnotations && this.filesWithAnnotations.contains(results[i].sourceFile));
 
 	// even if no files have annotations, must still tell every annotation processor in case the file used to have them
 	for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)

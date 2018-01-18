@@ -28,7 +28,7 @@ public class BatchImageBuilder extends AbstractImageBuilder {
 
 	IncrementalImageBuilder incrementalBuilder; // if annotations or secondary types have to be processed after the compile loop
 	ArrayList secondaryTypes; // qualified names for all secondary types found during batch compile
-	StringSet typeLocatorsWithUndefinedTypes; // type locators for all source files with errors that may be caused by 'not found' secondary types
+	Set<String> typeLocatorsWithUndefinedTypes; // type locators for all source files with errors that may be caused by 'not found' secondary types
 	final CompilationGroup compilationGroup;
 
 protected BatchImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, CompilationGroup compilationGroup) {
@@ -308,9 +308,9 @@ protected void rebuildTypesAffectedBySecondaryTypes() {
 		this.incrementalBuilder = new IncrementalImageBuilder(this, this.compilationGroup);
 
 	int count = this.secondaryTypes.size();
-	StringSet qualifiedNames = new StringSet(count * 2);
-	StringSet simpleNames = new StringSet(count);
-	StringSet rootNames = new StringSet(3);
+	Set<String> qualifiedNames = new HashSet<>(count * 2);
+	Set<String> simpleNames = new HashSet<>(count);
+	Set<String> rootNames = new HashSet<>(3);
 	while (--count >=0) {
 		char[] secondaryTypeName = (char[]) this.secondaryTypes.get(count);
 		IPath path = new Path(null, new String(secondaryTypeName));
@@ -331,7 +331,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 		CategorizedProblem problem = problems[i];
 		if (problem != null && problem.getID() == IProblem.UndefinedType) {
 			if (this.typeLocatorsWithUndefinedTypes == null)
-				this.typeLocatorsWithUndefinedTypes = new StringSet(3);
+				this.typeLocatorsWithUndefinedTypes = new HashSet<>(3);
 			this.typeLocatorsWithUndefinedTypes.add(sourceFile.typeLocator());
 			break;
 		}
