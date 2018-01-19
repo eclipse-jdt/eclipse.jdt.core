@@ -294,7 +294,7 @@ static State read(IProject project, DataInputStream in) throws IOException {
 		loc.patchModuleName = patchName.length > 0 ? new String(patchName) : null;
 		int limitSize = in.readInt();
 		if (limitSize != 0) {
-			loc.limitModuleNames = new HashSet<>(limitSize);
+			loc.limitModuleNames = new LinkedHashSet<>(limitSize);
 			for (int j = 0; j < limitSize; j++) {
 				loc.limitModuleNames.add(in.readUTF());
 			}
