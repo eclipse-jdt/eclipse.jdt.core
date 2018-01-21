@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -100,6 +100,106 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		.filter(e -> !"JAVA_TOOL_OPTIONS".equals(e.getKey()))
 		.map(e -> e.getKey() + "=" + e.getValue())
 		.toArray(String[]::new);
+
+	protected class Runner {
+		boolean shouldFlushOutputDirectory = true;
+		// input:
+		String[] testFiles;
+		String[] dependantFiles;
+		String[] classLibraries;
+		// control compilation:
+		Map<String,String> customOptions;
+		boolean performStatementsRecovery;
+		boolean generateOutput;
+		ICompilerRequestor customRequestor;
+		// compiler result:
+		String expectedCompilerLog;
+		String[] alternateCompilerLogs;
+		boolean showCategory;
+		boolean showWarningToken;
+		// javac:
+		boolean skipJavac;
+		JavacTestOptions javacTestOptions;
+		// execution:
+		boolean forceExecution;
+		String[] vmArguments;
+		String expectedOutputString;
+		String expectedErrorString;
+
+		ASTVisitor visitor;
+
+		@SuppressWarnings("synthetic-access")
+		protected void runConformTest() {
+			runTest(this.shouldFlushOutputDirectory,
+					this.testFiles,
+					this.dependantFiles != null ? this.dependantFiles : new String[] {},
+					this.classLibraries,
+					this.customOptions,
+					this.performStatementsRecovery,
+					new Requestor(
+							this.generateOutput,
+							this.customRequestor,
+							this.showCategory,
+							this.showWarningToken),
+					false,
+					this.expectedCompilerLog,
+					this.alternateCompilerLogs,
+					this.forceExecution,
+					this.vmArguments,
+					this.expectedOutputString,
+					this.expectedErrorString,
+					this.visitor,
+					this.skipJavac ? JavacTestOptions.SKIP : this.javacTestOptions);
+		}
+
+		@SuppressWarnings("synthetic-access")
+		protected void runNegativeTest() {
+			runTest(this.shouldFlushOutputDirectory,
+					this.testFiles,
+					this.dependantFiles != null ? this.dependantFiles : new String[] {},
+					this.classLibraries,
+					this.customOptions,
+					this.performStatementsRecovery,
+					new Requestor(
+							this.generateOutput,
+							this.customRequestor,
+							this.showCategory,
+							this.showWarningToken),
+					true,
+					this.expectedCompilerLog,
+					this.alternateCompilerLogs,
+					this.forceExecution,
+					this.vmArguments,
+					this.expectedOutputString,
+					this.expectedErrorString,
+					this.visitor,
+					this.skipJavac ? JavacTestOptions.SKIP : this.javacTestOptions);
+		}
+
+		@SuppressWarnings("synthetic-access")
+		protected void runWarningTest() {
+			runTest(this.shouldFlushOutputDirectory,
+					this.testFiles,
+					this.dependantFiles != null ? this.dependantFiles : new String[] {},
+					this.classLibraries,
+					this.customOptions,
+					this.performStatementsRecovery,
+					new Requestor(
+							this.generateOutput,
+							this.customRequestor,
+							this.showCategory,
+							this.showWarningToken),
+					false,
+					this.expectedCompilerLog,
+					this.alternateCompilerLogs,
+					this.forceExecution,
+					this.vmArguments,
+					this.expectedOutputString,
+					this.expectedErrorString,
+					this.visitor,
+					this.skipJavac ? JavacTestOptions.SKIP : this.javacTestOptions);
+		}
+	}
 
 	// javac comparison related types, fields and methods - see runJavac for
 	// details
@@ -3281,6 +3381,10 @@ protected void runNegativeTest(
 		File outputDir = new File(OUTPUT_DIR);
 		if (outputDir.exists()) {
 			Util.flushDirectoryContent(outputDir);
+		}
+		File libDir = new File(LIB_DIR);
+		if (libDir.exists()) {
+			Util.flushDirectoryContent(libDir);
 		}
 		super.tearDown();
 		if (RUN_JAVAC) {

@@ -888,12 +888,15 @@ public abstract class Annotation extends Expression {
 				pairs[i].resolveTypeExpecting(scope, null); // resilient
 			}
 		}
-//		if (scope.compilerOptions().storeAnnotations)
 		this.compilerAnnotation = scope.environment().createAnnotation((ReferenceBinding) this.resolvedType, computeElementValuePairs());
 		// recognize standard annotations ?
 		long tagBits = detectStandardAnnotation(scope, annotationType, valueAttribute);
 		int defaultNullness = (int)(tagBits & Binding.NullnessDefaultMASK);
 		tagBits &= ~Binding.NullnessDefaultMASK;
+		CompilerOptions compilerOptions = scope.compilerOptions();
+		if ((tagBits & TagBits.AnnotationDeprecated) != 0 && compilerOptions.complianceLevel >= ClassFileConstants.JDK9 && !compilerOptions.storeAnnotations) {
+			this.recipient.setAnnotations(new AnnotationBinding[] {this.compilerAnnotation}, true); // force storing enhanced deprecation
+		}
 
 		// record annotation positions in the compilation result
 		scope.referenceCompilationUnit().recordSuppressWarnings(IrritantSet.NLS, null, this.sourceStart, this.declarationSourceEnd, scope.referenceContext());
@@ -918,7 +921,7 @@ public abstract class Annotation extends Expression {
 							} else {
 								start = typeDeclaration.declarationSourceStart;
 							}
-							recordSuppressWarnings(scope, start, typeDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
+							recordSuppressWarnings(scope, start, typeDeclaration.declarationSourceEnd, compilerOptions.suppressWarnings);
 						}
 						sourceType.defaultNullness |= defaultNullness;
 						break;
@@ -928,7 +931,7 @@ public abstract class Annotation extends Expression {
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							sourceType = (SourceTypeBinding) sourceMethod.declaringClass;
 							AbstractMethodDeclaration methodDeclaration = sourceType.scope.referenceContext.declarationOf(sourceMethod);
-							recordSuppressWarnings(scope, methodDeclaration.declarationSourceStart, methodDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
+							recordSuppressWarnings(scope, methodDeclaration.declarationSourceStart, methodDeclaration.declarationSourceEnd, compilerOptions.suppressWarnings);
 						}
 						long nullBits = sourceMethod.tagBits & TagBits.AnnotationNullMASK;
 						if (nullBits == TagBits.AnnotationNullMASK) {
@@ -936,7 +939,7 @@ public abstract class Annotation extends Expression {
 							sourceMethod.tagBits &= ~TagBits.AnnotationNullMASK; // avoid secondary problems
 						}
 						if (nullBits != 0 && sourceMethod.isConstructor()) {
-							if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8)
+							if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8)
 								scope.problemReporter().nullAnnotationUnsupportedLocation(this);
 							// for declaration annotations the inapplicability will be reported below
 							sourceMethod.tagBits &= ~TagBits.AnnotationNullMASK;
@@ -949,7 +952,7 @@ public abstract class Annotation extends Expression {
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							sourceType = (SourceTypeBinding) sourceField.declaringClass;
 							FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(sourceField);
-							recordSuppressWarnings(scope, fieldDeclaration.declarationSourceStart, fieldDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
+							recordSuppressWarnings(scope, fieldDeclaration.declarationSourceStart, fieldDeclaration.declarationSourceEnd, compilerOptions.suppressWarnings);
 						}
 						if (defaultNullness != 0) {
 							sourceType = (SourceTypeBinding) sourceField.declaringClass;
@@ -976,7 +979,7 @@ public abstract class Annotation extends Expression {
 						}
 						if ((tagBits & TagBits.AnnotationSuppressWarnings) != 0) {
 							LocalDeclaration localDeclaration = variable.declaration;
-							recordSuppressWarnings(scope, localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd, scope.compilerOptions().suppressWarnings);
+							recordSuppressWarnings(scope, localDeclaration.declarationSourceStart, localDeclaration.declarationSourceEnd, compilerOptions.suppressWarnings);
 						}
 						// note: defaultNullness for local declarations has been already been handled earlier by handleNonNullByDefault() 
 						break;
