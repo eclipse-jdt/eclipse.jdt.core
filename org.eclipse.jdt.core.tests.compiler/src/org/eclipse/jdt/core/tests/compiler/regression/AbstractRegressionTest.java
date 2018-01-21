@@ -104,7 +104,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		String[] classLibraries;
 		boolean  libsOnModulePath;
 		// control compilation:
-		Map customOptions;
+		Map<String,String> customOptions;
 		boolean performStatementsRecovery;
 		boolean generateOutput;
 		ICompilerRequestor customRequestor;
