@@ -4134,7 +4134,7 @@ public void testBug530016_001() throws Exception {
 		project2.open(null);
 		project1.open(null);
 		
-		String needle = "\\r mod.*"; // Pattern
+		String needle = "/r mod.*"; // Pattern
 		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.MODULE, DECLARATIONS, SearchPattern.R_EXACT_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
@@ -4184,7 +4184,7 @@ public void testBug530016_002() throws Exception {
 		project2.open(null);
 		project1.open(null);
 		
-		String needle = "\\r mod.*"; // Pattern
+		String needle = "/r mod.*"; // Pattern
 		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.MODULE, DECLARATIONS, SearchPattern.R_EXACT_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
@@ -4233,7 +4233,7 @@ public void testBug530016_003() throws Exception {
 		project2.open(null);
 		project1.open(null);
 		
-		String needle = "\\r mod\\.f.*"; // Pattern
+		String needle = "/r mod\\.f.*"; // Pattern
 		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.MODULE, DECLARATIONS, SearchPattern.R_EXACT_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
@@ -4282,7 +4282,7 @@ public void testBug530016_004() throws Exception {
 		project2.open(null);
 		project1.open(null);
 		
-		String needle = "\\r mod.f.+"; // Pattern
+		String needle = "/r mod.f.+"; // Pattern
 		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.MODULE, DECLARATIONS, SearchPattern.R_EXACT_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
@@ -4331,7 +4331,7 @@ public void testBug530016_005() throws Exception {
 		project2.open(null);
 		project1.open(null);
 		
-		String needle = "\\r .*f.+"; // Pattern
+		String needle = "/r .*f.+"; // Pattern
 		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.MODULE, DECLARATIONS, SearchPattern.R_EXACT_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
@@ -4380,7 +4380,7 @@ public void testBug530016_006() throws Exception {
 		project2.open(null);
 		project1.open(null);
 		
-		String needle = "\\r .*m+.*"; // Pattern
+		String needle = "/r .*m+.*"; // Pattern
 		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.MODULE, DECLARATIONS, SearchPattern.R_EXACT_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
@@ -4446,7 +4446,7 @@ public void testBug530016_007() throws Exception {
 		project2.open(null);
 		project1.open(null);
 		
-		String needle = "\\r mod\\.[fs]+.*"; // Pattern
+		String needle = "/r mod\\.[fs]+.*"; // Pattern
 		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.MODULE, DECLARATIONS, SearchPattern.R_EXACT_MATCH);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
 				{getJavaProject("JavaSearchBugs9")});
