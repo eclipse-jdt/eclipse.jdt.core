@@ -1247,4 +1247,34 @@ public void testBug528948_002() throws Exception {
 		deleteProject(project2);
 	}
 }
+public void testBug530142() throws Exception {
+	ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"Completion9_1", "/Completion/test.second.jar,/Completion/test.third.jar,/Completion/test.some.api.jar"}));
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL19_LIB", "org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "bin", "9");
+	try  {
+		project1.open(null);
+
+		createFolder("/Completion9_1/src/x");
+		String content =  "module my.mod { \n" +
+				"requires test.\n" +
+		"}\n";
+		String filePath = "/Completion9_1/src/module-info.java";
+		String completeBehind = "requires test.";
+		createFile(filePath, content);
+		int cursorLocation = content.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		waitUntilIndexesReady();
+
+		ICompilationUnit unit = getCompilationUnit("/Completion9_1/src/module-info.java");
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "[MODULE_REF]{test.second, test.second, null, null, 49}\n" +
+				"[MODULE_REF]{test.some.core.api, test.some.core.api, null, null, 49}\n" +
+				"[MODULE_REF]{test.third.from.manifest, test.third.from.manifest, null, null, 49}";
+		assertResults(expected,	requestor.getResults());
+
+	} finally {
+		deleteProject(project1);
+	}
+}
 }
