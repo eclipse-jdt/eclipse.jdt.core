@@ -7040,25 +7040,45 @@ public void operatorOnlyValidOnNumericType(CompoundAssignment  assignment, TypeB
 		assignment.sourceEnd);
 }
 public void overridesDeprecatedMethod(MethodBinding localMethod, MethodBinding inheritedMethod) {
-	this.handle(
-		(inheritedMethod.tagBits & TagBits.AnnotationTerminallyDeprecated) != 0
+	String localMethodName = new String(
+								CharOperation.concat(
+									localMethod.declaringClass.readableName(),
+									localMethod.readableName(),
+									'.'));
+	String localMethodShortName = new String(
+									CharOperation.concat(
+										localMethod.declaringClass.shortReadableName(),
+										localMethod.shortReadableName(),
+										'.'));
+	String sinceValue = deprecatedSinceValue(() -> inheritedMethod.getAnnotations());
+	if (sinceValue != null) {
+		this.handle(
+			(inheritedMethod.tagBits & TagBits.AnnotationTerminallyDeprecated) != 0
+				? IProblem.OverridingTerminallyDeprecatedSinceVersionMethod : IProblem.OverridingDeprecatedSinceVersionMethod,
+			new String[] {
+				localMethodName,
+				new String(inheritedMethod.declaringClass.readableName()),
+				sinceValue},
+			new String[] {
+				localMethodShortName,
+				new String(inheritedMethod.declaringClass.shortReadableName()),
+				sinceValue},
+			localMethod.sourceStart(),
+			localMethod.sourceEnd());
+		
+	} else {
+		this.handle(
+			(inheritedMethod.tagBits & TagBits.AnnotationTerminallyDeprecated) != 0
 				? IProblem.OverridingTerminallyDeprecatedMethod : IProblem.OverridingDeprecatedMethod,
-		new String[] {
-			new String(
-					CharOperation.concat(
-						localMethod.declaringClass.readableName(),
-						localMethod.readableName(),
-						'.')),
-			new String(inheritedMethod.declaringClass.readableName())},
-		new String[] {
-			new String(
-					CharOperation.concat(
-						localMethod.declaringClass.shortReadableName(),
-						localMethod.shortReadableName(),
-						'.')),
-			new String(inheritedMethod.declaringClass.shortReadableName())},
-		localMethod.sourceStart(),
-		localMethod.sourceEnd());
+			new String[] {
+				localMethodName,
+				new String(inheritedMethod.declaringClass.readableName())},
+			new String[] {
+				localMethodShortName,
+				new String(inheritedMethod.declaringClass.shortReadableName())},
+			localMethod.sourceStart(),
+			localMethod.sourceEnd());
+	}
 }
 public void overridesMethodWithoutSuperInvocation(MethodBinding localMethod) {
 	this.handle(

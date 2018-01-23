@@ -350,6 +350,7 @@ public class Deprecated9Test extends AbstractRegressionTest {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<>();
 		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, CompilerOptions.WARNING);
+		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION_WHEN_OVERRIDING_DEPRECATED_METHOD, CompilerOptions.ENABLED);
 		runner.customOptions.put(JavaCore.COMPILER_PB_TERMINAL_DEPRECATION, CompilerOptions.ERROR);
 		runner.testFiles =
 			new String[] {
@@ -412,6 +413,11 @@ public class Deprecated9Test extends AbstractRegressionTest {
 			"	class E03 extends E01 {\n" + 
 			"	      ^^^\n" + 
 			"The constructor E01() is deprecated since version 3.0.0\n" + 
+			"----------\n" + 
+			"8. WARNING in test1\\E02.java (at line 11)\n" + 
+			"	protected void old() {}\n" + 
+			"	               ^^^^^\n" + 
+			"The method E02.E03.old() overrides a method from E01 that is deprecated since version 4-SNAPSHOT\n" + 
 			"----------\n";
 		runner.runWarningTest();
 	}
@@ -419,6 +425,7 @@ public class Deprecated9Test extends AbstractRegressionTest {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<>();
 		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, CompilerOptions.WARNING);
+		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION_WHEN_OVERRIDING_DEPRECATED_METHOD, CompilerOptions.ENABLED);
 		runner.customOptions.put(JavaCore.COMPILER_PB_TERMINAL_DEPRECATION, CompilerOptions.ERROR);
 		runner.testFiles =
 			new String[] {
@@ -487,6 +494,11 @@ public class Deprecated9Test extends AbstractRegressionTest {
 			"	class E03 extends E01 {\n" + 
 			"	      ^^^\n" + 
 			"The constructor E01() is deprecated since version 3.0.0\n" + 
+			"----------\n" + 
+			"8. WARNING in test1\\E02.java (at line 11)\n" + 
+			"	protected void old() {}\n" + 
+			"	               ^^^^^\n" + 
+			"The method E02.E03.old() overrides a method from E01 that is deprecated since version 4-SNAPSHOT\n" + 
 			"----------\n";
 		runner.runWarningTest();
 	}
@@ -494,6 +506,7 @@ public class Deprecated9Test extends AbstractRegressionTest {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<>();
 		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, CompilerOptions.WARNING);
+		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION_WHEN_OVERRIDING_DEPRECATED_METHOD, CompilerOptions.ENABLED);
 		runner.customOptions.put(JavaCore.COMPILER_PB_TERMINAL_DEPRECATION, CompilerOptions.ERROR);
 		runner.testFiles =
 			new String[] {
@@ -556,6 +569,11 @@ public class Deprecated9Test extends AbstractRegressionTest {
 			"	class E03 extends E01 {\n" + 
 			"	      ^^^\n" + 
 			"The constructor E01() has been deprecated since version 3.0.0 and marked for removal\n" + 
+			"----------\n" + 
+			"8. ERROR in test1\\E02.java (at line 11)\n" + 
+			"	protected void old() {}\n" + 
+			"	               ^^^^^\n" + 
+			"The method E02.E03.old() overrides a method from E01 that has been deprecated since version 4-SNAPSHOT and marked for removal\n" + 
 			"----------\n";
 		runner.javacTestOptions =
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
