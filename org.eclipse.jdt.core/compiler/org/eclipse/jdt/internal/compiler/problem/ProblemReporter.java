@@ -80,6 +80,7 @@ import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -1719,11 +1720,11 @@ public void defaultModifierIllegallySpecified(int sourceStart, int sourceEnd) {
 		sourceStart, sourceEnd);
 }
 
-public void deprecatedField(FieldBinding field, ASTNode location) {
+public void deprecatedField(final FieldBinding field, ASTNode location) {
 	String fieldName = new String(field.name);
 	int sourceStart = nodeSourceStart(field, location);
 	int sourceEnd = nodeSourceEnd(field, location);
-	String sinceValue = deprecatedSinceValue(field.getAnnotations());
+	String sinceValue = deprecatedSinceValue(() -> field.getAnnotations());
 	if (sinceValue != null) {
 		this.handle(
 			(field.tagBits & TagBits.AnnotationTerminallyDeprecated) == 0 ? IProblem.UsingDeprecatedSinceVersionField : IProblem.UsingTerminallyDeprecatedSinceVersionField,
@@ -1739,7 +1740,7 @@ public void deprecatedField(FieldBinding field, ASTNode location) {
 	}
 }
 
-public void deprecatedMethod(MethodBinding method, ASTNode location) {
+public void deprecatedMethod(final MethodBinding method, ASTNode location) {
 	// common arguments:
 	String readableClassName = new String(method.declaringClass.readableName());
 	String shortReadableClassName = new String(method.declaringClass.shortReadableName());
@@ -1771,9 +1772,9 @@ public void deprecatedMethod(MethodBinding method, ASTNode location) {
 
 	// discriminate:
 	boolean terminally = (method.tagBits & TagBits.AnnotationTerminallyDeprecated) != 0;
-	String sinceValue = deprecatedSinceValue(method.getAnnotations());
+	String sinceValue = deprecatedSinceValue(() -> method.getAnnotations());
 	if (sinceValue == null && method.isConstructor()) {
-		sinceValue = deprecatedSinceValue(method.declaringClass.getAnnotations()); // for default ctor
+		sinceValue = deprecatedSinceValue(() -> method.declaringClass.getAnnotations()); // for default ctor
 	}
 	if (sinceValue != null) {
 		if (isConstructor) {
@@ -1812,7 +1813,7 @@ public void deprecatedType(TypeBinding type, ASTNode location) {
 // a deprecated type in a qualified reference (see bug 292510)
 public void deprecatedType(TypeBinding type, ASTNode location, int index) {
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
-	type = type.leafComponentType();
+	final TypeBinding leafType = type.leafComponentType();
 	int sourceStart = -1;
 	if (location instanceof QualifiedTypeReference) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300031
 		QualifiedTypeReference ref = (QualifiedTypeReference) location;
@@ -1820,26 +1821,26 @@ public void deprecatedType(TypeBinding type, ASTNode location, int index) {
 			sourceStart = (int) (ref.sourcePositions[index] >> 32);
 		}
 	}
-	String sinceValue = deprecatedSinceValue(type.getAnnotations());
+	String sinceValue = deprecatedSinceValue(() -> leafType.getAnnotations());
 	if (sinceValue != null) {
 		this.handle(
-			((type.tagBits & TagBits.AnnotationTerminallyDeprecated) == 0) ? IProblem.UsingDeprecatedSinceVersionType : IProblem.UsingTerminallyDeprecatedSinceVersionType,
-			new String[] {new String(type.readableName()), sinceValue},
-			new String[] {new String(type.shortReadableName()), sinceValue},
+			((leafType.tagBits & TagBits.AnnotationTerminallyDeprecated) == 0) ? IProblem.UsingDeprecatedSinceVersionType : IProblem.UsingTerminallyDeprecatedSinceVersionType,
+			new String[] {new String(leafType.readableName()), sinceValue},
+			new String[] {new String(leafType.shortReadableName()), sinceValue},
 			(sourceStart == -1) ? location.sourceStart : sourceStart,
 			nodeSourceEnd(null, location, index));
 	} else {
 		this.handle(
-			((type.tagBits & TagBits.AnnotationTerminallyDeprecated) == 0) ? IProblem.UsingDeprecatedType : IProblem.UsingTerminallyDeprecatedType,
-			new String[] {new String(type.readableName())},
-			new String[] {new String(type.shortReadableName())},
+			((leafType.tagBits & TagBits.AnnotationTerminallyDeprecated) == 0) ? IProblem.UsingDeprecatedType : IProblem.UsingTerminallyDeprecatedType,
+			new String[] {new String(leafType.readableName())},
+			new String[] {new String(leafType.shortReadableName())},
 			(sourceStart == -1) ? location.sourceStart : sourceStart,
 			nodeSourceEnd(null, location, index));
 	}
 }
-String deprecatedSinceValue(AnnotationBinding[] annotations) {
+String deprecatedSinceValue(Supplier<AnnotationBinding[]> annotations) {
 	if (this.options != null && this.options.complianceLevel >= ClassFileConstants.JDK9) {
-		for (AnnotationBinding annotationBinding : annotations) {
+		for (AnnotationBinding annotationBinding : annotations.get()) {
 			if (annotationBinding.getAnnotationType().id == TypeIds.T_JavaLangDeprecated) {
 				for (ElementValuePair elementValuePair : annotationBinding.getElementValuePairs()) {
 					if (CharOperation.equals(elementValuePair.getName(), TypeConstants.SINCE) && elementValuePair.value instanceof StringConstant)
