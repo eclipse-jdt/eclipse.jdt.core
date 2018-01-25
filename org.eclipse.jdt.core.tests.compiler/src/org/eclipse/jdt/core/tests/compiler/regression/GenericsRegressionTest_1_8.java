@@ -8879,4 +8879,33 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug530235() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface MySupplier<V> {\n" + 
+				"    V get(Object x) throws Exception;\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    public <S> S getSmth()  {\n" + 
+				"	return exec(s -> {return X.getType(Integer.class);}); /*here the error*/\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static <T> T getType(Class<T> class1) {\n" + 
+				"	    return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public <U> U exec(MySupplier<U> supplier)  {\n" + 
+				"	    throw new RuntimeException(\"Not implemented yet\");\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	return exec(s -> {return X.getType(Integer.class);}); /*here the error*/\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to S\n" + 
+			"----------\n");
+	}
 }
