@@ -42,6 +42,8 @@
 		          <test property="org.eclipse.core.resources.projectNature" value="org.eclipse.jdt.core.javanature"/>
 		     </adapt>         
          </enabledWhen>
+         <keywordReference
+               id="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences.keyword"></keywordReference>
       </page>            
       <page
             category="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences"
@@ -64,6 +66,13 @@
          <markerTypeReference id="org.eclipse.jdt.apt.core.nonreconcile.compile.problem"/>
          <markerTypeReference id="org.eclipse.jdt.apt.pluggable.core.compileProblem"/>
       </markerTypeCategory>
+   </extension>
+   <extension
+         point="org.eclipse.ui.keywords">
+      <keyword
+            id="org.eclipse.jdt.apt.ui.propertyPages.aptPreferences.keyword"
+            label="%preferenceKeywords.annotation.processing">
+      </keyword>
    </extension>
 
    
