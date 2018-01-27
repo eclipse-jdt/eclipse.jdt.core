@@ -439,7 +439,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 			readOffset += (6 + u4At(readOffset + 2));
 		}
 		if (this.moduleDeclaration != null && this.annotations != null) {
-			this.moduleDeclaration.setAnnotations(this.annotations, fullyInitialize);
+			this.moduleDeclaration.setAnnotations(this.annotations, this.tagBits, fullyInitialize);
 			this.annotations = null;
 		}
 		if (fullyInitialize) {
