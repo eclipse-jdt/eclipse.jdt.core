@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -437,8 +437,8 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 					validateModuleName(" mod.one", VERSIONS[i], VERSIONS[j], IStatus.ERROR, "A module name must not start or end with a blank");
 					validateModuleName("java one", VERSIONS[i], VERSIONS[j], IStatus.ERROR, "'java one' is not a valid Java identifier");
 					validateModuleName("mod,one", VERSIONS[i], VERSIONS[j], IStatus.ERROR, "'mod,one' is not a valid Java identifier");
-					validateModuleName("mod1.one", VERSIONS[i], VERSIONS[j], IStatus.WARNING, "A module name should avoid terminal digits");
-					validateModuleName("mod.one1.two", VERSIONS[i], VERSIONS[j], IStatus.WARNING, "A module name should avoid terminal digits");
+					validateModuleName("mod1.one", VERSIONS[i], VERSIONS[j], IStatus.OK, "OK");
+					validateModuleName("mod.one1.two", VERSIONS[i], VERSIONS[j], IStatus.OK, "OK");
 					validateModuleName("java.one", VERSIONS[i], VERSIONS[j], IStatus.WARNING, "java is reserved for system modules");
 					validateModuleName("mod. one", VERSIONS[i], VERSIONS[j], IStatus.OK, "OK");
 
