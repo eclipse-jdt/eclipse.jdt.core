@@ -600,7 +600,13 @@ protected static class JavacTestOptions {
 						new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) : null,
 			EclipseBug428061 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428061
 								new EclipseHasABug(MismatchType.JavacErrorsEclipseNone |
-										MismatchType.JavacErrorsEclipseWarnings) : null;
+										MismatchType.JavacErrorsEclipseWarnings) : null,
+			EclipseBug510528 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=510528
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug531531 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=531531
+					new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) : null,
+			EclipseBug529197 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=529197
+					new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) : null;
 	}
 	// Justification based upon:
 	// - Eclipse bugs opened to investigate differences and closed as INVALID
@@ -680,7 +686,9 @@ protected static class JavacTestOptions {
 			EclipseBug235543 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235543
 				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) : null,
 			EclipseBug235546 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
-				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null;
+				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug449063 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063
+					 new EclipseJustification(MismatchType.StandardOutputMismatch) : null;
 		public static final EclipseJustification
 			EclipseJustification0001 = RUN_JAVAC ?
 					new EclipseJustification(MismatchType.EclipseErrorsJavacNone) : null;
@@ -801,7 +809,9 @@ protected static class JavacTestOptions {
 					MismatchType.JavacErrorsEclipseNone,
 					ClassFileConstants.JDK1_6, 10 /* 1.6.0_10_b08 or better - maybe before */) : null,
 			JavacBug8033810 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8033810
-				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null;
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null,
+			JavacBug8144673 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8144673
+				new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0100) : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -816,7 +826,11 @@ protected static class JavacTestOptions {
 			JavacBugFixed_7 = RUN_JAVAC ?
 				new JavacHasABug(
 					0 /* all */,
-					ClassFileConstants.JDK1_7, 0 /* 1.7.0_b24 or better - maybe before */) : null;
+					ClassFileConstants.JDK1_7, 0 /* 1.7.0_b24 or better - maybe before */) : null,
+			JavacBugFixed_901 = RUN_JAVAC ?
+				new JavacHasABug(
+					0 /* all */,
+					ClassFileConstants.JDK9, 0100 /* 9.0.1 or better */) : null;
 		// bugs that have neither been fixed nor formally identified but which outcomes are obvious enough to clear any doubts
 		public static JavacHasABug
 			JavacGeneratesByteCodeUponWhichJavaThrowsAnException = RUN_JAVAC ?
