@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 IBM Corporation and others.
+ * Copyright (c) 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,7 +65,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 	@Override
 	public Set<Modifier> getModifiers() {
-		int modifiers = this.binding.tagBits; // TODO: This is wrong, this should be "modifiers"
+		int modifiers = this.binding.modifiers;
 		return Factory.getModifiers(modifiers, getKind(), false);
 	}
 
