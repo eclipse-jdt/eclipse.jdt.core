@@ -29,6 +29,7 @@ import java.util.Locale;
 import java.util.ServiceLoader;
 import java.util.Set;
 
+import javax.lang.model.SourceVersion;
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
 import javax.tools.FileObject;
@@ -1152,6 +1153,14 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		
 		//passing in the directory to no warn should ignore the path - resulting in no warnings.
 		assertEquals("No error should be reported", 0, errors.size());
+	}
+	public void testSupportedCompilerVersions() throws IOException {
+		Set<SourceVersion> sourceVersions = compiler.getSourceVersions();
+		SourceVersion[] values = SourceVersion.values();
+		for (SourceVersion sourceVersion : values) {
+			assertTrue("source version " + sourceVersion + " should be supported"
+					+ "by compiler " + compiler.getClass().getName(), sourceVersions.contains(sourceVersion));
+		}
 	}
 	/*
 	 * Clean up the compiler

@@ -47,11 +47,9 @@ public class EclipseCompiler implements JavaCompiler {
 	private static Set<SourceVersion> SupportedSourceVersions;
 	static {
 		// Eclipse compiler supports all possible versions from version 0 to
-		// version 8
+		// the latest supported by the VM
 		// we don't care about the order
-		// TODO: At the moment, we can't have RELEASE_9 here because Eclipse must still be able to run on JRE 8
-		// Come up with a better way to return the version constants.
-		EnumSet<SourceVersion> enumSet = EnumSet.range(SourceVersion.RELEASE_0, SourceVersion.RELEASE_8);
+		EnumSet<SourceVersion> enumSet = EnumSet.range(SourceVersion.RELEASE_0, SourceVersion.latest());
 		// we don't want anybody to modify this list
 		EclipseCompiler.SupportedSourceVersions = Collections.unmodifiableSet(enumSet);
 	}
