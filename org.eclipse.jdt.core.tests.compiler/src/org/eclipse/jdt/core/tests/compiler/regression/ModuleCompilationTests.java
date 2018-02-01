@@ -4768,4 +4768,72 @@ public void testBug521362_emptyFile() {
 			false,
 			"not in a module on the module source path");
 	}
+	public void _testBug530575() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		File srcDir = new File(directory);
+
+		String moduleLoc = directory + File.separator + "mod.x";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.x { \n" +
+						"	exports px;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "px", "C1.java", 
+						"package px;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.y";
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.y { \n" +
+						"	exports py;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "py", "C1.java", 
+						"package py;\n" +
+						"public class C1 {\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+		for (String fileName : files)
+			buffer.append(" \"").append(fileName).append("\"");
+		runConformTest(new String[0], 
+				buffer.toString(),
+				"",
+				"",
+				false);
+		Util.flushDirectoryContent(srcDir);
+		files.clear();
+		writeFileCollecting(files, directory, "module-info.java", 
+				"module test { \n" +
+				"	requires mod.x;\n" +
+				"	requires mod.y;\n" +
+				"}");
+		writeFileCollecting(files, directory + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X extends px.C1 { \n" +
+						"	py.C1 c = null;\n" +
+						"}");
+		buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-path " + "\"" + OUTPUT_DIR + File.separator + out + File.separator + "mod.x;" + OUTPUT_DIR + File.separator + out + File.separator + "mod.y" + "\"");
+		runConformModuleTest(files, 
+				buffer,
+				"",
+				"",
+				false,
+				OUTPUT_DIR + "javac");
+	}
 }
