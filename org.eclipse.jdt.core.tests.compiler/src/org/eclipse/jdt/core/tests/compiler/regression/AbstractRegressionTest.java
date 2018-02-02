@@ -96,6 +96,11 @@ import org.osgi.framework.Bundle;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 
+	static final String[] env = System.getenv().entrySet().stream()
+		.filter(e -> !"JAVA_TOOL_OPTIONS".equals(e.getKey()))
+		.map(e -> e.getKey() + "=" + e.getValue())
+		.toArray(String[]::new);
+
 	// javac comparison related types, fields and methods - see runJavac for
 	// details
 static class JavacCompiler {
@@ -146,7 +151,7 @@ static class JavacCompiler {
 	static String getVersion(String javacPathName) throws IOException, InterruptedException {
 		Process fetchVersionProcess = null;
 		try {
-			fetchVersionProcess = Runtime.getRuntime().exec(javacPathName + " -version", null, null);
+			fetchVersionProcess = Runtime.getRuntime().exec(javacPathName + " -version", env, null);
 		    Logger versionStdErrLogger = new Logger(fetchVersionProcess.getErrorStream(), ""); // for javac <= 1.8
 		    Logger versionStdOutLogger = new Logger(fetchVersionProcess.getInputStream(), ""); // for javac >= 9
 		    versionStdErrLogger.start();
@@ -254,7 +259,7 @@ static class JavacCompiler {
 			} else {
 				cmdLineAsString = cmdLine.toString();
 			}
-			compileProcess = Runtime.getRuntime().exec(cmdLineAsString, null, directory);
+			compileProcess = Runtime.getRuntime().exec(cmdLineAsString, env, directory);
 			Logger errorLogger = new Logger(compileProcess.getErrorStream(),
 					"ERROR", log == null ? new StringBuffer() : log);
 			errorLogger.start();
@@ -306,7 +311,7 @@ static class JavaRuntime {
 			cmdLine.append(options);
 			cmdLine.append(' ');
 			cmdLine.append(className);
-			executionProcess = Runtime.getRuntime().exec(cmdLine.toString(), null, directory);
+			executionProcess = Runtime.getRuntime().exec(cmdLine.toString(), env, directory);
 			Logger outputLogger = new Logger(executionProcess.getInputStream(),
 					"RUNTIME OUTPUT", stdout == null ? new StringBuffer() : stdout);
 			outputLogger.start();
@@ -1648,7 +1653,7 @@ protected static class JavacTestOptions {
 
 			// Launch process
 			compileProcess = Runtime.getRuntime().exec(
-				cmdLine.toString(), null, this.outputTestDirectory);
+				cmdLine.toString(), env, this.outputTestDirectory);
 
 			// Log errors
       Logger errorLogger = new Logger(compileProcess.getErrorStream(), "ERROR");
@@ -1713,7 +1718,7 @@ protected static class JavacTestOptions {
 						javaCmdLine.append(cp);
 						javaCmdLine.append(' ').append(testFiles[0].substring(0, testFiles[0].indexOf('.')));
 							// assume executable class is name of first test file - PREMATURE check if this is also the case in other test fwk classes
-						execProcess = Runtime.getRuntime().exec(javaCmdLine.toString(), null, this.outputTestDirectory);
+						execProcess = Runtime.getRuntime().exec(javaCmdLine.toString(), env, this.outputTestDirectory);
 						Logger logger = new Logger(execProcess.getInputStream(), "");
 						// PREMATURE implement consistent error policy
 	     				logger.start();
@@ -1802,7 +1807,7 @@ protected static class JavacTestOptions {
 			// Launch process
 			File currentDirectory = new File(currentDirectoryPath);
 			compileProcess = Runtime.getRuntime().exec(
-				cmdLine.toString(), null, currentDirectory);
+				cmdLine.toString(), env, currentDirectory);
 
 			// Log errors
 			Logger errorLogger = new Logger(compileProcess.getErrorStream(), "ERROR");
