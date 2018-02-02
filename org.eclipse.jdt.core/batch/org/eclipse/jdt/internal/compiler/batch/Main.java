@@ -3513,8 +3513,8 @@ protected ArrayList<FileSystem.Classpath> handleModulepath(String arg) {
 		for (String path : modulePaths) {
 			File file = new File(path);
 			if (file.isDirectory()) {
-				result =
-					(ArrayList<Classpath>) ModuleFinder.findModules(file, null, getNewParser(), this.options, true);
+				result.addAll(
+					ModuleFinder.findModules(file, null, getNewParser(), this.options, true));
 			} else {
 				Classpath modulePath = ModuleFinder.findModule(file, null, getNewParser(), this.options, true);
 				if (modulePath != null)

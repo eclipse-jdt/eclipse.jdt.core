@@ -4768,7 +4768,7 @@ public void testBug521362_emptyFile() {
 			false,
 			"not in a module on the module source path");
 	}
-	public void _testBug530575() {
+	public void testBug530575() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
 		String out = "bin";
@@ -4828,7 +4828,7 @@ public void testBug521362_emptyFile() {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" --module-path " + "\"" + OUTPUT_DIR + File.separator + out + File.separator + "mod.x;" + OUTPUT_DIR + File.separator + out + File.separator + "mod.y" + "\"");
+			.append(" --module-path " + "\"" + OUTPUT_DIR + File.separator + out + File.separator + "mod.x" + File.pathSeparator + OUTPUT_DIR + File.separator + out + File.separator + "mod.y" + "\"");
 		runConformModuleTest(files, 
 				buffer,
 				"",
