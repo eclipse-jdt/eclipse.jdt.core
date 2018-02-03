@@ -1668,46 +1668,44 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test530653() throws CoreException, IOException {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements",
-					new String[] {"src"},
-					new String[] {"JCL19_LIB", "/Java9Elements/lib530653.jar"},
-					"bin",
-					"9");
-			createJar(new String[] {
+			IJavaProject project = createJava9Project("Java9Elements");
+			addLibrary(project, "lib530653.jar", "lib530653src.zip", new String[] {
 					"module-info.java",
 					"/** @category library */\n" +
 					"module M {}\n"
 				},
-				project.getProject().getLocation().append("lib530653.jar").toOSString(),
-				new String[] {},
 				"9");
 			project.getProject().refreshLocal(2, null);
 			project.open(null);
-				String fileContent =
-						"/** @category application */\n" +
-						"module my.mod {\n" +
-						"	requires M;\n" +
-						"}";
-				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
-				IModuleDescription mod = project.findModule("java.base", this.wcOwner);
-				assertNotNull("Should find module java.base", mod);
-				String[] categories = mod.getCategories();
-				assertEquals("Should have empty array of categories", 0, categories.length);
 
-				mod = project.findModule("M", this.wcOwner);
-				assertNotNull("Should find module M", mod);
-				categories = mod.getCategories();
-				// FIXME:
-//				assertEquals("Expect category", "[library]", Arrays.toString(categories));
-				
-				mod = project.getModuleDescription();
-				categories = mod.getCategories();
-				// FIXME:
-//				assertEquals("Expect category", "[application]", Arrays.toString(categories));
+			createFile(	"/Java9Elements/src/module-info.java",
+					"/**\n" +
+					" @category application\n" +
+					" @category underTest" +
+					" */\n" +
+					"module my.mod {\n" +
+					"	requires M;\n" +
+					"}");
+
+			// binary JRT module without categories:
+			IModuleDescription mod = project.findModule("java.base", this.wcOwner);
+			assertNotNull("Should find module java.base", mod);
+			String[] categories = mod.getCategories();
+			assertEquals("Should have empty array of categories", 0, categories.length);
+
+			// binary module with category (via source attachement):
+			mod = project.findModule("M", this.wcOwner);
+			assertNotNull("Should find module M", mod);
+			categories = mod.getCategories();
+			assertEquals("Expect category", "[library]", Arrays.toString(categories));
+			
+			// source module with categories:
+			mod = project.getModuleDescription();
+			categories = mod.getCategories();
+			assertEquals("Expect category", "[application, underTest]", Arrays.toString(categories));
 		}
 		finally {
 			deleteProject("Java9Elements");
 		}
 	}
-
 }

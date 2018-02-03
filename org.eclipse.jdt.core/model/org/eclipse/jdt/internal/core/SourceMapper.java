@@ -861,6 +861,11 @@ public class SourceMapper
 	
 		// module type modifiers
 		this.moduleModifiers = moduleInfo.modifiers;
+
+		if (this.binaryTypeOrModule instanceof IModuleDescription) {
+			// categories
+			addCategories(this.binaryTypeOrModule, moduleInfo.categories);
+		}
 	}
 
 	@Override
