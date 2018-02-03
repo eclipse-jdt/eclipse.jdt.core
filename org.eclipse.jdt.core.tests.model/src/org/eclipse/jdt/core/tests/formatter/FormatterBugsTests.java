@@ -12759,4 +12759,19 @@ public void testBug526992b() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/530066 - Formatter completely hangs Eclipse on
+ * line comments that split variable initialization
+ */
+public void testBug530066() {
+	this.formatterPrefs.alignment_for_assignment = Alignment.M_COMPACT_SPLIT;
+	this.formatterPrefs.wrap_before_assignment_operator = true;
+	String source =
+		"class Test {\n" + 
+		"	boolean someVariable\n" + 
+		"			// comment\n" + 
+		"			= true;\n" + 
+		"}";
+	formatSource(source);
+}
 }
