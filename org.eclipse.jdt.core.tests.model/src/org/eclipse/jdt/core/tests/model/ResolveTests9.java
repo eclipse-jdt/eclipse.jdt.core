@@ -21,13 +21,13 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -231,7 +231,7 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 		IJavaProject javaProject = createJava9Project("Test");
 		try {
 			IType type = javaProject.findType("java.util.zip.ZipFile");
-			IClassFile classFile = type.getClassFile();
+			IOrdinaryClassFile classFile = type.getClassFile();
 			String contents = classFile.getBuffer().getContents();
 			int start = contents.indexOf("this(");
 			IJavaElement[] selected = classFile.codeSelect(start, 4);

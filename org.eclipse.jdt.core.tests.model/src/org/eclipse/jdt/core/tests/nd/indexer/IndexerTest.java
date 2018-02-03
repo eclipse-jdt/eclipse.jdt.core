@@ -202,7 +202,7 @@ public class IndexerTest extends AbstractJavaModelTests {
 					for (IClassFile nextClass : result) {
 						if (!(nextClass instanceof IOrdinaryClassFile)) continue;
 						SubMonitor classMon = iterationMon.split(1);
-						BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(nextClass);
+						BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor((IOrdinaryClassFile) nextClass);
 						IndexBinaryType indexedBinaryType = (IndexBinaryType)BinaryTypeFactory.readFromIndex(localIndex, descriptor, classMon);
 						ClassFileReader originalBinaryType = BinaryTypeFactory.rawReadType(descriptor, true);
 

@@ -29,7 +29,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IAnnotatable;
 import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
@@ -249,7 +248,7 @@ private static HashMap workingCopiesThatCanSeeFocus(org.eclipse.jdt.core.ICompil
 }
 
 public static IBinaryType classFileReader(IType type) {
-	IClassFile classFile = type.getClassFile();
+	IOrdinaryClassFile classFile = type.getClassFile();
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	if (classFile.isOpen())
 		return (IBinaryType)manager.getInfo(type);

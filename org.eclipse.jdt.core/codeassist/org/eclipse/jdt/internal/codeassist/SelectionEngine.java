@@ -18,10 +18,10 @@ import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IBuffer;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IOpenable;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -1539,7 +1539,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					typeDeclaration = new ASTNodeFinder(parsedUnit).findType(context);
 				}
 			} else { // binary type
-				IClassFile iClassFile = context.getClassFile();
+				IOrdinaryClassFile iClassFile = context.getClassFile();
 				if (iClassFile instanceof ClassFile) {
 					ClassFile classFile = (ClassFile) iClassFile;
 					BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(classFile);
