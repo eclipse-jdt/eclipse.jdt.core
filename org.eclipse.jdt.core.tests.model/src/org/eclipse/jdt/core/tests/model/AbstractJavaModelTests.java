@@ -74,22 +74,23 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static String DEFAULT_MODULES = null;
 	static {
 		String javaVersion = System.getProperty("java.version");
+		String vmName = System.getProperty("java.vm.name");
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
 		if (jdkLevel >= ClassFileConstants.JDK9) {
 			isJRE9 = true;
-			if (javaVersion.equals("9")) {
+			if (vmName.contains("HotSpot")) {
 				DEFAULT_MODULES = "java.se," +
-						"javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web," + 	// removed in 9.0.1
+						"javafx.base,javafx.controls,javafx.fxml,javafx.graphics,javafx.media,javafx.swing,javafx.web," + 	// not present in OpenJDK
 						"jdk.accessibility,jdk.attach,jdk.compiler,jdk.dynalink,jdk.httpserver," +
 						"jdk.incubator.httpclient,jdk.jartool,jdk.javadoc,jdk.jconsole,jdk.jdi," +
-						"jdk.jfr," +																						// removed in 9.0.1
+						"jdk.jfr," +																						// not present in OpenJDK
 						"jdk.jshell,jdk.jsobject,jdk.management," +
-						"jdk.management.cmm,jdk.management.jfr,jdk.management.resource," +									// removed in 9.0.1
+						"jdk.management.cmm,jdk.management.jfr,jdk.management.resource," +									// not present in OpenJDK
 						"jdk.net," +
-						"jdk.packager,jdk.packager.services,jdk.plugin.dom," +												// removed in 9.0.1
+						"jdk.packager,jdk.packager.services,jdk.plugin.dom," +												// not present in OpenJDK
 						"jdk.scripting.nashorn,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom," +
-						"oracle.desktop,oracle.net";																		// removed in 9.0.1
-			} else if (javaVersion.equals("9.0.1")) {
+						"oracle.desktop,oracle.net";																		// not present in OpenJDK
+			} else if (vmName.contains("OpenJDK")) {
 				DEFAULT_MODULES = "java.se," +
 						"jdk.accessibility,jdk.attach,jdk.compiler,jdk.dynalink,jdk.httpserver," +
 						"jdk.incubator.httpclient,jdk.jartool,jdk.javadoc,jdk.jconsole,jdk.jdi," +
@@ -97,9 +98,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						"jdk.scripting.nashorn,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom";
 			} else {
 				System.out.println(System.getProperties());
-				fail("Unexpected java version "+javaVersion);
+				fail("Unexpected java vm "+javaVersion+" "+vmName);
 			}
-			System.out.println("Recognized Java 9 version '"+javaVersion+"'");
+			System.out.println("Recognized Java 9 version '"+javaVersion+"' with vm.name '"+vmName+"'");
 		}
 	}
 
