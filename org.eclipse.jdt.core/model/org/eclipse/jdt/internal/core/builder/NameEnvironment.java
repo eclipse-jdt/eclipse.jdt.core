@@ -115,7 +115,7 @@ private void computeClasspathLocations(
 	ArrayList sLocationsForTest = new ArrayList(classpathEntries.length);
 	Map<String, IModulePathEntry> moduleEntries = null;
 	if (CompilerOptions.versionToJdkLevel(javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9) {
-		moduleEntries = new HashMap<>(classpathEntries.length);
+		moduleEntries = new LinkedHashMap<>(classpathEntries.length);
 		this.moduleUpdater = new ModuleUpdater(javaProject);
 		if (this.compilationGroup == CompilationGroup.TEST) {
 			this.moduleUpdater.addReadUnnamedForNonEmptyClasspath(javaProject, classpathEntries);
