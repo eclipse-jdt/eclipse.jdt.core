@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -21,6 +25,7 @@
  *    Jesper S Moller - Contributions for
  *								Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
+ *								bug 527554 - [18.3] Compiler support for JEP 286 Local-Variable Type
  *    Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                              Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *    Ulrich Grave <ulrich.grave@gmx.de> - Contributions for
@@ -103,6 +108,9 @@ public interface TypeConstants {
     char[] DESERIALIZE_LAMBDA = "$deserializeLambda$".toCharArray(); //$NON-NLS-1$
     char[] LAMBDA_TYPE = "<lambda>".toCharArray(); //$NON-NLS-1$
     char[] UPPER_MODULE = "MODULE".toCharArray(); //$NON-NLS-1$
+
+    // JEP 286
+	char[] VAR = "var".toCharArray(); //$NON-NLS-1$
 
     // jsr308
 	char[] TYPE_USE_TARGET  = "TYPE_USE".toCharArray(); //$NON-NLS-1$

@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2017 IBM Corporation and others.
+ * Copyright (c) 2006, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -43,6 +47,7 @@
  *								bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *								bug 419209 - [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
+ *								bug 527554 - [18.3] Compiler support for JEP 286 Local-Variable Type
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1130,6 +1135,19 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UsingTerminallyDeprecatedField", new ProblemAttributes(CategorizedProblem.CAT_DEPRECATION));
 		expectedProblemAttributes.put("UsingTerminallyDeprecatedMethod", new ProblemAttributes(CategorizedProblem.CAT_DEPRECATION));
 		expectedProblemAttributes.put("UsingTerminallyDeprecatedType", new ProblemAttributes(CategorizedProblem.CAT_DEPRECATION));
+		expectedProblemAttributes.put("VarIsNotAllowedHere", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("VarIsReserved", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("VarIsReservedInFuture", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("VarLocalCannotBeArray", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("VarLocalCannotBeArrayInitalizers", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("VarLocalCannotBeLambda", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("VarLocalCannotBeMethodReference", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("VarLocalInitializedToNull", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("VarLocalInitializedToVoid", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("VarLocalMultipleDeclarators", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("VarLocalReferencesItself", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("VarLocalCannotBeArray", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("VarLocalWithoutInitizalier", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("VarargsElementTypeNotVisible", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("VarargsElementTypeNotVisibleForConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("VarargsConflict", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -2030,6 +2048,19 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalArrayOfUnionType", SKIP);
 		expectedProblemAttributes.put("IllegalArrayTypeInIntersectionCast", SKIP);
 		expectedProblemAttributes.put("ProblemNotAnalysed", SKIP);
+		expectedProblemAttributes.put("VarIsNotAllowedHere", SKIP);
+		expectedProblemAttributes.put("VarIsReserved", SKIP);
+		expectedProblemAttributes.put("VarIsReservedInFuture", SKIP);
+		expectedProblemAttributes.put("VarLocalCannotBeArray", SKIP);
+		expectedProblemAttributes.put("VarLocalCannotBeArrayInitalizers", SKIP);
+		expectedProblemAttributes.put("VarLocalCannotBeLambda", SKIP);
+		expectedProblemAttributes.put("VarLocalCannotBeMethodReference", SKIP);
+		expectedProblemAttributes.put("VarLocalInitializedToNull", SKIP);
+		expectedProblemAttributes.put("VarLocalInitializedToVoid", SKIP);
+		expectedProblemAttributes.put("VarLocalMultipleDeclarators", SKIP);
+		expectedProblemAttributes.put("VarLocalReferencesItself", SKIP);
+		expectedProblemAttributes.put("VarLocalTooManyBrackets", SKIP);
+		expectedProblemAttributes.put("VarLocalWithoutInitizalier", SKIP);
 		Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {

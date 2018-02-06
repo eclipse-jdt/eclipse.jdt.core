@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -30,6 +34,8 @@
  *								Bug 446434 - [1.8][null] Enable interned captures also when analysing null type annotations
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
+ *								bug 527554 - [18.3] Compiler support for JEP 286 Local-Variable Type
+ *
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -267,6 +273,19 @@ public ReferenceBinding enclosingType() {
 }
 
 public TypeBinding erasure() {
+	return this;
+}
+
+public enum ProjectionKind 
+{
+	UPWARDS, DOWNWARDS	
+}
+/**
+ * Perform a type projection as per JLS 4.10.5
+ * @returns null if projection is undefined
+ */
+public TypeBinding projection(Scope scope, Set<TypeVariableBinding> mentionedTypeVariables, ProjectionKind kind) {
+	// Overridden as needed
 	return this;
 }
 

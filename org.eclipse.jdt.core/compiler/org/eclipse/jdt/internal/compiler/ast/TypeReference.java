@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -28,14 +32,19 @@
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
  *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
+ *      Jesper S Møller <jesper@selskabet.org> -  Contributions for
+ *                          bug 527554 - [18.3] Compiler support for JEP 286 Local-Variable Type
+ *                          
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching.CheckMode;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -56,6 +65,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.Substitution;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -496,7 +506,11 @@ protected TypeBinding internalResolveType(Scope scope, int location) {
 	if (type == null) {
 		return null; // detected cycle while resolving hierarchy
 	} else if ((hasError = !type.isValidBinding()) == true) {
-		reportInvalidType(scope);
+		if (this.isTypeNameVar(scope)) {
+			reportVarIsNotAllowedHere(scope);
+		} else {
+			reportInvalidType(scope);
+		}
 		switch (type.problemId()) {
 			case ProblemReasons.NotFound :
 			case ProblemReasons.NotVisible :
@@ -557,6 +571,10 @@ protected void reportDeprecatedType(TypeBinding type, Scope scope) {
 
 protected void reportInvalidType(Scope scope) {
 	scope.problemReporter().invalidType(this, this.resolvedType);
+}
+
+protected void reportVarIsNotAllowedHere(Scope scope) {
+	scope.problemReporter().varIsNotAllowedHere(this);
 }
 
 public TypeBinding resolveSuperType(ClassScope scope) {
@@ -737,5 +755,17 @@ public TypeReference[] getTypeReferences() {
 
 public boolean isBaseTypeReference() {
 	return false;
+}
+/**
+ * Checks to see if the declaration uses 'var' as type name 
+ * @param scope Relevant scope, for error reporting
+ * @return true, if source level is Java 10 or above and the type name is just 'var', false otherwise 
+ */
+public boolean isTypeNameVar(Scope scope) {
+	if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK10) {
+		return false;
+	}
+	char[][] typeName = this.getTypeName();
+	return typeName.length == 1 && CharOperation.equals(typeName[0], TypeConstants.VAR);
 }
 }
