@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.SourceModule;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
@@ -1310,6 +1311,55 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			assertFalse("Failed", true);
 		} finally {
 			deleteProject("ConverterTests9");
+		}
+	}
+	public void testBug530803_1() throws Exception {
+		try {
+			// common check for both parts:
+			Consumer<IBinding> validateBinding = (IBinding binding) -> {
+				assertTrue("Not ModuleBinding", binding instanceof IModuleBinding);
+				IAnnotationBinding[] annotations = ((IModuleBinding) binding).getAnnotations();
+				assertEquals("Number of annotations",  1, annotations.length);
+				assertEquals("Annotation type", "Deprecated", annotations[0].getAnnotationType().getName());
+			};
+			// part one, where we directly access a module from its CU:
+			IJavaProject project1 = createJavaProject("First", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			createFile("/First/src/module-info.java",
+					"@Deprecated module first {}");
+			project1.close(); // sync
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("First" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			assertEquals("Node type", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			CompilationUnit cu = (CompilationUnit) unit1;
+			ModuleDeclaration moduleDeclaration = cu.getModule();
+			validateBinding.accept(moduleDeclaration.resolveBinding());
+
+			// part two, where we access a module via a 'requires' reference from the second:
+			IJavaProject project2 = createJavaProject("Second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			addClasspathEntry(project2, JavaCore.newProjectEntry(project1.getPath()));
+			project2.open(null);
+			createFile("/Second/src/module-info.java",
+					"module second {\n" +
+					"	requires first;\n" +
+					"}");
+			project2.close(); // sync
+			project2.open(null);
+
+			ICompilationUnit sourceUnit2 = getCompilationUnit("Second" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit2 = runConversion(AST_INTERNAL_JLS9, sourceUnit2, true);
+			assertEquals("Node type", ASTNode.COMPILATION_UNIT, unit2.getNodeType());
+			CompilationUnit cu2 = (CompilationUnit) unit2;
+			ModuleDeclaration moduleDeclaration2 = cu2.getModule();
+			ModuleDirective stat = (ModuleDirective) moduleDeclaration2.moduleStatements().get(0);
+			IBinding requiredModule = ((RequiresDirective) stat).getName().resolveBinding();
+			validateBinding.accept(requiredModule);
+			
+		} finally {
+			deleteProject("First");
+			deleteProject("Second");
 		}
 	}
 // Add new tests here
