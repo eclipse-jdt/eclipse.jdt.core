@@ -86,9 +86,9 @@ public class ImplicitNullAnnotationVerifier {
 			}
 			boolean usesTypeAnnotations = scope.environment().usesNullTypeAnnotations();
 			boolean needToApplyReturnNonNullDefault =
-					currentMethod.hasNonNullDefaultForReturnType(usesTypeAnnotations, srcMethod);
+					currentMethod.hasNonNullDefaultForReturnType(srcMethod);
 			ParameterNonNullDefaultProvider needToApplyParameterNonNullDefault =
-					currentMethod.hasNonNullDefaultForParameter(usesTypeAnnotations, srcMethod);
+					currentMethod.hasNonNullDefaultForParameter(srcMethod);
 			boolean needToApplyNonNullDefault = needToApplyReturnNonNullDefault | needToApplyParameterNonNullDefault.hasAnyNonNullDefault();
 			// compatibility & inheritance do not consider constructors / static methods:
 			boolean isInstanceMethod = !currentMethod.isConstructor() && !currentMethod.isStatic();
@@ -160,7 +160,7 @@ public class ImplicitNullAnnotationVerifier {
 			}
 			if (needToApplyNonNullDefault) {
 				if (!usesTypeAnnotations)
-					currentMethod.fillInDefaultNonNullness(srcMethod);
+					currentMethod.fillInDefaultNonNullness(srcMethod, needToApplyReturnNonNullDefault, needToApplyParameterNonNullDefault);
 				else
 					currentMethod.fillInDefaultNonNullness18(srcMethod, scope.environment());
 			}

@@ -125,7 +125,6 @@ public class BinaryModuleBinding extends ModuleBinding {
 
 		IBinaryAnnotation[] annotations = binaryModule.getAnnotations();
 		if (annotations != null) {
-			long annotationBit = 0L;
 			int nullness = NO_NULL_DEFAULT;
 			int length = annotations.length;
 			for (int i = 0; i < length; i++) {
@@ -136,21 +135,9 @@ public class BinaryModuleBinding extends ModuleBinding {
 				if (typeBit == TypeIds.BitNonNullByDefaultAnnotation) {
 					// using NonNullByDefault we need to inspect the details of the value() attribute:
 					nullness = BinaryTypeBinding.getNonNullByDefaultValue(annotations[i], this.environment);
-					if (nullness == NULL_UNSPECIFIED_BY_DEFAULT) {
-						annotationBit = TagBits.AnnotationNullUnspecifiedByDefault;
-					} else if (nullness != 0) {
-						annotationBit = TagBits.AnnotationNonNullByDefault;
-						if (nullness == Binding.NONNULL_BY_DEFAULT && this.environment.usesNullTypeAnnotations()) {
-							// reading a decl-nnbd in a project using type annotations, mimic corresponding semantics by enumerating:
-							nullness |= Binding.DefaultLocationParameter | Binding.DefaultLocationReturnType | Binding.DefaultLocationField;
-						}
-					}
 					this.defaultNullness = nullness;
 					break;
 				}
-			}
-			if (annotationBit != 0L) {
-				this.tagBits |= annotationBit;
 			}
 		}
 	}

@@ -431,11 +431,11 @@ public abstract class Annotation extends Expression {
 			if (methods != null && methods.length == 1)
 				value = methods[0].getDefaultValue();
 			else
-				tagBits |= TagBits.AnnotationNonNullByDefault; // custom unconfigurable NNBD
+				tagBits |= Binding.DefaultLocationsForTrueValue; // custom unconfigurable NNBD
 		}
 		if (value instanceof BooleanConstant) {
 			// boolean value is used for declaration annotations, signal using the annotation tag bit:
-			tagBits |= ((BooleanConstant)value).booleanValue() ? TagBits.AnnotationNonNullByDefault : TagBits.AnnotationNullUnspecifiedByDefault;
+			tagBits |= ((BooleanConstant)value).booleanValue() ? Binding.DefaultLocationsForTrueValue : Binding.NULL_UNSPECIFIED_BY_DEFAULT;
 		} else if (value != null) {
 			// non-boolean value signals type annotations, evaluate from DefaultLocation[] to bitvector a la Binding#NullnessDefaultMASK:
 			tagBits |= nullLocationBitsFromAnnotationValue(value);
@@ -473,7 +473,7 @@ public abstract class Annotation extends Expression {
 		} else if (value instanceof ElementValuePair.UnresolvedEnumConstant) {
 			name = ((ElementValuePair.UnresolvedEnumConstant) value).getEnumConstantName();
 		} else if (value instanceof BooleanConstant) {
-			return ((BooleanConstant)value).booleanValue() ? Binding.NONNULL_BY_DEFAULT : Binding.NULL_UNSPECIFIED_BY_DEFAULT;
+			return ((BooleanConstant)value).booleanValue() ? Binding.DefaultLocationsForTrueValue : Binding.NULL_UNSPECIFIED_BY_DEFAULT;
 		}
 		if (name != null) {
 			switch (name.length) {

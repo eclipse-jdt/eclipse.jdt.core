@@ -1662,7 +1662,7 @@ private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBi
 				&& fieldType.acceptsNonNullDefault()) {
 				int nullDefaultFromField = getNullDefaultFrom(field.getAnnotations());
 				if (nullDefaultFromField == Binding.NO_NULL_DEFAULT
-						? hasNonNullDefaultFor(DefaultLocationField, true, -1)
+						? hasNonNullDefaultFor(DefaultLocationField, -1)
 						: (nullDefaultFromField & DefaultLocationField) != 0) {
 					fieldBinding.type = this.environment.createAnnotatedType(fieldType,
 							new AnnotationBinding[] { this.environment.getNonNullAnnotation() });
@@ -1700,8 +1700,12 @@ private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBi
 	}
 	if (explicitNullness && this.externalAnnotationStatus.isPotentiallyUnannotatedLib())
 		this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
-	if (!explicitNullness && (this.tagBits & TagBits.AnnotationNonNullByDefault) != 0) {
-		fieldBinding.tagBits |= TagBits.AnnotationNonNull;
+	if (!explicitNullness) {
+		int nullDefaultFromField = getNullDefaultFrom(field.getAnnotations());
+		if (nullDefaultFromField == Binding.NO_NULL_DEFAULT ? hasNonNullDefaultFor(DefaultLocationField, -1)
+				: (nullDefaultFromField & DefaultLocationField) != 0) {
+			fieldBinding.tagBits |= TagBits.AnnotationNonNull;
+		}
 	}
 }
 
@@ -1741,15 +1745,6 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 			int typeBit = this.environment.getNullAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 			if (typeBit == TypeIds.BitNonNullByDefaultAnnotation) {
 				methodBinding.defaultNullness = getNonNullByDefaultValue(annotations[i], this.environment);
-				if (methodBinding.defaultNullness == Binding.NULL_UNSPECIFIED_BY_DEFAULT) {
-					methodBinding.tagBits |= TagBits.AnnotationNullUnspecifiedByDefault;
-				} else if (methodBinding.defaultNullness != 0) {
-					methodBinding.tagBits |= TagBits.AnnotationNonNullByDefault;
-					if (methodBinding.defaultNullness == Binding.NONNULL_BY_DEFAULT && this.environment.usesNullTypeAnnotations()) {
-						// reading a decl-nnbd in a project using type annotations, mimic corresponding semantics by enumerating:
-						methodBinding.defaultNullness |= Binding.DefaultLocationParameter | Binding.DefaultLocationReturnType;
-					}
-				}
 			} else if (typeBit == TypeIds.BitNonNullAnnotation) {
 				methodBinding.tagBits |= TagBits.AnnotationNonNull;
 				if (this.environment.usesNullTypeAnnotations()) {
@@ -1850,7 +1845,6 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 	IBinaryAnnotation[] annotations = binaryType.getAnnotations();
 	boolean isPackageInfo = CharOperation.equals(sourceName(), TypeConstants.PACKAGE_INFO_NAME);
 	if (annotations != null) {
-		long annotationBit = 0L;
 		int nullness = NO_NULL_DEFAULT;
 		int length = annotations.length;
 		for (int i = 0; i < length; i++) {
@@ -1861,21 +1855,11 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 			if (typeBit == TypeIds.BitNonNullByDefaultAnnotation) {
 				// using NonNullByDefault we need to inspect the details of the value() attribute:
 				nullness = getNonNullByDefaultValue(annotations[i], this.environment);
-				if (nullness == NULL_UNSPECIFIED_BY_DEFAULT) {
-					annotationBit = TagBits.AnnotationNullUnspecifiedByDefault;
-				} else if (nullness != 0) {
-					annotationBit = TagBits.AnnotationNonNullByDefault;
-					if (nullness == Binding.NONNULL_BY_DEFAULT && this.environment.usesNullTypeAnnotations()) {
-						// reading a decl-nnbd in a project using type annotations, mimic corresponding semantics by enumerating:
-						nullness |= Binding.DefaultLocationParameter | Binding.DefaultLocationReturnType | Binding.DefaultLocationField;
-					}
-				}
 				this.defaultNullness = nullness;
 				break;
 			}
 		}
-		if (annotationBit != 0L) {
-			this.tagBits |= annotationBit;
+		if (nullness != NO_NULL_DEFAULT) {
 			if (isPackageInfo)
 				packageBinding.setDefaultNullness(nullness);
 			return;
@@ -1888,7 +1872,7 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 	}
 	ReferenceBinding enclosingTypeBinding = this.enclosingType;
 	if (enclosingTypeBinding != null) {
-		if (setNullDefault(enclosingTypeBinding.tagBits, enclosingTypeBinding.getNullDefault()))
+		if (setNullDefault(enclosingTypeBinding.getNullDefault()))
 			return;
 	}
 	// no annotation found on the type or its enclosing types
@@ -1903,23 +1887,12 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 		}
 	}
 	// no @NonNullByDefault at type level, check containing package:
-	setNullDefault(0L, packageBinding.getDefaultNullness());
+	setNullDefault(packageBinding.getDefaultNullness());
 }
 
-boolean setNullDefault(long oldNullTagBits, int newNullDefault) {
+boolean setNullDefault(int newNullDefault) {
 	this.defaultNullness = newNullDefault;
-	if (newNullDefault != 0) {
-		if (newNullDefault == Binding.NULL_UNSPECIFIED_BY_DEFAULT)
-			this.tagBits |= TagBits.AnnotationNullUnspecifiedByDefault;
-		else
-			this.tagBits |= TagBits.AnnotationNonNullByDefault;
-		return true;
-	}
-	if ((oldNullTagBits & TagBits.AnnotationNonNullByDefault) != 0) {
-		this.tagBits |= TagBits.AnnotationNonNullByDefault;
-		return true;
-	} else if ((oldNullTagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0) {
-		this.tagBits |= TagBits.AnnotationNullUnspecifiedByDefault;
+	if (newNullDefault != Binding.NO_NULL_DEFAULT) {
 		return true;
 	}
 	return false;
@@ -1942,7 +1915,7 @@ static int getNonNullByDefaultValue(IBinaryAnnotation annotation, LookupEnvironm
 			Object value = annotationMethods[0].getDefaultValue();
 			return Annotation.nullLocationBitsFromAnnotationValue(value);
 		}
-		return NONNULL_BY_DEFAULT; // custom unconfigurable NNBD
+		return DefaultLocationsForTrueValue; // custom unconfigurable NNBD
 	} else if (elementValuePairs.length > 0) {
 		// evaluate the contained EnumConstantSignatures:
 		int nullness = 0;

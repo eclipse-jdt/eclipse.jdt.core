@@ -496,13 +496,18 @@ public final char[] constantPoolName() {
 
 /**
  * After method verifier has finished, fill in missing @NonNull specification from the applicable default.
+ * @param needToApplyParameterNonNullDefault 
+ * @param needToApplyReturnNonNullDefault 
  */
-protected void fillInDefaultNonNullness(AbstractMethodDeclaration sourceMethod) {
+protected void fillInDefaultNonNullness(AbstractMethodDeclaration sourceMethod, boolean needToApplyReturnNonNullDefault, ParameterNonNullDefaultProvider needToApplyParameterNonNullDefault) {
 	if (this.parameterNonNullness == null)
 		this.parameterNonNullness = new Boolean[this.parameters.length];
 	boolean added = false;
 	int length = this.parameterNonNullness.length;
 	for (int i = 0; i < length; i++) {
+		if(!needToApplyParameterNonNullDefault.hasNonNullDefaultForParam(i)) {
+			continue;
+		}
 		if (this.parameters[i].isBaseType())
 			continue;
 		if (this.parameterNonNullness[i] == null) {
@@ -517,6 +522,8 @@ protected void fillInDefaultNonNullness(AbstractMethodDeclaration sourceMethod) 
 	}
 	if (added)
 		this.tagBits |= TagBits.HasParameterAnnotations;
+	if(!needToApplyReturnNonNullDefault)
+		return;
 	if (   this.returnType != null
 		&& !this.returnType.isBaseType()
 		&& (this.tagBits & TagBits.AnnotationNullMASK) == 0)
@@ -533,7 +540,7 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 	if(original == null) {
 		return;
 	}
-	ParameterNonNullDefaultProvider hasNonNullDefaultForParameter = hasNonNullDefaultForParameter(true, sourceMethod);
+	ParameterNonNullDefaultProvider hasNonNullDefaultForParameter = hasNonNullDefaultForParameter(sourceMethod);
 	if (hasNonNullDefaultForParameter.hasAnyNonNullDefault()) {
 		boolean added = false;
 		int length = this.parameters.length;
@@ -559,7 +566,7 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 		if (added)
 			this.tagBits |= TagBits.HasParameterAnnotations;
 	}
-	if (original.returnType != null && hasNonNullDefaultForReturnType(true, sourceMethod) && original.returnType.acceptsNonNullDefault()) {
+	if (original.returnType != null && hasNonNullDefaultForReturnType(sourceMethod) && original.returnType.acceptsNonNullDefault()) {
 		if ((this.returnType.tagBits & TagBits.AnnotationNullMASK) == 0) {
 			this.returnType = env.createAnnotatedType(this.returnType, new AnnotationBinding[]{env.getNonNullAnnotation()});
 		} else if (sourceMethod instanceof MethodDeclaration && (this.returnType.tagBits & TagBits.AnnotationNonNull) != 0 
@@ -658,20 +665,11 @@ public long getAnnotationTagBits() {
 				ASTNode.resolveAnnotations(methodDecl.scope, methodDecl.annotations, originalMethod);
 			CompilerOptions options = scope.compilerOptions();
 			if (options.isAnnotationBasedNullAnalysisEnabled) {
-				boolean usesNullTypeAnnotations = scope.environment().usesNullTypeAnnotations();
-				long nullDefaultBits = usesNullTypeAnnotations ? this.defaultNullness
-						: this.tagBits & (TagBits.AnnotationNonNullByDefault|TagBits.AnnotationNullUnspecifiedByDefault);
+				long nullDefaultBits = this.defaultNullness;
 				if (nullDefaultBits != 0 && this.declaringClass instanceof SourceTypeBinding) {
-					if (usesNullTypeAnnotations) {
-						Binding target = scope.checkRedundantDefaultNullness(this.defaultNullness, typeDecl.declarationSourceStart);
-						if (target != null) {
-							methodDecl.scope.problemReporter().nullDefaultAnnotationIsRedundant(methodDecl, methodDecl.annotations, target);
-						}
-					} else {
-						SourceTypeBinding declaringSourceType = (SourceTypeBinding) this.declaringClass;
-						if (declaringSourceType.checkRedundantNullnessDefaultOne(methodDecl, methodDecl.annotations, nullDefaultBits, usesNullTypeAnnotations)) {
-							declaringSourceType.checkRedundantNullnessDefaultRecurse(methodDecl, methodDecl.annotations, nullDefaultBits, usesNullTypeAnnotations);
-						}
+					Binding target = scope.checkRedundantDefaultNullness(this.defaultNullness, typeDecl.declarationSourceStart);
+					if (target != null) {
+						methodDecl.scope.problemReporter().nullDefaultAnnotationIsRedundant(methodDecl, methodDecl.annotations, target);
 					}
 				}
 			}
@@ -1323,8 +1321,8 @@ public TypeVariableBinding[] typeVariables() {
 	return this.typeVariables;
 }
 //pre: null annotation analysis is enabled
-public boolean hasNonNullDefaultForReturnType(boolean useTypeAnnotations, AbstractMethodDeclaration srcMethod) {
-	return hasNonNullDefaultFor(Binding.DefaultLocationReturnType, useTypeAnnotations, srcMethod, srcMethod == null ? -1 : srcMethod.declarationSourceStart);
+public boolean hasNonNullDefaultForReturnType(AbstractMethodDeclaration srcMethod) {
+	return hasNonNullDefaultFor(Binding.DefaultLocationReturnType, srcMethod, srcMethod == null ? -1 : srcMethod.declarationSourceStart);
 }
 
 static int getNonNullByDefaultValue(AnnotationBinding annotation) {
@@ -1338,7 +1336,7 @@ static int getNonNullByDefaultValue(AnnotationBinding annotation) {
 			Object value = annotationMethods[0].getDefaultValue();
 			return Annotation.nullLocationBitsFromAnnotationValue(value);
 		}
-		return NONNULL_BY_DEFAULT; // custom unconfigurable NNBD
+		return DefaultLocationsForTrueValue; // custom unconfigurable NNBD
 	} else if (elementValuePairs.length > 0) {
 		// evaluate the contained EnumConstantSignatures:
 		int nullness = 0;
@@ -1353,7 +1351,7 @@ static int getNonNullByDefaultValue(AnnotationBinding annotation) {
 
 
 //pre: null annotation analysis is enabled
-public ParameterNonNullDefaultProvider hasNonNullDefaultForParameter(boolean useTypeAnnotations, AbstractMethodDeclaration srcMethod) {
+public ParameterNonNullDefaultProvider hasNonNullDefaultForParameter(AbstractMethodDeclaration srcMethod) {
 	int len = this.parameters.length;
 	boolean[] result = new boolean[len];
 	boolean trueFound = false;
@@ -1383,7 +1381,7 @@ public ParameterNonNullDefaultProvider hasNonNullDefaultForParameter(boolean use
 			// parameter specific NNBD found
 			b = (nonNullByDefaultValue & Binding.DefaultLocationParameter) != 0;
 		} else {
-			b = hasNonNullDefaultFor(Binding.DefaultLocationParameter, useTypeAnnotations, srcMethod, start);
+			b = hasNonNullDefaultFor(Binding.DefaultLocationParameter, srcMethod, start);
 		}
 		if (b) {
 			trueFound = true;
@@ -1398,19 +1396,12 @@ public ParameterNonNullDefaultProvider hasNonNullDefaultForParameter(boolean use
 		return trueFound ? ParameterNonNullDefaultProvider.TRUE_PROVIDER : ParameterNonNullDefaultProvider.FALSE_PROVIDER;
 	}
 //pre: null annotation analysis is enabled
-private boolean hasNonNullDefaultFor(int location, boolean useTypeAnnotations, AbstractMethodDeclaration srcMethod, int start) {
+private boolean hasNonNullDefaultFor(int location, AbstractMethodDeclaration srcMethod, int start) {
 	if ((this.modifiers & ExtraCompilerModifiers.AccIsDefaultConstructor) != 0)
 		return false;
-	if (useTypeAnnotations) {
-		if (this.defaultNullness != 0)
-			return (this.defaultNullness & location) != 0;
-	} else {
-		if ((this.tagBits & TagBits.AnnotationNonNullByDefault) != 0)
-			return true;
-		if ((this.tagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0)
-			return false;
-	}
-	return this.declaringClass.hasNonNullDefaultFor(location, useTypeAnnotations, start);
+	if (this.defaultNullness != 0)
+		return (this.defaultNullness & location) != 0;
+	return this.declaringClass.hasNonNullDefaultFor(location, start);
 }
 
 public boolean redeclaresPublicObjectMethod(Scope scope) {

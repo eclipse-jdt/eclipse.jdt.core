@@ -83,9 +83,8 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 	AbstractMethodDeclaration srcMethod = null;
 	if (analyseNullAnnotations && this.type.equals(concreteMethod.declaringClass)) // is currentMethod from the current type?
 		srcMethod = concreteMethod.sourceMethod();
-	boolean useTypeAnnotations = this.environment.usesNullTypeAnnotations();
-	boolean hasReturnNonNullDefault = analyseNullAnnotations && concreteMethod.hasNonNullDefaultForReturnType(useTypeAnnotations, srcMethod);
-	ParameterNonNullDefaultProvider hasParameterNonNullDefault = analyseNullAnnotations ? concreteMethod.hasNonNullDefaultForParameter(useTypeAnnotations, srcMethod): ParameterNonNullDefaultProvider.FALSE_PROVIDER;
+	boolean hasReturnNonNullDefault = analyseNullAnnotations && concreteMethod.hasNonNullDefaultForReturnType(srcMethod);
+	ParameterNonNullDefaultProvider hasParameterNonNullDefault = analyseNullAnnotations ? concreteMethod.hasNonNullDefaultForParameter(srcMethod): ParameterNonNullDefaultProvider.FALSE_PROVIDER;
 
 	for (int i = 0, l = abstractMethods.length; i < l; i++) {
 		MethodBinding abstractMethod = abstractMethods[i];
@@ -404,9 +403,8 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 		AbstractMethodDeclaration srcMethod = null;
 		if (this.type.equals(currentMethod.declaringClass)) // is currentMethod from the current type?
 			srcMethod = currentMethod.sourceMethod();
-		boolean useTypeAnnotations = this.environment.usesNullTypeAnnotations();
-		boolean hasReturnNonNullDefault = currentMethod.hasNonNullDefaultForReturnType(useTypeAnnotations, srcMethod);
-		ParameterNonNullDefaultProvider hasParameterNonNullDefault = currentMethod.hasNonNullDefaultForParameter(useTypeAnnotations, srcMethod);
+		boolean hasReturnNonNullDefault = currentMethod.hasNonNullDefaultForReturnType(srcMethod);
+		ParameterNonNullDefaultProvider hasParameterNonNullDefault = currentMethod.hasNonNullDefaultForParameter(srcMethod);
 		for (int i = length; --i >= 0;)
 			if (!currentMethod.isStatic() && !methods[i].isStatic())
 				checkNullSpecInheritance(currentMethod, srcMethod, hasReturnNonNullDefault, hasParameterNonNullDefault, true, methods[i], methods, this.type.scope, null);
