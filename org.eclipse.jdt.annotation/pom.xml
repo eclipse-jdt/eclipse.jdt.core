@@ -14,7 +14,7 @@
   <parent>
     <artifactId>eclipse.jdt.core</artifactId>
     <groupId>eclipse.jdt.core</groupId>
-    <version>4.7.2-SNAPSHOT</version>
+    <version>4.7.3-SNAPSHOT</version>
   </parent>
   <groupId>org.eclipse.jdt</groupId>
   <artifactId>org.eclipse.jdt.annotation</artifactId>

@@ -33,8 +33,7 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 			COMPLETION_SUITES.add(CompletionTests3.class);
 			COMPLETION_SUITES.add(CompletionTests_1_5.class);
 			COMPLETION_SUITES.add(CompletionTests18.class);
-			// TODO uncomment after bug509050 is done
-			//COMPLETION_SUITES.add(CompletionTests9.class);
+			COMPLETION_SUITES.add(CompletionTests9.class);
 			COMPLETION_SUITES.add(CompletionContextTests.class);
 			COMPLETION_SUITES.add(CompletionContextTests_1_5.class);
 			COMPLETION_SUITES.add(CompletionWithMissingTypesTests.class);
@@ -96,6 +95,9 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 				Method suiteMethod = testClass.getDeclaredMethod("suite", new Class[0]); //$NON-NLS-1$
 				Test suite = (Test) suiteMethod.invoke(null, new Object[0]);
 				ts.addTest(suite);
+				if (suite.countTestCases()== 0) {
+					AbstractJavaModelCompletionTests.COMPLETION_SUITES.remove(testClass);
+				}
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
 			} catch (InvocationTargetException e) {

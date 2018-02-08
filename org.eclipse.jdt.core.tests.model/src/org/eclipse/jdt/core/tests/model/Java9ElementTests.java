@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 IBM Corporation and others.
+ * Copyright (c) 2017, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,8 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.provisional.JavaModelAccess;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
@@ -1225,6 +1227,86 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			deleteProject("mod.zero");
 		}
 	}
+	public void testModuleAttributes_disassembler_508889_001() throws Exception {
+		try {
+			IJavaProject javaProject = createJava9Project("mod.zero");
+
+			createFolder("/mod.zero/src/test0");
+			createFile("/mod.zero/src/test0/SPQR.java",
+							"package test0;\n" +
+							"\n" +
+							"public class SPQR {}");
+
+			createFolder("/mod.zero/src/test1");
+			createFile("/mod.zero/src/test1/Service.java",
+							"package test1;\n" +
+							"\n" +
+							"public interface Service {}");
+
+			createFolder("/mod.zero/src/test2");
+			createFile("/mod.zero/src/test2/Impl.java",
+							"package test2;\n" +
+							"\n" +
+							"public class Impl implements test1.Service {}");
+
+			createFolder("/mod.zero/src/testDont");
+			createFile("/mod.zero/src/testDont/Show.java",
+							"package testDont;\n" +
+							"\n" +
+							"public class Show {}");
+
+			String content = 	"module mod.zero {\n" +
+								"	exports test0;\n" +
+								"	opens test1;\n" +
+								"	provides test1.Service with test2.Impl;\n" +
+								"}\n";
+			createFile("/mod.zero/src/module-info.java", content);
+
+			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			ICompilationUnit unit = getCompilationUnit("/mod.zero/src/module-info.java");
+			IModuleDescription module = unit.getModule();
+
+			Map<String,String> attributes = new HashMap<>();
+			attributes.put(String.valueOf(IAttributeNamesConstants.MODULE_MAIN_CLASS), "test0.SPQR");
+			attributes.put(String.valueOf(IAttributeNamesConstants.MODULE_PACKAGES), "");
+
+			byte[] bytes = JavaCore.compileWithAttributes(module, attributes);
+
+			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+			String result = disassembler.disassemble(bytes, "\n", ClassFileBytesDisassembler.DETAILED);
+			String expectedOutput = "// Compiled from module-info.java (version 9 : 53.0, no super bit)\n" +
+					" module mod.zero  {\n" +
+					"  // Version: \n" +
+					"\n" +
+					"  requires java.base;\n" +
+					"\n" +
+					"  exports test0;\n" +
+					"\n" +
+					"  opens test1;\n" +
+					"\n" +
+					"  provides test1.Service with test2.Impl;\n" +
+					"  \n" +
+					"  Module packages:\n" +
+					"    test0\n" +
+					"    test1\n" +
+					"    test2\n" +
+					"\n" +
+					"  Module main class:\n" +
+					"    test0.SPQR\n" +
+					"\n" +
+					"}";
+			int index = result.indexOf(expectedOutput);
+			if (index == -1 || expectedOutput.length() == 0) {
+				System.out.println(Util.displayString(result, 2));
+			}
+			if (index == -1) {
+				assertEquals("Wrong contents", expectedOutput, result);
+			}
+		} finally {
+			deleteProject("mod.zero");
+		}
+	}
 	public void testAutoModule1() throws Exception {
 		try {
 			IJavaProject project1 = createJavaProject("my_mod", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
@@ -1277,5 +1359,201 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			deleteProject("Java9Elements");
 			deleteProject("Java9Elements2");
 		}	
+	}
+	public void test526761a() throws Exception {
+		try {
+			IJavaProject project1 = createJava9Project("Java9Elements", new String[] {"work/src/java"});
+			project1.open(null);
+			createFolder("/Java9Elements/work/src/java/test");
+			String fileContent =
+					"package test;\n" +
+					"public class Test {}";
+			createFile("/Java9Elements/work/src/java/test/Test.java", fileContent);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/work/src/java/test/Test.java");
+			IJavaElement parent = unit.getParent();
+			IPackageFragment pkg = (IPackageFragment) parent;
+			IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
+			String id = root.getHandleIdentifier();
+			System.out.println(id);
+			assertTrue("incorrect id", id.matches("=Java9Elements/work\\\\/src\\\\/java"));
+			IJavaElement element = JavaCore.create(id);
+			assertEquals("incorrect element type", IJavaElement.PACKAGE_FRAGMENT_ROOT, element.getElementType());
+			id = "=Java9Elements/work/src/java";
+			IJavaElement element2 = JavaCore.create(id);
+			assertEquals("incorrect element type", IJavaElement.PACKAGE_FRAGMENT_ROOT, element2.getElementType());
+			assertEquals("roots should be same", element, element2);
+		} finally {
+			deleteProject("Java9Elements");
+		}	
+	}
+	private IJavaProject createJavaProjectWithBaseSql() throws CoreException {
+		IJavaProject project1 = createJava9Project("Java9Elements", new String[] {"src"});
+		project1.open(null);
+		IClasspathEntry[] rawClasspath = project1.getRawClasspath();
+		IClasspathEntry[] newClasspath = new IClasspathEntry[rawClasspath.length + 1];
+		for (int i = 0; i < rawClasspath.length; i++) {
+			IPath path = rawClasspath[i].getPath();
+			if (path.lastSegment().equals("jrt-fs.jar")) {
+				path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
+				IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
+				newClasspath[i] = newEntry;
+				path = path.removeLastSegments(2).append("jmods").append("java.sql.jmod");
+				newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.sql"));
+				newClasspath[rawClasspath.length] = newEntry;
+			} else {
+				newClasspath[i] = rawClasspath[i];
+			}
+		}
+		project1.setRawClasspath(rawClasspath, null);
+		return project1;
+	}
+	public void test526326a() throws Exception {
+		try {
+			IJavaProject project = createJavaProjectWithBaseSql();
+			project.open(null);
+				String fileContent = 
+						"import java.sql.Driver;\n" +
+						"import p.q.Main;\n" +
+						"module my.mod{\n"  +
+						 "	exports p.q;" +
+						 "	requires java.sql;\n" +
+						 "	provides Driver with Main;\n" +
+						 "}";
+				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
+				createFolder("/Java9Elements/src/p/q");
+				createFile("/Java9Elements/src/p/q/Main.java",
+						"package p.q;\n" +
+						"import java.sql.Connection;\n" +
+						"import java.sql.Driver;\n" +
+						"import java.sql.DriverPropertyInfo;\n" +
+						"import java.sql.SQLException;\n" +
+						"import java.sql.SQLFeatureNotSupportedException;\n" +
+						"import java.util.Properties;\n" +
+						"import java.util.logging.Logger;\n" +
+						"public class Main implements Driver {\n" +
+						"	public boolean acceptsURL(String arg0) throws SQLException { return false; }\n" +
+						"	public Connection connect(String arg0, Properties arg1) throws SQLException { return null; }\n" +
+						"	public int getMajorVersion() { return 0; }\n" +
+						"	public int getMinorVersion() { return 0;}\n" +
+						"	public Logger getParentLogger() throws SQLFeatureNotSupportedException { return null; }\n" +
+						"	public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException { return null; }\n" +
+						"	public boolean jdbcCompliant() { return false; }\n" +
+						"}");
+				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+				int start = fileContent.lastIndexOf("Driver");
+				IJavaElement[] elements = unit.codeSelect(start, "Driver".length());
+				assertEquals("Incorrect no of elements", 1, elements.length);
+				assertEquals("Incorrect element type", IJavaElement.TYPE, elements[0].getElementType());
+				assertElementEquals("Incorrect Java element", 
+						"Driver [in Driver.class [in java.sql [in <module:java.sql>]]]", elements[0]);
+				start = fileContent.lastIndexOf("Main");
+				elements = unit.codeSelect(start, "Main".length());
+				assertEquals("Incorrect no of elements", 1, elements.length);
+				assertEquals("Incorrect element type", IJavaElement.TYPE, elements[0].getElementType());
+				assertElementEquals("Incorrect Java element", 
+						"Main [in Main.java [in p.q [in src [in Java9Elements]]]]", elements[0]);
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void test526326b() throws Exception {
+		try {
+			IJavaProject project = createJavaProjectWithBaseSql();
+			project.open(null);
+				String fileContent = 
+						"import java.sql.Driver;\n" +
+						"import p.q.Main;\n" +
+						"module my.mod{\n"  +
+						 "	exports p.q;" +
+						 "	requires java.sql;\n" +
+						 "	provides java.sql.Driver with p.q.Main;\n" +
+						 "}";
+				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
+				createFolder("/Java9Elements/src/p/q");
+				createFile("/Java9Elements/src/p/q/Main.java",
+						"package p.q;\n" +
+						"import java.sql.Connection;\n" +
+						"import java.sql.Driver;\n" +
+						"import java.sql.DriverPropertyInfo;\n" +
+						"import java.sql.SQLException;\n" +
+						"import java.sql.SQLFeatureNotSupportedException;\n" +
+						"import java.util.Properties;\n" +
+						"import java.util.logging.Logger;\n" +
+						"public class Main implements Driver {\n" +
+						"	public boolean acceptsURL(String arg0) throws SQLException { return false; }\n" +
+						"	public Connection connect(String arg0, Properties arg1) throws SQLException { return null; }\n" +
+						"	public int getMajorVersion() { return 0; }\n" +
+						"	public int getMinorVersion() { return 0;}\n" +
+						"	public Logger getParentLogger() throws SQLFeatureNotSupportedException { return null; }\n" +
+						"	public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException { return null; }\n" +
+						"	public boolean jdbcCompliant() { return false; }\n" +
+						"}");
+				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+				int start = fileContent.lastIndexOf("Driver");
+				IJavaElement[] elements = unit.codeSelect(start, "Driver".length());
+				assertEquals("Incorrect no of elements", 1, elements.length);
+				assertEquals("Incorrect element type", IJavaElement.TYPE, elements[0].getElementType());
+				assertElementEquals("Incorrect Java element", 
+						"Driver [in Driver.class [in java.sql [in <module:java.sql>]]]", elements[0]);
+				start = fileContent.lastIndexOf("Main");
+				elements = unit.codeSelect(start, "Main".length());
+				assertEquals("Incorrect no of elements", 1, elements.length);
+				assertEquals("Incorrect element type", IJavaElement.TYPE, elements[0].getElementType());
+				assertElementEquals("Incorrect Java element", 
+						"Main [in Main.java [in p.q [in src [in Java9Elements]]]]", elements[0]);
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void test526326c() throws Exception {
+		try {
+			IJavaProject project = createJavaProjectWithBaseSql();
+			project.open(null);
+				String fileContent = 
+						"module my.mod{\n"  +
+						 "	exports p.q;" +
+						 "	requires java.sql;\n" +
+						 "	provides java.sql.Driver with p.q.Main;\n" +
+						 "}";
+				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
+				createFolder("/Java9Elements/src/p/q");
+				createFile("/Java9Elements/src/p/q/Main.java",
+						"package p.q;\n" +
+						"import java.sql.Connection;\n" +
+						"import java.sql.Driver;\n" +
+						"import java.sql.DriverPropertyInfo;\n" +
+						"import java.sql.SQLException;\n" +
+						"import java.sql.SQLFeatureNotSupportedException;\n" +
+						"import java.util.Properties;\n" +
+						"import java.util.logging.Logger;\n" +
+						"public class Main implements Driver {\n" +
+						"	public boolean acceptsURL(String arg0) throws SQLException { return false; }\n" +
+						"	public Connection connect(String arg0, Properties arg1) throws SQLException { return null; }\n" +
+						"	public int getMajorVersion() { return 0; }\n" +
+						"	public int getMinorVersion() { return 0;}\n" +
+						"	public Logger getParentLogger() throws SQLFeatureNotSupportedException { return null; }\n" +
+						"	public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException { return null; }\n" +
+						"	public boolean jdbcCompliant() { return false; }\n" +
+						"}");
+				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+				int start = fileContent.lastIndexOf("Driver");
+				IJavaElement[] elements = unit.codeSelect(start, "Driver".length());
+				assertEquals("Incorrect no of elements", 1, elements.length);
+				assertEquals("Incorrect element type", IJavaElement.TYPE, elements[0].getElementType());
+				assertElementEquals("Incorrect Java element", 
+						"Driver [in Driver.class [in java.sql [in <module:java.sql>]]]", elements[0]);
+				start = fileContent.lastIndexOf("Main");
+				elements = unit.codeSelect(start, "Main".length());
+				assertEquals("Incorrect no of elements", 1, elements.length);
+				assertEquals("Incorrect element type", IJavaElement.TYPE, elements[0].getElementType());
+				assertElementEquals("Incorrect Java element", 
+						"Main [in Main.java [in p.q [in src [in Java9Elements]]]]", elements[0]);
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
 	}
 }

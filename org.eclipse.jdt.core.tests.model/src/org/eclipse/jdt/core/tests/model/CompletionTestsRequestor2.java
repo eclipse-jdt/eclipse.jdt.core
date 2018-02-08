@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2015 IBM Corporation and others.
+ * Copyright (c) 2004, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -249,6 +249,9 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		return this.problem == null ? "" : this.problem.getMessage();
 	}
 
+	public CompletionProposal[] getProposals() {
+		return this.proposals;
+	}
 	/*
 	 * Get sorted results in ascending order
 	 */
@@ -353,6 +356,12 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				if(proposal.isConstructor()) {
 					buffer.append("<CONSTRUCTOR>"); //$NON-NLS-1$
 				}
+				break;
+			case CompletionProposal.MODULE_DECLARATION :
+				buffer.append("MODULE_DECLARATION"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.MODULE_REF :
+				buffer.append("MODULE_REF"); //$NON-NLS-1$
 				break;
 			case CompletionProposal.PACKAGE_REF :
 				buffer.append("PACKAGE_REF"); //$NON-NLS-1$
@@ -590,6 +599,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 			case CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION :
 				return new String(proposal.getName());
 			case CompletionProposal.PACKAGE_REF:
+			case CompletionProposal.MODULE_DECLARATION:
 				return new String(proposal.getDeclarationSignature());
 		}
 		return "";

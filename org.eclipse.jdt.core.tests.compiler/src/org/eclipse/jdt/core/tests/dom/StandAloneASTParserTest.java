@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2016 IBM Corporation and others.
+ * Copyright (c) 2010, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -72,6 +73,29 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		parser.setCompilerOptions(getCompilerOptions());
 		parser.setUnitName(unitName);
 		return parser.createAST(null);
+	}
+	public void testBug529654_001() {
+		String contents =
+				"module m {\n" + 
+				"}";
+		ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
+		parser.setSource(contents.toCharArray());
+		parser.setEnvironment(null, null, null, true);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		parser.setBindingsRecovery(true);
+		parser.setUnitName("module-info.java");
+		Map<String, String> options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
+		parser.setCompilerOptions(options);
+
+		ASTNode node = parser.createAST(null);
+		assertTrue("Should be a compilation unit", node instanceof CompilationUnit);
+		CompilationUnit unit = (CompilationUnit) node;
+		ModuleDeclaration module = unit.getModule();
+		assertTrue("Incorrect Module Name", module.getName().getFullyQualifiedName().equals("m"));
 	}
 	public void test1() {
 		String contents =
@@ -676,5 +700,100 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	    options1.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
 	    parser.setCompilerOptions(options1);
 	    assertNotNull(parser.createAST(null));
+	}
+	public void testBug526996_001() {
+		File rootDir = new File(System.getProperty("java.io.tmpdir"));
+		String contents = 
+				"public class X {\n" +
+				"    public X() {\n" +
+				"        this.f16132b =\n" +
+				"/*\n" +
+				"        at jadx.api.JavaClass.decompile(JavaClass.java:62)\n" +
+				"*/\n" +
+				"\n" +
+				"            /* JADX WARNING: inconsistent code. */\n" +
+				"            /* Code decompiled incorrectly, please refer to instructions dump. */\n" +
+				"            public final C1984r m22030a() {\n" +
+				"            }\n" +
+				"        }\n" +
+				"\n";
+		
+		File file = new File(rootDir, "X.java");
+		Writer writer = null;
+		try {
+			try {
+				writer = new BufferedWriter(new FileWriter(file));
+				writer.write(contents);
+			} catch (IOException e1) {
+				// ignore
+			}
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch(IOException e) {
+					// ignore
+				}
+			}
+		}
+		String contents2 =
+				"public class Y {\n" +
+				"\n" +
+				"    /* JADX WARNING: inconsistent code. */\n" +
+				"    protected void finalize() {\n" +
+				"        for (i =\n" +
+				"/*\n" +
+				"        at jadx.core.codegen.InsnGen.makeInsn(InsnGen.java:220)\n" +
+				"*/\n" +
+				"        public void close() { }\n" +
+				"    }\n" ;
+
+		File fileY = new File(rootDir, "Y.java");
+		Writer writer2 = null;
+		try {
+			try {
+				writer2 = new BufferedWriter(new FileWriter(fileY));
+				writer2.write(contents2);
+			} catch (IOException e) {
+				// ignore
+			}
+		} finally {
+			try {
+				if (writer2 != null) writer2.close();
+			} catch(IOException e) {
+				// ignore
+			}
+		}
+		try {
+			final FileASTRequestor astRequestor = new FileASTRequestor() {
+				@Override
+				public void acceptAST(String sourceFilePath, CompilationUnit ast) {
+					super.acceptAST(sourceFilePath, ast);
+					System.out.println(sourceFilePath);
+				}
+			};
+			ASTParser parser = ASTParser.newParser(AST.JLS9);
+			parser.setResolveBindings(true);
+			parser.setStatementsRecovery(true);
+			parser.setBindingsRecovery(true);
+			parser.setKind(ASTParser.K_COMPILATION_UNIT);
+			parser.setEnvironment(new String[0], new String[] { rootDir.getAbsolutePath() }, null, true);
+		    String[] files = null;
+			try {
+				files = new String[] {file.getCanonicalPath(), fileY.getCanonicalPath()};
+				System.out.println("Building...");
+				parser.createASTs(files,
+						null,
+						new String[0],
+						astRequestor,
+						null);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} finally {
+			file.delete();
+			fileY.delete();
+		}
 	}
 }
