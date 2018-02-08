@@ -252,14 +252,14 @@ public class LocalVariableBinding extends VariableBinding {
 		this.initializationCount++;
 	}
 
-	public void setAnnotations(AnnotationBinding[] annotations, Scope scope) {
+	public void setAnnotations(AnnotationBinding[] annotations, Scope scope, boolean forceStore) {
 		// note: we don's use this.declaringScope because we might be called before Scope.addLocalVariable(this)
 		//       which is where this.declaringScope is set.
 		if (scope == null)
 			return;
 		SourceTypeBinding sourceType = scope.enclosingSourceType();
 		if (sourceType != null)
-			sourceType.storeAnnotations(this, annotations);
+			sourceType.storeAnnotations(this, annotations, forceStore);
 	}
 
 	public void resetInitializations() {

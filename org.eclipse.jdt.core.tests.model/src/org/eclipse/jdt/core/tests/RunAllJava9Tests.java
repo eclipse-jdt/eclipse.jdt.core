@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 IBM Corporation and others.
+ * Copyright (c) 2016, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.tests.model.Java9ElementTests;
 import org.eclipse.jdt.core.tests.model.JavaConventionTests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs9Tests;
 import org.eclipse.jdt.core.tests.model.ModuleBuilderTests;
+import org.eclipse.jdt.core.tests.model.ModuleOptionsTests;
 import org.eclipse.jdt.core.tests.model.ResolveTests9;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
@@ -36,6 +37,7 @@ public class RunAllJava9Tests extends TestCase {
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
 			ModuleBuilderTests.class,
+			ModuleOptionsTests.class,
 			Java9ElementTests.class,
 			JavaSearchBugs9Tests.class,
 			CompletionTests9.class,

@@ -5916,6 +5916,105 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
+	public void testBug522670() throws Exception {
+		if (!isJRE9) return;
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		try {
+			Hashtable<String, String> newOptions=new Hashtable<>(javaCoreOptions);
+			newOptions.put(CompilerOptions.OPTION_Store_Annotations, JavaCore.ENABLED);
+			JavaCore.setOptions(newOptions);
+			IJavaProject p1 = setupModuleProject("util",
+				new String[] {
+					"src/module-info.java",
+					"module util {\n" +
+					"	exports my.util;\n" +
+					"}\n" +
+					"",
+					"src/my/util/Data.java",
+					"package my.util;\n" +
+					"public class Data {\n" +
+					"}\n" +
+					"",
+					"src/my/util/AnnotatedInModule.java",
+					"package my.util;\n" +
+					"import static java.lang.annotation.ElementType.TYPE_USE;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"@Target(TYPE_USE)\n" +
+					"@interface Y {\n" +
+					"}\n" +
+					"public abstract class AnnotatedInModule {\n" +
+					"	abstract public @Y Data getTime();\n" +
+					"}\n" +
+					"",
+				});
+			IJavaProject p2 = setupModuleProject("util2",
+				new String[] {
+					"src/module-info.java",
+					"module util2 {\n" +
+					"	exports my.util.nested;\n" +
+					"}\n" +
+					"",
+					"src/my/util/nested/Unrelated.java",
+					"package my.util.nested;\n" +
+					"class Unrelated {\n" +
+					"}\n" +
+					"",
+				});
+			String[] sources3 = {
+				"src/a/other/AnnotatedInOtherNonModule.java",
+				"package a.other;\n" +
+				"import static java.lang.annotation.ElementType.TYPE_USE;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import my.util.Data;\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface X {\n" +
+				"}\n" +
+				"public class AnnotatedInOtherNonModule {\n" +
+				"	@X\n" +
+				"	Data generationDate;\n" +
+				"}\n" +
+				"",
+			};
+			IClasspathAttribute[] attr = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+			// modulepath
+			IClasspathEntry[] deps3 = { JavaCore.newProjectEntry(p1.getPath(), null, false, attr, false) };
+			IJavaProject p3 = setupModuleProject("other", sources3, deps3);
+	
+			String[] sources4 = {
+				"src/test/Test.java",
+				"package test;\n" +
+				"\n" +
+				"import a.other.AnnotatedInOtherNonModule;\n" +
+				"import my.util.AnnotatedInModule;\n" +
+				"import my.util.Data;\n" +
+				"\n" +
+				"public class Test extends AnnotatedInOtherNonModule {\n" +
+				"	public Data f(AnnotatedInModule calendar) {\n" +
+				"		return calendar.getTime();\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			};
+			IClasspathEntry[] deps4 = { //
+					// modulepath (with split package my.util)
+					JavaCore.newProjectEntry(p1.getPath(), null, false, attr, false), //
+					JavaCore.newProjectEntry(p2.getPath(), null, false, attr, false), //
+					// classpath
+					JavaCore.newProjectEntry(p3.getPath()) //
+			};
+			IJavaProject p4 = setupModuleProject("test", sources4, deps4);
+			p4.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+	
+			assertNoErrors();
+		} finally {
+			JavaCore.setOptions(javaCoreOptions);
+			deleteProject("util");
+			deleteProject("util2");
+			deleteProject("other");
+			deleteProject("test");
+		}
+	}
+
 	public void testBug525522() throws Exception {
 		if (!isJRE9) return;
 		String save = System.getProperty("modules.to.load");

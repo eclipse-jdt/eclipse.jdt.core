@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2457,14 +2457,14 @@ public final int sourceStart() {
 
 	return this.scope.referenceContext.sourceStart;
 }
-SimpleLookupTable storedAnnotations(boolean forceInitialize) {
+SimpleLookupTable storedAnnotations(boolean forceInitialize, boolean forceStore) {
 	if (!isPrototype())
-		return this.prototype.storedAnnotations(forceInitialize);
+		return this.prototype.storedAnnotations(forceInitialize, forceStore);
 
 	if (forceInitialize && this.storedAnnotations == null && this.scope != null) { // scope null when no annotation cached, and type got processed fully (159631)
 		this.scope.referenceCompilationUnit().compilationResult.hasAnnotations = true;
 		final CompilerOptions globalOptions = this.scope.environment().globalOptions;
-		if (!globalOptions.storeAnnotations)
+		if (!globalOptions.storeAnnotations && !forceStore)
 			return null; // not supported during this compile
 		this.storedAnnotations = new SimpleLookupTable(3);
 	}

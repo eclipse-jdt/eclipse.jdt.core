@@ -745,7 +745,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					type.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
-						type.setAnnotations(annotations);
+						type.setAnnotations(annotations, false);
 					}
 					break;
 				case Binding.METHOD :
@@ -754,7 +754,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					method.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
-						method.setAnnotations(annotations);
+						method.setAnnotations(annotations, false);
 					}
 					break;
 				case Binding.FIELD :
@@ -763,7 +763,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					field.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
-						field.setAnnotations(annotations);
+						field.setAnnotations(annotations, false);
 					}
 					break;
 				case Binding.LOCAL :
@@ -772,7 +772,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					local.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
-						local.setAnnotations(annotations, scope);
+						local.setAnnotations(annotations, scope, false);
 					}
 					break;
 				case Binding.TYPE_PARAMETER :
@@ -786,7 +786,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					module.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					if (length > 0) {
 						annotations = new AnnotationBinding[length];
-						module.setAnnotations(annotations, scope);
+						module.setAnnotations(annotations, scope, false);
 					}
 					break;
 				default :
@@ -1092,7 +1092,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			}
 			if (newLength != length) {
 				System.arraycopy(recipientAnnotations, 0, recipientAnnotations = new AnnotationBinding[newLength],  0, newLength);
-				recipient.setAnnotations(recipientAnnotations, scope);
+				recipient.setAnnotations(recipientAnnotations, scope, false);
 			}
 		}
 	}
