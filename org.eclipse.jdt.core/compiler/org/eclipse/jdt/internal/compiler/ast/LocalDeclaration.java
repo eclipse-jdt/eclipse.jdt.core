@@ -267,26 +267,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					variableTypeInferenceError = true;
 				}
 			}
-			// In order to resolve self-referential initializers, we must declare the variable with a placeholder type (j.l.Object), and then patch it later 
-			this.binding = new LocalVariableBinding(this, variableType != null ? variableType : scope.getJavaLangObject(), this.modifiers, false) {
-				private boolean isInitialized = false;
-				
-				public void markReferenced() {
-					if (! this.isInitialized) {
-						scope.problemReporter().varLocalReferencesItself(LocalDeclaration.this);
-						this.type = null;
-						this.isInitialized = true; // Quell additional type errors
-					}
-				}
-				@Override
-				public void markInitialized() {
-					this.isInitialized = true;
-				}
-			};
 		} else {
-			// create a binding from the specified type
 			variableType = this.type.resolveType(scope, true /* check bounds*/);
-			this.binding = new LocalVariableBinding(this, variableType, this.modifiers, false /*isArgument*/);
 		}
 
 		this.bits |= (this.type.bits & ASTNode.HasTypeAnnotations);
@@ -316,6 +298,28 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		if ((this.modifiers & ClassFileConstants.AccFinal)!= 0 && this.initialization == null) {
 			this.modifiers |= ExtraCompilerModifiers.AccBlankFinal;
+		}
+		if (isTypeNameVar) {
+			// Create binding for the initializer's type
+			// In order to resolve self-referential initializers, we must declare the variable with a placeholder type (j.l.Object), and then patch it later 
+			this.binding = new LocalVariableBinding(this, variableType != null ? variableType : scope.getJavaLangObject(), this.modifiers, false) {
+				private boolean isInitialized = false;
+				
+				public void markReferenced() {
+					if (! this.isInitialized) {
+						scope.problemReporter().varLocalReferencesItself(LocalDeclaration.this);
+						this.type = null;
+						this.isInitialized = true; // Quell additional type errors
+					}
+				}
+				@Override
+				public void markInitialized() {
+					this.isInitialized = true;
+				}
+			};
+		} else {
+			// create a binding from the specified type
+			this.binding = new LocalVariableBinding(this, variableType, this.modifiers, false /*isArgument*/);
 		}
 		scope.addLocalVariable(this.binding);
 		this.binding.setConstant(Constant.NotAConstant);
