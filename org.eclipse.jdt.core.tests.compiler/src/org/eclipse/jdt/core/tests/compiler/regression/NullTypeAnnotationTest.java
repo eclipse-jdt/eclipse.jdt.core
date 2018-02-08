@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2017 GK Software AG and others.
+ * Copyright (c) 2012, 2018 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15534,6 +15534,283 @@ public void testBug526555() {
 		"	public void checkClientTrusted(String @Nullable [] arg0, @Nullable String arg1) {\n" + 
 		"	                               ^^^^^^^^^^^^^^^^^^^\n" + 
 		"Illegal redefinition of parameter arg0, inherited method from X509TrustManager declares this parameter as \'String[]\' (mismatching null constraints)\n" + 
+		"----------\n"
+	);
+}
+public void testBug530913() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullByDefault");
+	customOptions.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/DefaultLocation.java",
+			"package annotation;\n" +
+			"\n" +
+			"public enum DefaultLocation {\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS\n" +
+			"}\n" +
+			"",
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullByDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.*;\n" +
+			" \n" +
+			"public @interface NonNullByDefault {\n" +
+			"	DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT };\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		""
+	);
+	runConformTestWithLibs(
+		false,
+		new String[] {
+			"nnbd_test2/Data.java",
+			"package nnbd_test2;\n" +
+			"\n" +
+			"import java.util.function.Supplier;\n" +
+			"\n" +
+			"import annotation.DefaultLocation;\n" +
+			"import annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Data {\n" +
+			"    public void f(@NonNullByDefault({}) String s1, String s2) {\n" +
+			"        s1.equals(s2);\n" +
+			"    }\n" +
+			"\n" +
+			"    public void g(String s1, @NonNullByDefault({}) String s2) {\n" +
+			"        s1.equals(s2);\n" +
+			"    }\n" +
+			"    \n" +
+			"    @NonNullByDefault({})\n" +
+			"    public void h(@NonNullByDefault({ DefaultLocation.PARAMETER }) Supplier<String> s1, @NonNullByDefault Supplier<String> s2) {\n" +
+			"        s1.equals(s2);\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		""
+	);
+	runNegativeTestWithLibs(
+		new String[] {
+			"nnbd_test1/Test.java",
+			"package nnbd_test1;\n" +
+			"\n" +
+			"import java.util.function.Supplier;\n" +
+			"\n" +
+			"import annotation.DefaultLocation;\n" +
+			"import annotation.NonNullByDefault;\n" +
+			"import nnbd_test2.Data;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Test {\n" +
+			"    void f(@NonNullByDefault({}) String s1, String s2) {\n" +
+			"        if (s1 == null) {\n" +
+			"            System.out.println(\"s is null\");\n" +
+			"        }\n" +
+			"        if (s2 == null) { // warning expected\n" +
+			"            System.out.println(\"s2 is null\");\n" +
+			"        }\n" +
+			"    }\n" +
+			"\n" +
+			"    void g(String s1, @NonNullByDefault({}) String s2) {\n" +
+			"        if (s1 == null) { // warning expected\n" +
+			"            System.out.println(\"s is null\");\n" +
+			"        }\n" +
+			"        if (s2 == null) {\n" +
+			"            System.out.println(\"s2 is null\");\n" +
+			"        }\n" +
+			"    }\n" +
+			"\n" +
+			"    @NonNullByDefault({})\n" +
+			"    void h(@NonNullByDefault({ DefaultLocation.PARAMETER }) Supplier<String> s1, @NonNullByDefault Supplier<String> s2) {\n" +
+			"        if (s1 == null) { // warning expected\n" +
+			"            System.out.println(\"s is null\");\n" +
+			"            return;\n" +
+			"        }\n" +
+			"        if (s2 == null) { // warning expected\n" +
+			"            System.out.println(\"s2 is null\");\n" +
+			"            return;\n" +
+			"        }\n" +
+			"        if (s1.get() == null) {\n" +
+			"            System.out.println(\"s is null\");\n" +
+			"        }\n" +
+			"        if (s2.get() == null) { // warning expected\n" +
+			"            System.out.println(\"s2 is null\");\n" +
+			"        }\n" +
+			"    }\n" +
+			"\n" +
+			"    void checkInvocation() {\n" +
+			"        Test d = new Test();\n" +
+			"        d.f(null, null); // warning on the second null expected\n" +
+			"        d.g(null, null); // warning on the first null expected\n" +
+			"    }\n" +
+			"\n" +
+			"    void checkBTBInvocation() {\n" +
+			"        Data d = new Data();\n" +
+			"        d.f(null, null); // warning on the second null expected\n" +
+			"        d.g(null, null); // warning on the first null expected\n" +
+			"    }\n" +
+			"\n" +
+			"    void checkInheritance() {\n" +
+			"        Test t = new Test() {\n" +
+			"            @Override\n" +
+			"            void f(String s1, String s2) { // warning on the first parameter expected\n" +
+			"                super.f(null, null); // warning on the second null expected\n" +
+			"            }\n" +
+			"\n" +
+			"            @Override\n" +
+			"            void g(String s1, String s2) { // warning on the second parameter expected\n" +
+			"                super.g(null, null); // warning on the first null expected\n" +
+			"            }\n" +
+			"\n" +
+			"            @Override\n" +
+			"            void h(Supplier<String> s1, Supplier<String> s2) { // warning on the first parameter expected\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
+			"\n" +
+			"    void checkBTBInheritance() {\n" +
+			"        Data d = new Data() {\n" +
+			"            @Override\n" +
+			"            public void f(String s1, String s2) { // warning on the first parameter expected\n" +
+			"                super.f(null, null); // warning on the second null expected\n" +
+			"            }\n" +
+			"\n" +
+			"            @Override\n" +
+			"            public void g(String s1, String s2) { // warning on the second parameter expected\n" +
+			"                super.g(null, null); // warning on the first null expected\n" +
+			"            }\n" +
+			"\n" +
+			"            @Override\n" +
+			"            public void h(Supplier<String> s1, Supplier<String> s2) { // warning on the first parameter expected\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		"----------\n" + 
+		"1. ERROR in nnbd_test1\\Test.java (at line 15)\n" + 
+		"	if (s2 == null) { // warning expected\n" + 
+		"	    ^^\n" + 
+		"Redundant null check: comparing \'@NonNull String\' against null\n" + 
+		"----------\n" + 
+		"2. ERROR in nnbd_test1\\Test.java (at line 21)\n" + 
+		"	if (s1 == null) { // warning expected\n" + 
+		"	    ^^\n" + 
+		"Redundant null check: comparing \'@NonNull String\' against null\n" + 
+		"----------\n" + 
+		"3. ERROR in nnbd_test1\\Test.java (at line 31)\n" + 
+		"	if (s1 == null) { // warning expected\n" + 
+		"	    ^^\n" + 
+		"Redundant null check: comparing \'@NonNull Supplier<String>\' against null\n" + 
+		"----------\n" + 
+		"4. ERROR in nnbd_test1\\Test.java (at line 35)\n" + 
+		"	if (s2 == null) { // warning expected\n" + 
+		"	    ^^\n" + 
+		"Redundant null check: comparing \'@NonNull Supplier<@NonNull String>\' against null\n" + 
+		"----------\n" + 
+		"5. ERROR in nnbd_test1\\Test.java (at line 42)\n" + 
+		"	if (s2.get() == null) { // warning expected\n" + 
+		"	    ^^^^^^^^\n" + 
+		"Redundant null check: comparing \'@NonNull String\' against null\n" + 
+		"----------\n" + 
+		"6. ERROR in nnbd_test1\\Test.java (at line 49)\n" + 
+		"	d.f(null, null); // warning on the second null expected\n" + 
+		"	          ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" + 
+		"7. ERROR in nnbd_test1\\Test.java (at line 50)\n" + 
+		"	d.g(null, null); // warning on the first null expected\n" + 
+		"	    ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" + 
+		"8. ERROR in nnbd_test1\\Test.java (at line 55)\n" + 
+		"	d.f(null, null); // warning on the second null expected\n" + 
+		"	          ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" + 
+		"9. ERROR in nnbd_test1\\Test.java (at line 56)\n" + 
+		"	d.g(null, null); // warning on the first null expected\n" + 
+		"	    ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" + 
+		"10. ERROR in nnbd_test1\\Test.java (at line 62)\n" + 
+		"	void f(String s1, String s2) { // warning on the first parameter expected\n" + 
+		"	       ^^^^^^\n" + 
+		"Illegal redefinition of parameter s1, inherited method from Test does not constrain this parameter\n" + 
+		"----------\n" + 
+		"11. ERROR in nnbd_test1\\Test.java (at line 63)\n" + 
+		"	super.f(null, null); // warning on the second null expected\n" + 
+		"	              ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" + 
+		"12. ERROR in nnbd_test1\\Test.java (at line 67)\n" + 
+		"	void g(String s1, String s2) { // warning on the second parameter expected\n" + 
+		"	                  ^^^^^^\n" + 
+		"Illegal redefinition of parameter s2, inherited method from Test does not constrain this parameter\n" + 
+		"----------\n" + 
+		"13. ERROR in nnbd_test1\\Test.java (at line 68)\n" + 
+		"	super.g(null, null); // warning on the first null expected\n" + 
+		"	        ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" + 
+		"14. ERROR in nnbd_test1\\Test.java (at line 72)\n" + 
+		"	void h(Supplier<String> s1, Supplier<String> s2) { // warning on the first parameter expected\n" + 
+		"	       ^^^^^^^^\n" + 
+		"Illegal redefinition of parameter s1, inherited method from Test declares this parameter as \'@NonNull Supplier<String>\' (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"15. ERROR in nnbd_test1\\Test.java (at line 80)\n" + 
+		"	public void f(String s1, String s2) { // warning on the first parameter expected\n" + 
+		"	              ^^^^^^\n" + 
+		"Illegal redefinition of parameter s1, inherited method from Data does not constrain this parameter\n" + 
+		"----------\n" + 
+		"16. ERROR in nnbd_test1\\Test.java (at line 81)\n" + 
+		"	super.f(null, null); // warning on the second null expected\n" + 
+		"	              ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" + 
+		"17. ERROR in nnbd_test1\\Test.java (at line 85)\n" + 
+		"	public void g(String s1, String s2) { // warning on the second parameter expected\n" + 
+		"	                         ^^^^^^\n" + 
+		"Illegal redefinition of parameter s2, inherited method from Data does not constrain this parameter\n" + 
+		"----------\n" + 
+		"18. ERROR in nnbd_test1\\Test.java (at line 86)\n" + 
+		"	super.g(null, null); // warning on the first null expected\n" + 
+		"	        ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" + 
+		"19. ERROR in nnbd_test1\\Test.java (at line 90)\n" + 
+		"	public void h(Supplier<String> s1, Supplier<String> s2) { // warning on the first parameter expected\n" + 
+		"	              ^^^^^^^^\n" + 
+		"Illegal redefinition of parameter s1, inherited method from Data declares this parameter as \'@NonNull Supplier<String>\' (mismatching null constraints)\n" + 
 		"----------\n"
 	);
 }

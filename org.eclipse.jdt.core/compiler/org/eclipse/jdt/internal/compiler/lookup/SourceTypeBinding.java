@@ -1967,6 +1967,9 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 				arg.type.bits |= ASTNode.IgnoreRawTypeCheck;
 			}
 			try {
+				if (this.scope.environment().usesNullTypeAnnotations()) {
+					ASTNode.handleNonNullByDefault(methodDecl.scope, arg.annotations, arg);
+				}
 				parameterType = arg.type.resolveType(methodDecl.scope, true /* check bounds*/);
 			} finally {
 				if (deferRawTypeCheck) { 

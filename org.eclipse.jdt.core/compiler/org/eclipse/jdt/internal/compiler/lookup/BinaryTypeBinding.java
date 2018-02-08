@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -781,6 +781,7 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 					while ((nextChar = methodDescriptor[++end]) != Util.C_NAME_END){/*empty*/}
 
 				if (i >= startIndex) {   // skip the synthetic arg if necessary
+					// checking for param specific non-null default is not necessary here as no type arguments are present (application to params themselves is handled by ImplicitNullAnnotationVerifier)
 					parameters[i - startIndex] = this.environment.getTypeFromSignature(methodDescriptor, index, end, false, this, missingTypeNames, walker.toMethodParameter(visibleIdx++));
 					// 'paramAnnotations' line up with 'parameters'
 					// int parameter to method.getParameterAnnotations() include the synthetic arg
@@ -838,8 +839,12 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 			} else {
 				java.util.ArrayList types = new java.util.ArrayList(2);
 				short rank = 0;
-				while (wrapper.signature[wrapper.start] != Util.C_PARAM_END)
-					types.add(this.environment.getTypeFromTypeSignature(wrapper, typeVars, this, missingTypeNames, walker.toMethodParameter(rank++)));
+				while (wrapper.signature[wrapper.start] != Util.C_PARAM_END) {
+					IBinaryAnnotation[] binaryParameterAnnotations = method.getParameterAnnotations(rank, this.fileName);
+					ITypeAnnotationWalker updatedWalker = NonNullDefaultAwareTypeAnnotationWalker.updateWalkerForParamNonNullDefault(walker, getNullDefaultFrom(binaryParameterAnnotations), this.environment);
+					types.add(this.environment.getTypeFromTypeSignature(wrapper, typeVars, this, missingTypeNames, updatedWalker.toMethodParameter(rank)));
+					rank++;
+				}
 				wrapper.start++; // skip ')'
 				int numParam = types.size();
 				parameters = new TypeBinding[numParam];
