@@ -326,6 +326,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private ASTParser createParser(int kind) {
+		@SuppressWarnings("deprecation")
 		ASTParser parser = ASTParser.newParser(AST.JLS9);
 
 		if (kind == K_MODULE_INFO) {

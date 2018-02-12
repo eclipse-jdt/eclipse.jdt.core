@@ -85,8 +85,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Internal synonym for constant AST.JSL9
 	 * to alleviate deprecation warnings once AST.JLS9 is deprecated in future.
+	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS9 = AST.JLS9;
+	/**
+	 * Internal synonym for constant AST.JSL10
+	 * to alleviate deprecation warnings once AST.JLS10 is deprecated in future.
+	 */
 	protected static final int AST_INTERNAL_JLS10 = AST.JLS10;
 
 	public static class BasicProblemRequestor implements IProblemRequestor {
@@ -2942,7 +2947,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			newJclLibString = "JCL18_FULL";
 			newJclSrcString = "JCL18_SRC"; // Use the same source
 		} else {
-			if (compliance.length() < 3) {
+			if (compliance.equals("10")) {
+				newJclLibString = "JCL10_LIB";
+				newJclSrcString = "JCL10_SRC";
+		} else if (compliance.length() < 3) {
 					newJclLibString = "JCL19_LIB";
 					newJclSrcString = "JCL19_SRC";
 			} else if (compliance.charAt(2) > '7') {
@@ -2991,9 +2999,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IPath jcl5Lib = new Path("JCL15_LIB");
 		IPath jcl8Lib = new Path("JCL18_LIB");
 		IPath jcl9Lib = new Path("JCL19_LIB");
+		IPath jcl10Lib = new Path("JCL10_LIB");
 		IPath jclFull = new Path("JCL18_FULL");
 
-		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jcl9Lib) || path.equals(jclFull);
+		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jcl9Lib) || path.equals(jcl10Lib) ||  path.equals(jclFull);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		setUpJCLClasspathVariables(compliance, false);
@@ -3037,6 +3046,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				setupExternalJCL("jclMin9");
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL19_LIB", "JCL19_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("9"), getExternalJCLSourcePath("9"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("10".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL10_LIB") == null) {
+				setupExternalJCL("jclMin10");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL10_LIB", "JCL10_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath("9"), getExternalJCLSourcePath("9"), getExternalJCLRootSourcePath()},
 					null);
 			}

@@ -43,7 +43,13 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(AST_INTERNAL_JLS9);
+		this.ast = AST.newAST(getAST9());
+	}
+	/**
+	 * @deprecated
+	 */
+	static int getAST9() {
+		return AST.JLS9;
 	}
 
 	public ASTConverter9Test(String name) {
@@ -164,7 +170,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Converter9/src/module-info.java", content);
 
-		CompilationUnit unit = (CompilationUnit) runConversion(AST_INTERNAL_JLS9, this.workingCopies[0], false/*no bindings*/);
+		CompilationUnit unit = (CompilationUnit) runConversion(this.ast.apiLevel(), this.workingCopies[0], false/*no bindings*/);
 		ModuleDeclaration moduleDecl = unit.getModule();
 
 		assertFalse(moduleDecl.isOpen());
@@ -259,7 +265,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 					"}\n";
 			createFile("/Bug514417/src/pack1/X.java", content);
 			ICompilationUnit sourceUnit = getCompilationUnit("Bug514417" , "src", "pack1", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			ASTNode unit = runConversion(AST_INTERNAL_JLS9, sourceUnit, true);
+			ASTNode unit = runConversion(this.ast.apiLevel(), sourceUnit, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit.getNodeType());
 			List imps = ((CompilationUnit) unit).imports();
 			assertEquals("import missing", 1, imps.size());
@@ -299,7 +305,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Converter9/src/module-info.java", content);
 		
-		CompilationUnit unit = (CompilationUnit) runConversion(AST_INTERNAL_JLS9, this.workingCopies[0], false/*no bindings*/);
+		CompilationUnit unit = (CompilationUnit) runConversion(this.ast.apiLevel(), this.workingCopies[0], false/*no bindings*/);
 		ModuleDeclaration moduleDecl = unit.getModule();
 		
 		assertTrue(moduleDecl.isOpen());
@@ -425,7 +431,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project3.open(null);
 
 			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			ASTNode unit1 = runConversion(this.ast.apiLevel(), sourceUnit1, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
 			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
 			checkSourceRange(moduleDecl1, fileContent, fileContent);
@@ -440,7 +446,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			
 			// indirectly fetch the binary version of "first" via "third":
 			ICompilationUnit sourceUnit3 = getCompilationUnit("third" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			ASTNode unit3 = runConversion(AST_INTERNAL_JLS9, sourceUnit3, true);
+			ASTNode unit3 = runConversion(this.ast.apiLevel(), sourceUnit3, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit3.getNodeType());
 			ModuleDeclaration moduleDecl3 = ((CompilationUnit) unit3).getModule();
 			IModuleBinding firstModAsBinary = moduleDecl3.resolveBinding().getRequiredModules()[1]; // skip java.base
@@ -531,7 +537,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 
 			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			ASTNode unit1 = runConversion(this.ast.apiLevel(), sourceUnit1, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
 			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
 			checkSourceRange(moduleDecl1, fileContent, fileContent);
@@ -587,7 +593,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 
 			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			ASTNode unit1 = runConversion(this.ast.apiLevel(), sourceUnit1, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
 			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
 			checkSourceRange(moduleDecl1, fileContent, fileContent);
@@ -653,7 +659,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 
 			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			ASTNode unit1 = runConversion(this.ast.apiLevel(), sourceUnit1, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
 			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
 			checkSourceRange(moduleDecl1, fileContent, fileContent);
@@ -705,7 +711,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 				+ "}";
 		this.workingCopies[0] = getWorkingCopy("/Converter9/src/module-info.java", content);
 
-		CompilationUnit unit = (CompilationUnit) runConversion(AST_INTERNAL_JLS9, this.workingCopies[0], false/*no bindings*/);
+		CompilationUnit unit = (CompilationUnit) runConversion(this.ast.apiLevel(), this.workingCopies[0], false/*no bindings*/);
 		ModuleDeclaration moduleDecl = unit.getModule();
 		checkSourceRange(moduleDecl, content, content);
 	}
@@ -717,7 +723,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 				+ "}";
 		this.workingCopies[0] = getWorkingCopy("/Converter9/src/p/I1.java", content);
 
-		CompilationUnit unit = (CompilationUnit) runConversion(AST_INTERNAL_JLS9, this.workingCopies[0], false/*no bindings*/);
+		CompilationUnit unit = (CompilationUnit) runConversion(this.ast.apiLevel(), this.workingCopies[0], false/*no bindings*/);
 		AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) unit.types().get(0);
 		MethodDeclaration method = (MethodDeclaration) typeDeclaration.bodyDeclarations().get(0);
 		assertTrue("Method Malformed", (method.getFlags() & ASTNode.MALFORMED) == 0);
@@ -737,7 +743,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			IJavaElement[] elements = new IJavaElement[] {
 					firstModule,
 				};
-			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
+			ASTParser parser = ASTParser.newParser(this.ast.apiLevel());
 			parser.setProject(project1);
 			IBinding[] bindings = parser.createBindings(elements, null);
 			assertBindingsEqual(
@@ -783,7 +789,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			IJavaElement[] elements = new IJavaElement[] {
 					firstModule,
 				};
-			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
+			ASTParser parser = ASTParser.newParser(this.ast.apiLevel());
 			parser.setProject(project2);
 			IBinding[] bindings = parser.createBindings(elements, null);
 			assertBindingsEqual(
@@ -818,7 +824,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			project1.open(null);
 
 			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "pack", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			ASTNode unit1 = runConversion(this.ast.apiLevel(), sourceUnit1, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
 			CompilationUnit cu = (CompilationUnit) unit1;
 			ImportDeclaration importDeclaration = (ImportDeclaration) cu.imports().get(0);

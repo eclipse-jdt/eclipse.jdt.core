@@ -53,6 +53,7 @@ public final class CompilationUnitSorter {
         case AST.JLS4 :
         case AST.JLS8 :
         case AST.JLS9 :
+        case AST.JLS10 :
             break;
         default :
             throw new IllegalArgumentException();

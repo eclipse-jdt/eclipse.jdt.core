@@ -71,6 +71,12 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 */
 	private static final int JLS8 = AST.JLS8;
 
+	/**
+	 * Internal synonym for {@link AST#JLS9}. Use to alleviate
+	 * deprecation warnings.
+	 * @deprecated
+	 * @since 3.13 BETA_JAVA_18_3
+	 */
 	private static final int JLS9 = AST.JLS9;
 
 	/**

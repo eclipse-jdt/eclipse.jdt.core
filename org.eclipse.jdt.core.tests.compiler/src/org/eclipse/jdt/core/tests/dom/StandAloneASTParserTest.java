@@ -54,7 +54,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		super(name);
 	}
 	
-	private static final int AST_JLS_LATEST = AST.JLS9;
+	private static final int AST_JLS_LATEST = AST.JLS10;
 
 	public ASTNode runConversion(
 			int astLevel,
@@ -638,6 +638,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		assertTrue("should have parsed a CUD", ast instanceof CompilationUnit);
 	}
 
+	@Deprecated
 	public void testBug465048() {
 		String source =
 				"class A {\n" +
@@ -670,6 +671,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	/**
 	 * Verifies that ASTParser doesn't throw an IllegalArgumentException when given
 	 * this valid input.
+	 * @deprecated
 	 */
 	public void testBug480545() {
 	    String input = "class Test2 { void f(Test2... xs) {} }";
@@ -680,6 +682,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	    parser.setCompilerOptions(options);
 	    assertNotNull(parser.createAST(null));
 	}
+	@Deprecated
 	public void testBug493336_001() {
 	    String input = "public class X implements á¼³ {\n" +
 	    			   "  public static final class if {\n"+
@@ -701,6 +704,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	    parser.setCompilerOptions(options1);
 	    assertNotNull(parser.createAST(null));
 	}
+	@Deprecated
 	public void testBug526996_001() {
 		File rootDir = new File(System.getProperty("java.io.tmpdir"));
 		String contents = 

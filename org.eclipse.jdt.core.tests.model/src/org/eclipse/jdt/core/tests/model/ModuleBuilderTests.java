@@ -4827,6 +4827,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			JavaCore.setOptions(javaCoreOptions);
 		}
 	}
+	@Deprecated
 	public void testBug519935() throws CoreException, IOException {
 		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
@@ -4895,6 +4896,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			JavaCore.setOptions(javaCoreOptions);
 		}
 	}
+	@Deprecated
 	public void testBug520310() throws CoreException, IOException {
 		if (!isJRE9) return;
 		try {

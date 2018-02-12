@@ -261,7 +261,7 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 		// ensure cu is consistent (noop if already consistent)
 		cu.makeConsistent(this.progressMonitor);
 		// create an AST for the compilation unit
-		ASTParser parser = ASTParser.newParser(AST.JLS9);
+		ASTParser parser = ASTParser.newParser(AST.JLS10);
 		parser.setSource(cu);
 		return (CompilationUnit) parser.createAST(this.progressMonitor);
 	}

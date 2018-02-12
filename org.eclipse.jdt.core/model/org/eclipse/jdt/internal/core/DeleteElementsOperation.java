@@ -81,7 +81,7 @@ public class DeleteElementsOperation extends MultiOperation {
 	}
 
 	private void initASTParser() {
-		this.parser = ASTParser.newParser(AST.JLS9);
+		this.parser = ASTParser.newParser(AST.JLS10);
 	}
 
 	/**

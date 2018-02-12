@@ -485,6 +485,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			return new ASTNode[] {unit};
 		return nodes;
 	}
+	@SuppressWarnings("deprecation")
 	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
 		String option = cu.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
 		long jdkLevel = CompilerOptions.versionToJdkLevel(option);
