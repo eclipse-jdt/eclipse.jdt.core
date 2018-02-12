@@ -1,5 +1,5 @@
  /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc. and others
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -119,6 +119,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	private final boolean _isFullBuild;
 	private static final boolean SPLIT_FILES;
 	private static final String SPLIT_FILES_PROPERTY = "org.eclipse.jdt.apt.core.split_files"; //$NON-NLS-1$
+	private final boolean _isTestCode;
 	
 	static {
 		String setting = System.getProperty(SPLIT_FILES_PROPERTY);
@@ -132,7 +133,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			AptProject aptProject, 
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
-			boolean isFullBuild){
+			boolean isFullBuild, boolean isTestCode){
 		
 		 if( filesWithAnnotations == null ){
 			 filesWithAnnotations = NO_FILES_TO_PROCESS;
@@ -145,7 +146,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 					 filesWithoutAnnotations,
 					 problemRecorder,
 					 aptProject, factories, 
-					 dispatchedBatchFactories, isFullBuild );
+					 dispatchedBatchFactories, isFullBuild, isTestCode );
 		 IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		 try {
 			 workspace.run(runnable, aptProject.getJavaProject().getResource(), IWorkspace.AVOID_UPDATE, null);
@@ -159,13 +160,14 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	public static void runAPTDuringReconcile(
 			ReconcileContext reconcileContext,
 			AptProject aptProject, 
-			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories)
+			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
+			boolean test)
 	{
 		// Reconciling, so we do not want to run this as an atomic workspace
 		// operation. If we do, it is easy to have locking issues when someone
 		// calls a reconcile from within a workspace lock
-		APTDispatchRunnable runnable = new APTDispatchRunnable( aptProject, factories );	
-		runnable.reconcile(reconcileContext, aptProject.getJavaProject());
+		APTDispatchRunnable runnable = new APTDispatchRunnable( aptProject, factories, test);	
+		runnable.reconcile(reconcileContext, aptProject.getJavaProject(), test);
 	}
 	
 	/** create a runnable used during build */
@@ -176,7 +178,8 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			AptProject aptProject, 
 			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
 			Set<AnnotationProcessorFactory> dispatchedBatchFactories,
-			boolean isFullBuild)
+			boolean isFullBuild,
+			boolean isTestCode)
 	{
 		assert filesWithAnnotation != null : "missing files"; //$NON-NLS-1$
 		_filesWithAnnotation = filesWithAnnotation;
@@ -186,14 +189,17 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		_factories = factories;
 		_dispatchedBatchFactories = dispatchedBatchFactories;
 		_isFullBuild = isFullBuild;
+		_isTestCode = isTestCode;
 	}	
 	/** create a runnable used during reconcile */
 	private APTDispatchRunnable(
 			AptProject aptProject,
-			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories)
+			Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories,
+			boolean test)
 	{	
 		_aptProject = aptProject;
 		_factories = factories;
+		_isTestCode = test;
 		_isFullBuild = false;
 		// does not apply in reconcile case. we don't generate file during
 		// reconcile and no apt rounding ever occur as a result.
@@ -201,7 +207,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	}
 	
 	private void reconcile(final ReconcileContext reconcileContext,
-			   IJavaProject javaProject)
+			   IJavaProject javaProject, boolean test)
 	{
 		if (_factories.size() == 0) {
 			if (AptPlugin.DEBUG)
@@ -214,7 +220,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		
 		// Construct a reconcile time environment. This will invoke
 		// dispatch from inside the callback.
-		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager(test);
 		gfm.reconcileStarted();
 		EnvCallback callback = new ReconcileEnvCallback(reconcileContext, gfm);
 		AbstractCompilationEnv.newReconcileEnv(reconcileContext, callback);
@@ -308,7 +314,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		
 		// We need to save the file dependency state regardless of whether any Java 5 processing
 		// was performed, because it may also contain Java 6 information.
-		_aptProject.getGeneratedFileManager().writeState();
+		_aptProject.getGeneratedFileManager(_isTestCode).writeState();
 	}
 	
 	/**
@@ -341,7 +347,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	private void runAPTInFileBasedMode(final BuildEnv processorEnv)
 	{
 		final BuildContext[] cpResults = processorEnv.getFilesWithAnnotation();
-		final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+		final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager(_isTestCode);
 		boolean projectEnablesReconcile = AptConfig.shouldProcessDuringReconcile(_aptProject.getJavaProject());
 		for (BuildContext curResult : cpResults ) {			
 			processorEnv.beginFileProcessing(curResult);
@@ -566,7 +572,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			// If there are no files to be built, apt will not be involved.
 			assert firstResult != null : "don't know where to report results"; //$NON-NLS-1$
 			if(firstResult != null ){
-				final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+				final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager(_isTestCode);
 				reportResult(
 						firstResult,  // just put it all in 
 						processorEnv.getAllGeneratedFiles(),
@@ -608,7 +614,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 					}
 				}
 				
-				final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+				final GeneratedFileManager gfm = _aptProject.getGeneratedFileManager(_isTestCode);
 				reportResult(
 						curResult,
 						processorEnv.getAllGeneratedFiles(),
@@ -749,7 +755,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			return;
 		}
 		final Set<IFile> deleted = new HashSet<>();
-		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
+		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager(_isTestCode);
 		Set<IFile> java6GeneratedFiles = AptCompilationParticipant.getInstance().getJava6GeneratedFiles();
 		for( BuildContext cpResult : cpResults){
 			final IFile parentFile = cpResult.getFile();

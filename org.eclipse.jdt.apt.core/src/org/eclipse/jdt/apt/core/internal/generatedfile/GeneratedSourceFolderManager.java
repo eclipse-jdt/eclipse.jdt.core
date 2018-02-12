@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 BEA Systems, Inc. and others
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -84,13 +84,17 @@ public class GeneratedSourceFolderManager {
 	 */
 	private IFolder _generatedSourceFolder = null;
 	
+	private final boolean _isTestCode;
+
+	
 	/**
 	 * Should be constructed only by AptProject.  Other clients should call
-	 * @see AptProject#getGeneratedSourceFolderManager() to get this object.
+	 * @see AptProject#getGeneratedSourceFolderManager(boolean) to get this object.
 	 */
-	public GeneratedSourceFolderManager(AptProject aptProject) 
+	public GeneratedSourceFolderManager(AptProject aptProject, boolean isTestCode) 
 	{
 		_aptProject = aptProject;
+		_isTestCode = isTestCode;
 		final IJavaProject javaProject = aptProject.getJavaProject();
 		
 		// Set _generatedSourceFolder only if APT is enabled, the folder exists,
@@ -109,12 +113,13 @@ public class GeneratedSourceFolderManager {
 	/**
 	 * Add the folder to the classpath, unless it's already there.
 	 * @param srcFolder the folder to add to the classpath.  Must not be null.
+	 * @param specificOutputLocation 
 	 * @return true if, at the end of the routine, the folder is on the classpath.
 	 */
-	private boolean addToClasspath(IFolder srcFolder) {
+	private boolean addToClasspath(IFolder srcFolder, IPath specificOutputLocation) {
 		boolean onClasspath = false;
 		try {
-			ClasspathUtil.updateProjectClasspath( _aptProject.getJavaProject(), srcFolder, null );
+			ClasspathUtil.updateProjectClasspath( _aptProject.getJavaProject(), srcFolder, null, _isTestCode, specificOutputLocation );
 			if(AptPlugin.DEBUG)
 				AptPlugin.trace("Ensured classpath has an entry for " + srcFolder); //$NON-NLS-1$
 			onClasspath = true;
@@ -150,10 +155,30 @@ public class GeneratedSourceFolderManager {
 			return;
 		}
 		
+		ensureFolderExists(srcFolder);
+	}
+
+	public void ensureFolderExists(IFolder srcFolder) {
+		IPath specificOutputLocation;
+		if (_isTestCode) {
+			IClasspathEntry[] cp;
+			try {
+				cp = _aptProject.getJavaProject().getRawClasspath();
+			} catch (JavaModelException e) {
+				return;
+			}
+			specificOutputLocation = ClasspathUtil.findTestOutputLocation(cp);
+			if (specificOutputLocation == null) {
+				// not test source folder present
+				return;
+			}
+		} else {
+			specificOutputLocation = null;
+		}
 		// Ensure that the new folder exists on disk.
 		if (createOnDisk(srcFolder)) {
 			// Add it to the classpath.
-			if (addToClasspath(srcFolder)) {
+			if (addToClasspath(srcFolder, specificOutputLocation)) {
 				// Only if we get this far do we actually set _generatedSourceFolder.
 				synchronized ( this ) {
 					_generatedSourceFolder = srcFolder;
@@ -187,15 +212,7 @@ public class GeneratedSourceFolderManager {
 			AptPlugin.log(status);
 			return;
 		}
-		
-		if (createOnDisk(srcFolder)) {
-			if (addToClasspath(srcFolder)) {
-				synchronized (this) {
-					// Only set _generatedSourceFolder if folder is on disk and on classpath.
-					_generatedSourceFolder = srcFolder;
-				}
-			}
-		}
+		ensureFolderExists(srcFolder);
 	}
 
 	/**
@@ -298,7 +315,7 @@ public class GeneratedSourceFolderManager {
 	 */
 	public void folderDeleted()
 	{
-		_aptProject.projectClean( false );
+		_aptProject.projectClean( false, !_isTestCode, _isTestCode);
 		
 		IFolder srcFolder;
 		synchronized(this){
@@ -371,7 +388,7 @@ public class GeneratedSourceFolderManager {
 	 * means that the name is something illegal like "..".
 	 */
 	private IFolder getFolderPreference() {
-		final String folderName = AptConfig.getGenSrcDir(_aptProject.getJavaProject());
+		final String folderName = _isTestCode ? AptConfig.getGenTestSrcDir(_aptProject.getJavaProject()) : AptConfig.getGenSrcDir(_aptProject.getJavaProject());
 		IFolder folder = null;
 		try {
 			folder = _aptProject.getJavaProject().getProject().getFolder( folderName );
@@ -425,7 +442,7 @@ public class GeneratedSourceFolderManager {
 		}
 		
 		// Clear out the generated file maps
-		_aptProject.projectClean(false);
+		_aptProject.projectClean(false, !_isTestCode, _isTestCode);
 		
 		// clean up the classpath first so that when we actually delete the 
 		// generated source folder we won't cause a classpath error.
@@ -512,4 +529,7 @@ public class GeneratedSourceFolderManager {
 		return succeeded;
 	}
 
+	public boolean isTestCode() {
+		return _isTestCode;
+	}
 }

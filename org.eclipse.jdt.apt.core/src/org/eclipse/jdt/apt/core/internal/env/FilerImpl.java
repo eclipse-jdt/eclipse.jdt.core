@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -67,7 +67,7 @@ public abstract class FilerImpl implements Filer {
     protected IPath getOutputFileForLocation( Filer.Location loc, String pkg, File relPath )
     	throws IOException
     {
-    	GeneratedSourceFolderManager gsfm = getEnv().getAptProject().getGeneratedSourceFolderManager();
+    	GeneratedSourceFolderManager gsfm = getEnv().getAptProject().getGeneratedSourceFolderManager(getEnv().isTestCode());
     	IPath path = null;
     	if ( loc == Filer.Location.CLASS_TREE )
     	{

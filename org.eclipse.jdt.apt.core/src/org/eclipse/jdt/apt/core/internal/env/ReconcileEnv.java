@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import org.eclipse.jdt.apt.core.env.EclipseAnnotationProcessorEnvironment;
 import org.eclipse.jdt.apt.core.env.Phase;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
+import org.eclipse.jdt.apt.core.internal.util.TestCodeUtil;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.compiler.ReconcileContext;
@@ -42,21 +43,21 @@ public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnot
 		final ICompilationUnit workingCopy = context.getWorkingCopy();
 		IJavaProject javaProject = workingCopy.getJavaProject();
 		final IFile file = (IFile)workingCopy.getResource();
-       	return new ReconcileEnv(context, workingCopy, file, javaProject);
+       	return new ReconcileEnv(context, workingCopy, file, javaProject, TestCodeUtil.isTestCode(workingCopy));
     }
 	
 	private ReconcileEnv(
 			ReconcileContext context,
 			ICompilationUnit workingCopy,
 		    IFile file,
-		    IJavaProject javaProj)
+		    IJavaProject javaProj, boolean isTestCode)
 	{
 		// See bug 133744: calling ReconcileContext.getAST3() here would result in 
 		// a typesystem whose types are not comparable with the types we get after 
 		// openPipeline().  Instead, we start the env with an EMPTY_AST_UNIT, and 
 		// replace it with the real thing inside the openPipeline() ASTRequestor's 
 		// acceptAST() callback.
-		super(EMPTY_AST_UNIT, file, javaProj, Phase.RECONCILE);
+		super(EMPTY_AST_UNIT, file, javaProj, Phase.RECONCILE, isTestCode);
 		_context = context;
 		_workingCopy = workingCopy;
 		if (AptPlugin.DEBUG_COMPILATION_ENV) AptPlugin.trace(

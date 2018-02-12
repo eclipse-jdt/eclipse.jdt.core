@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -89,14 +89,15 @@ public class BuildEnv extends AbstractCompilationEnv
      * @param additionalFiles
      * @param units
      * @param javaProj
+     * @param isTestCode 
      * @param phase
      */
     BuildEnv(
 			final BuildContext[] filesWithAnnotations,
 			final BuildContext[] additionalFiles,
-			final IJavaProject javaProj) {
+			final IJavaProject javaProj, boolean isTestCode) {
     	
-    	super(null, null, javaProj, Phase.BUILD);
+    	super(null, null, javaProj, Phase.BUILD, isTestCode);
 		_filer = new BuildFilerImpl(this);
 		_filesWithAnnotation = filesWithAnnotations;
 		_additionFiles = additionalFiles;

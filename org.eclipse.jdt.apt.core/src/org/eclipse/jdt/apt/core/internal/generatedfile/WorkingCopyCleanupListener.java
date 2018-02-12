@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.core.internal.generatedfile;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
+import org.eclipse.jdt.apt.core.internal.util.TestCodeUtil;
 import org.eclipse.jdt.core.ElementChangedEvent;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IElementChangedListener;
@@ -60,7 +61,7 @@ public class WorkingCopyCleanupListener implements IElementChangedListener
 			if ( workingCopyDiscarded )
 			{
 				IJavaProject jp = cu.getJavaProject();
-				GeneratedFileManager gfm = AptPlugin.getAptProject(jp).getGeneratedFileManager();
+				GeneratedFileManager gfm = AptPlugin.getAptProject(jp).getGeneratedFileManager(TestCodeUtil.isTestCode(cu));
 				try {
 					gfm.workingCopyDiscarded( cu );
 				} catch (CoreException e) {

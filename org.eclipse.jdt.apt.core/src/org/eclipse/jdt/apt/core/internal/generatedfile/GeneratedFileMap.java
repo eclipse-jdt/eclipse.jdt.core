@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 BEA Systems, Inc.
+ * Copyright (c) 2006, 2018 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,9 +50,12 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 	private final IProject _proj;
 	
 	private final Map<IFile, Set<Flags>> _flags = new HashMap<>();
+
+	private final boolean _isTestCode;
 	
-	public GeneratedFileMap(IProject proj) {
+	public GeneratedFileMap(IProject proj, boolean isTestCode) {
 		_proj = proj;
+		_isTestCode = isTestCode;
 		readState();
 	}
 	
@@ -114,7 +117,7 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 	 */
 	public synchronized void clearState() {
 		clear();
-		File state = getStateFile(_proj);
+		File state = getStateFile(_proj, _isTestCode);
 		if (state != null) {
 			boolean successfullyDeleted = state.delete();
 			if (!successfullyDeleted && state.exists()) {
@@ -188,11 +191,12 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 	/**
 	 * Returns the File to use for saving and restoring the last built state for the given project.
 	 * Returns null if the project does not exists (e.g. has been deleted)
+	 * @param isTestCode 
 	 */
-	private File getStateFile(IProject project) {
+	private File getStateFile(IProject project, boolean isTestCode) {
 		if (!project.exists()) return null;
 		IPath workingLocation = project.getWorkingLocation(AptPlugin.PLUGIN_ID);
-		return workingLocation.append("state.dat").toFile(); //$NON-NLS-1$
+		return workingLocation.append(isTestCode ? "teststate.dat" : "state.dat").toFile(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	/**
@@ -211,7 +215,7 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 	 * This method is not synchronized because it is called only from this object's constructor.
 	 */
 	private void readState() {
-		File file = getStateFile(_proj);
+		File file = getStateFile(_proj, _isTestCode);
 		if (file == null || !file.exists()) {
 			// We'll just start with no dependencies
 			return;
@@ -288,7 +292,7 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 		if (!isDirty()) {
 			return;
 		}
-		File file = getStateFile(_proj);
+		File file = getStateFile(_proj, _isTestCode);
 		if (file == null) {
 			// Cannot write state, as project has been deleted
 			return;

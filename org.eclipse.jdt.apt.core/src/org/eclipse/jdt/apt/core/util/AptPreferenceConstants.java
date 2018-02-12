@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,10 @@ import java.util.Map;
 public class AptPreferenceConstants {
 	public static final String APT_STRING_BASE = "org.eclipse.jdt.apt"; //$NON-NLS-1$
 	public static final String APT_GENSRCDIR = APT_STRING_BASE + ".genSrcDir"; //$NON-NLS-1$
+	/**
+	 * @since 3.6
+	 */
+	public static final String APT_GENTESTSRCDIR = APT_STRING_BASE + ".genTestSrcDir"; //$NON-NLS-1$
 	public static final String APT_PROCESSOROPTIONS = APT_STRING_BASE + ".processorOptions"; //$NON-NLS-1$
 	public static final String APT_RECONCILEENABLED = APT_STRING_BASE + ".reconcileEnabled"; //$NON-NLS-1$
 	public static final String APT_PROCESSANNOTATIONS = "org.eclipse.jdt.core.compiler.processAnnotations"; //$NON-NLS-1$
@@ -37,6 +41,10 @@ public class AptPreferenceConstants {
 	public static final String APT_NULLVALUE = APT_STRING_BASE + ".NULLVALUE"; //$NON-NLS-1$
 
 	public static final String DEFAULT_GENERATED_SOURCE_FOLDER_NAME = ".apt_generated"; //$NON-NLS-1$
+	/**
+	 * @since 3.6
+	 */
+	public static final String DEFAULT_GENERATED_TEST_SOURCE_FOLDER_NAME = ".apt_generated_tests"; //$NON-NLS-1$
 	
 	/**
 	 * Processors should report this option in {@link com.sun.mirror.apt.AnnotationProcessorFactory#supportedOptions()}
@@ -61,6 +69,7 @@ public class AptPreferenceConstants {
 		Map<String,String> options = new HashMap<>();
 		options.put(AptPreferenceConstants.APT_ENABLED, "false"); //$NON-NLS-1$
 		options.put(AptPreferenceConstants.APT_GENSRCDIR, DEFAULT_GENERATED_SOURCE_FOLDER_NAME);
+		options.put(AptPreferenceConstants.APT_GENTESTSRCDIR, DEFAULT_GENERATED_TEST_SOURCE_FOLDER_NAME);
 		options.put(AptPreferenceConstants.APT_PROCESSOROPTIONS, ""); //$NON-NLS-1$
 		options.put(AptPreferenceConstants.APT_RECONCILEENABLED, "true"); //$NON-NLS-1$
 		DEFAULT_OPTIONS_MAP = Collections.unmodifiableMap(options);
@@ -76,6 +85,7 @@ public class AptPreferenceConstants {
 	public static final String[] OPTION_NAMES = {
 		APT_ENABLED,
 		APT_GENSRCDIR,
+		APT_GENTESTSRCDIR,
 		APT_PROCESSOROPTIONS,
 		APT_RECONCILEENABLED,
 	};

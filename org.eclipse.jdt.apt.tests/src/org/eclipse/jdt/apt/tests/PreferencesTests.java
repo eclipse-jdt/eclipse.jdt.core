@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -179,7 +179,7 @@ public class PreferencesTests extends APTTestBase {
 		AptConfig.addProcessorOption(jproj, "space", "\"text with spaces\"");
 		AptConfig.addProcessorOption(jproj, "quux", null);
 		AptConfig.addProcessorOption(jproj, "quux", null); // adding twice should have no effect
-		Map<String, String> options = AptConfig.getProcessorOptions(jproj);
+		Map<String, String> options = AptConfig.getProcessorOptions(jproj, false);
 		String val = options.get("foo");
 		assertEquals(val, "bar");
 		val = options.get("quux");
@@ -187,7 +187,7 @@ public class PreferencesTests extends APTTestBase {
 		val = options.get("space");
 		assertEquals(val, "\"text with spaces\"");
 		AptConfig.removeProcessorOption(jproj, "foo");
-		options = AptConfig.getProcessorOptions(jproj);
+		options = AptConfig.getProcessorOptions(jproj, false);
 		assertFalse(options.containsKey("foo"));
 		assertTrue(options.containsKey("quux"));
 		AptConfig.removeProcessorOption(jproj, "quux");
@@ -196,7 +196,7 @@ public class PreferencesTests extends APTTestBase {
 		AptConfig.addProcessorOption(null, "workspace option", "corresponding value");
 		AptConfig.addProcessorOption(null, "foo", "whatever");
 		AptConfig.removeProcessorOption(null, "foo");
-		options = AptConfig.getProcessorOptions(null);
+		options = AptConfig.getProcessorOptions(null, false);
 		assertFalse(options.containsKey("foo"));
 		assertTrue(options.containsKey("workspace option"));
 		AptConfig.removeProcessorOption(null, "workspace option");
@@ -207,7 +207,7 @@ public class PreferencesTests extends APTTestBase {
 	 */
 	public void testAutomaticOptions() throws Exception {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
-		Map<String,String> options = AptConfig.getProcessorOptions(jproj);
+		Map<String,String> options = AptConfig.getProcessorOptions(jproj, false);
 		
 		String classpath = options.get("-classpath");
 		assertNotNull(classpath);
@@ -235,13 +235,19 @@ public class PreferencesTests extends APTTestBase {
 	public void testGenSrcDir() throws Exception {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
 		String genSrcDir = AptConfig.getGenSrcDir(jproj);
+		String genTestSrcDir = AptConfig.getGenTestSrcDir(jproj);
 		assertEquals(AptPreferenceConstants.DEFAULT_GENERATED_SOURCE_FOLDER_NAME, genSrcDir);
+		assertEquals(AptPreferenceConstants.DEFAULT_GENERATED_TEST_SOURCE_FOLDER_NAME, genTestSrcDir);
 		
 		final String newDir = "gen/src";
+		final String newTestDir = "gen/src-tests";
 		AptConfig.setGenSrcDir(jproj, newDir);
+		AptConfig.setGenTestSrcDir(jproj, newTestDir);
 		genSrcDir = AptConfig.getGenSrcDir(jproj);
+		genTestSrcDir = AptConfig.getGenTestSrcDir(jproj);
 		
 		assertEquals(newDir, genSrcDir);
+		assertEquals(newTestDir, genTestSrcDir);
 		
 	}
 	
@@ -264,56 +270,104 @@ public class PreferencesTests extends APTTestBase {
 		boolean aptEnabled = AptConfig.isEnabled(javaProj);
 		// test 1: make sure apt is disabled by default
 		assertEquals(false, aptEnabled);
-		final GeneratedSourceFolderManager gsfm = AptPlugin.getAptProject(javaProj).getGeneratedSourceFolderManager();
+		final GeneratedSourceFolderManager gsfm = AptPlugin.getAptProject(javaProj).getGeneratedSourceFolderManager(false);
+		final GeneratedSourceFolderManager testgsfm = AptPlugin.getAptProject(javaProj).getGeneratedSourceFolderManager(true);
 		IFolder srcFolder = gsfm.getFolder();
+		IFolder testSrcFolder = testgsfm.getFolder();
 		String folderName = srcFolder.getProjectRelativePath().toOSString();
+		String testFolderName = testSrcFolder.getProjectRelativePath().toOSString();
 		// test 2: apt is disabled, then folder should not exists 
 		assertEquals(srcFolder.exists(), false);
+		assertEquals(testSrcFolder.exists(), false);
+
 		// test 3: folder name has not been configured, then it should be the default.
 		// folder name should be the default name.
 		assertEquals(folderName, AptPreferenceConstants.DEFAULT_GENERATED_SOURCE_FOLDER_NAME);
+		assertEquals(testFolderName, AptPreferenceConstants.DEFAULT_GENERATED_TEST_SOURCE_FOLDER_NAME);
 		
 		// set folder name while apt is disabled
 		String newName = ".gensrcdir";
+		String newTestName = ".gentestsrcdir";
+
 		AptConfig.setGenSrcDir(javaProj, newName);
+		AptConfig.setGenTestSrcDir(javaProj, newTestName);
+		
 		srcFolder = gsfm.getFolder();
+		testSrcFolder = testgsfm.getFolder();
+
 		folderName = srcFolder.getProjectRelativePath().toOSString();
+		testFolderName = testSrcFolder.getProjectRelativePath().toOSString();
+
 		// test 4: apt still disabled but folder name changed, make sure the folder is not on disk.
 		assertEquals(false, srcFolder.exists());
+		assertEquals(false, testSrcFolder.exists());
+		
 		// test 5: make sure we got the new name
 		assertEquals(newName, folderName);
+		assertEquals(newTestName, testFolderName);
+
 		// test 6: make sure the source folder is not on the classpath.
 		assertEquals( false, isOnClasspath(javaProj, srcFolder.getFullPath()) );
+		assertEquals( false, isOnClasspath(javaProj, testSrcFolder.getFullPath()) );
 		
 		// enable apt
 		AptConfig.setEnabled(javaProj, true);
 		aptEnabled = AptConfig.isEnabled(javaProj);
 		// test 7: make sure it's enabled after we called the API to enable it. 
 		assertEquals(true, aptEnabled);
-		srcFolder = gsfm.getFolder();		
+		srcFolder = gsfm.getFolder();
+		testSrcFolder = testgsfm.getFolder();
+
 		folderName = srcFolder.getProjectRelativePath().toOSString();
+		testFolderName = testSrcFolder.getProjectRelativePath().toOSString();
+
 		// test 8: apt enabled, the source folder should be on disk
 		assertEquals(true, srcFolder.exists());
+		// generated test source folder should NOT exist, as the project has no test source folder
+		assertEquals(false, testSrcFolder.exists());
+		
 		// test 9: make sure the name matches
 		assertEquals(newName, folderName);
+		assertEquals(newTestName, testFolderName);
+
 		// test 10: apt is enabled, folder must be on classpath.
 		assertEquals( true, isOnClasspath(javaProj, srcFolder.getFullPath()) );
-		
+		// generated test source folder should NOT be on classpath, as the project has no test source folder
+		assertEquals( false, isOnClasspath(javaProj, testSrcFolder.getFullPath()) );
+
+		// test 11: now add a test source folder, generated test source folder should then exist and be on classpath
+		env.removePackageFragmentRoot(projectPath, "");
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$ 
+		env.addPackageFragmentRoot( projectPath, "src" );
+		env.addPackageFragmentRoot(javaProj.getPath(), "src-tests", null, null,
+				"bin-tests", true);
+		fullBuild( javaProj.getProject().getFullPath() );
+		assertEquals(true, testSrcFolder.exists());
+		assertEquals(true, isOnClasspath(javaProj, testSrcFolder.getFullPath()) );
+
+
 		// now disable apt.
 		AptConfig.setEnabled(javaProj, false);
 		aptEnabled = AptConfig.isEnabled(javaProj);
 		// test 11: make sure it's disabled.
 		assertEquals(false, aptEnabled);
+
 		srcFolder = gsfm.getFolder();
+		testSrcFolder = testgsfm.getFolder();
+
 		folderName = srcFolder.getProjectRelativePath().toOSString();
+		testFolderName = testSrcFolder.getProjectRelativePath().toOSString();
 		// test 12: make sure we deleted the source folder when we disable apt
 		assertEquals(false, srcFolder.exists());
+		assertEquals(false, testSrcFolder.exists());
 		// test 13: make sure we didn't overwrite the configure folder name
 		assertEquals(newName, folderName);
+		assertEquals(newTestName, testFolderName);
 		// test 14: make sure we cleaned up the classpath.
 		assertEquals( false, isOnClasspath(javaProj, srcFolder.getFullPath()) );
+		assertEquals( false, isOnClasspath(javaProj, testSrcFolder.getFullPath()) );
 	}
-	
+
 	private boolean isOnClasspath(IJavaProject javaProj, IPath path)
 			throws JavaModelException
 	{		

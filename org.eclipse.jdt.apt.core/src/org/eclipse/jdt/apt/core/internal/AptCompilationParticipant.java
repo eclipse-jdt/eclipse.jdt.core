@@ -1,5 +1,5 @@
  /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
+import org.eclipse.jdt.apt.core.internal.util.TestCodeUtil;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -135,8 +136,12 @@ public class AptCompilationParticipant extends CompilationParticipant
 			// also exclude files that has already been processed.
 			int annoFileCount = 0;
 			int noAnnoFileCount = 0;
+			boolean test = false;
 			for( int i=0; i<total; i++ ){
 				BuildContext bc = allfiles[i];
+				if(bc.isTestCode()) {
+					test = true;
+				}
 				if( _buildRound > 0 && _processedFiles.containsKey( bc.getFile() )){
 					// We've already processed this file; we'll skip reprocessing it, on
 					// the assumption that nothing would change, but we need to re-report
@@ -191,7 +196,8 @@ public class AptCompilationParticipant extends CompilationParticipant
 						aptProject, 
 						factories, 
 						_previousRoundsBatchFactories, 
-						_isBatch);
+						_isBatch,
+						test);
 			_previousRoundsBatchFactories.addAll(dispatchedBatchFactories);
 		}
 		finally {			
@@ -215,14 +221,14 @@ public class AptCompilationParticipant extends CompilationParticipant
 		
 		Map<AnnotationProcessorFactory, FactoryPath.Attributes> factories = 
 			AnnotationProcessorFactoryLoader.getLoader().getJava5FactoriesAndAttributesForProject( javaProject );
-		APTDispatchRunnable.runAPTDuringReconcile(context, aptProject, factories);
+		APTDispatchRunnable.runAPTDuringReconcile(context, aptProject, factories, TestCodeUtil.isTestCode(workingCopy));
 	}
 	
 	@Override
 	public void cleanStarting(IJavaProject javaProject){
 		IProject p = javaProject.getProject();
 		
-		AptPlugin.getAptProject(javaProject).projectClean( true );
+		AptPlugin.getAptProject(javaProject).projectClean( true, true, true );
 		try{
 			// clear out all markers during a clean.
 			IMarker[] markers = p.findMarkers(AptPlugin.APT_BATCH_PROCESSOR_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);

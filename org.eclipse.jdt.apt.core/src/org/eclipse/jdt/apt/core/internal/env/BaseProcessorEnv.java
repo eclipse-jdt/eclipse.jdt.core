@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2017 BEA Systems Inc. and others
+ * Copyright (c) 2005, 2018 BEA Systems Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -107,6 +107,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	protected IFile _file;
 	protected final IJavaProject _javaProject;
 	protected final AptProject _aptProject;
+	private final boolean _isTestCode;
 	
 	/**
 	 * Unmodifiable map of processor options, including -A options.
@@ -139,7 +140,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	public BaseProcessorEnv(CompilationUnit astCompilationUnit,
 						    IFile file,
 						    IJavaProject javaProj,
-							Phase phase )
+							Phase phase, boolean isTestCode )
 	{
 		_astRoot = astCompilationUnit;
 		_file = file;
@@ -149,6 +150,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		_modelCompUnit2astCompUnit = new HashMap<>();
 		_typeBinding2ModelCompUnit = new HashMap<>();
 		_aptProject = AptPlugin.getAptProject(javaProj);
+		_isTestCode = isTestCode;
 	}
   
 	/**
@@ -168,7 +170,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
      * so this will always be up to date with the latest settings.
 	 */
 	private Map<String, String> initOptions(IJavaProject jproj) {
-		Map<String, String> procOptions = AptConfig.getProcessorOptions(jproj);
+		Map<String, String> procOptions = AptConfig.getProcessorOptions(jproj, isTestCode());
 		// options is large enough to include the translated -A options
 		Map<String, String> options = new HashMap<>(procOptions.size() * 2);
 		
@@ -1009,4 +1011,5 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     public IProject         getProject(){ return _javaProject.getProject(); }
 	public IJavaProject		getJavaProject(){ return _javaProject; }
 	public AptProject		getAptProject(){ return _aptProject; }
+	public boolean isTestCode() { return _isTestCode; }
 }

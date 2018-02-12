@@ -2975,7 +2975,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		}
 
 		@Override
-		public void configureFromPlatform(Compiler compiler, Object compilationUnitLocator, Object javaProject) {
+		public void configureFromPlatform(Compiler compiler, Object compilationUnitLocator, Object javaProject, boolean isTestCode) {
 			// Nothing to do here
 		}
 		@SupportedAnnotationTypes("*")

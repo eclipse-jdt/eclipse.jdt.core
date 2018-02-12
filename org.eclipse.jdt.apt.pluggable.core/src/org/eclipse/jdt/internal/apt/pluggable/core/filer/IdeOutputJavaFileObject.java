@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2008 BEA Systems, Inc. and others 
+ * Copyright (c) 2007, 2018 BEA Systems, Inc. and others 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -102,7 +102,7 @@ public class IdeOutputJavaFileObject extends IdeOutputFileObject implements Java
 	 */
 	@Override
 	public URI toUri() {
-		IFile file = _env.getAptProject().getGeneratedFileManager().getIFileForTypeName(_name.toString());
+		IFile file = _env.getAptProject().getGeneratedFileManager(_env.isTestCode()).getIFileForTypeName(_name.toString());
 		return file.getLocationURI();
 	}
 

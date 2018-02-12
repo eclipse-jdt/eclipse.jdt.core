@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.jdt.apt.core.env;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
+import org.eclipse.jdt.apt.core.internal.util.TestCodeUtil;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -41,7 +42,8 @@ public class EnvironmentFactory {
        			node,
        			(IFile)compilationUnit.getResource(),
        			javaProject,
-       			Phase.OTHER
+       			Phase.OTHER,
+       			TestCodeUtil.isTestCode(compilationUnit)
        			);
        	return env;
 	}

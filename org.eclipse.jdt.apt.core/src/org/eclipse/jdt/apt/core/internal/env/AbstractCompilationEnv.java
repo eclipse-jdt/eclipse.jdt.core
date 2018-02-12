@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -104,9 +104,16 @@ public abstract class AbstractCompilationEnv
     		EnvCallback callback)
     {
     	assert filesWithAnnotations != null : "missing files"; //$NON-NLS-1$    	
-    
+	    boolean isTestCode;
+		if (filesWithAnnotations != null && filesWithAnnotations.length > 0) {
+			isTestCode = filesWithAnnotations[0].isTestCode();
+		} else if (additionalFiles != null && additionalFiles.length > 0) {
+			isTestCode = additionalFiles[0].isTestCode();
+		} else {
+			isTestCode = false;
+		}
 		// note, we are not reading any files.
-		BuildEnv env = new BuildEnv(filesWithAnnotations, additionalFiles, javaProj);
+		BuildEnv env = new BuildEnv(filesWithAnnotations, additionalFiles, javaProj, isTestCode);
 		env._callback = callback;
 		env.createASTs(filesWithAnnotations);
     }
@@ -131,9 +138,9 @@ public abstract class AbstractCompilationEnv
 			CompilationUnit compilationUnit,
 			IFile file,
 			IJavaProject javaProj,
-			Phase phase)
+			Phase phase, boolean isTestCode)
 	{
-		super(compilationUnit, file, javaProj, phase);
+		super(compilationUnit, file, javaProj, phase, isTestCode);
 	}
 	
 	@Override
@@ -361,5 +368,4 @@ public abstract class AbstractCompilationEnv
 		return options.contains(AptPreferenceConstants.RTTG_ENABLED_OPTION) ||
 			options.contains(RTTG_ENABLED_DASH_A_OPTION);
 	}
-
 }

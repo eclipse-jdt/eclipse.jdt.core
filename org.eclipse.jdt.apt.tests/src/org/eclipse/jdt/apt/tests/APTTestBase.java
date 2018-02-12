@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.jdt.apt.tests.annotations.BaseProcessor;
 import org.eclipse.jdt.apt.tests.annotations.ProcessorTestStatus;
 import org.eclipse.jdt.apt.tests.annotations.generic.GenericFactory;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.util.Util;
@@ -101,6 +102,17 @@ public abstract class APTTestBase extends BuilderTests{
 		return javaProj;
 	}
 	
+	/**
+	 * Add a test source folder to the current project and return it
+	 * @return IPath
+	 * @throws JavaModelException
+	 */
+	protected IPath addTestSourceFolder() throws JavaModelException {
+		IJavaProject currentJavaProject = getCurrentJavaProject();
+		return env.addPackageFragmentRoot(currentJavaProject.getPath(), "src-tests", null, null,
+				"bin-tests", true);
+	}
+	
 	protected void tearDown()
 		throws Exception
 	{
@@ -130,7 +142,7 @@ public abstract class APTTestBase extends BuilderTests{
 		IPath srcRoot = srcFolder.getFullPath();
 		return srcRoot;
 	}
-	
+
 	private String concate(String[] messages){
 		final int len = messages == null ? 0 : messages.length;
 		StringBuilder buffer = new StringBuilder();

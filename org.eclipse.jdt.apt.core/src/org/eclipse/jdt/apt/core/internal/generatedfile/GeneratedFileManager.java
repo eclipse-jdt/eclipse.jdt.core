@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc. and others
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -317,7 +317,7 @@ public class GeneratedFileManager
 	public GeneratedFileManager(final AptProject aptProject, final GeneratedSourceFolderManager gsfm) {
 		_jProject = aptProject.getJavaProject();
 		_gsfm = gsfm;
-		_buildDeps = new GeneratedFileMap(_jProject.getProject());
+		_buildDeps = new GeneratedFileMap(_jProject.getProject(), gsfm.isTestCode());
 		_clearDuringReconcile = new HashSet<>();
 		_reconcileDeps = new ManyToMany<>();
 		_reconcileNonDeps = new ManyToMany<>();
@@ -346,11 +346,13 @@ public class GeneratedFileManager
 	{
 		try {
 			// clear out any generated source folder config markers
-			IMarker[] markers = _jProject.getProject().findMarkers(AptPlugin.APT_CONFIG_PROBLEM_MARKER, true,
-					IResource.DEPTH_INFINITE);
-			if (markers != null) {
-				for (IMarker marker : markers)
-					marker.delete();
+			if(!_gsfm.isTestCode()) {
+				IMarker[] markers = _jProject.getProject().findMarkers(AptPlugin.APT_CONFIG_PROBLEM_MARKER, true,
+						IResource.DEPTH_INFINITE);
+				if (markers != null) {
+					for (IMarker marker : markers)
+						marker.delete();
+				}
 			}
 		} catch (CoreException e) {
 			AptPlugin.log(e, "Unable to delete configuration marker."); //$NON-NLS-1$

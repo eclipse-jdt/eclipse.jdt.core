@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -145,8 +145,10 @@ public class ClasspathUtil {
 
 	/**
 	 * returns true if we updated the classpath, false otherwise
+	 * @param specificOutputLocation 
+	 * @param  
 	 */
-	public static boolean updateProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor )
+	public static boolean updateProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor, boolean isTestCode, IPath specificOutputLocation )
 		throws JavaModelException
 	{
 		IClasspathEntry[] cp = jp.getRawClasspath();
@@ -196,10 +198,13 @@ public class ClasspathUtil {
 			}
 			
 			IPath[] exclusionPatterns = exclusions.toArray( new IPath[exclusions.size()] );
-			final IClasspathAttribute[] attrs = new IClasspathAttribute[1];
+			final IClasspathAttribute[] attrs = new IClasspathAttribute[isTestCode ? 2 : 1];
 			attrs[0] = JavaCore.newClasspathAttribute(IClasspathAttribute.OPTIONAL, Boolean.toString(true));
+			if(isTestCode) {
+				attrs[1] = JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, Boolean.toString(true));
+			}
 			IClasspathEntry generatedSourceClasspathEntry = 
-				JavaCore.newSourceEntry(folder.getFullPath(), new IPath[] {}, exclusionPatterns, null, attrs );
+				JavaCore.newSourceEntry(folder.getFullPath(), new IPath[] {}, exclusionPatterns, specificOutputLocation, attrs );
 			
 			IClasspathEntry[] newCp = new IClasspathEntry[cp.length + 1];
 			System.arraycopy(cp, 0, newCp, 0, cp.length);
@@ -212,6 +217,18 @@ public class ClasspathUtil {
 		return !found;
 	}
 	
+	public static IPath findTestOutputLocation(IClasspathEntry[] cp) {
+		for (IClasspathEntry entry : cp) {
+			if(entry.getEntryKind()==IClasspathEntry.CPE_SOURCE && entry.isTest()) {
+				IPath outputLocation = entry.getOutputLocation();
+				if(outputLocation != null) {
+					return outputLocation;
+				}
+			}
+		}
+		return null;
+	}
+
 	/**
 	 * All methods static.  Clients should not instantiate this class.
 	 */

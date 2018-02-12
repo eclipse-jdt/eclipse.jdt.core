@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,26 +28,32 @@ public class AptProject {
 	
 	private final IJavaProject _javaProject;
 	
-	private final GeneratedFileManager _gfm;
+	private final GeneratedFileManager _main_gfm;
 	
-	private final GeneratedSourceFolderManager _gsfm;
+	private final GeneratedSourceFolderManager _main_gsfm;
+
+	private final GeneratedFileManager _test_gfm;
 	
+	private final GeneratedSourceFolderManager _test_gsfm;
+
 	public AptProject(final IJavaProject javaProject) {
 		_javaProject = javaProject;
-		_gsfm = new GeneratedSourceFolderManager(this);
-		_gfm = new GeneratedFileManager(this, _gsfm);
+		_main_gsfm = new GeneratedSourceFolderManager(this, false);
+		_main_gfm = new GeneratedFileManager(this, _main_gsfm);
+		_test_gsfm = new GeneratedSourceFolderManager(this, true);
+		_test_gfm = new GeneratedFileManager(this, _test_gsfm);
 	}
 	
 	public IJavaProject getJavaProject() {
 		return _javaProject;
 	}
 	
-	public GeneratedFileManager getGeneratedFileManager() {
-		return _gfm;
+	public GeneratedFileManager getGeneratedFileManager(boolean isTestCode) {
+		return isTestCode ? _test_gfm : _main_gfm;
 	}
 	
-	public GeneratedSourceFolderManager getGeneratedSourceFolderManager() {
-		return _gsfm;
+	public GeneratedSourceFolderManager getGeneratedSourceFolderManager(boolean isTestCode) {
+		return isTestCode ? _test_gsfm : _main_gsfm;
 	}
 	
 	/**
@@ -55,7 +61,8 @@ public class AptProject {
 	 * initialization and verify configuration.
 	 */
 	public void compilationStarted() {
-		_gfm.compilationStarted();
+		getGeneratedFileManager(false).compilationStarted();
+		getGeneratedFileManager(true).compilationStarted();
 	}
 	
 	/**
@@ -68,10 +75,12 @@ public class AptProject {
 	 */
 	public void preferenceChanged(String key) {
 		if (AptPreferenceConstants.APT_GENSRCDIR.equals(key)) {
-			_gsfm.folderNamePreferenceChanged();
-		}
-		else if(AptPreferenceConstants.APT_ENABLED.equals(key) ){
-			_gsfm.enabledPreferenceChanged();
+			_main_gsfm.folderNamePreferenceChanged();
+		} else if (AptPreferenceConstants.APT_GENTESTSRCDIR.equals(key)) {
+			_test_gsfm.folderNamePreferenceChanged();
+		} else if(AptPreferenceConstants.APT_ENABLED.equals(key) ){
+			_main_gsfm.enabledPreferenceChanged();
+			_test_gsfm.enabledPreferenceChanged();
 		}
 	}
 
@@ -84,28 +93,42 @@ public class AptProject {
 	 * deleted, false otherwise.
 	 */
 	
-	public void projectClean( boolean deleteFiles )
+	public void projectClean( boolean deleteFiles, boolean cleanMain, boolean cleanTest )
 	{
-		_gfm.projectCleaned();
+		if(cleanMain)
+			_main_gfm.projectCleaned();
+		if(cleanTest)
+			_test_gfm.projectCleaned();
 		
 		// delete the contents of the generated source folder, but don't delete
 		// the generated source folder because that will cause a classpath change,
 		// which will force the next build to be a full build.
 		if ( deleteFiles )
 		{
-			IFolder f = _gsfm.getFolder();
-			if ( f != null && f.exists() )
-			{
-				try
-				{	
-					IResource[] members = f.members();
-					for ( int i = 0; i<members.length; i++ ){
-						FileSystemUtil.deleteDerivedResources(members[i]);
+			if (cleanMain) {
+				IFolder f = _main_gsfm.getFolder();
+				if (f != null && f.exists()) {
+					try {
+						IResource[] members = f.members();
+						for (int i = 0; i < members.length; i++) {
+							FileSystemUtil.deleteDerivedResources(members[i]);
+						}
+					} catch (CoreException ce) {
+						AptPlugin.log(ce, "Could not delete generated files"); //$NON-NLS-1$
 					}
 				}
-				catch ( CoreException ce )
-				{
-					AptPlugin.log(ce, "Could not delete generated files"); //$NON-NLS-1$
+			}
+			if (cleanMain) {
+				IFolder f = _test_gsfm.getFolder();
+				if (f != null && f.exists()) {
+					try {
+						IResource[] members = f.members();
+						for (int i = 0; i < members.length; i++) {
+							FileSystemUtil.deleteDerivedResources(members[i]);
+						}
+					} catch (CoreException ce) {
+						AptPlugin.log(ce, "Could not delete generated files"); //$NON-NLS-1$
+					}
 				}
 			}
 		}
@@ -116,7 +139,8 @@ public class AptProject {
 	 */
 	public void projectClosed()
 	{
-		_gfm.projectClosed();
+		_main_gfm.projectClosed();
+		_test_gfm.projectClosed();
 	}
 	
 	/**
@@ -130,7 +154,8 @@ public class AptProject {
 	{
 		if (AptPlugin.DEBUG)
 			AptPlugin.trace("AptProject.projectDeleted cleaning state for project " + _javaProject.getElementName()); //$NON-NLS-1$
-		_gfm.projectDeleted();
+		_main_gfm.projectDeleted();
+		_test_gfm.projectDeleted();
 	}
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -87,10 +87,12 @@ public final static Integer S_INFO = Integer.valueOf(IMarker.SEVERITY_INFO);
 public final static Integer P_HIGH = Integer.valueOf(IMarker.PRIORITY_HIGH);
 public final static Integer P_NORMAL = Integer.valueOf(IMarker.PRIORITY_NORMAL);
 public final static Integer P_LOW = Integer.valueOf(IMarker.PRIORITY_LOW);
+private CompilationGroup compilationGroup;
 
 protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, State newState, CompilationGroup compilationGroup) {
 	// local copies
 	this.javaBuilder = javaBuilder;
+	this.compilationGroup = compilationGroup;
 	this.nameEnvironment = compilationGroup == CompilationGroup.TEST ? javaBuilder.testNameEnvironment : javaBuilder.nameEnvironment;
 	this.sourceLocations = this.nameEnvironment.sourceLocations;
 	this.notifier = javaBuilder.notifier;
@@ -495,7 +497,7 @@ public ICompilationUnit fromIFile(IFile file) {
 protected void initializeAnnotationProcessorManager(Compiler newCompiler) {
 	AbstractAnnotationProcessorManager annotationManager = JavaModelManager.getJavaModelManager().createAnnotationProcessorManager();
 	if (annotationManager != null) {
-		annotationManager.configureFromPlatform(newCompiler, this, this.javaBuilder.javaProject);
+		annotationManager.configureFromPlatform(newCompiler, this, this.javaBuilder.javaProject, this.compilationGroup == CompilationGroup.TEST);
 		annotationManager.setErr(new PrintWriter(System.err));
 		annotationManager.setOut(new PrintWriter(System.out));
 	}
@@ -568,7 +570,7 @@ protected Compiler newCompiler() {
 protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAboutToCompile) {
 	CompilationParticipantResult[] results = new CompilationParticipantResult[unitsAboutToCompile.length];
 	for (int i = unitsAboutToCompile.length; --i >= 0;)
-		results[i] = new CompilationParticipantResult(unitsAboutToCompile[i]);
+		results[i] = new CompilationParticipantResult(unitsAboutToCompile[i], this.compilationGroup == CompilationGroup.TEST);
 
 	// TODO (kent) do we expect to have more than one participant?
 	// and if so should we pass the generated files from the each processor to the others to process?
@@ -598,7 +600,7 @@ protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAb
 						uniqueFiles.add(unitsAboutToCompile[f]);
 				}
 				if (uniqueFiles.addIfNotIncluded(sourceFile) == sourceFile) {
-					CompilationParticipantResult newResult = new CompilationParticipantResult(sourceFile);
+					CompilationParticipantResult newResult = new CompilationParticipantResult(sourceFile, this.compilationGroup == CompilationGroup.TEST);
 					// is there enough room to add all the addedGeneratedFiles.length ?
 					if (toAdd == null) {
 						toAdd = new CompilationParticipantResult[addedGeneratedFiles.length];

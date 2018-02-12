@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,7 +90,8 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 				}
 				
 				event.getDelta().accept( pbv );
-				addGeneratedSrcFolderTo(pbv.getProjectsThatNeedGenSrcFolder());
+				addGeneratedSrcFolderTo(pbv.getProjectsThatNeedGenSrcFolder(), false);
+				addGeneratedSrcFolderTo(pbv.getProjectsThatNeedGenTestSrcFolder(), true);
 				
 				// Now clear the set of deleted resources,
 				// as we don't want to re-handle them
@@ -115,12 +116,12 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 		}
 	}
 	
-	private void addGeneratedSrcFolderTo(final Set<IProject> projs ){
+	private void addGeneratedSrcFolderTo(final Set<IProject> projs, boolean isTestCode){
 		
 		for(IProject proj : projs ){
 			final IJavaProject javaProj = JavaCore.create(proj);
 			if(javaProj.getProject().isOpen() && AptConfig.isEnabled(javaProj)){
-				final GeneratedSourceFolderManager gsfm = AptPlugin.getAptProject(javaProj).getGeneratedSourceFolderManager();
+				final GeneratedSourceFolderManager gsfm = AptPlugin.getAptProject(javaProj).getGeneratedSourceFolderManager(isTestCode);
 				gsfm.ensureFolderExists();
 			}	
 		}
@@ -153,6 +154,8 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 	{
 		// projects that we need to add the generated source folder to.
 		private final Set<IProject> _addGenFolderTo = new HashSet<>();
+		// projects that we need to add the generated test source folder to.
+		private final Set<IProject> _addGenTestFolderTo = new HashSet<>();
 		// any projects that is closed or about to be deleted
 		private final Set<IProject> _removedProjects = new HashSet<>();
 		@Override
@@ -173,6 +176,7 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 				final IProject proj = (IProject)delta.getResource();		
 				if( canUpdate(proj) ){
 					_addGenFolderTo.add(proj);
+					_addGenTestFolderTo.add(proj);
 				}				
 				else
 					_removedProjects.add(proj);
@@ -189,18 +193,30 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			final IJavaProject javaProj = JavaCore.create(project);
 			final AptProject aptProj = AptPlugin.getAptProject(javaProj);
 			if( resource instanceof IFile ){
-				final GeneratedFileManager gfm = aptProj.getGeneratedFileManager();
+				final GeneratedFileManager gfm = aptProj.getGeneratedFileManager(false);
 				IFile f = (IFile)resource;
 				gfm.fileDeleted(f);
+				aptProj.getGeneratedFileManager(true).fileDeleted(f);
 			}				
 			else if( resource instanceof IFolder ){			
-				final GeneratedSourceFolderManager gsfm = aptProj.getGeneratedSourceFolderManager();
 				IFolder f = (IFolder) resource;					
+				final GeneratedSourceFolderManager gsfm = aptProj.getGeneratedSourceFolderManager(false);
 				if ( gsfm.isGeneratedSourceFolder( f ) ){
 					gsfm.folderDeleted();
 					// all deletion occurs before any add (adding the generated source directory)
 					if( !_removedProjects.contains(project) ){
 						_addGenFolderTo.add(project);
+					}
+					// if the project is already closed or in the process of being
+					// deleted, will ignore this deletion since we cannot correct 
+					// the classpath anyways.
+				}
+				final GeneratedSourceFolderManager testgsfm = aptProj.getGeneratedSourceFolderManager(true);
+				if ( testgsfm.isGeneratedSourceFolder( f ) ){
+					testgsfm.folderDeleted();
+					// all deletion occurs before any add (adding the generated source directory)
+					if( !_removedProjects.contains(project) ){
+						_addGenTestFolderTo.add(project);
 					}
 					// if the project is already closed or in the process of being
 					// deleted, will ignore this deletion since we cannot correct 
@@ -216,7 +232,12 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 			_addGenFolderTo.removeAll(_removedProjects);
 			return _addGenFolderTo;
 		}
-		
+
+		Set<IProject> getProjectsThatNeedGenTestSrcFolder(){
+			_addGenTestFolderTo.removeAll(_removedProjects);
+			return _addGenTestFolderTo;
+		}
+
 		private boolean canUpdate(IProject proj)
 			throws CoreException
 		{

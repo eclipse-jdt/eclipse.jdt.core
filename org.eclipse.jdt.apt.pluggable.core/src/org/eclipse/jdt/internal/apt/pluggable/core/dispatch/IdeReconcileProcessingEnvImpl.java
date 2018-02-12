@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2018 BEA Systems, Inc. and others 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,8 +23,8 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 public class IdeReconcileProcessingEnvImpl extends IdeProcessingEnvImpl {
 
 	public IdeReconcileProcessingEnvImpl(IdeAnnotationProcessorManager dispatchManager,
-			IJavaProject jproject, Compiler compiler) {
-		super(dispatchManager, jproject, compiler);
+			IJavaProject jproject, Compiler compiler, boolean isTestCode) {
+		super(dispatchManager, jproject, compiler, isTestCode);
 	}
 
 	@Override

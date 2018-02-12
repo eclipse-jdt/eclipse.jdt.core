@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2018 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,7 +69,7 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 	 * @see org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager#configureFromPlatform(org.eclipse.jdt.internal.compiler.Compiler, java.lang.Object)
 	 */
 	@Override
-	public void configureFromPlatform(Compiler compiler, Object compilationUnitLocator, Object javaProject) {
+	public void configureFromPlatform(Compiler compiler, Object compilationUnitLocator, Object javaProject, boolean isTestCode) {
 		// Implemented by IdeAnnotationProcessorManager.
 		throw new UnsupportedOperationException();
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -318,7 +318,7 @@ public class AptReconcileTests extends ModifyingResourceTests
 			assertProblems( "UnexpectedProblems", "" );
 			
 			IJavaProject jp = _workingCopy.getJavaProject();
-			GeneratedFileManager gfm = AptPlugin.getAptProject(jp).getGeneratedFileManager();
+			GeneratedFileManager gfm = AptPlugin.getAptProject(jp).getGeneratedFileManager(false);
 			
 			if ( !gfm.containsWorkingCopyMapEntriesForParent((IFile)_workingCopy.getResource()))
 				fail( "Expected to find map entries in GeneratedFileManager");

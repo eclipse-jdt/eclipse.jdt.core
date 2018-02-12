@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 - 2017 BEA Systems, Inc and others.
+ * Copyright (c) 2007 - 2018 BEA Systems, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,13 +52,15 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 	private final IdeAnnotationProcessorManager _dispatchManager;
 	private final IJavaProject _javaProject;
 	protected final AptProject _aptProject;
+	private final boolean _isTestCode;
 
 	public IdeProcessingEnvImpl(IdeAnnotationProcessorManager dispatchManager,
-			IJavaProject jproject, Compiler compiler) 
+			IJavaProject jproject, Compiler compiler, boolean isTestCode) 
 	{
 		_dispatchManager = dispatchManager;
 		_javaProject = jproject;
 		_compiler = compiler;
+		this._isTestCode = isTestCode;
 		_aptProject = AptPlugin.getAptProject(jproject);
 		_filer = new IdeFilerImpl(_dispatchManager, this);
 		_messager = new IdeMessagerImpl(_dispatchManager, this);
@@ -78,7 +80,7 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 			// Java 5 processor options include items on the command line such as -s,
 			// -classpath, etc., but Java 6 options only include the options specified
 			// with -A, which will have been parsed into key/value pairs with no dash.
-			Map<String, String> allOptions = AptConfig.getProcessorOptions(_javaProject);
+			Map<String, String> allOptions = AptConfig.getProcessorOptions(_javaProject, isTestCode());
 
 			// But we make them available as variables in processor options configured by users
 			// (e.g. %classpath% in an option value is replaced with the value of -classpath):
@@ -177,4 +179,7 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 		return false;
 	}
 
+	public boolean isTestCode() {
+		return _isTestCode;
+	}
 }

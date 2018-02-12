@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc. and others.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,6 +77,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private static final Key KEY_APTENABLED= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_ENABLED);
 	private static final Key KEY_RECONCILEENABLED= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_RECONCILEENABLED);
 	private static final Key KEY_GENSRCDIR= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_GENSRCDIR);
+	private static final Key KEY_GENTESTSRCDIR= getKey(AptPlugin.PLUGIN_ID, AptPreferenceConstants.APT_GENTESTSRCDIR);
 	
 	private static Key[] getAllKeys() {
 		return new Key[] {
@@ -93,6 +94,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private SelectionButtonDialogField fAptEnabledField;
 	private SelectionButtonDialogField fReconcileEnabledField;
 	private StringDialogField fGenSrcDirField;
+	private StringDialogField fGenTestSrcDirField;
 	private ListDialogField<ProcessorOption> fProcessorOptionsField;
 	
 	private PixelConverter fPixelConverter;
@@ -100,6 +102,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	
 	private Map<String, String> fOriginalProcOptions; // cache of saved values
 	private String fOriginalGenSrcDir;
+	private String fOriginalGenTestSrcDir;
 	private boolean fOriginalAptEnabled;
 	private boolean fOriginalReconcileEnabled;
 	
@@ -218,7 +221,11 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fGenSrcDirField = new StringDialogField();
 		fGenSrcDirField.setDialogFieldListener(adapter);
 		fGenSrcDirField.setLabelText(Messages.AptConfigurationBlock_generatedSrcDir);
-		
+
+		fGenTestSrcDirField = new StringDialogField();
+		fGenTestSrcDirField.setDialogFieldListener(adapter);
+		fGenTestSrcDirField.setLabelText(Messages.AptConfigurationBlock_generatedTestSrcDir);
+
 		String[] buttons= new String[] {
 			Messages.AptConfigurationBlock_add,
 			Messages.AptConfigurationBlock_edit,
@@ -254,7 +261,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		if (workspaceSettings)
 			return null;
 		// if the only thing that changed was the reconcile setting, return null: a rebuild is not necessary
-		if (fOriginalGenSrcDir.equals(fGenSrcDirField.getText())) {
+		if (fOriginalGenSrcDir.equals(fGenSrcDirField.getText())
+				&& fOriginalGenTestSrcDir.equals(fGenTestSrcDirField.getText())) {
 			if (fOriginalAptEnabled == fAptEnabledField.isSelected()) {
 				if (!procOptionsChanged()) {
 					return null;
@@ -311,11 +319,13 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 					fAptEnabledField,
 					fReconcileEnabledField,
 					fGenSrcDirField,
+					fGenTestSrcDirField,
 					fProcessorOptionsField,
 				} :
 				new DialogField[] {
 					fReconcileEnabledField,
 					fGenSrcDirField,
+					fGenTestSrcDirField,
 					fProcessorOptionsField,
 				};
 		LayoutUtil.doDefaultLayout(fBlockControl, fields, true, SWT.DEFAULT, SWT.DEFAULT);
@@ -337,6 +347,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		super.cacheOriginalValues();
 		fOriginalProcOptions= AptConfig.getRawProcessorOptions(fJProj);
 		fOriginalGenSrcDir = AptConfig.getGenSrcDir(fJProj);
+		fOriginalGenTestSrcDir = AptConfig.getGenTestSrcDir(fJProj);
 		fOriginalAptEnabled = AptConfig.isEnabled(fJProj);
 		fOriginalReconcileEnabled = AptConfig.shouldProcessDuringReconcile(fJProj);
 		fPerProjSettingsEnabled = hasProjectSpecificOptionsNoCache(fProject);
@@ -366,6 +377,9 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 				if (!fOriginalGenSrcDir.equals(AptConfig.getGenSrcDir(null))) {
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENSRCDIR);
 				}
+				if (!fOriginalGenTestSrcDir.equals(AptConfig.getGenTestSrcDir(null))) {
+					fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENTESTSRCDIR);
+				}
 				if (fOriginalAptEnabled != AptConfig.isEnabled(null)) {
 					// make JDT "processingEnabled" setting track APT "enabled" setting.
 					setJDTProcessAnnotationsSetting(fAptEnabledField.isSelected());
@@ -379,6 +393,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			else { // compare against current settings
 				if (!fOriginalGenSrcDir.equals(fGenSrcDirField.getText()))
 					fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENSRCDIR);
+				if (!fOriginalGenTestSrcDir.equals(fGenTestSrcDirField.getText()))
+					fAptProject.preferenceChanged(AptPreferenceConstants.APT_GENTESTSRCDIR);
 				boolean isAptEnabled = fAptEnabledField.isSelected();
 				if (fOriginalAptEnabled != isAptEnabled) {
 					// make JDT "processingEnabled" setting track APT "enabled" setting.
@@ -460,6 +476,11 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		IStatus status = null;
 		
 		status = validateGenSrcDir();
+
+		if (status.getSeverity() == IStatus.OK) {
+			status = validateGenTestSrcDir();
+		}
+
 		if (status.getSeverity() == IStatus.OK) {
 			status = validateProcessorOptions();
 		}
@@ -478,6 +499,26 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			return new StatusInfo(IStatus.ERROR, Messages.AptConfigurationBlock_genSrcDirMustBeValidRelativePath);
 		}
 		if (fJProj != null && !dirName.equals(fOriginalGenSrcDir)) {
+			IFolder folder = fJProj.getProject().getFolder( dirName );
+			if (folder != null && folder.exists() && !folder.isDerived()) {
+				return new StatusInfo(IStatus.WARNING, Messages.AptConfigurationBlock_warningContentsMayBeDeleted);
+			}
+		}
+		return new StatusInfo();
+	}
+
+	/**
+	 * Validate "generated test source directory" setting.  It must be a valid
+	 * pathname relative to a project, and must not be a source directory.
+	 * @return true if current field value is valid
+	 */
+	private IStatus validateGenTestSrcDir() {
+		String dirName = fGenTestSrcDirField.getText();
+		if (!AptConfig.validateGenSrcDir(fJProj, dirName)) {
+			return new StatusInfo(IStatus.ERROR, Messages.AptConfigurationBlock_genTestSrcDirMustBeValidRelativePath);
+		}
+		boolean TODO; // check it is not same as validateGenSrcDir, make sure it has its own output folder 
+		if (fJProj != null && !dirName.equals(fOriginalGenTestSrcDir)) {
 			IFolder folder = fJProj.getProject().getFolder( dirName );
 			if (folder != null && folder.exists() && !folder.isDerived()) {
 				return new StatusInfo(IStatus.WARNING, Messages.AptConfigurationBlock_warningContentsMayBeDeleted);
@@ -516,6 +557,8 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fReconcileEnabledField.setSelection(reconcileEnabled);
 		String str= getValue(KEY_GENSRCDIR);
 		fGenSrcDirField.setText(str == null ? "" : str); //$NON-NLS-1$
+		String teststr= getValue(KEY_GENTESTSRCDIR);
+		fGenTestSrcDirField.setText(teststr == null ? "" : teststr); //$NON-NLS-1$
 	}
 	
 	/**
@@ -529,6 +572,9 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		} else if (field == fGenSrcDirField) {
 			String newVal = fGenSrcDirField.getText();
 			setValue(KEY_GENSRCDIR, newVal);
+		} else if (field == fGenTestSrcDirField) {
+			String newVal = fGenTestSrcDirField.getText();
+			setValue(KEY_GENTESTSRCDIR, newVal);
 		} else if (field == fReconcileEnabledField) {
 			String newVal = String.valueOf(fReconcileEnabledField.isSelected());
 			setValue(KEY_RECONCILEENABLED, newVal);

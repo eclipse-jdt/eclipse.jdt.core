@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,7 @@ public class JavaSourceFilePrintWriter extends PrintWriter {
     	try {
 	    	String contents = _sw.toString();
 	        super.close();
-	        GeneratedFileManager gfm = _env.getAptProject().getGeneratedFileManager();
+	        GeneratedFileManager gfm = _env.getAptProject().getGeneratedFileManager(_env.isTestCode());
 	        Phase phase = _env.getPhase();
 			
 	        FileGenerationResult result = null;

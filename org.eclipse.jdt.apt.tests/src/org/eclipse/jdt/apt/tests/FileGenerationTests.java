@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -105,7 +105,7 @@ public class FileGenerationTests extends APTTestBase {
 		fullBuild( project.getFullPath() );
 		expectingNoProblems();
 
-		Map<String,String> options = AptConfig.getProcessorOptions(jproj);
+		Map<String,String> options = AptConfig.getProcessorOptions(jproj, false);
 		String sourcepath = options.get("-sourcepath");
 		
 		assertTrue(sourcepath.contains("__foo_src"));
@@ -159,7 +159,7 @@ public class FileGenerationTests extends APTTestBase {
 		expectingNoProblems();
 		
 		// Look for the file
-		Map<String,String> options = AptConfig.getProcessorOptions(JavaCore.create(project));
+		Map<String,String> options = AptConfig.getProcessorOptions(JavaCore.create(project), false);
 		// We'll find it in the binary output directory
 		String outputRootPath = options.get("-d");
 		File theFile = new File(new File(outputRootPath), TEXT_FILE_NAME);
@@ -219,7 +219,7 @@ public class FileGenerationTests extends APTTestBase {
 		expectingNoProblems();
 
 		AptProject aptProj = new AptProject(env.getJavaProject(getProjectName()));
-		GeneratedFileManager gfm = aptProj.getGeneratedFileManager();
+		GeneratedFileManager gfm = aptProj.getGeneratedFileManager(false);
 		String genSrcDir = AptConfig.getGenSrcDir(env.getJavaProject(getProjectName()));
 		String P = File.separator;
 
@@ -229,4 +229,80 @@ public class FileGenerationTests extends APTTestBase {
 		assertTrue("expected src/test/Test.java to be designated as parent file", gfm.isParentFile(parentFile));
 		assertTrue("expected .apt_generated/test/A.java to be designated as generated file", gfm.isGeneratedFile(generatedFile));
 	}
+
+	public void testTestSourceGen() throws Exception
+	{
+		IJavaProject jproj = env.getJavaProject( getProjectName() );
+		IProject project = env.getProject( getProjectName() );
+		IPath srcRoot = getSourcePath();
+
+		String mainCode = 
+				"package test;" + "\n" +
+				"import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
+				"@HelloWorldAnnotation(\"GeneratedFileMain\")" + "\n" +
+				"public class Main" + "\n" +
+				"{" + "\n" +
+				"	generatedfilepackage.GeneratedFileMain gfm;" + "\n" +
+				"}";
+		String testCode = 
+				"package test;" + "\n" +
+				"import org.eclipse.jdt.apt.tests.annotations.helloworld.HelloWorldAnnotation;" + "\n" +
+				"@HelloWorldAnnotation" + "\n" +
+				"public class Test" + "\n" +
+				"{" + "\n" +
+				"	generatedfilepackage.GeneratedFileTest gft;" + "\n" +
+				"	generatedfilepackage.GeneratedFileMain gfm;" + "\n" +
+				"}";
+
+		AptConfig.setGenSrcDir(jproj, "__main_foo_src");
+		AptConfig.setGenTestSrcDir(jproj, "__test_foo_src");
+
+		IPath testSrcRoot = addTestSourceFolder();
+
+		env.addClass(srcRoot, "test", "Main", mainCode);
+		env.addClass(testSrcRoot, "test", "Test", testCode);
+
+		fullBuild( project.getFullPath() );
+		expectingNoProblems();
+
+		assertTrue(AptConfig.getProcessorOptions(jproj, false).get("-sourcepath").contains("__main_foo_src"));
+		assertTrue(AptConfig.getProcessorOptions(jproj, true).get("-sourcepath").contains("__test_foo_src"));
+		assertEquals(ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+		
+		String P = File.separator;
+
+		AptProject aptProj = new AptProject(env.getJavaProject(getProjectName()));
+		GeneratedFileManager maingfm = aptProj.getGeneratedFileManager(false);
+		GeneratedFileManager testgfm = aptProj.getGeneratedFileManager(true);
+
+		IFile mainParentFile = project.getFile("src" + P + "test" + P + "Main.java");
+		IFile mainGeneratedFile = project.getFile("__main_foo_src" + P + "generatedfilepackage" + P + "GeneratedFileMain.java");
+
+		IFile testParentFile = project.getFile("src-tests" + P + "test" + P + "Test.java");
+		IFile testGeneratedFile = project.getFile("__test_foo_src" + P + "generatedfilepackage" + P + "GeneratedFileTest.java");
+
+		assertTrue("expected "
+				+ mainParentFile.getProjectRelativePath()
+				+ " to be designated as main parent file", maingfm.isParentFile(mainParentFile));
+		assertTrue("expected " + mainGeneratedFile.getProjectRelativePath()
+				+ " to be designated as main generated file", maingfm.isGeneratedFile(mainGeneratedFile));
+		assertFalse("expected "
+				+ testParentFile.getProjectRelativePath()
+				+ " not to be designated as main parent file", maingfm.isParentFile(testParentFile));
+		assertFalse("expected " + testGeneratedFile.getProjectRelativePath()
+				+ " not to be designated as main generated file", maingfm.isGeneratedFile(testGeneratedFile));
+
+		assertTrue("expected "
+				+ testParentFile.getProjectRelativePath()
+				+ " to be designated as test parent file", testgfm.isParentFile(testParentFile));
+		assertTrue("expected " + testGeneratedFile.getProjectRelativePath()
+				+ " to be designated as test generated file", testgfm.isGeneratedFile(testGeneratedFile));
+		assertFalse("expected "
+				+ mainParentFile.getProjectRelativePath()
+				+ " not to be designated as test parent file", testgfm.isParentFile(mainParentFile));
+		assertFalse("expected " + mainGeneratedFile.getProjectRelativePath()
+				+ " not to be designated as test generated file", testgfm.isGeneratedFile(mainGeneratedFile));
+
+	}
+
 }

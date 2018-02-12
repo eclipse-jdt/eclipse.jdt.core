@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 BEA Systems, Inc.
+ * Copyright (c) 2007, 2018 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,7 +83,7 @@ public class IdeNonSourceOutputStream  extends ByteArrayOutputStream
 		
 		// If there are no parents, we don't need to track dependencies
 		if (_parentFiles != null && !_parentFiles.isEmpty()) {
-			_env.getAptProject().getGeneratedFileManager().addGeneratedFileDependency(_parentFiles, _file);
+			_env.getAptProject().getGeneratedFileManager(_env.isTestCode()).addGeneratedFileDependency(_parentFiles, _file);
 			_env.addNewResource(_file);
 		}
 	}

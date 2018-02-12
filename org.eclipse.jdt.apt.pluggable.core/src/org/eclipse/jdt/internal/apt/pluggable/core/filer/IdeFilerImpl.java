@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 - 2010 BEA Systems, Inc. and others
+ * Copyright (c) 2007 - 2018 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -124,7 +124,7 @@ public class IdeFilerImpl implements Filer {
 		if (null == name) {
 			throw new IllegalArgumentException("Name is null");
 		}
-		IFile file = _env.getAptProject().getGeneratedFileManager().getIFileForTypeName(name.toString());
+		IFile file = _env.getAptProject().getGeneratedFileManager(_env.isTestCode()).getIFileForTypeName(name.toString());
 		if (AptCompilationParticipant.getInstance().getJava6GeneratedFiles().contains(file)) {
 			throw new FilerException("Source file already created: " + file.getFullPath()); //$NON-NLS-1$
 		}
@@ -165,7 +165,7 @@ public class IdeFilerImpl implements Filer {
     protected IFile getFileFromOutputLocation( Location loc, CharSequence pkg, CharSequence relPath )
     	throws IOException
     {
-    	GeneratedSourceFolderManager gsfm = _env.getAptProject().getGeneratedSourceFolderManager();
+    	GeneratedSourceFolderManager gsfm = _env.getAptProject().getGeneratedSourceFolderManager(_env.isTestCode());
     	IPath path = null;
     	if ( loc == StandardLocation.CLASS_OUTPUT )
     	{

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2016 BEA Systems, Inc.
+ * Copyright (c) 2005, 2018 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,6 +40,7 @@ import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.apt.core.internal.AnnotationProcessorFactoryLoader;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
+import org.eclipse.jdt.apt.core.internal.generatedfile.ClasspathUtil;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPathUtil;
@@ -58,6 +59,7 @@ import org.osgi.service.prefs.BackingStoreException;
  * 
  * Helpful information about the Eclipse preferences mechanism can be found at:
  * http://dev.eclipse.org/viewcvs/index.cgi/~checkout~/platform-core-home/documents/user_settings/faq.html
+ * @since 3.5
  */
 public class AptConfig {
 	
@@ -121,6 +123,15 @@ public class AptConfig {
     }
     
 	/**
+	 * @deprecated Use {@link #getProcessorOptions(IJavaProject, boolean)} or
+	 *             {@link #getRawProcessorOptions(IJavaProject)}
+	 */
+    @Deprecated
+    public static Map<String, String> getProcessorOptions(IJavaProject jproj) {
+    		return getProcessorOptions(jproj, false);
+    }
+    
+	/**
      * Get the options that are presented to annotation processors by the
      * AnnotationProcessorEnvironment.  Options are key/value pairs which
      * are set in the project properties.
@@ -160,12 +171,14 @@ public class AptConfig {
      * above.
      * 
      * @param jproj a project, or null to query the workspace-wide setting.
+     * @param isTestCode if true, the programmatically set options are computed for test code compilation
      * @return a mutable, possibly empty, map of (key, value) pairs.  
      * The value part of a pair may be null (equivalent to "-Akey" on the Sun apt
      * command line).
      * The value part may contain spaces.
+	 * @since 3.6
      */
-    public static Map<String, String> getProcessorOptions(IJavaProject jproj) {
+    public static Map<String, String> getProcessorOptions(IJavaProject jproj, boolean isTestCode) {
     	Map<String,String> rawOptions = getRawProcessorOptions(jproj);
     	// map is large enough to also include the programmatically generated options
     	Map<String, String> options = new HashMap<>(rawOptions.size() + 6);
@@ -195,6 +208,9 @@ public class AptConfig {
     		Set<IJavaProject> projectsProcessed = new HashSet<>();
     		projectsProcessed.add(jproj);
     		for (IClasspathEntry entry : classpathEntries) {
+			if (!isTestCode && entry.isTest()) {
+				continue;
+			}
     			int kind = entry.getEntryKind();
     			if (kind == IClasspathEntry.CPE_LIBRARY) {
 	    			IPath cpPath = entry.getPath();
@@ -233,7 +249,7 @@ public class AptConfig {
     				
     				// If it doesn't exist, ignore it
     				if (otherJavaProject != null && otherJavaProject.getProject().isOpen()) {
-    					addProjectClasspath(root, otherJavaProject, projectsProcessed, classpath);
+    					addProjectClasspath(root, otherJavaProject, projectsProcessed, classpath, isTestCode);
     				}
     			}
     		}
@@ -245,12 +261,12 @@ public class AptConfig {
     		options.put("-sourcepath", convertPathCollectionToString(sourcepath)); //$NON-NLS-1$
     		
     		// Get absolute path for generated source dir
-    		IFolder genSrcDir = jproj.getProject().getFolder(getGenSrcDir(jproj));
+    		IFolder genSrcDir = jproj.getProject().getFolder(isTestCode ? getGenTestSrcDir(jproj) : getGenSrcDir(jproj));
     		String genSrcDirString = genSrcDir.getRawLocation().toOSString();
     		options.put("-s", genSrcDirString); //$NON-NLS-1$
     		
     		// Absolute path for bin dir as well
-    		IPath binPath = jproj.getOutputLocation();
+    		IPath binPath = isTestCode ? ClasspathUtil.findTestOutputLocation(jproj.getRawClasspath()) : jproj.getOutputLocation();
     		IResource binPathResource = root.findMember(binPath);
     		String binDirString;
     		if (binPathResource != null) {
@@ -330,7 +346,8 @@ public class AptConfig {
     		IWorkspaceRoot root,
     		IJavaProject otherJavaProject,
     		Set<IJavaProject> projectsProcessed,
-    		Set<String> classpath) {
+    		Set<String> classpath,
+    		boolean isTestCode) {
     	
     	// Check for cycles. If we've already seen this project, 
     	// no need to go any further.
@@ -355,6 +372,9 @@ public class AptConfig {
     		// Now the rest of the classpath
     		IClasspathEntry[] classpathEntries = otherJavaProject.getResolvedClasspath(true);
     		for (IClasspathEntry entry : classpathEntries) {
+    			if (!isTestCode && entry.isTest()) {
+    				continue;
+    			}
     			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
     				IPath cpPath = entry.getPath();
 	    			
@@ -374,7 +394,7 @@ public class AptConfig {
     				IProject otherProject = root.getProject(otherProjectPath.segment(0));
 					IJavaProject yetAnotherJavaProject = JavaCore.create(otherProject);
 					if (yetAnotherJavaProject != null) {
-						addProjectClasspath(root, yetAnotherJavaProject, projectsProcessed, classpath);
+						addProjectClasspath(root, yetAnotherJavaProject, projectsProcessed, classpath, isTestCode);
 					}
     			}
     			// Ignore source types
@@ -888,7 +908,24 @@ public class AptConfig {
     	}
     	setString(jproject, AptPreferenceConstants.APT_GENSRCDIR, dirString);
     }
+
+    /**
+	 * @since 3.6
+	 */
+    public static String getGenTestSrcDir(IJavaProject jproject) {
+    	return getString(jproject, AptPreferenceConstants.APT_GENTESTSRCDIR);
+    }
     
+    /**
+	 * @since 3.6
+	 */
+    public static void setGenTestSrcDir(IJavaProject jproject, String dirString) {
+    	if (!GeneratedSourceFolderManager.validate(jproject, dirString)) {
+    		throw new IllegalArgumentException("Illegal name for generated test source folder: " + dirString); //$NON-NLS-1$
+    	}
+    	setString(jproject, AptPreferenceConstants.APT_GENTESTSRCDIR, dirString);
+    }
+
     public static boolean validateGenSrcDir(IJavaProject jproject, String dirName) {
     	return GeneratedSourceFolderManager.validate(jproject, dirName);
     }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 BEA Systems, Inc and others. 
+ * Copyright (c) 2007, 2018 BEA Systems, Inc and others. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,7 +60,7 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 	 * Eclipse platform code.)
 	 */
 	@Override
-	public void configureFromPlatform(Compiler compiler, Object compilationUnitLocator, Object javaProject) {
+	public void configureFromPlatform(Compiler compiler, Object compilationUnitLocator, Object javaProject, boolean isTestCode) {
 		_javaProject = (IJavaProject) javaProject;
 		_cuLocator = (ICompilationUnitLocator) compilationUnitLocator;
 		if (null != _processingEnv) {
@@ -69,9 +69,9 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 		}
 		// If it's a CompilationUnitProblemFinder, we're in reconcile phase.  Else it's build.
 		if (compiler instanceof CompilationUnitProblemFinder) {
-			_processingEnv = new IdeReconcileProcessingEnvImpl(this, _javaProject, compiler);
+			_processingEnv = new IdeReconcileProcessingEnvImpl(this, _javaProject, compiler, isTestCode);
 		} else {
-			_processingEnv = new IdeBuildProcessingEnvImpl(this, _javaProject, compiler);
+			_processingEnv = new IdeBuildProcessingEnvImpl(this, _javaProject, compiler, isTestCode);
 		}
 		if (Apt6Plugin.DEBUG) {
 			Apt6Plugin.trace("Java 6 annotation processor manager initialized for compiler " + 
@@ -135,5 +135,4 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 			super.processAnnotations(units, referenceBindings, isLastRound);
 		}
 	}
-
 }

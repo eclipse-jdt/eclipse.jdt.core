@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -103,9 +103,13 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 	boolean deleteAll = JavaCore.CLEAN.equals(
 		this.javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, true));
 	if (deleteAll) {
-		if (this.javaBuilder.participants != null)
-			for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)
-				this.javaBuilder.participants[i].cleanStarting(this.javaBuilder.javaProject);
+		if (this.compilationGroup != CompilationGroup.TEST) {
+			// CompilationGroup.MAIN is done first, so this notifies the participants only once
+			// calling this for CompilationGroup.TEST could cases generated files for CompilationGroup.MAIN to be deleted. 
+			if (this.javaBuilder.participants != null)
+				for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)
+					this.javaBuilder.participants[i].cleanStarting(this.javaBuilder.javaProject);
+		}
 
 		Set<IContainer> visited = new LinkedHashSet<>(this.sourceLocations.length);
 		for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
