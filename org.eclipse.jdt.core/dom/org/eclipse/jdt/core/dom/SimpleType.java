@@ -249,6 +249,7 @@ public class SimpleType extends AnnotatableType {
 	 */
 	@Override
 	public boolean isVar() {
+		unsupportedBelow10();
 		if (this.typeName == null) getName();
 		String qName = this.typeName.getFullyQualifiedName();
 		return qName != null && qName.equals("var"); //$NON-NLS-1$

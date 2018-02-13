@@ -178,11 +178,13 @@ public abstract class Type extends ASTNode {
 	}
 
 	/**
-	 * Returns whether this type is a var. This is more
-	 * of a convenience method.
+	 * Returns whether this type is a var. The convenience method checks
+	 * whether the type is so named.
 	 *
 	 * @return <code>true</code> if this is a var, and
 	 *    <code>false</code> otherwise
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST of level less than JLS10
 	 * @since 3.13 BETA_18_3
 	 */
 	public boolean isVar() {
