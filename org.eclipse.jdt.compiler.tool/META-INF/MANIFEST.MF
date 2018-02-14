@@ -11,3 +11,4 @@ Export-Package: META-INF.services,
 Fragment-Host: org.eclipse.jdt.core;bundle-version="[3.3.0,4.0.0)"
 Bundle-ClassPath: lib/java9api.jar,
  .
+Automatic-Module-Name: org.eclipse.jdt.compiler.tool

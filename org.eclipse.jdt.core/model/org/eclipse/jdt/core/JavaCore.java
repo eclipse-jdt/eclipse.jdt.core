@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2945,7 +2945,7 @@ public final class JavaCore extends Plugin {
 	public static final String VERSION_9 = "9"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
-	 * @since 3.15
+	 * @since 3.14 BETA_JAVA_18_3
 	 * @category OptionValue
 	 */
 	public static final String VERSION_10 = "10"; //$NON-NLS-1$

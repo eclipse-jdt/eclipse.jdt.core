@@ -21,6 +21,12 @@
         </filter>
         <filter id="924844039">
             <message_arguments>
+                <message_argument value="3.13.102"/>
+                <message_argument value="3.13.101"/>
+            </message_arguments>
+        </filter>
+        <filter id="924844039">
+            <message_arguments>
                 <message_argument value="3.13.50"/>
                 <message_argument value="3.13.0"/>
             </message_arguments>
@@ -429,6 +435,13 @@
                 <message_argument value="3.14"/>
                 <message_argument value="3.13"/>
                 <message_argument value="newUsesDirective()"/>
+            </message_arguments>
+        </filter>
+        <filter id="1141899266">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="JLS10"/>
             </message_arguments>
         </filter>
     </resource>
@@ -1018,6 +1031,13 @@
                 <message_argument value="3.14"/>
                 <message_argument value="3.13"/>
                 <message_argument value="getReferencedModules(IJavaProject)"/>
+            </message_arguments>
+        </filter>
+        <filter id="1141899266">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VERSION_10"/>
             </message_arguments>
         </filter>
     </resource>

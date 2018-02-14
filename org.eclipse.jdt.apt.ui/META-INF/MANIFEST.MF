@@ -18,3 +18,4 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: org.eclipse.jdt.apt.ui.internal;x-internal:=true,
  org.eclipse.jdt.apt.ui.internal.preferences;x-internal:=true,
  org.eclipse.jdt.apt.ui.internal.util;x-internal:=true
+Automatic-Module-Name: org.eclipse.jdt.apt.ui

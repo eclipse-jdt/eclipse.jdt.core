@@ -19,4 +19,5 @@ Import-Package: org.eclipse.jdt.internal.compiler.tool,
  org.eclipse.jdt.internal.compiler.apt.model,
  org.eclipse.jdt.internal.compiler.apt.util
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Automatic-Module-Name: org.eclipse.jdt.apt.pluggable.core
 
