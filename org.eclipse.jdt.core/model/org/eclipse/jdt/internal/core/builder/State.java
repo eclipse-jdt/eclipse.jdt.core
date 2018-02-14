@@ -368,7 +368,7 @@ static State read(IProject project, DataInputStream in) throws IOException {
 					break;
 			case JRT_SYSTEM :
 				jarPath = in.readUTF();
-				newState.binaryLocations[i] = ClasspathLocation.forJrtSystem(jarPath, readRestriction(in), new Path(in.readUTF()));
+				newState.testBinaryLocations[i] = ClasspathLocation.forJrtSystem(jarPath, readRestriction(in), new Path(in.readUTF()));
 				break;
 		}
 	}
@@ -568,9 +568,8 @@ void write(DataOutputStream out) throws IOException {
 			ClasspathJrt jrt = (ClasspathJrt) c;
 			out.writeByte(JRT_SYSTEM);
 			out.writeUTF(jrt.zipFilename);
-			out.writeLong(-1);
 			writeRestriction(jrt.accessRuleSet, out);
-			out.writeUTF(""); //$NON-NLS-1$
+			out.writeUTF(jrt.externalAnnotationPath != null ? jrt.externalAnnotationPath : ""); //$NON-NLS-1$
 		}
 		char[] patchName = c.patchModuleName == null ? CharOperation.NO_CHAR : c.patchModuleName.toCharArray();
 		writeName(patchName, out);
@@ -677,11 +676,10 @@ void write(DataOutputStream out) throws IOException {
 				out.writeBoolean(jar.isOnModulePath);
 			} else {
 				ClasspathJrt jrt = (ClasspathJrt) c;
-				out.writeByte(EXTERNAL_JAR);
+				out.writeByte(JRT_SYSTEM);
 				out.writeUTF(jrt.zipFilename);
-				out.writeLong(-1);
 				writeRestriction(null, out);
-				out.writeUTF(""); //$NON-NLS-1$
+				out.writeUTF(jrt.externalAnnotationPath != null ? jrt.externalAnnotationPath : ""); //$NON-NLS-1$
 			}
 		}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,11 +30,23 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
+import javax.lang.model.SourceVersion;
+
 @SuppressWarnings({"unchecked", "rawtypes"})
 public class BuildpathTests extends BuilderTests {
 
+private boolean jre9 = false;
+
 public BuildpathTests(String name) {
 	super(name);
+	try {
+		SourceVersion valueOf = SourceVersion.valueOf("RELEASE_9");
+		if (valueOf != null) {
+			this.jre9 = true;
+		}
+	} catch(Exception e) {
+		//nothing to do
+	}
 }
 
 public static Test suite() {
@@ -92,7 +104,13 @@ public void testClasspathFileChange() throws JavaModelException {
 	buffer.append("    <classpathentry kind=\"src\" path=\"src2\"/>\n"); // add src2 on classpath through resource change //$NON-NLS-1$
 	String[] classlibs = Util.getJavaClassLibs();
 	for (int i = 0; i < classlibs.length; i++) {
-		buffer.append("    <classpathentry kind=\"lib\" path=\"").append(classlibs[i]).append("\"/>\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (classlibs[i].endsWith("jrt-fs.jar")) {
+			IPath path = new Path(classlibs[i]);
+			path = path.removeLastSegments(2);
+			buffer.append("    <classpathentry kind=\"jrt\" path=\"").append(path.toOSString()).append("\"/>\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			buffer.append("    <classpathentry kind=\"lib\" path=\"").append(classlibs[i]).append("\"/>\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 	}
 	buffer.append("    <classpathentry kind=\"output\" path=\"bin\"/>\n"); //$NON-NLS-1$
 	buffer.append("</classpath>"); //$NON-NLS-1$
@@ -765,7 +783,7 @@ public void testMissingLibrary4() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=172345
 public void testIncompatibleJdkLEvelOnProject() throws JavaModelException {
-
+	if (this.jre9) return;
 	// Create project
 	IPath projectPath = env.addProject("Project");
 	IJavaProject project = env.getJavaProject(projectPath);
@@ -822,7 +840,7 @@ public void testIncompatibleJdkLEvelOnProject() throws JavaModelException {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=172345
 public void testIncompatibleJdkLEvelOnWksp() throws JavaModelException {
-
+	if (this.jre9) return;
 	// Save preference
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	IEclipsePreferences preferences = manager.getInstancePreferences();

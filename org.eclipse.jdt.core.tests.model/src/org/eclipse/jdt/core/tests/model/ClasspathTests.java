@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7396,7 +7396,7 @@ public void testIsTestCode() throws CoreException, IOException {
 	IJavaProject project1 = null;
 	try {
 		
-		project1 = createJava9Project("Project1", new String[] {"src"});
+		project1 = createJavaProject("Project1", new String[] {"src"}, "bin");
 		addClasspathEntry(project1, JavaCore.newSourceEntry(new Path("/Project1/src-tests"), null, null, new Path("/Project1/bin-tests"), new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true") }));
 
 		createFolder("/Project1/src/p1");
