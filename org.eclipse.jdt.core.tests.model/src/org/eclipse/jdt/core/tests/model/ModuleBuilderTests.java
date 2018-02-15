@@ -57,7 +57,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-//		 TESTS_NAMES = new String[] { "testPatch2" };
+		// TESTS_NAMES = new String[] { "testBug528467" };
 	}
 	private String sourceWorkspacePath = null;
 	protected ProblemRequestor problemRequestor;
@@ -2636,8 +2636,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject project = createJava9Project("Test01", new String[]{"src"});
 			IClasspathEntry[] rawClasspath = project.getRawClasspath();
 			for (int i = 0; i < rawClasspath.length; i++) {
-				if (rawClasspath[i].getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
-					IPath path = rawClasspath[i].getPath().append("jmods").append("java.base.jmod");
+				IPath path = rawClasspath[i].getPath();
+				if (path.lastSegment().equals("jrt-fs.jar")) {
+					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
 					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
 				}
@@ -2672,8 +2673,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IClasspathEntry[] newClasspath = new IClasspathEntry[rawClasspath.length + 1];
 			IClasspathEntry desktop = null;
 			for (int i = 0; i < rawClasspath.length; i++) {
-				if (rawClasspath[i].getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
-					IPath path = rawClasspath[i].getPath().append("jmods").append("java.base.jmod");
+				IPath path = rawClasspath[i].getPath();
+				if (path.lastSegment().equals("jrt-fs.jar")) {
+					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
 					IClasspathAttribute[] attributes = {
 							JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
 					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(),
@@ -6427,11 +6429,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			String jrtPath = null;
 			for (int i = 0; i < rawClasspath.length; i++) {
 				IClasspathEntry iClasspathEntry = rawClasspath[i];
-				if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
+				if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY &&
+						iClasspathEntry.getPath().toString().endsWith("jrt-fs.jar")) {
 					jrtPath = iClasspathEntry.getPath().toOSString();
 					IAccessRule[] pathRules = new IAccessRule[1];
 					pathRules[0] = JavaCore.newAccessRule(new Path("java/awt/**"), IAccessRule.K_NON_ACCESSIBLE);
-					IClasspathEntry newEntry = JavaCore.newJrtEntry(iClasspathEntry.getPath(), 
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(iClasspathEntry.getPath(), 
 							iClasspathEntry.getSourceAttachmentPath(), 
 							iClasspathEntry.getSourceAttachmentRootPath(), 
 								pathRules, 
@@ -6473,11 +6476,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			String jrtPath = null;
 			for (int i = 0; i < rawClasspath.length; i++) {
 				IClasspathEntry iClasspathEntry = rawClasspath[i];
-				if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
+				if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY &&
+						iClasspathEntry.getPath().toString().endsWith("jrt-fs.jar")) {
 					jrtPath = iClasspathEntry.getPath().toOSString();
 					IAccessRule[] pathRules = new IAccessRule[1];
 					pathRules[0] = JavaCore.newAccessRule(new Path("java/awt/Image"), IAccessRule.K_NON_ACCESSIBLE);
-					IClasspathEntry newEntry = JavaCore.newJrtEntry(iClasspathEntry.getPath(), 
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(iClasspathEntry.getPath(), 
 							iClasspathEntry.getSourceAttachmentPath(), 
 							iClasspathEntry.getSourceAttachmentRootPath(), 
 								pathRules, 
@@ -6525,11 +6529,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			String jrtPath = null;
 			for (int i = 0; i < rawClasspath.length; i++) {
 				IClasspathEntry iClasspathEntry = rawClasspath[i];
-				if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
+				if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_LIBRARY &&
+						iClasspathEntry.getPath().toString().endsWith("jrt-fs.jar")) {
 					jrtPath = iClasspathEntry.getPath().toOSString();
 					IAccessRule[] pathRules = new IAccessRule[1];
 					pathRules[0] = JavaCore.newAccessRule(new Path("java/awt/**"), IAccessRule.K_NON_ACCESSIBLE);
-					IClasspathEntry newEntry = JavaCore.newJrtEntry(iClasspathEntry.getPath(), 
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(iClasspathEntry.getPath(), 
 							iClasspathEntry.getSourceAttachmentPath(), 
 							iClasspathEntry.getSourceAttachmentRootPath(), 
 								pathRules, 

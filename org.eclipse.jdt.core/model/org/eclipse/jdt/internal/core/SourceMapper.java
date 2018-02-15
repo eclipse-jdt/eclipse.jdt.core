@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -549,8 +549,22 @@ public class SourceMapper
 
 		String sourceLevel = null;
 		String complianceLevel = null;
-
-		if (root.isArchive()) {
+		if (Util.isJrt(pkgFragmentRootPath.toOSString())) {
+			try {
+				JrtPackageNamesAdderVisitor jrtPackageNamesAdderVisitor = new JrtPackageNamesAdderVisitor(firstLevelPackageNames, 
+						sourceLevel, complianceLevel, containsADefaultPackage, containsJavaSource, root);
+				org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(root.getPath().toFile(), jrtPackageNamesAdderVisitor, JRTUtil.NOTIFY_FILES);
+				sourceLevel = jrtPackageNamesAdderVisitor.sourceLevel;
+				complianceLevel = jrtPackageNamesAdderVisitor.complianceLevel;
+				containsADefaultPackage = jrtPackageNamesAdderVisitor.containsADefaultPackage;
+				containsJavaSource = jrtPackageNamesAdderVisitor.containsJavaSource;
+			} catch (IOException e) {
+				// We are not reading any specific file, so, move on for now
+				if (VERBOSE) {
+					e.printStackTrace();
+				}
+			}
+		} else if (root.isArchive()) {
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			ZipFile zip = null;
 			try {
@@ -589,24 +603,7 @@ public class SourceMapper
 			}
 		} else {
 			Object target = JavaModel.getTarget(root.getPath(), true);
-			if (target == null) {
-				if (root instanceof JrtPackageFragmentRoot) {
-					try {
-						JrtPackageNamesAdderVisitor jrtPackageNamesAdderVisitor = new JrtPackageNamesAdderVisitor(firstLevelPackageNames, 
-								sourceLevel, complianceLevel, containsADefaultPackage, containsJavaSource, root);
-						org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(root.getPath().toFile(), jrtPackageNamesAdderVisitor, JRTUtil.NOTIFY_FILES);
-						sourceLevel = jrtPackageNamesAdderVisitor.sourceLevel;
-						complianceLevel = jrtPackageNamesAdderVisitor.complianceLevel;
-						containsADefaultPackage = jrtPackageNamesAdderVisitor.containsADefaultPackage;
-						containsJavaSource = jrtPackageNamesAdderVisitor.containsJavaSource;
-					} catch (IOException e) {
-						// We are not reading any specific file, so, move on for now
-						if (VERBOSE) {
-							e.printStackTrace();
-						}
-					}
-				}
-			} else if (target instanceof IResource) {
+			if (target instanceof IResource) {
 				IResource resource = (IResource) target;
 				if (resource instanceof IContainer) {
 					try {

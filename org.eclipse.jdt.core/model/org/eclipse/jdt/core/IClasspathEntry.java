@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -148,13 +148,6 @@ public interface IClasspathEntry {
 	 * @since 2.0
 	 */
 	int CPE_CONTAINER = 5;
-	/**
-	 * Entry kind constant describing a classpath entry representing
-	 * a modularized Java run time system.
-	 * 
-	 * @since 3.14
-	 */
-	int CPE_JRT_SYSTEM = 6;
 
 	/**
 	 * Returns whether the access rules of the project's exported entries should be combined with this entry's access rules.
@@ -188,7 +181,7 @@ public interface IClasspathEntry {
 	/**
 	 * Returns the kind of this classpath entry.
 	 *
-	 * @return one of but not limited to:
+	 * @return one of:
 	 * <ul>
 	 * <li>{@link #CPE_SOURCE} - this entry describes a source root in
 	 		its project
@@ -198,12 +191,9 @@ public interface IClasspathEntry {
 	 *
 	 * <li>{@link #CPE_VARIABLE} - this entry describes a project or library
 	 *  	indirectly via a classpath variable in the first segment of the path
-	 *
+	 * *
 	 * <li>{@link #CPE_CONTAINER} - this entry describes set of entries
 	 *  	referenced indirectly via a classpath container
-	 *
-	 * <li>{@link #CPE_JRT_SYSTEM} - this entry describes an installation of module based 
-	 * Java Runtime system.
 	 * </ul>
 	 */
 	int getEntryKind();
@@ -392,9 +382,6 @@ public interface IClasspathEntry {
 	 * 	entries after resolution. The containerPath is a formed by a first ID segment followed with
 	 *     extra segments that can be used as additional hints for resolving this container
 	 * 	reference (also see {@link IClasspathContainer}).
-	 * </li>
-	 *  <li> A module based Java Runtime (JRT) ({@link #CPE_JRT_SYSTEM}) - the path is the absolute
-	 *  path to the Java Runtime installation.
 	 * </li>
 	 * </ul>
 	 *

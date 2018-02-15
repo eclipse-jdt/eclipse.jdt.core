@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4626,41 +4626,6 @@ public final class JavaCore extends Plugin {
 		return new ClasspathAttribute(name, value);
 	}
 
-	/**
-	 * Creates and returns a new classpath entry representing a modularized Java runtime system.
-	 * The entry is of kind <code>CPE_JRT_SYSTEM</code> and the given path points to the 
-	 * Java run time installation.
-	 *
-	 * @param javaHome the path where the Java Runtime is located
-	 * @return a new JRT classpath entry
-	 * @since 3.14
-	 */
-	public static IClasspathEntry newJrtEntry(IPath javaHome, 
-			IPath sourceAttachmentPath,
-			IPath sourceAttachmentRootPath,
-			IAccessRule[] accessRules,
-			IClasspathAttribute[] extraAttributes,
-			boolean isExported) {
-		if (accessRules == null || accessRules.length==0) {
-			accessRules = ClasspathEntry.NO_ACCESS_RULES;
-		}
-		if (extraAttributes == null || extraAttributes.length==0) {
-			extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
-		}
-		return new ClasspathEntry(
-				IPackageFragmentRoot.K_BINARY,
-				IClasspathEntry.CPE_JRT_SYSTEM,
-				javaHome,
-				ClasspathEntry.INCLUDE_ALL, // inclusion patterns
-				ClasspathEntry.EXCLUDE_NONE, // exclusion patterns
-				sourceAttachmentPath, // source attachment
-				sourceAttachmentRootPath, // source attachment root
-				null, // specific output folder
-				isExported,
-				accessRules,
-				true, // combine access rules
-				extraAttributes);
-	}
 	/**
 	 * Creates and returns a new classpath entry of kind <code>CPE_CONTAINER</code>
 	 * for the given path. This method is fully equivalent to calling

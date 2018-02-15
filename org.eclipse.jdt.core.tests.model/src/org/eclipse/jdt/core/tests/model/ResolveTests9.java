@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
 import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
@@ -58,7 +59,7 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 	
 		IJavaProject project = setUpJavaProject("Resolve", "9", true);
 	
-		String bootModPath = System.getProperty("java.home");
+		String bootModPath = System.getProperty("java.home") + File.separator +"jrt-fs.jar";
 		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(new Path(bootModPath), null, null, null, null, false);
 		IClasspathEntry[] old = project.getRawClasspath();
 		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];

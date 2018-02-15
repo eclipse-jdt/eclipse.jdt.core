@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -219,17 +219,17 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 	}
 	IBinaryType result = null;
 	IPackageFragmentRoot root = getPackageFragmentRoot();
-	if (root instanceof JarPackageFragmentRoot) {
+	if (getPackageFragmentRoot() instanceof JarPackageFragmentRoot) {
 		if (root instanceof JrtPackageFragmentRoot || this.name.equals(IModule.MODULE_INFO)) {
 			PackageFragment pkg = (PackageFragment) getParent();
-			JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot) root;
+			JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot) getPackageFragmentRoot();
 			String entryName = jarRoot.getClassFilePath(Util.concatWith(pkg.names, getElementName(), '/'));
 			byte[] contents = getClassFileContent(jarRoot, entryName);
 			if (contents != null) {
 				String fileName;
-				char[] mod = null;
+				String rootPath = root.getPath().toOSString();
 				String rootIdentifier = root.getHandleIdentifier();
-				if (root instanceof JrtPackageFragmentRoot) {
+				if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
 					int slash = rootIdentifier.lastIndexOf('/');
 					if (slash != -1) {
 						StringBuilder extract = new StringBuilder();
@@ -241,9 +241,7 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 					}
 				}
 				fileName = rootIdentifier + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
-				ClassFileReader reader = new ClassFileReader(contents, fileName.toCharArray(), false);
-				reader.moduleName = mod;
-				result = reader;
+				result = new ClassFileReader(contents, fileName.toCharArray(), false);
 			}
 		} else {
 			result = BinaryTypeFactory.readType(descriptor, null);

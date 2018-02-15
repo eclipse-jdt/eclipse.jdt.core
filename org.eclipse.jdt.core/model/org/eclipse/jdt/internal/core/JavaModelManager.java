@@ -32,8 +32,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,9 +42,7 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Map.Entry;
-import java.util.stream.Stream;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.zip.ZipException;
@@ -131,6 +127,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.JavaProjectElementInfo.ProjectCache;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
@@ -183,8 +180,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String NON_CHAINING_JARS_CACHE = "nonChainingJarsCache"; //$NON-NLS-1$
 	private static final String EXTERNAL_FILES_CACHE = "externalFilesCache";  //$NON-NLS-1$
 	private static final String ASSUMED_EXTERNAL_FILES_CACHE = "assumedExternalFilesCache";  //$NON-NLS-1$
-	private static final String RELEASE_FILE = "release"; //$NON-NLS-1$
-	private static final String JAVA_VERSION = "JAVA_VERSION"; //$NON-NLS-1$
 
 	public static enum ArchiveValidity {
 		BAD_FORMAT, UNABLE_TO_READ, FILE_NOT_FOUND, VALID;
@@ -2850,25 +2845,19 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return this.workspaceScope;
 	}
 
-	public static boolean isJrtInstallation(String path) {
-		java.nio.file.Path releasePath = Paths.get(path, RELEASE_FILE);
-		if (!Files.exists(releasePath)) 
-			return false;
-		try (Stream<String> lines = Files.lines(releasePath).filter(s -> s.contains(JAVA_VERSION))) {
-			Optional<String> hasVersion = lines.findFirst();
-			if (hasVersion.isPresent()) {
-				String line = hasVersion.get();
-				String version = line.substring(14, line.length() - 1); // length of JAVA_VERSION + 2 in JAVA_VERSION="9"
-				return JavaCore.compareJavaVersions(version, JavaCore.VERSION_1_8) > 0;
-			}
-		}
-		catch (IOException e) {
-			// Just return false;
-		} 
-		return false;
+	public static boolean isJrt(IPath path) {
+		return path.toString().endsWith(JRTUtil.JRT_FS_JAR);
+	}
+
+	public static boolean isJrt(String path) {
+		return isJrt(new Path(path));
 	}
 
 	public void verifyArchiveContent(IPath path) throws CoreException {
+		// TODO: we haven't finalized what path the JRT is represented by. Don't attempt to validate it.
+		if (isJrt(path)) {
+			return;
+		}
 		throwExceptionIfArchiveInvalid(path);
 		// Check if we can determine the archive's validity by examining the index
 		if (JavaIndex.isEnabled()) {

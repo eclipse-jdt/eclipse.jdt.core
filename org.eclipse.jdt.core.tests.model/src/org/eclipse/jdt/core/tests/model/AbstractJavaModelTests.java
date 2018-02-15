@@ -1328,22 +1328,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, null);
 	}
 	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes) throws CoreException {
-		String javaHome = System.getProperty("java.home");
-		Path bootModPath = new Path(javaHome);
-		Path sourceAttachment = new Path(javaHome + File.separator + "lib" + File.separator + "src.zip");
-		IClasspathEntry jrtEntry = JavaCore.newJrtEntry(bootModPath, sourceAttachment, null, null, attributes, false);
+		String javaHome = System.getProperty("java.home") + File.separator;
+		Path bootModPath = new Path(javaHome +"/lib/jrt-fs.jar");
+		Path sourceAttachment = new Path(javaHome +"/lib/src.zip");
+		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(bootModPath, sourceAttachment, null, null, attributes, false);
 		IJavaProject project = this.createJavaProject(name, srcFolders, new String[0],
 				new String[0], "bin", "9");
 		IClasspathEntry[] old = project.getRawClasspath();
-		List<IClasspathEntry> list = new ArrayList<>();
-		for (IClasspathEntry iClasspathEntry : old) {
-			if (iClasspathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE
-					|| iClasspathEntry.getContentKind() == ClasspathEntry.K_OUTPUT) {
-				list.add(iClasspathEntry);
-			}
-		}
-		list.add(jrtEntry);
-		IClasspathEntry[] newPath = list.toArray(new IClasspathEntry[list.size()]);
+		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];
+		System.arraycopy(old, 0, newPath, 0, old.length);
 		newPath[old.length] = jrtEntry;
 		project.setRawClasspath(newPath, null);
 		return project;
@@ -1768,18 +1761,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					} else if (lib.startsWith("org.eclipse.jdt.core.tests.model.")) { // container
 						entries[sourceLength+i] = JavaCore.newContainerEntry(
 								new Path(lib),
-								ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
-								new IClasspathAttribute[0],
-								false);
-					} else if (JavaModelManager.isJrtInstallation((new Path(lib)).toString()) || lib.endsWith("jrt-fs.jar")) {
-						Path path = new Path(lib);
-						if (lib.endsWith("jrt-fs.jar")) {
-							path.removeLastSegments(2);
-						}
-						entries[sourceLength+i] = JavaCore.newJrtEntry(
-								path,
-								null,
-								null,
 								ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
 								new IClasspathAttribute[0],
 								false);
@@ -3299,7 +3280,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	protected IPath getJRE9Path() {
-		return new Path(System.getProperty("java.home"));
+		return new Path(System.getProperty("java.home") + "/lib/jrt-fs.jar");
 	}
 
 	/**

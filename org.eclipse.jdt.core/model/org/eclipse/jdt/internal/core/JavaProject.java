@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -663,31 +663,6 @@ public class JavaProject
 		IPackageFragmentRoot root = null;
 
 		switch(resolvedEntry.getEntryKind()){
-			case IClasspathEntry.CPE_JRT_SYSTEM :
-				PerProjectInfo info = getPerProjectInfo();
-				ObjectVector imageRoots;
-				if (info.jrtRoots == null || !info.jrtRoots.containsKey(entryPath)) {
-					imageRoots = new ObjectVector();
-					loadModulesInJrt(entryPath, imageRoots, rootToResolvedEntries, resolvedEntry, referringEntry);
-					info.setJrtPackageRoots(entryPath, imageRoots); // unfiltered
-					rootIDs.add(rootID);
-				} else {
-					imageRoots = info.jrtRoots.get(entryPath);
-				}
-				if (filterModuleRoots) {
-					List<String> rootModules = null;
-					String limitModules = ClasspathEntry.getExtraAttribute(resolvedEntry, IClasspathAttribute.LIMIT_MODULES);
-					if (limitModules != null) {
-						rootModules = Arrays.asList(limitModules.split(",")); //$NON-NLS-1$
-					} else if (isUnNamedModule()) {
-						rootModules = defaultRootModules((Iterable) imageRoots);
-					}
-					if (rootModules != null) {
-						imageRoots = filterLimitedModules(entryPath, imageRoots, rootModules);
-					}
-				}
-				accumulatedRoots.addAll(imageRoots);
-				break;
 			// source folder
 			case IClasspathEntry.CPE_SOURCE :
 
@@ -715,7 +690,31 @@ public class JavaProject
 				} else if (target instanceof File) {
 					// external target
 					if (JavaModel.isFile(target)) {
-						if (JavaModel.isJmod((File) target)) {
+						if (JavaModel.isJimage((File) target)) {
+							PerProjectInfo info = getPerProjectInfo();
+							ObjectVector imageRoots;
+							if (info.jrtRoots == null || !info.jrtRoots.containsKey(entryPath)) {
+								imageRoots = new ObjectVector();
+								loadModulesInJimage(entryPath, imageRoots, rootToResolvedEntries, resolvedEntry, referringEntry);
+								info.setJrtPackageRoots(entryPath, imageRoots); // unfiltered
+								rootIDs.add(rootID);
+							} else {
+								imageRoots = info.jrtRoots.get(entryPath);
+							}
+							if (filterModuleRoots) {
+								List<String> rootModules = null;
+								String limitModules = ClasspathEntry.getExtraAttribute(resolvedEntry, IClasspathAttribute.LIMIT_MODULES);
+								if (limitModules != null) {
+									rootModules = Arrays.asList(limitModules.split(",")); //$NON-NLS-1$
+								} else if (isUnNamedModule()) {
+									rootModules = defaultRootModules((Iterable) imageRoots);
+								}
+								if (rootModules != null) {
+									imageRoots = filterLimitedModules(entryPath, imageRoots, rootModules);
+								}
+							}
+							accumulatedRoots.addAll(imageRoots);
+						} else if (JavaModel.isJmod((File) target)) {
 							root = new JModPackageFragmentRoot(entryPath, this);
 						}
 						else {
@@ -893,7 +892,7 @@ public class JavaProject
 		}
 	}
 
-	private void loadModulesInJrt(final IPath imagePath, final ObjectVector roots, final Map rootToResolvedEntries, 
+	private void loadModulesInJimage(final IPath imagePath, final ObjectVector roots, final Map rootToResolvedEntries, 
 				final IClasspathEntry resolvedEntry, final IClasspathEntry referringEntry) {
 		try {
 			org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(imagePath.toFile(),
@@ -2204,7 +2203,7 @@ public class JavaProject
 		IFolder linkedFolder = JavaModelManager.getExternalManager().getFolder(externalLibraryPath);
 		if (linkedFolder != null)
 			return new ExternalPackageFragmentRoot(linkedFolder, externalLibraryPath, this);
-		if (JavaModelManager.isJrtInstallation(externalLibraryPath.toOSString())) {
+		if (JavaModelManager.isJrt(externalLibraryPath)) {
 			return this.new JImageModuleFragmentBridge(externalLibraryPath);
 		}
 		Object target = JavaModel.getTarget(externalLibraryPath, true/*check existency*/);
@@ -2595,7 +2594,6 @@ public class JavaProject
 			IClasspathEntry entry = rawClasspath[i];
 			switch (entry.getEntryKind()) {
 				case IClasspathEntry.CPE_LIBRARY:
-				case IClasspathEntry.CPE_JRT_SYSTEM:
 				case IClasspathEntry.CPE_PROJECT:
 				case IClasspathEntry.CPE_SOURCE:
 					if (isOnClasspathEntry(elementPath, isFolderPath, isPackageFragmentRoot, entry))
@@ -3689,7 +3687,6 @@ public class JavaProject
 						break;
 					case IClasspathEntry.CPE_LIBRARY:
 					case IClasspathEntry.CPE_CONTAINER:
-					case IClasspathEntry.CPE_JRT_SYSTEM:
 						for (IPackageFragmentRoot root : findPackageFragmentRoots(entry)) {
 							module = root.getModuleDescription();
 							if (module != null && module.getElementName().equals(mainModule))

@@ -281,7 +281,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			element = element.getParent();
 			assertNotNull(element);
 			assertEquals("Incorrect element type", IJavaElement.PACKAGE_FRAGMENT_ROOT, element.getElementType());
-			assertEquals("incorrect root type", element.getClass().toString(), JrtPackageFragmentRoot.class.toString());
+			assertTrue("incorrect root type", (element instanceof JrtPackageFragmentRoot));
 			JrtPackageFragmentRoot root = (JrtPackageFragmentRoot) element;
 			assertEquals("incorrect module name", "java.base", root.getElementName());
 		} finally {

@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.*;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathAccessRule;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
@@ -59,7 +60,6 @@ static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
 static final byte EXTERNAL_JAR = 3;
 static final byte INTERNAL_JAR = 4;
-static final byte JRT_SYSTEM = 5;
 
 State() {
 	// constructor with no argument
@@ -283,16 +283,11 @@ static State read(IProject project, DataInputStream in) throws IOException {
 			case EXTERNAL_JAR :
 				String jarPath = in.readUTF();
 				newState.binaryLocations[i] = ClasspathLocation.forLibrary(jarPath, in.readLong(),
-							readRestriction(in), new Path(in.readUTF()), in.readBoolean());
+							readRestriction(in), new Path(in.readUTF()), Util.isJrt(jarPath) ? false : in.readBoolean());
 				break;
 			case INTERNAL_JAR :
 					newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())),
 							readRestriction(in), new Path(in.readUTF()), in.readBoolean());
-					break;
-			case JRT_SYSTEM :
-				jarPath = in.readUTF();
-				newState.binaryLocations[i] = ClasspathLocation.forJrtSystem(jarPath, readRestriction(in), new Path(in.readUTF()));
-				break;
 		}
 		ClasspathLocation loc = newState.binaryLocations[i];
 		char[] patchName = readName(in);
@@ -360,16 +355,11 @@ static State read(IProject project, DataInputStream in) throws IOException {
 			case EXTERNAL_JAR :
 				String jarPath = in.readUTF();
 				newState.testBinaryLocations[i] = ClasspathLocation.forLibrary(jarPath, in.readLong(),
-							readRestriction(in), new Path(in.readUTF()), in.readBoolean());
+							readRestriction(in), new Path(in.readUTF()), Util.isJrt(jarPath) ? false : in.readBoolean());
 				break;
 			case INTERNAL_JAR :
 					newState.testBinaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())),
 							readRestriction(in), new Path(in.readUTF()), in.readBoolean());
-					break;
-			case JRT_SYSTEM :
-				jarPath = in.readUTF();
-				newState.testBinaryLocations[i] = ClasspathLocation.forJrtSystem(jarPath, readRestriction(in), new Path(in.readUTF()));
-				break;
 		}
 	}
 
@@ -566,10 +556,11 @@ void write(DataOutputStream out) throws IOException {
 			out.writeBoolean(jar.isOnModulePath);
 		} else {
 			ClasspathJrt jrt = (ClasspathJrt) c;
-			out.writeByte(JRT_SYSTEM);
+			out.writeByte(EXTERNAL_JAR);
 			out.writeUTF(jrt.zipFilename);
-			writeRestriction(jrt.accessRuleSet, out);
-			out.writeUTF(jrt.externalAnnotationPath != null ? jrt.externalAnnotationPath : ""); //$NON-NLS-1$
+			out.writeLong(-1);
+			writeRestriction(null, out);
+			out.writeUTF(""); //$NON-NLS-1$
 		}
 		char[] patchName = c.patchModuleName == null ? CharOperation.NO_CHAR : c.patchModuleName.toCharArray();
 		writeName(patchName, out);
@@ -676,10 +667,11 @@ void write(DataOutputStream out) throws IOException {
 				out.writeBoolean(jar.isOnModulePath);
 			} else {
 				ClasspathJrt jrt = (ClasspathJrt) c;
-				out.writeByte(JRT_SYSTEM);
+				out.writeByte(EXTERNAL_JAR);
 				out.writeUTF(jrt.zipFilename);
+				out.writeLong(-1);
 				writeRestriction(null, out);
-				out.writeUTF(jrt.externalAnnotationPath != null ? jrt.externalAnnotationPath : ""); //$NON-NLS-1$
+				out.writeUTF(""); //$NON-NLS-1$
 			}
 		}
 

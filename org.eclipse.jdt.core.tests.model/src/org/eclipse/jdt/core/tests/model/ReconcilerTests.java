@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -158,7 +158,7 @@ static {
 //	JavaModelManager.VERBOSE = true;
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 //	TESTS_PREFIX = "testIgnoreIfBetterNonAccessibleRule";
-//	TESTS_NAMES = new String[] { "testConvertPrimitiveTypeArrayTypeArgument" };
+//	TESTS_NAMES = new String[] { "testBug374176" };
 //	TESTS_NUMBERS = new int[] { 118823 };
 //	TESTS_RANGE = new int[] { 16, -1 };
 }

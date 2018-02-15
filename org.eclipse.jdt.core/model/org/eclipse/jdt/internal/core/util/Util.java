@@ -846,8 +846,7 @@ public class Util {
 						}
 					}
 					if (path != null) {
-						if (JavaModelManager.isJrtInstallation(path.toOSString())) {
-							// TODO: This should be taken care of by the clients.
+						if (JavaModelManager.isJrt(path)) {
 							return ClassFileConstants.JDK9;
 						} else {
 							jar = JavaModelManager.getJavaModelManager().getZipFile(path);

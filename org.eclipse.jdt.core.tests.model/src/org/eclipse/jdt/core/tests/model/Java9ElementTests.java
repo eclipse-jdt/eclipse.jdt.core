@@ -789,8 +789,9 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project1.open(null);
 			IClasspathEntry[] rawClasspath = project1.getRawClasspath();
 			for (int i = 0; i < rawClasspath.length; i++) {
-				if (rawClasspath[i].getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
-					IPath path = rawClasspath[i].getPath().append("jmods").append("java.base.jmod");
+				IPath path = rawClasspath[i].getPath();
+				if (path.lastSegment().equals("jrt-fs.jar")) {
+					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
 					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
 				}
@@ -844,8 +845,8 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IClasspathEntry[] rawClasspath = project1.getRawClasspath();
 			for (int i = 0; i < rawClasspath.length; i++) {
 				IPath path = rawClasspath[i].getPath();
-				if (rawClasspath[i].getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
-					path = path.append("jmods").append("java.base.jmod");
+				if (path.lastSegment().equals("jrt-fs.jar")) {
+					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
 					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
 				}
@@ -1409,11 +1410,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		IClasspathEntry[] newClasspath = new IClasspathEntry[rawClasspath.length + 1];
 		for (int i = 0; i < rawClasspath.length; i++) {
 			IPath path = rawClasspath[i].getPath();
-			if (rawClasspath[i].getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
-				path = path.append("jmods").append("java.base.jmod");
+			if (path.lastSegment().equals("jrt-fs.jar")) {
+				path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
 				IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 				newClasspath[i] = newEntry;
-				path = path.append("jmods").append("java.sql.jmod");
+				path = path.removeLastSegments(2).append("jmods").append("java.sql.jmod");
 				newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.sql"));
 				newClasspath[rawClasspath.length] = newEntry;
 			} else {
@@ -1578,9 +1579,9 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IClasspathEntry[] rawClasspath = project1.getRawClasspath();
 			IPath jdkRootPath = null;
 			for (int i = 0; i < rawClasspath.length; i++) {
-				if (rawClasspath[i].getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
-					IPath path = rawClasspath[i].getPath();
-					jdkRootPath = path;
+				IPath path = rawClasspath[i].getPath();
+				if (path.lastSegment().equals("jrt-fs.jar")) {
+					jdkRootPath = path.removeLastSegments(2);
 					path = jdkRootPath.append("jmods").append("java.base.jmod");
 					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
@@ -1606,37 +1607,6 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			ISourceRange ir =mod.getNameRange();
 			assertTrue("positive offset", ir.getOffset() > 0);
 			assertEquals("length", 9, ir.getLength());
-		}
-		finally {
-			deleteProject("Java9Elements");
-		}
-	}
-	/*
-	 * Tests that a binary type from JRT system is found on the project's classpath
-	 * For now, disabled since it kicks off indexing eventually timing out.
-	 */
-	public void testIsOnClasspath1() throws CoreException {
-		try {
-			IJavaProject project1 = createJava9Project("Java9Elements", new String[] {"src"});
-			project1.open(null);
-			String fileContent =
-					"module first {\n" +
-							"    requires second;\n" +
-							"    uses pack11.X11;\n" +
-							"}\n";
-			createFile("/Java9Elements/src/module-info.java", fileContent);
-			createFolder("/Java9Elements/src/pack11");
-			createFile("/Java9Elements/src/pack11/X11.java",
-					"package pack11;\n" +
-					"public interface X11 extends Serializable {}\n");
-
-			project1.close(); // sync
-			project1.open(null);
-			waitUntilIndexesReady();
-			IType type = project1.findType("java.io.Serializable");
-			assertNotNull("type not found", type);
-			assertTrue("should be a binary type", type.isBinary());
-			assertTrue("Not found in the classpath", project1.isOnClasspath(type));
 		}
 		finally {
 			deleteProject("Java9Elements");
@@ -1691,31 +1661,6 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				IAnnotation[] annotations = module.getAnnotations();
 				assertEquals("should have one annotation", 1, annotations.length);
 				assertEquals("annotation name", "java.lang.Deprecated", annotations[0].getElementName());
-		}
-		finally {
-			deleteProject("Java9Elements");
-		}
-	}
-	public void testIsOnClasspath2() throws CoreException {
-		try {
-			IJavaProject project1 = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
-			project1.open(null);
-			String fileContent =
-					"module first {\n" +
-							"    requires second;\n" +
-							"    uses pack11.X11;\n" +
-							"}\n";
-			createFile("/Java9Elements/src/module-info.java", fileContent);
-			createFolder("/Java9Elements/src/pack11");
-			createFile("/Java9Elements/src/pack11/X11.java",
-					"package pack11;\n" +
-					"public interface X11 extends Serializable {}\n");
-
-			project1.close(); // sync
-			project1.open(null);
-
-			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
-			assertTrue("Not found in the classpath", project1.isOnClasspath(unit));
 		}
 		finally {
 			deleteProject("Java9Elements");

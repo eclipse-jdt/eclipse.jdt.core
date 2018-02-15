@@ -902,6 +902,14 @@ public class Util implements SuffixConstants {
 		return true;
 	}
 
+	/**
+	 * Returns true iff str.toLowerCase().endsWith("jrt-fs.jar")
+	 * implementation is not creating extra strings.
+	 */
+	public final static boolean isJrt(String name) {
+		return name.endsWith(JRTUtil.JRT_FS_JAR);
+	}
+
 	public static void reverseQuickSort(char[][] list, int left, int right) {
 		int original_left= left;
 		int original_right= right;

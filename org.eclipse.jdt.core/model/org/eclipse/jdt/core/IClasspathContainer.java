@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,12 +25,8 @@ import org.eclipse.core.runtime.IPath;
  * <ul>
  * <li> library entries (<code>CPE_LIBRARY</code>) </li>
  * <li> project entries (<code>CPE_PROJECT</code>) </li>
- * <li> Module based Java Runtime entries (<code>CPE_JRT_SYSTEM</code>) </li>
  * </ul>
  * In particular, a classpath container can neither reference further classpath containers or classpath variables.
- * <p>
- * Note: Even though it is allowed for containers to have multiple entries of kind <code>CPE_JRT_SYSTEM</code>
- * typically, there will be only one such entry.
  * <p> 
  * A library entry can reference other libraries through the Class-Path section of the JAR's MANIFEST.MF file. If the
  * container wants such referenced entries to be part of the classpath, the container must explicitly add them to the
@@ -68,7 +64,6 @@ public interface IClasspathContainer {
 	 * <ul>
 	 * <li> library entries (<code>CPE_LIBRARY</code>) </li>
 	 * <li> project entries (<code>CPE_PROJECT</code>) </li>
-	 * <li> Module based Java Runtime entries (<code>CPE_JRT_SYSTEM</code>) </li>
 	 * </ul>
 	 * A classpath container can neither reference further classpath containers
 	 * or classpath variables.
@@ -89,7 +84,6 @@ public interface IClasspathContainer {
 	 * only the following Java model APIs:
 	 * <ul>
 	 * <li>{@link JavaCore#newLibraryEntry(IPath, IPath, IPath, boolean)} and variants</li>
-	 * <li>{@link JavaCore#newJrtEntry(IPath, IPath, IPath, IAccessRule[], IClasspathAttribute[], boolean)}</li>
 	 * <li>{@link JavaCore#newProjectEntry(IPath, boolean)} and variants</li>
 	 * <li>{@link JavaCore#create(org.eclipse.core.resources.IWorkspaceRoot)}</li>
 	 * <li>{@link JavaCore#create(org.eclipse.core.resources.IProject)}</li>

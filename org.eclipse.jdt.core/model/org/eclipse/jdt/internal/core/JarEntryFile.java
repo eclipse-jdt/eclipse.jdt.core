@@ -48,7 +48,7 @@ public class JarEntryFile  extends JarEntryResource {
 	@Override
 	public InputStream getContents() throws CoreException {
 		IPackageFragmentRoot root = getPackageFragmentRoot();
-		if (root instanceof JrtPackageFragmentRoot) {
+		if (Util.isJrt(root.getPath().toOSString())) {
 			try {
 				IPath rootPath = root.getPath();
 				Object target = JavaModel.getTarget(rootPath, false);

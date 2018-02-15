@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
@@ -577,11 +578,8 @@ public void indexAll(IProject project) {
 		IClasspathEntry[] entries = javaProject.getResolvedClasspath();
 		for (int i = 0; i < entries.length; i++) {
 			IClasspathEntry entry= entries[i];
-			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY)
 				indexLibrary(entry.getPath(), project, ((ClasspathEntry)entry).getLibraryIndexLocation());
-			} else if (entry.getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
-				indexJrtSystem(entry.getPath(), project, ((ClasspathEntry)entry).getLibraryIndexLocation());
-			}
 		}
 	} catch(JavaModelException e){ // cannot retrieve classpath info
 	}
@@ -591,40 +589,18 @@ public void indexAll(IProject project) {
 	if (!isJobWaiting(request))
 		request(request);
 }
-public void indexJrtSystem(IPath path, IProject requestingProject, URL indexURL) {
-	this.indexer.makeWorkspacePathDirty(path);
-	// requestingProject is no longer used to cancel jobs but leave it here just in case
-	IndexLocation indexFile = null;
-	boolean forceIndexUpdate = false;
-	if(indexURL != null) {
-		if(IS_MANAGING_PRODUCT_INDEXES_PROPERTY) {
-			indexFile = computeIndexLocation(path, indexURL);
-		}
-		else {
-			indexFile = IndexLocation.createIndexLocation(indexURL);
-		}
-	}
-	if (JavaCore.getPlugin() == null) return;
-	IndexRequest request = new AddJrtToIndex(path, indexFile, this, forceIndexUpdate);
-
-	if (!isJobWaiting(request))
-		request(request);
-}
 public void indexLibrary(IPath path, IProject requestingProject, URL indexURL) {
 	this.indexLibrary(path, requestingProject, indexURL, false);
 }
 
 private IndexRequest getRequest(Object target, IPath jPath, IndexLocation indexFile, IndexManager manager, boolean updateIndex) {
-	if (target instanceof File) {
-		return new AddJarFileToIndex(jPath, indexFile, this, updateIndex);
-	} else if (target == null) {
-		if (JavaModelManager.isJrtInstallation(jPath.toOSString())) {
-			return new AddJrtToIndex(jPath, indexFile, this, updateIndex);
-		}
-	}
-	return null;
+	return isJrt(((File) target).getName()) ? new AddJrtToIndex(jPath, indexFile, this, updateIndex) :
+		new AddJarFileToIndex(jPath, indexFile, this, updateIndex);
 }
 
+private boolean isJrt(String fileName) {
+	return fileName != null && fileName.endsWith(JRTUtil.JRT_FS_JAR);
+}
 /**
  * Trigger addition of a library to an index
  * Note: the actual operation is performed in background
@@ -652,15 +628,19 @@ public void indexLibrary(IPath path, IProject requestingProject, URL indexURL, f
 	IndexRequest request = null;
 	Object target = JavaModel.getTarget(path, true);
 	if (target instanceof IFile) {
-		request = new AddJarFileToIndex((IFile) target, indexFile, this, forceIndexUpdate);
+		request = isJrt(((IFile) target).getFullPath().toOSString()) ? 
+				new AddJrtToIndex((IFile) target, indexFile, this, forceIndexUpdate) :
+					new AddJarFileToIndex((IFile) target, indexFile, this, forceIndexUpdate);
+	} else if (target instanceof File) {
+		request = getRequest(target, path, indexFile, this, forceIndexUpdate);
 	} else if (target instanceof IContainer) {
 		request = new IndexBinaryFolder((IContainer) target, this);
 	} else {
-		request = getRequest(target, path, indexFile, this, forceIndexUpdate);
+		return;
 	}
 
 	// check if the same request is not already in the queue
-	if (request != null && !isJobWaiting(request))
+	if (!isJobWaiting(request))
 		request(request);
 }
 
@@ -747,6 +727,7 @@ private void rebuildIndex(IndexLocation indexLocation, IPath containerPath) {
 private void rebuildIndex(IndexLocation indexLocation, IPath containerPath, final boolean updateIndex) {
 	this.indexer.makeWorkspacePathDirty(containerPath);
 	Object target = JavaModel.getTarget(containerPath, true);
+	if (target == null) return;
 
 	if (VERBOSE)
 		Util.verbose("-> request to rebuild index: "+indexLocation+" path: "+containerPath); //$NON-NLS-1$ //$NON-NLS-2$
@@ -760,8 +741,10 @@ private void rebuildIndex(IndexLocation indexLocation, IPath containerPath, fina
 	} else if (target instanceof IFolder) {
 		request = new IndexBinaryFolder((IFolder) target, this);
 	} else if (target instanceof IFile) {
-		request = new AddJarFileToIndex((IFile) target, null, this, updateIndex);
-	} else {
+		request = isJrt(((IFile) target).getFullPath().toOSString()) ? 
+				new AddJrtToIndex((IFile) target, null, this, updateIndex) :
+					new AddJarFileToIndex((IFile) target, null, this, updateIndex);
+	} else if (target instanceof File) {
 		request = getRequest(target, containerPath, null, this, updateIndex);
 	}
 	if (request != null)
