@@ -43,6 +43,7 @@ import org.eclipse.jdt.internal.core.JavaElementRequestor;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.builder.ClasspathJar;
@@ -156,9 +157,11 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 	try {
 		if (root.isArchive()) {
 			ClasspathEntry rawClasspathEntry = (ClasspathEntry) root.getRawClasspathEntry();
-			cp = JavaModelManager.isJrt(path) ? 
+			IJavaProject project = (IJavaProject) root.getParent();
+			String compliance = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+			cp = (root instanceof JrtPackageFragmentRoot) ? 
 					new ClasspathJrt(path.toOSString(), rawClasspathEntry.getAccessRuleSet(), 
-							ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true)) :
+							ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, project.getProject(), true), compliance) :
 						new ClasspathJar(manager.getZipFile(path), rawClasspathEntry.getAccessRuleSet(),
 								ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry,
 										((IJavaProject) root.getParent()).getProject(), true),

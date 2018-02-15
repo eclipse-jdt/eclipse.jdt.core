@@ -114,7 +114,8 @@ private void computeClasspathLocations(
 	ArrayList bLocations = new ArrayList(classpathEntries.length);
 	ArrayList sLocationsForTest = new ArrayList(classpathEntries.length);
 	Map<String, IModulePathEntry> moduleEntries = null;
-	if (CompilerOptions.versionToJdkLevel(javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9) {
+	String compliance = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+	if (CompilerOptions.versionToJdkLevel(compliance) >= ClassFileConstants.JDK9) {
 		moduleEntries = new LinkedHashMap<>(classpathEntries.length);
 		this.moduleUpdater = new ModuleUpdater(javaProject);
 		if (this.compilationGroup == CompilationGroup.TEST) {
@@ -301,7 +302,7 @@ private void computeClasspathLocations(
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-					ClasspathLocation bLocation = ClasspathLocation.forLibrary(path.toOSString(), accessRuleSet, externalAnnotationPath, isOnModulePath);
+					ClasspathLocation bLocation = ClasspathLocation.forLibrary(path.toOSString(), accessRuleSet, externalAnnotationPath, isOnModulePath, compliance);
 					bLocations.add(bLocation);
 					if (moduleEntries != null) {
 						Set<String> libraryLimitModules = (limitModules == null && projectModule != null) ? ClasspathJrt.NO_LIMIT_MODULES : limitModules;
