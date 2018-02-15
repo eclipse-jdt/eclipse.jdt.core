@@ -47,6 +47,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -803,5 +804,32 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			file.delete();
 			fileY.delete();
 		}
+	}
+	public void testBug530299_001() {
+		String contents =
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		var x = new X();\n" +
+				"       for (var i = 0; i < 10; ++i) {}\n" +
+				"	}\n" +
+				"}";
+	    ASTParser parser = ASTParser.newParser(AST.JLS10);
+	    parser.setSource(contents.toCharArray());
+		parser.setStatementsRecovery(true);
+		parser.setBindingsRecovery(true);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setEnvironment(null, new String[] {null}, null, true);
+		parser.setResolveBindings(true);		
+		ASTNode node = parser.createAST(null);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit cu = (CompilationUnit) node;
+		assertTrue("Problems in compilation", cu.getProblems().length == 0);
+		TypeDeclaration typeDeclaration = (TypeDeclaration) cu.types().get(0);
+		MethodDeclaration[] methods = typeDeclaration.getMethods();
+		MethodDeclaration methodDeclaration = methods[0];
+		VariableDeclarationStatement vStmt = (VariableDeclarationStatement) methodDeclaration.getBody().statements().get(0);
+		Type type = vStmt.getType();
+		assertNotNull(type);
+		assertTrue("not a var", type.isVar());
 	}
 }
