@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -39,6 +43,7 @@
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
+ *								bug 527554 - [18.3] Compiler support for JEP 286 Local-Variable Type
  *     Ulrich Grave <ulrich.grave@gmx.de> - Contributions for
  *                              bug 386692 - Missing "unused" warning on "autowired" fields
  *******************************************************************************/
@@ -1356,6 +1361,7 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 		case Binding.TYPE :
 		case Binding.PARAMETERIZED_TYPE :
 		case Binding.RAW_TYPE :
+		case Binding.INTERSECTION_TYPE18 :
 			switch (kind()) {
 				case Binding.GENERIC_TYPE :
 				case Binding.PARAMETERIZED_TYPE :
@@ -1835,6 +1841,26 @@ public char[] signature() /* Ljava/lang/Object; */ {
 
 public char[] sourceName() {
 	return this.sourceName;
+}
+
+/**
+ * Perform an upwards type projection as per JLS 4.10.5
+ * @param scope Relevant scope for evaluating type projection
+ * @param mentionedTypeVariables Filter for mentioned type variabled
+ * @returns Upwards type projection of 'this', or null if downwards projection is undefined 
+*/
+public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+	return this;
+}
+
+/**
+ * Perform a downwards type projection as per JLS 4.10.5
+ * @param scope Relevant scope for evaluating type projection
+ * @param mentionedTypeVariables Filter for mentioned type variabled
+ * @returns Downwards type projection of 'this', or null if downwards projection is undefined 
+*/
+public ReferenceBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+	return this;
 }
 
 void storeAnnotationHolder(Binding binding, AnnotationHolder holder) {

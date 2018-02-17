@@ -61,6 +61,18 @@ static {
 	simpleTypeNames.put("String", "java.lang.String");
 	simpleTypeNames.put("Object", "java.lang.Object");
 	simpleTypeNames.put("Bar", "X.Bar");
+
+	simpleTypeNames.put("AnonymousObjectSubclass", "new java.lang.Object(){}");
+	simpleTypeNames.put("AnonymousRunnableSubclass", "new java.lang.Runnable(){}");
+	simpleTypeNames.put("CollectionOfExtString", "Collection<? extends java.lang.String>");
+	simpleTypeNames.put("CollectionOfSuperString", "Collection<? super java.lang.String>");
+	simpleTypeNames.put("CollectionAny", "Collection<?>");
+	simpleTypeNames.put("ComparableAny", "Comparable<?>");
+	simpleTypeNames.put("CollectionExt_ComparableAny", "Collection<? extends Comparable<?>>");
+	simpleTypeNames.put("CollectionSuperComparableAny", "Collection<? super Comparable<?>>");
+	simpleTypeNames.put("IntLongFloat", "java.lang.Number&Comparable<?>");
+	simpleTypeNames.put("ListTestAndSerializable", "List<? extends Z & java.io.Serializable>");
+	simpleTypeNames.put("TestAndSerializable", "Z & java.io.Serializable");
 }
 
 static void assertInferredType(LocalDeclaration varDecl) {
@@ -69,8 +81,11 @@ static void assertInferredType(LocalDeclaration varDecl) {
 	Assert.assertNotEquals(-1, underscoreIndex);
 	String typeNamePart = varName.substring(underscoreIndex+1);
 	typeNamePart = typeNamePart.replaceAll("ARRAY", "[]"); // So that we assume that x_intARRAY is of type int[]
-	System.out.println("For " + varName + ", the type was be: " +  varDecl.binding.type.debugName());
-	Assert.assertEquals(simpleTypeNames.getOrDefault(typeNamePart, typeNamePart), varDecl.binding.type.debugName());
+	String expectedTypeName = simpleTypeNames.getOrDefault(typeNamePart, typeNamePart);
+	String actualTypeName = varDecl.binding.type.debugName();
+	// System.out.println("For " + varName + ", we expect " + expectedTypeName + ", the type was: "
+	// + actualTypeName + " - " + (expectedTypeName.equals(actualTypeName) ? "❤️" : "🤡"));
+	Assert.assertEquals("Type of variable " + varName, expectedTypeName, actualTypeName);
 }
 
 // This visitor visits the 'testXxx' method in the visited classes, checking for expected types of local variables (using the debug name)
@@ -529,5 +544,115 @@ public void test0018_primitive_variable_types() throws Exception {
 			},
 			typeVerifier);
 	Assert.assertEquals(24, typeVerifier.localsChecked);
+}
+public void test0018_project_variable_types() throws Exception {
+	InferredTypeVerifier typeVerifier = new InferredTypeVerifier();
+	this.runConformTest(
+			new String[] {
+				"Z.java",
+				"import java.util.Collection;\n" + 
+				"import java.util.List;\n" + 
+				"import java.io.Serializable;\n" + 
+				"\n" + 
+				"class Z {\n" + 
+				"\n" + 
+				"    void testExtends() {\n" + 
+				"        var l1_CollectionOfExtString = extendsString();\n" + 
+				"        for (var l2_CollectionOfExtString = extendsString() ; ; ) { break; }\n" + 
+				"        for (var l3_CollectionOfExtString : extendsStringArr()) { break; }\n" + 
+				"        for (var l4_CollectionOfExtString : extendsCollectionIterable()) { break; }\n" + 
+				"        for (var l5_String : extendsString()) { break; }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    void testExtendsFbound() { \n" + 
+				"        var l1_CollectionExt_ComparableAny = extendsTBound();\n" + 
+				"        for (var l2_CollectionExt_ComparableAny = extendsTBound() ; ; ) { break; }\n" + 
+				"        for (var l3_CollectionExt_ComparableAny : extendsTBoundArray()) { break; }\n" + 
+				"        for (var l3_CollectionExt_ComparableAny : extendsTBoundIter()) { break; }\n" + 
+				"        for (var l4_ComparableAny : extendsTBound()) { break; }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    void testSuperTBound() {\n" + 
+				"        var s_CollectionAny = superTBound();\n" + 
+				"        for (var s2_CollectionAny = superTBound() ; ; ) { break; }\n" + 
+				"        for (var s2_CollectionAny : superTBoundArray()) { break; }\n" + 
+				"        for (var s2_CollectionAny : superTBoundIter()) { break; }\n" + 
+				"        for (var s2_Object : superTBound()) { break; }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    void testCollectSuper() {\n" + 
+				"        var s_CollectionOfSuperString = superString();\n" + 
+				"        for (var s2_CollectionOfSuperString = superString() ; ; ) { break; }\n" + 
+				"        for (var s2_CollectionOfSuperString : superStringArray()) { break; }\n" + 
+				"        for (var s2_CollectionOfSuperString : superCollectionIterable()) { break; }\n" + 
+				"        for (var s2_Object : superString()) { break; }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    void testUnbound() {\n" + 
+				"        var s_CollectionAny = unboundedString();\n" + 
+				"        for (var s2_CollectionAny = unboundedString() ; ; ) { break; }\n" + 
+				"        for (var s2_CollectionAny : unboundedStringArray()) { break; }\n" + 
+				"        for (var s2_CollectionAny : unboundedCollectionIterable()) { break; }\n" + 
+				"        for (var s2_Object : unboundedString()) { break; }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    void testTypeOfAnAnonymousClass() {\n" + 
+				"        var o_AnonymousObjectSubclass = new Object() { };\n" + 
+				"        for (var s2_AnonymousObjectSubclass = new Object() { } ; ; ) { break; }\n" + 
+				"        for (var s2_AnonymousObjectSubclass : arrayOf(new Object() { })) { break; }\n" + 
+				"        for (var s2_AnonymousObjectSubclass : listOf(new Object() { })) { break; }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    void testTypeOfAnAnonymousInterface() {\n" + 
+				"        var r_AnonymousRunnableSubclass = new Runnable() { public void run() { } };\n" + 
+				"        for (var s2_AnonymousRunnableSubclass = new Runnable() { public void run() { } } ; ; ) { break; }\n" + 
+				"        for (var s2_AnonymousRunnableSubclass : arrayOf(new Runnable() { public void run() { } })) { break; }\n" + 
+				"        for (var s2_AnonymousRunnableSubclass : listOf(new Runnable() { public void run() { } })) { break; }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    void testTypeOfIntersectionType() {\n" + 
+				"        var c_IntLongFloat = choose(1, 1L);\n" + 
+				"        for (var s2_IntLongFloat = choose(1, 1L) ; ;) { break; }\n" + 
+				"        for (var s2_IntLongFloat : arrayOf(choose(1, 1L))) { break; }\n" + 
+				"        for (var s2_IntLongFloat : listOf(choose(1, 1L))) { break; }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public void testProjections() {\n" + 
+				"        var inter_ListTestAndSerializable = getIntersections();\n" + 
+				"        var r_TestAndSerializable = inter_ListTestAndSerializable.get(0);\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    Collection<? extends String> extendsString() { return null; }\n" + 
+				"    Collection<? super String> superString() { return null; }\n" + 
+				"    Collection<?> unboundedString() { return null; }\n" + 
+				"\n" + 
+				"    Collection<? extends String>[] extendsStringArr() { return null; }\n" + 
+				"    Collection<? super String>[] superStringArray() { return null; }\n" + 
+				"    Collection<?>[] unboundedStringArray() { return null; }\n" + 
+				"\n" + 
+				"    Iterable<? extends Collection<? extends String>> extendsCollectionIterable() { return null; }\n" + 
+				"    Iterable<? extends Collection<? super String>> superCollectionIterable() { return null; }\n" + 
+				"    Iterable<? extends Collection<?>> unboundedCollectionIterable() { return null; }\n" + 
+				"\n" + 
+				"    <TBound extends Comparable<TBound>> Collection<? extends TBound> extendsTBound() { return null; }\n" + 
+				"    <TBound extends Comparable<TBound>> Collection<? super TBound> superTBound() { return null; }\n" + 
+				"\n" + 
+				"    <TBound extends Comparable<TBound>> Collection<? extends TBound>[] extendsTBoundArray() { return null; }\n" + 
+				"    <TBound extends Comparable<TBound>> Collection<? super TBound>[] superTBoundArray() { return null; }\n" + 
+				"\n" + 
+				"    <TBound extends Comparable<TBound>> Iterable<? extends Collection<? extends TBound>> extendsTBoundIter() { return null; }\n" + 
+				"    <TBound extends Comparable<TBound>> Iterable<? extends Collection<? super TBound>> superTBoundIter() { return null; }\n" + 
+				"\n" + 
+				"    <TBound> Collection<TBound> listOf(TBound b) { return null; }\n" + 
+				"    <TBound> TBound[] arrayOf(TBound b) { return null; }\n" + 
+				"\n" + 
+				"    <TBound> TBound choose(TBound b1, TBound b2) { return b1; }\n" +
+				"    <T extends Z & Serializable> List<? extends T> getIntersections() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}"
+			},
+			typeVerifier);
+	Assert.assertEquals(39, typeVerifier.localsChecked);
 }
 }

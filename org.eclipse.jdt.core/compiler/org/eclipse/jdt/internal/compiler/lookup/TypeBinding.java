@@ -276,16 +276,23 @@ public TypeBinding erasure() {
 	return this;
 }
 
-public enum ProjectionKind 
-{
-	UPWARDS, DOWNWARDS	
-}
 /**
- * Perform a type projection as per JLS 4.10.5
- * @returns null if projection is undefined
- */
-public TypeBinding projection(Scope scope, Set<TypeVariableBinding> mentionedTypeVariables, ProjectionKind kind) {
-	// Overridden as needed
+ * Perform an upwards type projection as per JLS 4.10.5
+ * @param scope Relevant scope for evaluating type projection
+ * @param mentionedTypeVariables Filter for mentioned type variabled
+ * @returns Upwards type projection of 'this', or null if downwards projection is undefined 
+*/
+public TypeBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+	return this;
+}
+
+/**
+ * Perform a downwards type projection as per JLS 4.10.5
+ * @param scope Relevant scope for evaluating type projection
+ * @param mentionedTypeVariables Filter for mentioned type variabled
+ * @returns Downwards type projection of 'this', or null if downwards projection is undefined 
+*/
+public TypeBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 	return this;
 }
 
@@ -1677,7 +1684,7 @@ public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 }
 /**
  * Call this before descending into type details to prevent infinite recursion.
- * @return true if a recursion has already been started.
+ * @return true if a recursion was not already started.
  */
 public boolean enterRecursiveFunction() {
 	return true;

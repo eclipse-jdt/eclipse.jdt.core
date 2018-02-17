@@ -53,7 +53,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBinding.ProjectionKind;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 
 @SuppressWarnings("rawtypes")
@@ -204,9 +203,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	public TypeBinding patchType(TypeBinding newType) {
 		// Perform upwards projection on type wrt mentioned type variables
-		Set<TypeVariableBinding> mentionedTypeVariables= findCapturedTypeVariables(newType);
-		if (! mentionedTypeVariables.isEmpty()) {
-			newType = newType.projection(this.binding.declaringScope, mentionedTypeVariables, ProjectionKind.UPWARDS); 	
+		TypeBinding[] mentionedTypeVariables= findCapturedTypeVariables(newType);
+		if (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
+			newType = newType.upwardsProjection(this.binding.declaringScope, mentionedTypeVariables); 	
 		}
 		this.type.resolvedType = newType;
 		if (this.binding != null) {
@@ -216,16 +215,18 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		return this.type.resolvedType;
 	}
 
-	private Set<TypeVariableBinding> findCapturedTypeVariables(TypeBinding typeBinding) {
+	private TypeVariableBinding[] findCapturedTypeVariables(TypeBinding typeBinding) {
 		final Set<TypeVariableBinding> mentioned = new HashSet<>();
 		TypeBindingVisitor.visit(new TypeBindingVisitor() {
 			@Override
 			public boolean visit(TypeVariableBinding typeVariable) {
-				mentioned.add(typeVariable);
+				if (typeVariable.isCapture())
+					mentioned.add(typeVariable);
 				return super.visit(typeVariable);
 			}
 		}, typeBinding);
-		return mentioned;
+		if (mentioned.isEmpty()) return null;
+		return mentioned.toArray(new TypeVariableBinding[mentioned.size()]);
 	}
 	
 	private static Expression findPolyExpression(Expression e) {
