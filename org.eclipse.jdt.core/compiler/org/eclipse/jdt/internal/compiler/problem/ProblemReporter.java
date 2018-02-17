@@ -652,6 +652,8 @@ public static int getIrritant(int problemID) {
 		case IProblem.NotExportedTypeInAPI:
 		case IProblem.MissingRequiresTransitiveForTypeInAPI:
 			return CompilerOptions.APILeak;
+		case IProblem.UnstableAutoModuleName:
+			return CompilerOptions.UnstableAutoModuleName;
 }
 	return 0;
 }
@@ -714,6 +716,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnlikelyCollectionMethodArgumentType :
 			case CompilerOptions.UnlikelyEqualsArgumentType:
 			case CompilerOptions.APILeak:
+			case CompilerOptions.UnstableAutoModuleName:
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			
 			case CompilerOptions.OverriddenPackageDefaultMethod :
@@ -10829,5 +10832,14 @@ public void unnamedPackageInNamedModule(ModuleBinding module) {
 			ProblemSeverities.Warning,
 			0,
 			0);
+}
+
+public void autoModuleWithUnstableName(ModuleReference moduleReference) {
+	String[] args = { new String(moduleReference.moduleName) };
+	handle(IProblem.UnstableAutoModuleName,
+			args,
+			args,
+			moduleReference.sourceStart,
+			moduleReference.sourceEnd);
 }
 }

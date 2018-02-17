@@ -1994,6 +1994,8 @@ void setSourceStart(int sourceStart);
 	int MissingRequiresTransitiveForTypeInAPI = ModuleRelated + 1459;
 	/** @since  3.14 */
 	int UnnamedPackageInNamedModule = ModuleRelated + 1460;
+	/** @since  3.14 */
+	int UnstableAutoModuleName = ModuleRelated + 1461;
 
 	/** @since 3.13 */
 	int RedundantNullDefaultAnnotationLocal = Internal + 1062;

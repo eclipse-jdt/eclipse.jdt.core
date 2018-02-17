@@ -28,8 +28,11 @@ public interface AbstractModule extends IModuleDescription {
 	 */
 	static class AutoModule extends NamedMember implements AbstractModule {
 	
-		public AutoModule(JavaElement parent, String name) {
+		private boolean nameFromManifest;
+
+		public AutoModule(JavaElement parent, String name, boolean nameFromManifest) {
 			super(parent, name);
+			this.nameFromManifest = nameFromManifest;
 		}
 		@Override
 		public IJavaElement[] getChildren() throws JavaModelException {
@@ -38,6 +41,9 @@ public interface AbstractModule extends IModuleDescription {
 		@Override
 		public int getFlags() throws JavaModelException {
 			return 0;
+		}
+		public boolean isAutoNameFromManifest() {
+			return this.nameFromManifest;
 		}
 		@Override
 		public char getHandleMementoDelimiter() {

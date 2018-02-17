@@ -3871,6 +3871,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					new IClasspathAttribute[] {modAttr},
 					false/*not exported*/);
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.setOption(JavaCore.COMPILER_PB_UNSTABLE_AUTO_MODULE_NAME, JavaCore.IGNORE);
 
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -4096,6 +4097,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				new IClasspathAttribute[] {modAttr},
 				false/*not exported*/);
 			IJavaProject p3 = setupModuleProject("test_automodules", src, new IClasspathEntry[] {dep, dep2});
+			p3.setOption(JavaCore.COMPILER_PB_UNSTABLE_AUTO_MODULE_NAME, JavaCore.IGNORE);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", "", markers);
@@ -4167,6 +4169,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				new IClasspathAttribute[] {modAttr},
 				false/*not exported*/);
 			IJavaProject p3 = setupModuleProject("test_automodules", src, new IClasspathEntry[] {dep, dep2});
+			p3.setOption(JavaCore.COMPILER_PB_UNSTABLE_AUTO_MODULE_NAME, JavaCore.IGNORE);
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
@@ -4872,7 +4875,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p3 = setupModuleProject("test", src, new IClasspathEntry[] {dep, dep2});
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "", markers);
+			assertMarkers("Unexpected markers", 
+					"Name of automatic module \'com.greetings\' is unstable, it is derived from the module\'s file name.",
+					markers);
 		} finally {
 			this.deleteProject("test");
 			this.deleteProject("com.greetings");
@@ -5079,8 +5084,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			
 			this.problemRequestor.initialize(srcMod.toCharArray());
 			getWorkingCopy("/mod.one/module-info.java", srcMod, true);
-			assertProblems("module-info should have no problems",
+			assertProblems("module-info should have one warning",
 					"----------\n" + 
+					"1. WARNING in /mod.one/module-info.java (at line 2)\n" + 
+					"	requires lib.x;\n" + 
+					"	         ^^^^^\n" + 
+					"Name of automatic module \'lib.x\' is unstable, it is derived from the module\'s file name.\n" + 
 					"----------\n",
 					this.problemRequestor);
 
@@ -5307,7 +5316,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				deleteProject(javaProject2);
 		}
 	}
-	// like testAutoModule3 without name derived from project, not manifest
+	// like testAutoModule3 without name derived from project, not manifest - warning suppressed
 	public void testAutoModule5() throws Exception {
 		if (!isJRE9) return;
 		IJavaProject javaProject = null, auto = null;
@@ -5323,6 +5332,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			addClasspathEntry(javaProject, JavaCore.newProjectEntry(auto.getPath(), null, false, attributes, false));
 
 			String srcMod =
+				"@SuppressWarnings(\"module\")\n" +
 				"module mod.one { \n" +
 				"	requires auto;\n" +
 				"}";
@@ -5353,6 +5363,47 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
+		} finally {
+			if (javaProject != null)
+				deleteProject(javaProject);
+			if (auto != null)
+				deleteProject(auto);
+		}
+	}
+	// like testAutoModule5, warning configured as ERROR
+	public void testAutoModule6() throws Exception {
+		if (!isJRE9) return;
+		IJavaProject javaProject = null, auto = null;
+		try {
+			auto = createJava9Project("auto", new String[] {"src"});
+			createFolder("auto/src/p/a");
+			createFile("auto/src/p/a/X.java",
+				"package p.a;\n" +
+				"public class X {}\n;");
+
+			javaProject = createJava9Project("mod.one", new String[] {"src"});
+			IClasspathAttribute[] attributes = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+			addClasspathEntry(javaProject, JavaCore.newProjectEntry(auto.getPath(), null, false, attributes, false));
+			javaProject.setOption(JavaCore.COMPILER_PB_UNSTABLE_AUTO_MODULE_NAME, JavaCore.ERROR);
+
+			String srcMod =
+				"module mod.one { \n" +
+				"	requires auto;\n" +
+				"}";
+			createFile("/mod.one/src/module-info.java", 
+				srcMod);
+			auto.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			this.problemRequestor.initialize(srcMod.toCharArray());
+			getWorkingCopy("/mod.one/module-info.java", srcMod, true);
+			assertProblems("module-info should have only one error",
+					"----------\n" + 
+					"1. ERROR in /mod.one/module-info.java (at line 2)\n" + 
+					"	requires auto;\n" + 
+					"	         ^^^^\n" + 
+					"Name of automatic module \'auto\' is unstable, it is derived from the module\'s file name.\n" + 
+					"----------\n",
+					this.problemRequestor);
 		} finally {
 			if (javaProject != null)
 				deleteProject(javaProject);
@@ -6138,8 +6189,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			
 			this.problemRequestor.initialize(srcMod.toCharArray());
 			getWorkingCopy("/mod1/src/module-info.java", srcMod, true);
-			assertProblems("module-info should have no problems",
+			assertProblems("module-info should have exactly one warning",
 					"----------\n" + 
+					"1. WARNING in /mod1/src/module-info.java (at line 3)\n" + 
+					"	requires automod;\n" + 
+					"	         ^^^^^^^\n" + 
+					"Name of automatic module \'automod\' is unstable, it is derived from the module\'s file name.\n" + 
 					"----------\n",
 					this.problemRequestor);
 

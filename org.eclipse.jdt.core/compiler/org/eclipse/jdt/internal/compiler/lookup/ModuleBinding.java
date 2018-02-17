@@ -829,6 +829,9 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		// TODO(SHMOD) implement deprecation for modules
 		return false;
 	}
+	public boolean hasUnstableAutoName() {
+		return false;
+	}
 	public boolean isTransitivelyRequired(ModuleBinding otherModule) {
 		if (this.transitiveRequires == null) {
 			Set<ModuleBinding> transitiveDeps = new HashSet<>();

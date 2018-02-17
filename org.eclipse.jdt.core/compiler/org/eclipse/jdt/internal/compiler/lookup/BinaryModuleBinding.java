@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 GK Software AG, and others.
+ * Copyright (c) 2017, 2018 GK Software SE, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,13 +28,20 @@ public class BinaryModuleBinding extends ModuleBinding {
 	
 	private static class AutomaticModuleBinding extends ModuleBinding {
 
+		boolean autoNameFromManifest;
+
 		public AutomaticModuleBinding(IModule module, LookupEnvironment existingEnvironment) {
 			super(module.name(), existingEnvironment);
 			existingEnvironment.root.knownModules.put(this.moduleName, this);
 			this.isAuto = true;
+			this.autoNameFromManifest = module.isAutoNameFromManifest();
 			this.requires = Binding.NO_MODULES;
 			this.requiresTransitive = Binding.NO_MODULES;
 			this.exportedPackages = Binding.NO_PACKAGES;
+		}
+		@Override
+		public boolean hasUnstableAutoName() {
+			return !this.autoNameFromManifest;
 		}
 		@Override
 		public ModuleBinding[] getRequiresTransitive() {

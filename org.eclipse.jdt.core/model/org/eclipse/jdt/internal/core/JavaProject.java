@@ -3699,8 +3699,13 @@ public class JavaProject
 	}
 
 	public IModuleDescription getAutomaticModuleDescription() throws JavaModelException {
-		char[] moduleName = AutomaticModuleNaming.determineAutomaticModuleName(getElementName(), false, getManifest());
-		return new AbstractModule.AutoModule(this, String.valueOf(moduleName));
+		boolean nameFromManifest = true;
+		char[] moduleName = AutomaticModuleNaming.determineAutomaticModuleNameFromManifest(getManifest());
+		if (moduleName == null) {
+			nameFromManifest = false;
+			moduleName = AutomaticModuleNaming.determineAutomaticModuleNameFromFileName(getElementName(), true, false);
+		}
+		return new AbstractModule.AutoModule(this, String.valueOf(moduleName), nameFromManifest);
 	}
 
 	public void setModuleDescription(IModuleDescription module) throws JavaModelException {

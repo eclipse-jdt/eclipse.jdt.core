@@ -1107,6 +1107,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UnsafeRawMethodInvocation", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
 		expectedProblemAttributes.put("UnsafeReturnTypeOverride", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
 		expectedProblemAttributes.put("UnsafeTypeConversion", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
+		expectedProblemAttributes.put("UnstableAutoModuleName", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("UnterminatedComment", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("UnterminatedString", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("UnusedConstructorDeclaredThrownException", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
@@ -2002,6 +2003,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UnsafeRawMethodInvocation", new ProblemAttributes(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION));
 		expectedProblemAttributes.put("UnsafeReturnTypeOverride", new ProblemAttributes(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION));
 		expectedProblemAttributes.put("UnsafeTypeConversion", new ProblemAttributes(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION));
+		expectedProblemAttributes.put("UnstableAutoModuleName", new ProblemAttributes(JavaCore.COMPILER_PB_UNSTABLE_AUTO_MODULE_NAME));
 		expectedProblemAttributes.put("UnterminatedComment", SKIP);
 		expectedProblemAttributes.put("UnterminatedString", SKIP);
 		expectedProblemAttributes.put("UnusedConstructorDeclaredThrownException", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION));
