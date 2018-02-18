@@ -328,6 +328,7 @@ public boolean hasCUDeclaringPackage(String qualifiedPackageName, Function<Compi
 }
 @Override
 public void reset() {
+	super.reset();
 	this.directoryCache = new Hashtable(11);
 }
 @Override

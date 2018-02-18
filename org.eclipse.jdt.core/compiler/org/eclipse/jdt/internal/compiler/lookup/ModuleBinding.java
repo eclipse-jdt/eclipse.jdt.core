@@ -826,8 +826,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		return (this.modifiers & ClassFileConstants.ACC_OPEN) != 0;
 	}
 	public boolean isDeprecated() {
-		// TODO(SHMOD) implement deprecation for modules
-		return false;
+		return (this.tagBits & TagBits.AnnotationDeprecated) != 0;
 	}
 	public boolean hasUnstableAutoName() {
 		return false;

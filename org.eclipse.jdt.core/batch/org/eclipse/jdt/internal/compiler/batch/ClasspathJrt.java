@@ -353,6 +353,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 			//this.packageCache = null;
 			this.annotationPaths = null;
 		}
+		this.modulePathMap.clear();
 	}
 	@Override
 	public String toString() {

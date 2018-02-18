@@ -182,6 +182,7 @@ public class ClasspathJep247 extends ClasspathLocation {
 	@Override
 	public void reset() {
 		try {
+			super.reset();
 			this.fs.close();
 		} catch (IOException e) {
 			// Move on

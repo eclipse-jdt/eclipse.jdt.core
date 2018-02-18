@@ -39,6 +39,14 @@ public class AbstractRegressionTest9 extends AbstractRegressionTest {
 	protected Map<String,String> file2module = new HashMap<>();
 
 	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		this.moduleMap.clear();
+		this.file2module.clear();
+		DefaultJavaRuntimeEnvironment.cleanUpDefaultJreClassLibs();
+	}
+
+	@Override
 	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths) {
 		this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
 		INameEnvironment[] classLibs = getClassLibs(classPaths == null);
