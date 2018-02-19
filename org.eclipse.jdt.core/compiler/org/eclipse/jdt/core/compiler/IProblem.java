@@ -2029,29 +2029,29 @@ void setSourceStart(int sourceStart);
 	int UnlikelyEqualsArgumentType = 1201;
 
 	/* Local-Variable Type Inference */
-	/** @since 3.13 */
+	/** @since 3.14 BETA_JAVA_18_3 */
 	int VarLocalMultipleDeclarators = Syntax + 1500; // ''var'' is not allowed in a compound declaration
-	/** @since 3.13 */
+	/** @since 3.14 BETA_JAVA_18_3 */
 	int VarLocalCannotBeArray = Syntax + 1501; // ''var'' is not allowed as an element type of an array
-	/** @since 3.13 */
+	/** @since 3.14 BETA_JAVA_18_3 */
 	int VarLocalReferencesItself = Syntax + 1502; // Declaration using ''var'' may not contin references to itself
-	/** @since 3.13 */
+	/** @since 3.14 BETA_JAVA_18_3 */
 	int VarLocalWithoutInitizalier = Syntax + 1503; // Cannot use ''var'' on variable without initializer
-	/** @since 3.13 */
+	/** @since 3.14 BETA_JAVA_18_3 */
 	int VarLocalInitializedToNull = TypeRelated + 1504; // Variable initialized to ''null'' needs an explicit target-type
-	/** @since 3.13 */
+	/** @since 3.14 BETA_JAVA_18_3 */
 	int VarLocalInitializedToVoid = TypeRelated + 1505; // Variable initializer is ''void'' -- cannot infer variable type 
-	/** @since 3.13 */
+	/** @since 3.14 BETA_JAVA_18_3 */
 	int VarLocalCannotBeArrayInitalizers = TypeRelated + 1506; // Array initializer needs an explicit target-type
-	/** @since 3.13 */
+	/** @since 3.14 BETA_JAVA_18_3 */
 	int VarLocalCannotBeLambda = TypeRelated + 1507; // Lambda expression needs an explicit target-type 
-	/** @since 3.13 */
+	/** @since 3.14 BETA_JAVA_18_3 */
 	int VarLocalCannotBeMethodReference = TypeRelated + 1508; // Method reference needs an explicit target-type
-	/** @since 3.13 */
+	/** @since 3.14 BETA_JAVA_18_3 */
 	int VarIsReserved = Syntax + 1509; // ''var'' is not a valid type name
-	/** @since 3.13 */
+	/** @since 3.14 BETA_JAVA_18_3 */
 	int VarIsReservedInFuture = Syntax + 1510; // ''var'' should not be used as an type name, since it is a reserved word from source level 10 on
-	/** @since 3.13 */
+	/** @since 3.14 BETA_JAVA_18_3 */
 	int VarIsNotAllowedHere = Syntax + 1511; // ''var'' is not allowed here
 	
 }

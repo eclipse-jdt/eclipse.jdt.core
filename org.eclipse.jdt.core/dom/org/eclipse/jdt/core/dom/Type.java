@@ -189,7 +189,7 @@ public abstract class Type extends ASTNode {
 	 *    <code>false</code> otherwise
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST of level less than JLS10
-	 * @since 3.13 BETA_18_3
+	 * @since 3.14 BETA_JAVA_18_3
 	 */
 	public boolean isVar() {
 		return false;

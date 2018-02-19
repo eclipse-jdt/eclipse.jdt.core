@@ -379,6 +379,90 @@
                 <message_argument value="UsingTerminallyDeprecatedType"/>
             </message_arguments>
         </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VarIsNotAllowedHere"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VarIsReserved"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VarIsReservedInFuture"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VarLocalCannotBeArray"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VarLocalCannotBeArrayInitalizers"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VarLocalCannotBeLambda"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VarLocalCannotBeMethodReference"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VarLocalInitializedToNull"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VarLocalInitializedToVoid"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VarLocalMultipleDeclarators"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VarLocalReferencesItself"/>
+            </message_arguments>
+        </filter>
+        <filter id="1209008130">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="VarLocalWithoutInitizalier"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AST.java" type="org.eclipse.jdt.core.dom.AST">
         <filter id="1141899266">
@@ -765,6 +849,15 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/SimpleType.java" type="org.eclipse.jdt.core.dom.SimpleType">
+        <filter id="1141899266">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="isVar()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/TryStatement.java" type="org.eclipse.jdt.core.dom.TryStatement">
         <filter comment="has never been subclassable" id="336744520">
             <message_arguments>
@@ -776,6 +869,15 @@
                 <message_argument value="3.14"/>
                 <message_argument value="3.13"/>
                 <message_argument value="RESOURCES2_PROPERTY"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/Type.java" type="org.eclipse.jdt.core.dom.Type">
+        <filter id="1141899266">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="isVar()"/>
             </message_arguments>
         </filter>
     </resource>

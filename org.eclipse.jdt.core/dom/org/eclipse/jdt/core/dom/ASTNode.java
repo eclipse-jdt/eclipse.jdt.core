@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -2062,7 +2066,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is used below JLS10
-	 * @since 3.13 BETA_JAVA_18_3
+	 * @since 3.14 BETA_JAVA_18_3
 	 */
 	final void unsupportedBelow10() {
 		if (this.ast.apiLevel < AST.JLS10_INTERNAL) {

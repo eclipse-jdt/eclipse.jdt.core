@@ -249,7 +249,7 @@ public class SimpleType extends AnnotatableType {
 	}
 
 	/**
-	 * @since 3.13 BETA_JAVA_18_3
+	 * @since 3.14 BETA_JAVA_18_3
 	 */
 	@Override
 	public boolean isVar() {

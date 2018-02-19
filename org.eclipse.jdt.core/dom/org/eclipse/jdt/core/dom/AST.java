@@ -243,7 +243,7 @@ public final class AST {
 	/**
 	 * Internal synonym for {@link #JLS10}. Use to alleviate
 	 * deprecation warnings once JLS10 is deprecated
-	 * @since 3.13 BETA_JAVA_18_3
+	 * @since 3.14 BETA_JAVA_18_3
 	 */
 	/*package*/ static final int JLS10_INTERNAL = JLS10;
 
