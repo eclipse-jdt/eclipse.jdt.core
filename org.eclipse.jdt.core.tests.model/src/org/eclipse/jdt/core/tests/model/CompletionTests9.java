@@ -1429,4 +1429,51 @@ public void testBug517417_002() throws Exception {
 		deleteProject(project4);
 	}
 }
+public void testBug530911() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL19_LIB", "org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "bin", "9");
+	try  {
+		project1.open(null);
+
+		createFile("/Completion9_1/src/module-info.java",
+				"module first {}\n");
+		String content =  "package annotation;\n" + 
+				"\n" + 
+				"import java.lang.annotation.ElementType;\n" + 
+				"import java.lang.annotation.Target;\n" + 
+				"\n" + 
+				"@Target()\n" + 
+				"public @interface NonNull {\n" + 
+				"}\n" + 
+				"";
+		createFolder("/Completion9_1/src/p");
+		String filePath = "/Completion9_1/src/p/NonNull.java";
+		String completeBehind="@Target(";
+		createFile(filePath, content);
+		int cursorLocation = content.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		waitUntilIndexesReady();
+
+		ICompilationUnit unit = getCompilationUnit(filePath);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "NonNull[TYPE_REF]{NonNull, p, Lp.NonNull;, null, 52}\n" + 
+				"value[ANNOTATION_ATTRIBUTE_REF]{value, Ljava.lang.annotation.Target;, [Ljava.lang.annotation.ElementType;, value, 52}\n" + 
+				"ElementType[TYPE_REF]{ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, 102}\n" + 
+				"ANNOTATION_TYPE[FIELD_REF]{ElementType.ANNOTATION_TYPE, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, ANNOTATION_TYPE, 104}\n" + 
+				"CONSTRUCTOR[FIELD_REF]{ElementType.CONSTRUCTOR, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, CONSTRUCTOR, 104}\n" + 
+				"FIELD[FIELD_REF]{ElementType.FIELD, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, FIELD, 104}\n" + 
+				"LOCAL_VARIABLE[FIELD_REF]{ElementType.LOCAL_VARIABLE, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, LOCAL_VARIABLE, 104}\n" + 
+				"METHOD[FIELD_REF]{ElementType.METHOD, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, METHOD, 104}\n" + 
+				"MODULE[FIELD_REF]{ElementType.MODULE, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, MODULE, 104}\n" + 
+				"PACKAGE[FIELD_REF]{ElementType.PACKAGE, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, PACKAGE, 104}\n" + 
+				"PARAMETER[FIELD_REF]{ElementType.PARAMETER, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, PARAMETER, 104}\n" + 
+				"TYPE[FIELD_REF]{ElementType.TYPE, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, TYPE, 104}\n" + 
+				"TYPE_PARAMETER[FIELD_REF]{ElementType.TYPE_PARAMETER, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, TYPE_PARAMETER, 104}\n" + 
+				"TYPE_USE[FIELD_REF]{ElementType.TYPE_USE, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, TYPE_USE, 104}";
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+	}
+}
 }
