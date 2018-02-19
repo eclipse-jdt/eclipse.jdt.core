@@ -62,6 +62,7 @@ public class RunJavaSearchTests extends junit.framework.TestCase {
 		allClasses.add(JavaSearchBugsTests2.class);
 		allClasses.add(JavaSearchBugs8Tests.class);
 		allClasses.add(JavaSearchBugs9Tests.class);
+		allClasses.add(JavaSearchBugs10Tests.class);
 		allClasses.add(JavaSearchMultipleProjectsTests.class);
 		allClasses.add(SearchTests.class);
 		allClasses.add(JavaSearchScopeTests.class);
