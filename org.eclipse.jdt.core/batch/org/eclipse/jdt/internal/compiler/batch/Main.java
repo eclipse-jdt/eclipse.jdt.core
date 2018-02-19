@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1741,6 +1741,8 @@ private boolean checkVMVersion(long minimalSupportedVersion) {
 			return ClassFileConstants.JDK1_8 >= minimalSupportedVersion;
 		case ClassFileConstants.MAJOR_VERSION_9: // 9
 			return ClassFileConstants.JDK9 >= minimalSupportedVersion;
+		case ClassFileConstants.MAJOR_VERSION_10: // 9
+			return ClassFileConstants.JDK10 >= minimalSupportedVersion;
 	}
 	// unknown version
 	return false;
@@ -2164,6 +2166,16 @@ public void configure(String[] argv) {
 					}
 					didSpecifyCompliance = true;
 					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9);
+					mode = DEFAULT;
+					continue;
+				}
+				if (currentArg.equals("-1.10") || currentArg.equals("-10") || currentArg.equals("-10.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					if (didSpecifyCompliance) {
+						throw new IllegalArgumentException(
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+					}
+					didSpecifyCompliance = true;
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_10);
 					mode = DEFAULT;
 					continue;
 				}
