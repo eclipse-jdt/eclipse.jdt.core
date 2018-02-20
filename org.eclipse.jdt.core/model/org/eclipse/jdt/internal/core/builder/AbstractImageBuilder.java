@@ -610,6 +610,7 @@ protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAb
 							System.arraycopy(toAdd, 0, toAdd = new CompilationParticipantResult[length + addedGeneratedFiles.length], 0, length);
 					}
 					toAdd[added++] = newResult;
+					this.workQueue.add(sourceFile);
 				}
 			}
 		}
