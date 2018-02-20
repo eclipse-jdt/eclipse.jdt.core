@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -122,7 +122,7 @@ public void setUpSuite() throws Exception {
 }
 	static {
 //		TESTS_NUMBERS = new int[] { 182, 183 };
-//		TESTS_NAMES = new String[] { "testParamAnnotations4" };
+//		TESTS_NAMES = new String[] { "test528818a" };
 	}
 	public static Test suite() {
 		return buildModelTestSuite(TypeResolveTests.class);
@@ -1196,6 +1196,19 @@ public void test479963a() throws CoreException, IOException {
 		assertTrue("Should be a lambda", lambda.isLambda());
 		String[][] types = lambda.resolveType("Object");
 		assertTypesEqual("java.lang.Object", types);
+	} finally {
+		deleteProject("P");
+	}
+}
+public void test528818a() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJava9Project("P");
+		waitForAutoBuild();
+		IType type = project.findType("java.lang.annotation.Target");
+		assertNotNull("Type should not be null", type);
+		String[][] resolveType = type.resolveType("java.lang.Object");
+		assertNotNull("Type should not be null", resolveType);
+		
 	} finally {
 		deleteProject("P");
 	}
