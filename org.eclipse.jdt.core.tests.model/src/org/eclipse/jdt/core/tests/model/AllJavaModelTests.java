@@ -123,6 +123,7 @@ private static Class[] getAllTestClasses() {
 
 		// Reconciler tests
 		ReconcilerTests.class,
+		ReconcilerTests9.class,
 		ReconcilerStatementsRecoveryTests.class,
 
 		// Copy and move operation tests

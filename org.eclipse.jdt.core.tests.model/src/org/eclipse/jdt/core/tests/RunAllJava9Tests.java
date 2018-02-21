@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.tests.model.JavaConventionTests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs9Tests;
 import org.eclipse.jdt.core.tests.model.ModuleBuilderTests;
 import org.eclipse.jdt.core.tests.model.ModuleOptionsTests;
+import org.eclipse.jdt.core.tests.model.ReconcilerTests9;
 import org.eclipse.jdt.core.tests.model.ResolveTests9;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
@@ -41,6 +42,7 @@ public class RunAllJava9Tests extends TestCase {
 			Java9ElementTests.class,
 			JavaSearchBugs9Tests.class,
 			CompletionTests9.class,
+			ReconcilerTests9.class,
 			ResolveTests9.class,
 			JavaConventionTests.class
 		};
