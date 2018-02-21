@@ -15814,4 +15814,96 @@ public void testBug530913() {
 		"----------\n"
 	);
 }
+public void testBug530913b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullByDefault");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES, "annotation.NNBDField,annotation.NNBDParam,annotation.NNBDReturn,annotation.NNBDTypeArg,annotation.NNBDTypeBound");
+	customOptions.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION, JavaCore.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/DefaultLocation.java",
+			"package annotation;\n" +
+			"\n" +
+			"public enum DefaultLocation {\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS\n" +
+			"}\n" +
+			"",
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullByDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.FIELD;\n" +
+			"import static annotation.DefaultLocation.PARAMETER;\n" +
+			"import static annotation.DefaultLocation.RETURN_TYPE;\n" +
+			"import static annotation.DefaultLocation.TYPE_ARGUMENT;\n" +
+			"import static annotation.DefaultLocation.TYPE_BOUND;\n" +
+			" \n" +
+			"public @interface NonNullByDefault {\n" +
+			"    DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT };\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		""
+	);
+	runConformTestWithLibs(
+		false,
+		new String[] {
+			"test/X.java",
+			"package test;\n" +
+			"\n" +
+			"import annotation.*;\n" +
+			"\n" +
+			"interface C<T1, T2> {\n" +
+			"}\n" +
+			"\n" +
+			"abstract class X {\n" +
+			"    @NonNullByDefault(DefaultLocation.RETURN_TYPE) abstract void f2(@NonNullByDefault C<Object, ? extends Number> p1);\n" +
+			"}\n"
+		},
+		customOptions,
+		""
+	);			
+	runConformTestWithLibs(
+		false,
+		new String[] {
+			"test/ExplicitNonNull.java",
+			"package test;\n" +
+			"\n" +
+			"import annotation.*;\n" +
+			"\n" +
+			"\n" +
+			"class ExplicitNonNull extends X {\n" +
+			"    void f2(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1) {\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		""
+	);
+}
 }

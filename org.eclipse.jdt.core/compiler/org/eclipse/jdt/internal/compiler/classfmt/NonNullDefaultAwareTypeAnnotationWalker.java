@@ -252,9 +252,17 @@ public class NonNullDefaultAwareTypeAnnotationWalker extends TypeAnnotationWalke
 				} else {
 					if (walker instanceof TypeAnnotationWalker) {
 						TypeAnnotationWalker typeAnnotationWalker = (TypeAnnotationWalker) walker;
-						IBinaryAnnotation nonNullAnnotation2 = walker instanceof NonNullDefaultAwareTypeAnnotationWalker
-								? ((NonNullDefaultAwareTypeAnnotationWalker) walker).nonNullAnnotation
-								: getNonNullAnnotation(environment);
+						
+						IBinaryAnnotation nonNullAnnotation2;
+						if (walker instanceof NonNullDefaultAwareTypeAnnotationWalker) {
+							NonNullDefaultAwareTypeAnnotationWalker nonNullDefaultAwareTypeAnnotationWalker = (NonNullDefaultAwareTypeAnnotationWalker) walker;
+							if(nonNullDefaultAwareTypeAnnotationWalker.isEmpty) {
+								return new NonNullDefaultAwareTypeAnnotationWalker(defaultNullness, environment);								
+							}
+							nonNullAnnotation2 = nonNullDefaultAwareTypeAnnotationWalker.nonNullAnnotation;
+						} else {
+							nonNullAnnotation2 = getNonNullAnnotation(environment);
+						}
 						return new NonNullDefaultAwareTypeAnnotationWalker(typeAnnotationWalker.typeAnnotations,
 								typeAnnotationWalker.matches, typeAnnotationWalker.pathPtr, defaultNullness,
 								nonNullAnnotation2, false, false, environment, false);
