@@ -103,6 +103,8 @@ public class Messages extends NLS {
 
 	public static String AptConfigurationBlock_genTestSrcDirMustBeValidRelativePath;
 
+	public static String AptConfigurationBlock_genTestSrcDirMustBeDifferent;
+
 	public static String FactoryPathConfigurationBlock_advanced;
 
 	public static String AdvancedFactoryPathOptionsDialog_advancedOptions;

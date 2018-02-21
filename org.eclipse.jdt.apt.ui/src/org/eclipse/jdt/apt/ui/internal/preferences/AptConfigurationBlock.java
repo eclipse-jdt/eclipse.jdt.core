@@ -513,13 +513,16 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 * @return true if current field value is valid
 	 */
 	private IStatus validateGenTestSrcDir() {
-		String dirName = fGenTestSrcDirField.getText();
-		if (!AptConfig.validateGenSrcDir(fJProj, dirName)) {
+		String dirName = fGenSrcDirField.getText();
+		String testDirName = fGenTestSrcDirField.getText();
+		if (!AptConfig.validateGenSrcDir(fJProj, testDirName)) {
 			return new StatusInfo(IStatus.ERROR, Messages.AptConfigurationBlock_genTestSrcDirMustBeValidRelativePath);
 		}
-		boolean TODO; // check it is not same as validateGenSrcDir, make sure it has its own output folder 
-		if (fJProj != null && !dirName.equals(fOriginalGenTestSrcDir)) {
-			IFolder folder = fJProj.getProject().getFolder( dirName );
+		if (testDirName.equals(dirName)) {
+			return new StatusInfo(IStatus.ERROR, Messages.AptConfigurationBlock_genTestSrcDirMustBeDifferent);
+		}
+		if (fJProj != null && !testDirName.equals(fOriginalGenTestSrcDir)) {
+			IFolder folder = fJProj.getProject().getFolder( testDirName );
 			if (folder != null && folder.exists() && !folder.isDerived()) {
 				return new StatusInfo(IStatus.WARNING, Messages.AptConfigurationBlock_warningContentsMayBeDeleted);
 			}
