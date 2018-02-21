@@ -134,11 +134,10 @@ public class BinaryModuleBinding extends ModuleBinding {
 				int typeBit = this.environment.getNullAnnotationBit(BinaryTypeBinding.signature2qualifiedTypeName(annotationTypeName));
 				if (typeBit == TypeIds.BitNonNullByDefaultAnnotation) {
 					// using NonNullByDefault we need to inspect the details of the value() attribute:
-					nullness = BinaryTypeBinding.getNonNullByDefaultValue(annotations[i], this.environment);
-					this.defaultNullness = nullness;
-					break;
+					nullness |= BinaryTypeBinding.getNonNullByDefaultValue(annotations[i], this.environment);
 				}
 			}
+			this.defaultNullness = nullness;
 		}
 	}
 

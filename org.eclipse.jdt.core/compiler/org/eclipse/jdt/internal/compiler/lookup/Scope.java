@@ -108,17 +108,33 @@ public abstract class Scope {
 	public Scope parent;
 	
 	private static class NullDefaultRange {
-		final int value;
-		final Annotation annotation;
 		final int start, end;
-		final Binding target;
+		int value;
+		private Annotation[] annotations;
+		Binding target;
 
 		NullDefaultRange(int value, Annotation annotation, int start, int end, Binding target) {
-			this.value = value;
-			this.annotation = annotation;
 			this.start = start;
 			this.end = end;
+			this.value = value;
+			this.annotations = new Annotation[] { annotation };
 			this.target = target;
+		}
+
+		boolean contains(Annotation annotation) {
+			for (Annotation annotation2 : this.annotations) {
+				if (annotation2 == annotation)
+					return true;
+			}
+			return false;
+		}
+
+		void merge(int nextValue, Annotation nextAnnotation, Binding nextTarget) {
+			int len = this.annotations.length;
+			System.arraycopy(this.annotations, 0, this.annotations = new Annotation[len + 1], 0, len);
+			this.annotations[len] = nextAnnotation;
+			this.target = nextTarget;
+			this.value |= nextValue;
 		}
 	}
 
@@ -5133,12 +5149,14 @@ public abstract class Scope {
 			this.nullDefaultRanges=new ArrayList<>(3);
 		}
 		for (NullDefaultRange nullDefaultRange : this.nullDefaultRanges) {
-			if (nullDefaultRange.annotation == annotation
-					&& nullDefaultRange.start== scopeStart
-					&& nullDefaultRange.end==scopeEnd
-					&& nullDefaultRange.value==value) {
-				// annotation data already recorded
-				return false;
+			if (nullDefaultRange.start== scopeStart && nullDefaultRange.end==scopeEnd) {
+				if (nullDefaultRange.contains(annotation)) {
+					// annotation data already recorded
+					return false;
+				} else {
+					nullDefaultRange.merge(value, annotation, target);
+					return true;
+				}
 			}
 		}
 		this.nullDefaultRanges.add(new NullDefaultRange(value, annotation, scopeStart, scopeEnd, target));
@@ -5173,7 +5191,7 @@ public abstract class Scope {
 	/*
 	 * helper for hasDefaultNullnessFor(..) which inspects only ranges recorded within this scope.
 	 */
-	final protected int localNonNullByDefaultValue(int start) {
+	public final int localNonNullByDefaultValue(int start) {
 		NullDefaultRange nullDefaultRange = nullDefaultRangeForPosition(start);
 		return nullDefaultRange != null ? nullDefaultRange.value : 0;
 	}

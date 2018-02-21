@@ -1371,8 +1371,7 @@ public ParameterNonNullDefaultProvider hasNonNullDefaultForParameter(AbstractMet
 					if (!annotationType.hasNullBit(TypeIds.BitNonNullByDefaultAnnotation)) {
 						continue;
 					}
-					nonNullByDefaultValue = getNonNullByDefaultValue(annotationBinding);
-					break;
+					nonNullByDefaultValue |= getNonNullByDefaultValue(annotationBinding);
 				}
 			}
 		}

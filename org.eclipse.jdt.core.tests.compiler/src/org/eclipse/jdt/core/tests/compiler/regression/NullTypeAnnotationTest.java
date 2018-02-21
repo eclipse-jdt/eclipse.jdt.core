@@ -15906,4 +15906,1175 @@ public void testBug530913b() {
 		""
 	);
 }
+public void testBug530971() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullByDefault");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES, "annotation.NNBDField,annotation.NNBDParam,annotation.NNBDReturn,annotation.NNBDTypeArg,annotation.NNBDTypeBound");
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION, JavaCore.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/DefaultLocation.java",
+			"package annotation;\n" +
+			"\n" +
+			"public enum DefaultLocation {\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDField.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.FIELD;\n" +
+			" \n" +
+			"public @interface NNBDField {\n" +
+			"	DefaultLocation[] value() default { FIELD };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDParam.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.PARAMETER;\n" +
+			"\n" +
+			"public @interface NNBDParam {\n" +
+			"    DefaultLocation[] value() default { PARAMETER };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDReturn.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.RETURN_TYPE;\n" +
+			"\n" +
+			"public @interface NNBDReturn {\n" +
+			"    DefaultLocation[] value() default { RETURN_TYPE };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDTypeArg.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.TYPE_ARGUMENT;\n" +
+			"\n" +
+			"public @interface NNBDTypeArg {\n" +
+			"    DefaultLocation[] value() default { TYPE_ARGUMENT };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDTypeBound.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.TYPE_BOUND;\n" +
+			"\n" +
+			"public @interface NNBDTypeBound {\n" +
+			"    DefaultLocation[] value() default { TYPE_BOUND };\n" +
+			"}\n" +
+			"",
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullByDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.FIELD;\n" +
+			"import static annotation.DefaultLocation.PARAMETER;\n" +
+			"import static annotation.DefaultLocation.RETURN_TYPE;\n" +
+			"import static annotation.DefaultLocation.TYPE_ARGUMENT;\n" +
+			"import static annotation.DefaultLocation.TYPE_BOUND;\n" +
+			" \n" +
+			"public @interface NonNullByDefault {\n" +
+			"    DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT };\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		""
+	);
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import annotation.NNBDField;\n" +
+			"import annotation.NNBDParam;\n" +
+			"import annotation.NNBDReturn;\n" +
+			"import annotation.NNBDTypeArg;\n" +
+			"import annotation.NNBDTypeBound;\n" +
+			"import annotation.NonNull;\n" +
+			"\n" +
+			"interface C<T1, T2> {\n" +
+			"}\n" +
+			"\n" +
+			"abstract class X {\n" +
+			"    @NNBDTypeArg\n" +
+			"    @NNBDField\n" +
+			"    @NNBDTypeBound\n" +
+			"    C<Object, ? extends Number> f1; // warning 1\n" +
+			"\n" +
+			"    @NonNull\n" +
+			"    C<@NonNull Object, ? extends @NonNull Number> f2; // warning 2\n" +
+			"\n" +
+			"    @NNBDTypeArg\n" +
+			"    @NNBDReturn\n" +
+			"    @NNBDParam\n" +
+			"    @NNBDTypeBound\n" +
+			"    abstract Object m1(C<Object, ? extends Number> p1, Object p2);\n" +
+			"\n" +
+			"    abstract @NNBDReturn Object m2(@NNBDParam @NNBDTypeArg @NNBDTypeBound C<Object, ? extends Number> p1,\n" +
+			"            @NNBDParam Object p2);\n" +
+			"\n" +
+			"    abstract @NonNull Object m3(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2);\n" +
+			"}\n" +
+			"\n" +
+			"class ExplicitNonNull extends X {\n" +
+			"    Object m1(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2) { // warning 3 on return type\n" +
+			"        f1 = null; // warning 4\n" +
+			"        f2 = null; // warning 5\n" +
+			"        f1 = p1;\n" +
+			"        f2 = p1;\n" +
+			"        return p2;\n" +
+			"    }\n" +
+			"\n" +
+			"    Object m2(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2) { // warning 6 on return type\n" +
+			"        f1 = p1;\n" +
+			"        f2 = p1;\n" +
+			"        return p2;\n" +
+			"    }\n" +
+			"\n" +
+			"    Object m3(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2) { // warning 7 on return type\n" +
+			"        f1 = p1;\n" +
+			"        f2 = p1;\n" +
+			"        return p2;\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"@NNBDParam\n" +
+			"@NNBDTypeArg\n" +
+			"@NNBDTypeBound\n" +
+			"class OnClass extends X {\n" +
+			"    Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 8 on return type\n" +
+			"        f1 = null; // warning 9\n" +
+			"        f2 = null; // warning 10\n" +
+			"        f1 = p1;\n" +
+			"        f2 = p1;\n" +
+			"        return p2;\n" +
+			"    }\n" +
+			"\n" +
+			"    Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 11 on return type\n" +
+			"        f1 = p1;\n" +
+			"        f2 = p1;\n" +
+			"        return p2;\n" +
+			"    }\n" +
+			"\n" +
+			"    Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 12 on return type\n" +
+			"        f1 = p1;\n" +
+			"        f2 = p1;\n" +
+			"        return p2;\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"class Test {\n" +
+			"    @NNBDParam\n" +
+			"    @NNBDTypeArg\n" +
+			"    @NNBDTypeBound\n" +
+			"    X onField = new X() {\n" +
+			"        Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 13 on return type\n" +
+			"            f1 = null; // warning 14\n" +
+			"            f2 = null; // warning 15\n" +
+			"            f1 = p1;\n" +
+			"            f2 = p1;\n" +
+			"            return p2;\n" +
+			"        }\n" +
+			"\n" +
+			"        Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 16 on return type\n" +
+			"            f1 = p1;\n" +
+			"            f2 = p1;\n" +
+			"            return p2;\n" +
+			"        }\n" +
+			"\n" +
+			"        Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 17 on return type\n" +
+			"            f1 = p1;\n" +
+			"            f2 = p1;\n" +
+			"            return p2;\n" +
+			"        }\n" +
+			"    };\n" +
+			"\n" +
+			"    {\n" +
+			"        @NNBDParam\n" +
+			"        @NNBDTypeArg\n" +
+			"        @NNBDTypeBound\n" +
+			"        X onLocal = new X() {\n" +
+			"            Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 18 on return type\n" +
+			"                f1 = null; // warning 19\n" +
+			"                f2 = null; // warning 20\n" +
+			"                f1 = p1;\n" +
+			"                f2 = p1;\n" +
+			"                return p2;\n" +
+			"            }\n" +
+			"\n" +
+			"            Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 21 on return type\n" +
+			"                f1 = p1;\n" +
+			"                f2 = p1;\n" +
+			"                return p2;\n" +
+			"            }\n" +
+			"\n" +
+			"            Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 22 on return type\n" +
+			"                f1 = p1;\n" +
+			"                f2 = p1;\n" +
+			"                return p2;\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
+			"\n" +
+			"    @NNBDParam\n" +
+			"    @NNBDTypeArg\n" +
+			"    @NNBDTypeBound\n" +
+			"    void onMethod() {\n" +
+			"        X l1 = new X() {\n" +
+			"            Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 23 on return type\n" +
+			"                f1 = null; // warning 24\n" +
+			"                f2 = null; // warning 25\n" +
+			"                f1 = p1;\n" +
+			"                f2 = p1;\n" +
+			"                return p2;\n" +
+			"            }\n" +
+			"\n" +
+			"            Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 26 on return type\n" +
+			"                f1 = p1;\n" +
+			"                f2 = p1;\n" +
+			"                return p2;\n" +
+			"            }\n" +
+			"\n" +
+			"            Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 27 on return type\n" +
+			"                f1 = p1;\n" +
+			"                f2 = p1;\n" +
+			"                return p2;\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		"----------\n" + 
+		"1. ERROR in test\\Test.java (at line 17)\n" + 
+		"	C<Object, ? extends Number> f1; // warning 1\n" + 
+		"	                            ^^\n" + 
+		"The @NonNull field f1 may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\Test.java (at line 20)\n" + 
+		"	C<@NonNull Object, ? extends @NonNull Number> f2; // warning 2\n" + 
+		"	                                              ^^\n" + 
+		"The @NonNull field f2 may not have been initialized\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\Test.java (at line 35)\n" + 
+		"	Object m1(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2) { // warning 3 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m1(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\Test.java (at line 36)\n" + 
+		"	f1 = null; // warning 4\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\Test.java (at line 37)\n" + 
+		"	f2 = null; // warning 5\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"6. ERROR in test\\Test.java (at line 43)\n" + 
+		"	Object m2(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2) { // warning 6 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m2(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"7. ERROR in test\\Test.java (at line 49)\n" + 
+		"	Object m3(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2) { // warning 7 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m3(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"8. ERROR in test\\Test.java (at line 60)\n" + 
+		"	Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 8 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m1(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"9. ERROR in test\\Test.java (at line 61)\n" + 
+		"	f1 = null; // warning 9\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"10. ERROR in test\\Test.java (at line 62)\n" + 
+		"	f2 = null; // warning 10\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"11. ERROR in test\\Test.java (at line 68)\n" + 
+		"	Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 11 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m2(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"12. ERROR in test\\Test.java (at line 74)\n" + 
+		"	Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 12 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m3(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"13. ERROR in test\\Test.java (at line 86)\n" + 
+		"	Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 13 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m1(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"14. ERROR in test\\Test.java (at line 87)\n" + 
+		"	f1 = null; // warning 14\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"15. ERROR in test\\Test.java (at line 88)\n" + 
+		"	f2 = null; // warning 15\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"16. ERROR in test\\Test.java (at line 94)\n" + 
+		"	Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 16 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m2(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"17. ERROR in test\\Test.java (at line 100)\n" + 
+		"	Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 17 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m3(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"18. ERROR in test\\Test.java (at line 112)\n" + 
+		"	Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 18 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m1(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"19. ERROR in test\\Test.java (at line 113)\n" + 
+		"	f1 = null; // warning 19\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"20. ERROR in test\\Test.java (at line 114)\n" + 
+		"	f2 = null; // warning 20\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"21. ERROR in test\\Test.java (at line 120)\n" + 
+		"	Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 21 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m2(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"22. ERROR in test\\Test.java (at line 126)\n" + 
+		"	Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 22 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m3(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"23. ERROR in test\\Test.java (at line 139)\n" + 
+		"	Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 23 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m1(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"24. ERROR in test\\Test.java (at line 140)\n" + 
+		"	f1 = null; // warning 24\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"25. ERROR in test\\Test.java (at line 141)\n" + 
+		"	f2 = null; // warning 25\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"26. ERROR in test\\Test.java (at line 147)\n" + 
+		"	Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 26 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m2(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"27. ERROR in test\\Test.java (at line 153)\n" + 
+		"	Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 27 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m3(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n"
+	);
+}
+
+// same as testBug530971, but X is read via class file
+public void testBug530971_BTB() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullByDefault");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES, "annotation.NNBDField,annotation.NNBDParam,annotation.NNBDReturn,annotation.NNBDTypeArg,annotation.NNBDTypeBound");
+	customOptions.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION, JavaCore.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/DefaultLocation.java",
+			"package annotation;\n" +
+			"\n" +
+			"public enum DefaultLocation {\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDField.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.FIELD;\n" +
+			" \n" +
+			"public @interface NNBDField {\n" +
+			"	DefaultLocation[] value() default { FIELD };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDParam.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.PARAMETER;\n" +
+			"\n" +
+			"public @interface NNBDParam {\n" +
+			"    DefaultLocation[] value() default { PARAMETER };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDReturn.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.RETURN_TYPE;\n" +
+			"\n" +
+			"public @interface NNBDReturn {\n" +
+			"    DefaultLocation[] value() default { RETURN_TYPE };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDTypeArg.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.TYPE_ARGUMENT;\n" +
+			"\n" +
+			"public @interface NNBDTypeArg {\n" +
+			"    DefaultLocation[] value() default { TYPE_ARGUMENT };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDTypeBound.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.TYPE_BOUND;\n" +
+			"\n" +
+			"public @interface NNBDTypeBound {\n" +
+			"    DefaultLocation[] value() default { TYPE_BOUND };\n" +
+			"}\n" +
+			"",
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullByDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.FIELD;\n" +
+			"import static annotation.DefaultLocation.PARAMETER;\n" +
+			"import static annotation.DefaultLocation.RETURN_TYPE;\n" +
+			"import static annotation.DefaultLocation.TYPE_ARGUMENT;\n" +
+			"import static annotation.DefaultLocation.TYPE_BOUND;\n" +
+			" \n" +
+			"public @interface NonNullByDefault {\n" +
+			"    DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT };\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		""
+	);
+	runConformTestWithLibs(
+		false,
+		new String[] {
+			"test/X.java",
+			"package test;\n" +
+			"\n" +
+			"import annotation.NNBDField;\n" +
+			"import annotation.NNBDParam;\n" +
+			"import annotation.NNBDReturn;\n" +
+			"import annotation.NNBDTypeArg;\n" +
+			"import annotation.NNBDTypeBound;\n" +
+			"import annotation.NonNull;\n" +
+			"\n" +
+			"interface C<T1, T2> {\n" +
+			"}\n" +
+			"\n" +
+			"@SuppressWarnings(\"null\")\n" +
+			"abstract class X {\n" +
+			"    @NNBDTypeArg\n" +
+			"    @NNBDField\n" +
+			"    @NNBDTypeBound\n" +
+			"    C<Object, ? extends Number> f1; // warning 1\n" +
+			"\n" +
+			"    @NonNull\n" +
+			"    C<@NonNull Object, ? extends @NonNull Number> f2; // warning 2\n" +
+			"\n" +
+			"    @NNBDTypeArg\n" +
+			"    @NNBDReturn\n" +
+			"    @NNBDParam\n" +
+			"    @NNBDTypeBound\n" +
+			"    abstract Object m1(C<Object, ? extends Number> p1, Object p2);\n" +
+			"\n" +
+			"    abstract @NNBDReturn Object m2(@NNBDParam @NNBDTypeArg @NNBDTypeBound C<Object, ? extends Number> p1,\n" +
+			"            @NNBDParam Object p2);\n" +
+			"\n" +
+			"    abstract @NonNull Object m3(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2);\n" +
+			"}\n"
+		},
+		customOptions,
+		""
+	);			
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import annotation.NNBDField;\n" +
+			"import annotation.NNBDParam;\n" +
+			"import annotation.NNBDReturn;\n" +
+			"import annotation.NNBDTypeArg;\n" +
+			"import annotation.NNBDTypeBound;\n" +
+			"import annotation.NonNull;\n" +
+			"\n" +
+			"interface C_IGNORED<T1, T2> {\n" +
+			"}\n" +
+			"\n" +
+			"abstract class X_IGNORED {\n" +
+			"    @NNBDTypeArg\n" +
+			"    @NNBDField\n" +
+			"    @NNBDTypeBound\n" +
+			"    C<Object, ? extends Number> f1; // warning 1\n" +
+			"\n" +
+			"    @NonNull\n" +
+			"    C<@NonNull Object, ? extends @NonNull Number> f2; // warning 2\n" +
+			"\n" +
+			"    @NNBDTypeArg\n" +
+			"    @NNBDReturn\n" +
+			"    @NNBDParam\n" +
+			"    @NNBDTypeBound\n" +
+			"    abstract Object m1(C<Object, ? extends Number> p1, Object p2);\n" +
+			"\n" +
+			"    abstract @NNBDReturn Object m2(@NNBDParam @NNBDTypeArg @NNBDTypeBound C<Object, ? extends Number> p1,\n" +
+			"            @NNBDParam Object p2);\n" +
+			"\n" +
+			"    abstract @NonNull Object m3(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2);\n" +
+			"}\n" +
+			"\n" +
+			"class ExplicitNonNull extends X {\n" +
+			"    Object m1(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2) { // warning 3 on return type\n" +
+			"        f1 = null; // warning 4\n" +
+			"        f2 = null; // warning 5\n" +
+			"        f1 = p1;\n" +
+			"        f2 = p1;\n" +
+			"        return p2;\n" +
+			"    }\n" +
+			"\n" +
+			"    Object m2(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2) { // warning 6 on return type\n" +
+			"        f1 = p1;\n" +
+			"        f2 = p1;\n" +
+			"        return p2;\n" +
+			"    }\n" +
+			"\n" +
+			"    Object m3(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2) { // warning 7 on return type\n" +
+			"        f1 = p1;\n" +
+			"        f2 = p1;\n" +
+			"        return p2;\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"@NNBDParam\n" +
+			"@NNBDTypeArg\n" +
+			"@NNBDTypeBound\n" +
+			"class OnClass extends X {\n" +
+			"    Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 8 on return type\n" +
+			"        f1 = null; // warning 9\n" +
+			"        f2 = null; // warning 10\n" +
+			"        f1 = p1;\n" +
+			"        f2 = p1;\n" +
+			"        return p2;\n" +
+			"    }\n" +
+			"\n" +
+			"    Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 11 on return type\n" +
+			"        f1 = p1;\n" +
+			"        f2 = p1;\n" +
+			"        return p2;\n" +
+			"    }\n" +
+			"\n" +
+			"    Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 12 on return type\n" +
+			"        f1 = p1;\n" +
+			"        f2 = p1;\n" +
+			"        return p2;\n" +
+			"    }\n" +
+			"}\n" +
+			"\n" +
+			"class Test {\n" +
+			"    @NNBDParam\n" +
+			"    @NNBDTypeArg\n" +
+			"    @NNBDTypeBound\n" +
+			"    X onField = new X() {\n" +
+			"        Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 13 on return type\n" +
+			"            f1 = null; // warning 14\n" +
+			"            f2 = null; // warning 15\n" +
+			"            f1 = p1;\n" +
+			"            f2 = p1;\n" +
+			"            return p2;\n" +
+			"        }\n" +
+			"\n" +
+			"        Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 16 on return type\n" +
+			"            f1 = p1;\n" +
+			"            f2 = p1;\n" +
+			"            return p2;\n" +
+			"        }\n" +
+			"\n" +
+			"        Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 17 on return type\n" +
+			"            f1 = p1;\n" +
+			"            f2 = p1;\n" +
+			"            return p2;\n" +
+			"        }\n" +
+			"    };\n" +
+			"\n" +
+			"    {\n" +
+			"        @NNBDParam\n" +
+			"        @NNBDTypeArg\n" +
+			"        @NNBDTypeBound\n" +
+			"        X onLocal = new X() {\n" +
+			"            Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 18 on return type\n" +
+			"                f1 = null; // warning 19\n" +
+			"                f2 = null; // warning 20\n" +
+			"                f1 = p1;\n" +
+			"                f2 = p1;\n" +
+			"                return p2;\n" +
+			"            }\n" +
+			"\n" +
+			"            Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 21 on return type\n" +
+			"                f1 = p1;\n" +
+			"                f2 = p1;\n" +
+			"                return p2;\n" +
+			"            }\n" +
+			"\n" +
+			"            Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 22 on return type\n" +
+			"                f1 = p1;\n" +
+			"                f2 = p1;\n" +
+			"                return p2;\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
+			"\n" +
+			"    @NNBDParam\n" +
+			"    @NNBDTypeArg\n" +
+			"    @NNBDTypeBound\n" +
+			"    void onMethod() {\n" +
+			"        X l1 = new X() {\n" +
+			"            Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 23 on return type\n" +
+			"                f1 = null; // warning 24\n" +
+			"                f2 = null; // warning 25\n" +
+			"                f1 = p1;\n" +
+			"                f2 = p1;\n" +
+			"                return p2;\n" +
+			"            }\n" +
+			"\n" +
+			"            Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 26 on return type\n" +
+			"                f1 = p1;\n" +
+			"                f2 = p1;\n" +
+			"                return p2;\n" +
+			"            }\n" +
+			"\n" +
+			"            Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 27 on return type\n" +
+			"                f1 = p1;\n" +
+			"                f2 = p1;\n" +
+			"                return p2;\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		"----------\n" + 
+		"1. ERROR in test\\Test.java (at line 17)\n" + 
+		"	C<Object, ? extends Number> f1; // warning 1\n" + 
+		"	                            ^^\n" + 
+		"The @NonNull field f1 may not have been initialized\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\Test.java (at line 20)\n" + 
+		"	C<@NonNull Object, ? extends @NonNull Number> f2; // warning 2\n" + 
+		"	                                              ^^\n" + 
+		"The @NonNull field f2 may not have been initialized\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\Test.java (at line 35)\n" + 
+		"	Object m1(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2) { // warning 3 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m1(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\Test.java (at line 36)\n" + 
+		"	f1 = null; // warning 4\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\Test.java (at line 37)\n" + 
+		"	f2 = null; // warning 5\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"6. ERROR in test\\Test.java (at line 43)\n" + 
+		"	Object m2(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2) { // warning 6 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m2(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"7. ERROR in test\\Test.java (at line 49)\n" + 
+		"	Object m3(@NonNull C<@NonNull Object, ? extends @NonNull Number> p1, @NonNull Object p2) { // warning 7 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m3(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"8. ERROR in test\\Test.java (at line 60)\n" + 
+		"	Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 8 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m1(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"9. ERROR in test\\Test.java (at line 61)\n" + 
+		"	f1 = null; // warning 9\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"10. ERROR in test\\Test.java (at line 62)\n" + 
+		"	f2 = null; // warning 10\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"11. ERROR in test\\Test.java (at line 68)\n" + 
+		"	Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 11 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m2(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"12. ERROR in test\\Test.java (at line 74)\n" + 
+		"	Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 12 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m3(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"13. ERROR in test\\Test.java (at line 86)\n" + 
+		"	Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 13 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m1(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"14. ERROR in test\\Test.java (at line 87)\n" + 
+		"	f1 = null; // warning 14\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"15. ERROR in test\\Test.java (at line 88)\n" + 
+		"	f2 = null; // warning 15\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"16. ERROR in test\\Test.java (at line 94)\n" + 
+		"	Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 16 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m2(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"17. ERROR in test\\Test.java (at line 100)\n" + 
+		"	Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 17 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m3(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"18. ERROR in test\\Test.java (at line 112)\n" + 
+		"	Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 18 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m1(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"19. ERROR in test\\Test.java (at line 113)\n" + 
+		"	f1 = null; // warning 19\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"20. ERROR in test\\Test.java (at line 114)\n" + 
+		"	f2 = null; // warning 20\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"21. ERROR in test\\Test.java (at line 120)\n" + 
+		"	Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 21 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m2(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"22. ERROR in test\\Test.java (at line 126)\n" + 
+		"	Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 22 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m3(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"23. ERROR in test\\Test.java (at line 139)\n" + 
+		"	Object m1(C<Object, ? extends Number> p1, Object p2) { // warning 23 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m1(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"24. ERROR in test\\Test.java (at line 140)\n" + 
+		"	f1 = null; // warning 24\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"25. ERROR in test\\Test.java (at line 141)\n" + 
+		"	f2 = null; // warning 25\n" + 
+		"	     ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull C<@NonNull Object,? extends @NonNull Number>\' but the provided value is null\n" + 
+		"----------\n" + 
+		"26. ERROR in test\\Test.java (at line 147)\n" + 
+		"	Object m2(C<Object, ? extends Number> p1, Object p2) { // warning 26 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m2(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"27. ERROR in test\\Test.java (at line 153)\n" + 
+		"	Object m3(C<Object, ? extends Number> p1, Object p2) { // warning 27 on return type\n" + 
+		"	^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull Object\' returned from X.m3(C<Object,? extends Number>, Object) (mismatching null constraints)\n" + 
+		"----------\n"
+	);
+}
+public void testBug530971_redundant() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullByDefault");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES, "annotation.NNBDField,annotation.NNBDParam,annotation.NNBDReturn,annotation.NNBDTypeArg,annotation.NNBDTypeBound");
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION, JavaCore.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/DefaultLocation.java",
+			"package annotation;\n" +
+			"\n" +
+			"public enum DefaultLocation {\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDField.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.FIELD;\n" +
+			" \n" +
+			"public @interface NNBDField {\n" +
+			"	DefaultLocation[] value() default { FIELD };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDParam.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.PARAMETER;\n" +
+			"\n" +
+			"public @interface NNBDParam {\n" +
+			"    DefaultLocation[] value() default { PARAMETER };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDReturn.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.RETURN_TYPE;\n" +
+			"\n" +
+			"public @interface NNBDReturn {\n" +
+			"    DefaultLocation[] value() default { RETURN_TYPE };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDTypeArg.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.TYPE_ARGUMENT;\n" +
+			"\n" +
+			"public @interface NNBDTypeArg {\n" +
+			"    DefaultLocation[] value() default { TYPE_ARGUMENT };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDTypeBound.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.TYPE_BOUND;\n" +
+			"\n" +
+			"public @interface NNBDTypeBound {\n" +
+			"    DefaultLocation[] value() default { TYPE_BOUND };\n" +
+			"}\n" +
+			"",
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullByDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.FIELD;\n" +
+			"import static annotation.DefaultLocation.PARAMETER;\n" +
+			"import static annotation.DefaultLocation.RETURN_TYPE;\n" +
+			"import static annotation.DefaultLocation.TYPE_ARGUMENT;\n" +
+			"import static annotation.DefaultLocation.TYPE_BOUND;\n" +
+			" \n" +
+			"public @interface NonNullByDefault {\n" +
+			"    DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT };\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		""
+	);
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/X.java",
+			"package test;\n" +
+			"\n" +
+			"import annotation.*;\n" +
+			"\n" +
+			"@NNBDReturn\n" +
+			"@NNBDParam\n" +
+			"@NNBDField\n" +
+			"abstract class X {\n" +
+			"    @NNBDReturn\n" +
+			"    @NNBDParam\n" +
+			"    @NNBDField // warning 1\n" +
+			"    abstract class OnClass {\n" +
+			"    }\n" +
+			"\n" +
+			"    @NNBDReturn\n" +
+			"    @NNBDParam\n" +
+			"    @NNBDField // warning 2\n" +
+			"    Object onField = \"\";\n" +
+			"\n" +
+			"    {\n" +
+			"        @NNBDReturn\n" +
+			"        @NNBDParam\n" +
+			"        @NNBDField // warning 3\n" +
+			"        Object onLocal;\n" +
+			"    }\n" +
+			"\n" +
+			"    @NNBDReturn\n" +
+			"    @NNBDParam\n" +
+			"    @NNBDField // warning 4\n" +
+			"    abstract void onMethod();\n" +
+			"\n" +
+			"    abstract void m(//\n" +
+			"            @NNBDReturn //\n" +
+			"            @NNBDParam //\n" +
+			"            @NNBDField // warning 5\n" +
+			"            Object onParameter);\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		"----------\n" + 
+		"1. WARNING in test\\X.java (at line 11)\n" + 
+		"	@NNBDField // warning 1\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing type X\n" + 
+		"----------\n" + 
+		"2. WARNING in test\\X.java (at line 17)\n" + 
+		"	@NNBDField // warning 2\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing type X\n" + 
+		"----------\n" + 
+		"3. WARNING in test\\X.java (at line 23)\n" + 
+		"	@NNBDField // warning 3\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing type X\n" + 
+		"----------\n" + 
+		"4. WARNING in test\\X.java (at line 29)\n" + 
+		"	@NNBDField // warning 4\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing type X\n" + 
+		"----------\n" + 
+		"5. WARNING in test\\X.java (at line 35)\n" + 
+		"	@NNBDField // warning 5\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing type X\n" + 
+		"----------\n"
+	);
+}
+public void testBug530971_locally_redundant() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "annotation.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "annotation.NonNull");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annotation.NonNullByDefault");
+	customOptions.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES, "annotation.NNBDField,annotation.NNBDParam,annotation.NNBDReturn,annotation.NNBDTypeArg,annotation.NNBDTypeBound");
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION, JavaCore.IGNORE);
+	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
+	runConformTestWithLibs(
+		new String[] {
+			"annotation/DefaultLocation.java",
+			"package annotation;\n" +
+			"\n" +
+			"public enum DefaultLocation {\n" +
+			"    PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDField.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.FIELD;\n" +
+			" \n" +
+			"public @interface NNBDField {\n" +
+			"	DefaultLocation[] value() default { FIELD };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDParam.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.PARAMETER;\n" +
+			"\n" +
+			"public @interface NNBDParam {\n" +
+			"    DefaultLocation[] value() default { PARAMETER };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDReturn.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.RETURN_TYPE;\n" +
+			"\n" +
+			"public @interface NNBDReturn {\n" +
+			"    DefaultLocation[] value() default { RETURN_TYPE };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDTypeArg.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.TYPE_ARGUMENT;\n" +
+			"\n" +
+			"public @interface NNBDTypeArg {\n" +
+			"    DefaultLocation[] value() default { TYPE_ARGUMENT };\n" +
+			"}\n" +
+			"",
+			"annotation/NNBDTypeBound.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.TYPE_BOUND;\n" +
+			"\n" +
+			"public @interface NNBDTypeBound {\n" +
+			"    DefaultLocation[] value() default { TYPE_BOUND };\n" +
+			"}\n" +
+			"",
+			"annotation/NonNull.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface NonNull {\n" +
+			"}\n" +
+			"",
+			"annotation/NonNullByDefault.java",
+			"package annotation;\n" +
+			"\n" +
+			"import static annotation.DefaultLocation.FIELD;\n" +
+			"import static annotation.DefaultLocation.PARAMETER;\n" +
+			"import static annotation.DefaultLocation.RETURN_TYPE;\n" +
+			"import static annotation.DefaultLocation.TYPE_ARGUMENT;\n" +
+			"import static annotation.DefaultLocation.TYPE_BOUND;\n" +
+			" \n" +
+			"public @interface NonNullByDefault {\n" +
+			"    DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT };\n" +
+			"}\n" +
+			"",
+			"annotation/Nullable.java",
+			"package annotation;\n" +
+			"\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface Nullable {\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		""
+	);
+	runConformTestWithLibs(
+		false,
+		new String[] {
+			"testredundant/TestRedundantOnSame.java",
+			"package testredundant;\n" +
+			"\n" +
+			"import annotation.DefaultLocation;\n" +
+			"import annotation.NNBDField;\n" +
+			"import annotation.NNBDParam;\n" +
+			"import annotation.NNBDReturn;\n" +
+			"import annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NNBDReturn\n" +
+			"@NNBDParam\n" +
+			"@NNBDField\n" +
+			"@NonNullByDefault({ DefaultLocation.RETURN_TYPE, DefaultLocation.PARAMETER, DefaultLocation.FIELD })\n" +
+			"abstract class TestRedundantOnSame {\n" +
+			"    @NNBDReturn\n" +
+			"    @NNBDParam\n" +
+			"    @NonNullByDefault({ DefaultLocation.RETURN_TYPE, DefaultLocation.PARAMETER })\n" +
+			"    abstract class OnClass {\n" +
+			"    }\n" +
+			"\n" +
+			"    @NNBDReturn\n" +
+			"    @NNBDParam\n" +
+			"    @NonNullByDefault({ DefaultLocation.RETURN_TYPE, DefaultLocation.PARAMETER })\n" +
+			"    Object onField = \"\";\n" +
+			"\n" +
+			"    {\n" +
+			"        @NNBDReturn\n" +
+			"        @NNBDParam\n" +
+			"        @NonNullByDefault({ DefaultLocation.RETURN_TYPE, DefaultLocation.PARAMETER })\n" +
+			"        Object onLocal;\n" +
+			"    }\n" +
+			"\n" +
+			"    @NNBDReturn\n" +
+			"    @NNBDParam\n" +
+			"    @NonNullByDefault({ DefaultLocation.RETURN_TYPE, DefaultLocation.PARAMETER })\n" +
+			"    abstract void onMethod();\n" +
+			"\n" +
+			"    abstract void m(//\n" +
+			"            @NNBDReturn //\n" +
+			"            @NNBDParam //\n" +
+			"            @NonNullByDefault({ DefaultLocation.RETURN_TYPE, DefaultLocation.PARAMETER }) //\n" +
+			"            Object onParameter);\n" +
+			"}\n" +
+			"",
+		}, 
+		customOptions,
+		""
+	);
+}
 }

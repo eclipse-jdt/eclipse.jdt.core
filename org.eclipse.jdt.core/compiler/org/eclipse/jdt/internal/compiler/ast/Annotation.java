@@ -979,7 +979,11 @@ public abstract class Annotation extends Expression {
 						if (defaultNullness != 0) {
 							sourceType = (SourceTypeBinding) sourceField.declaringClass;
 							FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(sourceField);
-							Binding target = scope.checkRedundantDefaultNullness(defaultNullness, fieldDeclaration.sourceStart);
+							// test merged value of defaultNullness contributed by this annotation and previous annotations on same target is redundant w.r.t. containing value
+							// (for targets other than fields the resulting value is tested only once after processing all annotations, but this is hard to do for fields)
+							Binding target = scope.parent.checkRedundantDefaultNullness(
+									defaultNullness | scope.localNonNullByDefaultValue(fieldDeclaration.sourceStart),
+									fieldDeclaration.sourceStart);
 							scope.recordNonNullByDefault(fieldDeclaration.binding, defaultNullness, this, fieldDeclaration.declarationSourceStart, fieldDeclaration.declarationSourceEnd);
 							if (target != null) {
 								scope.problemReporter().nullDefaultAnnotationIsRedundant(fieldDeclaration, new Annotation[]{this}, target);
@@ -1017,23 +1021,23 @@ public abstract class Annotation extends Expression {
 		return this.resolvedType;
 	}
 
-	public void handleNonNullByDefault(BlockScope scope, LocalDeclaration localDeclaration) {
+	public long handleNonNullByDefault(BlockScope scope, LocalDeclaration localDeclaration) {
 		TypeBinding typeBinding = this.resolvedType;
 		if (typeBinding == null) {
 			typeBinding = this.type.resolveType(scope);
 			if (typeBinding == null) {
-				return;
+				return 0;
 			}
 			this.resolvedType = typeBinding;
 		}
 		if (!typeBinding.isAnnotationType()) {
-			return;
+			return 0;
 		}
 
 		ReferenceBinding annotationType = (ReferenceBinding) typeBinding;
 		
 		if (!annotationType.hasNullBit(TypeIds.BitNonNullByDefaultAnnotation)) {
-			return;
+			return 0;
 		}
 
 		MethodBinding[] methods = annotationType.methods();
@@ -1060,19 +1064,7 @@ public abstract class Annotation extends Expression {
 		}
 		// recognize standard annotations ?
 		long tagBits = determineNonNullByDefaultTagBits(annotationType, valueAttribute);
-		int defaultNullness = (int)(tagBits & Binding.NullnessDefaultMASK);
-
-		if (defaultNullness != 0) {
-			// the actual localDeclaration.binding is not set yet. fake one for problemreporter.			
-			LocalVariableBinding binding = new LocalVariableBinding(localDeclaration, null, 0, false);
-			Binding target = scope.checkRedundantDefaultNullness(defaultNullness, localDeclaration.sourceStart);
-			boolean recorded = scope.recordNonNullByDefault(binding, defaultNullness, this, this.sourceStart, localDeclaration.declarationSourceEnd);
-			 if (recorded) {
-				if (target != null) {
-					scope.problemReporter().nullDefaultAnnotationIsRedundant(localDeclaration, new Annotation[]{this}, target);
-				}
-			}
-		} 
+		return (int) (tagBits & Binding.NullnessDefaultMASK);
 	}
 	
 	public enum AnnotationTargetAllowed {

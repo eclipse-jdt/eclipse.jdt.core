@@ -10163,7 +10163,7 @@ private Annotation findAnnotation(Annotation[] annotations, int typeBit) {
 	if (annotations != null) {
 		// should have a @NonNull/@Nullable annotation, search for it:
 		int length = annotations.length;
-		for (int j=0; j<length; j++) {
+		for (int j = length - 1; j >= 0; j--) {
 			if (annotations[j].hasNullBit(typeBit)) {
 				return annotations[j];
 			}

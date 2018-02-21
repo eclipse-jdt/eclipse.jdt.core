@@ -640,14 +640,15 @@ private ITypeAnnotationWalker getTypeAnnotationWalker(IBinaryTypeAnnotation[] an
 }
 
 private int getNullDefaultFrom(IBinaryAnnotation[] declAnnotations) {
+	int result = 0;
 	if (declAnnotations != null) {
 		for (IBinaryAnnotation annotation : declAnnotations) {
 			char[][] typeName = signature2qualifiedTypeName(annotation.getTypeName());
 			if (this.environment.getNullAnnotationBit(typeName) == TypeIds.BitNonNullByDefaultAnnotation)
-				return getNonNullByDefaultValue(annotation, this.environment);
+				result |= getNonNullByDefaultValue(annotation, this.environment);
 		}
 	}
-	return Binding.NO_NULL_DEFAULT;
+	return result;
 }
 
 private void createFields(IBinaryField[] iFields, IBinaryType binaryType, long sourceLevel, char[][][] missingTypeNames) {
@@ -1738,13 +1739,14 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 								? returnWalker.getAnnotationsAtCursor(methodBinding.returnType.id, false)
 								: method.getAnnotations();
 	if (annotations != null) {
+		int methodDefaultNullness = NO_NULL_DEFAULT;
 		for (int i = 0; i < annotations.length; i++) {
 			char[] annotationTypeName = annotations[i].getTypeName();
 			if (annotationTypeName[0] != Util.C_RESOLVED)
 				continue;
 			int typeBit = this.environment.getNullAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 			if (typeBit == TypeIds.BitNonNullByDefaultAnnotation) {
-				methodBinding.defaultNullness = getNonNullByDefaultValue(annotations[i], this.environment);
+				methodDefaultNullness |= getNonNullByDefaultValue(annotations[i], this.environment);
 			} else if (typeBit == TypeIds.BitNonNullAnnotation) {
 				methodBinding.tagBits |= TagBits.AnnotationNonNull;
 				if (this.environment.usesNullTypeAnnotations()) {
@@ -1763,6 +1765,7 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 				}
 			}
 		}
+		methodBinding.defaultNullness = methodDefaultNullness;
 	}
 
 	// parameters:
@@ -1854,11 +1857,10 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 			int typeBit = this.environment.getNullAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 			if (typeBit == TypeIds.BitNonNullByDefaultAnnotation) {
 				// using NonNullByDefault we need to inspect the details of the value() attribute:
-				nullness = getNonNullByDefaultValue(annotations[i], this.environment);
-				this.defaultNullness = nullness;
-				break;
+				nullness |= getNonNullByDefaultValue(annotations[i], this.environment);
 			}
 		}
+		this.defaultNullness = nullness;
 		if (nullness != NO_NULL_DEFAULT) {
 			if (isPackageInfo)
 				packageBinding.setDefaultNullness(nullness);
