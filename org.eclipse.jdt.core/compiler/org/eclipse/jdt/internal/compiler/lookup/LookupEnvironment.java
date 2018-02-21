@@ -421,7 +421,13 @@ private ModuleBinding getModuleFromAnswer(NameEnvironmentAnswer answer) {
 			if (moduleBinding == null && this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
 				assert answer.isBinaryType();
 				IModule iModule = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModule(moduleName);
-				moduleBinding = BinaryModuleBinding.create(iModule, this);
+				try {
+					moduleBinding = BinaryModuleBinding.create(iModule, this);
+				} catch (NullPointerException e) {
+					System.err.println("Bug 529367: moduleName: " + new String(moduleName) + "iModule null" +  //$NON-NLS-1$ //$NON-NLS-2$
+							(iModule == null ? "true" : "false")); //$NON-NLS-1$ //$NON-NLS-2$]
+					throw e;
+				}
 			}
 		}
 		return moduleBinding;
