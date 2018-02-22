@@ -536,8 +536,6 @@ public abstract class Annotation extends Expression {
 			name = ((EnumConstantSignature) value).getEnumConstantName();
 		} else if (value instanceof ElementValuePair.UnresolvedEnumConstant) {
 			name = ((ElementValuePair.UnresolvedEnumConstant) value).getEnumConstantName();
-		} else if (value instanceof BooleanConstant) {
-			return ((BooleanConstant)value).booleanValue() ? Binding.NONNULL_BY_DEFAULT : Binding.NULL_UNSPECIFIED_BY_DEFAULT;
 		}
 		if (name != null) {
 			switch (name.length) {
@@ -1072,7 +1070,7 @@ public abstract class Annotation extends Expression {
 		return this.resolvedType;
 	}
 
-	public long handleNonNullByDefault(BlockScope scope, LocalDeclaration localDeclaration) {
+	public long handleNonNullByDefault(BlockScope scope) {
 		TypeBinding typeBinding = this.resolvedType;
 		if (typeBinding == null) {
 			typeBinding = this.type.resolveType(scope);

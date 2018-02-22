@@ -9144,6 +9144,8 @@ public void testBug530970_param() {
 			"		test2(null); // ERR\n" +
 			"		return null; // OK\n" +
 			"	}\n" +
+			"	void redundant(@NonNullByDefault(DefaultLocation.PARAMETER) java.lang.Number in) { // WARNING\n" +
+			"	}\n" +
 			"}\n"
 		},
 		customOptions,
@@ -9157,7 +9159,13 @@ public void testBug530970_param() {
 		"	test2(null); // ERR\n" + 
 		"	      ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
-		"----------\n");
+		"----------\n" + 
+		"3. WARNING in X.java (at line 14)\n" + 
+		"	void redundant(@NonNullByDefault(DefaultLocation.PARAMETER) java.lang.Number in) { // WARNING\n" + 
+		"	               ^^^^^^^^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing type X\n" + 
+		"----------\n"
+	);
 }
 
 //apply null default to return type - annotation at method:

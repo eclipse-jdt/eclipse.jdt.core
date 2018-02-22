@@ -70,9 +70,10 @@ public abstract class Binding {
 
 	// Nullness defaults:
 	public static final int NO_NULL_DEFAULT = 0;
-	// SE5 style:
-	@Deprecated
-	public static final int NONNULL_BY_DEFAULT = 1;
+
+	// not used any longer (was in the old implementation when NonNullByDefault only supported a boolean arg)
+	// corresponds to #DefaultLocationsForTrueValue
+	// public static final int NONNULL_BY_DEFAULT = 1;
 
 	public static final int NULL_UNSPECIFIED_BY_DEFAULT = 2;
 	// JSR308 style:

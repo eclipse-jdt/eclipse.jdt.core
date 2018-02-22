@@ -977,7 +977,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		Annotation lastNNBDAnnotation = null;
 		for (int i = 0; i < length; i++) {
 			Annotation annotation = sourceAnnotations[i];
-			long value = annotation.handleNonNullByDefault(scope, localDeclaration);
+			long value = annotation.handleNonNullByDefault(scope);
 			if (value != 0) {
 				defaultNullness |= value;
 				lastNNBDAnnotation = annotation;
