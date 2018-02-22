@@ -784,6 +784,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	 */
 	@Override
 	public FieldBinding getField(char[] fieldName, boolean needResolve) {
+		if (((this.tagBits & TagBits.AreFieldsComplete) == 0) && ((this.type.tagBits & TagBits.AreFieldsSorted) != 0)) {
+			// assume that completing fields is in progress
+			FieldBinding originalField = ReferenceBinding.binarySearch(fieldName, this.type.unResolvedFields());
+			if (originalField == null)
+				return null; // avoid useless, possibly premature resolving
+		}
 		fields(); // ensure fields have been initialized... must create all at once unlike methods
 		return ReferenceBinding.binarySearch(fieldName, this.fields);
 	}

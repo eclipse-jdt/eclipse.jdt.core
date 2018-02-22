@@ -12203,4 +12203,43 @@ public void testBug546084c() throws Exception {
 		};
 	runner.runConformTest();
 }
+public void testBug490698_comment16() {
+	runConformTest(
+		new String[]  {
+			"foo/bar/AnnotationError.java",
+			"package foo.bar;\n" + 
+			"\n" + 
+			"import static java.lang.annotation.ElementType.FIELD;\n" + 
+			"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
+			"\n" + 
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"import java.util.function.Predicate;\n" + 
+			"\n" + 
+			"public class AnnotationError<T> {\n" + 
+			"\n" + 
+			"	public enum P {\n" + 
+			"		AAA\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	@Target(FIELD)\n" + 
+			"	@Retention(RUNTIME)\n" + 
+			"	public @interface A {\n" + 
+			"		P value();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	@Target(FIELD)\n" + 
+			"	@Retention(RUNTIME)\n" + 
+			"	public @interface FF {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static class Bool extends AnnotationError<Boolean> {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	@A(P.AAA)\n" + 
+			"	@FF\n" + 
+			"	public static final AnnotationError.Bool FOO = new AnnotationError.Bool();\n" + 
+			"}\n"
+		});
+}
 }
