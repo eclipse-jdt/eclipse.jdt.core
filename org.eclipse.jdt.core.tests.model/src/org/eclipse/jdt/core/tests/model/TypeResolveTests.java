@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1196,6 +1196,110 @@ public void test479963a() throws CoreException, IOException {
 		assertTrue("Should be a lambda", lambda.isLambda());
 		String[][] types = lambda.resolveType("Object");
 		assertTypesEqual("java.lang.Object", types);
+	} finally {
+		deleteProject("P");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=479963
+public void test531046a() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var s1 = args[0];\n"
+				+ "    System.out.println(s1);\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "s1";
+		IJavaElement[] elements = unit.codeSelect(source.indexOf(select), select.length());
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		elements = unit.findElements(variable);
+		assertNotNull("Should not be null", elements);
+		assertEquals("incorrect type", "Ljava.lang.String;", variable.getTypeSignature());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void test531046b() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var s1 = args[0];\n"
+				+ "    System.out.println(s1);\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "s1";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		elements = unit.findElements(variable);
+		assertNotNull("Should not be null", elements);
+		assertEquals("incorrect type", "Ljava.lang.String;", variable.getTypeSignature());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void test531046c() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var s1 = args;\n"
+				+ "    System.out.println(s1);\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "s1";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		elements = unit.findElements(variable);
+		assertNotNull("Should not be null", elements);
+		assertEquals("incorrect type", "[Ljava.lang.String;", variable.getTypeSignature());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void test531046d() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var s1 = new java.util.HashMap<String, Object>();\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "s1";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		elements = unit.findElements(variable);
+		assertNotNull("Should not be null", elements);
+		assertEquals("incorrect type", "Ljava.util.HashMap<Ljava.lang.String;Ljava.lang.Object;>;", variable.getTypeSignature());
 	} finally {
 		deleteProject("P");
 	}

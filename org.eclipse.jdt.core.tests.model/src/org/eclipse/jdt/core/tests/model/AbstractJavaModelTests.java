@@ -1313,15 +1313,21 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return createJava9Project(name, new String[]{"src"});
 	}
 	protected IJavaProject createJava9Project(String name, String[] srcFolders) throws CoreException {
-		return createJava9ProjectWithJREAttributes(name, srcFolders, null);
+		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "9");
+	}
+	protected IJavaProject createJava10Project(String name, String[] srcFolders) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "10");
 	}
 	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, srcFolders, attributes, "9");
+	}
+	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes, String compliance) throws CoreException {
 		String javaHome = System.getProperty("java.home") + File.separator;
 		Path bootModPath = new Path(javaHome +"/lib/jrt-fs.jar");
 		Path sourceAttachment = new Path(javaHome +"/lib/src.zip");
 		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(bootModPath, sourceAttachment, null, null, attributes, false);
 		IJavaProject project = this.createJavaProject(name, srcFolders, new String[0],
-				new String[0], "bin", "9");
+				new String[0], "bin", compliance);
 		IClasspathEntry[] old = project.getRawClasspath();
 		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];
 		System.arraycopy(old, 0, newPath, 0, old.length);

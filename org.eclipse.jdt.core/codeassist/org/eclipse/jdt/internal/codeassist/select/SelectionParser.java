@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -61,6 +65,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -601,11 +606,16 @@ protected void consumeExitVariableWithInitialization() {
 
 	// does not keep the initialization if selection is not inside
 	AbstractVariableDeclaration variable = (AbstractVariableDeclaration) this.astStack[this.astPtr];
-	int start = variable.initialization.sourceStart;
-	int end =  variable.initialization.sourceEnd;
-	if ((this.selectionStart < start) &&  (this.selectionEnd < start) ||
-			(this.selectionStart > end) && (this.selectionEnd > end)) {
+	int start = variable.declarationSourceStart;
+	int end =  variable.declarationSourceEnd;
+	char[][] typeName = variable.type == null ? null : variable.type.getTypeName();
+	// Keep the initialization intact, because that's the only way we are going to know the type
+	// TODO: Figure out a way to get the scope and hence the compliance
+	if (typeName == null || !(typeName.length == 1 && CharOperation.equals(typeName[0], TypeConstants.VAR))) {
+		if ((this.selectionStart < start) &&  (this.selectionEnd < start) ||
+				(this.selectionStart > end) && (this.selectionEnd > end)) {
 			variable.initialization = null;
+		}
 	}
 	triggerRecoveryUponLambdaClosure(variable, false);
 }
