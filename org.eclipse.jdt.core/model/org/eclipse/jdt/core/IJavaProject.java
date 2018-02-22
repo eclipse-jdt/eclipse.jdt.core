@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -239,6 +239,23 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @since 2.1
 	 */
 	IPackageFragmentRoot[] findPackageFragmentRoots(IClasspathEntry entry);
+
+	/**
+	 * In a Java 9 project, a classpath entry can be filtered using a {@link IClasspathAttribute#LIMIT_MODULES} attribute,
+	 * otherwise for an unnamed module a default set of roots is used as defined in JEP 261.
+	 * In both cases {@link IJavaProject#findPackageFragmentRoots(IClasspathEntry)} will not contain all roots physically
+	 * present in the container.
+	 * <p>
+	 * This API can be used to bypass any filter and get really all roots to which the given entry is resolved.
+	 * </p>
+	 * 
+	 * @param entry a classpath entry of this Java project
+	 * @return the unfiltered array of package fragment roots to which the classpath entry resolves
+	 * @see #findPackageFragmentRoots(IClasspathEntry)
+	 * @since 3.14
+	 */
+	IPackageFragmentRoot[] findUnfilteredPackageFragmentRoots(IClasspathEntry entry);
+
 	/**
 	 * Returns the first type (excluding secondary types) found following this project's
 	 * classpath with the given fully qualified name or <code>null</code> if none is found.

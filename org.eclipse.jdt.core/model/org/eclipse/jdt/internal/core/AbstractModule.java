@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.ITypeRoot;
@@ -84,6 +86,11 @@ public interface AbstractModule extends IModuleDescription {
 	}
 	default IPackageExport[] getOpenedPackages() throws JavaModelException {
 		return getModuleInfo().opens();
+	}
+	@Override
+	default String[] getRequiredModuleNames() throws JavaModelException {
+		IModuleReference[] references = getRequiredModules();
+		return Arrays.stream(references).map(ref -> String.valueOf(ref.name())).toArray(String[]::new);
 	}
 
 	default String toString(String lineDelimiter) {

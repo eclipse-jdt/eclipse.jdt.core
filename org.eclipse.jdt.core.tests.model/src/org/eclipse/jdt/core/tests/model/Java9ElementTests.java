@@ -37,7 +37,6 @@ import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.provisional.JavaModelAccess;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
@@ -1329,11 +1328,11 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 					"	requires my.mod;\n" +
 					"}");
 
-			IModuleDescription mod1 = JavaModelAccess.getAutomaticModuleDescription(project1);
+			IModuleDescription mod1 = JavaCore.getAutomaticModuleDescription(project1);
 			assertNotNull("auto module not found via project", mod1);
 
 			IPackageFragmentRoot fragmentRoot = project2.getPackageFragmentRoot(project1.getResource());
-			IModuleDescription mod2 = JavaModelAccess.getAutomaticModuleDescription(fragmentRoot);
+			IModuleDescription mod2 = JavaCore.getAutomaticModuleDescription(fragmentRoot);
 			assertNotNull("auto module not found via package fragment root", mod2);
 
 			assertEquals("names of module descriptions should be equal", mod1.getElementName(), mod2.getElementName());

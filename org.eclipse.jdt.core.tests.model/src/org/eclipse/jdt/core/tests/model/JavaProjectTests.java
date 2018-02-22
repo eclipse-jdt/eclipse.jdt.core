@@ -2956,7 +2956,7 @@ public void testBug522554_2_unlimited() throws CoreException {
 
 		IClasspathEntry systemLibrary = prj.getRawClasspath()[1];
 		assertEquals("Should be system library", getJRE9Path(), systemLibrary.getPath());
-		List<String> defaultRootModules = JavaModelAccess.defaultRootModules(Arrays.asList(prj.findPackageFragmentRoots(systemLibrary)));
+		List<String> defaultRootModules = JavaCore.defaultRootModules(Arrays.asList(prj.findPackageFragmentRoots(systemLibrary)));
 		Collections.sort(defaultRootModules);
 		assertEquals("Unexpected default modules",
 				DEFAULT_MODULES,

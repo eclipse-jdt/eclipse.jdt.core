@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -918,6 +918,17 @@ public class JavaProject
 			}, JRTUtil.NOTIFY_MODULES);
 		} catch (IOException e) {
 			Util.log(IStatus.ERROR, "Error reading modules from " + imagePath.toOSString()); //$NON-NLS-1$
+		}
+	}
+
+	@Override
+	public IPackageFragmentRoot[] findUnfilteredPackageFragmentRoots(IClasspathEntry entry) {
+		try {
+			IClasspathEntry[] resolvedEntries = resolveClasspath(new IClasspathEntry[]{ entry });
+			return computePackageFragmentRoots(resolvedEntries, false /* not exported roots */, false /* don't filter! */, null /* no reverse map */);
+		} catch (JavaModelException e) {
+			// according to comment in findPackageFragmentRoots() we assume that this is caused by the project no longer existing
+			return new IPackageFragmentRoot[] {};
 		}
 	}
 

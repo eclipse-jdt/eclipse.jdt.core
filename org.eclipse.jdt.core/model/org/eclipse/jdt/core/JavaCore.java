@@ -168,6 +168,8 @@ import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.Region;
 import org.eclipse.jdt.internal.core.SetContainerOperation;
 import org.eclipse.jdt.internal.core.SetVariablesOperation;
@@ -6004,6 +6006,45 @@ public final class JavaCore extends Plugin {
 	 */
 	public static String[] getReferencedModules(IJavaProject project) throws CoreException {
 		return ModuleUtil.getReferencedModules(project);
+	}
+
+	/**
+	 * Returns the <code>IModuleDescription</code> that the given java element contains 
+	 * when regarded as an automatic module. The element must be an <code>IPackageFragmentRoot</code>
+	 * or an <code>IJavaProject</code>.
+	 * 
+	 * <p>The returned module descriptor has a name (<code>getElementName()</code>) following
+	 * the specification of <code>java.lang.module.ModuleFinder.of(Path...)</code>, but it
+	 * contains no other useful information.</p>
+	 * 
+	 * @return the <code>IModuleDescription</code> representing this java element as an automatic module,
+	 * 		never <code>null</code>.
+	 * @throws JavaModelException
+	 * @throws IllegalArgumentException if the provided element is neither <code>IPackageFragmentRoot</code>
+	 * 	nor <code>IJavaProject</code>
+	 * @since 3.14
+	 */
+	public static IModuleDescription getAutomaticModuleDescription(IJavaElement element) throws JavaModelException, IllegalArgumentException {
+		switch (element.getElementType()) {
+			case IJavaElement.JAVA_PROJECT:
+				return ((JavaProject) element).getAutomaticModuleDescription();
+			case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+				return ((PackageFragmentRoot) element).getAutomaticModuleDescription();
+			default:
+				throw new IllegalArgumentException("Illegal kind of java element: "+element.getElementType()); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * Filter the given set of system roots by the rules for root modules from JEP 261.
+	 * @param allSystemRoots all physically available system modules, represented by their package fragment roots
+	 * @return the list of names of default root modules
+	 * @since 3.14
+	 */
+	public static List<String> defaultRootModules(Iterable<IPackageFragmentRoot> allSystemRoots) {
+		return JavaProject.internalDefaultRootModules(allSystemRoots,
+				IPackageFragmentRoot::getElementName,
+				r ->  (r instanceof JrtPackageFragmentRoot) ? ((JrtPackageFragmentRoot) r).getModule() : null);
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 GK Software AG, and others.
+ * Copyright (c) 2017, 2018 GK Software SE, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.core.AbstractModule;
@@ -53,7 +54,9 @@ public class JavaModelAccess {
 	 * @param javaProject the Java project to search in
 	 * @param entry a classpath entry of the Java project
 	 * @return the unfiltered array of package fragment roots to which the classpath entry resolves
+	 * @deprecated this provisional API has been promoted to {@link IJavaProject#findUnfilteredPackageFragmentRoots(IClasspathEntry)}
 	 */
+	@Deprecated
 	public static IPackageFragmentRoot[] getUnfilteredPackageFragmentRoots(IJavaProject javaProject, IClasspathEntry entry) {
 		try {
 			JavaProject internalProject = (JavaProject) javaProject; // cast should be safe since IJavaProject is @noimplement
@@ -69,7 +72,9 @@ public class JavaModelAccess {
 	 * Answer the names of all modules directly required from the given module.
 	 * @param module the module whose "requires" directives are queried
 	 * @return a non-null array of module names
+	 * @deprecated this provisional API has been promoted to {@link IModuleDescription#getRequiredModuleNames()}
 	 */
+	@Deprecated
 	public static String[] getRequiredModules(IModuleDescription module) throws JavaModelException {
 		IModuleReference[] references = ((AbstractModule) module).getRequiredModules();
 		return Arrays.stream(references).map(ref -> String.valueOf(ref.name())).toArray(String[]::new);
@@ -79,7 +84,9 @@ public class JavaModelAccess {
 	 * Filter the given set of system roots by the rules for root modules from JEP 261.
 	 * @param allSystemRoots all physically available system modules, represented by their package fragment roots
 	 * @return the list of names of default root modules
+	 * @deprecated this provisional API has been promoted to {@link JavaCore#defaultRootModules(Iterable)}
 	 */
+	@Deprecated
 	public static List<String> defaultRootModules(Iterable<IPackageFragmentRoot> allSystemRoots) {
 		return JavaProject.defaultRootModules(allSystemRoots);
 	}
@@ -99,7 +106,9 @@ public class JavaModelAccess {
 	 * @throws IllegalArgumentException if the provided element is neither <code>IPackageFragmentRoot</code>
 	 * 	nor <code>IJavaProject</code>
 	 * @since 3.14
+ 	 * @deprecated this provisional API has been promoted to {@link JavaCore#getAutomaticModuleDescription(IJavaElement)}
 	 */
+	@Deprecated
 	public static IModuleDescription getAutomaticModuleDescription(IJavaElement element) throws JavaModelException, IllegalArgumentException {
 		switch (element.getElementType()) {
 			case IJavaElement.JAVA_PROJECT:
