@@ -1788,7 +1788,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NotVisibleField", SKIP);
 		expectedProblemAttributes.put("NotVisibleMethod", SKIP);
 		expectedProblemAttributes.put("NotVisibleType", SKIP);
-		expectedProblemAttributes.put("NullableFieldReference", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_REFERENCE));
+		expectedProblemAttributes.put("NullableFieldReference", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE));
 		expectedProblemAttributes.put("NullAnnotationAtQualifyingType", SKIP);
 		expectedProblemAttributes.put("NullAnnotationUnsupportedLocation", SKIP);
 		expectedProblemAttributes.put("NullAnnotationUnsupportedLocationAtType", SKIP);

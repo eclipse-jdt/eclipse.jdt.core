@@ -404,7 +404,6 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.VarargsArgumentNeedCast;
 
 		case IProblem.NullLocalVariableReference:
-		case IProblem.NullableFieldReference:
 		case IProblem.NullExpressionReference:
 		case IProblem.NullUnboxing:
 			return CompilerOptions.NullReference;
@@ -412,6 +411,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.PotentialNullLocalVariableReference:
 		case IProblem.PotentialNullMessageSendReference:
 		case IProblem.ArrayReferencePotentialNullReference:
+		case IProblem.NullableFieldReference:
 		case IProblem.DereferencingNullableExpression:
 		case IProblem.PotentialNullExpressionReference:
 		case IProblem.PotentialNullUnboxing:

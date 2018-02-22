@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2016 GK Software AG and others.
+ * Copyright (c) 2010, 2018 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5390,6 +5390,30 @@ public void test_nullable_field_16() {
 		(this.complianceLevel < ClassFileConstants.JDK1_8
 		? "Null type mismatch: required '@NonNull Object' but the provided value is specified as @Nullable\n"
 		: "Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable Object\'\n") +
+		"----------\n");
+}
+// access to a nullable field - field reference
+// Configured as of https://bugs.eclipse.org/bugs/show_bug.cgi?id=433615
+public void test_nullable_field_17() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.INFO);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object o = new Object();\n" +
+			"    public String oString() {\n" +
+			"         return this.o.toString();\n" +
+			"    }\n" +
+			"}\n"
+		},
+		options /*customOptions*/,
+		"----------\n" + 
+		"1. INFO in X.java (at line 5)\n" + 
+		"	return this.o.toString();\n" + 
+		"	            ^\n" +
+		potNPE_nullable("The field o") + 
 		"----------\n");
 }
 // an enum is declared within the scope of a null-default
