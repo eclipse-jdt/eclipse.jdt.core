@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 IBM Corporation and others.
+ * Copyright (c) 2011, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -96,6 +96,7 @@ import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -10802,6 +10803,57 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			assertEquals("Unexpected well known type", null, unit.getAST().resolveWellKnownType("void"));
 		} finally {
 			sourceUnit.discardWorkingCopy();
+		}
+	}
+
+	public void testBug530947() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"package test;\n" + 
+				"\n" +
+				"abstract class ThreadFactory { abstract Thread newThread(Runnable r); }\n" +
+				"class AtomicInteger {\n" +
+				"	AtomicInteger(int i) {}\n" +
+				"	int getAndIncrement() { return 1; }\n" +
+				"}\n" +
+				"class Thread {\n" +
+				"	Thread(Runnable r, String name) {}\n" +
+				"}\n" + 
+				"public abstract class AsyncTask<Params, Progress, Result> {\n" + 
+				"\n" + 
+				"    private static final ThreadFactory threadFactory = \n" +
+				"	 /*start*/new ThreadFactory() {\n" + 
+				"        private final AtomicInteger count = new AtomicInteger(1);\n" + 
+				"\n" + 
+				"        public Thread newThread(java.lang.Runnable r) {\n" + 
+				"            return new Thread(r, \"AsyncTask #\" + this.count.getAndIncrement());\n" + 
+				"        }\n" + 
+				"    }/*end*/;\n" + 
+				"}\n";
+			workingCopy = getWorkingCopy("/Converter18/src/test/AsyncTask.java", true/*resolve*/);
+			Expression outerRhs = (Expression) buildAST(
+				getJLS8(),
+				contents,
+				workingCopy,
+				true,
+				true,
+				true);
+			ASTVisitor findInvocation = new ASTVisitor() {
+				public boolean visit(MethodInvocation invocation) {
+					ThisExpression thisExpr = (ThisExpression) ((FieldAccess) invocation.getExpression()).getExpression();
+					ITypeBinding invType = thisExpr.resolveTypeBinding();
+					assertFalse("should not be parameterized", invType.isParameterizedType());
+					ITypeBinding typeDecl = invType.getTypeDeclaration();
+					assertEquals("should be type declaration itself", typeDecl, invType);
+					return false;
+				}
+			};
+			outerRhs.accept(findInvocation);
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
 		}
 	}
 }
