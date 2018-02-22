@@ -113,7 +113,6 @@ $Terminals
 	ElidedSemicolonAndRightBrace
 	AT308
 	AT308DOTDOTDOT
-	BeginBreakExpr
 
 --    BodyMarker
 
@@ -1197,6 +1196,7 @@ StatementWithoutTrailingSubstatement -> AssertStatement
 StatementWithoutTrailingSubstatement -> Block
 StatementWithoutTrailingSubstatement -> EmptyStatement
 StatementWithoutTrailingSubstatement -> ExpressionStatement
+StatementWithoutTrailingSubstatement -> SwitchStatement
 StatementWithoutTrailingSubstatement -> DoStatement
 StatementWithoutTrailingSubstatement -> BreakStatement
 StatementWithoutTrailingSubstatement -> ContinueStatement
@@ -1234,7 +1234,6 @@ StatementExpression ::= PreDecrementExpression
 StatementExpression ::= PostIncrementExpression
 StatementExpression ::= PostDecrementExpression
 StatementExpression ::= MethodInvocation
-StatementExpression ::= SwitchStatement
 StatementExpression ::= ClassInstanceCreationExpression
 /:$readableName Expression:/
 
@@ -1264,7 +1263,6 @@ SwitchBlock ::= '{' SwitchBlockStatements SwitchLabels '}'
 /:$readableName SwitchBlock:/
 
 SwitchBlockStatements -> SwitchBlockStatement
-SwitchBlockStatements -> SwitchExpressionArm
 SwitchBlockStatements ::= SwitchBlockStatements SwitchBlockStatement
 /.$putCase consumeSwitchBlockStatements() ; $break ./
 /:$readableName SwitchBlockStatements:/
@@ -1278,37 +1276,12 @@ SwitchLabels ::= SwitchLabels SwitchLabel
 /.$putCase consumeSwitchLabels() ; $break ./
 /:$readableName SwitchLabels:/
 
-SwitchLabel ::= SwitchLabelCase ':'
+SwitchLabel ::= 'case' ConstantExpression ':'
 /. $putCase consumeCaseLabel(); $break ./
 
-SwitchLabel ::= SwitchLabelDefault ':'
+SwitchLabel ::= 'default' ':'
 /. $putCase consumeDefaultLabel(); $break ./
 /:$readableName SwitchLabel:/
-
-SwitchLabelCase ::= 'case' LiteralExpressions
-/. $putCase consumeCase(); $break ./
-
-SwitchLabelDefault ::= 'default'
-/. $putCase consumeDefault(); $break ./
-
-SwitchExpressionArm ::= SwitchExpressionLabel ExpressionStatement
-SwitchExpressionArm ::= SwitchExpressionLabel ThrowStatement
-SwitchExpressionArm ::= SwitchExpressionLabel BreakExpressionStatement
-/.$putCase consumeSwitchExpressionArm() ; $break ./
-/:$readableName SwitchExpressionArm:/
-
-SwitchExpressionLabel ::= SwitchLabelCase '->'
-/. $putCase consumeSwitchExpressionLabelCase(); $break ./
-
-SwitchExpressionLabel ::= SwitchLabelDefault '->'
-/. $putCase consumeSwitchExpressionLabelDefault(); $break ./
-
-LiteralExpressions -> LiteralExpression
-LiteralExpressions ::= LiteralExpression ',' LiteralExpression
-/. $putCase consumeLiteralExpressions(); $break ./
-
-LiteralExpression -> Literal
-LiteralExpression -> EnumConstant
 
 WhileStatement ::= 'while' '(' Expression ')' Statement
 /.$putCase consumeStatementWhile() ; $break ./
@@ -1360,13 +1333,6 @@ BreakStatement ::= 'break' ';'
 BreakStatement ::= 'break' Identifier ';'
 /.$putCase consumeStatementBreakWithLabel() ; $break ./
 /:$readableName BreakStatement:/
-
--- to make the grammar LALR(1), the scanner transforms the input string to
--- contain synthetic tokens to signal start of break expression.
-BreakExpressionStatement ::= BeginBreakExpr 'break' Expression ';'
-/.$putCase consumeStatementBreakWithExpression() ; $break ./
-/:$readableName BreakExpressionStatement:/
-
 
 ContinueStatement ::= 'continue' ';'
 /.$putCase consumeStatementContinue() ; $break ./
