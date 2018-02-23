@@ -7211,7 +7211,7 @@ protected void consumeRule(int act) {
 		    consumeStatementBreak() ;  
 			break;
  
-    case 406 : if (DEBUG) { System.out.println("BreakStatement ::= break Identifier SEMICOLON"); }  //$NON-NLS-1$
+    case 406 : if (DEBUG) { System.out.println("BreakStatement ::= break Expression SEMICOLON"); }  //$NON-NLS-1$
 		    consumeStatementBreakWithLabel() ;  
 			break;
  
@@ -8974,12 +8974,24 @@ protected void consumeStatementBreakWithLabel() {
 	// BreakStatement ::= 'break' Identifier ';'
 	// break pushs a position on this.intStack in case there is no label
 
-	pushOnAstStack(
-		new BreakStatement(
-			this.identifierStack[this.identifierPtr--],
-			this.intStack[this.intPtr--],
-			this.endStatementPosition));
-	this.identifierLengthPtr--;
+// add the compliance check
+//	pushOnAstStack(
+//		new BreakStatement(
+//			this.identifierStack[this.identifierPtr--],
+//			this.intStack[this.intPtr--],
+//			this.endStatementPosition));
+//	this.identifierLengthPtr--;
+//
+	if (this.expressionLengthStack[this.expressionLengthPtr--] != 0) {
+		Expression expr = this.expressionStack[this.expressionPtr--];
+		char[] labelOrExpr = expr instanceof SingleNameReference ? ((SingleNameReference) expr).token : null;
+		BreakStatement breakStatement = new BreakStatement(
+				labelOrExpr,
+				this.intStack[this.intPtr--],
+				this.endStatementPosition);
+		pushOnAstStack(breakStatement);
+		breakStatement.expression = expr; // need to figure out later whether this is a label or an expression.
+	}
 }
 protected void consumeStatementCatch() {
 	// CatchClause ::= 'catch' '(' FormalParameter ')'    Block

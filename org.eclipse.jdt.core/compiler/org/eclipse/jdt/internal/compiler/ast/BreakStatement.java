@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class BreakStatement extends BranchStatement {
+	public Expression expression;
 
 public BreakStatement(char[] label, int sourceStart, int e) {
 	super(label, sourceStart, e);
@@ -91,6 +92,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 public StringBuffer printStatement(int tab, StringBuffer output) {
 	printIndent(tab, output).append("break"); //$NON-NLS-1$
 	if (this.label != null) output.append(' ').append(this.label);
+	else if (this.expression != null) output.append(' ').append(this.expression);
 	return output.append(';');
 }
 

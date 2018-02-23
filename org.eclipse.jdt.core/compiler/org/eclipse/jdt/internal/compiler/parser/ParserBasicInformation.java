@@ -21,9 +21,9 @@ public interface ParserBasicInformation {
 					NUM_STATES = 1152,
 
 					NT_OFFSET = 128,
-					SCOPE_UBOUND = 290,
-					SCOPE_SIZE = 291,
-					LA_STATE_OFFSET = 16451,
+					SCOPE_UBOUND = 291,
+					SCOPE_SIZE = 292,
+					LA_STATE_OFFSET = 16512,
 					MAX_LA = 1,
 					NUM_RULES = 851,
 					NUM_TERMINALS = 128,
@@ -32,6 +32,6 @@ public interface ParserBasicInformation {
 					START_STATE = 895,
 					EOFT_SYMBOL = 60,
 					EOLT_SYMBOL = 60,
-					ACCEPT_ACTION = 16450,
-					ERROR_ACTION = 16451;
+					ACCEPT_ACTION = 16511,
+					ERROR_ACTION = 16512;
 }
