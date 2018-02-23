@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 
 import org.eclipse.jdt.core.tests.dom.ASTConverter10Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
+import org.eclipse.jdt.core.tests.model.CompletionTests10;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs10Tests;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
@@ -35,6 +36,7 @@ public class RunAllJava10Tests extends TestCase {
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
 			JavaSearchBugs10Tests.class,
+			CompletionTests10.class,
 		};
 	}
 
