@@ -117,9 +117,9 @@ public class EclipseCompiler implements JavaCompiler {
 			eclipseCompiler2.fileManager = this.getStandardFileManager(someDiagnosticListener, null, null);
 		}
 
-		eclipseCompiler2.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9);
-		eclipseCompiler2.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
-		eclipseCompiler2.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
+		eclipseCompiler2.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_10);
+		eclipseCompiler2.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_10);
+		eclipseCompiler2.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
 
 		ArrayList<String> allOptions = new ArrayList<>();
 		if (options != null) {
