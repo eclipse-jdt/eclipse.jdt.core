@@ -15,6 +15,7 @@
  *								bug 401035 - [1.8] A few tests have started failing recently
  *      Jesper Steen Møller - Contributions for
  *                               bug 529552 - [18.3] Add 'var' in completions
+ *                               Bug 529556 - [18.3] Add content assist support for 'var' as a type
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
@@ -2711,7 +2712,9 @@ protected void consumeExitVariableWithInitialization() {
 	AbstractVariableDeclaration variable = (AbstractVariableDeclaration) this.astStack[this.astPtr];
 	if (this.cursorLocation + 1 < variable.initialization.sourceStart ||
 		this.cursorLocation > variable.initialization.sourceEnd) {
-		variable.initialization = null;
+		if (! (variable instanceof LocalDeclaration && ((LocalDeclaration)variable).isTypeNameVar(this.compilationUnit.scope))) {
+			variable.initialization = null;
+		}
 	} else if (this.assistNode != null && this.assistNode == variable.initialization) {
 			this.assistNodeParent = variable;
 	}

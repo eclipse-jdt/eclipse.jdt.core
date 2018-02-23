@@ -33,6 +33,7 @@
  *     Jesper S Moller - Contributions for
  *							Bug 378674 - "The method can be declared as static" is wrong
  *							Bug 527554 - [18.3] Compiler support for JEP 286 Local-Variable Type
+ *							Bug 529556 - [18.3] Add content assist support for 'var' as a type
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *							Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
  *							Bug 426616 - [1.8][compiler] Type Annotations, multiple problems 
@@ -470,7 +471,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				(this.type instanceof SingleTypeReference || (this.type instanceof QualifiedTypeReference && !(this.type instanceof ArrayQualifiedTypeReference))) && this.initialization == null && !this.type.isBaseTypeReference();
 	}
 	
-	public boolean isTypeNameVar(BlockScope scope) {
+	public boolean isTypeNameVar(Scope scope) {
 		return this.type != null && this.type.isTypeNameVar(scope);
 	}
 	

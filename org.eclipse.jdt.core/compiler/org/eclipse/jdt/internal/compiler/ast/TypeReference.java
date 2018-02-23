@@ -34,6 +34,7 @@
  *                          Bug 415399 - [1.8][compiler] Type annotations on constructor results dropped by the code generator
  *      Jesper S Møller <jesper@selskabet.org> -  Contributions for
  *                          bug 527554 - [18.3] Compiler support for JEP 286 Local-Variable Type
+ *                          bug 529556 - [18.3] Add content assist support for 'var' as a type
  *                          
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
@@ -762,7 +763,8 @@ public boolean isBaseTypeReference() {
  * @return true, if source level is Java 10 or above and the type name is just 'var', false otherwise 
  */
 public boolean isTypeNameVar(Scope scope) {
-	if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK10) {
+	CompilerOptions compilerOptions = scope != null ? scope.compilerOptions() : null;
+	if (compilerOptions != null && compilerOptions.sourceLevel < ClassFileConstants.JDK10) {
 		return false;
 	}
 	char[][] typeName = this.getTypeName();

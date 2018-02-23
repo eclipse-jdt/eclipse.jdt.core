@@ -11,6 +11,7 @@
  *
  * Contributors:
  *     Jesper Steen Møller - initial API and implementation
+ *                           bug 529556 - [18.3] Add content assist support for 'var' as a type
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -242,6 +243,26 @@ public void test0008_not_in_class_scope() throws JavaModelException {
 	            result.context);
 		assertProposalCount("var[KEYWORD]", 0, 15, result);
 	}
+
+public void testbug_529556_missing_type_info_on_vars() throws JavaModelException {
+	CompletionResult result = complete(
+	        "/Completion/src3/test0001/Test.java",
+	        "package test0001;\n" +
+	        "\n" +
+	        "public class Test {\n" +
+	        "   private class Dummy {\n" +
+	        "		public void a_method() {/n"+
+	        "	}\n" +
+	        "	void x() {\n" +
+	        "		var x = new Dummy();\n" +
+	        "		x.a\n" +
+	        "	}\n" +
+	        "}",
+	    	"x.a");
+		assertResults(
+			"a_method[METHOD_REF]{a_method(), Ltest0001.Test$Dummy;, ()V, a_method, null, " + (R_DEFAULT + 30) + "}",
+			result.proposals);
+}
 
 private void assertProposalCount(String proposal, int expectedCount, int expectedOtherCount, CompletionResult result) {
 	String[] proposals = result.proposals.split("\n");
