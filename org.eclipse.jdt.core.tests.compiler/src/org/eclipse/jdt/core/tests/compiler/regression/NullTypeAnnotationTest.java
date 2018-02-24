@@ -1080,13 +1080,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	public void testBinary04() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
 		runConformTestWithLibs(
 				new String[] {
 					"p/X1.java",
 					"package p;\n" +
 					"import java.util.ArrayList;\n" +
 					"import org.eclipse.jdt.annotation.*;\n" +
+					"@SuppressWarnings(\"serial\")\n" +
 					"public abstract class X1 extends ArrayList<@Nullable String> {\n" +
 					"}\n",
 					"p/X2.java",
@@ -1137,13 +1137,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	public void testBinary05() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
 		runConformTestWithLibs(
 				new String[] {
 					"p/X1.java",
 					"package p;\n" +
 					"import java.util.ArrayList;\n" +
 					"import org.eclipse.jdt.annotation.*;\n" +
+					"@SuppressWarnings(\"serial\")\n" +
 					"public abstract class X1<@NonNull T> extends ArrayList<T> {\n" +
 					"    public <@Nullable S> void foo(S s) {}\n" +
 					"}\n"
@@ -1180,13 +1180,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	public void testBinary06() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
 		runNegativeTestWithLibs(
 				new String[] {
 					"p/X1.java",
 					"package p;\n" +
 					"import java.util.ArrayList;\n" +
 					"import org.eclipse.jdt.annotation.*;\n" +
+					"@SuppressWarnings(\"serial\")\n" +
 					"public abstract class X1<T extends @NonNull Object> extends ArrayList<T> {\n" +
 					"    public <U, V extends @Nullable Object> void foo(U u, V v) {}\n" +
 					"}\n",
@@ -1209,6 +1209,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"package p;\n" +
 					"import java.util.ArrayList;\n" +
 					"import org.eclipse.jdt.annotation.*;\n" +
+					"@SuppressWarnings(\"serial\")\n" +
 					"public abstract class X1<T extends @NonNull Object> extends ArrayList<T> {\n" +
 					"    public <U, V extends @Nullable Object> void foo(U u, V v) {}\n" +
 					"}\n",
@@ -1253,13 +1254,13 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	public void testBinary06b() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
 		runNegativeTestWithLibs(
 				new String[] {
 					"p/X1.java",
 					"package p;\n" +
 					"import java.util.ArrayList;\n" +
 					"import org.eclipse.jdt.annotation.*;\n" +
+					"@SuppressWarnings(\"serial\")\n" +
 					"public abstract class X1<T extends java.lang.@NonNull Object> extends ArrayList<T> {\n" +
 					"    public <U, V extends java.lang.@Nullable Object> void foo(U u, V v) {}\n" +
 					"}\n",
@@ -1282,6 +1283,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"package p;\n" +
 					"import java.util.ArrayList;\n" +
 					"import org.eclipse.jdt.annotation.*;\n" +
+					"@SuppressWarnings(\"serial\")\n" +
 					"public abstract class X1<T extends java.lang.@NonNull Object> extends ArrayList<T> {\n" +
 					"    public <U, V extends java.lang.@Nullable Object> void foo(U u, V v) {}\n" +
 					"}\n",
@@ -2825,9 +2827,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// when mapping 1st parameter to method receiver, avoid AIOOBE in ReferenceExpression#resolveType(..)
 	public void testBug415850_03() throws Exception {
-		Map options = getCompilerOptions();
-		options.put(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.IGNORE);
-		runConformTestWithLibs(
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.IGNORE);
+		runner.javacTestOptions = new JavacTestOptions.SuppressWarnings("deprecation");
+		runner.classLibraries = this.LIBS;
+		runner.testFiles =
 			new String[] {
 				"X.java",
 				"import java.lang.annotation.*;\n" +
@@ -2843,9 +2848,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"		I i = @Vernal Date::getDay;\n" +
 				"	}\n" +
 				"}\n",
-			},
-			options,
-			"");
+			};
+		runner.runConformTest();
 	}
 
 	// ensure annotation type has super types connected, to avoid NPE in ImplicitNullAnnotationVerifier.collectOverriddenMethods(..)
@@ -8410,7 +8414,9 @@ public void testBug467430arrayMismatch() {
 }
 
 public void testBug446217() {
-	runConformTestWithLibs(
+	Runner runner = new Runner();
+	runner.classLibraries = this.LIBS;
+	runner.testFiles =
 		new String[] {
 			"sol/package-info.java",
 			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
@@ -8443,8 +8449,9 @@ public void testBug446217() {
 			"		 System.out.println(new Node<>(\"A\", new Empty<>()));\n" + 
 			"	}\n" + 
 			"}\n"
-		},
-		getCompilerOptions(), "");
+		};
+	runner.javacTestOptions = new JavacTestOptions.SuppressWarnings("auxiliaryclass");
+	runner.runConformTest();
 }
 public void testBug456584() {
 	Map compilerOptions = getCompilerOptions();
@@ -14656,7 +14663,9 @@ public void testBug499589STB() {
 	);
 }
 public void testBug499589BTB() {
-	runConformTestWithLibs(
+	Runner runner = new Runner();
+	runner.classLibraries = this.LIBS;
+	runner.testFiles =
 		new String[] {
 			"test/Ref.java",
 			"package test;\n" +
@@ -14698,10 +14707,9 @@ public void testBug499589BTB() {
 			"	public final Ref<String[] @Nullable []>[] @Nullable [] genericFieldWithNullable2 = new Ref[0][];\n" +
 			"}\n" +
 			"",
-		}, 
-		getCompilerOptions(),
-		""
-	);
+		};
+	runner.javacTestOptions = new JavacTestOptions.SuppressWarnings("rawtypes"); // javac detects rawtypes at new Ref[0][0]
+	runner.runConformTest();
 	runNegativeTestWithLibs(
 		new String[] {
 			"test/BinaryUsage.java",
@@ -14894,7 +14902,9 @@ public void testBug499589STBqualified() {
 	);
 }
 public void testBug499589BTBqualified() {
-	runConformTestWithLibs(
+	Runner runner = new Runner();
+	runner.classLibraries = this.LIBS;
+	runner.testFiles =
 		new String[] {
 			"test/Ref.java",
 			"package test;\n" +
@@ -14940,10 +14950,9 @@ public void testBug499589BTBqualified() {
 			"	public final test.Ref<test.A.B[] @Nullable []>[] @Nullable[] genericFieldWithNullable2 = new Ref[0][];;\n" +
 			"}\n" +
 			"",
-		}, 
-		getCompilerOptions(),
-		""
-	);
+		};
+	runner.javacTestOptions = new JavacTestOptions.SuppressWarnings("rawtypes"); // javac detects rawtypes at new Ref[0][0]
+	runner.runConformTest();
 	runNegativeTestWithLibs(
 		new String[] {
 			"test/BinaryUsage.java",
@@ -15869,8 +15878,10 @@ public void testBug530913b() {
 		customOptions,
 		""
 	);
-	runConformTestWithLibs(
-		false,
+	Runner runner = new Runner();
+	runner.classLibraries = this.LIBS;
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles =
 		new String[] {
 			"test/X.java",
 			"package test;\n" +
@@ -15883,12 +15894,12 @@ public void testBug530913b() {
 			"abstract class X {\n" +
 			"    @NonNullByDefault(DefaultLocation.RETURN_TYPE) abstract void f2(@NonNullByDefault C<Object, ? extends Number> p1);\n" +
 			"}\n"
-		},
-		customOptions,
-		""
-	);			
-	runConformTestWithLibs(
-		false,
+		};
+	runner.customOptions = customOptions;
+	runner.javacTestOptions = new JavacTestOptions.SuppressWarnings("auxiliaryclass");
+	runner.runConformTest();
+
+	runner.testFiles =
 		new String[] {
 			"test/ExplicitNonNull.java",
 			"package test;\n" +
@@ -15901,10 +15912,8 @@ public void testBug530913b() {
 			"    }\n" +
 			"}\n" +
 			"",
-		}, 
-		customOptions,
-		""
-	);
+		}; 
+	runner.runConformTest();
 }
 public void testBug530971() {
 	Map customOptions = getCompilerOptions();
@@ -16855,7 +16864,9 @@ public void testBug530971_redundant() {
 		customOptions,
 		""
 	);
-	runNegativeTestWithLibs(
+	Runner runner = new Runner();
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles =
 		new String[] {
 			"test/X.java",
 			"package test;\n" +
@@ -16896,8 +16907,9 @@ public void testBug530971_redundant() {
 			"            Object onParameter);\n" +
 			"}\n" +
 			"",
-		}, 
-		customOptions,
+		};
+	runner.customOptions = customOptions;
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. WARNING in test\\X.java (at line 11)\n" + 
 		"	@NNBDField // warning 1\n" + 
@@ -16923,8 +16935,9 @@ public void testBug530971_redundant() {
 		"	@NNBDField // warning 5\n" + 
 		"	^^^^^^^^^^\n" + 
 		"Nullness default is redundant with a default specified for the enclosing type X\n" + 
-		"----------\n"
-	);
+		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runWarningTest();
 }
 public void testBug530971_locally_redundant() {
 	Map customOptions = getCompilerOptions();

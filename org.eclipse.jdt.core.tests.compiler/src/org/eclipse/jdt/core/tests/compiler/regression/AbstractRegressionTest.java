@@ -455,6 +455,11 @@ protected static class JavacTestOptions {
 			return true;
 		}
 	};
+	public static class SuppressWarnings extends JavacTestOptions {
+		public SuppressWarnings(String token) {
+			setCompilerOptions("-Xlint:-"+token);
+		}
+	}
 	// TODO (maxime) enable selective javac output dir manipulations between
 	//      tests steps
 	// some tests manipulate the OUTPUT_DIR explicitly between run*Test calls;
