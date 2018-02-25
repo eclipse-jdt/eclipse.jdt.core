@@ -168,7 +168,6 @@ import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
-import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.Region;
 import org.eclipse.jdt.internal.core.SetContainerOperation;
@@ -6042,9 +6041,7 @@ public final class JavaCore extends Plugin {
 	 * @since 3.14
 	 */
 	public static List<String> defaultRootModules(Iterable<IPackageFragmentRoot> allSystemRoots) {
-		return JavaProject.internalDefaultRootModules(allSystemRoots,
-				IPackageFragmentRoot::getElementName,
-				r ->  (r instanceof JrtPackageFragmentRoot) ? ((JrtPackageFragmentRoot) r).getModule() : null);
+		return JavaProject.defaultRootModules(allSystemRoots);
 	}
 
 	/**
