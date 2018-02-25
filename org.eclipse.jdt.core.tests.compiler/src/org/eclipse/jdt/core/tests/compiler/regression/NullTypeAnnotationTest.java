@@ -5131,9 +5131,11 @@ public void testDefault02_bin() {
 
 //apply null default to return type - annotation at method:
 public void testDefault03_bin() {
-	Map<String,String> options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-	runConformTestWithLibs(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
+	runner.classLibraries = this.LIBS;
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -5143,11 +5145,12 @@ public void testDefault03_bin() {
 			"		return new Integer(13);\n" +
 			"	}\n" +
 			"}\n"
-		},
-		options,
-		"");
-	runConformTestWithLibs(
-		false /* don't flush */,
+		};
+	runner.javacTestOptions = new JavacTestOptions.SuppressWarnings("deprecation");
+	runner.runConformTest();
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles =
 		new String[] {
 			"Y.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -5156,16 +5159,17 @@ public void testDefault03_bin() {
 			"		return x.test(null); // both OK\n" +
 			"	}\n" +
 			"}\n"
-		},
-		options,
-		"");
+		};
+	runner.runConformTest();
 }
 
 // apply null default to field - also test mixing of explicit annotation with default @NonNull (other annot is not rendered in error)
 public void testDefault04_bin() {
-	Map<String,String> options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-	runConformTestWithLibs(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
+	runner.classLibraries = this.LIBS;
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -5175,10 +5179,12 @@ public void testDefault04_bin() {
 			"public class X {\n" +
 			"	@Important Number field = new Double(1.1);\n" +
 			"}\n"
-		},
-		options,
-		"");
-	runNegativeTestWithLibs(
+		};
+	runner.javacTestOptions = new JavacTestOptions.SuppressWarnings("deprecation");
+	runner.runConformTest();
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles =
 		new String[] {
 			"Y.java",
 			"public class Y {\n" +
@@ -5186,20 +5192,24 @@ public void testDefault04_bin() {
 			"		x.field = null; // ERR\n" +
 			"	}\n" +
 			"}\n"
-		},
-		getCompilerOptions(),
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. ERROR in Y.java (at line 3)\n" + 
 		"	x.field = null; // ERR\n" + 
 		"	          ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
-		"----------\n");}
+		"----------\n";
+	runner.runNegativeTest();
+}
 
 // default default
 public void testDefault05_bin() {
-	Map<String,String> options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-	runConformTestWithLibs(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
+	runner.classLibraries = this.LIBS;
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -5210,9 +5220,9 @@ public void testDefault05_bin() {
 			"		ns[0] = null; // OK since not affected by default\n" +
 			"	}\n" +
 			"}\n"
-		},
-		options,
-		"");
+		};
+	runner.runConformTest();
+
 	runNegativeTestWithLibs(
 		new String[] {
 			"Y.java",
@@ -9101,10 +9111,12 @@ public void testBug481322a() {
 		"----------\n");
 }
 public void testBug477719() {
-	Map compilerOptions = getCompilerOptions();
-	compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, CompilerOptions.IGNORE);
-	compilerOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-	runConformTestWithLibs(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, CompilerOptions.IGNORE);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
+	runner.classLibraries = this.LIBS;
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -9117,9 +9129,9 @@ public void testBug477719() {
 			"		instantiate(d.getClass());\n" +
 			"	}\n" +
 			"}\n"
-		},
-		compilerOptions,
-		"");
+		};
+	runner.javacTestOptions = new JavacTestOptions.SuppressWarnings("deprecation");
+	runner.runConformTest();
 }
 public void testBug482247() {
 	runWarningTestWithLibs(
