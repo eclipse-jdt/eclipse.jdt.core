@@ -113,6 +113,7 @@ $Terminals
 	ElidedSemicolonAndRightBrace
 	AT308
 	AT308DOTDOTDOT
+	BeginCaseExpr
 
 --    BodyMarker
 
@@ -1267,6 +1268,7 @@ SwitchBlockStatements ::= SwitchBlockStatements SwitchBlockStatement
 /.$putCase consumeSwitchBlockStatements() ; $break ./
 /:$readableName SwitchBlockStatements:/
 
+SwitchBlockStatement -> SwitchExprArm
 SwitchBlockStatement ::= SwitchLabels BlockStatements
 /.$putCase consumeSwitchBlockStatement() ; $break ./
 /:$readableName SwitchBlockStatement:/
@@ -1283,7 +1285,17 @@ SwitchLabel ::= 'default' ':'
 /. $putCase consumeDefaultLabel(); $break ./
 /:$readableName SwitchLabel:/
 
-SwitchLabelCaseLhs ::= 'case' ArgumentList
+SwitchExprArm -> SwitchLabelExpr ThrowStatement 
+SwitchExprArm -> SwitchLabelExpr BreakStatement 
+SwitchExprArm ::= SwitchLabelExpr Expression ';'
+/. $putCase consumeSwitchExprArm(); $break ./
+/:$readableName SwitchExprArm:/
+
+SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
+/. $putCase consumeCaseLabelExpr(); $break ./
+/:$readableName SwitchLabelExpr:/
+
+SwitchLabelCaseLhs ::= 'case' ConstantExpressions
 /. $putCase consumeSwitchLabelCaseLhs(); $break ./
 /:$readableName SwitchLabelCaseLhs:/
 
@@ -1993,6 +2005,10 @@ Expressionopt ::= $empty
 /.$putCase consumeEmptyExpression(); $break ./
 Expressionopt -> Expression
 /:$readableName Expression:/
+
+ConstantExpressions -> Expression
+ConstantExpressions -> ConstantExpressions ',' Expression
+/:$readableName ConstantExpressions:/
 
 ConstantExpression -> Expression
 /:$readableName ConstantExpression:/
