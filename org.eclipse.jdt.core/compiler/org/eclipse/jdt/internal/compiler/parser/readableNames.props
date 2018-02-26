@@ -297,6 +297,7 @@ SwitchBlock=SwitchBlock
 SwitchBlockStatement=SwitchBlockStatement
 SwitchBlockStatements=SwitchBlockStatements
 SwitchLabel=SwitchLabel
+SwitchLabelCaseLhs=SwitchLabelCaseLhs
 SwitchLabels=SwitchLabels
 SwitchStatement=SwitchStatement
 SynchronizedStatement=SynchronizedStatement

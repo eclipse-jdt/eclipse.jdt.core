@@ -28,6 +28,7 @@ public class CaseStatement extends Statement {
 
 	public Expression constantExpression;
 	public BranchLabel targetLabel;
+	public Expression[] constantExpressions; // case with multiple expressions
 
 public CaseStatement(Expression constantExpression, int sourceEnd, int sourceStart) {
 	this.constantExpression = constantExpression;

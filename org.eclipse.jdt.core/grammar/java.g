@@ -1276,12 +1276,16 @@ SwitchLabels ::= SwitchLabels SwitchLabel
 /.$putCase consumeSwitchLabels() ; $break ./
 /:$readableName SwitchLabels:/
 
-SwitchLabel ::= 'case' ConstantExpression ':'
+SwitchLabel ::= SwitchLabelCaseLhs ':'
 /. $putCase consumeCaseLabel(); $break ./
 
 SwitchLabel ::= 'default' ':'
 /. $putCase consumeDefaultLabel(); $break ./
 /:$readableName SwitchLabel:/
+
+SwitchLabelCaseLhs ::= 'case' ArgumentList
+/. $putCase consumeSwitchLabelCaseLhs(); $break ./
+/:$readableName SwitchLabelCaseLhs:/
 
 WhileStatement ::= 'while' '(' Expression ')' Statement
 /.$putCase consumeStatementWhile() ; $break ./
