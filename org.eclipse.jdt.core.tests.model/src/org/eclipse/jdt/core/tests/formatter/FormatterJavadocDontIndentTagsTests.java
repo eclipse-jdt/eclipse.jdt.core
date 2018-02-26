@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52,6 +52,7 @@ protected void setUp() throws Exception {
 
 DefaultCodeFormatter codeFormatter() {
 	this.formatterPrefs.comment_indent_root_tags = false; // Eclipse default is true
+	this.formatterPrefs.comment_indent_parameter_description = false;
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.formatterPrefs);
 	return codeFormatter;
 }

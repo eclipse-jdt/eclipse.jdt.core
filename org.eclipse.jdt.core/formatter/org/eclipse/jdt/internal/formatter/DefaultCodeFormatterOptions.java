@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -197,6 +197,8 @@ public class DefaultCodeFormatterOptions {
 	public boolean comment_format_source;
 	public boolean comment_indent_parameter_description;
 	public boolean comment_indent_root_tags;
+	public boolean comment_align_tags_names_descriptions;
+	public boolean comment_align_tags_descriptions_grouped;
 	public boolean comment_insert_empty_line_before_root_tags;
 	public boolean comment_insert_new_line_for_parameter;
 	public boolean comment_preserve_white_space_between_code_and_line_comments;
@@ -513,6 +515,8 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_SOURCE, this.comment_format_source ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION, this.comment_indent_parameter_description ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_ROOT_TAGS, this.comment_indent_root_tags ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_ALIGN_TAGS_NAMES_DESCRIPTIONS, this.comment_align_tags_names_descriptions ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_ALIGN_TAGS_DESCREIPTIONS_GROUPED, this.comment_align_tags_descriptions_grouped ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, this.comment_insert_empty_line_before_root_tags ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_NEW_LINE_FOR_PARAMETER, this.comment_insert_new_line_for_parameter ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT, this.comment_preserve_white_space_between_code_and_line_comments ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -1357,6 +1361,14 @@ public class DefaultCodeFormatterOptions {
 		final Object commentIndentRootTagsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_ROOT_TAGS);
 		if (commentIndentRootTagsOption != null) {
 			this.comment_indent_root_tags = DefaultCodeFormatterConstants.TRUE.equals(commentIndentRootTagsOption);
+		}
+		final Object commentAlignTagsDescriptionsOption= settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_ALIGN_TAGS_NAMES_DESCRIPTIONS);
+		if (commentAlignTagsDescriptionsOption != null) {
+			this.comment_align_tags_names_descriptions = DefaultCodeFormatterConstants.TRUE.equals(commentAlignTagsDescriptionsOption);
+		}
+		final Object commentAlignTagsGroupedOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_ALIGN_TAGS_DESCREIPTIONS_GROUPED);
+		if (commentAlignTagsGroupedOption != null) {
+			this.comment_align_tags_descriptions_grouped = DefaultCodeFormatterConstants.TRUE.equals(commentAlignTagsGroupedOption);
 		}
 		final Object commentInsertEmptyLineBeforeRootTagsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS);
 		if (commentInsertEmptyLineBeforeRootTagsOption != null) {
@@ -2486,6 +2498,8 @@ public class DefaultCodeFormatterOptions {
 		this.comment_format_source = true;
 		this.comment_indent_parameter_description = true;
 		this.comment_indent_root_tags = true;
+		this.comment_align_tags_names_descriptions = false;
+		this.comment_align_tags_descriptions_grouped = false;
 		this.comment_insert_empty_line_before_root_tags = true;
 		this.comment_insert_new_line_for_parameter = true;
 		this.comment_new_lines_at_block_boundaries = true;
@@ -2797,6 +2811,8 @@ public class DefaultCodeFormatterOptions {
 		this.comment_format_source = true;
 		this.comment_indent_parameter_description = true;
 		this.comment_indent_root_tags = true;
+		this.comment_align_tags_names_descriptions = false;
+		this.comment_align_tags_descriptions_grouped = false;
 		this.comment_insert_empty_line_before_root_tags = true;
 		this.comment_insert_new_line_for_parameter = true;
 		this.comment_new_lines_at_block_boundaries = true;

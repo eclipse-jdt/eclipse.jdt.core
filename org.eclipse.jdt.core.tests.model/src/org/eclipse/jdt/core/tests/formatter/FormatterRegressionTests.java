@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14059,5 +14059,114 @@ public void testBug518235() throws JavaModelException {
 		"	}\n" + 
 		"}";
 	formatSource(source);
+}
+
+/**
+ * https://bugs.eclipse.org/128653 - [formatter] Improve tag description indentation in javadoc
+ */
+public void testBug128653a() throws JavaModelException {
+	this.formatterPrefs.comment_indent_root_tags = false;
+	this.formatterPrefs.comment_align_tags_names_descriptions = false;
+	this.formatterPrefs.comment_align_tags_descriptions_grouped = false;
+	this.formatterPrefs.comment_indent_parameter_description = false;
+	this.formatterPrefs.comment_insert_new_line_for_parameter = false;
+	String input = getCompilationUnit("Formatter", "", "test128653", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test128653", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/128653 - [formatter] Improve tag description indentation in javadoc
+ */
+public void testBug128653b() throws JavaModelException {
+	this.formatterPrefs.comment_indent_root_tags = true;
+	this.formatterPrefs.comment_align_tags_names_descriptions = false;
+	this.formatterPrefs.comment_align_tags_descriptions_grouped = false;
+	this.formatterPrefs.comment_indent_parameter_description = false;
+	this.formatterPrefs.comment_insert_new_line_for_parameter = false;
+	String input = getCompilationUnit("Formatter", "", "test128653", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test128653", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/128653 - [formatter] Improve tag description indentation in javadoc
+ */
+public void testBug128653c() throws JavaModelException {
+	this.formatterPrefs.comment_indent_root_tags = false;
+	this.formatterPrefs.comment_align_tags_names_descriptions = true;
+	this.formatterPrefs.comment_align_tags_descriptions_grouped = false;
+	this.formatterPrefs.comment_indent_parameter_description = false;
+	this.formatterPrefs.comment_insert_new_line_for_parameter = false;
+	String input = getCompilationUnit("Formatter", "", "test128653", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test128653", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/128653 - [formatter] Improve tag description indentation in javadoc
+ */
+public void testBug128653d() throws JavaModelException {
+	this.formatterPrefs.comment_indent_root_tags = false;
+	this.formatterPrefs.comment_align_tags_names_descriptions = false;
+	this.formatterPrefs.comment_align_tags_descriptions_grouped = true;
+	this.formatterPrefs.comment_indent_parameter_description = false;
+	this.formatterPrefs.comment_insert_new_line_for_parameter = false;
+	String input = getCompilationUnit("Formatter", "", "test128653", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test128653", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/128653 - [formatter] Improve tag description indentation in javadoc
+ */
+public void testBug128653e() throws JavaModelException {
+	this.formatterPrefs.comment_indent_root_tags = false;
+	this.formatterPrefs.comment_align_tags_names_descriptions = true;
+	this.formatterPrefs.comment_align_tags_descriptions_grouped = false;
+	this.formatterPrefs.comment_indent_parameter_description = true;
+	this.formatterPrefs.comment_insert_new_line_for_parameter = false;
+	String input = getCompilationUnit("Formatter", "", "test128653", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test128653", "E_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/128653 - [formatter] Improve tag description indentation in javadoc
+ */
+public void testBug128653f() throws JavaModelException {
+	this.formatterPrefs.comment_indent_root_tags = false;
+	this.formatterPrefs.comment_align_tags_names_descriptions = true;
+	this.formatterPrefs.comment_align_tags_descriptions_grouped = false;
+	this.formatterPrefs.comment_indent_parameter_description = false;
+	this.formatterPrefs.comment_insert_new_line_for_parameter = true;
+	String input = getCompilationUnit("Formatter", "", "test128653", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test128653", "F_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/128653 - [formatter] Improve tag description indentation in javadoc
+ */
+public void testBug128653g() throws JavaModelException {
+	this.formatterPrefs.comment_indent_root_tags = false;
+	this.formatterPrefs.comment_align_tags_names_descriptions = false;
+	this.formatterPrefs.comment_align_tags_descriptions_grouped = true;
+	this.formatterPrefs.comment_indent_parameter_description = true;
+	this.formatterPrefs.comment_insert_new_line_for_parameter = true;
+	String input = getCompilationUnit("Formatter", "", "test128653", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test128653", "G_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/128653 - [formatter] Improve tag description indentation in javadoc
+ */
+public void testBug128653h() throws JavaModelException {
+	this.formatterPrefs.comment_indent_root_tags = false;
+	this.formatterPrefs.comment_align_tags_names_descriptions = false;
+	this.formatterPrefs.comment_align_tags_descriptions_grouped = false;
+	this.formatterPrefs.comment_indent_parameter_description = true;
+	this.formatterPrefs.comment_insert_new_line_for_parameter = true;
+	String input = getCompilationUnit("Formatter", "", "test128653", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test128653", "H_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/128653 - [formatter] Improve tag description indentation in javadoc
+ */
+public void testBug128653i() throws JavaModelException {
+	this.formatterPrefs.comment_indent_root_tags = true;
+	this.formatterPrefs.comment_align_tags_names_descriptions = false;
+	this.formatterPrefs.comment_align_tags_descriptions_grouped = false;
+	this.formatterPrefs.comment_indent_parameter_description = true;
+	this.formatterPrefs.comment_insert_new_line_for_parameter = false;
+	String input = getCompilationUnit("Formatter", "", "test128653", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test128653", "I_out.java").getSource());
 }
 }
