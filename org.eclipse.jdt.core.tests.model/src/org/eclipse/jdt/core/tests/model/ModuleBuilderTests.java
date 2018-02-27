@@ -6759,6 +6759,62 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
+	public void testBug531579() throws Exception {
+		if (!isJRE9) return;
+		String outputDirectory = Util.getOutputDirectory();
+
+		String jarPath = outputDirectory + File.separator + "jaxb-api.jar";
+		IJavaProject project1 = null;
+		try {
+			// these types replace inaccessible types from JRE/javax.xml.bind:
+			// (not a problem during IDE builds)
+			String[] sources = {
+				"javax/xml/bind/JAXBContext.java",
+				"package javax.xml.bind;\n" +
+				"public abstract class JAXBContext {\n" + 
+				"	public static JAXBContext newInstance( String contextPath )\n" + 
+				"		throws JAXBException {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n",
+				"javax/xml/bind/JAXBException.java",
+				"package javax.xml.bind;\n" +
+				"public class JAXBException extends Exception {}\n"
+			};
+			Util.createJar(sources, jarPath, "1.8");
+
+			project1 = createJava9Project("Project1", new String[] {"src"});
+			addClasspathEntry(project1, JavaCore.newLibraryEntry(new Path(jarPath), null, null));
+
+			createFolder("/Project1/src/p1");
+			createFile("/Project1/src/p1/ImportJAXBType.java", 
+					"package p1;\n" + 
+					"\n" + 
+					"import javax.xml.bind.JAXBContext;\n" + 
+					"\n" + 
+					"public class ImportJAXBType {\n" + 
+					"\n" + 
+					"	public static void main(String[] args) throws Exception {\n" + 
+					"		JAXBContext context = JAXBContext.newInstance(\"\");\n" + 
+					"	}\n" + 
+					"\n" + 
+					"}\n" 
+					);
+
+			project1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			IMarker[] markers = project1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers", 
+					"The value of the local variable context is not used", 
+					markers);
+		} finally {
+			if (project1 != null)
+				deleteProject(project1);
+			new File(jarPath).delete();
+		}
+	}
+
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

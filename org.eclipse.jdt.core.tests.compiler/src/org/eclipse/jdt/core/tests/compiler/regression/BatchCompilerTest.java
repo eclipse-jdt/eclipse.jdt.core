@@ -13082,4 +13082,55 @@ public void testReleaseOption() throws Exception {
 	     "option --release is supported only when run with JDK 9 or above\n",
 	     true);
 }
+
+public void testBug531579() throws Exception {
+	if (!isJRE9) return;
+	// these types replace inaccessible types from JRE/javax.xml.bind: 
+	runConformTest(new String[] {
+			"src/javax/xml/bind/JAXBContext.java",
+			"package javax.xml.bind;\n" +
+			"public abstract class JAXBContext {\n" + 
+			"	public static JAXBContext newInstance( String contextPath )\n" + 
+			"		throws JAXBException {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n",
+			"src/javax/xml/bind/JAXBException.java",
+			"package javax.xml.bind;\n" +
+			"public class JAXBException extends Exception {}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/javax/xml/bind/JAXBContext.java\""
+		+ " \"" + OUTPUT_DIR +  File.separator + "src/javax/xml/bind/JAXBException.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.8"
+		+ " -warn:none"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"",
+		true);
+		
+	runConformTest(new String[] {
+			"src/p1/ImportJAXBType.java", 
+			"package p1;\n" + 
+			"\n" + 
+			"import javax.xml.bind.JAXBContext;\n" + 
+			"\n" + 
+			"public class ImportJAXBType {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) throws Exception {\n" + 
+			"		JAXBContext context = JAXBContext.newInstance(\"\");\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		},	
+		"\"" + OUTPUT_DIR +  File.separator + "src/p1/ImportJAXBType.java\""
+		+ " -cp \"" + OUTPUT_DIR + File.separator + "bin\" "
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.9"
+		+ " -warn:none"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"",
+		false);
+}
 }
