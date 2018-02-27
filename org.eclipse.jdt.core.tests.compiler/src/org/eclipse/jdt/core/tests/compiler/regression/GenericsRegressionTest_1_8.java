@@ -8908,4 +8908,31 @@ public void testBug508834_comment0() {
 			"Type mismatch: cannot convert from Object to S\n" + 
 			"----------\n");
 	}
+	public void testBug531681() {
+		Runner runner = new Runner();
+		runner.testFiles =
+			new String[] {
+				"X.java",
+				"\n" + 
+				"import java.util.Arrays;\n" + 
+				"import java.util.function.IntFunction;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		final long[][] someData = new long[0][];\n" + 
+				"\n" + 
+				"		IntFunction<long[][]> function1 = long[][]::new;\n" + 
+				"		IntFunction<long[][]> function2 = new IntFunction<long[][]>() {\n" + 
+				"			@Override\n" + 
+				"			public long[][] apply(int value) { return new long[value][]; }\n" + 
+				"		};\n" + 
+				"\n" + 
+				"		long[][] array1 = Arrays.stream(someData).toArray(long[][]::new); // works\n" + 
+				"		long[][] array2 = Arrays.stream(someData).toArray(function2); // compile error in ecj at compliance 1.8\n" + 
+				"		long[][] array3 = Arrays.stream(someData).toArray(function1); // compile error in ecj at compliance 1.8\n" + 
+				"	}\n" + 
+				"}\n"
+			};
+		runner.runConformTest();
+	}
 }
