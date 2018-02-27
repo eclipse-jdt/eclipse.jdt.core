@@ -9017,7 +9017,8 @@ protected void consumeStatementBreakWithLabel() {
 //
 	if (this.expressionLengthStack[this.expressionLengthPtr--] != 0) {
 		Expression expr = this.expressionStack[this.expressionPtr--];
-		char[] labelOrExpr = expr instanceof SingleNameReference ? ((SingleNameReference) expr).token : null;
+		char[] labelOrExpr = expr instanceof Literal ?
+				((Literal) expr).source() : expr instanceof SingleNameReference ? ((SingleNameReference) expr).token : null;
 		BreakStatement breakStatement = new BreakStatement(
 				labelOrExpr,
 				this.intStack[this.intPtr--],
@@ -9440,14 +9441,14 @@ protected void consumeSwitchLabels() {
 	optimizedConcatNodeLists();
 }
 protected void consumeSwitchLabelCaseLhs() {
-	System.out.println("consumeSwitchLabelCaseLhs");
+//	System.out.println("consumeSwitchLabelCaseLhs");
 }
 protected void consumeSwitchExprArm() {
 	consumeStatementBreakWithLabel();
 	this.intPtr++;
 }
 protected void consumeCaseLabelExpr() {
-	System.out.println("in case lable expr");
+//	System.out.println("in case lable expr");
 	consumeCaseLabel();
 	// do nothing
 }
