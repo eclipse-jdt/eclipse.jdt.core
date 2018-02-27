@@ -25,7 +25,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.IOException;
 import java.util.Map;
 
-import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.EclipseHasABug;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -9926,9 +9925,9 @@ public void testBug487390b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=458332, [1.8][compiler] only 409 method references/lambda expressions per class possible
 public void testBug458332() {
-	runNegativeTest(
+	runConformTest(
 		false,
-		EclipseHasABug.EclipseBug531531,
+		null,
 		new String[] {
 			"Test.java",
 			"import java.io.Serializable;\n" + 
@@ -10022,12 +10021,8 @@ public void testBug458332() {
 			"	}\n" + 
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in Test.java (at line 10)\n" + 
-		"	private static class Data {\n" + 
-		"	                     ^^^^\n" + 
-		"The code of method $deserializeLambda$(SerializedLambda) is exceeding the 65535 bytes limit\n" + 
-		"----------\n");
+		"450\n" +
+		"250");
 }
 public void testBug521808() {
 	runNegativeTest(
