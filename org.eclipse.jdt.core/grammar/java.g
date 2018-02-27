@@ -1285,8 +1285,6 @@ SwitchLabel ::= 'default' ':'
 /. $putCase consumeDefaultLabel(); $break ./
 /:$readableName SwitchLabel:/
 
-SwitchExprArm -> SwitchLabelExpr ThrowStatement 
-SwitchExprArm -> SwitchLabelExpr BreakStatement 
 SwitchExprArm ::= SwitchLabelExpr Expression ';'
 /. $putCase consumeSwitchExprArm(); $break ./
 /:$readableName SwitchExprArm:/
