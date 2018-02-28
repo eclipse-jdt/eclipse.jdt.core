@@ -17,7 +17,6 @@ import static org.eclipse.jdt.annotation.DefaultLocation.*;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
  
 /**
  * Applying this annotation to a declaration has the effect that type references,
@@ -47,7 +46,8 @@ import java.lang.annotation.Target;
  * <code>package-info.java</code> is used.
  * </p>
  * <p>
- * <b>Note:</b> Since org.eclipse.jdt.annotation 2.0.0, this annotation also applies to field and local variable declarations.
+ * <b>Note:</b> Since org.eclipse.jdt.annotation 2.0.0, this annotation also applies to field and 
+ * local variable declarations and since 2.2.0 also to parameter and module declarations.
  * For the old API, see
  * <a href="http://help.eclipse.org/kepler/topic/org.eclipse.jdt.doc.isv/reference/api/org/eclipse/jdt/annotation/NonNullByDefault.html">
  * <code>@NonNullByDefault</code> in 1.1.0</a>.
@@ -56,7 +56,6 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Retention(RetentionPolicy.CLASS)
-@Target({ ElementType.PACKAGE, ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.LOCAL_VARIABLE })
 public @interface NonNullByDefault {
 	/**
 	 * Specifies the set of locations within the annotated declaration that should be affected by the nonnull default.
