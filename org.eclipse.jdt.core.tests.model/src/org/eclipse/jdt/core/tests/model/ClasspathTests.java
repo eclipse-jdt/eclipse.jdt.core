@@ -63,11 +63,9 @@ import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.provisional.JavaModelAccess;
 import org.eclipse.jdt.core.tests.model.ClasspathInitializerTests.DefaultVariableInitializer;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
@@ -7390,43 +7388,6 @@ public void testClasspathTestSourceValidation5() throws CoreException {
 		assertStatus("should complain because main sources have the same own output folder", "Test source folder 'src-tests' in project 'P' must have an output folder that is not also used for main sources", status);
 	} finally {
 		this.deleteProject("P");
-	}
-}
-public void testIsTestCode() throws CoreException, IOException {
-	IJavaProject project1 = null;
-	try {
-		
-		project1 = createJava9Project("Project1", new String[] {"src"});
-		addClasspathEntry(project1, JavaCore.newSourceEntry(new Path("/Project1/src-tests"), null, null, new Path("/Project1/bin-tests"), new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true") }));
-
-		createFolder("/Project1/src/p1");
-		createFolder("/Project1/src-tests/p1");
-		IFile p1File = createFile("/Project1/src/p1/P1Class.java", 
-				"package p1;\n" + 
-				"\n" + 
-				"public class P1Class {\n"+ 
-				"}\n" 
-				);
-		IFile t1File = createFile("/Project1/src-tests/p1/T1Class.java", 
-				"package p1;\n" + 
-				"\n" + 
-				"public class T1Class {\n"+ 
-				"}\n" 
-				);
-		
-
-		// project1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-		IType p1Type = ((ICompilationUnit)JavaCore.create(p1File)).getTypes()[0];
-		assertEquals("P1Class", p1Type.getElementName());
-		assertTrue(!JavaModelAccess.isTestCode(p1Type));
-
-		IType t1Type = ((ICompilationUnit)JavaCore.create(t1File)).getTypes()[0];
-		assertEquals("T1Class", t1Type.getElementName());
-
-		assertTrue(JavaModelAccess.isTestCode(t1Type));		
-	} finally {
-		if (project1 != null)
-			deleteProject(project1);
 	}
 }
 }
