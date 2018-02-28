@@ -1285,9 +1285,18 @@ SwitchLabel ::= 'default' ':'
 /. $putCase consumeDefaultLabel(); $break ./
 /:$readableName SwitchLabel:/
 
-SwitchExprArm ::= SwitchLabelExpr Expression ';'
+SwitchExprArm -> SwitchExprExprArm
+SwitchExprArm -> SwitchExprBreakArm
 /. $putCase consumeSwitchExprArm(); $break ./
 /:$readableName SwitchExprArm:/
+
+SwitchExprExprArm ::= SwitchLabelExpr Expression ';'
+/. $putCase consumeSwitchExprExprArm(); $break ./
+/:$readableName SwitchExprExprArm:/
+
+SwitchExprBreakArm ::= SwitchLabelExpr BreakExpression ';'
+/. $putCase consumeSwitchExprBreakArm(); $break ./
+/:$readableName SwitchExprBreakArm:/
 
 SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
 /. $putCase consumeCaseLabelExpr(); $break ./
@@ -1344,9 +1353,13 @@ AssertStatement ::= 'assert' Expression ':' Expression ';'
 BreakStatement ::= 'break' ';'
 /.$putCase consumeStatementBreak() ; $break ./
 
-BreakStatement ::= 'break' Expression ';'
+BreakStatement ::= BreakExpression ';'
 /.$putCase consumeStatementBreakWithLabel() ; $break ./
 /:$readableName BreakStatement:/
+
+BreakExpression ::= 'break' Expression
+/.$putCase consumeBreakExpression() ; $break ./
+/:$readableName BreakExpression:/
 
 ContinueStatement ::= 'continue' ';'
 /.$putCase consumeStatementContinue() ; $break ./
@@ -2005,7 +2018,8 @@ Expressionopt -> Expression
 /:$readableName Expression:/
 
 ConstantExpressions -> Expression
-ConstantExpressions -> ConstantExpressions ',' Expression
+ConstantExpressions ::= ConstantExpressions ',' Expression
+/.$putCase consumeConstantExpressions(); $break ./
 /:$readableName ConstantExpressions:/
 
 ConstantExpression -> Expression
