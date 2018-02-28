@@ -44,6 +44,10 @@ public interface AbstractModule extends IModuleDescription {
 		public int getFlags() throws JavaModelException {
 			return 0;
 		}
+		@Override
+		public boolean isAutoModule() {
+			return true;
+		}
 		public boolean isAutoNameFromManifest() {
 			return this.nameFromManifest;
 		}

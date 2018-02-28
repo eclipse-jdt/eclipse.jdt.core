@@ -32,4 +32,13 @@ public interface IModuleDescription extends IMember, IAnnotatable {
 	 * @since 3.14
 	 */
 	String[] getRequiredModuleNames() throws JavaModelException;
+	
+	/**
+	 * 
+	 * @return true if automatic module, else false
+	 * @since 3.14
+	 */
+	default boolean isAutoModule() {
+		return false;
+	}
 }
