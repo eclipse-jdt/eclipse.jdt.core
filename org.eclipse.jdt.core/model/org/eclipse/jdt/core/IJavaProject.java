@@ -17,6 +17,7 @@
 package org.eclipse.jdt.core;
 
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -1207,4 +1208,30 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 */
 	void setRawClasspath(IClasspathEntry[] entries, IPath outputLocation, IProgressMonitor monitor)
 		throws JavaModelException;
+
+	/**
+	 * Returns the classpath entry that refers to the given path or <code>null</code> if there is no reference to the
+	 * path.
+	 * 
+	 * @param path
+	 *            IPath
+	 * @return the classpath entry or <code>null</null>.
+	 * @throws JavaModelException
+	 * @since 3.14
+	 */
+	IClasspathEntry getClasspathEntryFor(IPath path) throws JavaModelException;
+
+	/**
+	 * When compiling test code in a modular project that has non-source classpath entries which don't have the
+	 * {@link IClasspathAttribute#MODULE} set, the module is assumed to read the unnamed module (which is useful for
+	 * test-only dependencies that should not be mentioned in the module-info.java). When executing test code that was
+	 * compiled like this, corresponding "--add-reads" options need to be passed to the java runtime. This method
+	 * returns the list of modules on the project's classpath for which this is the case.
+	 * 
+	 * @return the set of module names
+	 * @throws JavaModelException
+	 *             when access to the classpath or module description of the given project fails.
+	 * @since 3.14
+	 */
+	Set<String> determineModulesOfProjectsWithNonEmptyClasspath() throws JavaModelException;
 }

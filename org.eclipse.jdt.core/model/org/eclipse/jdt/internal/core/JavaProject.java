@@ -1783,13 +1783,7 @@ public class JavaProject
 		return computePackageFragmentRoots(getResolvedClasspath(), true/*retrieveExportedRoots*/, true/*filterModuleRoots*/, rootToResolvedEntries, excludeTestCode);
 	}
 
-	/**
-	 * Returns the classpath entry that refers to the given path
-	 * or <code>null</code> if there is no reference to the path.
-	 * @param path IPath
-	 * @return IClasspathEntry
-	 * @throws JavaModelException
-	 */
+	@Override
 	public IClasspathEntry getClasspathEntryFor(IPath path) throws JavaModelException {
 		getResolvedClasspath(); // force resolution
 		PerProjectInfo perProjectInfo = getPerProjectInfo();
@@ -3758,4 +3752,8 @@ public class JavaProject
 		return null;
 	}
 
+	@Override
+	public Set<String> determineModulesOfProjectsWithNonEmptyClasspath() throws JavaModelException {
+		return ModuleUpdater.determineModulesOfProjectsWithNonEmptyClasspath(this, getExpandedClasspath());
+	}
 }
