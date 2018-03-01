@@ -1287,6 +1287,7 @@ SwitchLabel ::= 'default' ':'
 
 SwitchExprArm -> SwitchExprExprArm
 SwitchExprArm -> SwitchExprBreakArm
+SwitchExprArm -> SwitchExprThrowArm
 /. $putCase consumeSwitchExprArm(); $break ./
 /:$readableName SwitchExprArm:/
 
@@ -1297,6 +1298,10 @@ SwitchExprExprArm ::= SwitchLabelExpr Expression ';'
 SwitchExprBreakArm ::= SwitchLabelExpr BreakExpression ';'
 /. $putCase consumeSwitchExprBreakArm(); $break ./
 /:$readableName SwitchExprBreakArm:/
+
+SwitchExprThrowArm ::= SwitchLabelExpr ThrowExpression ';'
+/. $putCase consumeSwitchExprThrowArm(); $break ./
+/:$readableName SwitchExprThrowArm:/
 
 SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
 /. $putCase consumeCaseLabelExpr(); $break ./
@@ -1372,9 +1377,13 @@ ReturnStatement ::= 'return' Expressionopt ';'
 /.$putCase consumeStatementReturn() ; $break ./
 /:$readableName ReturnStatement:/
 
-ThrowStatement ::= 'throw' Expression ';'
+ThrowStatement ::= ThrowExpression ';'
 /.$putCase consumeStatementThrow(); $break ./
 /:$readableName ThrowStatement:/
+
+ThrowExpression ::= 'throw' Expression
+/.$putCase consumeThrowExpression() ; $break ./
+/:$readableName ThrowExpression:/
 
 SynchronizedStatement ::= OnlySynchronized '(' Expression ')' Block
 /.$putCase consumeStatementSynchronized(); $break ./
