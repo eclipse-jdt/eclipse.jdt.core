@@ -2757,7 +2757,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_binary_expression = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_compact_if = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_conditional_expression = Alignment.M_NEXT_PER_LINE_SPLIT;
-		this.alignment_for_enum_constants = Alignment.M_NO_ALIGNMENT;
+		this.alignment_for_enum_constants = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_expressions_in_for_loop_header = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_method_declaration = Alignment.M_NO_ALIGNMENT;
