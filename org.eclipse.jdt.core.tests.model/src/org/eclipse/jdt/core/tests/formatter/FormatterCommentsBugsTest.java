@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2117,6 +2117,7 @@ public void testBug236230() throws JavaModelException {
 	);
 }
 public void testBug236230b() throws JavaModelException {
+	setFormatLineCommentOnFirstColumn();
 	String source =
 		"/**\n" +
 		" * Need a javadoc comment before to get the exception.\n" +
@@ -2309,6 +2310,7 @@ public void testBug236406_CDB1() {
 	);
 }
 public void testBug236406_CDB2() {
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"/**        Javadoc		comment    	    */void foo1() {System.out.println();}\n" +
 		"//        Line		comment    	    \n" +
@@ -2351,6 +2353,7 @@ public void testBug236406_EX1() {
 	);
 }
 public void testBug236406_EX2() {
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"//        Line		comment    	    \n" +
 		"i = \n" +
@@ -2388,6 +2391,7 @@ public void testBug236406_ST1() {
 	);
 }
 public void testBug236406_ST2() {
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"/**        Javadoc		comment    	    */foo1();\n" +
 		"//        Line		comment    	    \n" +
@@ -3650,6 +3654,7 @@ public void testBug241687() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=251133"
  */
 public void testBug251133() throws JavaModelException {
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"public class X01 {\n" + 
 		"//		int		a    =  	  1;\n" + 
@@ -6291,6 +6296,7 @@ public void testBug300379b() {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304705"
  */
 public void testBug304705() {
+	setFormatLineCommentOnFirstColumn();
 	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
 	String source = 
 		"public interface Example {\n" + 
@@ -6976,6 +6982,7 @@ public void testBug313651_01b() {
 	formatSource(source);
 }
 public void testBug313651_01c() {
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"public class X01 {\n" + 
 		"	public void testMethod() {\n" + 
@@ -7032,6 +7039,7 @@ public void testBug313651_02b() {
 	formatSource(source);
 }
 public void testBug313651_02c() {
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"public class X02 {\n" + 
 		"	public void testMethod() {\n" + 
@@ -7088,6 +7096,7 @@ public void testBug313651_03b() {
 	formatSource(source);
 }
 public void testBug313651_03c() {
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"public class X03 {\n" + 
 		"	public void testMethod() {\n" + 
@@ -7111,6 +7120,7 @@ public void testBug313651_03c() {
 	);
 }
 public void testBug313651_wksp3_01() {
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"package wksp3;\n" + 
 		"public class X01 implements\n" + 
@@ -7131,6 +7141,7 @@ public void testBug313651_wksp3_01() {
 	);
 }
 public void testBug313651_wksp3_02() {
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"package wksp3;\n" + 
 		"public class X02 implements MyOtherInterface, \n" + 

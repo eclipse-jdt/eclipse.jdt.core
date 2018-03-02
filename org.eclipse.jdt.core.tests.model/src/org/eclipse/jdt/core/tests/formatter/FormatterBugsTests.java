@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1476,6 +1476,7 @@ public void testBug199265c1() throws JavaModelException {
 	);
 }
 public void testBug199265c2() throws JavaModelException {
+	setFormatLineCommentOnFirstColumn();
 	this.formatterPrefs.comment_format_header = true;
 	String source =
 		"import java.util.List;\n" + 
@@ -4447,6 +4448,7 @@ public void testBug293300_wksp2_10() {
 	);
 }
 public void testBug293300_wksp2_11() {
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -4582,6 +4584,7 @@ public void testBug293300_wksp2_12b() {
 }
 public void testBug293300_wksp2_13() {
 	useOldCommentWidthCounting();
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -4613,6 +4616,7 @@ public void testBug293300_wksp2_13() {
 	);
 }
 public void testBug293300_wksp2_14() {
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -4697,6 +4701,7 @@ public void testBug293300_wksp2_15b() {
 	);
 }
 public void testBug293300_wksp3_01() {
+	setFormatLineCommentOnFirstColumn();
 	String source = 
 		"package wksp3;\n" + 
 		"\n" + 
@@ -5714,6 +5719,7 @@ public void testBug298243() {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=298844"
  */
 public void testBug298844a() {
+	setFormatLineCommentOnFirstColumn();
 	this.formatterPrefs.insert_new_line_in_empty_method_body = false;
 	String source = 
 		"public class X01 {\n" + 
@@ -6154,6 +6160,7 @@ public void testBug311578a() throws JavaModelException {
 	);
 }
 public void testBug311578b() throws JavaModelException {
+	setFormatLineCommentOnFirstColumn();
 	this.formatterPrefs.use_tags = true;
 	this.formatterPrefs.disabling_tag = "/* J- */".toCharArray();
 	this.formatterPrefs.enabling_tag = "/* J+ */".toCharArray();
@@ -6289,6 +6296,8 @@ public void testBug311578c() throws JavaModelException {
 	);
 }
 public void testBug311578d() throws JavaModelException {
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT_STARTING_ON_FIRST_COLUMN,
+			DefaultCodeFormatterConstants.TRUE);
 	this.formatterPrefs = null;
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_USE_ON_OFF_TAGS, DefaultCodeFormatterConstants.TRUE);
 	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, "/*F--*/");
@@ -9370,6 +9379,7 @@ public void testBug330313_wksp1_40_njl() {
 	);
 }
 public void testBug330313_wksp1_41_njl() {
+	setFormatLineCommentOnFirstColumn();
 	this.formatterPrefs.join_wrapped_lines = false;
 	String source =
 		"package wksp1;\n" + 
@@ -10959,6 +10969,7 @@ public void testBug465669() throws Exception {
 	);
 }
 public void testBug471090() throws JavaModelException {
+	setFormatLineCommentOnFirstColumn();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
 	this.formatterPrefs.indentation_size = 2;
 	String source = 

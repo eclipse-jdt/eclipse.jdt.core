@@ -125,19 +125,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	protected void useOldCommentWidthCounting() {
 		this.formatterPrefs.comment_count_line_length_from_starting_position = false;
 	}
+
 	/**
-	 * Returns the OS path to the directory that contains this plugin.
-	 *
-	protected String getPluginDirectoryPath() {
-		try {
-			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.model").getEntry("/");
-			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
+	 * Helper function for old tests that are expect comment line comments
+	 * on first column to be formatted.
+	 */
+	protected void setFormatLineCommentOnFirstColumn() {
+		this.formatterPrefs.comment_format_line_comment_starting_on_first_column = true;
 	}
-	*/
 
 	private String getResource(String packageName, String resourceName) {
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
@@ -7987,6 +7982,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test553() {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.comment_format_line_comment_starting_on_first_column = true;
         preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
         preferences.tab_size = 4;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -8001,6 +7997,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test554() {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
+		preferences.comment_format_line_comment_starting_on_first_column = true;
         preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
         preferences.tab_size = 4;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -13301,6 +13298,7 @@ public void testBug479109c() {
  * https://bugs.eclipse.org/479109 - [formatter] Add option to group aligned fields with blank lines
  */
 public void testBug479109d() {
+	setFormatLineCommentOnFirstColumn();
 	this.formatterPrefs.align_type_members_on_columns = true;
 	this.formatterPrefs.align_fields_grouping_blank_lines = 2;
 	String source =
@@ -13942,6 +13940,7 @@ public void testBug493296() throws JavaModelException {
  */
 public void testBug362260a() throws JavaModelException {
 	setPageWidth80();
+	setFormatLineCommentOnFirstColumn();
 	this.formatterPrefs.comment_line_length = 40;
 	this.formatterPrefs.comment_format_header = true;
 	this.formatterPrefs.comment_count_line_length_from_starting_position = true;
