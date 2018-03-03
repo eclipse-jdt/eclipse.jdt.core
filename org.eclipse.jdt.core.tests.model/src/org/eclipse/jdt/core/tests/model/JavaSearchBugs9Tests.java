@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 IBM Corporation and others.
+ * Copyright (c) 2016, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4460,6 +4460,63 @@ public void testBug530016_007() throws Exception {
 		deleteProject("JavaSearchBugs9");
 		deleteProject("second");
 		deleteProject("third");
+	}
+}
+
+public void testBug529367() throws Exception {
+	try {
+		IJavaProject project1 = createJavaProject("Library", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+		project1.open(null);
+		createFolder("/Library/src/javax/xml/bind");
+		createFile("/Library/src/javax/xml/bind/JAXBContext.java",
+				"package javax.xml.bind;\n" +
+				"public abstract class JAXBContext {\n" + 
+				"	public static JAXBContext newInstance( String contextPath )\n" + 
+				"		throws JAXBException {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n");
+		createFile("/Library/src/javax/xml/bind/JAXBException.java",
+				"package javax.xml.bind;\n" +
+				"public class JAXBException extends Exception {}\n");
+
+		IJavaProject project2 = createJava9Project("second", new String[] {"src"});
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newProjectEntry(project1.getPath()));
+		createFolder("/second/src/p1");
+		createFile("/second/src/p1/ImportJAXBType.java", 
+				"package p1;\n" + 
+				"\n" + 
+				"import javax.xml.bind.JAXBContext;\n" + 
+				"\n" + 
+				"public class ImportJAXBType {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) throws Exception {\n" + 
+				"		JAXBContext context = JAXBContext.newInstance(\"\");\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n");
+
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		waitUntilIndexesReady();
+
+		SearchPattern pattern = SearchPattern.createPattern("JAXBContext", IJavaSearchConstants.TYPE, REFERENCES, SearchPattern.R_EXACT_MATCH);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+				{project2});
+		search(pattern, scope, this.resultCollector);
+		assertSearchResults(
+				"src/javax/xml/bind/JAXBContext.java JAXBContext javax.xml.bind.JAXBContext.newInstance(String) [JAXBContext] EXACT_MATCH\n" + 
+				"src/p1/ImportJAXBType.java [JAXBContext] EXACT_MATCH\n" + 
+				"src/p1/ImportJAXBType.java void p1.ImportJAXBType.main(String[]) [JAXBContext] EXACT_MATCH\n" + 
+				"src/p1/ImportJAXBType.java void p1.ImportJAXBType.main(String[]) [JAXBContext] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("Library");
+		deleteProject("second");
 	}
 }
 // Add more tests here

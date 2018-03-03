@@ -846,7 +846,7 @@ public class JavaProject
 				JrtPackageFragmentRoot root = this.modNames2Roots.get(moduleName);
 				if (root != null) {
 					try {
-						ClassFileReader classFile = JRTUtil.getClassfile(this.jrtFile, TypeConstants.MODULE_INFO_CLASS_NAME_STRING, root.moduleName);
+						ClassFileReader classFile = JRTUtil.getClassfile(this.jrtFile, TypeConstants.MODULE_INFO_CLASS_NAME_STRING, root.moduleName, null);
 						result = classFile.getModuleDeclaration();
 						this.modules.put(moduleName, result);
 					} catch (IOException | ClassFormatException e) {

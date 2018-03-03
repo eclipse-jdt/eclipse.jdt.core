@@ -498,7 +498,8 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		if (modulePathEntry instanceof ModulePathEntry) {
 			relevantLocations = ((ModulePathEntry) modulePathEntry).getClasspathLocations();
 		} else if (modulePathEntry instanceof ClasspathLocation) {
-			return ((ClasspathLocation) modulePathEntry).findClass(typeName, qPackageName, moduleName, qBinaryFileName, false);
+			return ((ClasspathLocation) modulePathEntry).findClass(typeName, qPackageName, moduleName, qBinaryFileName, false,
+																	null/*module already checked*/);
 		} else {
 			return null;
 		}
@@ -510,13 +511,9 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		if (!strategy.matches(classpathLocation, ClasspathLocation::hasModule)) {
 			continue;
 		}
-		NameEnvironmentAnswer answer = classpathLocation.findClass(binaryFileName, qPackageName, moduleName, qBinaryFileName, false);
+		NameEnvironmentAnswer answer = classpathLocation.findClass(binaryFileName, qPackageName, moduleName, qBinaryFileName, false,
+																	this.modulePathEntries != null ? this.modulePathEntries::containsKey : null);
 		if (answer != null) {
-			char[] answerMod = answer.moduleName();
-			if (answerMod != null && this.modulePathEntries != null) {
-				if (!this.modulePathEntries.containsKey(String.valueOf(answerMod)))
-					continue; // assumed to be filtered out by --limit-modules
-			}
 			if (!answer.ignoreIfBetter()) {
 				if (answer.isBetter(suggestedAnswer))
 					return answer;

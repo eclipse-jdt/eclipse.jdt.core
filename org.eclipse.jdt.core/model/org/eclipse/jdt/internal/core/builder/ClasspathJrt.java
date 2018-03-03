@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.IPath;
@@ -276,7 +277,8 @@ public boolean equals(Object o) {
 }
 
 @Override
-public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName,
+										boolean asBinaryOnly, Predicate<String> moduleNameFilter) {
 	if (!isPackage(qualifiedPackageName, moduleName)) return null; // most common case
 
 	try {
@@ -296,7 +298,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 				}
 			}
 		} else {
-			reader = ClassFileReader.readFromModule(new File(this.zipFilename), moduleName, qualifiedBinaryFileName);
+			reader = ClassFileReader.readFromModule(new File(this.zipFilename), moduleName, qualifiedBinaryFileName, moduleNameFilter);
 		}
 		if (reader != null) {
 			if (this.externalAnnotationPath != null) {
@@ -355,9 +357,10 @@ public String debugPathString() {
 	return this.zipFilename;
 }
 @Override
-public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName,
+		boolean asBinaryOnly, Predicate<String> moduleNameFilter) {
 	String fileName = new String(typeName);
-	return findClass(fileName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, asBinaryOnly);
+	return findClass(fileName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, asBinaryOnly, moduleNameFilter);
 }
 @Override
 public boolean hasModule() {
@@ -413,7 +416,7 @@ private void addRequired(String mod, Set<String> allModules) {
 @Override
 public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
 	//
-	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false);
+	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false, null);
 }
 /** TEST ONLY */
 public static void resetCaches() {

@@ -250,7 +250,9 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 					sourceFileName, // doesn't include the file extension
 					qPackageName,
 					moduleName,
-					qSourceFileName);  // doesn't include the file extension
+					qSourceFileName,  // doesn't include the file extension
+					false,
+					null /*no module filtering on source dir*/);
 			}
 		} else {
 			if (binaryFileName == null) {
@@ -268,7 +270,9 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 					binaryFileName,
 					qPackageName,
 					moduleName,
-					qBinaryFileName);
+					qBinaryFileName,
+					false,
+					this.moduleLocations != null ? this.moduleLocations::containsKey : null);
 		}
 		if (answer != null) {
 			if (!answer.ignoreIfBetter()) {

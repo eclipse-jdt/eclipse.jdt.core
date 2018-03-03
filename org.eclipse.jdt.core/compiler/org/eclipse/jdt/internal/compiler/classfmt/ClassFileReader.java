@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.function.Predicate;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
@@ -122,13 +123,6 @@ public static ClassFileReader read(
 		return read(zip, filename, false);
 }
 
-public static ClassFileReader readFromJimage(
-		File jrt,
-		String filename)
-		throws ClassFormatException, java.io.IOException {
-
-		return readFromModule(jrt, null, filename);
-	}
 public static ClassFileReader readFromJrt(
 		File jrt,
 		IModule module,
@@ -140,10 +134,11 @@ public static ClassFileReader readFromJrt(
 public static ClassFileReader readFromModule(
 		File jrt,
 		String moduleName,
-		String filename)
+		String filename,
+		Predicate<String> moduleNameFilter)
 
 		throws ClassFormatException, java.io.IOException {
-		return JRTUtil.getClassfile(jrt, filename, moduleName);
+		return JRTUtil.getClassfile(jrt, filename, moduleName, moduleNameFilter);
 }
 public static ClassFileReader read(
 	java.util.zip.ZipFile zip,
