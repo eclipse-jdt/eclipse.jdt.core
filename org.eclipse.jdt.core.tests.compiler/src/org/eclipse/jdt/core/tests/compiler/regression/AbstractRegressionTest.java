@@ -1402,7 +1402,13 @@ protected static class JavacTestOptions {
 		for (int i = 0; i < testFiles.length; i += 2) {
 			System.out.print(testFiles[i]);
 			System.out.println(" ["); //$NON-NLS-1$
-			System.out.println(testFiles[i + 1]);
+			String content = testFiles[i + 1];
+			if (content.length() > 10000) {
+				System.out.println(content.substring(0, 10000));
+				System.out.println("...(truncated)"); //$NON-NLS-1$
+			} else {
+				System.out.println(content);
+			}
 			System.out.println("]"); //$NON-NLS-1$
 		}
 	}
@@ -1417,7 +1423,13 @@ protected static class JavacTestOptions {
 	protected void printFiles(String[] testFiles) {
 		for (int i=0, length=testFiles.length; i<length; i++) {
 			System.out.println(testFiles[i++]);
-			System.out.println(testFiles[i]);
+			String content = testFiles[i];
+			if (content.length() > 10000) {
+				System.out.println(content.substring(0, 10000));
+				System.out.println("...(truncated)"); //$NON-NLS-1$
+			} else {
+				System.out.println(content);
+			}
 		}
 		System.out.println("");
 	}
@@ -2936,12 +2948,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 					if (execOutputString != null && execOutputString.length() > 0) {
 						System.out.println("[OUT]:"+execOutputString); //$NON-NLS-1$
 					}
-					for (int i = 0; i < testFiles.length; i += 2) {
-						System.out.print(testFiles[i]);
-						System.out.println(" ["); //$NON-NLS-1$
-						System.out.println(testFiles[i + 1]);
-						System.out.println("]"); //$NON-NLS-1$
-					}
+					logTestFiles(false, testFiles);
 					assertEquals(this.verifier.failureReason, expectedErrorString == null ? "" : expectedErrorString, execErrorString);
 					assertEquals(this.verifier.failureReason, expectedOutputString == null ? "" : expectedOutputString, execOutputString);
 				}
