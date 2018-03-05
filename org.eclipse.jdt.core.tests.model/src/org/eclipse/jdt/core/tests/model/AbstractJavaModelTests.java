@@ -1322,7 +1322,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	protected IJavaProject createJava9Project(String name) throws CoreException {
-		return createJava9Project(name, new String[]{"src"});
+		return createJava9ProjectWithJREAttributes(name, new String[]{"src"}, null, "9");
+	}
+	protected IJavaProject createJava9Project(String name, String compliance) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, new String[]{"src"}, null, compliance);
 	}
 	protected IJavaProject createJava9Project(String name, String[] srcFolders) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, null);
@@ -1334,6 +1337,20 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(bootModPath, sourceAttachment, null, null, attributes, false);
 		IJavaProject project = this.createJavaProject(name, srcFolders, new String[0],
 				new String[0], "bin", "9");
+		IClasspathEntry[] old = project.getRawClasspath();
+		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];
+		System.arraycopy(old, 0, newPath, 0, old.length);
+		newPath[old.length] = jrtEntry;
+		project.setRawClasspath(newPath, null);
+		return project;
+	}
+	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes, String compliance) throws CoreException {
+		String javaHome = System.getProperty("java.home") + File.separator;
+		Path bootModPath = new Path(javaHome +"/lib/jrt-fs.jar");
+		Path sourceAttachment = new Path(javaHome +"/lib/src.zip");
+		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(bootModPath, sourceAttachment, null, null, attributes, false);
+		IJavaProject project = this.createJavaProject(name, srcFolders, new String[0],
+				new String[0], "bin", compliance);
 		IClasspathEntry[] old = project.getRawClasspath();
 		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];
 		System.arraycopy(old, 0, newPath, 0, old.length);

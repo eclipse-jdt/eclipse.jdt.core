@@ -57,7 +57,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-		// TESTS_NAMES = new String[] { "testBug528467" };
+//		 TESTS_NAMES = new String[] { "testBug527569c" };
 	}
 	private String sourceWorkspacePath = null;
 	protected ProblemRequestor problemRequestor;
@@ -6814,7 +6814,130 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			new File(jarPath).delete();
 		}
 	}
+	public void testBug527569a() throws CoreException {
+		if (!isJRE9) return;
+		IJavaProject p1 = createJava9Project("Bug527569", "9");
+		try {
+			createFolder("/Bug527569/src/p1");
+			createFile("/Bug527569/src/p1/X.java",
+					"package p1;\n" +
+					"public class X {\n" +
+					"	public java.util.stream.Stream<String> emptyStream() {\n" +
+					"		return null;\n" +
+					"	}\n" +
+					"}");
 
+			waitForManualRefresh();
+			waitForAutoBuild();
+			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			deleteProject(p1);
+		}
+	}
+	public void testBug527569b() throws CoreException {
+		if (!isJRE9) return;
+		IJavaProject p1 = createJava9Project("Bug527569", "1.7");
+		try {
+			createFolder("/Bug527569/src/p1");
+			createFile("/Bug527569/src/p1/X.java",
+					"package p1;\n" +
+					"public class X {\n" +
+					"	public java.util.stream.Stream<String> emptyStream() {\n" +
+					"		return null;\n" +
+					"	}\n" +
+					"}");
+
+			waitForManualRefresh();
+			waitForAutoBuild();
+			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			deleteProject(p1);
+		}
+	}
+	public void testBug527569c() throws CoreException {
+		if (!isJRE9) return;
+		IJavaProject p1 = createJava9Project("Bug527569", "1.7");
+		Map<String, String> options = new HashMap<>();
+		// Make sure the new options map doesn't reset.
+		options.put(CompilerOptions.OPTION_Compliance, "1.7");
+		options.put(CompilerOptions.OPTION_Source, "1.7");
+		options.put(CompilerOptions.OPTION_TargetPlatform, "1.7");
+		options.put(CompilerOptions.OPTION_Release, "enabled");
+		p1.setOptions(options);
+		try {
+			createFolder("/Bug527569/src/p1");
+			createFile("/Bug527569/src/p1/X.java",
+					"package p1;\n" +
+					"public class X {\n" +
+					"	public java.util.stream.Stream<String> emptyStream() {\n" +
+					"		return null;\n" +
+					"	}\n" +
+					"}");
+
+			waitForManualRefresh();
+			waitForAutoBuild();
+			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "java.util.stream.Stream cannot be resolved to a type", markers);
+		} finally {
+			deleteProject(p1);
+		}
+	}
+	public void testBug527569d() throws CoreException {
+		if (!isJRE9) return;
+		IJavaProject p1 = createJava9Project("Bug527569", "9");
+		try {
+			createFolder("/Bug527569/src/p1");
+			createFile("/Bug527569/src/p1/X.java",
+					"package p1;\n" +
+					"public class X {\n" +
+					"	public java.lang.Compiler getCompiler() {\n" +
+					"		return null;\n" +
+					"	}\n" +
+					"}");
+
+			waitForManualRefresh();
+			waitForAutoBuild();
+			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "The type Compiler has been deprecated since version 9 and marked for removal", markers);
+		} finally {
+			deleteProject(p1);
+		}
+	}
+	public void testBug527569e() throws CoreException {
+		if (!isJRE9) return;
+		IJavaProject p1 = createJava9Project("Bug527569", "1.8");
+		Map<String, String> options = new HashMap<>();
+		// Make sure the new options map doesn't reset.
+		options.put(CompilerOptions.OPTION_Compliance, "1.7");
+		options.put(CompilerOptions.OPTION_Source, "1.7");
+		options.put(CompilerOptions.OPTION_TargetPlatform, "1.7");
+		options.put(CompilerOptions.OPTION_Release, "enabled");
+		p1.setOptions(options);
+		try {
+			createFolder("/Bug527569/src/p1");
+			createFile("/Bug527569/src/p1/X.java",
+					"package p1;\n" +
+					"public class X {\n" +
+					"	public java.lang.Compiler getCompiler() {\n" +
+					"		return null;\n" +
+					"	}\n" +
+					"}");
+
+			waitForManualRefresh();
+			waitForAutoBuild();
+			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			deleteProject(p1);
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

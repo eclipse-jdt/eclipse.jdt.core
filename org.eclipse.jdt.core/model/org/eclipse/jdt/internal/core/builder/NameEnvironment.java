@@ -302,6 +302,9 @@ private void computeClasspathLocations(
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
+					if (JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.COMPILER_RELEASE, true))) {
+						compliance = null;
+					}
 					ClasspathLocation bLocation = ClasspathLocation.forLibrary(path.toOSString(), accessRuleSet, externalAnnotationPath, isOnModulePath, compliance);
 					bLocations.add(bLocation);
 					if (moduleEntries != null) {

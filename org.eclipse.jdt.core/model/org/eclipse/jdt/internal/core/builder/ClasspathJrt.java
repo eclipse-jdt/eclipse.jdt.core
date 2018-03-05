@@ -70,7 +70,7 @@ public ClasspathJrt(String zipFilename, AccessRuleSet accessRuleSet, IPath exter
 	this.accessRuleSet = accessRuleSet;
 	if (externalAnnotationPath != null)
 		this.externalAnnotationPath = externalAnnotationPath.toString();
-	if (compliance.length() == 0) {
+	if (compliance != null && compliance.length() == 0) {
 		this.compliance = null;
 	} else {
 		this.compliance = compliance;
@@ -196,7 +196,7 @@ public void initialize() {
 			return;
 		}
 	}
-	this.releasePath = this.fs.getPath(""); //$NON-NLS-1$
+	this.releasePath = this.fs.getPath("/"); //$NON-NLS-1$
 	if (!Files.exists(this.fs.getPath(this.compliance))
 			|| Files.exists(this.fs.getPath(this.compliance, "system-modules"))) { //$NON-NLS-1$
 		this.compliance = null;
