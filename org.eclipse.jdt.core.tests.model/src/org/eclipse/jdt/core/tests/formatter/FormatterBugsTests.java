@@ -12786,4 +12786,32 @@ public void testBug530066() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/531981 - [formatter] Error on &lt;code&gt;
+ * spanning multiple Javadoc tags
+ */
+public void testBug531981() {
+	this.formatterPrefs.comment_indent_parameter_description = true;
+	String source =
+		"/**\n" + 
+		" * <code>a<code>\n" + 
+		" *\n" + 
+		" * @param   b\n" + 
+		" *               c\n" + 
+		" *            d</code>\n" + 
+		" */\n" + 
+		"class Test {\n" + 
+		"}";
+	formatSource(source,
+		"/**\n" + 
+		" * <code>a<code>\n" + 
+		" *\n" + 
+		" * &#64;param   b\n" + 
+		" *               c\n" + 
+		" *            d</code>\n" + 
+		" */\n" + 
+		"class Test {\n" + 
+		"}"
+	);
+}
 }
