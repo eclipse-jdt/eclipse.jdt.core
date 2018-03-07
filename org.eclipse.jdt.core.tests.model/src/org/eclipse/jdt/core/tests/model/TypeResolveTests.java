@@ -1304,4 +1304,28 @@ public void test531046d() throws CoreException, IOException {
 		deleteProject("P");
 	}
 }
+public void test531046e() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var s1 = new java.util.HashMap<String, Object>();\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "var";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		assertEquals("should not be empty", 1, elements.length);
+		IType type = (IType) elements[0];
+		assertEquals("incorrect type", "java.util.HashMap<java.lang.String,java.lang.Object>", type.getFullyQualifiedParameterizedName());
+	} finally {
+		deleteProject("P");
+	}
+}
 }

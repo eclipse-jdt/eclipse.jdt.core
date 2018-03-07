@@ -11,6 +11,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper Steen Møller <jesper@selskabet.org> - contributions for:	
+ *         Bug 531046: [10] ICodeAssist#codeSelect support for 'var'
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.select;
 
@@ -65,7 +67,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.JavadocParser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -593,7 +594,7 @@ protected void consumeEnterVariable() {
 
 	AbstractVariableDeclaration variable = (AbstractVariableDeclaration) this.astStack[this.astPtr];
 	if (variable.type == this.assistNode){
-		if (!this.diet){
+		if (!this.diet && ! variable.type.isTypeNameVar(null)) {
 			this.restartRecovery	= true;	// force to restart in recovery mode
 			this.lastIgnoredToken = -1;
 		}
@@ -608,10 +609,8 @@ protected void consumeExitVariableWithInitialization() {
 	AbstractVariableDeclaration variable = (AbstractVariableDeclaration) this.astStack[this.astPtr];
 	int start = variable.declarationSourceStart;
 	int end =  variable.declarationSourceEnd;
-	char[][] typeName = variable.type == null ? null : variable.type.getTypeName();
 	// Keep the initialization intact, because that's the only way we are going to know the type
-	// TODO: Figure out a way to get the scope and hence the compliance
-	if (typeName == null || !(typeName.length == 1 && CharOperation.equals(typeName[0], TypeConstants.VAR))) {
+	if (!variable.type.isTypeNameVar(null)) {
 		if ((this.selectionStart < start) &&  (this.selectionEnd < start) ||
 				(this.selectionStart > end) && (this.selectionEnd > end)) {
 			variable.initialization = null;
