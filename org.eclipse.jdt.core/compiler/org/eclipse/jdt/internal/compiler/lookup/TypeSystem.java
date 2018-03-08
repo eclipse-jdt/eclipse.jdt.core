@@ -387,7 +387,7 @@ public class TypeSystem {
 		}
 		TypeBinding unannotatedBound = bound == null ? null : getUnannotatedType(bound);
 
-		boolean useDerivedTypesOfBound = unannotatedBound instanceof TypeVariableBinding || unannotatedBound instanceof ParameterizedTypeBinding;
+		boolean useDerivedTypesOfBound = unannotatedBound instanceof TypeVariableBinding || (unannotatedBound instanceof ParameterizedTypeBinding && !(unannotatedBound instanceof RawTypeBinding));
 		TypeBinding[] derivedTypes = this.types[useDerivedTypesOfBound ? unannotatedBound.id :unannotatedGenericType.id];  // by construction, cachedInfo != null now.
 
 		int i, length = derivedTypes.length;

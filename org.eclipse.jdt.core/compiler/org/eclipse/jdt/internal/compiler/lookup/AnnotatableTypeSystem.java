@@ -187,7 +187,7 @@ public class AnnotatableTypeSystem extends TypeSystem {
 			throw new IllegalStateException();
 		
 		WildcardBinding nakedType = null;
-		boolean useDerivedTypesOfBound = bound instanceof TypeVariableBinding || bound instanceof ParameterizedTypeBinding;
+		boolean useDerivedTypesOfBound = bound instanceof TypeVariableBinding || (bound instanceof ParameterizedTypeBinding && !(bound instanceof RawTypeBinding)) ;
 		TypeBinding[] derivedTypes = getDerivedTypes(useDerivedTypesOfBound ? bound : genericType);
 		for (int i = 0, length = derivedTypes.length; i < length; i++) {
 			TypeBinding derivedType = derivedTypes[i];
