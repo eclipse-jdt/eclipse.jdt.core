@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3108,11 +3108,23 @@ public void generateSyntheticEnclosingInstanceValues(BlockScope currentScope, Re
 		} else if (compliance == ClassFileConstants.JDK1_4){
 			denyEnclosingArgInConstructorCall = invocationSite instanceof AllocationExpression
 				|| invocationSite instanceof ExplicitConstructorCall && ((ExplicitConstructorCall)invocationSite).isSuperAccess();
-		} else {
+		} else if (compliance < ClassFileConstants.JDK1_7) {
 			//compliance >= JDK1_5
 			denyEnclosingArgInConstructorCall = (invocationSite instanceof AllocationExpression
 					|| invocationSite instanceof ExplicitConstructorCall && ((ExplicitConstructorCall)invocationSite).isSuperAccess())
 				&& !targetType.isLocalType();
+		} else {
+			//compliance >= JDK1_7
+			if (invocationSite instanceof AllocationExpression) {
+				denyEnclosingArgInConstructorCall = !targetType.isLocalType();
+			} else if (invocationSite instanceof ExplicitConstructorCall && 
+					((ExplicitConstructorCall)invocationSite).isSuperAccess()) {
+				MethodScope enclosingMethodScope = currentScope.enclosingMethodScope();
+				denyEnclosingArgInConstructorCall = !targetType.isLocalType() && enclosingMethodScope != null
+						&& enclosingMethodScope.isConstructorCall; 
+			} else {
+				denyEnclosingArgInConstructorCall = false;
+			}
 		}
 
 		boolean complyTo14 = compliance >= ClassFileConstants.JDK1_4;
