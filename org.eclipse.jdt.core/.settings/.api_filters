@@ -1142,6 +1142,13 @@
                 <message_argument value="VERSION_10"/>
             </message_arguments>
         </filter>
+        <filter id="1141899266">
+            <message_arguments>
+                <message_argument value="3.14 BETA_JAVA_18_3"/>
+                <message_argument value="3.13 BETA_JAVA_18_3"/>
+                <message_argument value="getAllVersions()"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="model/org/eclipse/jdt/core/JavaModelException.java" type="org.eclipse.jdt.core.JavaModelException">
         <filter id="1141899266">
