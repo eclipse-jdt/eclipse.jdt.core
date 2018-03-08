@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 IBM Corporation and others.
+ * Copyright (c) 2014, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.LambdaExpression;
+import org.eclipse.jdt.internal.core.LambdaMethod;
+import org.eclipse.jdt.internal.core.SourceMethod;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaElement8Tests extends AbstractJavaModelTests { 
@@ -550,12 +552,36 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			IJavaElement[] elements = unit.codeSelect(start, 1);
 			assertEquals("Incorrect java element", IJavaElement.LOCAL_VARIABLE, elements[0].getElementType());
 			String mem = elements[0].getHandleIdentifier();
-			String expected = "=Bug431716/src<{X.java[X~asIntStream@l!72!77!77!77!J!0!true";
+			String expected = "=Bug431716/src<{X.java[X~asIntStream" +
+					"=)=\"LX$ToIntFunction\\<TT;>;!71!89!81=&" +
+					"applyAsInt!1=\"TT;=\"l=\"I=\"LX$ToIntFunction\\<LX;:TT;>;." +
+					"applyAsInt\\(TT;)I@l!72!77!77!77!Ljava\\/lang\\/Object;!0!true=&" +
+					"@l!72!77!77!77!J!0!true";
 			assertEquals("Incorrect memento", expected, mem);
-			IMethod parent = (IMethod) elements[0].getParent();
+
+			IJavaElement parent = elements[0].getParent();
+			mem = parent.getHandleIdentifier();
+			expected = "=Bug431716/src<{X.java[X~asIntStream" +
+					"=)=\"LX$ToIntFunction\\<TT;>;!71!89!81=&" +
+					"applyAsInt!1=\"TT;=\"l=\"I=\"LX$ToIntFunction\\<LX;:TT;>;." +
+					"applyAsInt\\(TT;)I@l!72!77!77!77!Ljava\\/lang\\/Object;!0!true=&";
+			assertEquals("Incorrect memento", expected, mem);
+			assertTrue("Parent should be LambdaMethod", parent instanceof LambdaMethod);
+
+			parent = parent.getParent();
+			mem = parent.getHandleIdentifier();
+			expected = "=Bug431716/src<{X.java[X~asIntStream" +
+					"=)=\"LX$ToIntFunction\\<TT;>;!71!89!81=&" +
+					"applyAsInt!1=\"TT;=\"l=\"I=\"LX$ToIntFunction\\<LX;:TT;>;." +
+					"applyAsInt\\(TT;)I@l!72!77!77!77!Ljava\\/lang\\/Object;!0!true=)";
+			assertEquals("Incorrect memento", expected, mem);
+			assertTrue("Grand-parent should be LambdaExpression", parent instanceof LambdaExpression);
+
+			parent = parent.getParent();
 			mem = parent.getHandleIdentifier();
 			expected = "=Bug431716/src<{X.java[X~asIntStream";
 			assertEquals("Incorrect memento", expected, mem);
+			assertTrue("Great-grand-parent should be SourceMethod", parent instanceof SourceMethod);
 		}
 		finally {
 			deleteProject(projectName);

@@ -4870,6 +4870,41 @@ public void testBug484367_0003() throws CoreException {
 	);	
 }
 
+public void testBug531641() throws CoreException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
+		createFile("/P/src/Consumer.java",
+			"public interface Consumer<T> {\n" +
+			"	void accept(T t);\n" +
+			"}\n");
+		createFile("/P/src/C.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class C {\n" + 
+			"	void test() {\n" + 
+			"		Consumer<String> fun =\n" + 
+			"			(Map.Entry<String, Collection<String>> it) -> {\n" + // type error here, but shouldn't prevent indexing of the lambda
+			"			  print(it);\n" + 
+			"			};\n" + 
+			"		print(fun);\n" + 
+			"	}\n" +
+			"	void print(Object o) {}\n" + 
+			"}\n"
+			);
+		waitUntilIndexesReady();
+		IType type = project.findType("Consumer");
+		IMethod method = type.getMethod("accept", new String[] {"QT;"});
+		SearchPattern pattern = SearchPattern.createPattern(method, DECLARATIONS, EXACT_RULE);
+		search(pattern, SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES), this.resultCollector);
+		assertSearchResults(
+			"src/C.java void void C.test():<lambda #1>.accept(java.lang.String) [(Map.Entry<String, Collection<String>> it) ->] EXACT_MATCH\n" + 
+			"src/Consumer.java void Consumer.accept(T) [accept] EXACT_MATCH"
+		);
+	} finally {
+		deleteProject("P");
+	}
+}
+
 // Add new tests in JavaSearchBugs8Tests
 }
 
