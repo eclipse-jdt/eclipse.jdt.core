@@ -1201,6 +1201,9 @@ public void test479963a() throws CoreException, IOException {
 	}
 }
 public void test528818a() throws CoreException, IOException {
+	if (!AbstractJavaModelTests.isJRE9) {
+		return;
+	}
 	try {
 		IJavaProject project = createJava9Project("P");
 		waitForAutoBuild();
