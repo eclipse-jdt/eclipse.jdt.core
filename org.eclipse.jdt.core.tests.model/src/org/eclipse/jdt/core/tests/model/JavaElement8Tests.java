@@ -10,11 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -26,6 +29,10 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.LambdaExpression;
@@ -611,6 +618,46 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			assertEquals("Incorrect qualified type name", "MyFunction$1", lambda.getTypeQualifiedName());
 		}
 		finally {
+			deleteProject(projectName);
+		}
+	}
+
+	public void testBug485080() throws Exception {
+		String projectName = "Bug485080";
+		try {
+			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+
+			// create a .java file in a folder that's not on the build path:
+			IFolder folder= project.getProject().getFolder("nosrc");
+			folder.create(0, true, null);
+			IFile file= folder.getFile("X.java");
+			StringBuilder buf= new StringBuilder();
+			buf.append("public class X {\n");
+			buf.append("	public <T> void meth(T s) {\n");
+			buf.append("	}\n");
+			buf.append("}\n");
+			String content= buf.toString();
+			file.create(new ByteArrayInputStream(content.getBytes("UTF-8")), 0, null);
+
+			// create a CU from that file:
+			ICompilationUnit cu = JavaCore.createCompilationUnitFrom(file);
+			cu.becomeWorkingCopy(null);
+
+			// create the binding for the CU's main type, and drill down to details:
+			ASTParser parser= ASTParser.newParser(AST_INTERNAL_JLS9);
+			parser.setProject(project);
+			IBinding[] bindings = parser.createBindings(new IJavaElement[] { cu.findPrimaryType() }, null);
+			IMethodBinding methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[1];
+			assertEquals("method name", "meth", methodBinding.getName());
+			ITypeBinding typeParameter = methodBinding.getTypeParameters()[0];
+
+			// fetch and inspect the corresponding java element:
+			IJavaElement javaElement = typeParameter.getJavaElement();
+			assertNotNull("java element", javaElement);
+			assertEquals("element kind", IJavaElement.TYPE_PARAMETER, javaElement.getElementType());
+			assertEquals("element name", "T", javaElement.getElementName());
+		} finally {
 			deleteProject(projectName);
 		}
 	}

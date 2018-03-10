@@ -772,15 +772,23 @@ public class Util {
 		if (pkgEnd == -1)
 			return null;
 		IPackageFragment pkg = getPackageFragment(slashSeparatedFileName, pkgEnd, -1/*no jar separator for .java files*/);
-		if (pkg == null) return null;
-		int start;
-		ICompilationUnit cu = pkg.getCompilationUnit(new String(slashSeparatedFileName, start =  pkgEnd+1, slashSeparatedFileName.length - start));
-		if (workingCopyOwner != null) {
-			ICompilationUnit workingCopy = cu.findWorkingCopy(workingCopyOwner);
-			if (workingCopy != null)
-				return workingCopy;
+		if (pkg != null) {
+			int start;
+			ICompilationUnit cu = pkg.getCompilationUnit(new String(slashSeparatedFileName, start =  pkgEnd+1, slashSeparatedFileName.length - start));
+			if (workingCopyOwner != null) {
+				ICompilationUnit workingCopy = cu.findWorkingCopy(workingCopyOwner);
+				if (workingCopy != null)
+					return workingCopy;
+			}
+			return cu;
 		}
-		return cu;
+		IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
+		IFile file = wsRoot.getFile(new Path(String.valueOf(fileName)));
+		if (file.exists()) {
+			// this approach works if file exists but is not on the project's build path:
+			return JavaCore.createCompilationUnitFrom(file);
+		}
+		return null;
 	}
 
 	/**
