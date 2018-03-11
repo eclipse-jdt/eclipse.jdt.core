@@ -23,6 +23,7 @@ import java.util.*;
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.core.DeltaProcessor.RootInfo;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.nd.indexer.IndexerEvent;
@@ -61,20 +62,20 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 	}
 
 	/* A table from IPath (from a classpath entry) to DeltaProcessor.RootInfo */
-	public HashMap roots = new HashMap();
+	public HashMap<IPath, List<RootInfo>> roots = new HashMap<>();
 
 	/* A table from IPath (from a classpath entry) to ArrayList of DeltaProcessor.RootInfo
 	 * Used when an IPath corresponds to more than one root */
-	public HashMap otherRoots = new HashMap();
+	public HashMap<IPath, List<RootInfo>> otherRoots = new HashMap<>();
 
 	/* A table from IPath (from a classpath entry) to DeltaProcessor.RootInfo
 	 * from the last time the delta processor was invoked. */
-	public HashMap oldRoots = new HashMap();
+	public HashMap<IPath, List<RootInfo>> oldRoots = new HashMap<>();
 
 	/* A table from IPath (from a classpath entry) to ArrayList of DeltaProcessor.RootInfo
 	 * from the last time the delta processor was invoked.
 	 * Used when an IPath corresponds to more than one root */
-	public HashMap oldOtherRoots = new HashMap();
+	public HashMap<IPath, List<RootInfo>> oldOtherRoots = new HashMap<>();
 
 	/* A table from IPath (a source attachment path from a classpath entry) to IPath (a root path) */
 	public HashMap sourceAttachments = new HashMap();
@@ -89,7 +90,7 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 	private Set initializingThreads = Collections.synchronizedSet(new HashSet());
 
 	/* A table from file system absoulte path (String) to timestamp (Long) */
-	public Hashtable externalTimeStamps;
+	public Hashtable<IPath, Long> externalTimeStamps;
 
 	/*
 	 * Map from IProject to ClasspathChange
@@ -487,9 +488,9 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 
 	}
 
-	public Hashtable getExternalLibTimeStamps() {
+	public Hashtable<IPath, Long> getExternalLibTimeStamps() {
 		if (this.externalTimeStamps == null) {
-			Hashtable timeStamps = new Hashtable();
+			Hashtable<IPath, Long> timeStamps = new Hashtable<>();
 			File timestampsFile = getTimeStampsFile();
 			DataInputStream in = null;
 			try {

@@ -670,11 +670,11 @@ public class NameLookup implements SuffixConstants {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			IJavaProject javaProject = project;
-			Map secondaryTypePaths = manager.secondaryTypes(javaProject, waitForIndexes, monitor);
+			Map<String, Map<String, IType>> secondaryTypePaths = manager.secondaryTypes(javaProject, waitForIndexes, monitor);
 			if (secondaryTypePaths.size() > 0) {
-				Map types = (Map) secondaryTypePaths.get(packageName==null?"":packageName); //$NON-NLS-1$
+				Map<String, IType> types = secondaryTypePaths.get(packageName==null?"":packageName); //$NON-NLS-1$
 				if (types != null && types.size() > 0) {
-					IType type = (IType) types.get(typeName);
+					IType type = types.get(typeName);
 					if (type != null) {
 						if (JavaModelManager.VERBOSE) {
 							Util.verbose("NameLookup FIND SECONDARY TYPES:"); //$NON-NLS-1$
