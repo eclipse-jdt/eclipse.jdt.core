@@ -3082,26 +3082,40 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 							// Set all containers
 							Map<IJavaProject, Map<IPath, IClasspathContainer>> perProjectContainers = JavaModelManager.this.containersBeingInitialized.get();
-							if (perProjectContainers != null) {
-								Iterator<Entry<IJavaProject, Map<IPath, IClasspathContainer>>> entriesIterator = perProjectContainers.entrySet().iterator();
-								while (entriesIterator.hasNext()) {
-									Entry<IJavaProject, Map<IPath, IClasspathContainer>> entry = entriesIterator.next();
-									IJavaProject project = entry.getKey();
-									Map<IPath, IClasspathContainer> perPathContainers = entry.getValue();
-									Iterator<Entry<IPath, IClasspathContainer>> containersIterator = perPathContainers.entrySet().iterator();
-									while (containersIterator.hasNext()) {
-										Entry<IPath, IClasspathContainer> containerEntry = containersIterator.next();
-										IPath containerPath = containerEntry.getKey();
-										IClasspathContainer container = containerEntry.getValue();
-										SetContainerOperation operation = new SetContainerOperation(containerPath, new IJavaProject[] {project}, new IClasspathContainer[] {container});
-										operation.runOperation(monitor);
-									}
-								}
-								JavaModelManager.this.containersBeingInitialized.set(null);
+							// Note that during the operation below new containers could be added to the map,
+							// so we should loop until containersBeingInitialized will be empty
+							while (perProjectContainers != null && !perProjectContainers.isEmpty()) {
+								initKnownContainers(perProjectContainers, monitor);
 							}
+							JavaModelManager.this.containersBeingInitialized.set(null);
 						} finally {
 							if (monitor != null)
 								monitor.done();
+						}
+					}
+
+					private void initKnownContainers(Map<IJavaProject, Map<IPath, IClasspathContainer>> perProjectContainers, IProgressMonitor monitor)
+							throws JavaModelException {
+						Iterator<Entry<IJavaProject, Map<IPath, IClasspathContainer>>> entriesIterator = perProjectContainers.entrySet().iterator();
+						List<SetContainerOperation> operations = new ArrayList<>();
+						while (entriesIterator.hasNext()) {
+							Entry<IJavaProject, Map<IPath, IClasspathContainer>> entry = entriesIterator.next();
+							IJavaProject project = entry.getKey();
+							Map<IPath, IClasspathContainer> perPathContainers = entry.getValue();
+							Iterator<Entry<IPath, IClasspathContainer>> containersIterator = perPathContainers.entrySet().iterator();
+							while (containersIterator.hasNext()) {
+								Entry<IPath, IClasspathContainer> containerEntry = containersIterator.next();
+								IPath containerPath = containerEntry.getKey();
+								IClasspathContainer container = containerEntry.getValue();
+								SetContainerOperation operation = new SetContainerOperation(containerPath, new IJavaProject[] {project}, new IClasspathContainer[] {container});
+								operations.add(operation);
+							}
+						}
+						// operation.runOperation() below could put something into the map again
+						// so we clear the map to make sure we only see new content there
+						perProjectContainers.clear();
+						for (SetContainerOperation operation : operations) {
+							operation.runOperation(monitor);
 						}
 					}
 				};
