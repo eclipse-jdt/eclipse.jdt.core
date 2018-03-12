@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.IOException;
+
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -970,6 +972,80 @@ public void testChangeExternalLibFolder5() throws CoreException {
 	}
 }
 
+public void testChangeJRE9_8() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		// create project P8, just to ensure that JCL18_LIB is properly configured.
+		createJavaProject("P8", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+
+		IJavaProject p = createJava9Project("P");
+
+		StringBuilder expectedDelta = new StringBuilder();
+		expectedDelta.append("P[*]: {CHILDREN | CONTENT | RESOLVED CLASSPATH CHANGED}\n");
+		expectedDelta.append('\t').append(getExternalJCLPathString("1.8")).append("[*]: {ADDED TO CLASSPATH}\n"); // the addition
+		// for stable test construct expectation from actual list of contained modules (before modification):
+		for (IPackageFragmentRoot root : p.getPackageFragmentRoots()) {
+			if (root instanceof JrtPackageFragmentRoot)
+				expectedDelta.append("	<module:"+root.getElementName()+">[*]: {REMOVED FROM CLASSPATH}\n");
+		}
+		expectedDelta.append("	ResourceDelta(/P/.classpath)[*]");
+
+		// replace JRE System Library (9 -> 8):
+		startDeltas();
+		IClasspathEntry[] rawClasspath = p.getRawClasspath();
+		for (int i = 0; i < rawClasspath.length; i++) {
+			IClasspathEntry entry = rawClasspath[i];
+			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+				rawClasspath[i] = JavaCore.newVariableEntry(new Path("JCL18_LIB"), new Path("JCL18_SRC"), null, null, null, false); 
+				break;
+			}
+		}
+		p.setRawClasspath(rawClasspath, null);
+		refresh(p);
+
+		assertDeltasSortingModules(
+			"Unexpected delta",
+			expectedDelta.toString(),
+			true);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+		deleteProject("P8");
+	}
+}
+
+public void testChangeJRE8_9() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		waitUntilIndexesReady();
+
+		// replace JRE System Library (8 - 9):
+		startDeltas();
+		setUpJCLClasspathVariables("9", false);
+		IClasspathEntry[] rawClasspath = p.getRawClasspath();
+		for (int i = 0; i < rawClasspath.length; i++) {
+			IClasspathEntry entry = rawClasspath[i];
+			if (entry.getEntryKind() == IClasspathEntry.CPE_VARIABLE) {
+				rawClasspath[i] = JavaCore.newVariableEntry(new Path("JCL19_LIB"), new Path("JCL19_SRC"), null, null, null, false); 
+				break;
+			}
+		}
+		p.setRawClasspath(rawClasspath, null);
+		refresh(p);
+
+		assertDeltas(
+			"Unexpected delta",
+			"P[*]: {CHILDREN | CONTENT | RESOLVED CLASSPATH CHANGED}\n" + 
+			"	"+ getExternalPath() + "jclMin1.8.jar[*]: {REMOVED FROM CLASSPATH}\n" + 
+			"	"+ getExternalPath() + "jclMin9.jar[+]: {}\n" + 
+			"	ResourceDelta(/P/.classpath)[*]",
+			true);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
 /*
  * Ensures that changing an external ZIP archive referenced by a library entry and refreshing triggers the correct delta
  */

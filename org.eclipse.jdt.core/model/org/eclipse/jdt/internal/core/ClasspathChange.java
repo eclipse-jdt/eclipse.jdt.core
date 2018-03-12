@@ -338,6 +338,7 @@ public class ClasspathChange {
 						ObjectVector accumulatedRoots = new ObjectVector();
 						HashSet rootIDs = new HashSet(5);
 						rootIDs.add(this.project.rootID());
+						JrtPackageFragmentRoot.workingOnOldClasspath.set(Boolean.TRUE);
 						this.project.computePackageFragmentRoots(
 							this.oldResolvedClasspath[i],
 							accumulatedRoots,
@@ -370,6 +371,8 @@ public class ClasspathChange {
 						accumulatedRoots.copyInto(pkgFragmentRoots);
 					} catch (JavaModelException e) {
 						pkgFragmentRoots =  new PackageFragmentRoot[] {};
+					} finally {
+						JrtPackageFragmentRoot.workingOnOldClasspath.set(null);
 					}
 				}
 				addClasspathDeltas(delta, pkgFragmentRoots, IJavaElementDelta.F_REMOVED_FROM_CLASSPATH);

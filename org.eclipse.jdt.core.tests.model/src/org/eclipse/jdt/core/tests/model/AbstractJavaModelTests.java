@@ -1102,6 +1102,65 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			expected,
 			actual);
 	}
+	protected void assertDeltasSortingModules(String message, String expected, boolean waitForResourceDelta) {
+		if (waitForResourceDelta)
+			this.deltaListener.waitForResourceDelta();
+		String actual = this.deltaListener.toString();
+		actual = sortModules(actual);
+		expected = sortModules(expected);
+		if (!expected.equals(actual)) {
+			System.out.println(displayString(actual, 2));
+			System.err.println(this.deltaListener.stackTraces());
+		}
+		assertEquals(
+			message,
+			expected,
+			actual);
+	}
+	private String sortModules(String text) {
+		StringBuilder buf = new StringBuilder();
+		String[] lines = text.split("\n");
+		int idx = 0;
+		
+		// prefix before first module:
+		while (idx < lines.length) {
+			String line = lines[idx];
+			if (!line.trim().startsWith("<module:")) {
+				buf.append(line).append('\n');
+				idx++;
+			} else {
+				break;
+			}
+		}
+
+		// extract & sort modules:
+		String[] modules = new String[lines.length-idx];
+		int m = 0;
+		while (idx < lines.length) {
+			String line = lines[idx];
+			if (line.trim().startsWith("<module:")) {
+				modules[m++] = line;
+				idx++;
+			} else {
+				break;
+			}
+		}
+		if (m > 0) {
+			if (m < modules.length)
+				modules = Arrays.copyOf(modules, m);
+			Arrays.sort(modules);
+			for (String module : modules) {
+				buf.append(module).append('\n');
+			}
+
+			// suffix:
+			while (idx < lines.length) {
+				buf.append(lines[idx++]).append('\n');
+			}
+		}
+		return buf.toString();
+	}
+
 	protected void assertDeltas(String message, String expected, IJavaElementDelta delta) {
 		String actual = delta == null ? "<null>" : delta.toString();
 		if (!expected.equals(actual)) {
