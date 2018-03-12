@@ -655,4 +655,66 @@ public void test0018_project_variable_types() throws Exception {
 			typeVerifier);
 	Assert.assertEquals(39, typeVerifier.localsChecked);
 }
+public void testBug531832() throws IOException {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String [] args) {\n" +
+				"        for (var[] v : args) { }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	for (var[] v : args) { }\n" +
+			"	           ^\n" +
+			"'var' is not allowed as an element type of an array\n" +
+			"----------\n");
+}
+public void testBug530879() throws IOException {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void foo() { }\n" +
+				"    public static void main(String [] args) {\n" +
+				"        for (var v : foo()) { }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	for (var v : foo()) { }\n" +
+			"	         ^\n" +
+			"Variable initializer is 'void' -- cannot infer variable type\n" +
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	for (var v : foo()) { }\n" + 
+			"	             ^^^^^\n" + 
+			"Can only iterate over an array or an instance of java.lang.Iterable\n" + 
+			"----------\n");
+}
+public void testBug530879a() throws IOException {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public static void main(String [] args) {\n" +
+				"        for (var v : null) { }\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	for (var v : null) { }\n" +
+			"	         ^\n" +
+			"Cannot infer type for local variable initialized to 'null'\n" +
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	for (var v : null) { }\n" + 
+			"	             ^^^^\n" + 
+			"Can only iterate over an array or an instance of java.lang.Iterable\n" + 
+			"----------\n");
+}
 }

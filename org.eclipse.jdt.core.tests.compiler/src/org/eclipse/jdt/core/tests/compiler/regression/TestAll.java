@@ -169,7 +169,8 @@ public static Test suite() {
 
 	// add 10 specific test here (check duplicates)
 	ArrayList since_10 = new ArrayList();
-
+	since_10.add(JEP286Test.class);
+	
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));

@@ -469,6 +469,16 @@ public class ForeachStatement extends Statement {
 		// Patch the resolved type
 		if (this.elementVariable.isTypeNameVar(upperScope)) {
 			elementType = getCollectionElementType(collectionType);
+			if (this.elementVariable.type.dimensions() > 0 || this.elementVariable.type.extraDimensions() > 0) {
+				upperScope.problemReporter().varLocalCannotBeArray(this.elementVariable);
+			}
+			if (TypeBinding.equalsEquals(TypeBinding.NULL, collectionType)) {
+				upperScope.problemReporter().varLocalInitializedToNull(this.elementVariable);
+				elementType = collectionType;
+			} else if (TypeBinding.equalsEquals(TypeBinding.VOID, collectionType)) {
+				upperScope.problemReporter().varLocalInitializedToVoid(this.elementVariable);
+				elementType = collectionType;
+			}				
 			elementType = this.elementVariable.patchType(elementType);
 		}
 
