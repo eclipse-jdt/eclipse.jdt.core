@@ -22,20 +22,39 @@ import javax.lang.model.type.NullType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeVisitor;
 
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+
 /**
  * An implementation of NoType, which is used to represent certain pseudo-types.
  * @see NoType
  */
-public class NoTypeImpl implements NoType, NullType
+public class NoTypeImpl extends TypeMirrorImpl implements NoType, NullType
 {
 	private final TypeKind _kind;
 	
 	public static final NoType NO_TYPE_NONE = new NoTypeImpl(TypeKind.NONE);
-	public static final NoType NO_TYPE_VOID = new NoTypeImpl(TypeKind.VOID);
+	public static final NoType NO_TYPE_VOID = new NoTypeImpl(TypeKind.VOID, TypeBinding.VOID);
 	public static final NoType NO_TYPE_PACKAGE = new NoTypeImpl(TypeKind.PACKAGE);
-	public static final NullType NULL_TYPE = new NoTypeImpl(TypeKind.NULL);
+	public static final NullType NULL_TYPE = new NoTypeImpl(TypeKind.NULL, TypeBinding.NULL);
+	public static final Binding NO_TYPE_BINDING = new Binding() {
+		@Override
+		public int kind() {
+			throw new IllegalStateException();
+		}
+	
+		@Override
+		public char[] readableName() {
+			throw new IllegalStateException();
+		}
+	};
 	
 	public NoTypeImpl(TypeKind kind) {
+		super(null, NO_TYPE_BINDING);
+		_kind = kind;
+	}
+	public NoTypeImpl(TypeKind kind, Binding binding) {
+		super(null, binding);
 		_kind = kind;
 	}
 
