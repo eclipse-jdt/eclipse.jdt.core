@@ -239,6 +239,7 @@ public void test007() throws JavaModelException {
 	assertResults(
 			"class[FIELD_REF]{class, null, Ljava.lang.Class<LX;>;, class, null, " + (R_DEFAULT + 21) + "}\n" +
 			"f[FIELD_REF]{f, LX;, LFoo;, f, null, " + (R_DEFAULT + 21) + "}\n" +
+			"super[KEYWORD]{super, null, null, super, null, " + (R_DEFAULT + 21) + "}\n" +
 			"this[KEYWORD]{this, null, null, this, null, " + (R_DEFAULT + 21) + "}\n" +
 			"x1[FIELD_REF]{x1, LX;, I, x1, null, " + (R_DEFAULT + 51) + "}",
 			requestor.getResults());
