@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,6 @@ import junit.framework.*;
 /**
  * DO NOT RELEASE AS PART OF REGRESSION TEST - if failing, can cause testing hang
  */
-@SuppressWarnings("rawtypes")
 public class ThreadSafetyTests extends ModifyingResourceTests {
 
 public ThreadSafetyTests(String name) {
@@ -51,8 +50,8 @@ public void testDeadlock01() throws CoreException {
 		waitUntilIndexesReady();
 		project.getJavaModel().close();
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		manager.previousSessionContainers = new HashMap(5);
-		manager.containers = new HashMap(5);
+		manager.previousSessionContainers = new HashMap<>(5);
+		manager.containers = new HashMap<>(5);
 		manager.removePerProjectInfo((JavaProject)project, true /* remove external jar files indexes and timestamps*/);
 
 		// use a thread to hold the lock, so as to recreate potential deadlock situation

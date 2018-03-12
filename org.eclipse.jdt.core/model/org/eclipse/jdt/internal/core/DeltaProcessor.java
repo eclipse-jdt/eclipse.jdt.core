@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1031,7 +1031,7 @@ public class DeltaProcessor {
 							File externalFile = (File)targetLibrary;
 
 							// check timestamp to figure if JAR has changed in some way
-							Long oldTimestamp =(Long) this.state.getExternalLibTimeStamps().get(entryPath);
+							Long oldTimestamp =this.state.getExternalLibTimeStamps().get(entryPath);
 							long newTimeStamp = getTimeStamp(externalFile);
 							if (oldTimestamp != null){
 
@@ -2566,6 +2566,7 @@ public class DeltaProcessor {
 	 * Returns whether the children of the given delta must be processed.
 	 * @throws a JavaModelException if the delta doesn't correspond to a java element of the given type.
 	 */
+	@SuppressWarnings("unlikely-arg-type")
 	public boolean updateCurrentDeltaAndIndex(IResourceDelta delta, int elementType, RootInfo rootInfo) {
 		Openable element;
 		switch (delta.getKind()) {

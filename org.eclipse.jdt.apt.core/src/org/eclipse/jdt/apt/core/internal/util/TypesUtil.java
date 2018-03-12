@@ -241,7 +241,7 @@ public class TypesUtil implements Types
         return _env.getVoidType();
     }
 
-    @Override
+    @Override @Deprecated
 	public WildcardType getWildcardType(Collection<ReferenceType> upperBounds, Collection<ReferenceType> lowerBounds)
     {		
         final String boundKey;

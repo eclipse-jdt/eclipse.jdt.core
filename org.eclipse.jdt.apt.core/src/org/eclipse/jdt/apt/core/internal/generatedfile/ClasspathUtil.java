@@ -146,7 +146,6 @@ public class ClasspathUtil {
 	/**
 	 * returns true if we updated the classpath, false otherwise
 	 * @param specificOutputLocation 
-	 * @param  
 	 */
 	public static boolean updateProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor, boolean isTestCode, IPath specificOutputLocation )
 		throws JavaModelException

@@ -3799,7 +3799,7 @@ public final class JavaCore extends Plugin {
 	    JavaModelManager manager = JavaModelManager.getJavaModelManager();
 
 		// Returns the stored deprecation message
-		String message = (String) manager.deprecatedVariables.get(variableName);
+		String message = manager.deprecatedVariables.get(variableName);
 		if (message != null) {
 		    return message;
 		}

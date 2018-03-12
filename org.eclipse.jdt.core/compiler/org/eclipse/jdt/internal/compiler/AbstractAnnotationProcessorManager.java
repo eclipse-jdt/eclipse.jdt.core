@@ -21,7 +21,7 @@ public abstract class AbstractAnnotationProcessorManager {
 	/**
 	 * Configure the receiver using the given batch compiler and the given options.
 	 * The parameter batchCompiler is expected to be an instance of the batch compiler. This method is
-	 * only used for the batch mode. For the IDE mode, please see {@link #configureFromPlatform(Compiler, Object, Object)}.
+	 * only used for the batch mode. For the IDE mode, please see {@link #configureFromPlatform(Compiler, Object, Object, boolean)}.
 	 *
 	 * @param batchCompiler the given batch compiler object
 	 * @param options the given options
