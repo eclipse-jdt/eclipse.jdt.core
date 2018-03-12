@@ -4519,5 +4519,30 @@ public void testBug529367() throws Exception {
 		deleteProject("second");
 	}
 }
+public void testBug531705() throws Exception {
+	IJavaProject project1 = createJavaProject("JavaSearchBugs9_1", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
+	try  {
+		project1.open(null);
+
+		createFolder("/JavaSearchBugs9_1/src/x");
+		String content =  "module my.mod { \n" +
+		"}\n";
+		String filePath = "/JavaSearchBugs9_1/src/module-info.java";
+		createFile(filePath, content);
+		addLibraryEntry(project1, "/JavaSearchBugs/lib/test.third.jar", false);
+		project1.close();
+		project1.open(null);
+		waitUntilIndexesReady();
+		String needle = "test.third.from.manifest";
+		SearchPattern pattern = SearchPattern.createPattern(needle, IJavaSearchConstants.MODULE, DECLARATIONS, SearchPattern.R_EXACT_MATCH);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]{project1});
+		search(pattern, scope, this.resultCollector);
+		String expected = "lib/test.third.jar test.third.from.manifest EXACT_MATCH";
+		assertSearchResults(expected, this.resultCollector);
+
+	} finally {
+		deleteProject(project1);
+	}
+}
 // Add more tests here
 }
