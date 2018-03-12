@@ -42,6 +42,8 @@ import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.NoType;
+import javax.lang.model.type.NullType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
@@ -1057,7 +1059,14 @@ public class Java8ElementProcessor extends BaseProcessor {
 			assertEquals("Parameter type should be same", param.asType(), asType2);
 		}
 	}
-	
+	public void testBug531717() {
+		NoType noType = _typeUtils.getNoType(TypeKind.NONE);
+		TypeMirror erasure = _typeUtils.erasure(noType);
+		assertSame("NoType should be same", noType, erasure);
+		NullType nullType = _typeUtils.getNullType();
+		erasure = _typeUtils.erasure(nullType);
+		assertSame("NoType should be same", nullType, erasure);
+	}
 	private void createPackageBinary() throws IOException {
 		String path = packageName.replace('.', '/');
 		ClassLoader loader = getClass().getClassLoader();
