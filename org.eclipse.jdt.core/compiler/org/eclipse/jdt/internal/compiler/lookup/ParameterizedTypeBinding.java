@@ -515,6 +515,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 		return this.environment.createParameterizedType(this.type, a_i_primes, this.enclosingType);
     }
+	private static boolean isSubtypeOf(TypeBinding maybeSubType, TypeBinding maybeSuper) {
+		return maybeSubType.isSubtypeOf(maybeSuper) && !TypeBinding.equalsEquals(maybeSubType, maybeSuper); // isSubtypeOf
+	}
 
     public ReferenceBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 		TypeBinding[] typeVariables = this.arguments;
@@ -556,11 +559,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 		return this.environment.createParameterizedType(this.type, a_i_primes, this.enclosingType);
 	}
-
-	private static boolean isSubtypeOf(TypeBinding maybeSubType, TypeBinding maybeSuper) {
-		return maybeSubType.isSubtypeOf(maybeSuper) && !TypeBinding.equalsEquals(maybeSubType, maybeSuper); // isSubtypeOf
-	}
-    
+ 
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#fieldCount()
 	 */

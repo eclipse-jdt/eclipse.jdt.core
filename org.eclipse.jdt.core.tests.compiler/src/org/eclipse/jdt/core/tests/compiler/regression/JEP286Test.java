@@ -717,4 +717,76 @@ public void testBug530879a() throws IOException {
 			"Can only iterate over an array or an instance of java.lang.Iterable\n" + 
 			"----------\n");
 }
+public void testBug532349() throws IOException {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo(Boolean p) {\n" + 
+			"		Y<? super Boolean> y = new Y<>();\n" + 
+			"		var v = y;\n" + 
+			"		Y<? super Boolean> tmp = v;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class Y<T extends Boolean> {\n" + 
+			"}"
+		});
+}
+public void testBug532349a() throws IOException {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"import java.util.ArrayList;\n" +
+			"public class X {\n" + 
+			"	public static void foo(Boolean p) {\n" + 
+			"		List<Y<? super Boolean>> l = new ArrayList<>();\n" + 
+			"		var dlv = l;\n" + 
+			"		for (var iv : dlv) {\n" + 
+			"			Y<? super Boolean> id = iv;\n" + 
+			"		}" +
+			"	}\n" + 
+			"}\n" + 
+			"class Y<T extends Boolean> {}"
+		});
+}
+public void testBug532349b() throws IOException {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	public static void foo(Boolean p) {\n" + 
+			"		Y<? super Boolean> y = new Y<>();\n" + 
+			"		try (var v = y) {\n" + 
+			"			Y<? super Boolean> tmp = v;\n" +
+			"		} catch (Exception e) { }\n" +
+			"	}\n" + 
+			"}\n" + 
+			"class Y<T extends Boolean> implements AutoCloseable {\n" +
+			"	@Override\n" + 
+			"	public void close() throws Exception {}\n" +
+			"}"
+		});
+}
+public void testBug532351() throws IOException {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"  public static void foo(Boolean p) {\n" + 
+			"    Y<? super Number> y = new Y<Number>(); // Javac reports, ECJ accepts\n" + 
+			"    var v = y;\n" + 
+			"    Y<? super Number> tmp = v;\n" + 
+			"  }\n" + 
+			"  class Y<T extends Number> {\n" + 
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" +
+		"	Y<? super Number> y = new Y<Number>(); // Javac reports, ECJ accepts\n" +
+		"	                      ^^^^^^^^^^^^^^^\n" +
+		"No enclosing instance of type X is accessible. Must qualify the allocation with an enclosing instance of type X (e.g. x.new A() where x is an instance of X).\n" +
+		"----------\n");
+}
 }
