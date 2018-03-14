@@ -6938,6 +6938,23 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject(p1);
 		}
 	}
+	public void testBug522601() throws CoreException {
+		if (!isJRE9) return;
+		IJavaProject p1 = createJava9Project("Bug522601", "9");
+		try {
+			IFile file = createFile("/Bug522601/test.txt", "not a jar");
+			IClasspathAttribute modAttr = JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true");
+			addLibraryEntry(p1, file.getFullPath(), null, null, null, null, new IClasspathAttribute[] { modAttr }, false);
+			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers", 
+					"Archive for required library: \'test.txt\' in project \'Bug522601\' cannot be read or is not a valid ZIP file\n" + 
+					"The project cannot be built until build path errors are resolved", markers);
+		} finally {
+			deleteProject(p1);
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

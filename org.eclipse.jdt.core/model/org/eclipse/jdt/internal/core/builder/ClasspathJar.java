@@ -311,7 +311,7 @@ public boolean hasCompilationUnit(String pkgName, String moduleName) {
 }
 
 /** Scan the contained packages and try to locate the module descriptor. */
-private void scanContent() {
+private boolean scanContent() {
 	try {
 		if (this.zipFile == null) {
 			if (org.eclipse.jdt.internal.core.JavaModelManager.ZIP_ACCESS_VERBOSE) {
@@ -323,8 +323,10 @@ private void scanContent() {
 		} else {
 			this.knownPackageNames = findPackageSet();
 		}
+		return true;
 	} catch(Exception e) {
 		this.knownPackageNames = new SimpleSet(); // assume for this build the zipFile is empty
+		return false;
 	}
 }
 
@@ -363,7 +365,8 @@ public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageN
 	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false, null);
 }
 public Manifest getManifest() {
-	scanContent(); // ensure zipFile is initialized
+	if (!scanContent()) // ensure zipFile is initialized
+		return null;
 	ZipEntry entry = this.zipFile.getEntry(TypeConstants.META_INF_MANIFEST_MF);
 	try {
 		if (entry != null)
