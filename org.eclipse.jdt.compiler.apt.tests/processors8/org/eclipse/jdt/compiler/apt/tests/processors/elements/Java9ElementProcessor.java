@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 IBM Corporation.
+ * Copyright (c) 2017, 2018 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,6 +45,7 @@ import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
+import org.eclipse.jdt.compiler.apt.tests.processors.util.TestDirectiveVisitor;
 
 /**
  * A processor that explores the java 9 specific elements and validates the lambda and 
@@ -673,6 +674,21 @@ public class Java9ElementProcessor extends BaseProcessor {
 			}
 		}
 		
+	}
+	public void testDirectiveVisitor() {
+		ModuleElement mod = _elementUtils.getModuleElement("mod.b");
+		assertNotNull("mod.b module null", mod);
+		try {
+			TestDirectiveVisitor<Object, Object> t = new TestDirectiveVisitor<>();
+			List<? extends Directive> directives = mod.getDirectives();
+			for (Directive directive : directives) {
+				Object result = t.visit(directive);
+				assertSame("Objects should be same", result, directive);
+			}
+
+		} catch (SecurityException e) {
+			e.printStackTrace();
+		}
 	}
 	private void validateModifiers(ExecutableElement method, Modifier[] expected) {
 		Set<Modifier> modifiers = method.getModifiers();

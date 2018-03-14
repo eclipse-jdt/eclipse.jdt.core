@@ -4,7 +4,7 @@
 	<classpathentry kind="src" output="binprocessors" path="processors"/>
 	<classpathentry kind="src" output="binprocessors8" path="processors8"/>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="lib" path="java9/java9api.jar"/>
+	<classpathentry kind="lib" path="java10/java10api.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
