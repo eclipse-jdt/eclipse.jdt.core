@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClasspathJep247 extends ClasspathLocation {
@@ -59,13 +60,13 @@ public class ClasspathJep247 extends ClasspathLocation {
 				for (String rel : this.subReleases) {
 					Path p = this.fs.getPath(rel, qualifiedBinaryFileName);
 					if (Files.exists(p)) {
-						content = Files.readAllBytes(p);
-						if (content != null) 
+						content = JRTUtil.safeReadBytes(p);
+						if (content != null)
 							break;
 					}
 				}
 			} else {
-				content = Files.readAllBytes(this.fs.getPath(this.release, qualifiedBinaryFileName));
+				content = JRTUtil.safeReadBytes(this.fs.getPath(this.release, qualifiedBinaryFileName));
 			}
 			if (content != null) {
 				reader = new ClassFileReader(content, qualifiedBinaryFileName.toCharArray());
