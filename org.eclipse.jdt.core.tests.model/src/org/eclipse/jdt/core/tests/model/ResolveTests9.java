@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -32,6 +33,9 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.search.indexing.IndexRequest;
 
 import junit.framework.Test;
 
@@ -125,6 +129,7 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 			testFolder = createFolder("/Resolve/src/test");
 			createFile(
 					"/Resolve/src/test/ITest.java",
+					"package test;\n" +
 					"public interface ITest {}\n");
 			createFile(
 					"/Resolve/src/test/TestClass.java",
@@ -145,6 +150,98 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 			assertElementsEqual(
 				"Unexpected elements",
 				"ITest [in ITest.java [in test [in src [in Resolve]]]]",
+				elements
+			);
+		} finally {
+			if (modInfo != null)
+				deleteResource(modInfo);
+			if (testFolder != null)
+				deleteResource(testFolder);
+		}
+	}
+	public void testModuleInfo_serviceInterface_almost_OK() throws CoreException {
+		IFile modInfo = null;
+		IFolder testFolder = null;
+		IndexManager indexManager = JavaModelManager.getIndexManager();
+		try {
+			// block the index manager to ensure it's not ready when code select is performed:
+			indexManager.request(new IndexRequest(new Path("blocker"), indexManager) {
+				@Override
+				public boolean execute(IProgressMonitor progress) {
+					try {
+						while (!this.isCancelled)
+							Thread.sleep(1000);
+					} catch (InterruptedException e) { /* ignore */ }
+					return false;
+				}
+			});
+			testFolder = createFolder("/Resolve/src/test");
+			createFile(
+					"/Resolve/src/test/ITest.java",
+					"public interface ITest {}\n"); // missing package declaration
+			createFile(
+					"/Resolve/src/test/TestClass.java",
+					"public class TestClass implements ITest {}\n");
+
+			this.wc = getWorkingCopy(
+					"/Resolve/src/module-info.java",
+					"module com.test {\n" +
+					"  provides test.ITest with test.TestClass;\n" +
+					"}\n");
+
+			String str = this.wc.getSource();
+			String selection = "ITest";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+		
+			// still, if we get here before indexes are ready,
+			// then OperationCanceledException will send us into SearchableEnvironment.findTypes(String, ISearchRequestor, int),
+			// which succeeds:
+			IJavaElement[] elements = this.wc.codeSelect(start, length);
+			assertElementsEqual(
+				"Unexpected elements",
+				"ITest [in ITest.java [in test [in src [in Resolve]]]]",
+				elements
+			);
+		} finally {
+			if (modInfo != null)
+				deleteResource(modInfo);
+			if (testFolder != null)
+				deleteResource(testFolder);
+			indexManager.discardJobs("blocker");
+		}
+	}
+	public void testModuleInfo_serviceInterface_NOK() throws CoreException {
+		IFile modInfo = null;
+		IFolder testFolder = null;
+		try {
+			testFolder = createFolder("/Resolve/src/test");
+			createFile(
+					"/Resolve/src/test/ITest.java",
+					"public interface ITest {}\n"); // missing package declaration
+			createFile(
+					"/Resolve/src/test/TestClass.java",
+					"public class TestClass implements ITest {}\n");
+		
+			this.wc = getWorkingCopy(
+					"/Resolve/src/module-info.java",
+					"module com.test {\n" +
+					"  provides test.ITest with test.TestClass;\n" +
+					"}\n");
+		
+			String str = this.wc.getSource();
+			String selection = "ITest";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+			
+			waitUntilIndexesReady();
+			// once indexes are ready, there's no second try and since
+			// SelectionOnQualifiedTypeReference ("test.ITest") cannot be resolved, 
+			// we don't recognize the selection:
+			IJavaElement[] elements = this.wc.codeSelect(start, length);
+			assertElementsEqual(
+				"Unexpected elements",
+				"",
 				elements
 			);
 		} finally {
