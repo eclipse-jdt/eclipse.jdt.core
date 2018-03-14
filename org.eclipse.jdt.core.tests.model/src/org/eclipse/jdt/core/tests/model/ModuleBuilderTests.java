@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -6965,8 +6966,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			assertFalse("Unexpected errors in project " + p.getName(), maxSeverity == IMarker.SEVERITY_ERROR);
 		}
 	}
-	// sort by CHAR_START
+	// sort by CHAR_START then MESSAGE
 	protected void sortMarkers(IMarker[] markers) {
-		Arrays.sort(markers, (a,b) -> a.getAttribute(IMarker.CHAR_START, 0) - b.getAttribute(IMarker.CHAR_START, 0)); 
+		Arrays.sort(markers, Comparator.comparingInt((IMarker a) -> a.getAttribute(IMarker.CHAR_START, 0))
+									   .thenComparing((IMarker a) -> a.getAttribute(IMarker.MESSAGE, ""))); 
 	}
 }

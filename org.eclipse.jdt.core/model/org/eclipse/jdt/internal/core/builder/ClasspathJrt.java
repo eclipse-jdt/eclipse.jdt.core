@@ -290,7 +290,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 			for (String rel : this.subReleases) {
 				Path p = this.fs.getPath(rel, qualifiedBinaryFileName);
 				if (Files.exists(p)) {
-					content = Files.readAllBytes(p);
+					content = JRTUtil.readWithRetries(p);
 					if (content != null) {
 						reader = new ClassFileReader(content, qualifiedBinaryFileName.toCharArray());
 						break;
