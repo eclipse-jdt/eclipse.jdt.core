@@ -40,7 +40,7 @@ public class ASTConverter10Test extends ConverterTestSetup {
 	static {
 //		TESTS_NUMBERS = new int[] { 19 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] {"testBug515875_002"};
+//		TESTS_NAMES = new String[] {"testBug532421_002"};
 	}
 	public static Test suite() {
 		String javaVersion = System.getProperty("java.version");
@@ -103,7 +103,48 @@ public class ASTConverter10Test extends ConverterTestSetup {
 			Type type = vStmt.getType();
 			assertTrue("not a var", type.isVar());
 			IBinding binding = type.resolveBinding();
-			assertTrue("non null binding", binding == null);
+			assertTrue("null binding", binding != null);
+	}
+	public void testBug532421_001() throws JavaModelException {
+		String contents =
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		var arr1 = new String[10];\n" +
+				"	}\n" +
+				"}";
+			this.workingCopy = getWorkingCopy("/Converter10/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(contents, this.workingCopy, false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			node = getASTNode((CompilationUnit)node, 0, 0);
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			VariableDeclarationStatement vStmt = (VariableDeclarationStatement) methodDeclaration.getBody().statements().get(0);
+			checkSourceRange(vStmt, "var arr1 = new String[10];", contents);
+			Type type = vStmt.getType();
+			assertTrue("not a var", type.isVar());
+			IBinding binding = type.resolveBinding();
+			assertTrue("null binding", binding != null);
+			assertTrue("binding incorrect", binding.getName().equals("String[]"));
+	}
+	public void testBug532421_002() throws JavaModelException {
+		String contents =
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		var list = new Y<String>();\n" + 
+				"	}\n" +
+				"}\n" +
+				"class Y<T> {}";
+			this.workingCopy = getWorkingCopy("/Converter10/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(contents, this.workingCopy, false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			node = getASTNode((CompilationUnit)node, 0, 0);
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			VariableDeclarationStatement vStmt = (VariableDeclarationStatement) methodDeclaration.getBody().statements().get(0);
+			checkSourceRange(vStmt, "var list = new Y<String>();", contents);
+			Type type = vStmt.getType();
+			assertTrue("not a var", type.isVar());
+			IBinding binding = type.resolveBinding();
+			assertTrue("null binding", binding != null);
+			assertTrue("binding incorrect", binding.getName().equals("Y<String>"));
 	}
 // Add new tests here
 }
