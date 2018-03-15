@@ -263,7 +263,81 @@ public void testbug_529556_missing_type_info_on_vars() throws JavaModelException
 			"a_method[METHOD_REF]{a_method(), Ltest0001.Test$Dummy;, ()V, a_method, null, " + (R_DEFAULT + 30) + "}",
 			result.proposals);
 }
-
+public void testBug532476a() throws JavaModelException {
+	CompletionResult result = complete(
+	        "/Completion/src3/p/X.java",
+	        "package p;\n" +
+	        "public class X {\n" +
+	        "   public static void main(String[] args) {\n" +
+	        "		var i_jk = 0;\n" + 
+	        "		System.out.println(i_);/n"+
+	        "	}\n" +
+	        "}",
+	    	"i_");
+		assertResults(
+			"i_jk[LOCAL_VARIABLE_REF]{i_jk, null, I, i_jk, null, " + (R_DEFAULT + 22) + "}",
+			result.proposals);
+}
+public void testBug532476b() throws JavaModelException {
+	CompletionResult result = complete(
+	        "/Completion/src3/p/X.java",
+	        "package p;\n" +
+	        "public class X {\n" +
+	        "   public static void main(String[] args) {\n" +
+	        "		for (var i_jkl : args) {\n" + 
+	        "			System.out.println(i_);/n"+
+	        "		}\n" +
+	        "	}\n" +
+	        "}",
+	    	"i_");
+		assertResults(
+			"i_jkl[LOCAL_VARIABLE_REF]{i_jkl, null, Ljava.lang.Object;, i_jkl, null, "  + (R_DEFAULT + 22) + "}",
+			result.proposals);
+}
+public void testBug532476c() throws JavaModelException {
+	CompletionResult result = complete(
+	        "/Completion/src3/p/X.java",
+	        "package p;\n" +
+	        "public class X {\n" +
+	        "   public static void main(String[] args) {\n" +
+	        "		for (var i_jkl = 0; i_ " +
+	        "	}\n" +
+	        "}",
+	    	"i_");
+		assertResults(
+				"i_jkl[LOCAL_VARIABLE_REF]{i_jkl, null, I, i_jkl, null, " + (R_DEFAULT + 22) + "}",
+			result.proposals);
+}
+public void testBug532476d() throws JavaModelException {
+	CompletionResult result = complete(
+	        "/Completion/src3/p/X.java",
+	        "package p;\n" +
+	        "public class X {\n" +
+	        "   public static void main(String[] args) {\n" +
+	        "		for (var i_jkl = 0; ; i_ " +
+	        "	}\n" +
+	        "}",
+	    	"i_");
+		assertResults(
+				"i_jkl[LOCAL_VARIABLE_REF]{i_jkl, null, I, i_jkl, null, " + (R_DEFAULT + 22) + "}",
+			result.proposals);
+}
+public void testBug532476e() throws JavaModelException {
+	CompletionResult result = complete(
+	        "/Completion/src3/p/X.java",
+	        "package p;\n" +
+	        "public class X {\n" +
+	        "   public static void main(String[] args) {\n" +
+	        "		for (var i_jkl : args) {\n" + 
+	        "			System.out.println(i_jkl.fin);/n"+
+	        "		}\n" +
+	        "	}\n" +
+	        "}",
+	    	"i_jkl.fin");
+		assertResults(
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + (R_DEFAULT + 30) + "}",
+			result.proposals);
+}
 private void assertProposalCount(String proposal, int expectedCount, int expectedOtherCount, CompletionResult result) {
 	String[] proposals = result.proposals.split("\n");
 	long proposalsCount = Stream.of(proposals).filter(s -> s.startsWith(proposal)).count();
