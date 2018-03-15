@@ -314,4 +314,14 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	void collectInferenceVariables(Set<InferenceVariable> variables) {
 		// nothing to collect for a raw type.
 	}
+
+	@Override
+	public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+		return this;
+	}
+
+	@Override
+	public ReferenceBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
+		return this;
+	}
 }
