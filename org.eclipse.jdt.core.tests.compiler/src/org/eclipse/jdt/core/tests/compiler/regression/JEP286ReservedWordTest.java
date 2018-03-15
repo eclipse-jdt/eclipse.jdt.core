@@ -31,7 +31,7 @@ public void initialize(CompilerTestSetup setUp) {
 	super.initialize(setUp);
 }
 public static Test suite() {
-	return buildAllCompliancesTestSuite(testClass());
+	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 }
 
 public JEP286ReservedWordTest(String testName){
@@ -123,5 +123,50 @@ public void test0002_interface_var_warning() throws IOException {
 				"'var' should not be used as an type name, since it is a reserved word from source level 10 on\n" +
 				errorTail);
 	}
+}
+public void testBug530920() throws IOException {
+	String classX = "public class X<var extends Number> { }\n";
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			classX
+		},
+		this.complianceLevel == ClassFileConstants.JDK10 ?
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public class X<var extends Number> { }\n" +
+			"	               ^^^\n" +
+			"'var' is not allowed here\n"
+		:
+			"----------\n" +
+			"1. WARNING in X.java (at line 1)\n" +
+			"	public class X<var extends Number> { }\n" +
+			"	               ^^^\n" +
+			"'var' should not be used as an type name, since it is a reserved word from source level 10 on\n"
+		);
+}
+public void testBug530920a() throws IOException {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	<var extends Number> var getNumber() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}"	
+		},
+		this.complianceLevel == ClassFileConstants.JDK10 ?
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" +
+			"	<var extends Number> var getNumber() {\n" +
+			"	 ^^^\n" +
+			"'var' is not allowed here\n"
+		:
+			"----------\n" +
+			"1. WARNING in X.java (at line 2)\n" +
+			"	<var extends Number> var getNumber() {\n" +
+			"	 ^^^\n" +
+			"'var' should not be used as an type name, since it is a reserved word from source level 10 on\n"
+		);
 }
 }

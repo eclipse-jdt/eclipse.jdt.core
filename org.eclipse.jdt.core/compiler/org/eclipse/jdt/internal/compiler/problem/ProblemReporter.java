@@ -9419,7 +9419,7 @@ public void varIsReservedTypeName(TypeDeclaration decl) {
 		decl.sourceStart,
 		decl.sourceEnd);
 }
-public void varIsReservedTypeNameInFuture(TypeDeclaration decl) {
+public void varIsReservedTypeNameInFuture(ASTNode decl) {
 	this.handle(
 		IProblem.VarIsReservedInFuture,
 		NoArgument,
