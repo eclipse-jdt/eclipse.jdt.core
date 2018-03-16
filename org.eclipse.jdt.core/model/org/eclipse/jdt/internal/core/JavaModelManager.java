@@ -18,6 +18,7 @@
  *     Terry Parker <tparker@google.com> - [performance] Low hit rates in JavaModel caches - https://bugs.eclipse.org/421165
  *     Terry Parker <tparker@google.com> - Enable the Java model caches to recover from IO errors - https://bugs.eclipse.org/455042
  *     Gábor Kövesdán - Contribution for Bug 350000 - [content assist] Include non-prefix matches in auto-complete suggestions
+ *     Karsten Thoms - Bug 532505 - Reduce memory footprint of ClasspathAccessRule
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -3827,7 +3828,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		private IAccessRule loadAccessRule() throws IOException {
 			int problemId = loadInt();
 			IPath pattern = loadPath();
-			return new ClasspathAccessRule(pattern.toString().toCharArray(), problemId);
+			return getAccessRule(pattern, problemId);
 		}
 
 		private IAccessRule[] loadAccessRules() throws IOException {
@@ -5632,5 +5633,24 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public int getOpenableCacheSize() {
 		return this.cache.openableCache.getSpaceLimit();
+	}
+	
+	/**
+	 * Get a cached access rule, or when the cache did not contain the rule, creates a new one.
+	 * 
+	 * @param filePattern the file pattern this access rule should match
+	 * @param kind one of {@link IAccessRule#K_ACCESSIBLE}, {@link IAccessRule#K_DISCOURAGED},
+	 *                     or {@link IAccessRule#K_NON_ACCESSIBLE}, optionally combined with
+	 *                     {@link IAccessRule#IGNORE_IF_BETTER}
+	 * @return an access rule
+	 */
+	public IAccessRule getAccessRule(IPath filePattern, int kind) {
+		IAccessRule rule = new ClasspathAccessRule(filePattern, kind);
+		IAccessRule cachedRule = this.cache.accessRuleCache.get(rule);
+		if (cachedRule != null) {
+			return cachedRule;
+		}
+		this.cache.accessRuleCache.put(rule, rule);
+		return rule;
 	}
 }

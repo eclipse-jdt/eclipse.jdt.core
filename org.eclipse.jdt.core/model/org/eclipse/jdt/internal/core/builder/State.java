@@ -9,12 +9,13 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
+ *     Karsten Thoms - Bug 532505
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
-
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
@@ -22,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.*;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
-import org.eclipse.jdt.internal.core.ClasspathAccessRule;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
 import java.io.*;
@@ -451,7 +451,7 @@ private static AccessRuleSet readRestriction(DataInputStream in) throws IOExcept
 	for (int i = 0; i < length; i++) {
 		char[] pattern = readName(in);
 		int problemId = in.readInt();
-		accessRules[i] = new ClasspathAccessRule(pattern, problemId);
+		accessRules[i] = (AccessRule) JavaCore.newAccessRule(new Path(new String(pattern)), problemId);
 	}
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	return new AccessRuleSet(accessRules, in.readByte(), manager.intern(in.readUTF()));

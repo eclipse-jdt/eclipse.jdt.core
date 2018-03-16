@@ -105,6 +105,7 @@
  *									COMPILER_CODEGEN_METHOD_PARAMETERS_ATTR
  *     Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
  *     Gábor Kövesdán - Contribution for Bug 350000 - [content assist] Include non-prefix matches in auto-complete suggestions
+ *     Karsten Thoms - Bug 532505 - Reduce memory footprint of ClasspathAccessRule
  *     
  *******************************************************************************/
 
@@ -170,7 +171,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.BatchOperation;
 import org.eclipse.jdt.internal.core.BufferManager;
-import org.eclipse.jdt.internal.core.ClasspathAccessRule;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.ClasspathValidation;
@@ -4670,7 +4670,7 @@ public final class JavaCore extends Plugin {
 	 * @see IClasspathEntry#getExclusionPatterns()
 	 */
 	public static IAccessRule newAccessRule(IPath filePattern, int kind) {
-		return new ClasspathAccessRule(filePattern, kind);
+		return JavaModelManager.getJavaModelManager().getAccessRule(filePattern, kind);
 	}
 
 	/**
