@@ -220,6 +220,21 @@ public class TypesImpl implements Types {
 
 		return null;
 	}
+	private void validateRealType(TypeMirror t) {
+		switch (t.getKind()) {
+			case EXECUTABLE:
+			case PACKAGE:
+			case MODULE:
+				throw new IllegalArgumentException(
+						"Executable, package and module are illegal argument for Types.contains(..)"); //$NON-NLS-1$
+			default:
+				break;
+		}
+	}
+	private void validateRealTypes(TypeMirror t1, TypeMirror t2) {
+		validateRealType(t1);
+		validateRealType(t2);
+	}
 
     @Override
     public TypeElement boxedClass(PrimitiveType p) {
@@ -231,37 +246,23 @@ public class TypesImpl implements Types {
 
     @Override
     public TypeMirror capture(TypeMirror t) {
-        throw new UnsupportedOperationException("NYI: TypesImpl.capture(...)"); //$NON-NLS-1$
+    	validateRealType(t);
+    	TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
+    	if (typeMirrorImpl._binding instanceof ParameterizedTypeBinding) {
+    		throw new UnsupportedOperationException("NYI: TypesImpl.capture(...)"); //$NON-NLS-1$
+    	}
+        return t;
     }
 
     @Override
     public boolean contains(TypeMirror t1, TypeMirror t2) {
-        switch(t1.getKind()) {
-        case EXECUTABLE :
-        case PACKAGE :
-            throw new IllegalArgumentException("Executable and package are illegal argument for Types.contains(..)"); //$NON-NLS-1$
-        default:
-            break;
-        }
-        switch(t2.getKind()) {
-        case EXECUTABLE :
-        case PACKAGE :
-            throw new IllegalArgumentException("Executable and package are illegal argument for Types.contains(..)"); //$NON-NLS-1$
-        default:
-            break;
-        }
+    	validateRealTypes(t1, t2);
         throw new UnsupportedOperationException("NYI: TypesImpl.contains(" + t1 + ", " + t2 + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
     }
 
     @Override
     public List<? extends TypeMirror> directSupertypes(TypeMirror t) {
-        switch(t.getKind()) {
-        case PACKAGE :
-        case EXECUTABLE :
-            throw new IllegalArgumentException("Invalid type mirror for directSupertypes"); //$NON-NLS-1$
-        default:
-            break;
-        }
+    	validateRealType(t);
         TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
         Binding binding = typeMirrorImpl._binding;
         if (binding instanceof ReferenceBinding) {
@@ -281,6 +282,7 @@ public class TypesImpl implements Types {
 
     @Override
     public TypeMirror erasure(TypeMirror t) {
+    	validateRealType(t);
         TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
         Binding binding = typeMirrorImpl._binding;
         if (binding instanceof ReferenceBinding) {
@@ -455,8 +457,9 @@ public class TypesImpl implements Types {
      */
     @Override
     public boolean isAssignable(TypeMirror t1, TypeMirror t2) {
+    	validateRealTypes(t1, t2);
         if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
-            return false;
+        	return false;
         }
         Binding b1 = ((TypeMirrorImpl)t1).binding();
         Binding b2 = ((TypeMirrorImpl)t2).binding();
@@ -474,6 +477,14 @@ public class TypesImpl implements Types {
 
     @Override
     public boolean isSameType(TypeMirror t1, TypeMirror t2) {
+        if (t1 instanceof NoTypeImpl) {
+            if (t2 instanceof NoTypeImpl) {
+                return ((NoTypeImpl) t1).getKind() == ((NoTypeImpl) t2).getKind();
+            }
+            return false;
+        } else if (t2 instanceof NoTypeImpl) {
+            return false;
+        }
         if (t1.getKind() == TypeKind.WILDCARD || t2.getKind() == TypeKind.WILDCARD) {
             // Wildcard types are never equal, according to the spec of this method
             return false;
@@ -514,6 +525,7 @@ public class TypesImpl implements Types {
      */
     @Override
     public boolean isSubtype(TypeMirror t1, TypeMirror t2) {
+    	validateRealTypes(t1, t2);
         if (t1 instanceof NoTypeImpl) {
             if (t2 instanceof NoTypeImpl) {
                 return ((NoTypeImpl) t1).getKind() == ((NoTypeImpl) t2).getKind();
@@ -523,7 +535,7 @@ public class TypesImpl implements Types {
             return false;
         }
         if (!(t1 instanceof TypeMirrorImpl) || !(t2 instanceof TypeMirrorImpl)) {
-            return false;
+        	throw new IllegalArgumentException();
         }
         if (t1 == t2) {
             return true;
@@ -535,7 +547,7 @@ public class TypesImpl implements Types {
         }
         if (!(b1 instanceof TypeBinding) || !(b2 instanceof TypeBinding)) {
             // package, method, import, etc.
-            return false;
+        	 throw new IllegalArgumentException();
         }
         if (b1.kind() == Binding.BASE_TYPE || b2.kind() == Binding.BASE_TYPE) {
             if (b1.kind() != b2.kind()) {

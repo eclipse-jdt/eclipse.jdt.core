@@ -690,6 +690,61 @@ public class Java9ElementProcessor extends BaseProcessor {
 			e.printStackTrace();
 		}
 	}
+	public void testTypesImpl() {
+		ModuleElement mod = _elementUtils.getModuleElement("mod.a");
+		Set<? extends TypeElement> typeElements = _elementUtils.getAllTypeElements("abc.internal.A");
+		assertNotNull("mod.b module null", mod);
+		assertNotNull("Type should not be null", typeElements);
+		assertEquals("Incorrect no of types", 1, typeElements.size());
+		TypeElement tElement = null;
+		for (TypeElement typeElement : typeElements) {
+			tElement = typeElement;
+		}
+		assertNotNull("Package should not be null", tElement);
+		TypeMirror t = tElement.asType();
+		boolean exception = false;
+		try {
+			_typeUtils.erasure(mod.asType());
+		} catch(IllegalArgumentException iae) {
+			exception = true;
+		}
+		assertTrue("Exception not thrown", exception);
+		exception = false;
+		try {
+			_typeUtils.capture(mod.asType());
+		} catch(IllegalArgumentException iae) {
+			exception = true;
+		}
+		assertTrue("Exception not thrown", exception);
+		exception = false;
+		try {
+			_typeUtils.directSupertypes(mod.asType());
+		} catch(IllegalArgumentException iae) {
+			exception = true;
+		}
+		assertTrue("Exception not thrown", exception);
+		exception = false;
+		try {
+			_typeUtils.isSubtype(mod.asType(), t);
+		} catch(IllegalArgumentException iae) {
+			exception = true;
+		}
+		assertTrue("Exception not thrown", exception);
+		exception = false;
+		try {
+			_typeUtils.isAssignable(mod.asType(), t);
+		} catch(IllegalArgumentException iae) {
+			exception = true;
+		}
+		assertTrue("Exception not thrown", exception);
+		exception = false;
+		try {
+			_typeUtils.contains(mod.asType(), t);
+		} catch(IllegalArgumentException iae) {
+			exception = true;
+		}
+		assertTrue("Exception not thrown", exception);
+	}
 	private void validateModifiers(ExecutableElement method, Modifier[] expected) {
 		Set<Modifier> modifiers = method.getModifiers();
 		List<Modifier> list = new ArrayList<>(modifiers);
