@@ -34,6 +34,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.*;
+import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
@@ -901,7 +902,7 @@ public class DeltaProcessor {
 							}
 						};
 						try {
-							ResourcesPlugin.getWorkspace().run(runnable, monitor);
+							ResourcesPlugin.getWorkspace().run(runnable, new MultiRule(projectsToTouch), IWorkspace.AVOID_UPDATE, monitor);
 						} catch (CoreException e) {
 							throw new JavaModelException(e);
 						}
