@@ -1214,4 +1214,156 @@ public void testBug528948_002() throws Exception {
 		deleteProject(project2);
 	}
 }
+public void testBug517417_001() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL9_LIB"}, "bin", "9");
+	IJavaProject project2 = createJavaProject("Completion9_2", new String[] {"src"}, new String[] {"JCL9_LIB"}, "bin", "9");
+	IJavaProject project3 = createJavaProject("Completion9_3", new String[] {"src"}, new String[] {"JCL9_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		createType("/Completion9_1/src/", "pack11", "X11");
+		createFile("/Completion9_1/src/module-info.java",
+				"module first {\n" +
+				"	requires second;\n" +
+				"}\n");
+		String fileContent =
+				"package pack0;\n" +
+				"import pac\n" +
+				"public class Main {\n" +
+				"}\n";
+		String completeBehind = "import pac";
+		createFolder("/Completion9_1/src/pack0");
+		String filePath = "/Completion9_1/src/pack0/Main.java";
+		createFile(filePath, fileContent);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project2.open(null);
+		createType("/Completion9_2/src/", "pack21", "X21");
+		createType("/Completion9_2/src/", "pack2internal", "X22");
+
+		createFile("/Completion9_2/src/module-info.java", 
+				"module second { \n" +
+				"	requires transitive third;\n" +
+				"	exports pack21 to first;\n" +
+				"	exports pack2internal to my.test.mod;\n" +
+				"}\n");
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project3.open(null);
+		createType("/Completion9_3/src/", "pack31", "X31");
+
+		createFile("/Completion9_3/src/module-info.java", 
+				"module third { " +
+				"	exports pack31;\n" +
+				"}\n");
+		addClasspathEntry(project3, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project1.close(); // sync
+		project2.close();
+		project3.close();
+		project3.open(null);
+		project2.open(null);
+		project1.open(null);
+
+		int cursorLocation = fileContent.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "pack0[PACKAGE_REF]{pack0.*;, pack0, null, null, 49}\n" + // local 
+				"pack11[PACKAGE_REF]{pack11.*;, pack11, null, null, 49}\n" + // local
+				"pack21[PACKAGE_REF]{pack21.*;, pack21, null, null, 49}\n" + // exported 
+				"pack31[PACKAGE_REF]{pack31.*;, pack31, null, null, 49}"; // exported in transitively required third
+				// package pack2internal is exported only to another module
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+		deleteProject(project2);
+		deleteProject(project3);
+	}
+}
+
+// testing only packages from transitive requires modules available for completion
+public void testBug517417_002() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL9_LIB"}, "bin", "9");
+	IJavaProject project2 = createJavaProject("Completion9_2", new String[] {"src"}, new String[] {"JCL9_LIB"}, "bin", "9");
+	IJavaProject project3 = createJavaProject("Completion9_3", new String[] {"src"}, new String[] {"JCL9_LIB"}, "bin", "9");
+	IJavaProject project4 = createJavaProject("Completion9_4", new String[] {"src"}, new String[] {"JCL9_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		createType("/Completion9_1/src/", "pack11", "X11");
+		createFile("/Completion9_1/src/module-info.java",
+				"module first {\n" +
+				"	requires second;\n" +
+				"}\n");
+		String fileContent =
+				"package pack0;\n" +
+				"import pac\n" +
+				"public class Main {\n" +
+				"}\n";
+		String completeBehind = "import pac";
+		createFolder("/Completion9_1/src/pack0");
+		String filePath = "/Completion9_1/src/pack0/Main.java";
+		createFile(filePath, fileContent);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project2.open(null);
+		createType("/Completion9_2/src/", "pack21", "X21");
+		createType("/Completion9_2/src/", "pack2internal", "X22");
+
+		createFile("/Completion9_2/src/module-info.java", 
+				"module second { \n" +
+				"	requires transitive third;\n" +
+				"	requires four;\n" +
+				"	exports pack21 to first;\n" +
+				"	exports pack2internal to my.test.mod;\n" +
+				"}\n");
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project3.open(null);
+		createType("/Completion9_3/src/", "pack31", "X31");
+
+		createFile("/Completion9_3/src/module-info.java", 
+				"module third { " +
+				"	exports pack31;\n" +
+				"}\n");
+		addClasspathEntry(project3, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project4.open(null);
+		createType("/Completion9_4/src/", "pack41", "X41");
+
+		createFile("/Completion9_4/src/module-info.java", 
+				"module four { " +
+				"	exports pack41;\n" +
+				"}\n");
+		addClasspathEntry(project4, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project1.close(); // sync
+		project2.close();
+		project3.close();
+		project4.close();
+		project4.open(null);
+		project3.open(null);
+		project2.open(null);
+		project1.open(null);
+
+		int cursorLocation = fileContent.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "pack0[PACKAGE_REF]{pack0.*;, pack0, null, null, 49}\n" + // local 
+				"pack11[PACKAGE_REF]{pack11.*;, pack11, null, null, 49}\n" + // local
+				"pack21[PACKAGE_REF]{pack21.*;, pack21, null, null, 49}\n" + // exported 
+				"pack31[PACKAGE_REF]{pack31.*;, pack31, null, null, 49}"; // exported in transitively required third
+				// package pack2internal is exported only to another module
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+		deleteProject(project2);
+		deleteProject(project3);
+		deleteProject(project4);
+	}
+}
 }
