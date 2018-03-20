@@ -54,7 +54,7 @@ public class RunAllJava10Tests extends TestCase {
 	}
 
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunAllJava9Tests.class.getName());
+		TestSuite ts = new TestSuite(RunAllJava10Tests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);
