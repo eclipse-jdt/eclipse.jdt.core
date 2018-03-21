@@ -709,9 +709,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			IJavaProject project = setUpJavaProject("ConvertToModule", "9");
-			if (!project.getOption("org.eclipse.jdt.core.compiler.compliance", true).equals("9")) {
-				return;
-			}
+			assertEquals(project.getOption("org.eclipse.jdt.core.compiler.compliance", true), "9");
 			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
 			IPackageFragmentRoot theRoot = null;
@@ -4886,6 +4884,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			JavaCore.setOptions(javaCoreOptions);
 		}
 	}
+	@Deprecated
 	public void testBug519935() throws CoreException, IOException {
 		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
@@ -4954,6 +4953,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			JavaCore.setOptions(javaCoreOptions);
 		}
 	}
+	@Deprecated
 	public void testBug520310() throws CoreException, IOException {
 		if (!isJRE9) return;
 		try {

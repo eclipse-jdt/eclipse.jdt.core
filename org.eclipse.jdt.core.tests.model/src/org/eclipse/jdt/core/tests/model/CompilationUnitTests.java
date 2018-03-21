@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2596,7 +2596,7 @@ public void testBug495598_001() throws CoreException {
 				"public class X {}\n");
 		ICompilationUnit cuD = getCompilationUnit("/P/src/X.java");
 		
-		ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS9);
+		ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS10);
 		parser.setProject(this.testProject);
 		parser.setSource(cuD);
 		parser.setResolveBindings(true);

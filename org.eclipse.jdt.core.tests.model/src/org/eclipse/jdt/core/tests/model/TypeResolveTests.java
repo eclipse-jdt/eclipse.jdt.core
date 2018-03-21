@@ -1211,8 +1211,135 @@ public void test528818a() throws CoreException, IOException {
 		assertNotNull("Type should not be null", type);
 		String[][] resolveType = type.resolveType("java.lang.Object");
 		assertNotNull("Type should not be null", resolveType);
-		
 	} finally {
+		deleteProject("P");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=479963
+public void test531046a() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var s1 = args[0];\n"
+				+ "    System.out.println(s1);\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "s1";
+		IJavaElement[] elements = unit.codeSelect(source.indexOf(select), select.length());
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		elements = unit.findElements(variable);
+		assertNotNull("Should not be null", elements);
+		assertEquals("incorrect type", "Ljava.lang.String;", variable.getTypeSignature());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void test531046b() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var s1 = args[0];\n"
+				+ "    System.out.println(s1);\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "s1";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		elements = unit.findElements(variable);
+		assertNotNull("Should not be null", elements);
+		assertEquals("incorrect type", "Ljava.lang.String;", variable.getTypeSignature());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void test531046c() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var s1 = args;\n"
+				+ "    System.out.println(s1);\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "s1";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		elements = unit.findElements(variable);
+		assertNotNull("Should not be null", elements);
+		assertEquals("incorrect type", "[Ljava.lang.String;", variable.getTypeSignature());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void test531046d() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var s1 = new java.util.HashMap<String, Object>();\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "s1";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		elements = unit.findElements(variable);
+		assertNotNull("Should not be null", elements);
+		assertEquals("incorrect type", "Ljava.util.HashMap<Ljava.lang.String;Ljava.lang.Object;>;", variable.getTypeSignature());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void test531046e() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var s1 = new java.util.HashMap<String, Object>();\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "var";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		assertEquals("should not be empty", 1, elements.length);
+		IType type = (IType) elements[0];
+		assertEquals("incorrect type", "java.util.HashMap<java.lang.String,java.lang.Object>", type.getFullyQualifiedParameterizedName());
+	}  finally {
 		deleteProject("P");
 	}
 }

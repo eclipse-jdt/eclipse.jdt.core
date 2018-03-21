@@ -359,6 +359,7 @@ public void test522604_0001() throws Exception {
 	}
 }
 
+
 public void test486988_0010() throws Exception {
 	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
 	IJavaProject project2 = createJavaProject("Completion9_2", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");

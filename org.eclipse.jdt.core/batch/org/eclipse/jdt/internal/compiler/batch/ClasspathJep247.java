@@ -112,7 +112,7 @@ public class ClasspathJep247 extends ClasspathLocation {
 			HashMap<String, ?> env = new HashMap<>();
 			this.fs = FileSystems.newFileSystem(uri, env);
 		}
-		this.releasePath = this.fs.getPath(""); //$NON-NLS-1$
+		this.releasePath = this.fs.getPath("/"); //$NON-NLS-1$
 		if (!Files.exists(this.fs.getPath(this.release))) {
 			throw new IllegalArgumentException("release " + this.release + " is not found in the system");  //$NON-NLS-1$//$NON-NLS-2$
 		}

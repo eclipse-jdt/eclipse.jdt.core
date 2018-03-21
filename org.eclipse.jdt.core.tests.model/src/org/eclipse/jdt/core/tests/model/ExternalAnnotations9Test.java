@@ -47,7 +47,7 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 	static {
 //		TESTS_NAMES = new String[] {"testBug522401"};
 	}
-		
+
 	public static Test suite() {
 		return buildModelTestSuite(ExternalAnnotations9Test.class, BYTECODE_DECLARATION_ORDER);
 	}

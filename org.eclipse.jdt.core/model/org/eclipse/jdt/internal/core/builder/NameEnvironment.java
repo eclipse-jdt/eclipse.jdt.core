@@ -517,6 +517,11 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		NameEnvironmentAnswer answer = classpathLocation.findClass(binaryFileName, qPackageName, moduleName, qBinaryFileName, false,
 																	this.modulePathEntries != null ? this.modulePathEntries::containsKey : null);
 		if (answer != null) {
+			char[] answerMod = answer.moduleName();
+			if (answerMod != null && this.modulePathEntries != null) {
+				if (!this.modulePathEntries.containsKey(String.valueOf(answerMod)))
+					continue; // assumed to be filtered out by --limit-modules
+			}
 			if (!answer.ignoreIfBetter()) {
 				if (answer.isBetter(suggestedAnswer))
 					return answer;

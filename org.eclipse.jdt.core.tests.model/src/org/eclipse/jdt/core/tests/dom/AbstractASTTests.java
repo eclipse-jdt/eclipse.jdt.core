@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2016 IBM Corporation and others.
+ * Copyright (c) 2004, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -485,11 +485,14 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			return new ASTNode[] {unit};
 		return nodes;
 	}
+	@SuppressWarnings("deprecation")
 	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
 		String option = cu.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
 		long jdkLevel = CompilerOptions.versionToJdkLevel(option);
 		int JLSLevel = AST_INTERNAL_JLS3;
-		if (jdkLevel >= ClassFileConstants.JDK9) {
+		if (jdkLevel >= ClassFileConstants.JDK10) {
+			JLSLevel = AST_INTERNAL_JLS10;			
+		} else if (jdkLevel >= ClassFileConstants.JDK9) {
 			JLSLevel = AST_INTERNAL_JLS9;			
 		} else if (jdkLevel >= ClassFileConstants.JDK1_8) {
 			JLSLevel = AST_INTERNAL_JLS8;

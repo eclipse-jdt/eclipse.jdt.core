@@ -135,7 +135,13 @@ public void test002() throws JavaModelException {
 		"@TestAnnotation package testcase;" //$NON-NLS-1$
 	);
 	incrementalBuild(projectPath);
-	expectingNoProblems();
+	String javaVersion = System.getProperty("java.version");
+	if (javaVersion != null && JavaCore.compareJavaVersions(javaVersion, "9") >= 0) {
+		expectingProblemsFor(new Path("/Project/src/testcase/Main.java"), 
+				"Problem : The method getPackage(String) from the type Package is deprecated [ resource : </Project/src/testcase/Main.java> range : <125,147> category : <110> severity : <1>]");
+	} else {
+		expectingNoProblems();
+	}
 	executeClass(projectPath, "testcase.Main", "@testcase.TestAnnotation()@testcase.TestAnnotation()", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 }
 public void test003() throws JavaModelException {

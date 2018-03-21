@@ -247,6 +247,8 @@ static class JavacCompiler {
 			this.version = JavaCore.VERSION_1_8;
 		} else if(rawVersion.startsWith("9")) {
 			this.version = JavaCore.VERSION_9;
+		} else if(rawVersion.startsWith("10")) {
+			this.version = JavaCore.VERSION_10;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -350,6 +352,9 @@ static class JavacCompiler {
 			if ("9.0.1".equals(rawVersion)) {
 				return 0100;
 			}
+		}
+		if (version == JavaCore.VERSION_10) {
+			return 0000; // We are still in EA
 		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);
 	}
@@ -1102,6 +1107,8 @@ protected static class JavacTestOptions {
 			buffer.append("\" -1.8 " + processAnnot);
 		} else if (this.complianceLevel == ClassFileConstants.JDK9) {
 			buffer.append("\" -9 " + processAnnot);
+		} else if (this.complianceLevel == ClassFileConstants.JDK10) {
+			buffer.append("\" -10 " + processAnnot);
 		}
 		buffer
 			.append(" -preserveAllLocals -proceedOnError -nowarn -g -classpath \"")

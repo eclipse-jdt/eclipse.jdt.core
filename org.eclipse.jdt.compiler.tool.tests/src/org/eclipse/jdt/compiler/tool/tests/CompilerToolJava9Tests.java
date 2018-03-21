@@ -166,8 +166,10 @@ public class CompilerToolJava9Tests extends TestCase {
 		for(int i = 0; i < 2; i++) {
 			String cName = this.compilerNames[i];
 			JavaCompiler compiler = this.compilers[i];
+			if (!(compiler instanceof EclipseCompiler))
+				continue;
 			StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-			Path path = Paths.get(modules_directory + File.separator + "SimpleModules");
+			Path path = Paths.get(modules_directory + File.separator + "source" + File.separator + "SimpleModules");
 			manager.setLocationFromPaths(StandardLocation.MODULE_PATH, Arrays.asList(path));
 			try {
 				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.MODULE_PATH, "module.two");
@@ -183,8 +185,10 @@ public class CompilerToolJava9Tests extends TestCase {
 		for(int i = 0; i < 2; i++) {
 			String cName = this.compilerNames[i];
 			JavaCompiler compiler = this.compilers[i];
+			if (!(compiler instanceof EclipseCompiler))
+				continue;
 			StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-			Path path = Paths.get(modules_directory + File.separator + "SimpleModules" + File.separator + "module.one");
+			Path path = Paths.get(modules_directory + File.separator + "source" + File.separator + "SimpleModules");
 			manager.setLocationFromPaths(StandardLocation.MODULE_PATH, Arrays.asList(path));
 			try {
 				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.MODULE_PATH, "module.one");

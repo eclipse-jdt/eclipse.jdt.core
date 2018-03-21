@@ -2633,7 +2633,7 @@ public void testBug351697() throws Exception {
 		proj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 
 		try {
-			ASTParser parser= ASTParser.newParser(AST_INTERNAL_JLS9);
+			ASTParser parser= ASTParser.newParser(AST_INTERNAL_JLS10);
 			parser.setSource(unit);
 			parser.setResolveBindings(true);
 			ASTNode node = parser.createAST(null);

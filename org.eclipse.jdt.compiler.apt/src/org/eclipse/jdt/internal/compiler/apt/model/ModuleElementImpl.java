@@ -221,7 +221,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 		@Override
 		public <R, P> R accept(DirectiveVisitor<R, P> visitor, P param) {
-			return visitor.visit(this);
+			return visitor.visitExports(this, param);
 		}
 
 		@Override
@@ -254,7 +254,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 		@Override
 		public <R, P> R accept(DirectiveVisitor<R, P> visitor, P param) {
-			return visitor.visit(this);
+			return visitor.visitRequires(this, param);
 		}
 
 		@Override
@@ -287,7 +287,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 		@Override
 		public <R, P> R accept(DirectiveVisitor<R, P> visitor, P param) {
-			return visitor.visit(this);
+			return visitor.visitOpens(this, param);
 		}
 
 		@Override
@@ -312,7 +312,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 		@Override
 		public <R, P> R accept(DirectiveVisitor<R, P> visitor, P param) {
-			return visitor.visit(this);
+			return visitor.visitUses(this, param);
 		}
 
 		@Override
@@ -338,7 +338,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 		@Override
 		public <R, P> R accept(DirectiveVisitor<R, P> visitor, P param) {
-			return visitor.visit(this);
+			return visitor.visitProvides(this, param);
 		}
 
 		@Override

@@ -10314,7 +10314,7 @@ public void testBug365437b() {
 			"----------\n";
 	INameEnvironment save = this.javaClassLib;
 	try {
-		if (isJRE9) {
+		if (isJRE9Plus) {
 			List<String> limitModules = Arrays.asList("java.se", "java.xml.ws.annotation");
 			this.javaClassLib = new CustomFileSystem(limitModules);
 		}
@@ -10864,7 +10864,7 @@ public void _testBug386356_1() {
 public void testBug386356_2() {
 	INameEnvironment save = this.javaClassLib;
 	try {
-		if (isJRE9) {
+		if (isJRE9Plus) {
 			List<String> limitModules = Arrays.asList("java.se", "java.xml.bind");
 			this.javaClassLib = new CustomFileSystem(limitModules);
 		}

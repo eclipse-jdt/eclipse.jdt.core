@@ -1,13 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Gábor Kövesdán - Contribution for Bug 350000 - [content assist] Include non-prefix matches in auto-complete suggestions
+ *     Jesper Steen Møller - Contributions for bug 529552 - [18.3] Add 'var' in completions
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -34,6 +36,7 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 			COMPLETION_SUITES.add(CompletionTests_1_5.class);
 			COMPLETION_SUITES.add(CompletionTests18.class);
 			COMPLETION_SUITES.add(CompletionTests9.class);
+			COMPLETION_SUITES.add(CompletionTests10.class);
 			COMPLETION_SUITES.add(CompletionContextTests.class);
 			COMPLETION_SUITES.add(CompletionContextTests_1_5.class);
 			COMPLETION_SUITES.add(CompletionWithMissingTypesTests.class);

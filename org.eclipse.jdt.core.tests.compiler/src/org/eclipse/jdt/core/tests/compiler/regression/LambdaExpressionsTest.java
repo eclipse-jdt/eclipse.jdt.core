@@ -5052,7 +5052,7 @@ public void test447119d() {
 			"[- java.util.List<java.lang.String> noop(java.util.List<java.lang.String>)]",
 			null,
 			true,
-			(isJRE9 
+			(isJRE9Plus 
 			? new String[] { "--add-opens", "java.base/java.io=ALL-UNNAMED" } 
 			: new String [] { "-Ddummy" }) // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 			);
@@ -5220,7 +5220,7 @@ public void test449063() {
 		null,
 		customOptions,
 		null,
-		(isJRE9
+		(isJRE9Plus
 		? "Test$Tuple<java.lang.Integer, java.lang.String>\n" +
 		  "Test$Tuple<java.lang.String, java.lang.Double>"
 		: "Test.Test$Tuple<java.lang.Integer, java.lang.String>\n" +
@@ -5296,7 +5296,7 @@ public void test449063a() {
 		null,
 		customOptions,
 		null,
-		(isJRE9
+		(isJRE9Plus
 		? "Test$Tuple<java.lang.Integer, java.lang.String>\n" +
 		  "Test$Tuple<java.lang.String, java.lang.Double>"
 		: "Test.Test$Tuple<java.lang.Integer, java.lang.String>\n" +
@@ -5511,7 +5511,7 @@ public void test449063e() {
 			"    }\n" + 
 			"}"
 			},
-			(isJRE9
+			(isJRE9Plus
 			? "Test$Tuple<java.lang.Integer, java.lang.String>\n" +
 			  "Test$Tuple<java.lang.String, java.lang.Double>"
 			: "Test.Test$Tuple<java.lang.Integer, java.lang.String>\n" +
