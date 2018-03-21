@@ -5,10 +5,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -236,14 +232,14 @@ public final class AST {
 	 * up to and including Java SE 10 (aka JDK 10).
 	 * </p>
 	 *
-	 * @since 3.14 BETA_JAVA_18_3
+	 * @since 3.14
 	 */
 	public static final int JLS10 = 10;
 
 	/**
 	 * Internal synonym for {@link #JLS10}. Use to alleviate
 	 * deprecation warnings once JLS10 is deprecated
-	 * @since 3.14 BETA_JAVA_18_3
+	 * @since 3.14
 	 */
 	/*package*/ static final int JLS10_INTERNAL = JLS10;
 

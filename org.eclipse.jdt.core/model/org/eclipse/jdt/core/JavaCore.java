@@ -5,10 +5,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added the following constants:
@@ -2951,7 +2947,7 @@ public final class JavaCore extends Plugin {
 	public static final String VERSION_9 = "9"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
-	 * @since 3.14 BETA_JAVA_18_3
+	 * @since 3.14
 	 * @category OptionValue
 	 */
 	public static final String VERSION_10 = "10"; //$NON-NLS-1$
@@ -2966,7 +2962,7 @@ public final class JavaCore extends Plugin {
 	 * Returns all {@link JavaCore}{@code #VERSION_*} levels.
 	 * 
 	 * @return all available versions
-	 * @since 3.14 BETA_JAVA_18_3
+	 * @since 3.14
 	 */
 	public static List<String> getAllVersions() {
 		return Arrays.asList(VERSION_CLDC_1_1, VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4, VERSION_1_5,

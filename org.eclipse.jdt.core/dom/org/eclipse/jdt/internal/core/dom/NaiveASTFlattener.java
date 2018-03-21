@@ -5,10 +5,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -79,7 +75,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * Internal synonym for {@link AST#JLS9}. Use to alleviate
 	 * deprecation warnings.
 	 * @deprecated
-	 * @since 3.14 BETA_JAVA_18_3
+	 * @since 3.14
 	 */
 	private static final int JLS9 = AST.JLS9;
 
