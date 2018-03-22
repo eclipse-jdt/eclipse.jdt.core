@@ -60,6 +60,10 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 	protected boolean hasJRE19() {
 		return ((AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_9) != 0);
 	}
+	@Deprecated
+	static int getJSL9() {
+		return AST.JLS9;
+	}
 
 	/** Project with real JRE. */
 	public void testBug522401() throws Exception {
@@ -115,7 +119,7 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 				"	public abstract void take(X x);\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = cu.reconcile(AST.JLS9, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = cu.reconcile(getJSL9(), true, null, new NullProgressMonitor());
 		assertProblems(reconciled.getProblems(), new String[] {
 				"Pb(916) Illegal redefinition of parameter x, inherited method from Lib1 does not constrain this parameter"
 		}, new int[] { 8 });
@@ -123,7 +127,7 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 		// acquire library AST:
 		IType type = this.project.findType("libs.Lib1");
 		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
-		ASTParser parser = ASTParser.newParser(AST.JLS9);
+		ASTParser parser = ASTParser.newParser(getJSL9());
 		parser.setSource(libWorkingCopy);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -153,7 +157,7 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 		assertTrue("file should exist", annotationFile.exists());
 
 		// check that the error is resolved now:
-		reconciled = cu.reconcile(AST.JLS9, true, null, new NullProgressMonitor());
+		reconciled = cu.reconcile(getJSL9(), true, null, new NullProgressMonitor());
 		assertNoProblems(reconciled.getProblems());
 	}
 }

@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -52,6 +53,10 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 	}
 	public static Test suite() {
 		return buildModelTestSuite(AbstractCompilerTest.F_1_8, JavaElement8Tests.class);
+	}
+	@Deprecated
+	static int getJSL9() {
+		return AST.JLS9;
 	}
 	public void testBug428178() throws Exception {
 		try {
@@ -645,7 +650,7 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 			cu.becomeWorkingCopy(null);
 
 			// create the binding for the CU's main type, and drill down to details:
-			ASTParser parser= ASTParser.newParser(AST_INTERNAL_JLS9);
+			ASTParser parser= ASTParser.newParser(getJSL9());
 			parser.setProject(project);
 			IBinding[] bindings = parser.createBindings(new IJavaElement[] { cu.findPrimaryType() }, null);
 			IMethodBinding methodBinding= ((ITypeBinding) bindings[0]).getDeclaredMethods()[1];

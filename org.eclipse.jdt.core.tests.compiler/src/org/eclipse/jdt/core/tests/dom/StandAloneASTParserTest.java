@@ -1582,7 +1582,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 					super.acceptAST(sourceFilePath, ast);
 				}
 			};
-			ASTParser parser = ASTParser.newParser(AST.JLS9);
+			ASTParser parser = ASTParser.newParser(AST.JLS10);
 			parser.setResolveBindings(true);
 			parser.setStatementsRecovery(true);
 			parser.setBindingsRecovery(true);
