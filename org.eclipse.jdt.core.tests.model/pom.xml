@@ -20,7 +20,7 @@
   </parent>
   <groupId>org.eclipse.jdt</groupId>
   <artifactId>org.eclipse.jdt.core.tests.model</artifactId>
-  <version>3.10.361-SNAPSHOT</version>
+  <version>3.10.411-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 
   <properties>
