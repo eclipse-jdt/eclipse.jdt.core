@@ -5986,6 +5986,7 @@ public final class JavaCore extends Plugin {
 				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
 				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
 				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
+				options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 				break;
 		}
 	}
