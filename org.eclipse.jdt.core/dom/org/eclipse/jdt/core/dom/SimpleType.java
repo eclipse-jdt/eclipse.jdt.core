@@ -249,6 +249,7 @@ public class SimpleType extends AnnotatableType {
 	}
 
 	/**
+	 * @exception UnsupportedOperationException if this operation is used below JLS10
 	 * @since 3.14 BETA_JAVA_18_3
 	 */
 	@Override
