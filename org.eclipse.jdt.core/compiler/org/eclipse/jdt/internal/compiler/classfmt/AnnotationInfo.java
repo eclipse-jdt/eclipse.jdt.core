@@ -35,6 +35,8 @@ public class AnnotationInfo extends ClassFileStruct implements IBinaryAnnotation
 
 	static Object[] EmptyValueArray = new Object[0];
 
+	public RuntimeException exceptionDuringDecode;
+
 AnnotationInfo(byte[] classFileBytes, int[] contantPoolOffsets, int offset) {
 	super(classFileBytes, contantPoolOffsets, offset);
 }
@@ -58,13 +60,41 @@ private void decodeAnnotation() {
 	// u2 type_index + u2 num_member_value_pair
 	this.readOffset += 4;
 	this.pairs = numberOfPairs == 0 ? ElementValuePairInfo.NoMembers : new ElementValuePairInfo[numberOfPairs];
-	for (int i = 0; i < numberOfPairs; i++) {
-		// u2 member_name_index;
-		utf8Offset = this.constantPoolOffsets[u2At(this.readOffset)] - this.structOffset;
-		char[] membername = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
-		this.readOffset += 2;
-		Object value = decodeDefaultValue();
-		this.pairs[i] = new ElementValuePairInfo(membername, value);
+	int i = 0;
+	try {
+		while (i < numberOfPairs) {
+			// u2 member_name_index;
+			utf8Offset = this.constantPoolOffsets[u2At(this.readOffset)] - this.structOffset;
+			char[] membername = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+			this.readOffset += 2;
+			Object value = decodeDefaultValue();
+			this.pairs[i++] = new ElementValuePairInfo(membername, value);
+		}
+	} catch (RuntimeException any) {
+		sanitizePairs();
+		StringBuilder newMessage = new StringBuilder(any.getMessage());
+		newMessage.append(" while decoding pair #").append(i).append(" of annotation @").append(this.typename); //$NON-NLS-1$ //$NON-NLS-2$
+		newMessage.append(", bytes at structOffset ").append(this.structOffset).append(":"); //$NON-NLS-1$ //$NON-NLS-2$
+		int offset = this.structOffset;
+		while (offset <= this.structOffset+this.readOffset && offset < this.reference.length) {
+			newMessage.append(' ').append(Integer.toHexString(this.reference[offset++] & 0xFF));
+		}
+		throw new IllegalStateException(newMessage.toString(), any);
+	}
+}
+private void sanitizePairs() {
+	ElementValuePairInfo[] oldPairs = this.pairs;
+	if (oldPairs != null) {
+		ElementValuePairInfo[] newPairs = new ElementValuePairInfo[oldPairs.length];
+		int count = 0;
+		for (int i = 0; i < oldPairs.length; i++) {
+			ElementValuePairInfo evpInfo = oldPairs[i];
+			if (evpInfo != null)
+				newPairs[count++] = evpInfo;
+		}
+		if (count < oldPairs.length) {
+			this.pairs = Arrays.copyOf(newPairs, count);
+		}
 	}
 }
 Object decodeDefaultValue() {
@@ -151,7 +181,8 @@ Object decodeDefaultValue() {
 			}
 			break;
 		default:
-			throw new IllegalStateException("Unrecognized tag " + (char) tag); //$NON-NLS-1$
+			String tagDisplay = tag == 0 ? "0x00" : (char) tag + " ("+Integer.toHexString(tag&0xFF)+')';  //$NON-NLS-1$//$NON-NLS-2$
+			throw new IllegalStateException("Unrecognized tag " + tagDisplay); //$NON-NLS-1$
 	}
 	return value;
 }
