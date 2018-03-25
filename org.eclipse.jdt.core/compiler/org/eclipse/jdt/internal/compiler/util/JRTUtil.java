@@ -167,18 +167,20 @@ public class JRTUtil {
 	public static boolean hasCompilationUnit(File jrt, String qualifiedPackageName, String moduleName) {
 		return getJrtSystem(jrt).hasClassFile(qualifiedPackageName, moduleName);
 	}
-	public static byte[] readWithRetries(Path path) throws IOException, ClosedByInterruptException {
-		int attempt = 0;
-		while (true) {
-			try {
-				return Files.readAllBytes(path);
-			} catch(ClosedByInterruptException e) {
-				if (attempt++ < 10)
-					continue;
-				throw e;
-			} catch (NoSuchFileException e) {
-				return null;
-			}
+	/**
+	 * Tries to read all bytes of the file denoted by path,
+	 * returns null if the file could not be found or if the read was interrupted.
+	 * @param path
+	 * @return bytes or null
+	 * @throws IOException any IO exception other than NoSuchFileException
+	 */
+	public static byte[] safeReadBytes(Path path) throws IOException {
+		try {
+			return Files.readAllBytes(path);
+		} catch(ClosedByInterruptException e) {
+			return null;
+		} catch (NoSuchFileException e) {
+			return null;
 		}
 	}
 }
@@ -305,7 +307,7 @@ class JrtFileSystem {
 		for (String mod : modules) {
 			if (moduleNameFilter != null && !moduleNameFilter.test(mod))
 				continue;
-			content = JRTUtil.readWithRetries(this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
+			content = JRTUtil.safeReadBytes(this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
 			if (content != null) {
 				module = mod;
 				break;
@@ -326,7 +328,7 @@ class JrtFileSystem {
 		} else {
 			String[] modules = getModules(fileName);
 			for (String mod : modules) {
-				content = JRTUtil.readWithRetries(this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
+				content = JRTUtil.safeReadBytes(this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
 				if (content != null) {
 					break;
 				}
@@ -335,7 +337,7 @@ class JrtFileSystem {
 		return content;
 	}
 	private byte[] getClassfileBytes(String fileName, String module) throws IOException, ClassFormatException {
-		return JRTUtil.readWithRetries(this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, module, fileName));
+		return JRTUtil.safeReadBytes(this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, module, fileName));
 	}
 	public ClassFileReader getClassfile(String fileName, String module, Predicate<String> moduleNameFilter) throws IOException, ClassFormatException {
 		ClassFileReader reader = null;

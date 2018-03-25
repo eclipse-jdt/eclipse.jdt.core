@@ -63,13 +63,13 @@ public class ClasspathJep247 extends ClasspathLocation {
 				for (String rel : this.subReleases) {
 					Path p = this.fs.getPath(rel, qualifiedBinaryFileName);
 					if (Files.exists(p)) {
-						content = JRTUtil.readWithRetries(p);
+						content = JRTUtil.safeReadBytes(p);
 						if (content != null)
 							break;
 					}
 				}
 			} else {
-				content = JRTUtil.readWithRetries(this.fs.getPath(this.release, qualifiedBinaryFileName));
+				content = JRTUtil.safeReadBytes(this.fs.getPath(this.release, qualifiedBinaryFileName));
 			}
 			if (content != null) {
 				reader = new ClassFileReader(content, qualifiedBinaryFileName.toCharArray());
