@@ -854,15 +854,11 @@ public class NameLookup implements SuffixConstants {
 	public static IModule getModuleDescriptionInfo(IModuleDescription moduleDesc) {
 		if (moduleDesc != null) {
 			try {
-				if (moduleDesc instanceof BinaryModule) {
-					IJavaElement parent = moduleDesc.getParent();
-					if (parent instanceof ModularClassFile)
-						return ((ModularClassFile) parent).getBinaryModuleInfo();
-				} else if (moduleDesc instanceof SourceModule) {
-					return (IModule)((SourceModule) moduleDesc).getElementInfo();
-				} else if (moduleDesc instanceof AutoModule) {
+				if (moduleDesc instanceof AutoModule) {
 					boolean nameFromManifest = ((AutoModule) moduleDesc).isAutoNameFromManifest();
 					return IModule.createAutomatic(moduleDesc.getElementName().toCharArray(), nameFromManifest);
+				} else {
+					return ((AbstractModule) moduleDesc).getModuleInfo();
 				}
 			} catch (JavaModelException e) {
 				if (!e.isDoesNotExist())

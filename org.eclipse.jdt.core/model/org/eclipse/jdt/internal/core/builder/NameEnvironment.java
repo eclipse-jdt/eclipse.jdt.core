@@ -233,8 +233,8 @@ private void computeClasspathLocations(
 					try {
 						IModuleDescription mod;
 						if ((mod = prereqJavaProject.getModuleDescription()) != null) {
-							SourceModule sourceModule = (SourceModule) mod;
-							info = (IModule) sourceModule.getElementInfo();
+							AbstractModule aModule = (AbstractModule) mod;
+							info = aModule.getModuleInfo();
 						}
 					} catch (JavaModelException jme) {
 						// do nothing, probably a non module project
