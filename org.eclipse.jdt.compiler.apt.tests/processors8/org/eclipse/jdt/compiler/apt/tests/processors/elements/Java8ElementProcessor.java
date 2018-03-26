@@ -1067,6 +1067,18 @@ public class Java8ElementProcessor extends BaseProcessor {
 		erasure = _typeUtils.erasure(nullType);
 		assertSame("NoType should be same", nullType, erasure);
 	}
+	public void testMethodAnnotation() {
+		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model9.Y");
+		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
+		ExecutableElement method = null;
+		for (Element member : members) {
+			if ("m".equals(member.getSimpleName().toString())) {
+				method = (ExecutableElement) member;
+			}
+		}
+		assertNotNull("Method should not be null", method);
+		verifyAnnotations(method, new String[]{"@Deprecated()"});
+	}
 	private void createPackageBinary() throws IOException {
 		String path = packageName.replace('.', '/');
 		ClassLoader loader = getClass().getClassLoader();
