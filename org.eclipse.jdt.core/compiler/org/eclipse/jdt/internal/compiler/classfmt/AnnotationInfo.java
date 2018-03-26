@@ -186,7 +186,7 @@ Object decodeDefaultValue() {
 }
 public IBinaryElementValuePair[] getElementValuePairs() {
 	if (this.pairs == null)
-		initialize();
+		lazyInitialize();
 	return this.pairs;
 }
 public char[] getTypeName() {
@@ -197,6 +197,10 @@ public boolean isDeprecatedAnnotation() {
 	return (this.standardAnnotationTagBits & (TagBits.AnnotationDeprecated | TagBits.AnnotationTerminallyDeprecated)) != 0;
 }
 void initialize() {
+	if (this.pairs == null)
+		decodeAnnotation();
+}
+synchronized void lazyInitialize() {
 	if (this.pairs == null)
 		decodeAnnotation();
 }
