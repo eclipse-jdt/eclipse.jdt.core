@@ -789,4 +789,62 @@ public void testBug532351() throws IOException {
 		"No enclosing instance of type X is accessible. Must qualify the allocation with an enclosing instance of type X (e.g. x.new A() where x is an instance of X).\n" +
 		"----------\n");
 }
+public void testBug531025() {
+	runNegativeTest(
+		new String[] {
+			"a/Ann.java",
+			"package a;\n" +
+			"public @interface Ann {}\n",
+			"a/AnnM.java",
+			"package a;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Target(ElementType.METHOD)\n" +
+			"public @interface AnnM {}\n",
+			"a/AnnD.java",
+			"package a;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Target(ElementType.LOCAL_VARIABLE)\n" +
+			"public @interface AnnD {}\n",
+			"a/AnnT.java",
+			"package a;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"public @interface AnnT {}\n",
+			"a/AnnDT.java",
+			"package a;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Target({ElementType.LOCAL_VARIABLE, ElementType.TYPE_USE})\n" +
+			"public @interface AnnDT {}\n",
+			"X.java",
+			"import a.*;\n" +
+			"import java.util.*;\n" +
+			"public class X {\n" +
+			"	void test(List<String> strings) {\n" +
+			"		@Ann   var v  = strings;\n" +
+			"		@AnnM  var vm = strings;\n" +
+			"		@AnnD  var vd = strings;\n" +
+			"		@AnnT  var vt = \"\";\n" +
+			"		@AnnDT var vdt = this;\n" +
+			"		for (@AnnD var fvd : strings) {}\n" +
+			"		for (@AnnT var fvt : strings) {}\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	@AnnM  var vm = strings;\n" + 
+		"	^^^^^\n" + 
+		"The annotation @AnnM is disallowed for this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	@AnnT  var vt = \"\";\n" + 
+		"	^^^^^\n" + 
+		"The annotation @AnnT is disallowed for this location\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	for (@AnnT var fvt : strings) {}\n" + 
+		"	     ^^^^^\n" + 
+		"The annotation @AnnT is disallowed for this location\n" + 
+		"----------\n");
+}
 }
