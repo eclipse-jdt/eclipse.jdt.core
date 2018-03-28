@@ -157,4 +157,27 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="model/org/eclipse/jdt/core/Signature.java" type="org.eclipse.jdt.core.Signature">
+        <filter comment="Java 10 work backported to 4.7.3a" id="1141899266">
+            <message_arguments>
+                <message_argument value="3.14"/>
+                <message_argument value="3.13"/>
+                <message_argument value="C_UNION"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Java 10 work backported to 4.7.3a" id="1141899266">
+            <message_arguments>
+                <message_argument value="3.14"/>
+                <message_argument value="3.13"/>
+                <message_argument value="createUnionTypeSignature(String[])"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Java 10 work backported to 4.7.3a" id="1141899266">
+            <message_arguments>
+                <message_argument value="3.14"/>
+                <message_argument value="3.13"/>
+                <message_argument value="getUnionTypeBounds(String)"/>
+            </message_arguments>
+        </filter>
+    </resource>
 </component>
