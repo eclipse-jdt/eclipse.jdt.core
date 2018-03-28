@@ -146,5 +146,33 @@ public class ASTConverter10Test extends ConverterTestSetup {
 			assertTrue("null binding", binding != null);
 			assertTrue("binding incorrect", binding.getName().equals("Y<String>"));
 	}
+	public void testBug532535_001() throws JavaModelException {
+		String contents =
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		var s = new Y();\n" + 
+				"	}\n" +
+				"}\n" +
+				"class Y {}";
+			this.workingCopy = getWorkingCopy("/Converter10/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(contents, this.workingCopy, false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			node = getASTNode((CompilationUnit)node, 0, 0);
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			VariableDeclarationStatement vStmt = (VariableDeclarationStatement) methodDeclaration.getBody().statements().get(0);
+			checkSourceRange(vStmt, "var s = new Y();", contents);
+			Type type = vStmt.getType();
+			IBinding binding = type.resolveBinding();
+			assertTrue("null binding", binding != null);
+			assertTrue("binding incorrect", binding.getName().equals("Y"));
+			assertTrue("not a var", type.isVar());
+			SimpleType simpleType = (SimpleType) type;
+			Name name = simpleType.getName();
+			SimpleName simpleName = (SimpleName) name;
+			binding = simpleName.resolveBinding();
+			assertTrue(binding instanceof ITypeBinding);
+			ITypeBinding typeBinding = (ITypeBinding) binding;
+			assertTrue("wrong type binding", typeBinding.getName().equals("Y"));
+	}
 // Add new tests here
 }

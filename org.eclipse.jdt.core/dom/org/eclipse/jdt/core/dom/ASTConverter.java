@@ -3646,7 +3646,8 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(variableDeclarationFragment, localDeclaration);
 			if (this.ast.apiLevel() >= AST.JLS10_INTERNAL && type.isVar()) {
-				Name varName = ((SimpleType) type).getName();
+				SimpleName varName = (SimpleName) ((SimpleType) type).getName();
+				varName.setVar(true);
 				recordNodes(varName, localDeclaration);				
 			}
 		}
