@@ -1346,7 +1346,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	@Override
 	public void setLocationFromPaths(Location location, Collection<? extends Path> paths) throws IOException {
 		setLocation(location, getFiles(paths));
-		if (location == StandardLocation.MODULE_PATH) { 
+		if (location == StandardLocation.MODULE_PATH || location == StandardLocation.MODULE_SOURCE_PATH) { 
 			// FIXME: same for module source path?
 			Map<String, String> options = new HashMap<>();
 			// FIXME: Find a way to get the options from the EclipseCompiler and pass it to the parser.
@@ -1367,7 +1367,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					Collection<String> moduleNames = cp.getModuleNames(null);
 					for (String string : moduleNames) {
 						Path p = Paths.get(cp.getPath());
-						setLocationForModule(StandardLocation.MODULE_PATH, string,  Collections.singletonList(p));
+						setLocationForModule(location, string,  Collections.singletonList(p));
 					}
 				}
 			}
@@ -1406,7 +1406,13 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	@Override
 	public Location getLocationForModule(Location location, String moduleName) throws IOException {
 		validateModuleLocation(location, moduleName);
-		return this.locationHandler.getLocation(location, moduleName);
+		Location result = this.locationHandler.getLocation(location, moduleName);
+		if (result == null && location == StandardLocation.CLASS_OUTPUT) {
+			LocationWrapper wrapper = this.locationHandler.getLocation(StandardLocation.MODULE_SOURCE_PATH, moduleName);
+			deriveOutputLocationForModules(moduleName, wrapper.paths);
+			result = getLocationForModule(location, moduleName);
+		}
+		return result;
 	}
 
 	@Override
@@ -1464,24 +1470,34 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 		return null;
 	}
-
+	private void deriveOutputLocationForModules(String moduleName, Collection<? extends Path> paths) {
+		LocationWrapper wrapper = this.locationHandler.getLocation(StandardLocation.CLASS_OUTPUT, moduleName);
+		if (wrapper == null) {
+			// First get from our internally known location for legacy/unnamed location
+			wrapper = this.locationHandler.getLocation(StandardLocation.CLASS_OUTPUT, ""); //$NON-NLS-1$
+			if (wrapper == null) {
+				wrapper = this.locationHandler.getLocation(StandardLocation.CLASS_OUTPUT);
+			}
+			if (wrapper != null) {
+				Iterator<? extends Path> iterator = wrapper.paths.iterator();
+				if (iterator.hasNext()) {
+					try {
+					// Per module output location is always a singleton list
+					Path path = iterator.next().resolve(moduleName);
+					this.locationHandler.setLocation(StandardLocation.CLASS_OUTPUT, moduleName, Collections.singletonList(path));
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
 	@Override
 	public void setLocationForModule(Location location, String moduleName, Collection<? extends Path> paths) throws IOException {
 		validateModuleLocation(location, moduleName);
 		this.locationHandler.setLocation(location, moduleName, paths);
 		if (location == StandardLocation.MODULE_SOURCE_PATH) {
-			LocationWrapper wrapper = this.locationHandler.getLocation(StandardLocation.CLASS_OUTPUT, moduleName);
-			if (wrapper == null) {
-				wrapper = this.locationHandler.getLocation(StandardLocation.CLASS_OUTPUT, ""); //$NON-NLS-1$
-				if (wrapper != null) {
-					Iterator<? extends Path> iterator = wrapper.paths.iterator();
-					if (iterator.hasNext()) {
-						// Per module output location is always a singleton list
-						Path path = iterator.next().resolve(moduleName);
-						this.locationHandler.setLocation(StandardLocation.CLASS_OUTPUT, moduleName, Collections.singletonList(path));
-					}
-				}
-			}
+			deriveOutputLocationForModules(moduleName, paths);
 		}
 	}
 }

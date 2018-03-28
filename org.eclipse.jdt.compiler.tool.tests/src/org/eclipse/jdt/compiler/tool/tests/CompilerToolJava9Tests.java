@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.ServiceLoader;
+import java.util.Set;
 
 import javax.lang.model.SourceVersion;
 import javax.tools.Diagnostic;
@@ -139,6 +140,28 @@ public class CompilerToolJava9Tests extends TestCase {
 
 	}
 
+	public void testSupportedCompilerVersions() throws IOException {
+		if (this.isJREBelow9) return;
+		for(int i = 0; i < 2; i++) {
+			JavaCompiler compiler = this.compilers[i];
+			Set<SourceVersion> sourceVersions = compiler.getSourceVersions();
+			SourceVersion[] values = SourceVersion.values();
+			for (SourceVersion sourceVersion : values) {
+				// Javac doesn't appear to have < 3 versions in the supported list, but we do anyway
+				if (!(compiler instanceof EclipseCompiler) &&
+						sourceVersion.compareTo(SourceVersion.RELEASE_3) <= 0) {
+					continue;
+				}
+					
+				assertTrue("source version " + sourceVersion + " should be supported"
+						+ "by compiler " + compiler.getClass().getName(), sourceVersions.contains(sourceVersion));
+			}
+			//	specifically test the last known - 9
+			Object obj = SourceVersion.valueOf("RELEASE_9");
+			assertTrue("source version 9 should be supported", sourceVersions.contains(obj));
+		}
+	}
+	// Incomplete tests - fails both with Javac and ECJ
 	public void testGetLocationForModule2() throws IOException {
 		if (this.isJREBelow9) return;
 		for(int i = 0; i < 2; i++) {
@@ -148,15 +171,16 @@ public class CompilerToolJava9Tests extends TestCase {
 				continue;
 			StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 			Path path = Paths.get(modules_directory + File.separator + "source" + File.separator + "SimpleModules");
-			manager.setLocationFromPaths(StandardLocation.MODULE_PATH, Arrays.asList(path));
+			manager.setLocationFromPaths(StandardLocation.MODULE_SOURCE_PATH, Arrays.asList(path));
 			try {
-				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.MODULE_PATH, "module.two");
+				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.MODULE_SOURCE_PATH, "module.two");
 				assertNotNull(cName + ":module path location should not be null", location);
 			} catch (UnsupportedOperationException ex) {
 				fail(cName + ":Should support getLocationForModule()");
 			}
 		}
 	}
+	// Incomplete tests - fails both with Javac and ECJ
 	public void testGetLocationForModule3() throws IOException {
 		if (this.isJREBelow9) return;
 		for(int i = 0; i < 2; i++) {
@@ -166,9 +190,9 @@ public class CompilerToolJava9Tests extends TestCase {
 				continue;
 			StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 			Path path = Paths.get(modules_directory + File.separator + "source" + File.separator + "SimpleModules");
-			manager.setLocationFromPaths(StandardLocation.MODULE_PATH, Arrays.asList(path));
+			manager.setLocationFromPaths(StandardLocation.MODULE_SOURCE_PATH, Arrays.asList(path));
 			try {
-				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.MODULE_PATH, "module.one");
+				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.MODULE_SOURCE_PATH, "module.one");
 				assertNotNull(cName + ":module path location should not be null", location);
 			} catch (UnsupportedOperationException ex) {
 				fail(cName + ":Should support getLocationForModule()");
@@ -473,6 +497,74 @@ public class CompilerToolJava9Tests extends TestCase {
 			fail("compilation didn't fail as expected");
 		} catch(IllegalArgumentException iae) {
 			assertEquals("option -source is not supported when --release is used", iae.getMessage());
+		}
+	}
+	public void testClassOutputLocationForModule_1() throws IOException {
+		if (this.isJREBelow9) return;
+		for(int i = 0; i < 2; i++) {
+			String cName = this.compilerNames[i];
+			JavaCompiler compiler = this.compilers[i];
+			if (!(compiler instanceof EclipseCompiler))
+				continue;
+			StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+			Path path = Paths.get(modules_directory + File.separator + "source" + File.separator + "SimpleModules");
+			manager.setLocationFromPaths(StandardLocation.MODULE_SOURCE_PATH, Arrays.asList(path));
+			manager.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(_tmpBinDir));
+			try {
+				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.CLASS_OUTPUT, "module.two");
+				assertNotNull(cName + ":module path location should not be null", location);
+				assertTrue("should be output location", location.isOutputLocation());
+			} catch (UnsupportedOperationException ex) {
+				fail(cName + ":Should support getLocationForModule()");
+			}
+		}
+	}
+	public void testClassOutputLocationForModule_2() throws IOException {
+		if (this.isJREBelow9) return;
+		for(int i = 0; i < 2; i++) {
+			String cName = this.compilerNames[i];
+			JavaCompiler compiler = this.compilers[i];
+			if (!(compiler instanceof EclipseCompiler))
+				continue;
+			StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+			Path path = Paths.get(modules_directory + File.separator + "source" + File.separator + "SimpleModules" + File.separator + "module.one");
+			manager.setLocationForModule(StandardLocation.MODULE_SOURCE_PATH, "module.one", Arrays.asList(path));
+			path = Paths.get(modules_directory + File.separator + "source" + File.separator + "SimpleModules" + File.separator + "module.two");
+			manager.setLocationForModule(StandardLocation.MODULE_SOURCE_PATH, "module.two", Arrays.asList(path));
+			manager.setLocation(StandardLocation.CLASS_OUTPUT, Arrays.asList(_tmpBinDir));
+			try {
+				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.CLASS_OUTPUT, "module.one");
+				assertTrue("should be output location", location.isOutputLocation());
+				assertNotNull(cName + ":module path location should not be null", location);
+				Iterable<? extends Path> locationAsPaths = manager.getLocationAsPaths(location);
+				int count = 0;
+				boolean found = false;
+				for (Path path2 : locationAsPaths) {
+					if (path2.endsWith("module.one")) {
+						found = true;
+					}
+					count++;
+				}
+				assertEquals("incorrect no of output locations", 1, count);
+				assertTrue("output location for module.two not found", found);
+				location = manager.getLocationForModule(StandardLocation.CLASS_OUTPUT, "module.two");
+				assertTrue("should be output location", location.isOutputLocation());
+				assertNotNull(cName + ":module path location should not be null", location);
+				locationAsPaths = manager.getLocationAsPaths(location);
+				count = 0;
+				found = false;
+				for (Path path2 : locationAsPaths) {
+					if (path2.endsWith("module.two")) {
+						found = true;
+					}
+					count++;
+				}
+				assertEquals("incorrect no of output locations", 1, count);
+				assertTrue("output location for module.two not found", found);
+				
+			} catch (UnsupportedOperationException ex) {
+				fail(cName + ":Should support getLocationForModule()");
+			}
 		}
 	}
 	public void testGetJavaFileObjects() {

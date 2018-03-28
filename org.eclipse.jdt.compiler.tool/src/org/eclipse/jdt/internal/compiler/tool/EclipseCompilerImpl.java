@@ -589,21 +589,23 @@ public class EclipseCompilerImpl extends Main {
 				try {
 					Iterable<? extends Path> locationAsPaths = standardJavaFileManager.getLocationAsPaths(StandardLocation.MODULE_SOURCE_PATH);
 					if (locationAsPaths != null) {
+						StringBuilder builder = new StringBuilder();
 						for (Path path : locationAsPaths) {
-							ArrayList<Classpath> modulepaths = handleModuleSourcepath(path.toFile().getCanonicalPath());
-							for (Classpath classpath : modulepaths) {
-								Collection<String> moduleNames = classpath.getModuleNames(null);
-								for (String modName : moduleNames) {
-									Path p = Paths.get(classpath.getPath());
-									standardJavaFileManager.setLocationForModule(StandardLocation.MODULE_SOURCE_PATH, modName, 
-											Collections.singletonList(p));
-									p = Paths.get(classpath.getDestinationPath());
-									standardJavaFileManager.setLocationForModule(StandardLocation.CLASS_OUTPUT, modName, 
-											Collections.singletonList(p));
-								}
-							}
-							fileSystemClasspaths.addAll(modulepaths);
+							// Append all of them
+							builder.append(path.toFile().getCanonicalPath());
+							builder.append(File.pathSeparator);
 						}
+						ArrayList<Classpath> modulepaths = handleModuleSourcepath(builder.toString());
+						for (Classpath classpath : modulepaths) {
+							Collection<String> moduleNames = classpath.getModuleNames(null);
+							for (String modName : moduleNames) {
+								Path p = Paths.get(classpath.getPath());
+								standardJavaFileManager.setLocationForModule(StandardLocation.MODULE_SOURCE_PATH, modName, 
+										Collections.singletonList(p));
+								p = Paths.get(classpath.getDestinationPath());
+							}
+						}
+						fileSystemClasspaths.addAll(modulepaths);
 					}
 				} catch (Exception e) {
 					// TODO: Revisit when JRE 9 no longer throws IllegalStateException for getLocation.
