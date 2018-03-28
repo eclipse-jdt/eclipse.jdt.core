@@ -130,6 +130,7 @@ public class BatchTestUtils {
 		PrintWriter printWriter = new PrintWriter(stringWriter);
 
 		List<String> copyOptions = new ArrayList<>();
+		copyOptions.addAll(options);
 		copyOptions.add("-processor");
 		copyOptions.add(processor);
 		copyOptions.add("-A" + processor);
@@ -149,6 +150,7 @@ public class BatchTestUtils {
 		}
 		List<String> classes = new ArrayList<>();
 		try {
+			manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 			System.clearProperty(processor);
 			copyOptions = new ArrayList<>();
 			copyOptions.addAll(options);

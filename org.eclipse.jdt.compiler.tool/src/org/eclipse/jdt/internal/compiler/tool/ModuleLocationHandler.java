@@ -42,6 +42,10 @@ public class ModuleLocationHandler {
 		SystemLocationContainer systemLocationWrapper = new SystemLocationContainer(StandardLocation.SYSTEM_MODULES, jrt);
 		this.containers.put(loc, systemLocationWrapper);
 	}
+	public void newOutputLocation(Location loc) {
+		OutputLocationContainer outputWrapper = new OutputLocationContainer(loc);
+		this.containers.put(loc,  outputWrapper);
+	}
 
 	public LocationWrapper getLocation(Location loc, String moduleName) {
 		if (loc instanceof LocationWrapper) {
@@ -64,11 +68,16 @@ public class ModuleLocationHandler {
 	public LocationContainer getLocation(Location location) {
 		return this.containers.get(location);
 	}
+	private LocationContainer createNewContainer(Location loc) {
+		LocationContainer container = (loc == StandardLocation.CLASS_OUTPUT) ? 
+				new OutputLocationContainer(loc) : new LocationContainer(loc);
+		this.containers.put(loc, container);
+		return container;
+	}
 	public void setLocation(Location location, Iterable<? extends Path> paths) {
 		LocationContainer container = this.containers.get(location);
 		if (container == null) {
-			container = new LocationContainer(location);
-			this.containers.put(location, container);
+			container = createNewContainer(location);
 		}
 		container.setPaths(paths);
 	}
@@ -78,8 +87,7 @@ public class ModuleLocationHandler {
 		if (container != null) {
 			wrapper = container.get(moduleName);
 		} else {
-			container = new LocationContainer(location);
-			this.containers.put(location, container);
+			container = createNewContainer(location);
 		}
 		if (wrapper == null) {
 			// module name can't be null
@@ -171,6 +179,22 @@ public class ModuleLocationHandler {
 		}
 		public SystemLocationContainer(Location loc, ClasspathJrt cp) throws IOException {
 			this(loc, new JrtFileSystem(cp.file));
+		}
+	}
+	class OutputLocationContainer extends LocationContainer {
+
+		OutputLocationContainer(Location loc) {
+			super(loc);
+		}
+
+		@Override
+		void put(String moduleName, LocationWrapper impl) {
+			this.locationNames.put(moduleName, impl);
+		}
+
+		@Override
+		void put(Path path, LocationWrapper impl) {
+			this.locationPaths.put(path, impl);
 		}
 	}
 

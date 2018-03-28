@@ -1,5 +1,5 @@
 @java.lang.Deprecated()
-module mod.a {
+open module mod.a {
 	exports abc.internal;
 
 	requires transitive java.compiler;
