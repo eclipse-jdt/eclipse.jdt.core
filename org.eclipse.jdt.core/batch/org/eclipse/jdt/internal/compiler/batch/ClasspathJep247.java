@@ -30,7 +30,8 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class ClasspathJep247 extends ClasspathLocation {
 
 	private java.nio.file.FileSystem fs = null;
-	private String release = null;
+	private String compliance = null;
+	private String releaseInHex = null;
 	private String[] subReleases = null;
 	private Path releasePath = null;
 	private File file = null;
@@ -38,7 +39,7 @@ public class ClasspathJep247 extends ClasspathLocation {
 
 	public ClasspathJep247(File jdkHome, String release, AccessRuleSet accessRuleSet) {
 		super(accessRuleSet, null);
-		this.release = release;
+		this.compliance = release;
 		this.file = jdkHome;
 	}
 	@Override
@@ -69,7 +70,7 @@ public class ClasspathJep247 extends ClasspathLocation {
 					}
 				}
 			} else {
-				content = JRTUtil.safeReadBytes(this.fs.getPath(this.release, qualifiedBinaryFileName));
+				content = JRTUtil.safeReadBytes(this.fs.getPath(this.releaseInHex, qualifiedBinaryFileName));
 			}
 			if (content != null) {
 				reader = new ClassFileReader(content, qualifiedBinaryFileName.toCharArray());
@@ -94,9 +95,10 @@ public class ClasspathJep247 extends ClasspathLocation {
 
 	@Override
 	public void initialize() throws IOException {
-		if (this.release == null) {
+		if (this.compliance == null) {
 			return;
 		}
+		this.releaseInHex = Integer.toHexString(Integer.parseInt(this.compliance));
 		Path filePath = this.file.toPath().resolve("lib").resolve("ct.sym"); //$NON-NLS-1$ //$NON-NLS-2$
 		URI t = filePath.toUri();
 		if (!Files.exists(filePath)) {
@@ -113,8 +115,8 @@ public class ClasspathJep247 extends ClasspathLocation {
 			this.fs = FileSystems.newFileSystem(uri, env);
 		}
 		this.releasePath = this.fs.getPath("/"); //$NON-NLS-1$
-		if (!Files.exists(this.fs.getPath(this.release))) {
-			throw new IllegalArgumentException("release " + this.release + " is not found in the system");  //$NON-NLS-1$//$NON-NLS-2$
+		if (!Files.exists(this.fs.getPath(this.releaseInHex))) {
+			throw new IllegalArgumentException("release " + this.compliance + " is not found in the system");  //$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
 	void acceptModule(ClassFileReader reader) {
@@ -137,7 +139,7 @@ public class ClasspathJep247 extends ClasspathLocation {
 		try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(this.releasePath)) {
 			for (final java.nio.file.Path subdir: stream) {
 				String rel = subdir.getFileName().toString();
-				if (rel.contains(this.release)) {
+				if (rel.contains(this.releaseInHex)) {
 					sub.add(rel);
 				} else {
 					continue;

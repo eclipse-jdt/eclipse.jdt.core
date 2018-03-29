@@ -59,6 +59,7 @@ private ZipFile annotationZipFile;
 String zipFilename; // keep for equals
 AccessRuleSet accessRuleSet;
 String compliance = null;
+String releaseInHex = null;
 private Path releasePath = null;
 private String[] subReleases = null;
 private java.nio.file.FileSystem fs = null;
@@ -175,6 +176,7 @@ public void initialize() {
 		return;
 	}
 	this.compliance = getReleaseOptionFromCompliance(this.compliance);
+	this.releaseInHex = Integer.toHexString(Integer.parseInt(this.compliance));
 	Path lib = Paths.get(this.zipFilename).getParent();
 	Path filePath = Paths.get(lib.toString(),  "ct.sym"); //$NON-NLS-1$
 	URI t = filePath.toUri();
@@ -197,8 +199,8 @@ public void initialize() {
 		}
 	}
 	this.releasePath = this.fs.getPath("/"); //$NON-NLS-1$
-	if (!Files.exists(this.fs.getPath(this.compliance))
-			|| Files.exists(this.fs.getPath(this.compliance, "system-modules"))) { //$NON-NLS-1$
+	if (!Files.exists(this.fs.getPath(this.releaseInHex))
+			|| Files.exists(this.fs.getPath(this.releaseInHex, "system-modules"))) { //$NON-NLS-1$
 		this.compliance = null;
 	}
 	if (this.compliance != null) {
@@ -206,7 +208,7 @@ public void initialize() {
 		try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(this.releasePath)) {
 			for (final java.nio.file.Path subdir: stream) {
 				String rel = subdir.getFileName().toString();
-				if (rel.contains(this.compliance)) {
+				if (rel.contains(this.releaseInHex)) {
 					sub.add(rel);
 				} else {
 					continue;
