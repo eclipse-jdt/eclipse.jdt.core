@@ -78,6 +78,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -1247,6 +1248,12 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			if (isLocal(typeBinding) && this.requestor instanceof SelectionRequestor) {
 				this.noProposal = false;
 				((SelectionRequestor)this.requestor).acceptLocalType(typeBinding);
+			} else if (binding instanceof IntersectionTypeBinding18) {
+				IntersectionTypeBinding18 intersection = (IntersectionTypeBinding18) binding;
+				ReferenceBinding[] intersectingTypes = intersection.intersectingTypes;
+				for (ReferenceBinding referenceBinding : intersectingTypes) {
+					selectFrom(referenceBinding, parsedUnit, isDeclaration);
+				}
 			} else {
 				this.noProposal = false;
 
