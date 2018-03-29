@@ -1328,4 +1328,80 @@ public void test531046e() throws CoreException, IOException {
 		deleteProject("P");
 	}
 }
+public void test531046f() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var e = (CharSequence & Comparable<String>) \"x\";\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "var";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		assertEquals("should not be empty", 2, elements.length);
+		IType type = (IType) elements[0];
+		assertEquals("incorrect type", "java.lang.CharSequence", type.getFullyQualifiedParameterizedName());
+		type = (IType) elements[1];
+		assertEquals("incorrect type", "java.lang.Comparable<java.lang.String>", type.getFullyQualifiedParameterizedName());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void test531046g() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var v_v = (CharSequence & Comparable<String>) \"x\";\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "v_v";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		assertEquals("should not be empty", 1, elements.length);
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		assertEquals("incorrect type", "&QCharSequence;:QComparable<QString;>;", variable.getTypeSignature());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void test531046h() throws CoreException, IOException {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n"
+				+ "public class X {\n" 
+				+ "  public static void main(java.lang.String[] args) {\n"
+				+ "    var v_v = (CharSequence & Comparable<String>) \"x\";\n"
+				+ "		System.out.println(v_v);\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "v_v";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		assertEquals("should not be empty", 1, elements.length);
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		assertEquals("incorrect type", "&QCharSequence;:QComparable<QString;>;", variable.getTypeSignature());
+	} finally {
+		deleteProject("P");
+	}
+}
+
 }
