@@ -33,6 +33,7 @@ import java.io.PrintWriter;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1377,6 +1378,12 @@ protected static class JavacTestOptions {
 				return false;
 			}
 		};
+	}
+	static class CustomFileSystem extends FileSystem {
+		// make protected constructor accessible
+		CustomFileSystem(Collection<String> limitModules) {
+			super(Util.getJavaClassLibs(), new String[0], null, limitModules);
+		}
 	}
 	/*
 	 * Will consider first the source units passed as arguments, then investigate the classpath: jdklib + output dir

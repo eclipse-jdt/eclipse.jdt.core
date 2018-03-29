@@ -10,10 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -29,6 +33,22 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NAMES = new String[] { "test007" };
 	}
+
+	@Override
+	protected INameEnvironment[] getClassLibs(boolean useDefaultClasspaths) {
+		if (this.javaClassLib != null) {
+			String encoding = getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
+			if ("".equals(encoding))
+				encoding = null;
+			return new INameEnvironment[] {
+					this.javaClassLib,
+					new FileSystem(this.classpaths, new String[]{}, // ignore initial file names
+							encoding // default encoding
+					)};
+		}
+		return super.getClassLibs(useDefaultClasspaths);
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=159709
 	// guard variant for DeprecatedTest#test015 using an annotation
 	public void test002() {
@@ -851,8 +871,31 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			"----------\n";
 		runner.runWarningTest();
 	}
+	public void testBug533063_1() throws Exception {
+		INameEnvironment save = this.javaClassLib;
+		try {
+			List<String> limitModules = Arrays.asList("java.se", "jdk.xml.bind");
+			this.javaClassLib = new CustomFileSystem(limitModules);
+			Runner runner = new Runner();
+			runner.testFiles = new String[] {
+				"module-info.java",
+				"module my.mod {\n" +
+				"	requires jdk.xml.bind;\n" +
+				"}\n"
+			};
+			runner.expectedCompilerLog =
+				"----------\n" + 
+				"1. WARNING in module-info.java (at line 2)\n" + 
+				"	requires jdk.xml.bind;\n" + 
+				"	         ^^^^^^^^^^^^\n" + 
+				"The module jdk.xml.bind is deprecated since version 9\n" + 
+				"----------\n";
+			runner.runWarningTest();
+		} finally {
+			this.javaClassLib = save;
+		}
+	}
 	public static Class<?> testClass() {
 		return Deprecated9Test.class;
 	}
-
 }

@@ -6279,6 +6279,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject javaProject = createJava9Project("mod1", new String[] {"src"});
 
 			String srcMod =
+				"@SuppressWarnings(\"deprecation\")\n" + // javax.xml.ws.annotation is deprecated
 				"module mod1 {\n" + 
 				"	exports com.mod1.pack1;\n" + 
 				"	requires java.xml.ws.annotation;\n" + 

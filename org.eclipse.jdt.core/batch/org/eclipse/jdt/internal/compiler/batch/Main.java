@@ -81,6 +81,7 @@ import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
+import org.eclipse.jdt.internal.compiler.batch.ModuleFinder.AddExport;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
@@ -3488,10 +3489,10 @@ protected ArrayList<Classpath> handleBootclasspath(ArrayList<String> bootclasspa
 private void processAddonModuleOptions(FileSystem env) {
 	Map<String, IPackageExport[]> exports = new HashMap<>();
 	for (String option : this.addonExports) {
-		IModule mod = ModuleFinder.extractAddonExport(option);
-		if (mod != null) {
-			String modName = new String(mod.name());
-			IPackageExport export = mod.exports()[0];
+		AddExport addExport = ModuleFinder.extractAddonExport(option);
+		if (addExport != null) {
+			String modName = addExport.sourceModuleName;
+			IPackageExport export = addExport.export;
 			IPackageExport[] existing = exports.get(modName);
 			if (existing == null) {
 				existing = new IPackageExport[1];

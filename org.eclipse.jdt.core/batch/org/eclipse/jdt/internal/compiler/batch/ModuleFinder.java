@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.PackageExportImpl;
+import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -159,16 +160,33 @@ public class ModuleFinder {
  		return new String[]{source, target};
 	}
 	/**
-	 * Parses the --add-exports command line option and returns the package export definitions
-	 * in the form of an IModule. Note the IModule returned only holds this specific exports-to
-	 * clause and can't by itself be used as a module description.
-	 *
-	 * The expected format is:
-	 *   --add-exports <source-module>/<package>=<target-module>(,<target-module>)*
-	 * @param option
-	 * @return a dummy module object with package exports
+	 * Simple structure representing one <code>--add-exports</code> value.
 	 */
-	protected static IModule extractAddonExport(String option) {
+	static class AddExport {
+		/** the name of the exporting module. */
+		public final String sourceModuleName;
+		/** the export structure */
+		public final IModule.IPackageExport export;
+		public AddExport(String moduleName, IPackageExport export) {
+			this.sourceModuleName = moduleName;
+			this.export = export;
+		}
+	}
+	/**
+	 * Parses the --add-exports command line option and returns the package export definitions.
+	 *
+	 * <p>
+	 * The expected format is:
+	 * </p>
+	 * <p>
+	 * {@code
+	 *   --add-exports <source-module>/<package>=<target-module>(,<target-module>)*
+	 * }
+	 * </p>
+	 * @param option the option to parse
+	 * @return an {@link AddExport} structure.
+	 */
+	protected static AddExport extractAddonExport(String option) {
 		StringTokenizer tokenizer = new StringTokenizer(option, "/"); //$NON-NLS-1$
 		String source = null;
 		String pack = null;
@@ -194,9 +212,7 @@ public class ModuleFinder {
 		for(int i = 0; i < export.exportedTo.length; i++) {
 			export.exportedTo[i] = targets.get(i).toCharArray();
 		}
-		BasicModule module = new BasicModule(source.toCharArray(), false);
-		module.exports = new IModule.IPackageExport[]{export};
-		return module;
+		return new AddExport(source, export);
 	}
 
 	private static String getModulePathForArchive(File file) {

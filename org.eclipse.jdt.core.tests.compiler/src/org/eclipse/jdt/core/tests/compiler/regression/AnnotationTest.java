@@ -28,7 +28,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -98,12 +97,6 @@ public class AnnotationTest extends AbstractComparableTest {
 		if (this.reportMissingJavadocComments != null)
 			options.put(CompilerOptions.OPTION_ReportMissingJavadocComments, this.reportMissingJavadocComments);
 		return options;
-	}
-	static class CustomFileSystem extends FileSystem {
-		// make protected constructor accessible
-		CustomFileSystem(Collection<String> limitModules) {
-			super(Util.getJavaClassLibs(), new String[0], null, limitModules);
-		}
 	}
 	@Override
 	protected INameEnvironment getNameEnvironment(String[] testFiles, String[] classPaths) {
