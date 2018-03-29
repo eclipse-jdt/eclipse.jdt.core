@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
@@ -1888,6 +1889,36 @@ public void testModule1() throws CoreException, IOException {
 		ISourceRange sourceRange = module.getSourceRange();
 		assertEquals("source start", 1, sourceRange.getOffset()); // start after initial '\n'
 		assertEquals("source end", modOneSrc.length()-2, sourceRange.getLength()); // end before terminal '\n'
+	} finally {
+		deleteProject("Test");
+	}
+}
+public void testModule2() throws CoreException, IOException {
+	if (!isJRE9) {
+		System.err.println(this.getClass().getName()+'.'+getName()+" needs a Java 9 JRE - skipped");
+		return;
+	}
+	try {
+		createJava9Project("Test", new String[]{"src"});
+		String moduleSrc =
+			"module test {\n" +
+			"	requires oracle.net;\n" +
+			"}\n";
+		createFile("/Test/src/module-info.java", moduleSrc);
+		ICompilationUnit unit = getCompilationUnit("/Test/src/module-info.java");
+		int start = moduleSrc.indexOf("oracle.net");
+		int length = "oracle.net".length();
+		IJavaElement[] elements = unit.codeSelect(start, length);
+		assertEquals("expected #elements", 1, elements.length);
+
+		IModuleDescription oracleNet = (IModuleDescription) elements[0];
+		IModularClassFile cf = (IModularClassFile) oracleNet.getClassFile();
+		assertSourceEquals(
+			"Unexpected source for class file oracle.net/module-info.class",
+			null,
+			cf.getSource());
+		ISourceRange javadocRange = oracleNet.getJavadocRange();
+		assertEquals("javadoc from source", null, javadocRange);
 	} finally {
 		deleteProject("Test");
 	}
