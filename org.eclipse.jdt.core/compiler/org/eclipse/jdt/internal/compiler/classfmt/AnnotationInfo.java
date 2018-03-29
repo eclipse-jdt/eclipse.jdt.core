@@ -28,7 +28,7 @@ public class AnnotationInfo extends ClassFileStruct implements IBinaryAnnotation
 	 * null until this annotation is initialized
 	 * @see #getElementValuePairs()
 	 */
-	private ElementValuePairInfo[] pairs;
+	private volatile ElementValuePairInfo[] pairs;
 
 	long standardAnnotationTagBits = 0;
 	int readOffset = 0;
@@ -57,7 +57,7 @@ private void decodeAnnotation() {
 	int numberOfPairs = u2At(2);
 	// u2 type_index + u2 num_member_value_pair
 	this.readOffset += 4;
-	this.pairs = numberOfPairs == 0 ? ElementValuePairInfo.NoMembers : new ElementValuePairInfo[numberOfPairs];
+	ElementValuePairInfo[] decodedPairs = numberOfPairs == 0 ? ElementValuePairInfo.NoMembers : new ElementValuePairInfo[numberOfPairs];
 	int i = 0;
 	try {
 		while (i < numberOfPairs) {
@@ -66,10 +66,11 @@ private void decodeAnnotation() {
 			char[] membername = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 			this.readOffset += 2;
 			Object value = decodeDefaultValue();
-			this.pairs[i++] = new ElementValuePairInfo(membername, value);
+			decodedPairs[i++] = new ElementValuePairInfo(membername, value);
 		}
+		this.pairs = decodedPairs;
 	} catch (RuntimeException any) {
-		sanitizePairs();
+		sanitizePairs(decodedPairs);
 		StringBuilder newMessage = new StringBuilder(any.getMessage());
 		newMessage.append(" while decoding pair #").append(i).append(" of annotation @").append(this.typename); //$NON-NLS-1$ //$NON-NLS-2$
 		newMessage.append(", bytes at structOffset ").append(this.structOffset).append(":"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -80,8 +81,7 @@ private void decodeAnnotation() {
 		throw new IllegalStateException(newMessage.toString(), any);
 	}
 }
-private void sanitizePairs() {
-	ElementValuePairInfo[] oldPairs = this.pairs;
+private void sanitizePairs(ElementValuePairInfo[] oldPairs) {
 	if (oldPairs != null) {
 		ElementValuePairInfo[] newPairs = new ElementValuePairInfo[oldPairs.length];
 		int count = 0;
@@ -92,7 +92,11 @@ private void sanitizePairs() {
 		}
 		if (count < oldPairs.length) {
 			this.pairs = Arrays.copyOf(newPairs, count);
+		} else {
+			this.pairs = newPairs;
 		}
+	} else {
+		this.pairs = ElementValuePairInfo.NoMembers;
 	}
 }
 Object decodeDefaultValue() {
