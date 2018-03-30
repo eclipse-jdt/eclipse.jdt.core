@@ -62,7 +62,7 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 	}
 
 	/* A table from IPath (from a classpath entry) to DeltaProcessor.RootInfo */
-	public Map<IPath, RootInfo> roots = new HashMap<>();
+	public Map<IPath, RootInfo> roots = new LinkedHashMap<>();
 
 	/* A table from IPath (from a classpath entry) to ArrayList of DeltaProcessor.RootInfo
 	 * Used when an IPath corresponds to more than one root */
@@ -70,7 +70,7 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 
 	/* A table from IPath (from a classpath entry) to DeltaProcessor.RootInfo
 	 * from the last time the delta processor was invoked. */
-	public Map<IPath, RootInfo> oldRoots = new HashMap<>();
+	public Map<IPath, RootInfo> oldRoots = new LinkedHashMap<>();
 
 	/* A table from IPath (from a classpath entry) to ArrayList of DeltaProcessor.RootInfo
 	 * from the last time the delta processor was invoked.
@@ -97,16 +97,16 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 	 * Note these changes need to be kept on the delta processing state to ensure we don't loose them
 	 * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=271102 Java model corrupt after switching target platform)
 	 */
-	private Map<IProject, ClasspathChange> classpathChanges = new HashMap<>();
+	private Map<IProject, ClasspathChange> classpathChanges = new LinkedHashMap<>();
 
 	/* A table from JavaProject to ClasspathValidation */
-	private Map<JavaProject, ClasspathValidation> classpathValidations = new HashMap<>();
+	private Map<JavaProject, ClasspathValidation> classpathValidations = new LinkedHashMap<>();
 
 	/* A table from JavaProject to ProjectReferenceChange */
-	private Set<IJavaProject> projectReferenceChanges = new HashSet<>();
+	private Set<IJavaProject> projectReferenceChanges = new LinkedHashSet<>();
 
 	/* A table from JavaProject to ExternalFolderChange */
-	private Map<JavaProject, ExternalFolderChange> externalFolderChanges = new HashMap<>();
+	private Map<JavaProject, ExternalFolderChange> externalFolderChanges = new LinkedHashMap<>();
 
 	/**
 	 * Workaround for bug 15168 circular errors not reported
@@ -152,7 +152,7 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 	 */
 	public synchronized void addForRefresh(IJavaElement externalElement) {
 		if (this.externalElementsToRefresh == null) {
-			this.externalElementsToRefresh = new HashSet<>();
+			this.externalElementsToRefresh = new LinkedHashSet<>();
 		}
 		this.externalElementsToRefresh.add(externalElement);
 	}
@@ -210,7 +210,7 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 	public Map<IProject, ClasspathChange> removeAllClasspathChanges() {
 		synchronized (this.classpathChanges) {
 			Map<IProject, ClasspathChange> result = this.classpathChanges;
-			this.classpathChanges = new HashMap<>(result.size());
+			this.classpathChanges = new LinkedHashMap<>(result.size());
 			return result;
 		}
 	}
@@ -528,13 +528,13 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 	 */
 	public synchronized Set<String> getOldJavaProjecNames() {
 		if (this.javaProjectNamesCache == null) {
-			HashSet<String> result = new HashSet<>();
 			IJavaProject[] projects;
 			try {
 				projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 			} catch (JavaModelException e) {
 				return this.javaProjectNamesCache;
 			}
+			HashSet<String> result = new LinkedHashSet<>();
 			for (int i = 0, length = projects.length; i < length; i++) {
 				IJavaProject project = projects[i];
 				result.add(project.getElementName());
@@ -658,7 +658,7 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 		final Map<IJavaProject, IJavaProject[]> projectDependencies;
 
 		public RootInfos() {
-			this.roots = new HashMap<>();
+			this.roots = new LinkedHashMap<>();
 			this.otherRoots = new HashMap<>();
 			this.sourceAttachments = new HashMap<>();
 			this.projectDependencies = new HashMap<>();
