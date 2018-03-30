@@ -3832,6 +3832,9 @@ class ASTConverter {
 				type = simpleType;
 				type.setSourceRange(sourceStart, end - sourceStart + 1);
 				type = simpleType;
+				if (this.ast.apiLevel() >= AST.JLS10_INTERNAL && type.isVar()) {
+					simpleName.setVar(true);
+				}
 				if (this.resolveBindings) {
 					this.recordNodes(simpleName, typeReference);
 				}
