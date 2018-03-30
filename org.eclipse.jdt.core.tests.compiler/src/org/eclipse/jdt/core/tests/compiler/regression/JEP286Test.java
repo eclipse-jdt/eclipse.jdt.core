@@ -1205,4 +1205,32 @@ public void testBug532349_0017() throws IOException {
 		"Type mismatch: cannot convert from Y<Integer> to Y<? super Q>\n" + 
 		"----------\n");
 }
+public void testBug532920() throws IOException {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.Iterator;\n" + 
+			"public class X {\n" + 
+			"  static void foo(Z<?> ef) {  \n" + 
+			"    for (var l : ef.t) {\n" + 
+			"      l = new Object();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class I<T> {// implements Iterable<T> {\n" + 
+			" T t;\n" + 
+			"}\n" + 
+			"class Q {}\n" +
+			"class Y extends Q{ }\n" + 
+			"class Z<T extends Iterable<? super Y>> {\n" + 
+			"  I<T> t;\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	for (var l : ef.t) {\n" + 
+		"	             ^^^^\n" + 
+		"Can only iterate over an array or an instance of java.lang.Iterable\n" + 
+		"----------\n");
+}
 }

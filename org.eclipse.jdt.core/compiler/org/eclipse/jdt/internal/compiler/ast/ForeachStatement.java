@@ -468,7 +468,6 @@ public class ForeachStatement extends Statement {
 
 		// Patch the resolved type
 		if (this.elementVariable.isTypeNameVar(upperScope)) {
-			elementType = getCollectionElementType(collectionType);
 			if (this.elementVariable.type.dimensions() > 0 || this.elementVariable.type.extraDimensions() > 0) {
 				upperScope.problemReporter().varLocalCannotBeArray(this.elementVariable);
 			}
@@ -478,8 +477,12 @@ public class ForeachStatement extends Statement {
 			} else if (TypeBinding.equalsEquals(TypeBinding.VOID, collectionType)) {
 				upperScope.problemReporter().varLocalInitializedToVoid(this.elementVariable);
 				elementType = collectionType;
-			}				
-			elementType = this.elementVariable.patchType(elementType);
+			}
+			if ((elementType = getCollectionElementType(collectionType)) == null) {
+				elementType = collectionType;
+			} else {
+				elementType = this.elementVariable.patchType(elementType);
+			}
 		}
 
 		TypeBinding expectedCollectionType = null;
