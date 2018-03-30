@@ -134,7 +134,7 @@ public class ClasspathChange {
 								continue;
 						} else if (annotationPath != otherAnnotationPath) {
 							continue; // null and not-null
-						}						
+						}
 					}
 					if (((ClasspathEntry) entry).isModular() !=
 							((ClasspathEntry) other).isModular()) {
@@ -348,11 +348,11 @@ public class ClasspathChange {
 							true, // filter module roots
 							null); /*no reverse map*/
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335986
-						// When a package fragment's corresponding resource is removed from the project, 
-						// IJavaProject#computePackageFragmentRoots() doesn't include that entry. Hence 
-						// the cache become necessary in such cases. Add the cache to the accumulatedRoots 
+						// When a package fragment's corresponding resource is removed from the project,
+						// IJavaProject#computePackageFragmentRoots() doesn't include that entry. Hence
+						// the cache become necessary in such cases. Add the cache to the accumulatedRoots
 						// only when it's not already present.
-						RootInfo rootInfo = (RootInfo) state.oldRoots.get(this.oldResolvedClasspath[i].getPath());
+						RootInfo rootInfo = state.oldRoots.get(this.oldResolvedClasspath[i].getPath());
 						if (rootInfo != null && rootInfo.cache != null) {
 							IPackageFragmentRoot oldRoot = rootInfo.cache;
 							boolean found = false;

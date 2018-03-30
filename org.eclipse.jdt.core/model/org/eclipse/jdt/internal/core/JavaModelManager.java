@@ -1314,7 +1314,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			IndexManager indexManager = manager.indexManager;
 			Hashtable<IPath, Long> externalTimeStamps = manager.deltaState.getExternalLibTimeStamps();
-			HashMap<IPath, List<RootInfo>> rootInfos = JavaModelManager.getDeltaState().otherRoots;
+			Map<IPath, List<RootInfo>> rootInfos = JavaModelManager.getDeltaState().otherRoots;
 			for (int i = 0, length = classpath.length; i < length; i++) {
 				IClasspathEntry entry = classpath[i];
 				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
@@ -5634,10 +5634,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public int getOpenableCacheSize() {
 		return this.cache.openableCache.getSpaceLimit();
 	}
-	
+
 	/**
 	 * Get a cached access rule, or when the cache did not contain the rule, creates a new one.
-	 * 
+	 *
 	 * @param filePattern the file pattern this access rule should match
 	 * @param kind one of {@link IAccessRule#K_ACCESSIBLE}, {@link IAccessRule#K_DISCOURAGED},
 	 *                     or {@link IAccessRule#K_NON_ACCESSIBLE}, optionally combined with
