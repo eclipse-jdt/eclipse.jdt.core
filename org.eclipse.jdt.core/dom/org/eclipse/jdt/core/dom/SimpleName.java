@@ -265,15 +265,7 @@ public class SimpleName extends Name {
 		return this.isVarType;
 	}
 
-	/**
-	 * Sets whether this name is "var" implicit type or not (added in JLS10 API).
-	 *
-	 * @param isVar <code>true</code> if this is a var type
-	 *     and <code>false</code> otherwise
-	 * @exception UnsupportedOperationException if called below JLS 10
-	 * @since 3.14
-	 */
-	public void setVar(boolean isVar) {
+	/* package */ void setVar(boolean isVar) {
 		unsupportedBelow10();
 		preValueChange(VAR_PROPERTY);
 		this.isVarType = isVar;
