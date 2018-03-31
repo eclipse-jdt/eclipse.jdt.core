@@ -44,7 +44,6 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.builder.ClasspathJrt;
@@ -79,7 +78,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		System.setProperty("modules.to.load", "java.base;java.desktop;java.rmi;java.sql;");
 		this.currentProject = createJava9Project("P1");
 		this.createFile("P1/src/module-info.java", "");
 		this.createFolder("P1/src/com/greetings");
@@ -91,7 +89,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
 		deleteProject("P1");
-		System.setProperty("modules.to.load", "");
 	}
 	
 	// Test that the java.base found as a module package fragment root in the project 
@@ -5582,11 +5579,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	public void testLimitModules1() throws CoreException, IOException {
 		if (!isJRE9) return;
-		String save = System.getProperty("modules.to.load");
-		// allow for a few more than we are using via limit-modules:
-		System.setProperty("modules.to.load", "java.base,java.desktop,java.datatransfer,java.rmi,java.sql,java.prefs,java.xml");
-		JRTUtil.reset();
-		ClasspathJrt.resetCaches();
 		try {
 			IClasspathAttribute[] attributes = {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
@@ -5652,18 +5644,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 		} finally {
 			this.deleteProject("org.astro");
-			System.setProperty("modules.to.load", save);
-			JRTUtil.reset();
-			ClasspathJrt.resetCaches();
 		}
 	}
 	public void testLimitModules2() throws CoreException, IOException {
 		if (!isJRE9) return;
-		String save = System.getProperty("modules.to.load");
-		// allow all
-		System.setProperty("modules.to.load", "");
-		JRTUtil.reset();
-		ClasspathJrt.resetCaches();
 		try {
 			IClasspathAttribute[] attributes = {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
@@ -5727,18 +5711,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 		} finally {
 			this.deleteProject("org.astro");
-			System.setProperty("modules.to.load", save);
-			JRTUtil.reset();
-			ClasspathJrt.resetCaches();
 		}
 	}
 	public void testDefaultRootModules() throws CoreException, IOException {
 		if (!isJRE9) return;
-		String save = System.getProperty("modules.to.load");
-		// need to see all modules:
-		System.setProperty("modules.to.load", "");
-		JRTUtil.reset();
-		ClasspathJrt.resetCaches();
 		try {
 
 			IJavaProject project = createJava9Project("org.astro", new String[]{"src"});
@@ -5777,17 +5753,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				this.problemRequestor);
 		} finally {
 			this.deleteProject("org.astro");
-			System.setProperty("modules.to.load", save);
-			JRTUtil.reset();
-			ClasspathJrt.resetCaches();
 		}
 	}
 	public void testBug522398() throws CoreException {
 		if (!isJRE9) return;
-		String save = System.getProperty("modules.to.load");
-		System.setProperty("modules.to.load", "java.base;java.desktop;java.rmi;java.sql;java.xml");
-		JRTUtil.reset();
-		ClasspathJrt.resetCaches();
 		try {
 
 			String[] sources = new String[] {
@@ -5829,9 +5798,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
 		} finally {
-			System.setProperty("modules.to.load", save);
-			JRTUtil.reset();
-			ClasspathJrt.resetCaches();
 			deleteProject("nonmodular1");
 			deleteProject("nonmodular2");
 		}
@@ -6094,10 +6060,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 	public void testBug525522() throws Exception {
 		if (!isJRE9) return;
-		String save = System.getProperty("modules.to.load");
-		System.setProperty("modules.to.load", "java.base;java.desktop;java.rmi;java.sql;java.jnlp");
-		JRTUtil.reset();
-		ClasspathJrt.resetCaches();
 		try {
 			// non-modular substitute for java.jnlp:
 			IClasspathAttribute[] jreAttribs = { JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES, "java.base,java.desktop,java.rmi,java.sql") };
@@ -6148,9 +6110,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				this.problemRequestor);
 
 		} finally {
-			System.setProperty("modules.to.load", save);
-			JRTUtil.reset();
-			ClasspathJrt.resetCaches();
 			deleteProject("jnlp");
 			deleteProject("nonmod1");
 		}
@@ -6315,9 +6274,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 	public void testBug526054() throws Exception {
 		if (!isJRE9) return;
-		String save = System.getProperty("modules.to.load");
-		System.setProperty("modules.to.load", ""); // load all
-		JRTUtil.reset();
 		ClasspathJrt.resetCaches();
 		try {
 			IJavaProject javaProject = createJava9Project("mod1", new String[] {"src"});
@@ -6354,9 +6310,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			assertNoErrors();
 		} finally {
-			System.setProperty("modules.to.load", save);
-			JRTUtil.reset();
-			ClasspathJrt.resetCaches();
 			deleteProject("mod1");
 		}
 	}
@@ -6524,7 +6477,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject(p1);
 		}
 	}
-	public void testBug528467b() throws CoreException {
+	public void _testBug528467b() throws CoreException {
 		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("mod.one");
 		try {

@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.builder.ClasspathJrt;
 
@@ -42,19 +41,14 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 //		 TESTS_NAMES = new String[] { "testAddReads" };
 	}
 	
-	private String savedModulesOption = null;
 	public static Test suite() {
 		return buildModelTestSuite(ModuleOptionsTests.class, BYTECODE_DECLARATION_ORDER);
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.savedModulesOption = System.getProperty("modules.to.load", "");
-		System.setProperty("modules.to.load", "");
-		JRTUtil.reset();
 		ClasspathJrt.resetCaches();
 	}	
 	public void tearDownSuite() throws Exception {
-		System.setProperty("modules.to.load", this.savedModulesOption);
 		super.tearDownSuite();
 	}
 	// testing auto rebuild after change of limit-modules

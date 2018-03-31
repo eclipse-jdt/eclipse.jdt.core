@@ -215,7 +215,6 @@ class JrtFileSystem {
 		JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 		String javaVersion = System.getProperty("java.version"); //$NON-NLS-1$
 		if (javaVersion != null && javaVersion.startsWith("1.8")) { //$NON-NLS-1$
-			JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 			URLClassLoader loader = new URLClassLoader(new URL[] { jrtPath });
 			HashMap<String, ?> env = new HashMap<>();
 			this.jrtSystem = FileSystems.newFileSystem(JRTUtil.JRT_URI, env, loader);

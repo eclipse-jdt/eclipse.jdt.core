@@ -59,8 +59,6 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 	
-		System.setProperty("modules.to.load", "java.base;java.desktop;java.rmi;java.sql;");
-	
 		IJavaProject project = setUpJavaProject("Resolve", "9", true);
 	
 		String bootModPath = System.getProperty("java.home") + File.separator +"jrt-fs.jar";
