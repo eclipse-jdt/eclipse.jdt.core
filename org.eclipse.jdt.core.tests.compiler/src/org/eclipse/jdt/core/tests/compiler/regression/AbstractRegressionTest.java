@@ -345,6 +345,9 @@ static class JavacCompiler {
 			if ("1.8.0_152".equals(rawVersion)) {
 				return 1900;
 			}
+			if ("1.8.0_162".equals(rawVersion)) {
+				return 2100;
+			}
 		}
 		if (version == JavaCore.VERSION_9) {
 			if ("9".equals(rawVersion)) {
