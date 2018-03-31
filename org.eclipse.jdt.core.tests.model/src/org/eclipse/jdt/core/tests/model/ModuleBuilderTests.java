@@ -6478,7 +6478,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject(p1);
 		}
 	}
-	public void _testBug528467b() throws CoreException {
+	public void testBug528467b() throws CoreException {
 		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("mod.one");
 		try {
