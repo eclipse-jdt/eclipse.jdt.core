@@ -12814,4 +12814,37 @@ public void testBug531981() {
 		"}"
 	);
 }
+	/**
+	 * https://bugs.eclipse.org/373625 - [formatter] preserve whitespace between
+	 * code and comments fails when aligning fields in columns
+	 */
+public void testBug373625a() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
+	String source =
+		"class C {\n" + 
+		"	int		a	= 1; // comment1\n" + 
+		"	String	bb	= null;   // comment2\n" + 
+		"}";
+	formatSource(source);
+}
+	/**
+	 * https://bugs.eclipse.org/373625 - [formatter] preserve whitespace between
+	 * code and comments fails when aligning fields in columns
+	 */
+public void testBug373625b() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
+	String source =
+		"class C {\n" + 
+		"	int		a	= 1; /* comment1 */\n" + 
+		"	String	bb	= \"\";   //$NON-NLS-1$\n" + 
+		"}";
+	formatSource(source,
+		"class C {\n" + 
+		"	int		a	= 1;	/* comment1 */\n" + 
+		"	String	bb	= \"\";   //$NON-NLS-1$\n" + 
+		"}"
+	);
+}
 }
