@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 IBM Corporation and others.
+ * Copyright (c) 2011, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4229,6 +4229,82 @@ public void test394780() {
 				"}"
 			}, 
 			"computeclose");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=533187
+public void testBug533187() {
+	this.runConformTest(
+			true,
+			new String[] {
+				"Stuck.java", 
+				"public class Stuck {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        System.out.println(snippet1());\n" + 
+				"    }\n" + 
+				"    public static String snippet1() {\n" + 
+				"        try {\n" + 
+				"            synchronized (String.class) {\n" + 
+				"                try (AutoCloseable scope = null) { \n" + 
+				"                    return \"RETURN\";\n" + 
+				"                } catch (Throwable t) {\n" + 
+				"                    return t.toString();\n" + 
+				"                }\n" + 
+				"            }\n" + 
+				"        } finally {\n" + 
+				"            raise();\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    public static void raise() {\n" + 
+				"        throw new RuntimeException();\n" + 
+				"    }\n" + 
+				"}"
+			},
+			null,
+			null,
+			null,
+			null,
+			"java.lang.RuntimeException\n" + 
+			"	at Stuck.raise(Stuck.java:19)\n" + 
+			"	at Stuck.snippet1(Stuck.java:15)\n" + 
+			"	at Stuck.main(Stuck.java:3)\n",
+			null);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=467230
+public void testBug467230() {
+	this.runConformTest(
+			true,
+			new String[] {
+				"Test.java", 
+				"public class Test {\n" + 
+				"	static class C implements AutoCloseable {\n" + 
+				"		@Override\n" + 
+				"		public void close() {\n" + 
+				"			System.out.println(\"close\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		try (C c = new C()) {\n" + 
+				"			return;\n" + 
+				"		} catch (Exception e) {\n" + 
+				"			System.out.println(\"catch\");\n" + 
+				"		} finally {\n" + 
+				"			f();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	private static void f() {\n" + 
+				"		System.out.println(\"finally\");\n" + 
+				"		throw new RuntimeException();\n" + 
+				"	}\n" + 
+				"}"
+			},
+			null,
+			null,
+			null,
+			"close\n" +
+			"finally",
+			"java.lang.RuntimeException\n" + 
+			"	at Test.f(Test.java:19)\n" + 
+			"	at Test.main(Test.java:14)\n",
+			null);
 }
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
