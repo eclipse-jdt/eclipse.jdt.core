@@ -435,7 +435,10 @@ static class JavaRuntime {
 		Process executionProcess = null;
 		try {
 			StringBuffer cmdLine = new StringBuffer(this.javaPathName);
-			cmdLine.append(" -classpath . "); // default classpath
+			if (options.contains("-cp "))
+				cmdLine.append(' '); // i.e., -cp will be appended below, just ensure separation from javaPathname
+			else
+				cmdLine.append(" -classpath . "); // default classpath
 			cmdLine.append(options);
 			cmdLine.append(' ');
 			cmdLine.append(className);
@@ -464,6 +467,15 @@ protected static class JavacTestOptions {
 			return true;
 		}
 	};
+	@java.lang.SuppressWarnings("synthetic-access")
+	static JavacTestOptions forRelease(String release) {
+		JavacTestOptions options = new JavacTestOptions();
+		if (isJRE9Plus)
+			options.setCompilerOptions("-release "+release);
+		else
+			options.setCompilerOptions("-source 1."+release+" -target 1."+release);
+		return options;
+	}
 	public static class SuppressWarnings extends JavacTestOptions {
 		public SuppressWarnings(String token) {
 			setCompilerOptions("-Xlint:-"+token);
@@ -2185,7 +2197,7 @@ protected void runJavac(
 					//      it should have had contents, stderr is leveraged as
 					//      potentially holding indications regarding the failure
 					if (expectedErrorString != null /* null skips error test */ && mismatch == 0) {
-						err = stderr.toString().trim();
+						err = adjustErrorOutput(stderr.toString().trim());
 						if (!expectedErrorString.equals(err) && // special case: command-line java does not like missing main methods
 								!(expectedErrorString.length() == 0 &&
 									(err.indexOf("java.lang.NoSuchMethodError: main") != -1)
@@ -2260,6 +2272,15 @@ protected void runJavac(
 			}
 		}
 	}
+}
+
+private String adjustErrorOutput(String error) {
+	// VerifyTests performs an explicit e.printStackTrace() which has slightly different format
+	// from a stack trace written directly by a dying JVM (during javac testing), adjust if needed:
+	final String excPrefix = "Exception in thread \"main\" ";
+	if (error.startsWith(excPrefix))
+		return error.substring(excPrefix.length())+'\n';
+	return error;
 }
 
 //runNegativeTest(

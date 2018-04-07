@@ -513,13 +513,15 @@ public void test014() {
 }
 // Resource nullness tests
 public void test015() {
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String [] args) {    \n" +
 			"		try (Y y = new Y();) {\n" +
-			"           if (y == null)\n {}\n" +
+			"           if (y == null)\n" +
+			"				{}\n" +
 			"		}\n" +
 			"	}\n" +
 			"} \n" +
@@ -528,13 +530,16 @@ public void test015() {
 			"	public void close() {\n" +
 			"	}\n" +
 			"}\n"
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. WARNING in X.java (at line 5)\n" + 
 		"	{}\n" + 
 		"	^^\n" + 
 		"Dead code\n" + 
-		"----------\n");
+		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runWarningTest();
 }
 // Dead code tests, resource nullness, unhandled exception tests
 public void test016() {
@@ -596,13 +601,15 @@ public void test016() {
 }
 // Dead code tests
 public void test017() {
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String [] args) {    \n" +
 			"		try (Y y = new Y();) {\n" +
-			"           if (y == null)\n {}\n" +
+			"           if (y == null)\n" +
+			"				{}\n" +
 			"		} finally {\n" +
 			"       }\n" +
 			"	}\n" +
@@ -612,13 +619,16 @@ public void test017() {
 			"	public void close() {\n" +
 			"	}\n" +
 			"}\n"
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. WARNING in X.java (at line 5)\n" + 
 		"	{}\n" + 
 		"	^^\n" + 
 		"Dead code\n" + 
-		"----------\n");
+		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runWarningTest();
 }
 // Syntax error tests
 public void test018() {
@@ -3138,11 +3148,12 @@ public void test048() {
 }
 //ensure that it doesn't completely fail when using TWR and 1.5 mode
 public void test049() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	runner.customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	runner.customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"import java.io.File;\n" +
@@ -3163,16 +3174,16 @@ public void test049() {
 			"        new X().foo();\n" +
 			"    }\n" +
 			"}\n"
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	try(FileReader fileReader = new FileReader(file);) {\n" + 
 		"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Resource specification not allowed here for source level below 1.7\n" + 
-		"----------\n",
-		null,
-		true,
-		options);
+		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.forRelease("5");
+	runner.runNegativeTest();
 }
 public void test050() {
 	this.runConformTest(
@@ -4192,7 +4203,7 @@ public void test380112e() {
 				"    public static I getX() { return null;}\n"+
 				"    public X(){}\n" +
 				"}\n"
-			}, "Done", libs, true, new String[] {"-cp", path});
+			}, "Done", libs, true, new String[] {"-cp", "."+File.pathSeparator+path});
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=394780
 public void test394780() {
