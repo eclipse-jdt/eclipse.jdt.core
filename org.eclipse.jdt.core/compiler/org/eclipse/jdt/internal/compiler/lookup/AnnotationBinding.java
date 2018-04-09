@@ -76,7 +76,7 @@ public static AnnotationBinding[] addStandardAnnotations(AnnotationBinding[] rec
 		result[index++] = buildTargetAnnotation(annotationTagBits, env);
 	if ((annotationTagBits & TagBits.AnnotationRetentionMASK) != 0)
 		result[index++] = buildRetentionAnnotation(annotationTagBits, env);
-	if ((annotationTagBits & TagBits.AnnotationDeprecated) != 0)
+	if (!haveDeprecated && (annotationTagBits & TagBits.AnnotationDeprecated) != 0)
 		result[index++] = buildMarkerAnnotation(TypeConstants.JAVA_LANG_DEPRECATED, env.javaBaseModule(), env);
 	if ((annotationTagBits & TagBits.AnnotationDocumented) != 0)
 		result[index++] = buildMarkerAnnotation(TypeConstants.JAVA_LANG_ANNOTATION_DOCUMENTED, env.javaBaseModule(), env);
