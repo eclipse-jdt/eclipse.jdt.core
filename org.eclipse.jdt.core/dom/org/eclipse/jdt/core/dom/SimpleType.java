@@ -228,10 +228,6 @@ public class SimpleType extends AnnotatableType {
 		ASTNode oldChild = this.typeName;
 		preReplaceChild(oldChild, typeName, NAME_PROPERTY);
 		this.typeName = typeName;
-		if (this.ast.apiLevel() >= AST.JLS10_INTERNAL && this.typeName instanceof SimpleName) {
-			SimpleName simpleName = (SimpleName) this.typeName;
-			simpleName.setVar(simpleName.getFullyQualifiedName().equals("var")); //$NON-NLS-1$
-		}
 		postReplaceChild(oldChild, typeName, NAME_PROPERTY);
 	}
 
@@ -243,7 +239,8 @@ public class SimpleType extends AnnotatableType {
 	public boolean isVar() {
 		unsupportedBelow10();
 		if (this.typeName == null) getName();
-		return this.typeName instanceof SimpleName && ((SimpleName) this.typeName).isVar();
+		String qName = this.typeName.getFullyQualifiedName();
+		return qName != null && qName.equals("var"); //$NON-NLS-1$
 	}
 	/* (omit javadoc for this method)
 	 * Method declared on ASTNode.
