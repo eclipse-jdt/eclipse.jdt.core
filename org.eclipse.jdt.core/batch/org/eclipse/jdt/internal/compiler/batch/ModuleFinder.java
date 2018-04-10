@@ -268,7 +268,7 @@ public class ModuleFinder {
 		return null;
 	}
 	private static IModule extractModuleFromSource(File file, Parser parser, Classpath pathEntry) {
-		ICompilationUnit cu = new CompilationUnit(null, file.getAbsolutePath(), null);
+		ICompilationUnit cu = new CompilationUnit(null, file.getAbsolutePath(), null, pathEntry.getDestinationPath());
 		CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
 		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 		if (unit.isModuleInfo() && unit.moduleDeclaration != null) {

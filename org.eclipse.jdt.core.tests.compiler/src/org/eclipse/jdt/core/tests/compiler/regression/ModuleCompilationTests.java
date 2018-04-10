@@ -4864,4 +4864,43 @@ public void testBug521362_emptyFile() {
 				false,
 				OUTPUT_DIR + "javac");
 	}
+	/*
+	 * Test that when module-info is not included in the command line, the class is still
+	 * generated inside the module's sub folder.
+	 */
+	public void testBug533411() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.sql;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "Test.java", 
+				"package p;\n" +
+				"public class Test {\n" +
+				"	java.sql.Connection conn = null;\n" +
+				"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\" ")
+			.append(moduleLoc + File.separator + "p" + File.separator + "Test.java");
+
+		Set<String> classFiles = runConformModuleTest(
+				new String[0],
+				buffer.toString(),
+				"",
+				"",
+				false);
+		String fileName = OUTPUT_DIR + File.separator + out + File.separator + "mod.one" + File.separator + "module-info.class";
+		assertClassFile("Missing modul-info.class: " + fileName, fileName, classFiles);
+	}
 }
