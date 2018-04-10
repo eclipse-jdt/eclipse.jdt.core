@@ -432,7 +432,7 @@ public class AbstractCompilerTest extends TestCase {
 								possibleComplianceLevels |= F_1_8;
 								if (!CompilerOptions.VERSION_1_8.equals(specVersion)) {
 									possibleComplianceLevels |= F_9;
-									if (!CompilerOptions.VERSION_10.equals(specVersion)) {
+									if (!CompilerOptions.VERSION_9.equals(specVersion)) {
 										possibleComplianceLevels |= F_10;
 									}
 								}
