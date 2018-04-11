@@ -787,12 +787,12 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 public ReferenceBinding convertToParameterizedType(ReferenceBinding originalType) {
 	if (originalType != null) {
 		boolean isGeneric = originalType.isGenericType();
-		if (!isGeneric && originalType.isStatic())
+		if (!isGeneric && !originalType.hasEnclosingInstanceContext())
 			return originalType;
 		ReferenceBinding originalEnclosingType = originalType.enclosingType();
 		ReferenceBinding convertedEnclosingType = originalEnclosingType;
 		boolean needToConvert = isGeneric;
-		if (originalEnclosingType != null && hasInstanceContext(originalType)) {
+		if (originalEnclosingType != null && originalType.hasEnclosingInstanceContext()) {
 			convertedEnclosingType = convertToParameterizedType(originalEnclosingType);
 			needToConvert |= TypeBinding.notEquals(originalEnclosingType, convertedEnclosingType);
 		}
@@ -802,15 +802,6 @@ public ReferenceBinding convertToParameterizedType(ReferenceBinding originalType
 	}
 	return originalType;
 }
-private boolean hasInstanceContext(ReferenceBinding type) {
-	if (type.isMemberType() && !type.isStatic())
-		return true;
-	MethodBinding enclosingMethod = type.enclosingMethod();
-	if (enclosingMethod != null)
-		return !enclosingMethod.isStatic();
-	return false;
-}
-
 /**
  * Returns the given binding's raw type binding.
  * @param type the TypeBinding to raw convert
@@ -859,7 +850,7 @@ public TypeBinding convertToRawType(TypeBinding type, boolean forceRawEnclosingT
 		convertedType = needToConvert ? createRawType((ReferenceBinding)originalType.erasure(), null) : originalType;
 	} else {
 		ReferenceBinding convertedEnclosing;
-		if(((ReferenceBinding)originalType).isStatic()) {
+		if (!((ReferenceBinding)originalType).hasEnclosingInstanceContext()) {
 			convertedEnclosing = (ReferenceBinding) originalEnclosing.original();
 		} else {
 			if (originalEnclosing.kind() == Binding.RAW_TYPE) {			

@@ -132,7 +132,7 @@ public class AbstractCompilerTest extends TestCase {
 
 	 public static void setpossibleComplianceLevels(int complianceLevel) {
          possibleComplianceLevels = complianceLevel;
-         int lessthan9 = F_1_3 & F_1_4 & F_1_5 & F_1_6 & F_1_7 & F_1_8;
+         int lessthan9 = F_1_3 | F_1_4 | F_1_5 | F_1_6 | F_1_7 | F_1_8;
          isJRE9Plus = !isJRELevel(lessthan9);
 	 }
 

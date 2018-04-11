@@ -406,7 +406,7 @@ public boolean canBeSeenBy(Scope scope) {
 
 public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 
-	boolean isMemberOfGeneric = isMemberType() && !isStatic() && (enclosingType().modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0;
+	boolean isMemberOfGeneric = isMemberType() && hasEnclosingInstanceContext() && (enclosingType().modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0;
 	if (typeVariables == Binding.NO_TYPE_VARIABLES && !isMemberOfGeneric) {
 		return signature();
 	}
@@ -1684,7 +1684,7 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 public char[] readableName(boolean showGenerics) /*java.lang.Object,  p.X<T> */ {
     char[] readableName;
 	if (isMemberType()) {
-		readableName = CharOperation.concat(enclosingType().readableName(showGenerics && !isStatic()), this.sourceName, '.');
+		readableName = CharOperation.concat(enclosingType().readableName(showGenerics && hasEnclosingInstanceContext()), this.sourceName, '.');
 	} else {
 		readableName = CharOperation.concatWith(this.compoundName, '.');
 	}
@@ -1835,7 +1835,7 @@ public char[] shortReadableName() /*Object*/ {
 public char[] shortReadableName(boolean showGenerics) /*Object*/ {
 	char[] shortReadableName;
 	if (isMemberType()) {
-		shortReadableName = CharOperation.concat(enclosingType().shortReadableName(showGenerics && !isStatic()), this.sourceName, '.');
+		shortReadableName = CharOperation.concat(enclosingType().shortReadableName(showGenerics && hasEnclosingInstanceContext()), this.sourceName, '.');
 	} else {
 		shortReadableName = this.sourceName;
 	}
@@ -2271,5 +2271,14 @@ public ModuleBinding module() {
 	if (this.fPackage != null)
 		return this.fPackage.enclosingModule;
 	return null;
+}
+
+public boolean hasEnclosingInstanceContext() {
+	if (isMemberType() && !isStatic())
+		return true;
+	MethodBinding enclosingMethod = enclosingMethod();
+	if (enclosingMethod != null)
+		return !enclosingMethod.isStatic();
+	return false;
 }
 }

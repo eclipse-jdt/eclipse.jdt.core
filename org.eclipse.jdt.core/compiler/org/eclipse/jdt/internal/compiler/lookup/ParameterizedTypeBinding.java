@@ -78,7 +78,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments,  ReferenceBinding enclosingType, LookupEnvironment environment){
 		this.environment = environment;
 		this.enclosingType = enclosingType; // never unresolved, never lazy per construction
-		if (type.isStatic() && arguments == null && !(this instanceof RawTypeBinding))
+		if (!type.hasEnclosingInstanceContext() && arguments == null && !(this instanceof RawTypeBinding))
 			throw new IllegalStateException();
 		initialize(type, arguments);
 		if (type instanceof UnresolvedReferenceBinding)

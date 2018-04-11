@@ -52291,4 +52291,50 @@ public void testBug492450_comment0() {
 			});
 	}
 }
+public void testBug532653() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_6) {
+		runConformTest(
+			new String[] {
+				"Builder.java",
+				"public interface Builder<T> {\n" + 
+				"	T build();\n" + 
+				"}\n", 
+				"ConcreteBuilder.java",
+				"public class ConcreteBuilder<B extends ConcreteBuilder<B>> implements Builder<String> {\n" + 
+				"	private String s = \"\";\n" + 
+				"	protected B b;\n" + 
+				"	@Override\n" + 
+				"	public String build() {\n" + 
+				"		return s;\n" + 
+				"	}\n" + 
+				"	public B append(String s) {\n" + 
+				"		this.s += s;\n" + 
+				"		return b;\n" + 
+				"	}\n" + 
+				"	public static ConcreteBuilder<?> create() {\n" + 
+				"		class ConcreteStringBuilder extends ConcreteBuilder<ConcreteStringBuilder> {\n" + 
+				"			public ConcreteStringBuilder() {\n" + 
+				"				b = this;\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		return new ConcreteStringBuilder();\n" + 
+				"	}\n" + 
+				"}",
+				"ConcreteSubBuilder.java",
+				"public class ConcreteSubBuilder<B extends ConcreteSubBuilder<B>> extends ConcreteBuilder<B>{\n" + 
+				"	public B appendTwice(String s) {\n" + 
+				"		return super.append(s).append(s);\n" + 
+				"	}\n" + 
+				"	public static ConcreteSubBuilder<?> create() {\n" + 
+				"		class ConcreteSubStringBuilder extends ConcreteSubBuilder<ConcreteSubStringBuilder> {\n" + 
+				"			public ConcreteSubStringBuilder() {\n" + 
+				"				b = this;\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		return new ConcreteSubStringBuilder();\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
+}
 }
