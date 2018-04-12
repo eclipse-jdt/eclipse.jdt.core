@@ -163,6 +163,7 @@ public static Test suite() {
 	since_9.add(AutomaticModuleNamingTest.class);
 	since_9.add(UnnamedModuleTest.class);
 	since_9.add(NullAnnotationTests9.class);
+	since_9.add(AnnotationTest_9.class);
 
 	// add 10 specific test here (check duplicates)
 	ArrayList since_10 = new ArrayList();
