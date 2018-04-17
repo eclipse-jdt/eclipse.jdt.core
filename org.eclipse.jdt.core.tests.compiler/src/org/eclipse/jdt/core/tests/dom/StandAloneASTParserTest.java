@@ -1661,6 +1661,32 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		File fileY = new File(packageDir, "Y.java");
 		String canonicalPath = fileY.getCanonicalPath();
 
+		packageDir = new File(rootDir, "p");
+		packageDir.mkdir();
+		fileY = new File(packageDir, "Z.java");
+		String canonicalPath2 = fileY.getCanonicalPath();
+
+		contents =
+				"enum X {\n" + 
+				"              /** */\n" + 
+				"    FOO\n" + 
+				"}";
+			
+			File file2 = new File(rootDir, "X.java");
+			writer = null;
+			try {
+				writer = new BufferedWriter(new FileWriter(file2));
+				writer.write(contents);
+			} finally {
+				if (writer != null) {
+					try {
+						writer.close();
+					} catch(IOException e) {
+						// ignore
+					}
+				}
+			}
+
 		try {
 			ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -1668,7 +1694,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			parser.setResolveBindings(true);
 			parser.setCompilerOptions(JavaCore.getOptions());
 			parser.createASTs(
-					new String[] { file.getCanonicalPath(), canonicalPath },
+					new String[] { file.getCanonicalPath(), canonicalPath, canonicalPath2, file2.getCanonicalPath() },
 					null,
 					new String[] {},
 					new FileASTRequestor() {},

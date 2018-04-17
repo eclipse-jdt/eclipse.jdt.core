@@ -1005,9 +1005,12 @@ class CompilationUnitResolver extends Compiler {
 				}
 				sourceUnits[count++] = new org.eclipse.jdt.internal.compiler.batch.CompilationUnit(contents, sourceUnitPath, encoding);
 			}
-			org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] newArray = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[count];
-			System.arraycopy(sourceUnits, 0, newArray, 0, count);
-			beginToCompile(newArray, bindingKeys);
+			if (count < length) {
+				org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] newArray = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[count];
+				System.arraycopy(sourceUnits, 0, newArray, 0, count);
+				sourceUnits = newArray;
+			}
+			beginToCompile(sourceUnits, bindingKeys);
 			// process all units (some more could be injected in the loop by the lookup environment)
 			for (int i = 0; i < this.totalUnits; i++) {
 				if (resolvedRequestedSourcesAndKeys(i)) {
