@@ -1632,4 +1632,50 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		assertNotNull(type);
 		assertTrue("not a var", type.isVar());
 	}
+	public void testBug482254() throws IOException {
+		File rootDir = new File(System.getProperty("java.io.tmpdir"));
+
+		String contents =
+			"enum X {\n" + 
+			"              /** */\n" + 
+			"    FOO\n" + 
+			"}";
+		
+		File file = new File(rootDir, "X.java");
+		Writer writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(file));
+			writer.write(contents);
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch(IOException e) {
+					// ignore
+				}
+			}
+		}
+
+		File packageDir = new File(rootDir, "p");
+		packageDir.mkdir();
+		File fileY = new File(packageDir, "Y.java");
+		String canonicalPath = fileY.getCanonicalPath();
+
+		try {
+			ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
+			parser.setKind(ASTParser.K_COMPILATION_UNIT);
+			parser.setEnvironment(null, null, null, true);
+			parser.setResolveBindings(true);
+			parser.setCompilerOptions(JavaCore.getOptions());
+			parser.createASTs(
+					new String[] { file.getCanonicalPath(), canonicalPath },
+					null,
+					new String[] {},
+					new FileASTRequestor() {},
+					null);
+		} finally {
+			file.delete();
+			fileY.delete();
+		}
+	}
 }
