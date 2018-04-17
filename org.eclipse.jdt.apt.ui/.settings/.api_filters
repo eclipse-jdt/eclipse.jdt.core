@@ -4,7 +4,7 @@
         <filter comment="increased to match org.eclipse.jdt.apt.core" id="926941240">
             <message_arguments>
                 <message_argument value="3.6.0"/>
-                <message_argument value="3.5.0"/>
+                <message_argument value="3.5.50"/>
             </message_arguments>
         </filter>
     </resource>
