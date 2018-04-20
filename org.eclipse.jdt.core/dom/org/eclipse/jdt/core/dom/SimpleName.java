@@ -156,7 +156,11 @@ public class SimpleName extends Name {
 			if (get) {
 				return isVar();
 			} else {
-				setVar(value);
+				if (Long.compare(this.ast.scanner.complianceLevel, ClassFileConstants.JDK10) < 0) {
+					setVar(false);
+				} else {
+					setVar(value);
+				}
 				return false;
 			}
 		}
@@ -174,7 +178,7 @@ public class SimpleName extends Name {
 		SimpleName result = new SimpleName(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setIdentifier(getIdentifier());
-		if (this.ast.apiLevel >= AST.JLS10_INTERNAL) {
+		if (this.ast.apiLevel >= AST.JLS10_INTERNAL && Long.compare(this.ast.scanner.complianceLevel, 10) >= 0) {
 			result.setVar(isVar());
 		}
 		return result;

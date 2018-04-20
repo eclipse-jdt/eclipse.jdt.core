@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -41,8 +42,10 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -1619,7 +1622,12 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		parser.setBindingsRecovery(true);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setEnvironment(null, new String[] {null}, null, true);
-		parser.setResolveBindings(true);		
+		parser.setResolveBindings(true);	
+		Map<String, String> options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_10);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_10);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_10);
+		parser.setCompilerOptions(options);
 		ASTNode node = parser.createAST(null);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit cu = (CompilationUnit) node;
@@ -1704,4 +1712,45 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			fileY.delete();
 		}
 	}
+	
+	/*
+	 * To test isVar returning false for ast level 10 and compliance 9
+	 */
+	public void testBug533210_0001() throws JavaModelException {
+		String contents =
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		var s = new Y();\n" + 
+				"	}\n" +
+				"}\n" +
+				"class Y {}";
+
+			ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
+			parser.setSource(contents.toCharArray());
+			parser.setEnvironment(null, null, null, true);
+			parser.setResolveBindings(true);
+			parser.setStatementsRecovery(true);
+			parser.setBindingsRecovery(true);
+			parser.setUnitName("module-info.java");
+			Map<String, String> options = getCompilerOptions();
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+			options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
+			parser.setCompilerOptions(options);
+	
+			ASTNode node = parser.createAST(null);
+			assertTrue("Should be a compilation unit", node instanceof CompilationUnit);
+			CompilationUnit cu = (CompilationUnit) node;
+			TypeDeclaration typeDeclaration = (TypeDeclaration) cu.types().get(0);
+			MethodDeclaration[] methods = typeDeclaration.getMethods();
+			MethodDeclaration methodDeclaration = methods[0];
+			VariableDeclarationStatement vStmt = (VariableDeclarationStatement) methodDeclaration.getBody().statements().get(0);
+			Type type = vStmt.getType();
+			SimpleType simpleType = (SimpleType) type;
+			assertFalse("A var", simpleType.isVar());
+			Name name = simpleType.getName();
+			SimpleName simpleName = (SimpleName) name;
+			assertFalse("A var", simpleName.isVar());
+	}
+	
 }

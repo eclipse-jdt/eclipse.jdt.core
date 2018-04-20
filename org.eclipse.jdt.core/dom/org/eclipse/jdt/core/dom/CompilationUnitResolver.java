@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -40,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
@@ -289,6 +291,20 @@ class CompilationUnitResolver extends Compiler {
 			boolean fromJavaProject) {
 		BindingResolver resolver = null;
 		AST ast = AST.newAST(apiLevel);
+		String sourceModeSetting = (String) options.get(JavaCore.COMPILER_SOURCE);
+		long sourceLevel = CompilerOptions.versionToJdkLevel(sourceModeSetting);
+		if (sourceLevel == 0) {
+			// unknown sourceModeSetting
+			sourceLevel = ClassFileConstants.JDK1_3;
+		}
+		ast.scanner.sourceLevel = sourceLevel;
+		String compliance = (String) options.get(JavaCore.COMPILER_COMPLIANCE);
+		long complianceLevel = CompilerOptions.versionToJdkLevel(compliance);
+		if (complianceLevel == 0) {
+			// unknown sourceModeSetting
+			complianceLevel = sourceLevel;
+		}
+		ast.scanner.complianceLevel = complianceLevel;
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		CompilationUnit compilationUnit = null;
 		ASTConverter converter = new ASTConverter(options, needToResolveBindings, monitor);

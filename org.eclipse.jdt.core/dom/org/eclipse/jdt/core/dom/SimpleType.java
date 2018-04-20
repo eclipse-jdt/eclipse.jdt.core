@@ -14,6 +14,8 @@ package org.eclipse.jdt.core.dom;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
 /**
  * Type node for a named class type, a named interface type, or a type variable.
  * <pre>
@@ -238,6 +240,8 @@ public class SimpleType extends AnnotatableType {
 	@Override
 	public boolean isVar() {
 		unsupportedBelow10();
+		if (Long.compare(this.ast.scanner.complianceLevel, ClassFileConstants.JDK10) < 0)
+			return false;
 		if (this.typeName == null) getName();
 		String qName = this.typeName.getFullyQualifiedName();
 		return qName != null && qName.equals("var"); //$NON-NLS-1$
