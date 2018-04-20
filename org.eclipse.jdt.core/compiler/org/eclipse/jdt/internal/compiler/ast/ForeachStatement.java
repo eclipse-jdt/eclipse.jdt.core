@@ -418,10 +418,10 @@ public class ForeachStatement extends Statement {
 		return output;
 	}
 
-	private TypeBinding getCollectionElementType(TypeBinding collectionType) {
+	public static TypeBinding getCollectionElementType(BlockScope scope, TypeBinding collectionType) {
 		if (collectionType == null) return null;
 		
-		boolean isTargetJsr14 = this.scope.compilerOptions().targetJDK == ClassFileConstants.JDK1_4;
+		boolean isTargetJsr14 = scope.compilerOptions().targetJDK == ClassFileConstants.JDK1_4;
 		if (collectionType.isCapture()) {
 			TypeBinding upperBound = ((CaptureBinding)collectionType).firstBound;
 			if (upperBound != null && upperBound.isArrayType())
@@ -439,7 +439,7 @@ public class ForeachStatement extends Statement {
 			TypeBinding[] arguments = null;
 			switch (iterableType.kind()) {
 				case Binding.RAW_TYPE : // for(Object o : Iterable)
-					return this.scope.getJavaLangObject();
+					return scope.getJavaLangObject();
 
 				case Binding.GENERIC_TYPE : // for (T t : Iterable<T>) - in case used inside Iterable itself
 					arguments = iterableType.typeVariables();
@@ -462,6 +462,7 @@ public class ForeachStatement extends Statement {
 	public void resolve(BlockScope upperScope) {
 		// use the scope that will hold the init declarations
 		this.scope = new BlockScope(upperScope);
+		this.scope.blockStatement = this;
 		this.elementVariable.resolve(this.scope); // collection expression can see itemVariable
 		TypeBinding elementType = this.elementVariable.type.resolvedType;
 		TypeBinding collectionType = this.collection == null ? null : this.collection.resolveType(upperScope);
@@ -478,7 +479,7 @@ public class ForeachStatement extends Statement {
 				upperScope.problemReporter().varLocalInitializedToVoid(this.elementVariable);
 				elementType = collectionType;
 			}
-			if ((elementType = getCollectionElementType(collectionType)) == null) {
+			if ((elementType = getCollectionElementType(this.scope, collectionType)) == null) {
 				elementType = collectionType;
 			} else {
 				elementType = this.elementVariable.patchType(elementType);
