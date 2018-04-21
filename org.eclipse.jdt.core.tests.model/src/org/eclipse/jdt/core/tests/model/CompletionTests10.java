@@ -291,7 +291,7 @@ public void testBug532476b() throws JavaModelException {
 	        "}",
 	    	"i_");
 		assertResults(
-			"i_jkl[LOCAL_VARIABLE_REF]{i_jkl, null, Ljava.lang.Object;, i_jkl, null, "  + (R_DEFAULT + 22) + "}",
+			"i_jkl[LOCAL_VARIABLE_REF]{i_jkl, null, Ljava.lang.String;, i_jkl, null, "  + (R_DEFAULT + 22) + "}",
 			result.proposals);
 }
 public void testBug532476c() throws JavaModelException {

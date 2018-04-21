@@ -1446,8 +1446,7 @@ public void testBug533884a() throws Exception {
 		deleteProject("P");
 	}
 }
-// disabled: SelectionParser drops the ForeachStatement :(
-public void _testBug533884b() throws Exception {
+public void testBug533884b() throws Exception {
 	if (!isJRE9) return;
 	try {
 		createJava10Project("P", new String[] {"src"});
@@ -1471,6 +1470,33 @@ public void _testBug533884b() throws Exception {
 		assertEquals("should not be empty", 1, elements.length);
 		ILocalVariable variable = (ILocalVariable) elements[0];
 		assertEquals("incorrect type", "Ljava.lang.String;", variable.getTypeSignature());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug533884c() throws Exception {
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n" +
+				"import java.io.*;\n" +
+				"public class X {\n" +
+				"	void bar(File file) {\n" +
+				"		try (var rc = new FileInputStream(file)) { \n" + 
+				"			System.err.println(rc.read());\n" + // <= select this occurrence of 'rc'
+				"		}\n" + 
+				"	}\n" + 
+				"\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "rc";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		assertEquals("should not be empty", 1, elements.length);
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		assertEquals("incorrect type", "Ljava.io.FileInputStream;", variable.getTypeSignature());
 	} finally {
 		deleteProject("P");
 	}
