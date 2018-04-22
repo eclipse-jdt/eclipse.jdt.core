@@ -17478,7 +17478,8 @@ public void testBug531040() {
 	);
 }
 public void testBug533339() {
-	runNegativeTestWithLibs(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"Test.java",
 			"import org.eclipse.jdt.annotation.NonNull;\n" + 
@@ -17511,8 +17512,9 @@ public void testBug533339() {
 			"		return reference;\n" +
 			"	}\n" + 
 			"}\n"
-		}, 
-		getCompilerOptions(),
+		};
+	runner.classLibraries = this.LIBS;
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. WARNING in Test.java (at line 19)\n" + 
 		"	@NonNull String s = checkNotNull(foo.getString());\n" + 
@@ -17523,6 +17525,8 @@ public void testBug533339() {
 		"	return new Bar(checkNotNull(foo.getString()));// no warning when s is inlined\n" + 
 		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" + 
-		"----------\n");
+		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runWarningTest();
 }
 }
