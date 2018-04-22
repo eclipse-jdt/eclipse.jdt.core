@@ -773,9 +773,19 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 		}
 	}
 	if (packageBinding instanceof SplitPackageBinding) {
-		PackageBinding incarnation = ((SplitPackageBinding) packageBinding).getIncarnation(this.module);
-		if (incarnation != null)
-			packageBinding = incarnation;
+		PackageBinding candidate = null;
+		// select from incarnations the unique package containing CUs, if any:
+		for (PackageBinding incarnation : ((SplitPackageBinding) packageBinding).incarnations) {
+			if (incarnation.hasCompilationUnit(false)) {
+				if (candidate != null) {
+					candidate = null;
+					break; // likely to report "accessible from more than one module" downstream 
+				}
+				candidate = incarnation;
+			}
+		}
+		if (candidate != null)
+			return candidate;
 	}
 	return packageBinding;
 }
