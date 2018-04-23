@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3014,4 +3014,63 @@ public void testBug507954_0001() throws JavaModelException, CoreException {
 	}
 }
 
+public void testBug533949() throws CoreException {
+	if (!isJRE9) return;
+	IJavaProject javaProject1 = null; 
+	IJavaProject javaProject2 = null; 
+	try {
+		javaProject1 = createJava9Project("mod1");
+		String packA = "/mod1/src/a/";
+		createFolder(packA);
+		createFile(packA + "A.java",
+				"package a;\n" +
+				"public abstract class A {\n"+
+				"}\n");
+		createFile("/mod1/src/module-info.java",
+				"module mod1 {\n" +
+				"	exports a;\n"+
+				"}\n");
+		
+		javaProject2 = createJava9Project("mod2");
+		addClasspathEntry(javaProject2, JavaCore.newProjectEntry(javaProject1.getPath()));
+		String packB = "/mod2/src/b/";
+		createFolder(packB);
+		createFile(packB + "B.java",
+				"package b;\n" +
+				"public class B extends a.A {\n"+
+				"}\n");
+		createFile("/mod2/src/module-info.java",
+				"module mod2 {\n" +
+				"	requires mod1;\n"+
+				"}\n");
+		
+		waitUntilIndexesReady();
+
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(packB + "B.java", true);
+
+		IType focus = javaProject2.findType("b.B");
+		ITypeHierarchy hierarchy = focus.newTypeHierarchy(this.workingCopies, null);
+		IType[] allSuperTypes = hierarchy.getAllSupertypes(focus);
+		assertTypesEqual("Incorrect super hierarchy",
+				"a.A\n" +
+				"java.lang.Object\n",
+				allSuperTypes,
+				true);
+		
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(packA + "A.java", true);
+
+		focus = javaProject1.findType("a.A");
+		hierarchy = focus.newTypeHierarchy(this.workingCopies, null);
+		IType[] allSubTypes = hierarchy.getAllSubtypes(focus);
+		assertTypesEqual("Incorrect sub hierarchy",
+				"b.B\n",
+				allSubTypes,
+				true);
+	} finally{
+		if (javaProject1 != null) deleteProject(javaProject1);
+		if (javaProject2 != null) deleteProject(javaProject2);
+	}
+}
 }
