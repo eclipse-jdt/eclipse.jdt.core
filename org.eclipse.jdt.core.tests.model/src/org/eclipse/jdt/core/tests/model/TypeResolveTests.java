@@ -1496,7 +1496,10 @@ public void testBug533884c() throws Exception {
 		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
 		assertEquals("should not be empty", 1, elements.length);
 		ILocalVariable variable = (ILocalVariable) elements[0];
-		assertEquals("incorrect type", "Ljava.io.FileInputStream;", variable.getTypeSignature());
+		if (isJRE9)
+			assertEquals("incorrect type", "Ljava.io.FileInputStream;", variable.getTypeSignature());
+		else
+			assertEquals("incorrect type", "LFileInputStream;", variable.getTypeSignature()); // unresolved because JRT lib not available
 	} finally {
 		deleteProject("P");
 	}
