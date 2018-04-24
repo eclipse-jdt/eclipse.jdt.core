@@ -58,7 +58,7 @@ String externalAnnotationPath;
 private ZipFile annotationZipFile;
 String zipFilename; // keep for equals
 AccessRuleSet accessRuleSet;
-String compliance = null;
+String release = null;
 String releaseInHex = null;
 private Path releasePath = null;
 private String[] subReleases = null;
@@ -66,15 +66,15 @@ private java.nio.file.FileSystem fs = null;
 
 static final Set<String> NO_LIMIT_MODULES = new HashSet<>();
 
-public ClasspathJrt(String zipFilename, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, String compliance) {
+public ClasspathJrt(String zipFilename, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, String release) {
 	this.zipFilename = zipFilename;
 	this.accessRuleSet = accessRuleSet;
 	if (externalAnnotationPath != null)
 		this.externalAnnotationPath = externalAnnotationPath.toString();
-	if (compliance != null && compliance.length() == 0) {
-		this.compliance = null;
+	if (release != null && release.length() == 0) {
+		this.release = null;
 	} else {
-		this.compliance = compliance;
+		this.release = release;
 	}
 	initialize();
 	loadModules(this);
@@ -172,11 +172,11 @@ public static void loadModules(final ClasspathJrt jrt) {
 	}
 }
 public void initialize() {
-	if (this.compliance == null) {
+	if (this.release == null) {
 		return;
 	}
-	this.compliance = getReleaseOptionFromCompliance(this.compliance);
-	this.releaseInHex = Integer.toHexString(Integer.parseInt(this.compliance));
+	this.release = getReleaseOptionFromCompliance(this.release);
+	this.releaseInHex = Integer.toHexString(Integer.parseInt(this.release));
 	Path lib = Paths.get(this.zipFilename).getParent();
 	Path filePath = Paths.get(lib.toString(),  "ct.sym"); //$NON-NLS-1$
 	URI t = filePath.toUri();
@@ -194,16 +194,16 @@ public void initialize() {
 		try {
 			this.fs = FileSystems.newFileSystem(uri, env);
 		} catch (IOException e) {
-			this.compliance = null;
+			this.release = null;
 			return;
 		}
 	}
 	this.releasePath = this.fs.getPath("/"); //$NON-NLS-1$
 	if (!Files.exists(this.fs.getPath(this.releaseInHex))
 			|| Files.exists(this.fs.getPath(this.releaseInHex, "system-modules"))) { //$NON-NLS-1$
-		this.compliance = null;
+		this.release = null;
 	}
-	if (this.compliance != null) {
+	if (this.release != null) {
 		List<String> sub = new ArrayList<>();
 		try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(this.releasePath)) {
 			for (final java.nio.file.Path subdir: stream) {
@@ -262,6 +262,7 @@ public void cleanup() {
 		}
 		this.annotationZipFile = null;
 	}
+	this.fs = null;
 }
 
 @Override
@@ -269,7 +270,7 @@ public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof ClasspathJrt)) return false;
 	ClasspathJrt jar = (ClasspathJrt) o;
-	if (!Util.equalOrNull(this.compliance, jar.compliance)) {
+	if (!Util.equalOrNull(this.release, jar.release)) {
 		return false;
 	}
 	if (this.accessRuleSet != jar.accessRuleSet)

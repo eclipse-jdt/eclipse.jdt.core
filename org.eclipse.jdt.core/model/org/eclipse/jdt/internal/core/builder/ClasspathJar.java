@@ -136,6 +136,8 @@ boolean closeZipFileAtEnd;
 private SimpleSet knownPackageNames;
 AccessRuleSet accessRuleSet;
 String externalAnnotationPath;
+// Meant for ClasspathMultiReleaseJar, not used in here
+String compliance;
 
 ClasspathJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, boolean isOnModulePath) {
 	this.resource = resource;
@@ -228,6 +230,9 @@ public boolean equals(Object o) {
 	if (this.accessRuleSet != jar.accessRuleSet)
 		if (this.accessRuleSet == null || !this.accessRuleSet.equals(jar.accessRuleSet))
 			return false;
+	if (!Util.equalOrNull(this.compliance, jar.compliance)) {
+		return false;
+	}
 	return this.zipFilename.equals(jar.zipFilename) 
 			&& lastModified() == jar.lastModified()
 			&& this.isOnModulePath == jar.isOnModulePath

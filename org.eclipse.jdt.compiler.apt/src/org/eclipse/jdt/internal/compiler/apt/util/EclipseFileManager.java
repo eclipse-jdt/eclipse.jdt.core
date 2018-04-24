@@ -87,6 +87,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	File jrtHome;
 	JrtFileSystem jrtSystem;
 	public ResourceBundle bundle;
+	String releaseVersion;
 	
 	public EclipseFileManager(Locale locale, Charset charset) {
 		this.locale = locale == null ? Locale.getDefault() : locale;
@@ -814,6 +815,13 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					} else {
 						throw new IllegalArgumentException();
 					}
+				case "--relese": //$NON-NLS-1$
+					if (remaining.hasNext()) {
+						this.releaseVersion = remaining.next();
+						return true;
+					} else {
+						throw new IllegalArgumentException();
+					}
 			}
 		} catch (IOException e) {
 			// ignore
@@ -1206,7 +1214,9 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				customEncoding,
 				isSourceOnly,
 				accessRuleSet,
-				destPath, null);
+				destPath, 
+				null,
+				this.releaseVersion);
 		if (currentClasspath != null) {
 			paths.add(currentClasspath);
 		}
@@ -1336,7 +1346,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						new DefaultProblemFactory());
 			for (Path path : paths) {
 				List<Classpath> mp = ModuleFinder.findModules(path.toFile(), null, 
-						new Parser(problemReporter, true), null, true);
+						new Parser(problemReporter, true), null, true, this.releaseVersion);
 				for (Classpath cp : mp) {
 					Collection<String> moduleNames = cp.getModuleNames(null);
 					for (String string : moduleNames) {

@@ -1632,7 +1632,9 @@ protected void addNewEntry(ArrayList<FileSystem.Classpath> paths, String current
 			customEncoding,
 			isSourceOnly,
 			accessRuleSet,
-			destPath, this.options);
+			destPath, 
+			this.options,
+			this.releaseVersion);
 	if (currentClasspath != null) {
 		paths.add(currentClasspath);
 	} else if (currentClasspathName.length() != 0) {
@@ -3531,9 +3533,9 @@ protected ArrayList<FileSystem.Classpath> handleModulepath(String arg) {
 			File file = new File(path);
 			if (file.isDirectory()) {
 				result.addAll(
-					ModuleFinder.findModules(file, null, getNewParser(), this.options, true));
+					ModuleFinder.findModules(file, null, getNewParser(), this.options, true, this.releaseVersion));
 			} else {
-				Classpath modulePath = ModuleFinder.findModule(file, null, getNewParser(), this.options, true);
+				Classpath modulePath = ModuleFinder.findModule(file, null, getNewParser(), this.options, true, this.releaseVersion);
 				if (modulePath != null)
 					result.add(modulePath);
 			}
@@ -3559,7 +3561,7 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 				// 1. Create FileSystem.Classpath for each module
 				// 2. Iterator each module in case of directory for source files and add to this.fileNames
 
-				List<Classpath> modules = ModuleFinder.findModules(dir, this.destinationPath, getNewParser(), this.options, false);
+				List<Classpath> modules = ModuleFinder.findModules(dir, this.destinationPath, getNewParser(), this.options, false, this.releaseVersion);
 				for (Classpath classpath : modules) {
 					result.add(classpath);
 					Path modLocation = Paths.get(classpath.getPath()).toAbsolutePath();
@@ -3607,7 +3609,7 @@ protected ArrayList<FileSystem.Classpath> handleClasspath(ArrayList<String> clas
 		String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 		if ((classProp == null) || (classProp.length() == 0)) {
 			addPendingErrors(this.bind("configure.noClasspath")); //$NON-NLS-1$
-			final Classpath classpath = FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null, this.options);//$NON-NLS-1$
+			final Classpath classpath = FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null, this.options, this.releaseVersion);//$NON-NLS-1$
 			if (classpath != null) {
 				initial.add(classpath);
 			}
@@ -3617,7 +3619,7 @@ protected ArrayList<FileSystem.Classpath> handleClasspath(ArrayList<String> clas
 			while (tokenizer.hasMoreTokens()) {
 				token = tokenizer.nextToken();
 				FileSystem.Classpath currentClasspath = FileSystem
-						.getClasspath(token, customEncoding, null, this.options);
+						.getClasspath(token, customEncoding, null, this.options, this.releaseVersion);
 				if (currentClasspath != null) {
 					initial.add(currentClasspath);
 				} else if (token.length() != 0) {
@@ -3697,7 +3699,7 @@ protected ArrayList<FileSystem.Classpath> handleEndorseddirs(ArrayList<String> e
 						FileSystem.Classpath classpath =
 							FileSystem.getClasspath(
 									current[j].getAbsolutePath(),
-									null, null, this.options);
+									null, null, this.options, this.releaseVersion);
 						if (classpath != null) {
 							result.add(classpath);
 						}
@@ -3758,7 +3760,7 @@ protected ArrayList<FileSystem.Classpath> handleExtdirs(ArrayList<String> extdir
 						FileSystem.Classpath classpath =
 							FileSystem.getClasspath(
 									current[j].getAbsolutePath(),
-									null, null, this.options);
+									null, null, this.options, this.releaseVersion);
 						if (classpath != null) {
 							result.add(classpath);
 						}

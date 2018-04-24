@@ -320,7 +320,7 @@ public class Java8ElementsTests extends TestCase {
 		internalTest(compiler, JAVA8_ANNOTATION_PROC, "testPackageAnnotations", null, "filer8", "9");
 	}
 	// See Java8ElementProcessor.testPackageAnnotations()
-	public void _testPackageAnnotationsWithJavac() throws Exception {
+	public void testPackageAnnotationsWithJavac() throws Exception {
 		if (!canRunJava9())
 			return;
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
