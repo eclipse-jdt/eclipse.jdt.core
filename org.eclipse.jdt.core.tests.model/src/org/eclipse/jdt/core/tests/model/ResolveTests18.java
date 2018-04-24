@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 IBM Corporation and others.
+ * Copyright (c) 2014, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2924,5 +2924,37 @@ public void testBug487791b() throws JavaModelException {
 	assertEquals("number of type arguments", 2, typeArguments.length);
 	assertEquals("1st type argument", "Ljava.lang.String;", typeArguments[0]);
 	assertEquals("2nd type argument", "LExample;", typeArguments[1]);
+}
+public void testBug515758() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"Resolve/src/Snippet.java",
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"public class Snippet {\n" + 
+			"    void m1() {\n" + 
+			"    	MyObservable.range(1, 2).groupBy(integer -> {\n" +
+			"	 		return \"even\";\n" +
+			"		});\n" +
+			"    }\n" + 
+			"\n" + 
+			"}\n" + 
+			"class MyObservable<T> {\n" + 
+			"	static MyObservable<Integer> range(int i1, int i2) {\n" + 
+			"		return new MyObservable<>();\n" + 
+			"	}\n" + 
+			"	<K> void groupBy(Function<T, K> func) {\n" + 
+			"	}\n" + 
+			"}");
+	String str = this.wc.getSource();
+	String selection = "range";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"range(int, int) [in MyObservable [in [Working copy] Snippet.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
 }
 }
