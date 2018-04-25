@@ -419,10 +419,10 @@ private ModuleBinding getModuleFromAnswer(NameEnvironmentAnswer answer) {
 		} else { 
 			moduleBinding = this.knownModules.get(moduleName);
 			if (moduleBinding == null && this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
-				assert answer.isBinaryType();
 				IModule iModule = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModule(moduleName);
 				try {
-					moduleBinding = BinaryModuleBinding.create(iModule, this);
+					this.typeRequestor.accept(iModule, this);
+					moduleBinding = this.knownModules.get(moduleName);
 				} catch (NullPointerException e) {
 					System.err.println("Bug 529367: moduleName: " + new String(moduleName) + "iModule null" +  //$NON-NLS-1$ //$NON-NLS-2$
 							(iModule == null ? "true" : "false")); //$NON-NLS-1$ //$NON-NLS-2$]

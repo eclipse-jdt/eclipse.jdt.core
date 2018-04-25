@@ -1368,5 +1368,43 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			deleteProject("Second");
 		}
 	}
+	public void testBug534009() throws Exception {
+		try {
+			IJavaProject project1 = createJavaProject("Foo", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
+			project1.open(null);
+			createFile("/Foo/src/module-info.java",
+					"module Foo {}");
+			project1.close(); // sync
+			project1.open(null);
+			createFolder("/Foo/src/foo");
+			createFile("/Foo/src/foo/Foo.java",
+					"package foo;\n" + 
+					"\n" + 
+					"public class Foo {\n" + 
+					"	public interface MyInterface<T> {\n" + 
+					"		public void perform(T t);\n" + 
+					"	}\n" + 
+					"	public <T> MyInterface<T> createMyInterface() {\n" + 
+					"		return new My\n" + // incomplete, use case is: completion after "My"
+					"	}\n" + 
+					"}\n");
+			ASTParser parser = ASTParser.newParser(this.ast.apiLevel());
+			parser.setProject(project1);
+			parser.setResolveBindings(true);
+			String key = "Lfoo/Foo$MyInterface<Lfoo/Foo;:1TT;>;";
+			class BindingRequestor extends ASTRequestor {
+				ITypeBinding _result = null;
+				public void acceptBinding(String bindingKey, IBinding binding) {
+					if (this._result == null && binding != null && binding.getKind() == IBinding.TYPE)
+						this._result = (ITypeBinding) binding;
+				}
+			}
+			BindingRequestor requestor = new BindingRequestor();
+			parser.createASTs(new ICompilationUnit[0], new String[] {key}, requestor, null);
+			assertEquals("expected binding", key, requestor._result.getKey());
+		} finally {
+			deleteProject("Foo");
+		}
+	}
 // Add new tests here
 }
