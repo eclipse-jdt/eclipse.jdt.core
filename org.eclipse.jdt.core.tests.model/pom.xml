@@ -35,7 +35,7 @@
       	<artifactId>tycho-surefire-plugin</artifactId>
       	<version>${tycho.version}</version>
       	<configuration>
-      	  <argLine>-Djdt.default.test.compliance=1.8</argLine>
+      	  <argLine>-Djdt.default.test.compliance=1.8 ${tycho.surefire.argLine}</argLine>
       	  <includes>
       	  	<include>org/eclipse/jdt/core/tests/model/AllJavaModelTestsTracing.class</include>
       	  	<include>org/eclipse/jdt/core/tests/dom/RunAllTestsTracing.class</include>
@@ -73,6 +73,9 @@
 				</plugin>
 			</plugins>
 		</build>
+		<properties>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM</tycho.surefire.argLine>
+		</properties>
 	</profile>
   </profiles>
 

@@ -38,6 +38,7 @@
 	  				<include>org/eclipse/jdt/core/tests/compiler/parser/TestAll.class</include>
 	  				<include>org/eclipse/jdt/core/tests/compiler/regression/TestAll.class</include>
 	  			</includes>
+	  			<argLine>${tycho.surefire.argLine}</argLine>
 	  		</configuration>
   		</plugin>
   	</plugins>
@@ -70,6 +71,9 @@
 				</plugin>
 			</plugins>
 		</build>
+		<properties>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM</tycho.surefire.argLine>
+		</properties>
 	</profile>
   </profiles>
 
