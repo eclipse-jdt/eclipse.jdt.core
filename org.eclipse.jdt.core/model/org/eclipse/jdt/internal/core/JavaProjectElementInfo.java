@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -202,6 +203,15 @@ class JavaProjectElementInfo extends OpenableElementInfo {
 
 	ProjectCache getProjectCache(JavaProject project, boolean excludeTestCode) {
 		ProjectCache cache = excludeTestCode ? this.mainProjectCache : this.projectCache;
+		if (cache != null) {
+			for (IPackageFragmentRoot root : cache.allPkgFragmentRootsCache) {
+				IJavaProject rootProject = root.getJavaProject();
+				if (rootProject != this && !rootProject.exists()) {
+					cache = null; // force rebuilding
+					break;
+				}
+			}
+		}
 		if (cache == null) {
 			IPackageFragmentRoot[] roots;
 			Map<?, ?> reverseMap = new HashMap<>(3);

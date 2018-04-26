@@ -1581,7 +1581,7 @@ public void testConstantReference() throws CoreException {
  * Ensures that the source type converter doesn't throw an OutOfMemoryError if converting a generic type with a primitive type array as argument
  * (regression test for bug 135296 opening a special java file results in an "out of memory" message)
  */
-public void _testConvertPrimitiveTypeArrayTypeArgument() throws CoreException {
+public void testConvertPrimitiveTypeArrayTypeArgument() throws CoreException {
 	ICompilationUnit otherCopy = null;
 	try {
 		otherCopy = getWorkingCopy(
