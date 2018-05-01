@@ -12814,10 +12814,10 @@ public void testBug531981() {
 		"}"
 	);
 }
-	/**
-	 * https://bugs.eclipse.org/373625 - [formatter] preserve whitespace between
-	 * code and comments fails when aligning fields in columns
-	 */
+/**
+ * https://bugs.eclipse.org/373625 - [formatter] preserve whitespace between
+ * code and comments fails when aligning fields in columns
+ */
 public void testBug373625a() {
 	this.formatterPrefs.align_type_members_on_columns = true;
 	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
@@ -12828,10 +12828,10 @@ public void testBug373625a() {
 		"}";
 	formatSource(source);
 }
-	/**
-	 * https://bugs.eclipse.org/373625 - [formatter] preserve whitespace between
-	 * code and comments fails when aligning fields in columns
-	 */
+/**
+ * https://bugs.eclipse.org/373625 - [formatter] preserve whitespace between
+ * code and comments fails when aligning fields in columns
+ */
 public void testBug373625b() {
 	this.formatterPrefs.align_type_members_on_columns = true;
 	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
@@ -12846,5 +12846,20 @@ public void testBug373625b() {
 		"	String	bb	= \"\";   //$NON-NLS-1$\n" + 
 		"}"
 	);
+}
+/**
+ * https://bugs.eclipse.org/534225 - [formatter] Align Javadoc tags in
+ * columns option causes extra spaces
+ */
+public void testBug534225() {
+	this.formatterPrefs.comment_align_tags_descriptions_grouped = true;
+	this.formatterPrefs.comment_indent_parameter_description = true;
+	String source =
+		"/**\n" + 
+		" * @param args a b c d e f\n" + 
+		" */\n" + 
+		"public class C {\n" + 
+		"}";
+	formatSource(source);
 }
 }
