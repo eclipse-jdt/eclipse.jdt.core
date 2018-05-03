@@ -5720,6 +5720,23 @@ private boolean foundToken(int token) {
 	}
 	return false;
 }
+@Override
+protected int actFromTokenOrSynthetic(int previousAct) {
+	int newAct = tAction(previousAct, this.currentToken);
+	if (this.hasError && !this.diet && newAct == ERROR_ACTION && this.currentToken == TerminalTokens.TokenNameEOF) {
+		if (requireExtendedRecovery()) {
+			// during extended recovery, if EOF would be wrong, try a few things to reduce our stacks:
+			for (int tok : RECOVERY_TOKENS) {
+				newAct = tAction(previousAct, tok);
+				if (newAct != ERROR_ACTION) {
+					this.currentToken = tok; // this worked, pretend we really got this from the Scanner
+					return newAct;
+				}
+			}
+		}
+	}
+	return newAct;
+}
 
 protected boolean isInImportStatement() {
 	return foundToken(K_INSIDE_IMPORT_STATEMENT);

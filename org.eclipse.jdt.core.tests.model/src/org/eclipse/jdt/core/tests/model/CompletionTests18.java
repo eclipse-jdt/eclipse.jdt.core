@@ -212,6 +212,32 @@ public void test006() throws JavaModelException {
 			"argument[LOCAL_VARIABLE_REF]{argument, null, I, argument, null, " + (R_DEFAULT + 22) + "}",
 			requestor.getResults());
 }
+// corrected syntax (expr w/o enclosing {}) should not give worse result
+public void test006b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"interface I {\n" +
+			"	int foo(int x);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void go() {\n" +
+			"		I i = (argument) -> \n" +
+			"			argument == 0 ? arg\n" +
+			"		;\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "arg";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"argument[LOCAL_VARIABLE_REF]{argument, null, Ljava.lang.Object;, argument, null, " + (R_DEFAULT + 21) + "}", // FIXME should be "I" and 22 like test006
+			requestor.getResults());
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405126, [1.8][code assist] Lambda parameters incorrectly recovered as fields. 
 public void test007() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -1283,6 +1309,33 @@ public void test428735e() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [203, 206], " + (R_DEFAULT + 30) + "}\n" +
                "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [203, 206], " + (R_DEFAULT + 60) + "}", requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
+public void test428735f() throws JavaModelException {
+	// copy of test428735e with corrected syntax
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.List;\n" +
+			"class Person {\n" +
+			"   String getLastName() { return null; }\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   void test2(List<Person> people) {\n" +
+			"       people.sort((x,y) -> {\n" +
+			"              if (true) return \"\" + x.get; \n" +
+			"              else return \"\";});\n" +
+			"   }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "x.get";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [203, 206], " + (R_DEFAULT + 30) + "}\n" +
+            "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [203, 206], " + (R_DEFAULT + 60) + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402081, [1.8][code complete] No proposals while completing at method/constructor references
 public void test402081() throws JavaModelException {
@@ -3110,6 +3163,102 @@ public void testBug529349a() throws JavaModelException {
 			"Y.Super[TYPE_REF]{p.Y.Super, p, Lp.Y$Super;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE  + R_NON_RESTRICTED + R_CLASS ) + "}\n" + 
 			"Super[TYPE_REF]{Super, p, Lp.Super;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE  + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS) + "}\n" + 
 			"SuperSuper[TYPE_REF]{SuperSuper, p, Lp.SuperSuper;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS) + "}",
+			requestor.getResults());
+}
+public void testBug473654() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/Foo.java",
+		"class Foo {\n" + 
+		"    Runnable foo() {\n" + 
+		"        return () -> new Object() {\n" + 
+		"            // press Ctrl+Space before the comment\n" + 
+		"        };\n" + 
+		"    }\n" + 
+		"    \n" + 
+		"    static void bar() { /**/ }\n" + 
+		"}\n");
+	
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBefore = "// press Ctrl+Space before the comment";
+	int cursorLocation = str.indexOf(completeBefore);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int keywordRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE;
+	int overrideRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE + R_METHOD_OVERIDE;
+
+	assertResults(
+			"[POTENTIAL_METHOD_DECLARATION]{, LObject;, ()V, , null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED)+"}\n" + 
+			"abstract[KEYWORD]{abstract, null, null, abstract, null, "+keywordRelevance+"}\n" + 
+			"class[KEYWORD]{class, null, null, class, null, "+keywordRelevance+"}\n" + 
+			"enum[KEYWORD]{enum, null, null, enum, null, "+keywordRelevance+"}\n" + 
+			"final[KEYWORD]{final, null, null, final, null, "+keywordRelevance+"}\n" + 
+			"interface[KEYWORD]{interface, null, null, interface, null, "+keywordRelevance+"}\n" + 
+			"native[KEYWORD]{native, null, null, native, null, "+keywordRelevance+"}\n" + 
+			"private[KEYWORD]{private, null, null, private, null, "+keywordRelevance+"}\n" + 
+			"protected[KEYWORD]{protected, null, null, protected, null, "+keywordRelevance+"}\n" + 
+			"public[KEYWORD]{public, null, null, public, null, "+keywordRelevance+"}\n" + 
+			"static[KEYWORD]{static, null, null, static, null, "+keywordRelevance+"}\n" + 
+			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, "+keywordRelevance+"}\n" + 
+			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, "+keywordRelevance+"}\n" + 
+			"transient[KEYWORD]{transient, null, null, transient, null, "+keywordRelevance+"}\n" + 
+			"volatile[KEYWORD]{volatile, null, null, volatile, null, "+keywordRelevance+"}\n" + 
+			"Foo[TYPE_REF]{Foo, , LFoo;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE + R_UNQUALIFIED)+"}\n" + 
+			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+overrideRelevance+"}\n" + 
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+overrideRelevance+"}\n" + 
+			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+overrideRelevance+"}\n" + 
+			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+overrideRelevance+"}\n" + 
+			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+overrideRelevance+"}",
+			requestor.getResults());
+}
+public void testBug537679() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/p/SuperSuper.java",
+		"import static java.util.stream.Collectors.toList;\n" + 
+		"import java.util.List;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"	void foo(List<Object> list) {\n" + 
+		"		bar(list.stream().map(m -> new Object() {\n" + 
+		"			// here\n" + 
+		"		}).collect(toList()));\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	private void bar(List<Object> collect) {\n" + 
+		"	}\n" + 
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	int cursorLocation = str.lastIndexOf("// here");
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int keywordRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE;
+	int overrideRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE + R_METHOD_OVERIDE;
+	assertResults(
+			"[POTENTIAL_METHOD_DECLARATION]{, LObject;, ()V, , null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED)+"}\n" + 
+			"abstract[KEYWORD]{abstract, null, null, abstract, null, "+keywordRelevance+"}\n" + 
+			"class[KEYWORD]{class, null, null, class, null, "+keywordRelevance+"}\n" + 
+			"enum[KEYWORD]{enum, null, null, enum, null, "+keywordRelevance+"}\n" + 
+			"final[KEYWORD]{final, null, null, final, null, "+keywordRelevance+"}\n" + 
+			"interface[KEYWORD]{interface, null, null, interface, null, "+keywordRelevance+"}\n" + 
+			"native[KEYWORD]{native, null, null, native, null, "+keywordRelevance+"}\n" + 
+			"private[KEYWORD]{private, null, null, private, null, "+keywordRelevance+"}\n" + 
+			"protected[KEYWORD]{protected, null, null, protected, null, "+keywordRelevance+"}\n" + 
+			"public[KEYWORD]{public, null, null, public, null, "+keywordRelevance+"}\n" + 
+			"static[KEYWORD]{static, null, null, static, null, "+keywordRelevance+"}\n" + 
+			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, "+keywordRelevance+"}\n" + 
+			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, "+keywordRelevance+"}\n" + 
+			"transient[KEYWORD]{transient, null, null, transient, null, "+keywordRelevance+"}\n" + 
+			"volatile[KEYWORD]{volatile, null, null, volatile, null, "+keywordRelevance+"}\n" + 
+			"Test[TYPE_REF]{Test, p, Lp.Test;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE + R_UNQUALIFIED)+"}\n" + 
+			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, "+overrideRelevance+"}\n" + 
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), "+overrideRelevance+"}\n" + 
+			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, "+overrideRelevance+"}\n" + 
+			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, "+overrideRelevance+"}\n" + 
+			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+overrideRelevance+"}",
 			requestor.getResults());
 }
 }
