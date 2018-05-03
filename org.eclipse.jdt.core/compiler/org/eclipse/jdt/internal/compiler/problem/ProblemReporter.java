@@ -247,14 +247,12 @@ public static int getIrritant(int problemID) {
 		case IProblem.UsingDeprecatedMethod :
 		case IProblem.UsingDeprecatedConstructor :
 		case IProblem.UsingDeprecatedField :
-		case IProblem.UsingDeprecatedPackage :
 		case IProblem.UsingDeprecatedModule :
 		case IProblem.OverridingDeprecatedSinceVersionMethod :
 		case IProblem.UsingDeprecatedSinceVersionType :
 		case IProblem.UsingDeprecatedSinceVersionMethod :
 		case IProblem.UsingDeprecatedSinceVersionConstructor :
 		case IProblem.UsingDeprecatedSinceVersionField :
-		case IProblem.UsingDeprecatedSinceVersionPackage :
 		case IProblem.UsingDeprecatedSinceVersionModule :
 			return CompilerOptions.UsingDeprecatedAPI;
 
@@ -263,14 +261,12 @@ public static int getIrritant(int problemID) {
 		case IProblem.UsingTerminallyDeprecatedMethod :
 		case IProblem.UsingTerminallyDeprecatedConstructor :
 		case IProblem.UsingTerminallyDeprecatedField :
-		case IProblem.UsingTerminallyDeprecatedPackage :
 		case IProblem.UsingTerminallyDeprecatedModule :
 		case IProblem.OverridingTerminallyDeprecatedSinceVersionMethod :
 		case IProblem.UsingTerminallyDeprecatedSinceVersionType :
 		case IProblem.UsingTerminallyDeprecatedSinceVersionMethod :
 		case IProblem.UsingTerminallyDeprecatedSinceVersionConstructor :
 		case IProblem.UsingTerminallyDeprecatedSinceVersionField :
-		case IProblem.UsingTerminallyDeprecatedSinceVersionPackage :
 		case IProblem.UsingTerminallyDeprecatedSinceVersionModule :
 			return CompilerOptions.UsingTerminallyDeprecatedAPI;
 
@@ -1848,25 +1844,6 @@ public void deprecatedType(TypeBinding type, ASTNode location, int index) {
 			new String[] {new String(leafType.shortReadableName())},
 			(sourceStart == -1) ? location.sourceStart : sourceStart,
 			nodeSourceEnd(null, location, index));
-	}
-}
-public void deprecatedPackage(ImportReference pkgRef, PackageBinding resolvedPackage, TypeBinding packageInfo) {
-	String sinceValue = deprecatedSinceValue(() -> packageInfo.isValidBinding() ? packageInfo.getAnnotations() : Binding.NO_ANNOTATIONS);
-	boolean isTerminally = (resolvedPackage.tagBits & TagBits.AnnotationTerminallyDeprecated) != 0;
-	if (sinceValue != null) {
-		String[] args = { CharOperation.toString(pkgRef.tokens), sinceValue };
-		handle( isTerminally ? IProblem.UsingTerminallyDeprecatedSinceVersionPackage : IProblem.UsingDeprecatedSinceVersionPackage,
-				args,
-				args,
-				pkgRef.sourceStart,
-				pkgRef.sourceEnd);		
-	} else {
-		String[] args = { CharOperation.toString(pkgRef.tokens) };
-		handle( isTerminally ? IProblem.UsingTerminallyDeprecatedPackage : IProblem.UsingDeprecatedPackage,
-				args,
-				args,
-				pkgRef.sourceStart,
-				pkgRef.sourceEnd);
 	}
 }
 public void deprecatedModule(ModuleReference moduleReference, ModuleBinding requiredModule) {
