@@ -1226,7 +1226,12 @@ public PolymorphicMethodBinding createPolymorphicMethod(MethodBinding originalPo
 		if (parameterTypeBinding.id == TypeIds.T_null) {
 			parametersTypeBinding[i] = getType(JAVA_LANG_VOID, javaBaseModule());
 		} else {
-			parametersTypeBinding[i] = parameterTypeBinding.erasure();
+			if (parameterTypeBinding.isPolyType()) {
+				PolyTypeBinding ptb = (PolyTypeBinding) parameterTypeBinding;
+				parametersTypeBinding[i] = ptb.expression.resolvedType;
+			} else {
+				parametersTypeBinding[i] = parameterTypeBinding.erasure();
+			}
 		}
 	}
 	boolean needToGrow = false;
