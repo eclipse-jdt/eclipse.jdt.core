@@ -6962,6 +6962,38 @@ public void testBug531093comment1() {
 		""
 	);
 }
+public void testBug531093() {
+	runConformTest(
+		new String[] {
+			"bug/Bug.java",
+			"package bug;\n" +
+			"import java.io.Serializable;\n" +
+			"import java.lang.reflect.Method;\n" +
+			"import java.util.Arrays;\n" +
+			"import java.util.Optional;\n" +
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"public class Bug {\n" +
+			"    public <E extends Number & Serializable> Function<E, Optional<String>> useMethodRef() {\n" +
+			"        return Bug::getMapper;\n" +
+			"    }\n" +
+			"\n" +
+			"    private static Optional<String> getMapper(Number event) {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"\n" +
+			"    public static void main(String[] args) {\n" +
+			"        Method[] methods = Bug.class.getDeclaredMethods();\n" +
+			"        for (Method method : methods) {\n" +
+			"            String.valueOf(Arrays.asList(method.getParameters()));\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+		}, 
+		""
+	);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
