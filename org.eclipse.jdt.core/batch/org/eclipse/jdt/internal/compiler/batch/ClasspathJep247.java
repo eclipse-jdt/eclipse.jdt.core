@@ -34,6 +34,7 @@ public class ClasspathJep247 extends ClasspathJrt {
 
 	private java.nio.file.FileSystem fs = null;
 	private String compliance = null;
+	private long jdklevel;
 	private String releaseInHex = null;
 	private String[] subReleases = null;
 	private Path releasePath = null;
@@ -44,6 +45,7 @@ public class ClasspathJep247 extends ClasspathJrt {
 	public ClasspathJep247(File jdkHome, String release, AccessRuleSet accessRuleSet) {
 		super(jdkHome, false, accessRuleSet, null);
 		this.compliance = release;
+		this.jdklevel = CompilerOptions.releaseToJDKLevel(this.compliance);
 		this.jdkHome = jdkHome;
 		this.file = new File(new File(jdkHome, "lib"), "jrt-fs.jar"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -118,7 +120,9 @@ public class ClasspathJep247 extends ClasspathJrt {
 	}
 	@Override
 	public void loadModules() {
-		if (CompilerOptions.releaseToJDKLevel(this.compliance) <= ClassFileConstants.JDK1_8) {
+		// Modules below level 8 are not dealt with here. Leave it to ClasspathJrt
+		if (this.jdklevel <= ClassFileConstants.JDK1_8) {
+			super.loadModules();
 			return;
 		}
 		final Path modPath = this.fs.getPath(this.releaseInHex + "-modules"); //$NON-NLS-1$
@@ -171,6 +175,11 @@ public class ClasspathJep247 extends ClasspathJrt {
 	}
 	@Override
 	void acceptModule(ClassFileReader reader) {
+		// Modules below level 8 are not dealt with here. Leave it to ClasspathJrt
+		if (this.jdklevel <= ClassFileConstants.JDK1_8) {
+			super.acceptModule(reader);
+			return;
+		}
 		if (reader != null) {
 			IModule moduleDecl = reader.getModuleDeclaration();
 			if (moduleDecl != null) {
