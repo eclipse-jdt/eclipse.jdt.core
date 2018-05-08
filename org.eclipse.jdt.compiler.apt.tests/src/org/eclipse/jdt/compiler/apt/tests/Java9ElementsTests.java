@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 public class Java9ElementsTests extends TestCase {
 	private static final String MODULE_PROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.Java9ElementProcessor";
 
-	public void testRootElements1Javac() throws IOException {
+	public void _testRootElements1Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) {
 			System.out.println("No system java compiler available");
@@ -35,12 +35,12 @@ public class Java9ElementsTests extends TestCase {
 		}
 		internalTest2(compiler, MODULE_PROC, "testRootElements1", null);
 	}
-	public void testRootElements1() throws IOException {
+	public void _testRootElements1() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest2(compiler, MODULE_PROC, "testRootElements1", null);
 	}
 
-	public void testRootElements2Javac() throws IOException {
+	public void _testRootElements2Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) {
 			System.out.println("No system java compiler available");
@@ -48,7 +48,7 @@ public class Java9ElementsTests extends TestCase {
 		}
 		internalTest2(compiler, MODULE_PROC, "testRootElements2", null);
 	}
-	public void testRootElements2() throws IOException {
+	public void _testRootElements2() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest2(compiler, MODULE_PROC, "testRootElements2", null);
 	}
@@ -143,7 +143,7 @@ public class Java9ElementsTests extends TestCase {
 		internalTest2(compiler, MODULE_PROC, "testModuleElement6", null);
 	}
 
-	public void testModuleElement7Javac() throws IOException {
+	public void _testModuleElement7Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		if (compiler == null) {
 			System.out.println("No system java compiler available");
