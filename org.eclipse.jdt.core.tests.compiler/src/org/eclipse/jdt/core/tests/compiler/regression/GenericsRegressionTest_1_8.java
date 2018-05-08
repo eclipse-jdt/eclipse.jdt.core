@@ -9955,4 +9955,55 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+
+	public void testBug534466() {
+		runNegativeTest(
+			new String[] {
+				"test/TODO.java",
+				"package test;\n" + 
+				"public interface TODO {\n" + 
+				"    boolean test();\n" + 
+				"}\n",
+				"test/FuncN.java",
+				"package test;\n" + 
+				"\n" + 
+				"@FunctionalInterface\n" + 
+				"public interface FuncN {\n" + 
+				"  State zip(State ...states);\n" + 
+				"}\n",
+				"test/Test.java",
+				"package test;\n" + 
+				"public class Test {\n" + 
+				"\n" + 
+				"    public static Test define(FuncN zipperFunc,TODO... tasks) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static Test define(TODO... tasks) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n",
+				"test/State.java",
+				"package test;\n" + 
+				"public class State {\n" + 
+				"    public static State mergeStates(State ...states) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n",
+				"test/Main.java",
+				"package test;\n" + 
+				"\n" + 
+				"public class Main {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"      Test.define(State::mergeStates,()->true);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in test\\Main.java (at line 5)\n" + 
+			"	Test.define(State::mergeStates,()->true);\n" + 
+			"	     ^^^^^^\n" + 
+			"The method define(FuncN, TODO[]) is ambiguous for the type Test\n" + 
+			"----------\n");
+	}
 }
