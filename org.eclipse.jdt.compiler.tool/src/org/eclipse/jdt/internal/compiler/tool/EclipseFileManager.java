@@ -815,7 +815,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					} else {
 						throw new IllegalArgumentException();
 					}
-				case "--relese": //$NON-NLS-1$
+				case "--release": //$NON-NLS-1$
 					if (remaining.hasNext()) {
 						this.releaseVersion = remaining.next();
 						return true;
