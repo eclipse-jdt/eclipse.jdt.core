@@ -22064,9 +22064,7 @@ public void test325481b() throws JavaModelException {
 				"element:RANKING_ATTRIBUTE_V2    completion:RANKING_ATTRIBUTE_V2    relevance:" + relevance +"\n" + 
 				"element:REFERENCE_ATTRIBUTE    completion:REFERENCE_ATTRIBUTE    relevance:" + relevance +"\n" + 
 				"element:WORK_ATTRIBUTE    completion:WORK_ATTRIBUTE    relevance:" + relevance +"\n" + 
-				"element:class    completion:class    relevance:" + relevance +"\n" + 
-				"element:super    completion:super    relevance:" + relevance + "\n" + 
-				"element:this    completion:this    relevance:" + relevance,
+				"element:class    completion:class    relevance:" + relevance,
 				requestor.getResults());
 	} finally {
 		// Restore compliance settings.
