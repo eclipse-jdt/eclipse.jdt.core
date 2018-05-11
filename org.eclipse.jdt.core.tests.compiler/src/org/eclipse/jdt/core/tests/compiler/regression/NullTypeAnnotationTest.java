@@ -17529,4 +17529,59 @@ public void testBug533339() {
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
 }
+public void testBug534516() {
+	runConformTestWithLibs(
+			new String[] {
+				"testbug/nullannotations/Utility.java",
+				"package testbug.nullannotations;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+				"\n" +
+				"@NonNullByDefault\n" +
+				"public class Utility {\n" +
+				"\n" +
+				"	public static String massageString(final String input) {\n" +
+				"		return input + \" .\";\n" +
+				"	}\n" +
+				"\n" +
+				"	private Utility() {\n" +
+				"\n" +
+				"	}\n" +
+				"\n" +
+				"}\n" +
+				"",
+			}, 
+			getCompilerOptions(),
+			""
+		);
+	runConformTestWithLibs(
+			false,
+			new String[] {
+				"testbug/nullannotations/ApplyIfNonNullElseGetBugDemo.java",
+				"package testbug.nullannotations;\n" +
+				"\n" +
+				"import java.util.function.Function;\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"public class ApplyIfNonNullElseGetBugDemo {\n" +
+				"\n" +
+				"	public static <T, U> U applyIfNonNullElse(@Nullable T value, @NonNull Function<@NonNull ? super T, ? extends U> function, U fallbackValue) {\n" + 
+				"		if (value != null)\n" + 
+				"			return function.apply(value);\n" + 
+				"		return fallbackValue;\n" + 
+				"	}\n" + 
+				"\n" +
+				"	public static void main(final @Nullable String[] args) {\n" +
+				"		final @Nullable String arg = args.length == 0 ? null : args[0];\n" +
+				"		System.out.println(applyIfNonNullElse(arg, Utility::massageString, \"\")); // incorrect warning here\n" +
+				"	}\n" +
+				"\n" +
+				"}\n" +
+				"",
+			}, 
+			getCompilerOptions(),
+			""
+		);
+}
 }

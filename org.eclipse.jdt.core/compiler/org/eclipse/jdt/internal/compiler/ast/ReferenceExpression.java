@@ -634,6 +634,9 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			}
 
 	    	if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
+	    		if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && this.binding != null) {
+	    			ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(this.binding, scope);
+	    		}
 	    		return new PolyTypeBinding(this);
 			}
 
