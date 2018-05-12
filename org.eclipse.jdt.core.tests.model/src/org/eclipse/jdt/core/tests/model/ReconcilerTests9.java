@@ -12,6 +12,9 @@
 package org.eclipse.jdt.core.tests.model;
 
 
+import java.io.IOException;
+
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -68,7 +71,7 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
 	// Create project with 9 compliance
-	IJavaProject project9 = createJavaProject("Reconciler9", new String[] {"src"}, new String[] {"JCL9_LIB"}, "bin");
+	IJavaProject project9 = createJava9Project("Reconciler9");
 	createFile(
 		"/Reconciler9/src/module-info.java",
 		"/**\n" +
@@ -83,6 +86,16 @@ public void setUpSuite() throws Exception {
 	project9.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.WARNING);
 
 
+}
+protected void setUpWorkingCopy(String path, String contents) throws JavaModelException {
+	setUpWorkingCopy(path, contents, this.wcOwner);
+}
+private void setUpWorkingCopy(String path, String contents, WorkingCopyOwner owner) throws JavaModelException {
+	this.workingCopy.discardWorkingCopy();
+	this.workingCopy = getCompilationUnit(path).getWorkingCopy(owner, null);
+	assertEquals("Invalid problem requestor!", this.problemRequestor, this.wcOwner.getProblemRequestor(this.workingCopy));
+	setWorkingCopyContents(contents);
+	this.workingCopy.makeConsistent(null);
 }
 void setWorkingCopyContents(String contents) throws JavaModelException {
 	this.workingCopy.getBuffer().setContents(contents);
@@ -250,5 +263,112 @@ public void testCategories3() throws JavaModelException {
 		"Unexpected delta",
 		"mod.one[*]: {CATEGORIES}"
 	);
+}
+public void testTerminalDeprecation1() throws CoreException {
+	try {
+		createJava9Project("P1");
+		createFolder("/P1/src/p");
+		createFile("/P1/src/p/X1.java", 
+				"package p;\n" +
+				"@Deprecated(forRemoval=true)\n" +
+				"public class X1 {}");
+		createFile("/P1/src/p/X2.java", 
+				"package p;\n" +
+				"public class X2 {\n" +
+				"   @Deprecated(forRemoval=true)\n" +
+				"	public Object field;\n" +
+				"   @Deprecated(forRemoval=true)\n" +
+				"	public void m() {}\n" +
+				"}\n");
+
+		setUpWorkingCopy("/P1/src/Y.java",
+				"public class Y extends p.X1 {\n" +
+				"	Object foo(p.X2 x2) {\n" +
+				"		x2.m();\n" +
+				"		return x2.field;\n" +
+				"	}\n" +
+				"}\n");
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /P1/src/Y.java (at line 1)\n" + 
+			"	public class Y extends p.X1 {\n" + 
+			"	                         ^^\n" + 
+			"The type X1 has been deprecated and marked for removal\n" + 
+			"----------\n" + 
+			"2. WARNING in /P1/src/Y.java (at line 3)\n" + 
+			"	x2.m();\n" + 
+			"	   ^^^\n" + 
+			"The method m() from the type X2 has been deprecated and marked for removal\n" + 
+			"----------\n" + 
+			"3. WARNING in /P1/src/Y.java (at line 4)\n" + 
+			"	return x2.field;\n" + 
+			"	          ^^^^^\n" + 
+			"The field X2.field has been deprecated and marked for removal\n" + 
+			"----------\n"
+		);
+	} finally {
+		deleteProject("P1");
+	}
+}
+public void testTerminalDeprecation2() throws CoreException, IOException {
+	try {
+		IJavaProject p1 = createJava9Project("P1");
+		createJar(
+			new String[] {
+				"p/X1.java", 
+				"package p;\n" +
+				"@Deprecated(forRemoval=true)\n" +
+				"public class X1 {}",
+				"/P1/src/p/X2.java", 
+				"package p;\n" +
+				"public class X2 {\n" +
+				"   @Deprecated(forRemoval=true)\n" +
+				"	public Object field;\n" +
+				"   @Deprecated(forRemoval=true)\n" +
+				"	public void m() {}\n" +
+				"	@Deprecated public void m2() {}\n" +
+				"}\n"
+			},
+			p1.getProject().getLocation().append("lib.jar").toOSString(),
+			null,
+			"9");
+		p1.getProject().refreshLocal(2, null);
+		addLibraryEntry(p1, "/P1/lib.jar", false);
+
+		setUpWorkingCopy("/P1/src/Y.java",
+				"public class Y extends p.X1 {\n" +
+				"	Object foo(p.X2 x2) {\n" +
+				"		x2.m();\n" +
+				"		x2.m2();\n" +
+				"		return x2.field;\n" +
+				"	}\n" +
+				"}\n");
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /P1/src/Y.java (at line 1)\n" + 
+			"	public class Y extends p.X1 {\n" + 
+			"	                         ^^\n" + 
+			"The type X1 has been deprecated and marked for removal\n" + 
+			"----------\n" + 
+			"2. WARNING in /P1/src/Y.java (at line 3)\n" + 
+			"	x2.m();\n" + 
+			"	   ^^^\n" + 
+			"The method m() from the type X2 has been deprecated and marked for removal\n" + 
+			"----------\n" + 
+			"3. WARNING in /P1/src/Y.java (at line 4)\n" + 
+			"	x2.m2();\n" + 
+			"	   ^^^^\n" + 
+			"The method m2() from the type X2 is deprecated\n" + 
+			"----------\n" + 
+			"4. WARNING in /P1/src/Y.java (at line 5)\n" + 
+			"	return x2.field;\n" + 
+			"	          ^^^^^\n" + 
+			"The field X2.field has been deprecated and marked for removal\n" + 
+			"----------\n");
+	} finally {
+		deleteProject("P1");
+	}
 }
 }
