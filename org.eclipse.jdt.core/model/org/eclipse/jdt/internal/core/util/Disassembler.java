@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1793,7 +1797,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			IConstantPoolEntry constantPoolEntry = constantPool.decodeEntry(i);
 			String[] methodDescription;
-			switch (constantPool.getEntryKind(i)) {
+			int kind = constantPool.getEntryKind(i);
+			switch (kind) {
 				case IConstantPoolConstant.CONSTANT_Class :
 					buffer.append(
 						Messages.bind(Messages.disassembler_constantpool_class,
@@ -1914,9 +1919,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 								}));
 					break;
 				case IConstantPoolConstant.CONSTANT_InvokeDynamic :
+				case IConstantPoolConstant.CONSTANT_Dynamic :
 					entry2 = (IConstantPoolEntry2) constantPoolEntry;
 					buffer.append(
-						Messages.bind(Messages.disassembler_constantpool_invokedynamic,
+						Messages.bind(kind == IConstantPoolConstant.CONSTANT_InvokeDynamic ?
+								Messages.disassembler_constantpool_invokedynamic :
+									Messages.disassembler_constantpool_dynamic,
 							new String[] {
 								Integer.toString(i),
 								Integer.toString(entry2.getBootstrapMethodAttributeIndex()),
