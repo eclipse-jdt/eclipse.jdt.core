@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -122,6 +126,7 @@ public interface ClassFileConstants {
 	int MAJOR_VERSION_1_8 = 52;
 	int MAJOR_VERSION_9 = 53;
 	int MAJOR_VERSION_10 = 54;
+	int MAJOR_VERSION_11 = 55;
 
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
@@ -141,6 +146,7 @@ public interface ClassFileConstants {
 	long JDK1_8 = ((long)ClassFileConstants.MAJOR_VERSION_1_8 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK9 = ((long)ClassFileConstants.MAJOR_VERSION_9 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK10 = ((long)ClassFileConstants.MAJOR_VERSION_10 << 16) + ClassFileConstants.MINOR_VERSION_0;
+	long JDK11 = ((long)ClassFileConstants.MAJOR_VERSION_11 << 16) + ClassFileConstants.MINOR_VERSION_0;
 
 	/*
 	 * cldc1.1 is 45.3, but we modify it to be different from JDK1_1.

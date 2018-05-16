@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *      Jesper Steen Møller <jesper@selskabet.org> - Contributions for
@@ -158,7 +162,27 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK9, tests_10));
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK10, tests_10));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_11) != 0) {
+		ArrayList tests_11 = (ArrayList)testClasses.clone();
+		tests_11.addAll(TEST_CLASSES_1_5);
+		tests_11.add(ParserTest1_7.class);
+		tests_11.add(LambdaExpressionSyntaxTest.class);
+		tests_11.add(ReferenceExpressionSyntaxTest.class);
+		tests_11.add(TypeAnnotationSyntaxTest.class);
+		tests_11.add(CompletionParserTest18.class);
+		tests_11.add(SelectionParserTest18.class);
+		tests_11.add(SelectionParserTest9.class);
+		tests_11.add(ModuleDeclarationSyntaxTest.class);
+		tests_11.add(JEP286ReservedWordTest.class);
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK11, tests_11));
 	}
 	return all;
 }

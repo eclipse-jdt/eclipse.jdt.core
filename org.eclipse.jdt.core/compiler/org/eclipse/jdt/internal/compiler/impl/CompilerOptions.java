@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -218,6 +222,7 @@ public class CompilerOptions {
 	public static final String VERSION_1_8 = "1.8"; //$NON-NLS-1$
 	public static final String VERSION_9 = "9"; //$NON-NLS-1$
 	public static final String VERSION_10 = "10"; //$NON-NLS-1$
+	public static final String VERSION_11 = "11"; //$NON-NLS-1$
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String INFO = "info"; //$NON-NLS-1$
@@ -789,9 +794,12 @@ public class CompilerOptions {
 					return VERSION_9;
 				break;
 			case ClassFileConstants.MAJOR_VERSION_10 :
-				// JDK10 uses same major version ad JDK9
 				if (jdkLevel == ClassFileConstants.JDK10)
 					return VERSION_10;
+				break;
+			case ClassFileConstants.MAJOR_VERSION_11 :
+				if (jdkLevel == ClassFileConstants.JDK11)
+					return VERSION_11;
 				break;
 		}
 		return Util.EMPTY_STRING; // unknown version
@@ -809,10 +817,14 @@ public class CompilerOptions {
 				case '9':
 					return ClassFileConstants.JDK9;
 				case '1':
-					if (release.length() > 1 && release.charAt(1) == '0')
-						return ClassFileConstants.JDK10;
-					else 
-						return 0;
+					if (release.length() > 1) {
+						switch(release.charAt(1)) {
+							case '0': return ClassFileConstants.JDK10;
+							case '1': return ClassFileConstants.JDK11;
+							default: return 0;
+						}
+					}
+					break;
 				default:
 					return 0; // unknown
 			}
@@ -849,10 +861,13 @@ public class CompilerOptions {
 					case '9':
 						return ClassFileConstants.JDK9;
 					case '1':
-						if (version.length() > 1 && version.charAt(1) == '0') {
-							return ClassFileConstants.JDK10; // Level for JDK 10
+						if (version.length() > 1) {
+							switch(version.charAt(1)) {
+								case '0': return ClassFileConstants.JDK10;
+								case '1': return ClassFileConstants.JDK11;
+							}
 						}
-					// No default - let it go through the remaining checks.
+						// No default - let it go through the remaining checks.
 				}
 			}
 		}

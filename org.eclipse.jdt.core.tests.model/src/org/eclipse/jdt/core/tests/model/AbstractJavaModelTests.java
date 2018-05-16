@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -113,8 +117,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Internal synonym for constant AST.JSL10
 	 * to alleviate deprecation warnings once AST.JLS10 is deprecated in future.
+	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS10 = AST.JLS10;
+
+	/**
+	 * Internal synonym for constant AST.JSL11
+	 * to alleviate deprecation warnings once AST.JLS11 is deprecated in future.
+	 */
+	protected static final int AST_INTERNAL_JLS11 = AST.JLS11;
 
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}
@@ -1950,6 +1961,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_10);
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_10);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
+					javaProject.setOptions(options);
+				} else if ("11".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
 					javaProject.setOptions(options);
 				}
 				result[0] = javaProject;

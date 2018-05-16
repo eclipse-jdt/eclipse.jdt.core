@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -250,6 +254,8 @@ static class JavacCompiler {
 			this.version = JavaCore.VERSION_9;
 		} else if(rawVersion.startsWith("10")) {
 			this.version = JavaCore.VERSION_10;
+		}  else if(rawVersion.startsWith("11")) {
+			this.version = JavaCore.VERSION_11;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -358,6 +364,17 @@ static class JavacCompiler {
 			}
 		}
 		if (version == JavaCore.VERSION_10) {
+			if ("10".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("10.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("10.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_11) {
 			return 0000; // We are still in EA
 		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);
@@ -1125,6 +1142,8 @@ protected static class JavacTestOptions {
 			buffer.append("\" -9 " + processAnnot);
 		} else if (this.complianceLevel == ClassFileConstants.JDK10) {
 			buffer.append("\" -10 " + processAnnot);
+		} else if (this.complianceLevel == ClassFileConstants.JDK11) {
+			buffer.append("\" -11 " + processAnnot);
 		}
 		buffer
 			.append(" -preserveAllLocals -proceedOnError -nowarn -g -classpath \"")

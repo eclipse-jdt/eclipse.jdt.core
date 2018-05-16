@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -234,6 +238,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.14
+	 * @deprecated Clients should use the {@link #JLS11} AST API instead.
 	 */
 	public static final int JLS10 = 10;
 
@@ -243,6 +248,29 @@ public final class AST {
 	 * @since 3.14
 	 */
 	/*package*/ static final int JLS10_INTERNAL = JLS10;
+
+	/**
+	 * Constant for indicating the AST API that handles JLS11.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 11 Edition (JLS11).
+	 * JLS11 is a superset of all earlier versions of the
+	 * Java language, and the JLS11 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 11 (aka JDK 11).
+	 * </p>
+	 *
+	 * @since 3.14 BETA_JAVA11
+	 */
+	public static final int JLS11 = 11;
+
+	/**
+	 * Internal synonym for {@link #JLS11}. Use to alleviate
+	 * deprecation warnings once JLS11 is deprecated
+	 * @since 3.14 BETA_JAVA11
+	 */
+	/*package*/ static final int JLS11_INTERNAL = JLS11;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
