@@ -25792,4 +25792,96 @@ public void testBug528938() throws JavaModelException {
 			"zzz[FIELD_REF]{zzz, LCompletionAfterCase1;, I, zzz, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_FINAL) + "}",
 			requestor.getResults());
 }
+public void testBug533740a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"interface X extends Y {\n" +
+			"	public default void foo() {\n" +
+			"		X.t\n" +
+			"	}\n" +
+			"}\n" +
+			"interface Y {\n" +
+			"    public default void bar() {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "X.t";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"this[KEYWORD]{this, null, null, this, null, 51}",
+			requestor.getResults());
+}
+public void testBug533740b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"interface X extends Y {\n" +
+			"	public default void foo() {\n" +
+			"		X.s\n" +
+			"	}\n" +
+			"}\n" +
+			"interface Y {\n" +
+			"    public default void bar() {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "X.s";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"",
+			requestor.getResults());
+}
+public void testBug533740c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"interface X extends Y {\n" +
+			"	public default void foo() {\n" +
+			"		Y.t\n" +
+			"	}\n" +
+			"}\n" +
+			"interface Y {\n" +
+			"    public default void bar() {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Y.t";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"",
+			requestor.getResults());
+}
+public void testBug533740d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"interface X extends Y {\n" +
+			"	public default void foo() {\n" +
+			"		Y.s\n" +
+			"	}\n" +
+			"}\n" +
+			"interface Y {\n" +
+			"    public default void bar() {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Y.s";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"super[KEYWORD]{super, null, null, super, null, 51}",
+			requestor.getResults());
+}
 }
