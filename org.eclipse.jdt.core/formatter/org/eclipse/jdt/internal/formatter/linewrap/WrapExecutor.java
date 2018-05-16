@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 Mateusz Matela and others.
+ * Copyright (c) 2014, 2018 Mateusz Matela and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.formatter.linewrap;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameWHITESPACE;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -334,7 +335,9 @@ public class WrapExecutor {
 				// (these are currently in a future line comment but will be removed)
 				structure.addAll(this.nlsTags);
 
-				if (structure.isEmpty()) { // all the tags have been moved to other lines
+				if (structure.isEmpty()
+						|| (structure.size() == 1 && structure.get(0).tokenType == TokenNameWHITESPACE)) {
+					// all the tags have been moved to other lines
 					WrapExecutor.this.tm.remove(index);
 					structureChanged();
 				}

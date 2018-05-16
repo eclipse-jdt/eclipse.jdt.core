@@ -12862,4 +12862,22 @@ public void testBug534225() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/534742 - Error on save file due to formatter:
+ * IndexOutOfBoundsException in CommentWrapExecutor
+ */
+public void testBug534742() {
+	setPageWidth80();
+	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
+	String source =
+		"class C {\n" + 
+		"	String ssssssssssss = fffffffffffffffff(\"aaaaaaaaaaaaaaaaa\", bbbbbbbbbbbbbbbbbb); //$NON-NLS-1$\n" + 
+		"}";
+	formatSource(source,
+		"class C {\n" + 
+		"	String ssssssssssss = fffffffffffffffff(\"aaaaaaaaaaaaaaaaa\", //$NON-NLS-1$\n" + 
+		"			bbbbbbbbbbbbbbbbbb);\n" + 
+		"}"
+	);
+}
 }
