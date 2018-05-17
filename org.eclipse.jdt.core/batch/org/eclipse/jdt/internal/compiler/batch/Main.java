@@ -2783,7 +2783,7 @@ public void configure(String[] argv) {
 				// If release >= 9, the following are disallowed
 				// --system and --upgrade-module-path
 
-				// -source and -target are diasllowed for any --release
+				// -source and -target are disallowed for any --release
 				this.releaseVersion = currentArg;
 				long releaseToJDKLevel = CompilerOptions.releaseToJDKLevel(currentArg);
 				if (releaseToJDKLevel == 0) {
