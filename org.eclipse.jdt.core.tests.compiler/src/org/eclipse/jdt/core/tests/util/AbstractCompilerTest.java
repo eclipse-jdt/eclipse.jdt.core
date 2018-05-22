@@ -445,6 +445,10 @@ public class AbstractCompilerTest extends TestCase {
 					if (canRun10) {
 						possibleComplianceLevels |= F_10;
 					}
+					boolean canRun11 = canRun10 && !CompilerOptions.VERSION_10.equals(specVersion);
+					if (canRun11) {
+						possibleComplianceLevels |= F_11;
+					}
 				} else if ("1.0".equals(specVersion)
 							|| CompilerOptions.VERSION_1_1.equals(specVersion)
 							|| CompilerOptions.VERSION_1_2.equals(specVersion)
@@ -463,6 +467,9 @@ public class AbstractCompilerTest extends TestCase {
 									possibleComplianceLevels |= F_9;
 									if (!CompilerOptions.VERSION_9.equals(specVersion)) {
 										possibleComplianceLevels |= F_10;
+										if (!CompilerOptions.VERSION_10.equals(specVersion)) {
+											possibleComplianceLevels |= F_11;
+										}
 									}
 								}
 							}
