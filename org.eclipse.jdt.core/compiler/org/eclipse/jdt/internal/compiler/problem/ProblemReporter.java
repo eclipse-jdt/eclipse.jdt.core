@@ -4,7 +4,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -9456,6 +9460,14 @@ public void varIsReservedTypeNameInFuture(ASTNode decl) {
 public void varIsNotAllowedHere(ASTNode astNode) {
 	this.handle(
 		IProblem.VarIsNotAllowedHere,
+		NoArgument,
+		NoArgument,
+		astNode.sourceStart,
+		astNode.sourceEnd);
+}
+public void varCannotBeMixedWithNonVarParams(ASTNode astNode) {
+	this.handle(
+		IProblem.VarCannotBeMixedWithNonVarParams,
 		NoArgument,
 		NoArgument,
 		astNode.sourceStart,

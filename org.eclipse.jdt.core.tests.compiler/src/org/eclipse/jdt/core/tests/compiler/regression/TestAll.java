@@ -175,7 +175,7 @@ public static Test suite() {
 	
 	// add 11 specific test here (check duplicates)
 	ArrayList since_11 = new ArrayList();
-	// since_11.add(JEP323Test.class);
+	 since_11.add(JEP323VarLambdaParamsTest.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
