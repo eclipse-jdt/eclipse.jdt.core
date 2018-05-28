@@ -861,7 +861,7 @@ public class CompilerOptions {
 					case '9':
 						return ClassFileConstants.JDK9;
 					case '1':
-						if (version.length() > 1 && version.charAt(1) == '0') {
+						if (version.length() > 1) {
 							if (version.charAt(1) == '0') {
 								return ClassFileConstants.JDK10; // Level for JDK 10
 							} else {
