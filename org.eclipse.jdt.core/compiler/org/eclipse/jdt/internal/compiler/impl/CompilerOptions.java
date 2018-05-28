@@ -861,13 +861,17 @@ public class CompilerOptions {
 					case '9':
 						return ClassFileConstants.JDK9;
 					case '1':
-						if (version.length() > 1) {
-							switch(version.charAt(1)) {
-								case '0': return ClassFileConstants.JDK10;
-								case '1': return ClassFileConstants.JDK11;
+						if (version.length() > 1 && version.charAt(1) == '0') {
+							if (version.charAt(1) == '0') {
+								return ClassFileConstants.JDK10; // Level for JDK 10
+							} else {
+								int versionAfterTen = Integer.parseInt("" + version.charAt(1)); //$NON-NLS-1$
+								int majorVersion = ClassFileConstants.MAJOR_VERSION_10 + versionAfterTen;
+								long jdkLevel = ((long)majorVersion << 16) + ClassFileConstants.MINOR_VERSION_0;
+								return jdkLevel;
 							}
-						}
 						// No default - let it go through the remaining checks.
+						}
 				}
 			}
 		}

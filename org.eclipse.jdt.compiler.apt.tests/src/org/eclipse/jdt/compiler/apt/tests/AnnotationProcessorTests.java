@@ -175,4 +175,29 @@ public class AnnotationProcessorTests extends TestCase {
 		assertEquals("incorrect number of messages", 0, diagnosticListener.count);
 		assertNull(System.getProperty(PROC));
 	}
+
+	public void testBug530665() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File srcFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug317216");
+		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug530665", srcFolder);
+		File binFolder = TestUtils.concatPath(BatchTestUtils.getBinFolderName(), "targets", "AnnotationProcessorTests", "bug530665");
+		binFolder.mkdirs();
+		File preexistsFile = new File(binFolder, "preexists.txt");
+		assertTrue(preexistsFile.createNewFile());
+		File nonexistsFile = new File(binFolder, "nonexists.txt");
+		assertTrue(!nonexistsFile.exists());
+
+		List<String> options = new ArrayList<String>();
+		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug530665Proc";
+		options.add("-processorpath");
+		options.add(" ");
+		options.add("-processor");
+		options.add(PROC);
+		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<JavaFileObject>();
+		BatchTestUtils.compileTree(compiler, options, srcFolder, false, diagnosticListener);
+		assertEquals("succeeded", System.getProperty(PROC));
+
+		assertTrue(!preexistsFile.exists()); // deleted
+		assertTrue(nonexistsFile.exists()); // rewritten
+	}
 }

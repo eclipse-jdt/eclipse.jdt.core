@@ -161,8 +161,6 @@ public class BatchFilerImpl implements Filer {
 		if (_createdFiles.contains(uri)) {
 			throw new FilerException("Resource already created : " + location + '/' + pkg + '/' + relativeName); //$NON-NLS-1$
 		}
-
-		_createdFiles.add(uri);
 		return fo;
 	}
 

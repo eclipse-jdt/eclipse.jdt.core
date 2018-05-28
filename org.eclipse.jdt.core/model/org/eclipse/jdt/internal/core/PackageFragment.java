@@ -115,9 +115,13 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 		}
 	}
 
-	IJavaElement[] children = new IJavaElement[vChildren.size()];
-	vChildren.toArray(children);
-	info.setChildren(children);
+	if (!vChildren.isEmpty()) {
+		IJavaElement[] children = new IJavaElement[vChildren.size()];
+		vChildren.toArray(children);
+		info.setChildren(children);
+	} else {
+		info.setChildren(JavaElement.NO_ELEMENTS);
+	}
 	return true;
 }
 /**
