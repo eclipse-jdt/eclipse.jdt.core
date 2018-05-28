@@ -354,11 +354,13 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 		boolean parametersHaveErrors = false;
 		boolean genericSignatureNeeded = this.requiresGenericSignature || blockScope.compilerOptions().generateGenericSignatureForLambdaExpressions;
+		TypeBinding[] expectedParameterTypes = new TypeBinding[argumentsLength];
 		for (int i = 0; i < argumentsLength; i++) {
 			Argument argument = this.arguments[i];
 			TypeBinding argumentType;
 			final TypeBinding expectedParameterType = haveDescriptor && i < this.descriptor.parameters.length ? this.descriptor.parameters[i] : null;
 			argumentType = (argumentsTypeElided || argumentsTypeVar) ? expectedParameterType : this.argumentTypes[i];
+			expectedParameterTypes[i] = expectedParameterType;
 			if (argumentType != null && argumentType != TypeBinding.VOID) {
 				if (haveDescriptor && expectedParameterType != null && argumentType.isValidBinding() && TypeBinding.notEquals(argumentType, expectedParameterType)) {
 					if (expectedParameterType.isProperType(true)) {
@@ -386,6 +388,11 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				} else if (parameterAnnotations != null) {
 					parameterAnnotations[i] = Binding.NO_ANNOTATIONS;
 				}
+			}
+		}
+		if (argumentsTypeVar) {
+			for (int i = 0; i < argumentsLength; ++i) {
+				this.arguments[i].type.resolvedType = expectedParameterTypes[i];
 			}
 		}
 		// only assign parameters if no problems are found
