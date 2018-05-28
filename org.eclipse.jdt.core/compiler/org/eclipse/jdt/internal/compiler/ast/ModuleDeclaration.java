@@ -117,6 +117,10 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 			public ReferenceContext referenceContext() {
 				return ModuleDeclaration.this;
 			}
+			@Override
+			public boolean isModuleScope() {
+				return true;
+			}
 		};
 	}
 

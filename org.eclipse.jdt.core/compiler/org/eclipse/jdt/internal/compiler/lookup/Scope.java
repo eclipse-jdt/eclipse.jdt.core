@@ -767,6 +767,10 @@ public abstract class Scope {
 		return false;
 	}
 
+	public boolean isModuleScope() {
+		return false;
+	}
+
 	/**
 	 * Finds the most specific compiler options
 	 */

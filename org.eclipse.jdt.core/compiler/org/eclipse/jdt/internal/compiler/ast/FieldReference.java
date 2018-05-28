@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -725,7 +725,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().indirectAccessToStaticField(this, fieldBinding);
 		}
 		// check if accessing enum static field in initializer
-		if (declaringClass.isEnum()) {
+		if (declaringClass.isEnum() && !scope.isModuleScope()) {
 			MethodScope methodScope = scope.methodScope();
 			SourceTypeBinding sourceType = scope.enclosingSourceType();
 			if (this.constant == Constant.NotAConstant

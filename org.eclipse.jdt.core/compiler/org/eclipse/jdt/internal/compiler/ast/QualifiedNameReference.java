@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -784,7 +784,8 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 
 			if (field.isStatic()) {
-				if ((field.modifiers & ClassFileConstants.AccEnum) != 0) { // enum constants are checked even when qualified)
+				if ((field.modifiers & ClassFileConstants.AccEnum) != 0 && !scope.isModuleScope()) {
+					// enum constants are checked even when qualified -- modules don't contain field declarations
 					ReferenceBinding declaringClass = field.original().declaringClass;
 					MethodScope methodScope = scope.methodScope();
 					SourceTypeBinding sourceType = methodScope.enclosingSourceType();
@@ -1044,15 +1045,17 @@ public TypeBinding resolveType(BlockScope scope) {
 					ReferenceBinding declaringClass = fieldBinding.original().declaringClass;
 					SourceTypeBinding sourceType = methodScope.enclosingSourceType();
 					// check for forward references
-					if ((this.indexOfFirstFieldBinding == 1 || (fieldBinding.modifiers & ClassFileConstants.AccEnum) != 0 || (!fieldBinding.isFinal() && declaringClass.isEnum())) // enum constants are checked even when qualified
-							&& TypeBinding.equalsEquals(sourceType, declaringClass)
-							&& methodScope.lastVisibleFieldID >= 0
-							&& fieldBinding.id >= methodScope.lastVisibleFieldID
-							&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
-						if (methodScope.insideTypeAnnotation && fieldBinding.id == methodScope.lastVisibleFieldID) {
-							// false alarm, location is NOT a field initializer but the value in a memberValuePair
-						} else {
-							scope.problemReporter().forwardReference(this, this.indexOfFirstFieldBinding-1, fieldBinding);
+					if (!scope.isModuleScope()) {
+						if ((this.indexOfFirstFieldBinding == 1 || (fieldBinding.modifiers & ClassFileConstants.AccEnum) != 0 || (!fieldBinding.isFinal() && declaringClass.isEnum())) // enum constants are checked even when qualified
+								&& TypeBinding.equalsEquals(sourceType, declaringClass)
+								&& methodScope.lastVisibleFieldID >= 0
+								&& fieldBinding.id >= methodScope.lastVisibleFieldID
+								&& (!fieldBinding.isStatic() || methodScope.isStatic)) {
+							if (methodScope.insideTypeAnnotation && fieldBinding.id == methodScope.lastVisibleFieldID) {
+								// false alarm, location is NOT a field initializer but the value in a memberValuePair
+							} else {
+								scope.problemReporter().forwardReference(this, this.indexOfFirstFieldBinding-1, fieldBinding);
+							}
 						}
 					}
 					if (isFieldUseDeprecated(fieldBinding, scope, this.indexOfFirstFieldBinding == this.tokens.length ? this.bits : 0)) {
@@ -1061,7 +1064,7 @@ public TypeBinding resolveType(BlockScope scope) {
 					if (fieldBinding.isStatic()) {
 						// only last field is actually a write access if any
 						// check if accessing enum static field in initializer
-						if (declaringClass.isEnum()) {
+						if (declaringClass.isEnum() && !scope.isModuleScope()) {
 							if ((TypeBinding.equalsEquals(sourceType, declaringClass) || TypeBinding.equalsEquals(sourceType.superclass, declaringClass)) // enum constant body
 									&& fieldBinding.constant(scope) == Constant.NotAConstant
 									&& !methodScope.isStatic
