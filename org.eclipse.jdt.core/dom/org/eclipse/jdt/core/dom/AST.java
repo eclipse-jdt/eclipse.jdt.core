@@ -838,6 +838,19 @@ public final class AST {
 						null/*taskPriorities*/,
 						true/*taskCaseSensitive*/);
 				break;	
+			case JLS11_INTERNAL :
+				this.apiLevel = level;
+				// initialize a scanner
+				this.scanner = new Scanner(
+						true /*comment*/,
+						true /*whitespace*/,
+						false /*nls*/,
+						ClassFileConstants.JDK11   /*sourceLevel*/,
+						ClassFileConstants.JDK11 /*complianceLevel*/,
+						null/*taskTag*/,
+						null/*taskPriorities*/,
+						true/*taskCaseSensitive*/);
+				break;	
 			default:
 				throw new IllegalArgumentException("Unsupported JLS level"); //$NON-NLS-1$
 		}
