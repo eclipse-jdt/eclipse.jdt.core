@@ -76,7 +76,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		}
 	}
 	
-	/*package*/ static final int JLS_LATEST = AST.JLS10;
+	/*package*/ static final int JLS_LATEST = AST.JLS11;
 
 	static class ReconcileParticipant extends CompilationParticipant {
 		IJavaElementDelta delta;

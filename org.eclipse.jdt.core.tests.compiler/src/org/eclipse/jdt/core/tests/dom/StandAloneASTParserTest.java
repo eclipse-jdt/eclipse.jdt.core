@@ -58,7 +58,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		super(name);
 	}
 	
-	private static final int AST_JLS_LATEST = AST.JLS10;
+	private static final int AST_JLS_LATEST = AST.JLS11;
 
 	public ASTNode runConversion(
 			int astLevel,
@@ -1585,7 +1585,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 					super.acceptAST(sourceFilePath, ast);
 				}
 			};
-			ASTParser parser = ASTParser.newParser(AST.JLS10);
+			ASTParser parser = ASTParser.newParser(AST.JLS11);
 			parser.setResolveBindings(true);
 			parser.setStatementsRecovery(true);
 			parser.setBindingsRecovery(true);
@@ -1616,7 +1616,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 				"       for (var i = 0; i < 10; ++i) {}\n" +
 				"	}\n" +
 				"}";
-	    ASTParser parser = ASTParser.newParser(AST.JLS10);
+	    ASTParser parser = ASTParser.newParser(AST.JLS11);
 	    parser.setSource(contents.toCharArray());
 		parser.setStatementsRecovery(true);
 		parser.setBindingsRecovery(true);

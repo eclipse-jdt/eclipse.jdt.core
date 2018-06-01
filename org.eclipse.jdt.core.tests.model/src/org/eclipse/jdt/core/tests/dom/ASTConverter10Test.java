@@ -30,7 +30,7 @@ public class ASTConverter10Test extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(AST_INTERNAL_JLS10);
+		this.ast = AST.newAST(AST_INTERNAL_JLS11);
 	}
 
 	public ASTConverter10Test(String name) {
