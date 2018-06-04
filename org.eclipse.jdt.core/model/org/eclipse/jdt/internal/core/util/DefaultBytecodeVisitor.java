@@ -2123,13 +2123,17 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			}));
 	}
 	private StringBuffer appendConstantDynamic(StringBuffer s, String messageKind, int opcode,
-			int index, IConstantPoolEntry constantPoolEntry) {
+			int index, IConstantPoolEntry entry) {
 		return s.append(Messages.bind(messageKind, new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[opcode],
 				Integer.toString(index),
-				Integer.toString(((IConstantPoolEntry2) constantPoolEntry).getBootstrapMethodAttributeIndex()),
-				new String(constantPoolEntry.getMethodName()),
-				new String(constantPoolEntry.getMethodDescriptor())
+				Integer.toString(((IConstantPoolEntry2) entry).getBootstrapMethodAttributeIndex()),
+				Util.toString(
+						null,
+						entry.getMethodName(),
+						entry.getMethodDescriptor(),
+						true,
+						isCompact())
 			}));
 	}
 	/**
