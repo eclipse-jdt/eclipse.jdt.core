@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -126,7 +126,16 @@ public class EqualExpression extends BinaryExpression {
 		// we do not impact enclosing try context because this kind of protection
 		// does not preclude the variable from being null in an enclosing scope
 	}
-
+	private void analyzeLocalVariable(Expression exp, FlowInfo flowInfo) {
+		if (exp instanceof SingleNameReference && (exp.bits & Binding.LOCAL) != 0 ) {
+			LocalVariableBinding localBinding = (LocalVariableBinding) ((SingleNameReference ) exp).binding;
+			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
+				localBinding.useFlag = LocalVariableBinding.USED;
+			} else if (localBinding.useFlag == LocalVariableBinding.UNUSED ) {
+				localBinding.useFlag = LocalVariableBinding.FAKE_USED;
+			}
+	}
+	}
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		FlowInfo result;
@@ -138,6 +147,7 @@ public class EqualExpression extends BinaryExpression {
 				} else { // false == anything
 					//  this is equivalent to the right argument inits negated
 					result = this.right.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
+					analyzeLocalVariable(this.left, flowInfo);
 				}
 			}
 			else if ((this.right.constant != Constant.NotAConstant) && (this.right.constant.typeID() == T_boolean)) {
@@ -147,6 +157,7 @@ public class EqualExpression extends BinaryExpression {
 				} else { // anything == false
 					//  this is equivalent to the right argument inits negated
 					result = this.left.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
+					analyzeLocalVariable(this.right, flowInfo);
 				}
 			}
 			else {
@@ -159,6 +170,7 @@ public class EqualExpression extends BinaryExpression {
 				if (!this.left.constant.booleanValue()) { //  false != anything
 					//  this is equivalent to the right argument inits
 					result = this.right.analyseCode(currentScope, flowContext, flowInfo);
+					analyzeLocalVariable(this.left, flowInfo);
 				} else { // true != anything
 					//  this is equivalent to the right argument inits negated
 					result = this.right.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
@@ -168,6 +180,7 @@ public class EqualExpression extends BinaryExpression {
 				if (!this.right.constant.booleanValue()) { //  anything != false
 					//  this is equivalent to the right argument inits
 					result = this.left.analyseCode(currentScope, flowContext, flowInfo);
+					analyzeLocalVariable(this.right, flowInfo);
 				} else { // anything != true
 					//  this is equivalent to the right argument inits negated
 					result = this.left.analyseCode(currentScope, flowContext, flowInfo).asNegatedCondition();
