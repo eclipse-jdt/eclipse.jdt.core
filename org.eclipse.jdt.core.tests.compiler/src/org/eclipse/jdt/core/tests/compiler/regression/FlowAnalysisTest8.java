@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2016 GK Software AG and others.
+ * Copyright (c) 2013, 2018 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -404,5 +404,159 @@ public void testReferenceExpression_nullAnnotation_3() {
 		this.LIBS,
 		true /*flush*/,
 		getCompilerOptions());
+}
+public void testBug535308a() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+	runNegativeTest(
+			new String[] {
+				 "X.java",
+				 "public class X {\n" + 
+				 "	public int someTest() {\n" +
+				 "		boolean unused = false;\n" + 
+				 "		final boolean thisIsFalse = false;\n" + 
+				 "		if (getSomeValue() == thisIsFalse) {\n" + 
+				 "			return 0;\n" + 
+				 "		}\n" + 
+				 "		return 1;\n" + 
+				 "	}\n" + 
+				 "	private boolean getSomeValue() {\n" + 
+				 "		return true;\n" + 
+				 "	}\n" + 
+				 "}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	boolean unused = false;\n" + 
+			"	        ^^^^^^\n" + 
+			"The value of the local variable unused is not used\n" + 
+			"----------\n",
+			this.LIBS,
+			true /*flush*/,
+			options);
+}
+public void testBug535308b() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+	runNegativeTest(
+			new String[] {
+				 "X.java",
+				 "public class X {\n" + 
+				 "	public int someTest() {\n" +
+				 "		boolean unused = false;\n" + 
+				 "		final boolean thisIsFalse = false;\n" + 
+				 "		if (getSomeValue() != thisIsFalse) {\n" + 
+				 "			return 0;\n" + 
+				 "		}\n" + 
+				 "		return 1;\n" + 
+				 "	}\n" + 
+				 "\n" + 
+				 "	private boolean getSomeValue() {\n" + 
+				 "		return true;\n" + 
+				 "	}\n" + 
+				 "}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	boolean unused = false;\n" + 
+			"	        ^^^^^^\n" + 
+			"The value of the local variable unused is not used\n" + 
+			"----------\n",
+			this.LIBS,
+			true /*flush*/,
+			options);
+}
+public void testBug535308c() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+	runNegativeTest(
+			new String[] {
+				 "X.java",
+				 "public class X {\n" + 
+				 "	public int someTest() {\n" +
+				 "		boolean unused = false;\n" + 
+				 "		final boolean thisIsFalse = false;\n" + 
+				 "		if (thisIsFalse != getSomeValue()) {\n" + 
+				 "			return 0;\n" + 
+				 "		}\n" + 
+				 "		return 1;\n" + 
+				 "	}\n" + 
+				 "\n" + 
+				 "	private boolean getSomeValue() {\n" + 
+				 "		return true;\n" + 
+				 "	}\n" + 
+				 "}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	boolean unused = false;\n" + 
+			"	        ^^^^^^\n" + 
+			"The value of the local variable unused is not used\n" + 
+			"----------\n",
+			this.LIBS,
+			true /*flush*/,
+			options);
+}
+public void testBug535308d() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+	runNegativeTest(
+			new String[] {
+				 "X.java",
+				 "public class X {\n" + 
+				 "	public int someTest() {\n" +
+				 "		boolean unused = false;\n" + 
+				 "		final boolean thisIsFalse = false;\n" + 
+				 "		if (thisIsFalse == getSomeValue()) {\n" + 
+				 "			return 0;\n" + 
+				 "		}\n" + 
+				 "		return 1;\n" + 
+				 "	}\n" + 
+				 "\n" + 
+				 "	private boolean getSomeValue() {\n" + 
+				 "		return true;\n" + 
+				 "	}\n" + 
+				 "}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	boolean unused = false;\n" + 
+			"	        ^^^^^^\n" + 
+			"The value of the local variable unused is not used\n" + 
+			"----------\n",
+			this.LIBS,
+			true /*flush*/,
+			options);
+}
+public void testBug535308e() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+	runNegativeTest(
+			new String[] {
+				 "X.java",
+				 "public class X {\n" + 
+				 "	public int someTest() {\n" +
+				 "		boolean used = false;\n" + 
+				 "		final boolean thisIsFalse = false;\n" + 
+				 "		if (used == getSomeValue()) {\n" + 
+				 "			return 0;\n" + 
+				 "		}\n" + 
+				 "		return 1;\n" + 
+				 "	}\n" + 
+				 "\n" + 
+				 "	private boolean getSomeValue() {\n" + 
+				 "		return true;\n" + 
+				 "	}\n" + 
+				 "}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	final boolean thisIsFalse = false;\n" + 
+			"	              ^^^^^^^^^^^\n" + 
+			"The value of the local variable thisIsFalse is not used\n" + 
+			"----------\n",
+			this.LIBS,
+			true /*flush*/,
+			options);
 }
 }

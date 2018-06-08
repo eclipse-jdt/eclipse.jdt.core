@@ -910,13 +910,15 @@ assertSearchResults(
 public void testBug400899g25() throws CoreException {
 this.workingCopies = new ICompilationUnit[1];
 this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b400899/X.java",
+		"package b400899;\n" +
 		"import java.lang.annotation.ElementType;\n" +
 		"import java.lang.annotation.Target;\n" +
 		"public class X {\n" +
-		"	public class X <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker Integer> {\n" + 
+		"	public class Z <@Marker T extends @Marker Y<@Marker ?>, @Marker Q extends @Marker CharSequence> {\n" + 
 		"}\n" +
  		"@Target(ElementType.TYPE_USE)\n" +	
-		"@interface Marker {}\n"
+		"@interface Marker {}\n" +
+		"interface Y<U> {}\n"
 	);
 SearchPattern pattern = SearchPattern.createPattern(
 		"Marker",
@@ -929,11 +931,11 @@ getJavaSearchWorkingCopiesScope(),
 this.resultCollector,
 null);
 assertSearchResults(
-		"src/b400899/X.java b400899.X$X [Marker] POTENTIAL_MATCH\n" +
-		"src/b400899/X.java b400899.X$X [Marker] POTENTIAL_MATCH\n" +
-		"src/b400899/X.java b400899.X$X [Marker] POTENTIAL_MATCH\n" +
-		"src/b400899/X.java b400899.X$X [Marker] POTENTIAL_MATCH\n" +
-		"src/b400899/X.java b400899.X$X [Marker] POTENTIAL_MATCH"
+		"src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH\n" +
+		"src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH\n" +
+		"src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH\n" +
+		"src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH\n" +
+		"src/b400899/X.java b400899.X$Z [Marker] EXACT_MATCH"
 );	
 }
 
