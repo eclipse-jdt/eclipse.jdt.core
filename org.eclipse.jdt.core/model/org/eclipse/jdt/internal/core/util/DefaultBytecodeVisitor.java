@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -2128,12 +2132,8 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 				OpcodeStringValues.BYTECODE_NAMES[opcode],
 				Integer.toString(index),
 				Integer.toString(((IConstantPoolEntry2) entry).getBootstrapMethodAttributeIndex()),
-				Util.toString(
-						null,
-						entry.getMethodName(),
-						entry.getMethodDescriptor(),
-						true,
-						isCompact())
+				new String(entry.getFieldName()),
+				returnClassName(Signature.toCharArray(entry.getFieldDescriptor()))
 			}));
 	}
 	/**

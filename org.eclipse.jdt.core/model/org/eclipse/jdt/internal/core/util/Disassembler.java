@@ -1919,12 +1919,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 								}));
 					break;
 				case IConstantPoolConstant.CONSTANT_InvokeDynamic :
-				case IConstantPoolConstant.CONSTANT_Dynamic :
 					entry2 = (IConstantPoolEntry2) constantPoolEntry;
 					buffer.append(
-						Messages.bind(kind == IConstantPoolConstant.CONSTANT_InvokeDynamic ?
-								Messages.disassembler_constantpool_invokedynamic :
-									Messages.disassembler_constantpool_dynamic,
+						Messages.bind(Messages.disassembler_constantpool_invokedynamic,
 							new String[] {
 								Integer.toString(i),
 								Integer.toString(entry2.getBootstrapMethodAttributeIndex()),
@@ -1932,6 +1929,19 @@ public class Disassembler extends ClassFileBytesDisassembler {
 								new String(constantPoolEntry.getMethodName()),
 								new String(constantPoolEntry.getMethodDescriptor())
 							}));
+					break;
+				case IConstantPoolConstant.CONSTANT_Dynamic :
+					entry2 = (IConstantPoolEntry2) constantPoolEntry;
+					buffer.append(
+						Messages.bind(Messages.disassembler_constantpool_dynamic,
+							new String[] {
+								Integer.toString(i),
+								Integer.toString(entry2.getBootstrapMethodAttributeIndex()),
+								Integer.toString(entry2.getNameAndTypeIndex()),
+								new String(constantPoolEntry.getFieldName()),
+								new String(constantPoolEntry.getFieldDescriptor())
+							}));
+					break;
 			}
 		}
 	}
