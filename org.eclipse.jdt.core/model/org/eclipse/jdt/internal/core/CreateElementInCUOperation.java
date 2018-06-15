@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -93,10 +94,11 @@ public abstract class CreateElementInCUOperation extends JavaModelOperation {
 	 * Only allow cancelling if this operation is not nested.
 	 */
 	@Override
-	protected void checkCanceled() {
+	public IProgressMonitor checkCanceled() {
 		if (!this.isNested) {
 			super.checkCanceled();
 		}
+		return this;
 	}
 	/**
 	 * Instructs this operation to position the new element after

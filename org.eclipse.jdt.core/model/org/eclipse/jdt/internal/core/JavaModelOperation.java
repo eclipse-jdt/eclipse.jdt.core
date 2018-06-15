@@ -225,10 +225,12 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * @exception OperationCanceledException if cancelling the operation has been requested
 	 * @see IProgressMonitor#isCanceled
 	 */
-	protected void checkCanceled() {
+	@Override
+	public IProgressMonitor checkCanceled() {
 		if (isCanceled()) {
 			throw new OperationCanceledException(Messages.operation_cancelled);
 		}
+		return this;
 	}
 	/**
 	 * Common code used to verify the elements this operation is processing.
