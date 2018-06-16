@@ -1867,14 +1867,19 @@ public void deprecatedModule(ModuleReference moduleReference, ModuleBinding requ
 }
 String deprecatedSinceValue(Supplier<AnnotationBinding[]> annotations) {
 	if (this.options != null && this.options.complianceLevel >= ClassFileConstants.JDK9) {
-		for (AnnotationBinding annotationBinding : annotations.get()) {
-			if (annotationBinding.getAnnotationType().id == TypeIds.T_JavaLangDeprecated) {
-				for (ElementValuePair elementValuePair : annotationBinding.getElementValuePairs()) {
-					if (CharOperation.equals(elementValuePair.getName(), TypeConstants.SINCE) && elementValuePair.value instanceof StringConstant)
-						return ((StringConstant) elementValuePair.value).stringValue();
+		ReferenceContext contextSave = this.referenceContext;
+		try {
+			for (AnnotationBinding annotationBinding : annotations.get()) {
+				if (annotationBinding.getAnnotationType().id == TypeIds.T_JavaLangDeprecated) {
+					for (ElementValuePair elementValuePair : annotationBinding.getElementValuePairs()) {
+						if (CharOperation.equals(elementValuePair.getName(), TypeConstants.SINCE) && elementValuePair.value instanceof StringConstant)
+							return ((StringConstant) elementValuePair.value).stringValue();
+					}
+					break;
 				}
-				break;
 			}
+		} finally {
+			this.referenceContext = contextSave;
 		}
 	}
 	return null;
