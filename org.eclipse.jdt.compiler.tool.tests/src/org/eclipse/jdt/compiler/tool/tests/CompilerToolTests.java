@@ -469,7 +469,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		}
 		assertNotNull("No reader", reader);
 		// This needs fix. This test case by design will produce different output every compiler version.
- 		assertEquals("Wrong value", ClassFileConstants.JDK10, reader.getVersion()); // TODO: Fix this for JDK11
+ 		assertEquals("Wrong value", ClassFileConstants.JDK11, reader.getVersion()); // TODO: Fix this for JDK11
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
 	}
