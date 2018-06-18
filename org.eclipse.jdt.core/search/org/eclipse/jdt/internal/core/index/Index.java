@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.index;
 
 import java.io.*;
+import java.util.regex.Pattern;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
@@ -63,6 +64,9 @@ public static boolean isMatch(char[] pattern, char[] word, int matchRule) {
 			return patternLength == wordLength && CharOperation.equals(pattern, word, false);
 		case SearchPattern.R_PREFIX_MATCH :
 			return patternLength <= wordLength && CharOperation.prefixEquals(pattern, word, false);
+		case SearchPattern.R_REGEXP_MATCH :
+			Pattern regexPattern = Pattern.compile(new String(pattern));
+			return regexPattern.matcher(new String(word)).matches();
 		case SearchPattern.R_PATTERN_MATCH :
 			return CharOperation.match(pattern, word, false);
 		case SearchPattern.R_CAMELCASE_MATCH:
