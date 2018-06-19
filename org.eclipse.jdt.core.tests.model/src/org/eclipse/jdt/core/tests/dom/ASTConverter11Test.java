@@ -114,6 +114,8 @@ public class ASTConverter11Test extends ConverterTestSetup {
 				SimpleName simpleName = (SimpleName) simpleType.getName();
 				binding = simpleName.resolveTypeBinding();
 				assertTrue("null binding", binding != null);
+				assertTrue("Wrong Binding", "Integer".equals(simpleName.resolveBinding().getName()));
+                      
 			}
 	}
 // Add new tests here
