@@ -1036,7 +1036,9 @@ public void saveIndexes() {
 }
 public void scheduleDocumentIndexing(final SearchDocument searchDocument, IPath container, final IndexLocation indexLocation, final SearchParticipant searchParticipant) {
 	IPath targetLocation = JavaIndex.getLocationForPath(new Path(searchDocument.getPath()));
-	this.indexer.makeDirty(targetLocation);
+	if (targetLocation != null) {
+		this.indexer.makeDirty(targetLocation);
+	}
 	request(new IndexRequest(container, this) {
 		@Override
 		public boolean execute(IProgressMonitor progressMonitor) {
