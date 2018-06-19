@@ -484,6 +484,10 @@ public class ForeachStatement extends Statement {
 			} else {
 				elementType = this.elementVariable.patchType(elementType);
 			}
+			// additional check deferred from LocalDeclaration.resolve():
+			if (this.elementVariable.binding != null && this.elementVariable.binding.isValidBinding()) {
+				this.elementVariable.validateNullAnnotations(this.scope);
+			}
 		}
 
 		TypeBinding expectedCollectionType = null;

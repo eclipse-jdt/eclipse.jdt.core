@@ -10222,7 +10222,8 @@ public void illegalAnnotationForBaseType(TypeReference type, Annotation[] annota
 	char[][] annotationNames = (nullAnnotationTagBit == TagBits.AnnotationNonNull)
 			? this.options.nonNullAnnotationName
 			: this.options.nullableAnnotationName;
-	String[] args = new String[] { new String(annotationNames[annotationNames.length-1]), new String(type.getLastToken()) };
+	String typeName = new String(type.resolvedType.leafComponentType().readableName()); // use the actual name (accounting for 'var')
+	String[] args = new String[] { new String(annotationNames[annotationNames.length-1]), typeName };
 	Annotation annotation = findAnnotation(annotations, typeBit);
 	int start = annotation != null ? annotation.sourceStart : type.sourceStart;
 	int end = annotation != null ? annotation.sourceEnd : type.sourceEnd;
