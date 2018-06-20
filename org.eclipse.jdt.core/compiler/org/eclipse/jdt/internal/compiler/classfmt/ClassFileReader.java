@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -255,6 +259,10 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 				case ClassFileConstants.MethodTypeTag :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantMethodTypeFixedSize;
+					break;
+				case ClassFileConstants.DynamicTag :
+					this.constantPoolOffsets[i] = readOffset;
+					readOffset += ClassFileConstants.ConstantDynamicFixedSize;
 					break;
 				case ClassFileConstants.InvokeDynamicTag :
 					this.constantPoolOffsets[i] = readOffset;

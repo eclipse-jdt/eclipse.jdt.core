@@ -84,6 +84,7 @@ public interface ClassFileConstants {
 	int NameAndTypeTag = 12;
 	int MethodHandleTag = 15;
 	int MethodTypeTag = 16;
+	int DynamicTag = 17;
 	int InvokeDynamicTag = 18;
 	int ModuleTag = 19;
 	int PackageTag = 20;
@@ -101,6 +102,7 @@ public interface ClassFileConstants {
 	int ConstantNameAndTypeFixedSize = 5;
 	int ConstantMethodHandleFixedSize = 4;
 	int ConstantMethodTypeFixedSize = 3;
+	int ConstantDynamicFixedSize = 5;
 	int ConstantInvokeDynamicFixedSize = 5;
 	int ConstantModuleFixedSize = 3;
 	int ConstantPackageFixedSize = 3;
