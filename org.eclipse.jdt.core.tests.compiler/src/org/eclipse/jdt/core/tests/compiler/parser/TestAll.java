@@ -158,7 +158,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK9, tests_10));
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK10, tests_10));
 	}
 	return all;
 }

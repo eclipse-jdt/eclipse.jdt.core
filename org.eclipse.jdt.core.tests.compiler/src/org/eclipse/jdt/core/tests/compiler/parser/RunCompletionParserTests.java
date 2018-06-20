@@ -122,7 +122,28 @@ public class RunCompletionParserTests extends junit.framework.TestCase {
 			TestCase.RUN_ONLY_ID = null;
 			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_8, tests_1_8));
 		}
-
+		if ((possibleComplianceLevels & AbstractCompilerTest.F_9) != 0) {
+			ArrayList tests_9 = (ArrayList)testClasses.clone();
+			tests_9.addAll(TEST_CLASSES_1_5);
+			// Reset forgotten subsets tests
+			TestCase.TESTS_PREFIX = null;
+			TestCase.TESTS_NAMES = null;
+			TestCase.TESTS_NUMBERS= null;
+			TestCase.TESTS_RANGE = null;
+			TestCase.RUN_ONLY_ID = null;
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK9, tests_9));
+		}
+		if ((possibleComplianceLevels & AbstractCompilerTest.F_10) != 0) {
+			ArrayList tests_10 = (ArrayList)testClasses.clone();
+			tests_10.addAll(TEST_CLASSES_1_5);
+			// Reset forgotten subsets tests
+			TestCase.TESTS_PREFIX = null;
+			TestCase.TESTS_NAMES = null;
+			TestCase.TESTS_NUMBERS= null;
+			TestCase.TESTS_RANGE = null;
+			TestCase.RUN_ONLY_ID = null;
+			all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK10, tests_10));
+		}
 		return all;
 	}
 }
