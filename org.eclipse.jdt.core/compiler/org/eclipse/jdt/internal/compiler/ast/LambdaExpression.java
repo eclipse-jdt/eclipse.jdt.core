@@ -542,7 +542,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				blockScope.problemReporter().varCannotBeMixedWithNonVarParams(isVar ? arg : args[i - 1]);
 				mixReported = true;
 			}
-			if (isVar && type.dimensions() > 0 || type.extraDimensions() > 0) {
+			if (isVar && (type.dimensions() > 0 || type.extraDimensions() > 0)) {
 				blockScope.problemReporter().varLocalCannotBeArray(arg);
 			}
 		}

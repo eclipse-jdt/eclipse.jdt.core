@@ -259,4 +259,62 @@ public void testBug534787_negative_006() throws IOException {
 			"Syntax error on token \"x\", delete this token\n" + 
 			"----------\n");
 }
+public void testBug536159_01() throws IOException {
+	runConformTest(new String[] {
+			"X.java",
+			"public class X<T> {\n"
+			+ "public static void main(String[] args) {\n"
+			+ "  FI x = (int i []) -> 5;\n"
+			+ "    }\n"
+			+ "}\n"
+			+ "interface FI {\n"
+			+ "  public int foo (int i []);\n"
+			+ "}"
+	});
+}
+public void testBug536159_02() throws IOException {
+	runConformTest(new String[] {
+			"X.java",
+			"public class X<T> {\n"
+			+ "public static void main(String[] args) {\n"
+			+ "  FI x = (int[] i []) -> 5;\n"
+			+ "    }\n"
+			+ "}\n"
+			+ "interface FI {\n"
+			+ "  public int foo (int i [][]);\n"
+			+ "}"
+	});
+}
+public void testBug536159_03() throws IOException {
+	runConformTest(new String[] {
+			"X.java",
+			"public class X<T> {\n"
+			+ "public static void main(String[] args) {\n"
+			+ "  FI x = (int i [][]) -> 5;\n"
+			+ "    }\n"
+			+ "}\n"
+			+ "interface FI {\n"
+			+ "  public int foo (int i [][]);\n"
+			+ "}"
+	});
+}
+public void testBug536159_04() throws IOException {
+	runNegativeTest(new String[] {
+			"X.java",
+			"public class X<T> {\n"
+			+ "public static void main(String[] args) {\n"
+			+ "  FI x = ( var i [] ) -> 5;\n"
+			+ "    }\n"
+			+ "}\n"
+			+ "interface FI {\n"
+			+ "  public int foo (int i []);\n"
+			+ "}"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	FI x = (var i []) -> 5;\n" + 
+			"	             ^\n" + 
+			"\'var\' is not allowed as an element type of an array\n" + 
+			"----------\n");
+}
 }
