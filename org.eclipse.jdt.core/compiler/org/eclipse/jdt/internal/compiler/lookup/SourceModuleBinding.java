@@ -40,8 +40,6 @@ public class SourceModuleBinding extends ModuleBinding {
 	public void setRequires(ModuleBinding[] requires, ModuleBinding[] requiresTransitive) {
 		// TODO(SHMOD): it's a bit awkward that we may get called after applyModuleUpdates() has already worked.
 		ModuleBinding javaBase = this.environment.javaBaseModule();
-		if (javaBase.isUnnamed()) // happens when no java.base can be found in the name environment.
-			javaBase = null;
 		this.requires = merge(this.requires, requires, javaBase, ModuleBinding[]::new);
 		this.requiresTransitive = merge(this.requiresTransitive, requiresTransitive, null, ModuleBinding[]::new);
 	}

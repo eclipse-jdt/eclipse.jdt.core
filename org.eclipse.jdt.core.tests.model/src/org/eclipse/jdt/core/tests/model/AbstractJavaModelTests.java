@@ -1405,7 +1405,19 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		String javaHome = System.getProperty("java.home") + File.separator;
 		Path bootModPath = new Path(javaHome +"/lib/jrt-fs.jar");
 		Path sourceAttachment = new Path(javaHome +"/lib/src.zip");
-		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(bootModPath, sourceAttachment, null, null, attributes, false);
+		IClasspathEntry jrtEntry;
+		String javaVersion = System.getProperty("java.version"); //$NON-NLS-1$
+		if (javaVersion != null && javaVersion.startsWith("1.8")) { //$NON-NLS-1$
+			// fall back to a regular JCL to provide access via the unnamed module:
+			jrtEntry = JavaCore.newVariableEntry(new Path("JCL18_LIB"), sourceAttachment, null);
+			try {
+				setUpJCLClasspathVariables("1.8");
+			} catch (IOException e) {
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, e.getMessage(), e));
+			}
+		} else {
+			jrtEntry = JavaCore.newLibraryEntry(bootModPath, sourceAttachment, null, null, attributes, false);
+		}
 		IJavaProject project = this.createJavaProject(name, srcFolders, new String[0],
 				new String[0], "bin", compliance);
 		IClasspathEntry[] old = project.getRawClasspath();
