@@ -8982,4 +8982,25 @@ public void testBug508834_comment0() {
 				"}"
 			});
 	}
+	public void testBug535969() {
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.List;\n" + 
+				"import java.util.stream.Collectors;\n" + 
+				"import java.util.stream.Stream;\n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		List<String> strings = Stream.of(1, 2, 3).map(i -> {\n" + 
+				"			return new Object() {\n" + 
+				"				final Integer myInt = i;\n" + 
+				"			};\n" + 
+				"		}).map(o -> {\n" + 
+				"			return o.myInt.toString();\n" + 
+				"		}).collect(Collectors.toList());\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
 }

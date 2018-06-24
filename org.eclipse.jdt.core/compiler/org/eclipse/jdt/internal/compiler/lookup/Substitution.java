@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,30 @@ package org.eclipse.jdt.internal.compiler.lookup;
  * Encapsulates aspects related to type variable substitution
  */
 public interface Substitution {
+
+	/**
+	 * Don't substitute any type variables.
+	 * Enables the use of {@link Scope.Substitutor} for other purposes.
+	 */
+	public static class NullSubstitution implements Substitution {
+		LookupEnvironment environment;
+
+		public NullSubstitution(LookupEnvironment environment) {
+			this.environment = environment;
+		}
+		@Override
+		public TypeBinding substitute(TypeVariableBinding typeVariable) {
+			return typeVariable;
+		}
+		@Override
+		public boolean isRawSubstitution() {
+			return false;
+		}
+		@Override
+		public LookupEnvironment environment() {
+			return this.environment;
+		}
+	}
 
 	/**
 	 * Returns the type substitute for a given type variable, or itself

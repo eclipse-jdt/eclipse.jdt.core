@@ -1612,6 +1612,10 @@ public static boolean equalsEquals(TypeBinding that, TypeBinding other) {
 		return false;
 	if (that.id != TypeIds.NoId && that.id == other.id)
 		return true;
+	if (that instanceof LocalTypeBinding && other instanceof LocalTypeBinding) {
+		// while a lambda is being resolved, consider a local type as equal to its variant from another lambda copy
+		return ((LocalTypeBinding) that).sourceStart == ((LocalTypeBinding) other).sourceStart;
+	}
 	return false;
 }
 

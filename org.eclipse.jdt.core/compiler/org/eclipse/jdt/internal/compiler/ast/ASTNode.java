@@ -703,6 +703,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					// additional checks, because LE.resolveType may return a valid binding even in the presence of structural errors
 					if (!lambda.isCompatibleWith(parameterType, scope) || lambda.hasErrors())
 						continue;
+					// avoid that preliminary local type bindings escape beyond this point:
+					lambda.updateLocalTypesInMethod(candidateMethod);
 				} else {
 					updatedArgumentType = argument.resolveType(scope);
 				}
