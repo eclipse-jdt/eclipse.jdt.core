@@ -617,7 +617,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * In the latter case the corresponding module description of the
 	 * location referenced by that classpath entry is returned.
 	 * 
-	 * @return the <code>IModule</code> this project represents.
+	 * @return the <code>IModuleDescription</code> this project represents.
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource
 	 * @since 3.14
