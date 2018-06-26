@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2018 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import java.util.HashSet;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.FilerException;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.TypeElement;
 import javax.tools.FileObject;
 import javax.tools.JavaFileManager;
 import javax.tools.JavaFileObject;
@@ -133,8 +134,19 @@ public class BatchFilerImpl implements Filer {
 	@Override
 	public JavaFileObject createSourceFile(CharSequence name,
 			Element... originatingElements) throws IOException {
-		JavaFileObject jfo = _fileManager.getJavaFileForOutput(
-				StandardLocation.SOURCE_OUTPUT, name.toString(), JavaFileObject.Kind.SOURCE, null);
+		String moduleAndPkgString = name.toString();
+		int slash = moduleAndPkgString.indexOf('/');
+		String mod = null;
+		if (slash != -1) {
+			name = moduleAndPkgString.substring(slash + 1, name.length());
+			mod = moduleAndPkgString.substring(0, slash);
+		}
+		TypeElement typeElement = _env._elementUtils.getTypeElement(name);
+		if (typeElement != null) {
+			throw new FilerException("Source file already exists : " + moduleAndPkgString); //$NON-NLS-1$
+		}
+		Location location = mod == null ? StandardLocation.SOURCE_OUTPUT : _fileManager.getLocationForModule(StandardLocation.SOURCE_OUTPUT, mod);
+		JavaFileObject jfo = _fileManager.getJavaFileForOutput(location, name.toString(), JavaFileObject.Kind.SOURCE, null);
 		URI uri = jfo.toUri();
 		if (_createdFiles.contains(uri)) {
 			throw new FilerException("Source file already created : " + name); //$NON-NLS-1$

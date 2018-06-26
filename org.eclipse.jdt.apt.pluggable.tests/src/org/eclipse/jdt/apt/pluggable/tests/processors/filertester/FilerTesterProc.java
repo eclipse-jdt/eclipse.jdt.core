@@ -230,7 +230,20 @@ public class FilerTesterProc extends AbstractProcessor {
 		FileObject foGenSrc = _filer.createSourceFile("g.G", e);
 		checkGenUri(foGenSrc, "G", javaStr, "generated source file");
 	}
-	
+
+	public void testBug534979(Element e, String pkg, String relName) throws Exception {
+		JavaFileObject jfo = _filer.createSourceFile(e.getEnclosingElement().getSimpleName() + "/" + e.getSimpleName());
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(jfo.openWriter());
+			pw.println("package " + pkg + ";\npublic class " + e.getSimpleName() + "{ }");
+		}
+		finally {
+			if (pw != null)
+				pw.close();
+		}
+	}
+
 	private void checkGenUri(FileObject fo, String name, String content, String category) throws Exception {
 		PrintWriter pw = null;
 		try {

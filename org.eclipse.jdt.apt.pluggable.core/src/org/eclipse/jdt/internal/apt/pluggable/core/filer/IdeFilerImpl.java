@@ -22,9 +22,9 @@ import javax.annotation.processing.Filer;
 import javax.annotation.processing.FilerException;
 import javax.lang.model.element.Element;
 import javax.tools.FileObject;
+import javax.tools.JavaFileManager.Location;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardLocation;
-import javax.tools.JavaFileManager.Location;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -34,6 +34,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.apt.core.internal.AptCompilationParticipant;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.apt.pluggable.core.Apt6Plugin;
 import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeAnnotationProcessorManager;
@@ -128,7 +130,16 @@ public class IdeFilerImpl implements Filer {
 		if (AptCompilationParticipant.getInstance().getJava6GeneratedFiles().contains(file)) {
 			throw new FilerException("Source file already created: " + file.getFullPath()); //$NON-NLS-1$
 		}
-		
+		IJavaProject javaProject = _env.getJavaProject();
+		IType type = null;
+		try {
+			name = name.toString().replace('/', '.');
+			type = javaProject.findType(name.toString());
+		} catch (JavaModelException e) {
+		}
+		if (type != null) {
+			throw new FilerException("Source file already exists : " + name); //$NON-NLS-1$
+		}
 		Set<IFile> parentFiles = Collections.emptySet();
 		if (originatingElements != null && originatingElements.length > 0) {
 			parentFiles = new HashSet<IFile>(originatingElements.length);

@@ -1421,6 +1421,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			LocationWrapper wrapper = this.locationHandler.getLocation(StandardLocation.MODULE_SOURCE_PATH, moduleName);
 			deriveOutputLocationForModules(moduleName, wrapper.paths);
 			result = getLocationForModule(location, moduleName);
+		} else if (result == null && location == StandardLocation.SOURCE_OUTPUT) {
+			LocationWrapper wrapper = this.locationHandler.getLocation(StandardLocation.MODULE_SOURCE_PATH, moduleName);
+			deriveSourceOutputLocationForModules(moduleName, wrapper.paths);
+			result = getLocationForModule(location, moduleName);
 		}
 		return result;
 	}
@@ -1495,6 +1499,28 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					// Per module output location is always a singleton list
 					Path path = iterator.next().resolve(moduleName);
 					this.locationHandler.setLocation(StandardLocation.CLASS_OUTPUT, moduleName, Collections.singletonList(path));
+					} catch(Exception e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		}
+	}
+	private void deriveSourceOutputLocationForModules(String moduleName, Collection<? extends Path> paths) {
+		LocationWrapper wrapper = this.locationHandler.getLocation(StandardLocation.SOURCE_OUTPUT, moduleName);
+		if (wrapper == null) {
+			// First get from our internally known location for legacy/unnamed location
+			wrapper = this.locationHandler.getLocation(StandardLocation.SOURCE_OUTPUT, ""); //$NON-NLS-1$
+			if (wrapper == null) {
+				wrapper = this.locationHandler.getLocation(StandardLocation.SOURCE_OUTPUT);
+			}
+			if (wrapper != null) {
+				Iterator<? extends Path> iterator = wrapper.paths.iterator();
+				if (iterator.hasNext()) {
+					try {
+					// Per module output location is always a singleton list
+					Path path = iterator.next().resolve(moduleName);
+					this.locationHandler.setLocation(StandardLocation.SOURCE_OUTPUT, moduleName, Collections.singletonList(path));
 					} catch(Exception e) {
 						e.printStackTrace();
 					}

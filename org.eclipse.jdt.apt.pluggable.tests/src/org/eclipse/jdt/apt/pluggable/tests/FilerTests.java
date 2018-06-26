@@ -355,5 +355,23 @@ public class FilerTests extends TestBase
 		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
+	public void testBug534979() throws Throwable {
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
 
+		env.addClass(projPath.append("src"), "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"t\", arg1 = \"Test\")" +
+				"public class Trigger {\n" +
+				"}"
+		); 
+
+		AptConfig.setEnabled(jproj, true);
+		fullBuild();
+		assertEquals("Processor reported errors", "FilerException invoking test method testBug534979 - see console for details", ProcessorTestStatus.getErrors());
+	}
 }
