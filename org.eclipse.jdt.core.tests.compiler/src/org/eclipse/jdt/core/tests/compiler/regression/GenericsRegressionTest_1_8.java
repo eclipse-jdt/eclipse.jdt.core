@@ -9085,4 +9085,74 @@ public void testBug508834_comment0() {
 			"----------\n";
 		runner.runNegativeTest();
 	}
+	public void testBug340506() {
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+				"    public <T> void setValue(Parameter<T> parameter, T value) {\n" + 
+				"        System.out.println(\"Object\");\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public <T> void setValue(Parameter<T> parameter, Field<T> value) {\n" + 
+				"        System.out.println(\"Field\");\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        new Test().test();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private void test() {\n" + 
+				"        Parameter<String> p1 = p1();\n" + 
+				"        Field<String> f1 = f1();\n" + 
+				"        setValue(p1, f1);\n" +
+				"		 setValue(p1, null);\n" + 
+				"\n" + 
+				"        Parameter<Object> p2 = p2();\n" + 
+				"        Field<Object> f2 = f2();\n" + 
+				"        setValue(p2, f2);\n" + 
+				"  		 setValue(p2, null);" + 
+				"    }\n" + 
+				"\n" + 
+				"    private Field<String> f1() {\n" + 
+				"        Field<String> f1 = null;\n" + 
+				"        return f1;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private Parameter<String> p1() {\n" + 
+				"        Parameter<String> p1 = null;\n" + 
+				"        return p1;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private Parameter<Object> p2() {\n" + 
+				"        Parameter<Object> p2 = null;\n" + 
+				"        return p2;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private Field<Object> f2() {\n" + 
+				"        Field<Object> f2 = null;\n" + 
+				"        return f2;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface Field<T> {}\n" + 
+				"interface Parameter <T> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 18)\n" + 
+			"	setValue(p1, null);\n" + 
+			"	^^^^^^^^\n" + 
+			"The method setValue(Parameter<String>, String) is ambiguous for the type Test\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 22)\n" + 
+			"	setValue(p2, f2);\n" + 
+			"	^^^^^^^^\n" + 
+			"The method setValue(Parameter<Object>, Object) is ambiguous for the type Test\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 23)\n" + 
+			"	setValue(p2, null);    }\n" + 
+			"	^^^^^^^^\n" + 
+			"The method setValue(Parameter<Object>, Object) is ambiguous for the type Test\n" + 
+			"----------\n");
+	}
 }
