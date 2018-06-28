@@ -9155,4 +9155,32 @@ public void testBug508834_comment0() {
 			"The method setValue(Parameter<Object>, Object) is ambiguous for the type Test\n" + 
 			"----------\n");
 	}
+	public void testBug333011() {
+		runNegativeTest(
+			new String[] {
+				"Example.java",
+				"import java.util.ArrayList;\n" +
+				"public class Example {\n" + 
+				"	public static void doSomething() {\n" + 
+				"		DoJobMr bean = getOnlyElement(new ArrayList());\n" + 
+				"	}\n" + 
+				"	public static <T> T getOnlyElement(Iterable<T> iterable) { \n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	public static class DoJobMr {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Example.java (at line 4)\n" + 
+			"	DoJobMr bean = getOnlyElement(new ArrayList());\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to Example.DoJobMr\n" + 
+			"----------\n" + 
+			"2. WARNING in Example.java (at line 4)\n" + 
+			"	DoJobMr bean = getOnlyElement(new ArrayList());\n" + 
+			"	                                  ^^^^^^^^^\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"----------\n");
+	}
 }
