@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
@@ -9002,5 +9003,86 @@ public void testBug508834_comment0() {
 				"	}\n" + 
 				"}\n"
 			});
+	}
+	public void testBug525580() {
+		Runner runner = new Runner();
+		runner.customOptions = new HashMap<String, String>();
+		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.IGNORE);
+		runner.testFiles =
+			new String[] { 
+				"org/a/a/g/d.java",
+				"package org.a.a.g;\n" + 
+				"\n" + 
+				"public class d {\n" + 
+				"\n" + 
+				"    public <T extends e> T a(Class<T> cls) {\n" + 
+				"        T t = (e) cls.newInstance();\n" + 
+				"        while (size >= 0) {\n" + 
+				"            T a = ((b) this.e.m.get(size)).a();\n" + 
+				"            t = a;\n" + 
+				"        }\n" + 
+				"        return t;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public interface b {\n" + 
+				"        <T extends e> T a();\n" + 
+				"\n" + 
+				"        <T extends j> T b();\n" + 
+				"    }\n" + 
+				"}\n"
+			};
+		runner.expectedCompilerLog =
+			"----------\n" + 
+			"1. ERROR in org\\a\\a\\g\\d.java (at line 5)\n" + 
+			"	public <T extends e> T a(Class<T> cls) {\n" + 
+			"	                  ^\n" + 
+			"e cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in org\\a\\a\\g\\d.java (at line 6)\n" + 
+			"	T t = (e) cls.newInstance();\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"e cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in org\\a\\a\\g\\d.java (at line 6)\n" + 
+			"	T t = (e) cls.newInstance();\n" + 
+			"	       ^\n" + 
+			"e cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in org\\a\\a\\g\\d.java (at line 7)\n" + 
+			"	while (size >= 0) {\n" + 
+			"	       ^^^^\n" + 
+			"size cannot be resolved to a variable\n" + 
+			"----------\n" + 
+			"5. ERROR in org\\a\\a\\g\\d.java (at line 8)\n" + 
+			"	T a = ((b) this.e.m.get(size)).a();\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from e to T\n" + 
+			"----------\n" + 
+			"6. ERROR in org\\a\\a\\g\\d.java (at line 8)\n" + 
+			"	T a = ((b) this.e.m.get(size)).a();\n" + 
+			"	                ^\n" + 
+			"e cannot be resolved or is not a field\n" + 
+			"----------\n" + 
+			"7. ERROR in org\\a\\a\\g\\d.java (at line 8)\n" + 
+			"	T a = ((b) this.e.m.get(size)).a();\n" + 
+			"	                        ^^^^\n" + 
+			"size cannot be resolved to a variable\n" + 
+			"----------\n" + 
+			"8. ERROR in org\\a\\a\\g\\d.java (at line 15)\n" + 
+			"	<T extends e> T a();\n" + 
+			"	           ^\n" + 
+			"e cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"9. ERROR in org\\a\\a\\g\\d.java (at line 17)\n" + 
+			"	<T extends j> T b();\n" + 
+			"	           ^\n" + 
+			"j cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"10. WARNING in org\\a\\a\\g\\d.java (at line 17)\n" + 
+			"	<T extends j> T b();\n" + 
+			"	                ^^^\n" + 
+			"This method has a constructor name\n" + 
+			"----------\n";
+		runner.runNegativeTest();
 	}
 }

@@ -59,6 +59,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.*;
+import java.util.function.Function;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -348,6 +349,7 @@ public abstract class Scope {
 	// 5.1.10
 	public static ReferenceBinding[] greaterLowerBound(ReferenceBinding[] types) {
 		if (types == null) return null;
+		types = filterValidTypes(types, ReferenceBinding[]::new);
 		int length = types.length;
 		if (length == 0) return null;
 		ReferenceBinding[] result = types;
@@ -386,6 +388,7 @@ public abstract class Scope {
 	// 5.1.10
 	public static TypeBinding[] greaterLowerBound(TypeBinding[] types, /*@Nullable*/ Scope scope, LookupEnvironment environment) {
 		if (types == null) return null;
+		types = filterValidTypes(types, TypeBinding[]::new);
 		int length = types.length;
 		if (length == 0) return null;
 		TypeBinding[] result = types;
@@ -458,6 +461,18 @@ public abstract class Scope {
 			}
 		}
 		return trimmedResult;
+	}
+
+	static <T extends TypeBinding> T[] filterValidTypes(T[] allTypes, Function<Integer,T[]> ctor) {
+		T[] valid = ctor.apply(allTypes.length);
+		int count = 0;
+		for (int i = 0; i < allTypes.length; i++) {
+			if (allTypes[i].isValidBinding())
+				valid[count++] = allTypes[i];
+		}
+		if (count == allTypes.length)
+			return allTypes;
+		return Arrays.copyOf(valid, count);
 	}
 
 	static boolean isMalformedPair(TypeBinding t1, TypeBinding t2, Scope scope) {
