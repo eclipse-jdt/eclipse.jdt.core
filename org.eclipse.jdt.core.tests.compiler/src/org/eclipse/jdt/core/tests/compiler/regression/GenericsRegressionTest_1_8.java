@@ -9004,6 +9004,126 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug535969b() {
+		runConformTest(
+			new String[] {
+				"B.java",
+				"\n" + 
+				"import java.util.Optional;\n" + 
+				"import java.util.function.Supplier;\n" +
+				"import java.io.Serializable;\n" + 
+				"\n" + 
+				"public class B {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"\n" + 
+				"        // This works fine:\n" + 
+				"        System.out.println(new Object() {\n" + 
+				"            int j = 5;\n" + 
+				"        }.j);\n" + 
+				"\n" + 
+				"        // This also\n" + 
+				"        System.out.println(trace(new Object() {\n" + 
+				"            int j = 5;\n" + 
+				"        }).j);\n" + 
+				"\n" + 
+				"        // Also no problem\n" + 
+				"        System.out.println(unwrapAndTrace(Optional.of(new Object() {\n" + 
+				"            int j = 5;\n" + 
+				"        })).j);\n" + 
+				"\n" + 
+				"        // Lambdas work:\n" + 
+				"        System.out.println(((Supplier & Serializable) () -> new Object()).get()); \n" + 
+				"\n" + 
+				"        // This doesn't work.\n" + 
+				"        System.out.println(invokeAndTrace(() -> new Object() {\n" + 
+				"            int j = 5;\n" + 
+				"        }).j);\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static <T> T trace(T obj) {\n" + 
+				"        System.out.println(obj);\n" + 
+				"        return obj;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static <T> T invokeAndTrace(Supplier<T> supplier) {\n" + 
+				"        T result = supplier.get();\n" + 
+				"        System.out.println(result);\n" + 
+				"        return result;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static <T> T unwrapAndTrace(Optional<T> optional) {\n" + 
+				"        T result = optional.get();\n" + 
+				"        System.out.println(result);\n" + 
+				"        return result;\n" + 
+				"    }\n" +
+				"}\n"
+			});
+	}
+	public void testBug477894() {
+		runConformTest(
+			new String[] {
+				"Main.java",
+				"public class Main {\n" + 
+				"	static class Foo<T> {\n" + 
+				"		private final T arg;\n" + 
+				"		public Foo(T arg) {\n" + 
+				"			this.arg = arg;\n" + 
+				"		}\n" + 
+				"		<R> Foo<R> select(java.util.function.Function<T, R> transformer) {\n" + 
+				"			return new Foo<>(transformer.apply(this.arg));\n" + 
+				"		}\n" + 
+				"		<R> R select2(java.util.function.Function<T, R> transformer) {\n" + 
+				"			return transformer.apply(this.arg);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String out = new Foo<Object>(null)\n" + 
+				"		.select(x -> new Object() {\n" + 
+				"			String alias = \"anonymous#1\";\n" + 
+				"		})\n" + 
+				"		.select2(x -> x.alias);\n" + 
+				"		System.out.println(out);\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
+	public void testBug427265() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		List<String> ss = Arrays.asList(\"1\", \"2\", \"3\");\n" + 
+				"		ss.stream().map(s -> new Object() { });\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
+	public void testBug427265_comment6() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void m() {\n" + 
+				"        List<String> ss = Arrays.asList(\"1\", \"2\", \"3\");\n" + 
+				"        \n" + 
+				"        ss.stream().map(s -> {\n" + 
+				"          class L1 {};\n" + 
+				"          class L2 {\n" + 
+				"            L1 mm(L1 l) { return l;}\n" + 
+				"          }\n" + 
+				"          return new L2().mm(new L1());\n" + 
+				"        }).forEach(e -> System.out.println(e));\n" + 
+				"    }\n" + 
+				"}\n"
+			});
+	}
 	public void testBug525580() {
 		Runner runner = new Runner();
 		runner.customOptions = new HashMap<String, String>();

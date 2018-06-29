@@ -258,6 +258,16 @@ public void setConstantPoolName(char[] computedConstantPoolName) /* java/lang/Ob
 	this.constantPoolName = computedConstantPoolName;
 }
 
+public void transferConstantPoolNameTo(TypeBinding substType) {
+	if (this.constantPoolName != null && substType instanceof LocalTypeBinding) {
+		LocalTypeBinding substLocalType = (LocalTypeBinding) substType;
+		if (substLocalType.constantPoolName == null) {
+			substLocalType.setConstantPoolName(this.constantPoolName);
+			this.scope.compilationUnitScope().constantPoolNameUsage.put(substLocalType.constantPoolName, substLocalType);
+		}
+	}
+}
+
 /*
  * Overriden for code assist. In this case, the constantPoolName() has not been computed yet.
  * Slam the source name so that the signature is syntactically correct.

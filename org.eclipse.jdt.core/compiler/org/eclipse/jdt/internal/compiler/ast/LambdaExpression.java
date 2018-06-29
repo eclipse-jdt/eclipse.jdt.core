@@ -1443,8 +1443,10 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					if (((LambdaExpression) lambdaScope2.referenceContext).sourceStart == LambdaExpression.this.sourceStart) {
 						// local type within this lambda needs replacement: 
 						TypeBinding substType = this.localTypes2.get(orgLocal.sourceStart);
-						if (substType != null)
+						if (substType != null) {
+							orgLocal.transferConstantPoolNameTo(substType);
 							return substType;
+						}
 					}
 				}
 				return originalType;
@@ -1461,6 +1463,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		updateLocalTypesInMethod(this.binding, substor, subst);
 		updateLocalTypesInMethod(this.descriptor, substor, subst);
 		this.resolvedType = substor.substitute(subst, this.resolvedType);
+		this.expectedType = substor.substitute(subst, this.expectedType);
 	}
 
 	/**
