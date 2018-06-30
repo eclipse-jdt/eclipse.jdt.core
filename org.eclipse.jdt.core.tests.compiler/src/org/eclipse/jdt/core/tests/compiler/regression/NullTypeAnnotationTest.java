@@ -17584,4 +17584,20 @@ public void testBug534516() {
 			""
 		);
 }
+public void testBug536459() {
+	runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"    static void x() {\n" + 
+				"        @Nullable String x1 = \"\";\n" + 
+				"        @Nullable String[] x2 = { \"\" };\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
+}
 }
