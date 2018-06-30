@@ -406,9 +406,10 @@ public void testReferenceExpression_nullAnnotation_3() {
 		getCompilerOptions());
 }
 public void testBug535308a() {
-	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
-	runNegativeTest(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+	runner.testFiles =
 			new String[] {
 				 "X.java",
 				 "public class X {\n" + 
@@ -424,21 +425,24 @@ public void testBug535308a() {
 				 "		return true;\n" + 
 				 "	}\n" + 
 				 "}"
-			},
+			};
+	runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	boolean unused = false;\n" + 
 			"	        ^^^^^^\n" + 
 			"The value of the local variable unused is not used\n" + 
-			"----------\n",
-			this.LIBS,
-			true /*flush*/,
-			options);
+			"----------\n";
+	runner.classLibraries =
+			this.LIBS;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 public void testBug535308b() {
-	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
-	runNegativeTest(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+	runner.testFiles =
 			new String[] {
 				 "X.java",
 				 "public class X {\n" + 
@@ -455,21 +459,24 @@ public void testBug535308b() {
 				 "		return true;\n" + 
 				 "	}\n" + 
 				 "}"
-			},
+			};
+	runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	boolean unused = false;\n" + 
 			"	        ^^^^^^\n" + 
 			"The value of the local variable unused is not used\n" + 
-			"----------\n",
-			this.LIBS,
-			true /*flush*/,
-			options);
+			"----------\n";
+	runner.classLibraries =
+			this.LIBS;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 public void testBug535308c() {
-	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
-	runNegativeTest(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+	runner.testFiles =
 			new String[] {
 				 "X.java",
 				 "public class X {\n" + 
@@ -486,21 +493,24 @@ public void testBug535308c() {
 				 "		return true;\n" + 
 				 "	}\n" + 
 				 "}"
-			},
+			};
+	runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	boolean unused = false;\n" + 
 			"	        ^^^^^^\n" + 
 			"The value of the local variable unused is not used\n" + 
-			"----------\n",
-			this.LIBS,
-			true /*flush*/,
-			options);
+			"----------\n";
+	runner.classLibraries =
+			this.LIBS;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 public void testBug535308d() {
-	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
-	runNegativeTest(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+	runner.testFiles =
 			new String[] {
 				 "X.java",
 				 "public class X {\n" + 
@@ -517,21 +527,24 @@ public void testBug535308d() {
 				 "		return true;\n" + 
 				 "	}\n" + 
 				 "}"
-			},
+			};
+	runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	boolean unused = false;\n" + 
 			"	        ^^^^^^\n" + 
 			"The value of the local variable unused is not used\n" + 
-			"----------\n",
-			this.LIBS,
-			true /*flush*/,
-			options);
+			"----------\n";
+	runner.classLibraries =
+			this.LIBS;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 public void testBug535308e() {
-	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
-	runNegativeTest(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
+	runner.testFiles =
 			new String[] {
 				 "X.java",
 				 "public class X {\n" + 
@@ -548,15 +561,17 @@ public void testBug535308e() {
 				 "		return true;\n" + 
 				 "	}\n" + 
 				 "}"
-			},
+			};
+	runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	final boolean thisIsFalse = false;\n" + 
 			"	              ^^^^^^^^^^^\n" + 
 			"The value of the local variable thisIsFalse is not used\n" + 
-			"----------\n",
-			this.LIBS,
-			true /*flush*/,
-			options);
+			"----------\n";
+			runner.classLibraries =
+			this.LIBS;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 }
