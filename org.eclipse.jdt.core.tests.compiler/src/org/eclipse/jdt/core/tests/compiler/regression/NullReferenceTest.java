@@ -18205,7 +18205,8 @@ public void testBug509188() {
 public void testBug536408() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return; // uses auto unboxing
-	runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -18217,7 +18218,8 @@ public void testBug536408() {
 			"		 t += s2;\n" + 
 			"    }\n" + 
 			"}\n"
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	t += s1;\n" + 
@@ -18228,6 +18230,8 @@ public void testBug536408() {
 		"	t += s2;\n" + 
 		"	     ^^\n" + 
 		"Potential null pointer access: This expression of type Long may be null but requires auto-unboxing\n" + 
-		"----------\n");
+		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 }
