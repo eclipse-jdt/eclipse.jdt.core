@@ -539,7 +539,6 @@ public abstract class AbstractMethodDeclaration
 			bindArguments();
 			resolveReceiver();
 			bindThrownExceptions();
-			resolveJavadoc();
 			resolveAnnotations(this.scope, this.annotations, this.binding, this.isConstructor());
 			
 			long sourceLevel = this.scope.compilerOptions().sourceLevel;

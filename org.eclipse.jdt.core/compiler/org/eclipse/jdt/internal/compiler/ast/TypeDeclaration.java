@@ -1245,6 +1245,16 @@ public void resolve() {
 				reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
 			}
 		}
+		FieldDeclaration[] fieldsDecls = this.fields;
+		if (fieldsDecls != null) {
+			for (FieldDeclaration fieldDeclaration : fieldsDecls)
+				fieldDeclaration.resolveJavadoc(this.initializerScope);
+		}
+		AbstractMethodDeclaration[] methodDecls = this.methods;
+		if (methodDecls != null) {
+			for (AbstractMethodDeclaration methodDeclaration : methodDecls)
+				methodDeclaration.resolveJavadoc();
+		}
 	} catch (AbortType e) {
 		this.ignoreFurtherInvestigation = true;
 		return;

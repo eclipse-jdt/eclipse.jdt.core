@@ -17600,4 +17600,32 @@ public void testBug536459() {
 			getCompilerOptions(),
 			"");
 }
+public void testBug536555() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
+	runner.testFiles =
+			new String[] {
+				"Foo.java",
+				"public class Foo\n" + 
+				"{\n" + 
+				"	/** Test {@link #foo(boolean)}. */\n" + 
+				"	public static final String TEST = \"foo\";\n" + 
+				"\n" + 
+				"	public void foo(@SuppressWarnings(TEST) final boolean test)\n" + 
+				"	{\n" + 
+				"		System.out.println(test);\n" + 
+				"	}\n" + 
+				"}\n"
+			};
+	runner.expectedCompilerLog =
+			"----------\n" + 
+			"1. WARNING in Foo.java (at line 6)\n" + 
+			"	public void foo(@SuppressWarnings(TEST) final boolean test)\n" + 
+			"	                                  ^^^^\n" + 
+			"Unsupported @SuppressWarnings(\"foo\")\n" + 
+			"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runWarningTest();
+}
 }
