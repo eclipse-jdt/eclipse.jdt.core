@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 Mateusz Matela and others.
+ * Copyright (c) 2014, 2018 Mateusz Matela and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameR
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRPAREN;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameSEMICOLON;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameenum;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameextends;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameimplements;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameIdentifier;
@@ -328,7 +329,8 @@ public class WrapPreparator extends ASTVisitor {
 			for (EnumConstantDeclaration constant : enumConstants)
 				this.wrapIndexes.add(this.tm.firstIndexIn(constant, -1));
 			this.wrapParentIndex = (this.options.alignment_for_enum_constants & Alignment.M_INDENT_ON_COLUMN) > 0
-					? this.tm.firstIndexBefore(enumConstants.get(0), TokenNameLBRACE) : this.tm.firstIndexIn(node, -1);
+					? this.tm.firstIndexBefore(enumConstants.get(0), TokenNameLBRACE)
+					: this.tm.firstIndexIn(node, TokenNameenum);
 			this.wrapGroupEnd = constantsEnd = this.tm.lastIndexIn(enumConstants.get(enumConstants.size() - 1), -1);
 			handleWrap(this.options.alignment_for_enum_constants, node);
 		}

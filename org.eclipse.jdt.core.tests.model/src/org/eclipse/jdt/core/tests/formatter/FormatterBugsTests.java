@@ -12880,4 +12880,18 @@ public void testBug534742() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/536322 - Java formatter misses one level of
+ * indentation in enum declaration if Javadoc is present
+ */
+public void testBug536322() {
+	String source =
+		"class C {\n" + 
+		"	/** */\n" + 
+		"	enum E {\n" + 
+		"		enum1;\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
 }
