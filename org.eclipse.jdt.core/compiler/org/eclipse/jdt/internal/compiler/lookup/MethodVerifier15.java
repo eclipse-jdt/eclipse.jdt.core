@@ -784,7 +784,7 @@ void checkTypeVariableMethods(TypeParameter typeParameter) {
 					} else if (match.declaringClass.isClass()) {
 						implementation = match;
 					}
-					if (interfaceMethod != null && implementation != null && !isAsVisible(implementation, interfaceMethod))
+					if (interfaceMethod != null && implementation != null && !implementation.isAbstract() && !isAsVisible(implementation, interfaceMethod))
 						problemReporter().inheritedMethodReducesVisibility(typeParameter, implementation, new MethodBinding [] {interfaceMethod});
 					
 					if (areReturnTypesCompatible(first, match)) continue;
