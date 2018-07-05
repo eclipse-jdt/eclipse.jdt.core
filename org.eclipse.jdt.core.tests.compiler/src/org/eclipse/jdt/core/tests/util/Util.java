@@ -1163,6 +1163,15 @@ public static String toString(String[] strings, boolean addExtraNewLine) {
 	}
 	return buffer.toString();
 }
+private static String  getZipEntryFileName(File destDir, ZipEntry e, String canonicalDestDirPath) throws IOException {
+	  String result = e.getName();
+	  File destfile = new File(destDir, result);
+	  String canonicalDestFile = destfile.getCanonicalPath();
+	  if (!canonicalDestFile.startsWith(canonicalDestDirPath + File.separator)) {
+		  throw new ZipEntryStorageException("Entry is outside of the target dir: " + e.getName());
+	  }
+	  return result;
+}
 /**
  * Unzip the contents of the given zip in the given directory (create it if it doesn't exist)
  */
@@ -1171,6 +1180,7 @@ public static void unzip(String zipPath, String destDirPath) throws IOException 
     InputStream zipIn = new FileInputStream(zipPath);
     byte[] buf = new byte[8192];
     File destDir = new File(destDirPath);
+    String canonicalDestDirPath = destDir.getCanonicalPath();
     ZipInputStream zis = new ZipInputStream(zipIn);
     FileOutputStream fos = null;
     try {
@@ -1182,7 +1192,7 @@ public static void unzip(String zipPath, String destDirPath) throws IOException 
                 continue;
             }
             // if it is a file, extract it
-            String filePath = zEntry.getName();
+            String filePath = getZipEntryFileName(destDir, zEntry, canonicalDestDirPath);
             int lastSeparator = filePath.lastIndexOf("/"); //$NON-NLS-1$
             String fileDir = ""; //$NON-NLS-1$
             if (lastSeparator >= 0) {
