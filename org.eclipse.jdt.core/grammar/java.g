@@ -1268,7 +1268,6 @@ SwitchBlockStatements ::= SwitchBlockStatements SwitchBlockStatement
 /.$putCase consumeSwitchBlockStatements() ; $break ./
 /:$readableName SwitchBlockStatements:/
 
-SwitchBlockStatement -> SwitchExprArm
 SwitchBlockStatement ::= SwitchLabels BlockStatements
 /.$putCase consumeSwitchBlockStatement() ; $break ./
 /:$readableName SwitchBlockStatement:/
@@ -1284,6 +1283,21 @@ SwitchLabel ::= SwitchLabelCaseLhs ':'
 SwitchLabel ::= 'default' ':'
 /. $putCase consumeDefaultLabel(); $break ./
 /:$readableName SwitchLabel:/
+
+-- BEGIN SwitchExpression (JEP 325) --
+
+PrimaryNoNewArray -> SwitchExpression
+
+SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchExpressionBlock
+/.$putCase consumeSwitchExpression() ; $break ./
+/:$readableName SwitchExpression:/
+
+SwitchExpressionBlock ::= '{' SwitchExprArms '}'
+
+SwitchExprArms -> SwitchExprArm
+SwitchExprArms ::= SwitchExprArms SwitchExprArm
+/.$putCase consumeSwitchLabels() ; $break ./
+/:$readableName SwitchLabels:/
 
 SwitchExprArm -> SwitchExprExprArm
 SwitchExprArm -> SwitchExprExprDefaultArm
@@ -1324,6 +1338,8 @@ SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
 SwitchLabelCaseLhs ::= 'case' ConstantExpressions
 /. $putCase consumeSwitchLabelCaseLhs(); $break ./
 /:$readableName SwitchLabelCaseLhs:/
+
+-- END SwitchExpression (JEP 325) --
 
 WhileStatement ::= 'while' '(' Expression ')' Statement
 /.$putCase consumeStatementWhile() ; $break ./
