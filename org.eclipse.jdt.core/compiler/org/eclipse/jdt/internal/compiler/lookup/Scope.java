@@ -472,6 +472,8 @@ public abstract class Scope {
 		}
 		if (count == allTypes.length)
 			return allTypes;
+		if (count == 0 && allTypes.length > 0)
+			return Arrays.copyOf(allTypes, 1); // if all are invalid pick the first as a placeholder to prevent general glb failure
 		return Arrays.copyOf(valid, count);
 	}
 

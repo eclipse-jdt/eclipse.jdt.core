@@ -9205,6 +9205,111 @@ public void testBug508834_comment0() {
 			"----------\n";
 		runner.runNegativeTest();
 	}
+	public void testBug525580_comment28() {
+		Runner runner = new Runner();
+		runner.customOptions = new HashMap<String, String>();
+		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.IGNORE);
+		runner.testFiles =
+			new String[] {
+				"xxxxxx/iiibii.java",
+				"package xxxxxx;\n" + 
+				"\n" + 
+				"public class iiibii {\n" + 
+				"\n" + 
+				"    public <T extends xxxxxx.jajaja> T b041D041D041D041DН041DН(xxxxxx.jjajaa jjajaa) {\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public xxxxxx.jajaja bН041D041D041DН041DН(byte b, byte b2) {\n" + 
+				"        return b041D041D041D041DН041DН(new xxxxxx.jjajaa(b, b2));\n" + 
+				"    }\n" + 
+				"}\n",
+				"xxxxxx/jjajaa.java",
+				"package xxxxxx;\n" + 
+				"\n" + 
+				"public class jjajaa implements java.io.Serializable, java.lang.Comparable<xxxxxx.jjajaa> {\n" + 
+				"    private byte b0445х0445хх04450445;\n" + 
+				"    private byte bхх0445хх04450445;\n" + 
+				"\n" + 
+				"    public jjajaa(byte b, byte b2) {\n" + 
+				"        this.bхх0445хх04450445 = b;\n" + 
+				"        this.b0445х0445хх04450445 = b2;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public int b043704370437з04370437з(xxxxxx.jjajaa jjajaa) {\n" + 
+				"        int i = this.bхх0445хх04450445 - jjajaa.bхх0445хх04450445;\n" + 
+				"        return i != 0 ? i : this.b0445х0445хх04450445 - jjajaa.b0445х0445хх04450445;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public byte[] bззз043704370437з() {\n" + 
+				"        return new byte[]{this.bхх0445хх04450445, this.b0445х0445хх04450445};\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public /* synthetic */ int compareTo(java.lang.Object obj) {\n" + 
+				"        return b043704370437з04370437з((xxxxxx.jjajaa) obj);\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public boolean equals(java.lang.Object obj) {\n" + 
+				"        if (obj == null || getClass() != obj.getClass()) {\n" + 
+				"            return false;\n" + 
+				"        }\n" + 
+				"        xxxxxx.jjajaa jjajaa = (xxxxxx.jjajaa) obj;\n" + 
+				"        return this.bхх0445хх04450445 == jjajaa.bхх0445хх04450445 && this.b0445х0445хх04450445 == jjajaa.b0445х0445хх04450445;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public int hashCode() {\n" + 
+				"        return ((this.bхх0445хх04450445 + 427) * 61) + this.b0445х0445хх04450445;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public java.lang.String toString() {\n" + 
+				"        return xxxxxx.ttotoo.bг04330433г04330433г(this.bхх0445хх04450445) + xxxxxx.ttotoo.bг04330433г04330433г(this.b0445х0445хх04450445);\n" + 
+				"    }\n" + 
+				"}\n"
+			};
+		runner.expectedCompilerLog =
+				"----------\n" + 
+				"1. ERROR in xxxxxx\\iiibii.java (at line 5)\n" + 
+				"	public <T extends xxxxxx.jajaja> T b041D041D041D041DН041DН(xxxxxx.jjajaa jjajaa) {\n" + 
+				"	                  ^^^^^^^^^^^^^\n" + 
+				"xxxxxx.jajaja cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in xxxxxx\\iiibii.java (at line 8)\n" + 
+				"	public xxxxxx.jajaja bН041D041D041DН041DН(byte b, byte b2) {\n" + 
+				"	       ^^^^^^^^^^^^^\n" + 
+				"xxxxxx.jajaja cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in xxxxxx\\iiibii.java (at line 9)\n" + 
+				"	return b041D041D041D041DН041DН(new xxxxxx.jjajaa(b, b2));\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from jajaja to jajaja\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"1. ERROR in xxxxxx\\jjajaa.java (at line 3)\n" + 
+				"	public class jjajaa implements java.io.Serializable, java.lang.Comparable<xxxxxx.jjajaa> {\n" + 
+				"	             ^^^^^^\n" + 
+				"The type jjajaa must implement the inherited abstract method Comparable<jjajaa>.compareTo(jjajaa)\n" + 
+				"----------\n" + 
+				"2. WARNING in xxxxxx\\jjajaa.java (at line 3)\n" + 
+				"	public class jjajaa implements java.io.Serializable, java.lang.Comparable<xxxxxx.jjajaa> {\n" + 
+				"	             ^^^^^^\n" + 
+				"The serializable class jjajaa does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"3. ERROR in xxxxxx\\jjajaa.java (at line 21)\n" + 
+				"	public /* synthetic */ int compareTo(java.lang.Object obj) {\n" + 
+				"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Name clash: The method compareTo(Object) of type jjajaa has the same erasure as compareTo(T) of type Comparable<T> but does not override it\n" + 
+				"----------\n" + 
+				"4. ERROR in xxxxxx\\jjajaa.java (at line 38)\n" + 
+				"	return xxxxxx.ttotoo.bг04330433г04330433г(this.bхх0445хх04450445) + xxxxxx.ttotoo.bг04330433г04330433г(this.b0445х0445хх04450445);\n" + 
+				"	       ^^^^^^^^^^^^^\n" + 
+				"xxxxxx.ttotoo cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. ERROR in xxxxxx\\jjajaa.java (at line 38)\n" + 
+				"	return xxxxxx.ttotoo.bг04330433г04330433г(this.bхх0445хх04450445) + xxxxxx.ttotoo.bг04330433г04330433г(this.b0445х0445хх04450445);\n" + 
+				"	                                                                    ^^^^^^^^^^^^^\n" + 
+				"xxxxxx.ttotoo cannot be resolved to a type\n" + 
+				"----------\n";
+		runner.runNegativeTest();
+	}
 	public void testBug340506() {
 		runNegativeTest(
 			new String[] {
