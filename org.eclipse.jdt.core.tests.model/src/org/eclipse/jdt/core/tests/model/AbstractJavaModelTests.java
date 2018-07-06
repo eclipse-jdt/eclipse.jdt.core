@@ -79,6 +79,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
+		int index = -1;
+		if ( (index = javaVersion.indexOf('-')) != -1) {
+			javaVersion = javaVersion.substring(0, index);
+		} else {
+			if (javaVersion.length() > 3) {
+				javaVersion = javaVersion.substring(0, 3);
+			}
+		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
 		if (jdkLevel >= ClassFileConstants.JDK9) {
 			isJRE9 = true;

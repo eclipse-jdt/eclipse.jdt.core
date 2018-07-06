@@ -756,7 +756,8 @@ public class CompilerOptions {
 	}
 
 	public static String versionFromJdkLevel(long jdkLevel) {
-		switch ((int)(jdkLevel>>16)) {
+		int major = (int)(jdkLevel>>16);
+		switch (major) {
 			case ClassFileConstants.MAJOR_VERSION_1_1 :
 				if (jdkLevel == ClassFileConstants.JDK1_1)
 					return VERSION_1_1;
@@ -797,36 +798,19 @@ public class CompilerOptions {
 				if (jdkLevel == ClassFileConstants.JDK10)
 					return VERSION_10;
 				break;
-			case ClassFileConstants.MAJOR_VERSION_11 :
-				if (jdkLevel == ClassFileConstants.JDK11)
-					return VERSION_11;
-				break;
+			default:
+				return "" + (major - ClassFileConstants.MAJOR_VERSION_0); //$NON-NLS-1$
+				
 		}
 		return Util.EMPTY_STRING; // unknown version
 	}
 
 	public static long releaseToJDKLevel(String release) {
 		if (release != null && release.length() > 0) {
-			switch(release.charAt(0)) {
-				case '6':
-					return ClassFileConstants.JDK1_6;
-				case '7':
-					return ClassFileConstants.JDK1_7;
-				case '8':
-					return ClassFileConstants.JDK1_8;
-				case '9':
-					return ClassFileConstants.JDK9;
-				case '1':
-					if (release.length() > 1) {
-						switch(release.charAt(1)) {
-							case '0': return ClassFileConstants.JDK10;
-							case '1': return ClassFileConstants.JDK11;
-							default: return 0;
-						}
-					}
-					break;
-				default:
-					return 0; // unknown
+			int major = Integer.parseInt(release) + ClassFileConstants.MAJOR_VERSION_0;
+			if (major <= ClassFileConstants.MAJOR_LATEST_VERSION) {
+				long jdkLevel = ((long) major << 16) + ClassFileConstants.MINOR_VERSION_0;
+				return jdkLevel;
 			}
 		}
 		return 0;
@@ -857,21 +841,22 @@ public class CompilerOptions {
 						return 0; // unknown
 				}
 			} else {
-				switch (version.charAt(0)) {
-					case '9':
-						return ClassFileConstants.JDK9;
-					case '1':
-						if (version.length() > 1) {
-							if (version.charAt(1) == '0') {
-								return ClassFileConstants.JDK10; // Level for JDK 10
-							} else {
-								int versionAfterTen = Integer.parseInt("" + version.charAt(1)); //$NON-NLS-1$
-								int majorVersion = ClassFileConstants.MAJOR_VERSION_10 + versionAfterTen;
-								long jdkLevel = ((long)majorVersion << 16) + ClassFileConstants.MINOR_VERSION_0;
-								return jdkLevel;
-							}
-						// No default - let it go through the remaining checks.
-						}
+				try {
+					int index = version.indexOf('.');
+					if (index != -1) {
+						version = version.substring(0, index);
+					} else {
+						index = version.indexOf('-');
+						if (index != -1)
+							version = version.substring(0, index);
+					}
+					int major = Integer.parseInt(version) + ClassFileConstants.MAJOR_VERSION_0;
+					if (major <= ClassFileConstants.MAJOR_LATEST_VERSION) {
+						long jdkLevel = ((long) major << 16) + ClassFileConstants.MINOR_VERSION_0;
+						return jdkLevel;
+					}
+				} catch (NumberFormatException e) {
+					// do nothing and return 0 at the end
 				}
 			}
 		}

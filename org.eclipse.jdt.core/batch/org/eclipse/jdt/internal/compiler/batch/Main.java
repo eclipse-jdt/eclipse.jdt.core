@@ -1731,32 +1731,7 @@ private boolean checkVMVersion(long minimalSupportedVersion) {
 		// by default we don't support a class file version we cannot recognize
 		return false;
 	}
-	switch(majorVersion) {
-		case ClassFileConstants.MAJOR_VERSION_1_1 : // 1.0 and 1.1
-			return ClassFileConstants.JDK1_1 >= minimalSupportedVersion;
-		case ClassFileConstants.MAJOR_VERSION_1_2 : // 1.2
-			return ClassFileConstants.JDK1_2 >= minimalSupportedVersion;
-		case ClassFileConstants.MAJOR_VERSION_1_3 : // 1.3
-			return ClassFileConstants.JDK1_3 >= minimalSupportedVersion;
-		case ClassFileConstants.MAJOR_VERSION_1_4 : // 1.4
-			return ClassFileConstants.JDK1_4 >= minimalSupportedVersion;
-		case ClassFileConstants.MAJOR_VERSION_1_5 : // 1.5
-			return ClassFileConstants.JDK1_5 >= minimalSupportedVersion;
-		case ClassFileConstants.MAJOR_VERSION_1_6 : // 1.6
-			return ClassFileConstants.JDK1_6 >= minimalSupportedVersion;
-		case ClassFileConstants.MAJOR_VERSION_1_7 : // 1.7
-			return ClassFileConstants.JDK1_7 >= minimalSupportedVersion;
-		case ClassFileConstants.MAJOR_VERSION_1_8: // 1.8
-			return ClassFileConstants.JDK1_8 >= minimalSupportedVersion;
-		case ClassFileConstants.MAJOR_VERSION_9: // 9
-			return ClassFileConstants.JDK9 >= minimalSupportedVersion;
-		case ClassFileConstants.MAJOR_VERSION_10:
-			return ClassFileConstants.JDK10 >= minimalSupportedVersion;
-		case ClassFileConstants.MAJOR_VERSION_11:
-			return ClassFileConstants.JDK11 >= minimalSupportedVersion;
-	}
-	// unknown version
-	return false;
+	return ClassFileConstants.getComplianceLevelForJavaVersion(majorVersion) >=minimalSupportedVersion;
 }
 /*
  *  Low-level API performing the actual compilation
@@ -5412,34 +5387,31 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_10);
 				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
 			}
-		} else if (CompilerOptions.VERSION_11.equals(version)) {
-			if (this.didSpecifySource) {
-				Object source = this.options.get(CompilerOptions.OPTION_Source);
-				if (CompilerOptions.VERSION_1_3.equals(source)
-						|| CompilerOptions.VERSION_1_4.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-				} else if (CompilerOptions.VERSION_1_5.equals(source)
-						|| CompilerOptions.VERSION_1_6.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-				} else if (CompilerOptions.VERSION_1_7.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-				} else if (CompilerOptions.VERSION_1_8.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
-				} else if (CompilerOptions.VERSION_9.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
-				} else if (CompilerOptions.VERSION_10.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
-				} else if (CompilerOptions.VERSION_11.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+		} else {
+			if (!this.didSpecifyTarget) {
+				if (this.didSpecifySource) {
+					String source = this.options.get(CompilerOptions.OPTION_Source);
+					if (CompilerOptions.VERSION_1_3.equals(source)
+							|| CompilerOptions.VERSION_1_4.equals(source)) {
+						if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+					} else if (CompilerOptions.VERSION_1_5.equals(source)
+							|| CompilerOptions.VERSION_1_6.equals(source)) {
+						this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+					} else {
+						if (CompilerOptions.versionToJdkLevel(source) > 0)
+							this.options.put(CompilerOptions.OPTION_TargetPlatform, source);
+					}
+				} else {
+					if (CompilerOptions.versionToJdkLevel(version) > 0) {
+						this.options.put(CompilerOptions.OPTION_Source, version);
+						this.options.put(CompilerOptions.OPTION_TargetPlatform, version);
+					}
 				}
-			} else {
-				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
-				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
 			}
 		}
 
 	} else if (this.didSpecifySource) {
-		Object version = this.options.get(CompilerOptions.OPTION_Source);
+		String version = this.options.get(CompilerOptions.OPTION_Source);
 		// default is source 1.3 target 1.2 and compliance 1.4
 		if (CompilerOptions.VERSION_1_4.equals(version)) {
 			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
@@ -5462,9 +5434,11 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 		} else if (CompilerOptions.VERSION_10.equals(version)) {
 			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_10);
 			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
-		} else if (CompilerOptions.VERSION_11.equals(version)) {
-			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
-			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+		} else {
+			if (CompilerOptions.versionToJdkLevel(version) > 0) {
+				if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, version);
+				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, version);
+			}
 		}
 	}
 
@@ -5473,10 +5447,7 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 		final String compliance = this.options.get(CompilerOptions.OPTION_Compliance);
 		this.complianceLevel = CompilerOptions.versionToJdkLevel(compliance);
 	}
-	if (sourceVersion.equals(CompilerOptions.VERSION_11)
-			&& this.complianceLevel < ClassFileConstants.JDK11) { // TODO: After merging to master refactor this circus into a single function.
-		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_11)); //$NON-NLS-1$
-	} else 	if (sourceVersion.equals(CompilerOptions.VERSION_10)
+	if (sourceVersion.equals(CompilerOptions.VERSION_10)
 			&& this.complianceLevel < ClassFileConstants.JDK10) {
 		// compliance must be 10 if source is 10
 		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_10)); //$NON-NLS-1$
@@ -5504,7 +5475,11 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 			&& this.complianceLevel < ClassFileConstants.JDK1_4) {
 		// compliance must be 1.4 if source is 1.4
 		throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), CompilerOptions.VERSION_1_4)); //$NON-NLS-1$
-	}
+	} else {
+		long ver = CompilerOptions.versionToJdkLevel(sourceVersion);
+		if(this.complianceLevel < ver)
+			throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), sourceVersion)); //$NON-NLS-1$
+	} 	
 
 	// check and set compliance/source/target compatibilities
 	if (this.didSpecifyTarget) {

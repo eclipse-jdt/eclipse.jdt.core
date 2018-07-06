@@ -529,7 +529,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	}
 
 	private boolean argumentsTypeVar(BlockScope blockScope) {
-		if (blockScope.compilerOptions().complianceLevel < ClassFileConstants.JDK11) return false;
+		if (blockScope.compilerOptions().complianceLevel < ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11)) return false;
 		boolean retval = false, isVar = false, mixReported = false;
 		Argument[] args =  this.arguments;
 		for (int i = 0, l = args.length; i < l; ++i) {

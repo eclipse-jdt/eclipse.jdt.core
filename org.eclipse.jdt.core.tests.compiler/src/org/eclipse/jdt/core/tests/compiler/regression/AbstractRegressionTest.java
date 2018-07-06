@@ -254,10 +254,20 @@ static class JavacCompiler {
 			this.version = JavaCore.VERSION_9;
 		} else if(rawVersion.startsWith("10")) {
 			this.version = JavaCore.VERSION_10;
-		}  else if(rawVersion.startsWith("11")) {
-			this.version = JavaCore.VERSION_11;
-		} else {
-			throw new RuntimeException("unknown javac version: " + rawVersion);
+		}  else {
+			int index = rawVersion.indexOf('.');
+			if (index != -1) {
+				rawVersion = rawVersion.substring(0, index);
+			} else {
+				index = rawVersion.indexOf('-');
+				if (index != -1)
+					rawVersion = rawVersion.substring(0, index);
+			}
+			this.version = rawVersion;
+			this.compliance = CompilerOptions.versionToJdkLevel(this.version);
+			if (this.compliance == 0) {
+				throw new RuntimeException("unknown javac version: " + rawVersion);
+			}
 		}
 		this.compliance = CompilerOptions.versionToJdkLevel(this.version);
 		this.minor = minorFromRawVersion(this.version, rawVersion);
@@ -1142,8 +1152,9 @@ protected static class JavacTestOptions {
 			buffer.append("\" -9 " + processAnnot);
 		} else if (this.complianceLevel == ClassFileConstants.JDK10) {
 			buffer.append("\" -10 " + processAnnot);
-		} else if (this.complianceLevel == ClassFileConstants.JDK11) {
-			buffer.append("\" -11 " + processAnnot);
+		} else {
+			int major = (int)(this.complianceLevel>>16);
+			buffer.append("\" -" + (major - ClassFileConstants.MAJOR_VERSION_0));
 		}
 		buffer
 			.append(" -preserveAllLocals -proceedOnError -nowarn -g -classpath \"")

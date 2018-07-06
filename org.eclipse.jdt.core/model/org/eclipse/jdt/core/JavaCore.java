@@ -3018,16 +3018,18 @@ public final class JavaCore extends Plugin {
 	 * @category OptionValue
 	 */
 	public static final String VERSION_CLDC_1_1 = "cldc1.1"; //$NON-NLS-1$
+	private static List<String> allVersions = Arrays.asList(VERSION_CLDC_1_1, VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4, VERSION_1_5,
+			VERSION_1_6, VERSION_1_7, VERSION_1_8, VERSION_9, VERSION_10, VERSION_11);
 
 	/**
-	 * Returns all {@link JavaCore}{@code #VERSION_*} levels.
+	 * Returns all {@link JavaCore}{@code #VERSION_*} levels in the order of their 
+	 * introduction. For e.g., {@link JavaCore#VERSION_1_8} appears before {@link JavaCore#VERSION_10}
 	 * 
 	 * @return all available versions
 	 * @since 3.14
 	 */
 	public static List<String> getAllVersions() {
-		return Arrays.asList(VERSION_CLDC_1_1, VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4, VERSION_1_5,
-				VERSION_1_6, VERSION_1_7, VERSION_1_8, VERSION_9, VERSION_10, VERSION_11);
+		return allVersions;
 	}
 
 	/**
@@ -5933,7 +5935,8 @@ public final class JavaCore extends Plugin {
 	 * @since 3.3
 	 */
 	public static void setComplianceOptions(String compliance, Map options) {
-		switch((int) (CompilerOptions.versionToJdkLevel(compliance) >>> 16)) {
+		int major = (int) (CompilerOptions.versionToJdkLevel(compliance) >>> 16);
+		switch(major) {
 			case ClassFileConstants.MAJOR_VERSION_1_3:
 				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
 				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
@@ -5998,10 +6001,11 @@ public final class JavaCore extends Plugin {
 				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
 				options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 				break;
-			case ClassFileConstants.MAJOR_VERSION_11:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_11);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_11);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_11);
+			default:
+				String version = CompilerOptions.versionFromJdkLevel(major);
+				options.put(JavaCore.COMPILER_COMPLIANCE, version);
+				options.put(JavaCore.COMPILER_SOURCE, version);
+				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, version);
 				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
 				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
 				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
@@ -6033,6 +6037,16 @@ public final class JavaCore extends Plugin {
 		JavaModelManager.getJavaModelManager().setOptions(newOptions);
 	}
 
+	/**
+	 * Returns the latest version of Java supported by the Java Model. This is usually the last entry
+	 * from {@link JavaCore#getAllVersions()}.
+	 *
+	 * @since 3.15
+	 * @return the latest Java version support by Java Model
+	 */
+	public static String latestSupportedJavaVersion() {
+		return allVersions.get(allVersions.size() - 1);
+	}
 	/**
 	 * Compares two given versions of the Java platform. The versions being compared must both be
 	 * one of the supported values mentioned in

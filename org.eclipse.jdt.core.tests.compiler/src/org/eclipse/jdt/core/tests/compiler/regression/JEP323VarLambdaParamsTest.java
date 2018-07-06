@@ -303,7 +303,7 @@ public void testBug536159_04() throws IOException {
 			"X.java",
 			"public class X<T> {\n"
 			+ "public static void main(String[] args) {\n"
-			+ "  FI x = ( var i [] ) -> 5;\n"
+			+ "  FI x = (var i []) -> 5;\n"
 			+ "    }\n"
 			+ "}\n"
 			+ "interface FI {\n"
@@ -313,7 +313,7 @@ public void testBug536159_04() throws IOException {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	FI x = (var i []) -> 5;\n" + 
-			"	             ^\n" + 
+			"	            ^\n" + 
 			"\'var\' is not allowed as an element type of an array\n" + 
 			"----------\n");
 }

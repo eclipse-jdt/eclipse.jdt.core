@@ -272,7 +272,7 @@ public static Test suite() {
 		tests_11.addAll(since_10);
 		tests_11.addAll(since_11);
 		TestCase.resetForgottenFilters(tests_11);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK11, tests_11));
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11), tests_11));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;

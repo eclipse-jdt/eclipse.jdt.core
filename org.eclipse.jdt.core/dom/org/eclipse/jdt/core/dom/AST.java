@@ -841,12 +841,13 @@ public final class AST {
 			case JLS11_INTERNAL :
 				this.apiLevel = level;
 				// initialize a scanner
+				long compliance = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11);
 				this.scanner = new Scanner(
 						true /*comment*/,
 						true /*whitespace*/,
 						false /*nls*/,
-						ClassFileConstants.JDK11   /*sourceLevel*/,
-						ClassFileConstants.JDK11 /*complianceLevel*/,
+						compliance /*sourceLevel*/,
+						compliance /*complianceLevel*/,
 						null/*taskTag*/,
 						null/*taskPriorities*/,
 						true/*taskCaseSensitive*/);

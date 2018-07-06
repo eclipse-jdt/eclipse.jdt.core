@@ -182,7 +182,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK11, tests_11));
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11), tests_11));
 	}
 	return all;
 }

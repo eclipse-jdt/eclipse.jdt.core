@@ -130,6 +130,9 @@ public interface ClassFileConstants {
 	int MAJOR_VERSION_10 = 54;
 	int MAJOR_VERSION_11 = 55;
 
+	int MAJOR_VERSION_0 = 44;
+	int MAJOR_LATEST_VERSION = MAJOR_VERSION_11;
+
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
 	int MINOR_VERSION_2 = 2;
@@ -150,6 +153,27 @@ public interface ClassFileConstants {
 	long JDK10 = ((long)ClassFileConstants.MAJOR_VERSION_10 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK11 = ((long)ClassFileConstants.MAJOR_VERSION_11 << 16) + ClassFileConstants.MINOR_VERSION_0;
 
+	public static long getLatestJDKLevel() {
+		return ((long)ClassFileConstants.MAJOR_LATEST_VERSION << 16) + ClassFileConstants.MINOR_VERSION_0;
+	}
+
+	/**
+	 * As we move away from declaring every compliance level explicitly (such as JDK11, JDK12 etc.),
+	 * this method can be used to compute the compliance level on the fly for a given Java major version.
+	 *
+	 * @param major Java major version
+	 * @return the compliance level for the given Java version
+	 */
+	public static long getComplianceLevelForJavaVersion(int major) {
+		switch(major) {
+			case ClassFileConstants.MAJOR_VERSION_1_1:
+				return ((long)ClassFileConstants.MAJOR_VERSION_1_1 << 16) + ClassFileConstants.MINOR_VERSION_3;
+			default:
+				if (major <= MAJOR_LATEST_VERSION)
+					return ((long)major << 16) + ClassFileConstants.MINOR_VERSION_0;
+		}
+		return 0;
+	}
 	/*
 	 * cldc1.1 is 45.3, but we modify it to be different from JDK1_1.
 	 * In the code gen, we will generate the same target value as JDK1_1

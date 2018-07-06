@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.*;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
 /**
@@ -990,26 +991,10 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			String versionNumber = VERSION_UNKNOWN;
 			if (minorVersion == 3 && majorVersion == 45) {
 				versionNumber = JavaCore.VERSION_1_1;
-			} else if (minorVersion == 0 && majorVersion == 46) {
-				versionNumber = JavaCore.VERSION_1_2;
-			} else if (minorVersion == 0 && majorVersion == 47) {
-				versionNumber = JavaCore.VERSION_1_3;
-			} else if (minorVersion == 0 && majorVersion == 48) {
-				versionNumber = JavaCore.VERSION_1_4;
-			} else if (minorVersion == 0 && majorVersion == 49) {
-				versionNumber = JavaCore.VERSION_1_5;
-			} else if (minorVersion == 0 && majorVersion == 50) {
-				versionNumber = JavaCore.VERSION_1_6;
-			} else if (minorVersion == 0 && majorVersion == 51) {
-				versionNumber = JavaCore.VERSION_1_7;
-			} else if (minorVersion == 0 && majorVersion == 52) {
-				versionNumber = JavaCore.VERSION_1_8;
-			} else if (minorVersion == 0 && majorVersion == 53) {
-				versionNumber = JavaCore.VERSION_9;
-			} else if (minorVersion == 0 && majorVersion == 54) {
-				versionNumber = JavaCore.VERSION_10;
-			} else if (minorVersion == 0 && majorVersion == 55) {
-				versionNumber = JavaCore.VERSION_11;
+			} else {
+				versionNumber = CompilerOptions.versionFromJdkLevel((majorVersion << 16) + minorVersion);
+				if (versionNumber.length() == 0)
+					versionNumber = VERSION_UNKNOWN;
 			}
 			buffer.append(
 				Messages.bind(Messages.classfileformat_versiondetails,

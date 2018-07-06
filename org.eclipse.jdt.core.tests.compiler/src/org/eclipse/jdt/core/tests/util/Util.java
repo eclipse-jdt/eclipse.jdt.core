@@ -805,8 +805,13 @@ public static int getFreePort() {
 */
 public static String[] getJavaClassLibs() {
 	String javaVersion = System.getProperty("java.version");
-	if (javaVersion.length() > 3) {
-		javaVersion = javaVersion.substring(0, 3);
+	int index = javaVersion.indexOf('.');
+	if (index != -1) {
+		javaVersion = javaVersion.substring(0, index);
+	} else {
+		index = javaVersion.indexOf('-');
+		if (index != -1)
+			javaVersion = javaVersion.substring(0, index);
 	}
 	long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion);
 	if (jdkLevel >= ClassFileConstants.JDK9) {

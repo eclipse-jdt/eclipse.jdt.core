@@ -94,7 +94,7 @@ public class AbstractCompilerTest extends TestCase {
 			suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK10));
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_11) != 0) {
-			suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK11));
+			suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11)));
 		}
 	}
 
@@ -136,7 +136,7 @@ public class AbstractCompilerTest extends TestCase {
 			suite.addTest(buildComplianceTestSuite(testClasses, setupClass, ClassFileConstants.JDK10));
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_11) != 0) {
-			suite.addTest(buildComplianceTestSuite(testClasses, setupClass, ClassFileConstants.JDK11));
+			suite.addTest(buildComplianceTestSuite(testClasses, setupClass, ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11)));
 		}
 		return suite;
 	}
@@ -282,9 +282,9 @@ public class AbstractCompilerTest extends TestCase {
 		int level11 = complianceLevels & AbstractCompilerTest.F_11;
 		if (level11 != 0) {
 			if (level11 < minimalCompliance) {
-				System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+CompilerOptions.versionFromJdkLevel(ClassFileConstants.JDK11)+"!");
+				System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance 11!");
 			} else {
-				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK11));
+				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11)));
 			}
 		}
 		return suite;
@@ -303,9 +303,7 @@ public class AbstractCompilerTest extends TestCase {
 		long highestLevel = highestComplianceLevels();
 		if (highestLevel < uniqueCompliance) {
 			String complianceString;
-			if (highestLevel == ClassFileConstants.JDK11)
-				complianceString = "11";
-			else if (highestLevel == ClassFileConstants.JDK10)
+			if (highestLevel == ClassFileConstants.JDK10)
 				complianceString = "10";
 			else if (highestLevel == ClassFileConstants.JDK9)
 				complianceString = "9";
@@ -321,8 +319,16 @@ public class AbstractCompilerTest extends TestCase {
 				complianceString = "1.4";
 			else if (highestLevel == ClassFileConstants.JDK1_3)
 				complianceString = "1.3";
-			else
-				complianceString = "unknown";
+			else {
+				highestLevel = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11);
+				if (highestLevel > 0) {
+					complianceString = CompilerOptions.versionFromJdkLevel(highestLevel);
+				} else {
+					complianceString = "unknown";
+				}
+				
+			}
+
 			System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+complianceString+"!");
 			return new TestSuite();
 		}
@@ -340,7 +346,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static long highestComplianceLevels() {
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 		if ((complianceLevels & AbstractCompilerTest.F_11) != 0) {
-			return ClassFileConstants.JDK11;
+			return ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11);
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_10) != 0) {
 			return ClassFileConstants.JDK10;
@@ -623,10 +629,11 @@ public class AbstractCompilerTest extends TestCase {
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_10);
 			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_10);
 			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
-		} else if (this.complianceLevel == ClassFileConstants.JDK11) {
-			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
-			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
-			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+		} else {
+			String ver = CompilerOptions.versionFromJdkLevel(this.complianceLevel);
+			options.put(CompilerOptions.OPTION_Compliance, ver);
+			options.put(CompilerOptions.OPTION_Source, ver);
+			options.put(CompilerOptions.OPTION_TargetPlatform, ver);
 		}
 		return options;
 	}
@@ -644,7 +651,7 @@ public class AbstractCompilerTest extends TestCase {
 		if (compliance < ClassFileConstants.JDK9) return "version 1.8 : 52.0";
 		if (compliance == ClassFileConstants.JDK9) return "version 9 : 53.0";
 		if (compliance == ClassFileConstants.JDK10) return "version 10 : 54.0";
-		if (compliance >= ClassFileConstants.JDK11) return version; // keep this stmt for search for next bump up
+		if (compliance >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11)) return version; // keep this stmt for search for next bump up
 		return version;
 	}
 
