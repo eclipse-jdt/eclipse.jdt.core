@@ -171,6 +171,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public static final int INITIAL_CONTENTS_SIZE = 400;
 	public static final int INITIAL_HEADER_SIZE = 1500;
 	public static final int INNER_CLASSES_SIZE = 5;
+	public static final int NESTED_MEMBER_SIZE = 5;
 
 	/**
 	 * INTERNAL USE-ONLY
@@ -446,6 +447,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		
 		attributesNumber += generateTypeAnnotationAttributeForTypeDeclaration();
 		
+		if (this.targetJDK >= ClassFileConstants.JDK11) {
+			// add nestMember and nestHost attributes
+			attributesNumber += generateNestAttributes();
+		}
 		// update the number of attributes
 		if (attributeOffset + 2 >= this.contents.length) {
 			resizeContents(2);
@@ -2653,6 +2658,80 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = 0;
 		this.contentsOffset = localContentsOffset;
 		return 1;
+	}
+	private TypeDeclaration getTopLevelType(TypeDeclaration typeDecl) {
+		TypeDeclaration tmp = typeDecl;
+		while (tmp.enclosingType != null) {
+			tmp = tmp.enclosingType;
+		}
+		return tmp;
+	}
+	private int generateNestHostAttribute(ReferenceBinding typeBinding) {
+		int localContentsOffset = this.contentsOffset;
+		if (localContentsOffset + 10 >= this.contents.length) {
+			resizeContents(10);
+		}
+		int nestHostAttributeNameIndex =
+			this.constantPool.literalIndex(AttributeNamesConstants.NestHost);
+		this.contents[localContentsOffset++] = (byte) (nestHostAttributeNameIndex >> 8);
+		this.contents[localContentsOffset++] = (byte) nestHostAttributeNameIndex;
+
+		// The value of the attribute_length item must be two.
+		this.contents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = 2;
+
+		int nestHostIndex = this.constantPool.literalIndexForType(typeBinding.constantPoolName());
+		this.contents[localContentsOffset++] = (byte) (nestHostIndex >> 8);
+		this.contents[localContentsOffset++] = (byte) nestHostIndex;
+		this.contentsOffset = localContentsOffset;
+		return 1;
+	}
+	private int generateNestMembersAttribute(TypeDeclaration typeDeclaration) {
+
+		int localContentsOffset = this.contentsOffset;
+		List<String> nestedMembers = typeDeclaration.getNestedMembers();
+		int numberOfNestedMembers = nestedMembers != null ? nestedMembers.size() : 0;
+		if (numberOfNestedMembers == 0) // JVMS 11 4.7.29 says "at most one" NestMembers attribute - return if none.
+			return 0;
+
+		int exSize = 8 + 2 * numberOfNestedMembers;
+		if (exSize + localContentsOffset >= this.contents.length) {
+			resizeContents(exSize);
+		}
+		int attributeNameIndex =
+			this.constantPool.literalIndex(AttributeNamesConstants.NestMembers);
+		this.contents[localContentsOffset++] = (byte) (attributeNameIndex >> 8);
+		this.contents[localContentsOffset++] = (byte) attributeNameIndex;
+		int value = (numberOfNestedMembers << 1) + 2;
+		this.contents[localContentsOffset++] = (byte) (value >> 24);
+		this.contents[localContentsOffset++] = (byte) (value >> 16);
+		this.contents[localContentsOffset++] = (byte) (value >> 8);
+		this.contents[localContentsOffset++] = (byte) value;
+		this.contents[localContentsOffset++] = (byte) (numberOfNestedMembers >> 8);
+		this.contents[localContentsOffset++] = (byte) numberOfNestedMembers;
+
+		for (int i = 0; i < numberOfNestedMembers; i++) {
+			char[] nestMemberName = nestedMembers.get(i).toCharArray();
+			int nestedMemberIndex = this.constantPool.literalIndexForType(nestMemberName);
+			this.contents[localContentsOffset++] = (byte) (nestedMemberIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) nestedMemberIndex;
+		}
+		this.contentsOffset = localContentsOffset;
+		return 1;
+	}
+	private int generateNestAttributes() {
+		int nAttrs = 0;
+		TypeDeclaration typeDeclaration = this.referenceBinding.scope.referenceContext;
+		TypeDeclaration topType = getTopLevelType(typeDeclaration);
+		if (topType == typeDeclaration) { // indeed the top type - add members
+			nAttrs += generateNestMembersAttribute(typeDeclaration);
+		} else {
+			nAttrs += generateNestHostAttribute(topType.binding);
+			topType.addNestedMembers(typeDeclaration.binding.constantPoolName());
+		}
+		return nAttrs;
 	}
 	private int generateModuleAttribute(ModuleDeclaration module) {
 		ModuleBinding binding = module.binding;

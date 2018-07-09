@@ -18,6 +18,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
@@ -68,6 +73,8 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 
 	// 1.5 support
 	public TypeParameter[] typeParameters;
+
+	private HashSet<String> nestedMembers;
 
 public TypeDeclaration(CompilationResult compilationResult){
 	this.compilationResult = compilationResult;
@@ -194,6 +201,21 @@ public MethodDeclaration addMissingAbstractMethodFor(MethodBinding methodBinding
 	return methodDeclaration;
 }
 
+public void addNestedMembers(char[] nestedMember) {
+	if (nestedMember == null || nestedMember.length == 0)
+		return;
+	if (this.nestedMembers == null) {
+		this.nestedMembers = new HashSet<>();
+	}
+	this.nestedMembers.add(new String(nestedMember));
+}
+public List<String> getNestedMembers() {
+	if (this.nestedMembers == null)
+		return null;
+	ArrayList<String> list = new ArrayList<>(this.nestedMembers);
+	Collections.sort(list);
+	return list;
+}
 /**
  *	Flow analysis for a local innertype
  *
