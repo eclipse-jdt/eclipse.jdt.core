@@ -19,8 +19,15 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import java.io.IOException;
+import java.util.Hashtable;
+
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.IProblem;
 
 public class ASTConverter10Test extends ConverterTestSetup {
 
@@ -202,6 +209,69 @@ public class ASTConverter10Test extends ConverterTestSetup {
 			assertTrue(binding instanceof ITypeBinding);
 			ITypeBinding typeBinding = (ITypeBinding) binding;
 			assertTrue("wrong type binding", typeBinding.getName().equals("int"));
+	}
+	public void testBug525580_comment38() throws CoreException, IOException {
+		// not really using Java 10, but apiLevel JLS10 as per bug report
+		String jarPath = null;
+		try {
+			Hashtable<String, String> options = JavaCore.getDefaultOptions();
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
+			options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
+	
+			String srcFolderInWS = "/Converter10/src";
+			createFolder(srcFolderInWS + "/cardManager/");
+	
+			String srcFilePathInWS = srcFolderInWS + "/cardManager/CardManagerFragment.java";
+			createFile(srcFilePathInWS, 
+					"package cardManager;\n" + 
+					"\n" + 
+					"public class CardManagerFragment {\n" + 
+					"    private view.View i;\n" + 
+					"\n" + 
+					"    private <T> T a() {\n" + 
+					"        return this.i.findViewById(-1);\n" + 
+					"    }\n" + 
+					"}\n");
+	
+			jarPath = getWorkspacePath() + "Converter10/P.jar";
+			createJar(new String[] {
+				"view/View.java",
+				"package view;\n" +
+				"public class View {\n" +
+				"	public final <T extends View> T findViewById(int i) { return null; }\n" +
+				"}\n"
+				},
+				jarPath,
+				options);
+	
+			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS10);
+			parser.setResolveBindings(true);
+			parser.setStatementsRecovery(true);
+			parser.setBindingsRecovery(true);
+		    parser.setCompilerOptions(options);
+			parser.setEnvironment(new String[] {jarPath}, new String[] {getWorkspacePath() + srcFolderInWS}, null, true);
+			parser.setKind(ASTParser.K_COMPILATION_UNIT);
+	
+			class MyFileASTRequestor extends FileASTRequestor {
+				boolean accepted = false;
+				@SuppressWarnings("synthetic-access")
+				@Override
+				public void acceptAST(String sourceFilePath, CompilationUnit cu) {
+					if (sourceFilePath.equals(getWorkspacePath() + srcFilePathInWS))
+						this.accepted = true;
+					assertEquals(1, cu.getProblems().length);
+					IProblem problem = cu.getProblems()[0];
+					assertEquals("Unexpected problem", "Pb(17) Type mismatch: cannot convert from View to T", problem.toString());
+				}
+			}
+			MyFileASTRequestor requestor = new MyFileASTRequestor();
+			parser.createASTs(new String[] {getWorkspacePath() + srcFilePathInWS}, null, new String[0], requestor, null);
+			assertTrue("file should have been accepted", requestor.accepted);
+		} finally {
+			if (jarPath != null)
+				deleteFile(jarPath);
+		}
 	}
 // Add new tests here
 }

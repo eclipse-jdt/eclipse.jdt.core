@@ -1137,7 +1137,7 @@ public class InferenceContext18 {
 										} else {
 											ReferenceBinding[] glbs = Scope.greaterLowerBound((ReferenceBinding[])upperBounds);
 											if (glbs == null) {
-												throw new UnsupportedOperationException("no glb for "+Arrays.asList(upperBounds)); //$NON-NLS-1$
+												return null;
 											} else if (glbs.length == 1) {
 												glb = glbs[0];
 											} else {
