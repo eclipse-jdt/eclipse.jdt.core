@@ -373,6 +373,9 @@ static class JavacCompiler {
 	// returns 0L if everything went fine; else the lower word contains the
 	// exit value and the upper word is non-zero iff the error log has contents
 	long compile(File directory, String options, String[] sourceFileNames, StringBuffer log) throws IOException, InterruptedException {
+		return compile(directory, options, sourceFileNames, log, true);
+	}
+	long compile(File directory, String options, String[] sourceFileNames, StringBuffer log, boolean extendCommandLine) throws IOException, InterruptedException {
 		Process compileProcess = null;
 		long result = 0L;
 		// WORK classpath should depend on the compiler, not on the default runtime
@@ -384,9 +387,11 @@ static class JavacCompiler {
 			cmdLine.append(this.classpath);
 			cmdLine.append(". ");
 			cmdLine.append(options);
-			for (int i = 0; i < sourceFileNames.length; i ++) {
-				cmdLine.append(' ');
-				cmdLine.append(sourceFileNames[i]);
+			if (extendCommandLine) {
+				for (int i = 0; i < sourceFileNames.length; i ++) {
+					cmdLine.append(' ');
+					cmdLine.append(sourceFileNames[i]);
+				}
 			}
 			String cmdLineAsString;
 			// WORK improve double-quotes management on Linux
@@ -477,7 +482,7 @@ protected static class JavacTestOptions {
 	};
 	@java.lang.SuppressWarnings("synthetic-access")
 	static JavacTestOptions forRelease(String release) {
-		JavacTestOptions options = new JavacTestOptions();
+		JavacTestOptions options = new JavacTestOptions(Long.parseLong(release));
 		if (isJRE9Plus)
 			options.setCompilerOptions("-release "+release);
 		else
@@ -499,11 +504,15 @@ protected static class JavacTestOptions {
 			return true;
 		}
 	};
+	long minJavacCompliance = 0;
 	private String compilerOptions = "";
 	public JavacTestOptions() {
 	}
 	public JavacTestOptions(String compilerOptions) {
 		this.compilerOptions = compilerOptions;
+	}
+	public JavacTestOptions(long compliance) {
+		this.minJavacCompliance = compliance;
 	}
 	String getCompilerOptions() {
 		return this.compilerOptions;
@@ -512,6 +521,8 @@ protected static class JavacTestOptions {
 		this.compilerOptions = options;
 	}
 	boolean skip(JavacCompiler compiler) {
+		if (this.minJavacCompliance > 0)
+			return compiler.compliance < this.minJavacCompliance;
 		return false;
 	}
 	static class MismatchType {
@@ -527,6 +538,7 @@ protected static class JavacTestOptions {
 		static final int JavacNotLaunched = 0x0200;
 		static final int JavaAborted = 0x0400;
 		static final int JavaNotLaunched = 0x0800;
+		static final int CompileErrorMismatch = 0x1000;
 	}
 	public static class Excuse extends JavacTestOptions {
 		protected int mismatchType;
@@ -840,7 +852,9 @@ protected static class JavacTestOptions {
 			JavacBug8033810 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8033810
 				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null,
 			JavacBug8144673 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8144673
-				new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0100) : null;
+				new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0100) : null,
+			javacBug8204534 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8204534
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ((long)54)<<16, 0000) : null; // FIXME: use JDK11
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -2223,62 +2237,71 @@ protected void runJavac(
 				e.printStackTrace();
 				mismatch = JavacTestOptions.MismatchType.JavaNotLaunched;
 			}
-			if (mismatch != 0) {
-				if (excuse != null && excuse.clears(mismatch)) {
-					excuse = null;
-				} else {
-					System.err.println("----------------------------------------");
-					logTestFiles(true, testFiles);
-					switch (mismatch) {
-						case JavacTestOptions.MismatchType.EclipseErrorsJavacNone:
-							assertEquals(testName + " - Eclipse found error(s) but Javac did not find any",
-									"", expectedCompilerLog.toString());
-							break;
-						case JavacTestOptions.MismatchType.EclipseErrorsJavacWarnings:
-							assertEquals(testName + " - Eclipse found error(s) but Javac only found warning(s)",
-									expectedCompilerLog.toString(),	compilerLog.toString());
-							break;
-						case JavacTestOptions.MismatchType.JavacErrorsEclipseNone:
-							assertEquals(testName + " - Javac found error(s) but Eclipse did not find any",
-									"", compilerLog.toString());
-							break;
-						case JavacTestOptions.MismatchType.JavacErrorsEclipseWarnings:
-							assertEquals(testName + " - Javac found error(s) but Eclipse only found warning(s)",
-									expectedCompilerLog.toString(),	compilerLog.toString());
-							break;
-						case JavacTestOptions.MismatchType.EclipseWarningsJavacNone:
-							assertEquals(testName + " - Eclipse found warning(s) but Javac did not find any",
-									"", expectedCompilerLog.toString());
-							break;
-						case JavacTestOptions.MismatchType.JavacWarningsEclipseNone:
-							assertEquals(testName + " - Javac found warning(s) but Eclipse did not find any",
-									"", compilerLog.toString());
-							break;
-						case JavacTestOptions.MismatchType.StandardOutputMismatch:
-							assertEquals(testName + " - Eclipse/Javac standard output mismatch",
-									expectedOutputString, output);
-							break;
-						case JavacTestOptions.MismatchType.ErrorOutputMismatch:
-							assertEquals(testName + " - Eclipse/Javac standard error mismatch",
-									expectedErrorString, err);
-							break;
-						case JavacTestOptions.MismatchType.JavacAborted:
-						case JavacTestOptions.MismatchType.JavacNotLaunched:
-							fail(testName + " - Javac failure");
-							break;
-						case JavacTestOptions.MismatchType.JavaAborted:
-						case JavacTestOptions.MismatchType.JavaNotLaunched:
-							fail(testName + " - Java failure");
-							break;
-						default:
-							throw new RuntimeException("unexpected mismatch value: " + mismatch);
-					}
-				}
-			}
-			if (excuse != null) {
-				fail(testName + ": unused excuse " + excuse + " for compiler " + compiler);
+			handleMismatch(compiler, testName, testFiles, expectedCompilerLog, expectedOutputString,
+					expectedErrorString, compilerLog, output, err, excuse, mismatch);
+		}
+	}
+}
+void handleMismatch(JavacCompiler compiler, String testName, String[] testFiles, String expectedCompilerLog,
+		String expectedOutputString, String expectedErrorString, StringBuffer compilerLog, String output, String err,
+		JavacTestOptions.Excuse excuse, int mismatch) {
+	if (mismatch != 0) {
+		if (excuse != null && excuse.clears(mismatch)) {
+			excuse = null;
+		} else {
+			System.err.println("----------------------------------------");
+			logTestFiles(true, testFiles);
+			switch (mismatch) {
+				case JavacTestOptions.MismatchType.EclipseErrorsJavacNone:
+					assertEquals(testName + " - Eclipse found error(s) but Javac did not find any",
+							"", expectedCompilerLog.toString());
+					break;
+				case JavacTestOptions.MismatchType.EclipseErrorsJavacWarnings:
+					assertEquals(testName + " - Eclipse found error(s) but Javac only found warning(s)",
+							expectedCompilerLog.toString(),	compilerLog.toString());
+					break;
+				case JavacTestOptions.MismatchType.JavacErrorsEclipseNone:
+					assertEquals(testName + " - Javac found error(s) but Eclipse did not find any",
+							"", compilerLog.toString());
+					break;
+				case JavacTestOptions.MismatchType.JavacErrorsEclipseWarnings:
+					assertEquals(testName + " - Javac found error(s) but Eclipse only found warning(s)",
+							expectedCompilerLog.toString(),	compilerLog.toString());
+					break;
+				case JavacTestOptions.MismatchType.EclipseWarningsJavacNone:
+					assertEquals(testName + " - Eclipse found warning(s) but Javac did not find any",
+							"", expectedCompilerLog.toString());
+					break;
+				case JavacTestOptions.MismatchType.JavacWarningsEclipseNone:
+					assertEquals(testName + " - Javac found warning(s) but Eclipse did not find any",
+							"", compilerLog.toString());
+					break;
+				case JavacTestOptions.MismatchType.StandardOutputMismatch:
+					assertEquals(testName + " - Eclipse/Javac standard output mismatch",
+							expectedOutputString, output);
+					break;
+				case JavacTestOptions.MismatchType.ErrorOutputMismatch:
+					assertEquals(testName + " - Eclipse/Javac standard error mismatch",
+							expectedErrorString, err);
+					break;
+				case JavacTestOptions.MismatchType.JavacAborted:
+				case JavacTestOptions.MismatchType.JavacNotLaunched:
+					fail(testName + " - Javac failure");
+					break;
+				case JavacTestOptions.MismatchType.JavaAborted:
+				case JavacTestOptions.MismatchType.JavaNotLaunched:
+					fail(testName + " - Java failure");
+					break;
+				case JavacTestOptions.MismatchType.CompileErrorMismatch:
+					fail(testName + " Javac failure did not match \"" + expectedCompilerLog +'\"');
+					break;
+				default:
+					throw new RuntimeException("unexpected mismatch value: " + mismatch);
 			}
 		}
+	}
+	if (excuse != null) {
+		fail(testName + ": unused excuse " + excuse + " for compiler " + compiler);
 	}
 }
 

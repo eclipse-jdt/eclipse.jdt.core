@@ -79,6 +79,24 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		}
 	}
 	
+	class Runner extends AbstractRegressionTest.Runner {
+		StringBuffer commandLine = new StringBuffer();
+		String outputDir = OUTPUT_DIR + File.separator + "javac";
+		List<String> additionalFileNames = new ArrayList<>();
+
+		void addOutputRelativeSourceFile(String fileName) {
+			this.additionalFileNames.add(OUTPUT_DIR + File.separatorChar + (fileName.replace('/', File.separatorChar)));
+		}
+		Set<String> runConformModuleTest() {
+			for (String fileName : this.additionalFileNames) {
+				this.commandLine.append(" \"").append(fileName).append("\"");
+			}
+			return ModuleCompilationTests.this.runConformModuleTest(this.testFiles, this.commandLine.toString(),
+					this.expectedOutputString, this.expectedErrorString,
+					this.shouldFlushOutputDirectory, this.outputDir, this.javacTestOptions);
+		}
+	}
+
 	void runConformModuleTest(List<String> testFileNames, StringBuffer commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory)
@@ -94,19 +112,21 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		for (String file : testFileNames)
 			commandLine.append(" \"").append(file).append("\"");
 		runConformModuleTest(new String[0], commandLine.toString(),
-				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, output);
+				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory,
+				output, JavacTestOptions.DEFAULT);
 	}
 
 	Set<String> runConformModuleTest(String[] testFiles, String commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory)
 	{
-		return runConformModuleTest(testFiles, commandLine, expectedFailureErrOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, OUTPUT_DIR);
+		return runConformModuleTest(testFiles, commandLine, expectedFailureErrOutputString, expectedFailureErrOutputString,
+				shouldFlushOutputDirectory, OUTPUT_DIR, JavacTestOptions.DEFAULT);
 	}
 
 	Set<String> runConformModuleTest(String[] testFiles, String commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
-			boolean shouldFlushOutputDirectory, String output)
+			boolean shouldFlushOutputDirectory, String output, JavacTestOptions options)
 	{
 		this.runConformTest(testFiles, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory);
 		if (RUN_JAVAC) {
@@ -121,6 +141,10 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				JavacCompiler javacCompiler = (JavacCompiler) comp;
 				if (javacCompiler.compliance < ClassFileConstants.JDK9)
 					continue;
+				if (options.skip(javacCompiler)) {
+					System.err.println("Skip testing javac in "+testName());
+					continue;
+				}
 				commandLine = adjustForJavac(commandLine);
 				StringBuffer log = new StringBuffer();
 				try {
@@ -128,7 +152,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 											outputDir, /* directory */
 											commandLine /* options */,
 											testFileNames /* source file names */,
-											log);
+											log,
+											false); // don't repeat filenames on the command line
 					if (compileResult != 0) {
 						System.err.println("Previous error was from "+testName());
 						fail("Unexpected error from javac");
@@ -158,21 +183,29 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory, String javacErrorMatch, String output)
 	{
+		runNegativeModuleTest(testFileNames, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString,
+				shouldFlushOutputDirectory, javacErrorMatch, output, JavacTestOptions.DEFAULT);
+	}
+	void runNegativeModuleTest(List<String> testFileNames, StringBuffer commandLine,
+			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
+			boolean shouldFlushOutputDirectory, String javacErrorMatch, String output, JavacTestOptions options)
+	{
 		for (String file : testFileNames)
 			commandLine.append(" \"").append(file).append("\"");
 		runNegativeModuleTest(new String[0], commandLine.toString(),
-				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, javacErrorMatch, output);
+				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, javacErrorMatch, output,
+				options);
 	}
 	void runNegativeModuleTest(String[] testFiles, String commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory, String javacErrorMatch) {
 		runNegativeModuleTest(testFiles, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString,
-				shouldFlushOutputDirectory, javacErrorMatch, OUTPUT_DIR);
+				shouldFlushOutputDirectory, javacErrorMatch, OUTPUT_DIR, JavacTestOptions.DEFAULT);
 	}
 
 	void runNegativeModuleTest(String[] testFiles, String commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
-			boolean shouldFlushOutputDirectory, String javacErrorMatch, String output)
+			boolean shouldFlushOutputDirectory, String javacErrorMatch, String output, JavacTestOptions options)
 	{
 		this.runNegativeTest(testFiles, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory);
 		if (RUN_JAVAC) {
@@ -187,8 +220,11 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				JavacCompiler javacCompiler = (JavacCompiler) comp;
 				if (javacCompiler.compliance < ClassFileConstants.JDK9)
 					continue;
+				JavacTestOptions.Excuse excuse = options.excuseFor(javacCompiler);
+
 				commandLine = adjustForJavac(commandLine);
 				StringBuffer log = new StringBuffer();
+				int mismatch = 0;
 				try {
 					long compileResult = javacCompiler.compile(
 											outputDir, /* directory */
@@ -196,17 +232,20 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 											testFileNames /* source file names */,
 											log);
 					if (compileResult == 0) {
+						mismatch = JavacTestOptions.MismatchType.EclipseErrorsJavacNone;
+						javacErrorMatch = expectedFailureErrOutputString;
 						System.err.println("Previous error was from "+testName());
-						fail(testName()+": Unexpected success from javac");
-					}
-					if (!log.toString().contains(javacErrorMatch)) {
+					} else if (!log.toString().contains(javacErrorMatch)) {
+						mismatch = JavacTestOptions.MismatchType.CompileErrorMismatch;
 						System.err.println(testName()+": Error match " + javacErrorMatch + " not found in \n"+log.toString());
-						fail("Expected error match not found: "+javacErrorMatch);
 					}
 				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
 					throw new AssertionFailedError(e.getMessage());
 				}
+				handleMismatch(javacCompiler, testName(), testFiles, javacErrorMatch,
+						"", "", log, "", "",
+						excuse, mismatch);
 				final Set<String> expectedFiles = new HashSet<>(outFiles);
 				walkOutFiles(output, expectedFiles, false);
 				for (String missingFile : expectedFiles)
@@ -1299,7 +1338,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"1 problem (1 error)\n",
 				false,
 				"package s",
-				 OUTPUT_DIR + File.separator + out);
+				 OUTPUT_DIR + File.separator + out,
+				 JavacTestOptions.JavacHasABug.javacBug8204534);
 	}
 	/*
 	 * Unnamed module tries to access a type from an unexported package, fail
@@ -4090,7 +4130,8 @@ public void testBug521362_emptyFile() {
 	        true);
 	}
 	public void testReleaseOption13a() {
-		runConformModuleTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -4102,12 +4143,14 @@ public void testBug521362_emptyFile() {
 				"module mod.one { \n" +
 				"	requires java.base;\n" +
 				"}"
-	        },
-			" --release 10 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
-	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
-	        "",
-	        "",
-	        true);
+	        };
+		runner.commandLine.append(" --release 10");
+		runner.addOutputRelativeSourceFile("module-info.java");
+		runner.addOutputRelativeSourceFile("p/X.java");
+		runner.expectedOutputString = "";
+		runner.expectedErrorString = "";
+		runner.javacTestOptions = new JavacTestOptions(ClassFileConstants.JDK10);
+		runner.runConformModuleTest();
 	}
 	public void testReleaseOption14() {
 		runNegativeModuleTest(
@@ -4154,7 +4197,8 @@ public void testBug521362_emptyFile() {
 	        "",
     		"",
 	        true,
-	        OUTPUT_DIR);
+	        OUTPUT_DIR,
+	        JavacTestOptions.DEFAULT);
 	}
 	// Test from https://bugs.eclipse.org/bugs/show_bug.cgi?id=526997
 	public void testReleaseOption16() {
