@@ -3875,11 +3875,23 @@ public void testBug521362_emptyFile() {
 			.append("\" ")
 			.append(" --module-path " + "\"" + OUTPUT_DIR + File.separator + out + "\" ")
 			.append(" --module-source-path " + "\"" + directory + "\" ");
-		runConformModuleTest(files, 
+		runNegativeModuleTest(files, 
 				buffer,
 				"",
-				"",
-				false);
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/module-info.java (at line 2)\n" + 
+				"	requires mod.one;\n" + 
+				"	^^^^^^^^^^^^^^^^\n" + 
+				"The package x.y.z is accessible from more than one module: mod.one, mod.one.a\n" + 
+				"----------\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/module-info.java (at line 3)\n" + 
+				"	requires mod.one.a;\n" + 
+				"	^^^^^^^^^^^^^^^^^^\n" + 
+				"The package x.y.z is accessible from more than one module: mod.one, mod.one.a\n" + 
+				"----------\n" + 
+				"2 problems (2 errors)\n",
+				false,
+				"module mod.two reads package x.y.z from both mod.one and mod.one.a");
 	}
 	public void testReleaseOption1() throws Exception {
 		this.runConformTest(

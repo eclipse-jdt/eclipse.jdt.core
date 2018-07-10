@@ -165,7 +165,7 @@ public class BinaryModuleBinding extends ModuleBinding {
 		int count = 0;
 		for (int i = 0; i < this.unresolvedExports.length; i++) {
 			IPackageExport export = this.unresolvedExports[i];
-			PackageBinding declaredPackage = getVisiblePackage(CharOperation.splitOn('.', export.name()));
+			PackageBinding declaredPackage = forcedGetExportedPackage(CharOperation.splitOn('.', export.name()));
 			if (declaredPackage != null) {
 				this.exportedPackages[count++] = declaredPackage;
 				if (declaredPackage instanceof SplitPackageBinding)
@@ -174,8 +174,6 @@ public class BinaryModuleBinding extends ModuleBinding {
 					declaredPackage.isExported = Boolean.TRUE;
 					recordExportRestrictions(declaredPackage, export.targets());
 				}
-			} else {
-				// TODO(SHMOD): report incomplete module path?
 			}
 		}
 		if (count < this.exportedPackages.length)
@@ -201,6 +199,23 @@ public class BinaryModuleBinding extends ModuleBinding {
 			System.arraycopy(this.openedPackages, 0, this.openedPackages = new PackageBinding[count], 0, count);
 	}
 	
+	PackageBinding forcedGetExportedPackage(char[][] compoundName) {
+		// when resolving "exports" in a binary module we simply assume the package must exist,
+		// since this has been checked already when compiling that module.
+		PackageBinding binding = getVisiblePackage(compoundName);
+		if (binding != null)
+			return binding;
+		if (compoundName.length > 1) {
+			PackageBinding parent = forcedGetExportedPackage(CharOperation.subarray(compoundName, 0, compoundName.length-1));
+			binding = new PackageBinding(compoundName, parent, this.environment, this);
+			parent.addPackage(binding, this, true);
+			return binding;
+		}
+		binding = new PackageBinding(compoundName[0], this.environment, this);
+		addPackage(binding, true);
+		return binding;
+	}
+
 	@Override
 	public TypeBinding[] getUses() {
 		if (this.uses == null) {
