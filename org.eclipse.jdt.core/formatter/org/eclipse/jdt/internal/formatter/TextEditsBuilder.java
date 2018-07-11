@@ -238,6 +238,10 @@ public class TextEditsBuilder extends TokenTraverser {
 				if (wrapPolicy.wrapMode != WrapMode.BLOCK_INDENT)
 					spaces += token.getIndent() - parentLineStart.getIndent();
 				token = parentLineStart;
+				if (wrapPolicy == token.getWrapPolicy()) {
+					assert wrapPolicy == WrapPolicy.FORCE_FIRST_COLUMN || wrapPolicy == WrapPolicy.DISABLE_WRAP;
+					break;
+				}
 				wrapPolicy = token.getWrapPolicy();
 			}
 		}

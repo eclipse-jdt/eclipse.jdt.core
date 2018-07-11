@@ -12894,4 +12894,28 @@ public void testBug536322() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/536552 - Freeze when formatting Java source code
+ */
+public void testBug536552a() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
+	String source =
+		"// comment\n" + 
+		"class C {\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/536552 - Freeze when formatting Java source code
+ */
+public void testBug536552b() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.never_indent_block_comments_on_first_column = true;
+	String source =
+		"/* comment */\n" + 
+		"class C {\n" + 
+		"}";
+	formatSource(source);
+}
 }
