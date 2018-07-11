@@ -50,7 +50,10 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
@@ -109,6 +112,9 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private ReferenceBinding containerAnnotationType = null;
 
 	public ExternalAnnotationProvider externalAnnotationProvider;
+	
+	private SourceTypeBinding nestHost;
+	public HashSet<SourceTypeBinding> nestMembers;
 	
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
@@ -2622,4 +2628,43 @@ public ModuleBinding module() {
 		return this.prototype.module;
 	return this.module;
 }
+
+public SourceTypeBinding getNestHost() {
+	return this.nestHost;
+}
+
+public void setNestHost(SourceTypeBinding nestHost) {
+	this.nestHost = nestHost;
+}
+
+public boolean isNestmateOf(ReferenceBinding other) {
+	if (!(other instanceof SourceTypeBinding))
+		return false;
+
+	CompilerOptions options = this.scope.compilerOptions();
+	if (options.targetJDK < ClassFileConstants.JDK11 ||
+		options.complianceLevel < ClassFileConstants.JDK11)
+		return false; // default false if level less than 11
+
+	return TypeBinding.equalsEquals(this, other) ||
+			TypeBinding.equalsEquals(this.nestHost == null ? this : this.nestHost, 
+					((SourceTypeBinding) other).getNestHost());
+}
+public void addNestMember(SourceTypeBinding member) {
+	if (this.nestMembers == null) {
+		this.nestMembers = new HashSet<>();
+	}
+	this.nestMembers.add(member);
+}
+public List<String> getNestMembers() {
+	if (this.nestMembers == null)
+		return null;
+	List<String> list = this.nestMembers
+							.stream()
+							.map(s -> new String(s.constantPoolName()))
+							.sorted()
+							.collect(Collectors.toList());
+	return list;
+}
+
 }

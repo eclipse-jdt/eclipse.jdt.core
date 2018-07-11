@@ -1245,6 +1245,7 @@ public void resolve() {
 				reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
 			}
 		}
+		updateNestInfo();
 	} catch (AbortType e) {
 		this.ignoreFurtherInvestigation = true;
 		return;
@@ -1540,6 +1541,20 @@ void updateMaxFieldCount() {
 	}
 }
 
+private SourceTypeBinding findNestHost() {
+	ClassScope classScope = this.scope.enclosingTopMostClassScope();
+	return classScope != null ? classScope.referenceContext.binding : null;
+}
+
+void updateNestInfo() {
+	if (this.binding == null)
+		return;
+	SourceTypeBinding nestHost = findNestHost();
+	if (nestHost != null && !this.binding.equals(nestHost)) {// member
+		this.binding.setNestHost(nestHost);
+		nestHost.addNestMember(this.binding);
+	}
+}
 public boolean isPackageInfo() {
 	return CharOperation.equals(this.name,  TypeConstants.PACKAGE_INFO_NAME);
 }
