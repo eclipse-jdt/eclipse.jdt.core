@@ -854,7 +854,7 @@ protected static class JavacTestOptions {
 			JavacBug8144673 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8144673
 				new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0100) : null,
 			JavacBug8204534 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8204534
-				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ((long)54)<<16, 0000) : null, // FIXME: use JDK11
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ((long)55)<<16, 0000) : null, // FIXME: use JDK11
 			JavacBug8207032 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8207032
 				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null;
 
