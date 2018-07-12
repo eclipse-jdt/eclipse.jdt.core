@@ -4594,6 +4594,12 @@ public void test123() throws Exception {
 			"}\n",
 		},
 		"bar");
+	String nestHost = "";
+	CompilerOptions options = new CompilerOptions(getCompilerOptions());
+	if (options.complianceLevel >= ClassFileConstants.JDK11) {
+		nestHost = "\n" +
+						  "Nest Host: #32 X\n";
+	}
 	// ensure synthetic access method got generated for enclosing field
 	String expectedOutput =
 		"  // Method descriptor #6 ()V\n" +
@@ -4625,6 +4631,7 @@ public void test123() throws Exception {
 			"  Inner classes:\n" +
 			"    [inner class info: #1 X$Z, outer class info: #32 X\n" +
 			"     inner name: #34 Z, accessflags: 8 static]\n" +
+			nestHost +
 			"}";
 
 	File f = new File(OUTPUT_DIR + File.separator + "X$Z.class");

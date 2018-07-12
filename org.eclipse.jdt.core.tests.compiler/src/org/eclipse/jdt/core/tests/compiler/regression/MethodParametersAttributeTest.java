@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
@@ -387,7 +388,15 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				classFileBytes,
 				"\n",
 				ClassFileBytesDisassembler.DETAILED);
-	
+
+		String nestMembers = "";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		if (options.complianceLevel >= ClassFileConstants.JDK11) {
+			nestMembers = "\n" + 
+					"Nest Members:\n" + 
+					"   #20 ParameterNames$1,\n" + 
+					"   #29 ParameterNames$1Local\n";
+		}
 		String expectedOutput =
 				"// Compiled from ParameterNames.java (" + this.versionString + ", super bit)\n" + 
 				"public class ParameterNames {\n" + 
@@ -452,7 +461,8 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				"    [inner class info: #20 ParameterNames$1, outer class info: #0\n" + 
 				"     inner name: #0, accessflags: 0 default],\n" + 
 				"    [inner class info: #29 ParameterNames$1Local, outer class info: #0\n" + 
-				"     inner name: #41 Local, accessflags: 0 default]\n" + 
+				"     inner name: #41 Local, accessflags: 0 default]\n" +
+				nestMembers +
 				"}";
 
 		assertSubstring(actualOutput, expectedOutput);
@@ -474,6 +484,12 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				"\n",
 				ClassFileBytesDisassembler.DETAILED);
 
+		String nestHost = "";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		if (options.complianceLevel >= ClassFileConstants.JDK11) {
+			nestHost = "\n" +
+		               "Nest Host: #36 ParameterNames\n";
+		}
 		String expectedOutput =
 			"// Compiled from ParameterNames.java (" + this.versionString + ", super bit)\n" + 
 			"// Signature: Ljava/lang/Object;Ljava/util/concurrent/Callable<Ljava/lang/String;>;\n" + 
@@ -524,7 +540,8 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 			"  Inner classes:\n" + 
 			"    [inner class info: #1 ParameterNames$1, outer class info: #0\n" + 
 			"     inner name: #0, accessflags: 0 default]\n" + 
-			"  Enclosing Method: #36  #38 ParameterNames.makeInnerWithCapture(Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable;\n" + 
+			"  Enclosing Method: #36  #38 ParameterNames.makeInnerWithCapture(Ljava/lang/String;Ljava/lang/String;)Ljava/util/concurrent/Callable;\n" +
+			nestHost +
 			"}"	;
 
 		assertSubstring(actualOutput, expectedOutput);

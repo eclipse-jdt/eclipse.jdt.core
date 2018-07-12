@@ -1038,6 +1038,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			writeNewLine(buffer, lineSeparator, 0);
 		}
 	
+		INestMembersAttribute nestMembersAttribute = classFileReader.getNestMembersAttribute();
 		IInnerClassesAttribute innerClassesAttribute = classFileReader.getInnerClassesAttribute();
 		IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
 		IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(classFileReader, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
@@ -1167,6 +1168,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			IClassFileAttribute[] attributes = classFileReader.getAttributes();
 			int length = attributes.length;
 			IEnclosingMethodAttribute enclosingMethodAttribute = (IEnclosingMethodAttribute) Util.getAttribute(classFileReader, IAttributeNamesConstants.ENCLOSING_METHOD);
+			INestHostAttribute nestHostAttribute = (INestHostAttribute) Util.getAttribute(classFileReader, IAttributeNamesConstants.NEST_HOST);
 			int remainingAttributesLength = length;
 			if (innerClassesAttribute != null) {
 				remainingAttributesLength--;
@@ -1186,8 +1188,16 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			if (moduleAttribute != null) {
 				remainingAttributesLength--;
 			}
+			if (nestHostAttribute != null) {
+				remainingAttributesLength--;
+			}
+			if (nestMembersAttribute != null) {
+				remainingAttributesLength--;
+			}
 			if (innerClassesAttribute != null
 					|| enclosingMethodAttribute != null
+					|| nestHostAttribute != null
+					|| nestMembersAttribute != null
 					|| bootstrapMethods != null
 					|| moduleAttribute != null
 					|| remainingAttributesLength != 0) {
@@ -1201,6 +1211,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			if (enclosingMethodAttribute != null) {
 				disassemble(enclosingMethodAttribute, buffer, lineSeparator, 0);
+			}
+			if (nestHostAttribute != null) {
+				disassemble(nestHostAttribute, buffer, lineSeparator, 0);
+			}
+			if (nestMembersAttribute != null) {
+				disassemble(nestMembersAttribute, buffer, lineSeparator, 0);
 			}
 			if (bootstrapMethods != null) {
 				disassemble((IBootstrapMethodsAttribute) bootstrapMethods, buffer, lineSeparator, 0, classFileReader.getConstantPool());
@@ -1222,6 +1238,8 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					for (int i = 0; i < length; i++) {
 						IClassFileAttribute attribute = attributes[i];
 						if (attribute != innerClassesAttribute
+								&& attribute != nestHostAttribute
+								&& attribute != nestMembersAttribute
 								&& attribute != sourceAttribute
 								&& attribute != signatureAttribute
 								&& attribute != enclosingMethodAttribute
@@ -1340,6 +1358,43 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		buffer.append(';');		
 	}
 
+	private void disassemble(INestHostAttribute nestHostAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber);
+		writeNewLine(buffer, lineSeparator, tabNumber); // additional line
+		buffer.append(Messages.disassembler_nesthost);
+		buffer
+			.append(Messages.disassembler_constantpoolindex)
+			.append(nestHostAttribute.getNestHostIndex())
+			.append(" ")//$NON-NLS-1$
+			.append(nestHostAttribute.getNestHostName());
+	}
+
+	private void disassemble(INestMembersAttribute nestMembersAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
+		writeNewLine(buffer, lineSeparator, tabNumber);
+		writeNewLine(buffer, lineSeparator, tabNumber); // additional line
+		buffer.append(Messages.disassembler_nestmembers);
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		INestMemberAttributeEntry[] entries = nestMembersAttribute.getNestMemberAttributesEntries();
+		int length = entries.length;
+		int nestMemberIndex;
+		INestMemberAttributeEntry entry;
+		for (int i = 0; i < length; i++) {
+			if (i != 0) {
+				buffer.append(Messages.disassembler_comma);
+				writeNewLine(buffer, lineSeparator, tabNumber + 1);
+			}
+			entry = entries[i];
+			nestMemberIndex = entry.getNestMemberIndex();
+			buffer
+				.append(Messages.disassembler_constantpoolindex)
+				.append(nestMemberIndex);
+			if (nestMemberIndex != 0) {
+				buffer
+					.append(Messages.disassembler_space)
+					.append(entry.getNestMemberName());
+			}
+		}
+	}
 	private void disassemble(IPackageVisibilityInfo iPackageVisibilityInfo, StringBuffer buffer, String lineSeparator,
 			int tabNumber, boolean isExports) {
 		buffer.append(isExports ? "exports" : "opens"); //$NON-NLS-1$ //$NON-NLS-2$

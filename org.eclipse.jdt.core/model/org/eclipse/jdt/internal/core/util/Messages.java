@@ -278,6 +278,8 @@ public final class Messages extends NLS {
 	public static String disassembler_outer_class_info_name;
 	public static String disassembler_inner_name;
 	public static String disassembler_inner_accessflags;
+	public static String disassembler_nesthost;
+	public static String disassembler_nestmembers;
 	public static String disassembler_genericattributeheader;
 	public static String disassembler_signatureattributeheader;
 	public static String disassembler_bootstrapmethodattributesheader;
