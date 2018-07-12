@@ -853,8 +853,10 @@ protected static class JavacTestOptions {
 				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null,
 			JavacBug8144673 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8144673
 				new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0100) : null,
-			javacBug8204534 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8204534
-				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ((long)54)<<16, 0000) : null; // FIXME: use JDK11
+			JavacBug8204534 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8204534
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ((long)54)<<16, 0000) : null, // FIXME: use JDK11
+			JavacBug8207032 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8207032
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug

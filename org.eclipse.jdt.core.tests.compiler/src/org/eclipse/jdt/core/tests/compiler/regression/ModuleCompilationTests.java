@@ -1053,7 +1053,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"1 problem (1 error)\n",
 				false,
 				"cannot be resolved",
-				OUTPUT_DIR + File.separator + out);
+				OUTPUT_DIR + File.separator + out,
+				JavacTestOptions.JavacHasABug.JavacBug8207032);
 	}
 	public void test016() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1339,7 +1340,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				false,
 				"package s",
 				 OUTPUT_DIR + File.separator + out,
-				 JavacTestOptions.JavacHasABug.javacBug8204534);
+				 JavacTestOptions.JavacHasABug.JavacBug8204534);
 	}
 	/*
 	 * Unnamed module tries to access a type from an unexported package, fail
@@ -3439,6 +3440,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			"----------\n" + 
 			"1 problem (1 error)\n",
 			false,
+			"unnamed package is not allowed in named modules",
 			OUTPUT_DIR + File.separator + out);
 	}
 	public void testAutoModule1() throws Exception {
