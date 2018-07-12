@@ -2279,4 +2279,48 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		reconciled = cu.reconcile(getJSL9(), true, null, new NullProgressMonitor());
 		assertNoProblems(reconciled.getProblems());
 	}
+	public void testBug517275() throws Exception {
+		myCreateJavaProject("TestLibs");
+		String lib1Content =
+				"package libs;\n" + 
+				"import java.util.List;\n" +
+				"public abstract class Collections {\n" +
+				"   public static final <T> List<T> emptyList() {\n" + 
+				"		return null;\n" +
+				"	}\n" +
+				"}\n";
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/Collections.java",
+				lib1Content								
+			}, null);
+		createFileInProject("annots/libs", "Collections.eea",
+				"class libs/Collections\n" + 
+				"\n" + 
+				"emptyList\n" + 
+				" <T:Ljava/lang/Object;>()Ljava/util/List<TT;>;\n" + 
+				" <T:Ljava/lang/Object;>()L1java/util/List<T1T;>;\n" + 
+				"\n");
+
+		// type check sources:
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+		ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
+				"package tests;\n" +
+				"import libs.Collections;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+				"\n" + 
+				"@NonNullByDefault\n" + 
+				"public class Test1 {\n" + 
+				"  List<@NonNull String> strings;\n" + 
+				"\n" + 
+				"  public Test1() {\n" + 
+				"    strings = Collections.emptyList();      // <<<<< WARNING\n" + 
+				"  }\n" + 
+				"}\n",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = cu.reconcile(getJSL9(), true, null, new NullProgressMonitor());
+		assertNoProblems(reconciled.getProblems());
+	}
 }
