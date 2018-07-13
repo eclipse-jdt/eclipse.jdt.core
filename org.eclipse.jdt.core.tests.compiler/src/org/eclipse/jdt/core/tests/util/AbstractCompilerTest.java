@@ -53,7 +53,8 @@ public class AbstractCompilerTest extends TestCase {
 	protected long complianceLevel;
 	protected boolean enableAPT = false;
 	protected static boolean isJRE9Plus = false; // Stop gap, so tests need not be run at 9, but some tests can be adjusted for JRE 9
-
+	protected static boolean isJRE11Plus = false;
+	
 	/**
 	 * Build a test suite made of test suites for all possible running VM compliances .
 	 *
@@ -145,6 +146,7 @@ public class AbstractCompilerTest extends TestCase {
          possibleComplianceLevels = complianceLevel;
          int lessthan9 = F_1_3 | F_1_4 | F_1_5 | F_1_6 | F_1_7 | F_1_8;
          isJRE9Plus = !isJRELevel(lessthan9);
+         isJRE11Plus = isJRELevel(F_11);
 	 }
 
 	/**

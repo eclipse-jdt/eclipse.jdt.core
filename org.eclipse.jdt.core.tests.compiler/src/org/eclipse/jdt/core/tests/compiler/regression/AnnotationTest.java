@@ -10267,6 +10267,8 @@ public void testBug365437a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 public void testBug365437b() {
+	if (isJRE11Plus)
+		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
@@ -10855,6 +10857,8 @@ public void _testBug386356_1() {
 // Bug 386356 - Type mismatch error with annotations and generics
 // test case from comment 6
 public void testBug386356_2() {
+	if (isJRE11Plus)
+		return;
 	INameEnvironment save = this.javaClassLib;
 	try {
 		if (isJRE9Plus) {

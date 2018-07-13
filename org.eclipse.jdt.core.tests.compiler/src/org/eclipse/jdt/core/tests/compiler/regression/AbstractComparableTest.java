@@ -66,6 +66,7 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	public static Test buildComparableTestSuite(Class evaluationTestClass) {
 		Test suite = buildMinimalComplianceTestSuite(evaluationTestClass, F_1_5);
 		TESTS_COUNTERS.put(evaluationTestClass.getName(), Integer.valueOf(suite.countTestCases()));
+		 isJRE11Plus = isJRELevel(F_11);
 		return suite;
 	}
 

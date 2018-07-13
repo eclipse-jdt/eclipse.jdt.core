@@ -27568,7 +27568,7 @@ public void test0842() {
 		"1. ERROR in X.java (at line 12)\n" +
 		"	List<? extends String> result2 = merge(list1, list2);\n" +
 		"	                                 ^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from List<Object&Serializable&CharSequence> to List<? extends String>\n" +
+		"Type mismatch: cannot convert from List<Object&Serializable" + (isJRE11Plus ? "&Comparable<?>" : "") + "&CharSequence> to List<? extends String>\n" +
 		"----------\n");
 }
 public void test0843() {
@@ -27594,17 +27594,17 @@ public void test0843() {
 		"1. WARNING in X.java (at line 11)\n" +
 		"	Object result3 = (List<? extends CharSequence>)merge(list1, list2);\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Unnecessary cast from List<Object&Serializable&CharSequence> to List<? extends CharSequence>\n" +
+		"Unnecessary cast from List<Object&Serializable" + (isJRE11Plus ? "&Comparable<?>" : "") + "&CharSequence> to List<? extends CharSequence>\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 12)\n" +
 		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot cast from List<Object&Serializable&CharSequence> to List<? extends String>\n" +
+		"Cannot cast from List<Object&Serializable" + (isJRE11Plus ? "&Comparable<?>" : "") + "&CharSequence> to List<? extends String>\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 12)\n" +
 		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Unnecessary cast from List<Object&Serializable&CharSequence> to List<? extends String>\n" +
+		"Unnecessary cast from List<Object&Serializable" + (isJRE11Plus ? "&Comparable<?>" : "") + "&CharSequence> to List<? extends String>\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=112595
