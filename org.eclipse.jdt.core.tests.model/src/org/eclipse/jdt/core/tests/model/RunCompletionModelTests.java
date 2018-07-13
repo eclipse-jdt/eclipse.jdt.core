@@ -37,6 +37,7 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 			COMPLETION_SUITES.add(CompletionTests18.class);
 			COMPLETION_SUITES.add(CompletionTests9.class);
 			COMPLETION_SUITES.add(CompletionTests10.class);
+			COMPLETION_SUITES.add(CompletionTests11.class);
 			COMPLETION_SUITES.add(CompletionContextTests.class);
 			COMPLETION_SUITES.add(CompletionContextTests_1_5.class);
 			COMPLETION_SUITES.add(CompletionWithMissingTypesTests.class);

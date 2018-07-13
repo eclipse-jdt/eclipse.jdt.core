@@ -18,6 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
+import org.eclipse.jdt.core.tests.model.CompletionTests11;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import junit.framework.Test;
@@ -33,7 +34,7 @@ public class RunAllJava11Tests extends TestCase {
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
 //			JavaSearchBugs11Tests.class,
-//			CompletionTests11.class,
+			CompletionTests11.class,
 		};
 	}
 
