@@ -73,7 +73,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		case Binding.LOCAL : // reading a local variable
 			LocalVariableBinding localBinding;
 			if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) this.binding)) {
-				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
+				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this, currentScope);
 			}
 			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 				localBinding.useFlag = LocalVariableBinding.USED;

@@ -8521,8 +8521,8 @@ public void uninitializedNonNullField(FieldBinding field, ASTNode location) {
 		nodeSourceStart(field, location),
 		nodeSourceEnd(field, location));
 }
-public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode location) {
-	binding.tagBits |= TagBits.NotInitialized;
+public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode location, Scope scope) {
+	binding.markAsUninitializedIn(scope);
 	String[] arguments = new String[] {new String(binding.readableName())};
 	this.handle(
 		methodHasMissingSwitchDefault() ? IProblem.UninitializedLocalVariableHintMissingDefault : IProblem.UninitializedLocalVariable,

@@ -20,6 +20,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
@@ -48,6 +51,8 @@ public class LocalVariableBinding extends VariableBinding {
 	public int initializationCount = 0;
 
 	public FakedTrackingVariable closeTracker; // track closing of instances of type AutoCloseable, maybe null
+
+	public Set<MethodScope> uninitializedInMethod;
 
 	// for synthetic local variables
 	// if declaration slot is not positionned, the variable will not be listed in attribute
@@ -324,5 +329,16 @@ public class LocalVariableBinding extends VariableBinding {
 	public void markReferenced() {
 		// Signal that the name is used - This is for extension in subclasses
 	}
-	
+
+	public boolean isUninitializedIn(Scope scope) {
+		if (this.uninitializedInMethod != null)
+			return this.uninitializedInMethod.contains(scope.methodScope());
+		return false;
+	}
+
+	public void markAsUninitializedIn(Scope scope) {
+		if (this.uninitializedInMethod == null)
+			this.uninitializedInMethod = new HashSet<>();
+		this.uninitializedInMethod.add(scope.methodScope());
+	}
 }

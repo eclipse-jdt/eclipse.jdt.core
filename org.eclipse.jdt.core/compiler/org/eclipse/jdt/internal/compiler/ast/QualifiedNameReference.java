@@ -104,7 +104,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			LocalVariableBinding localBinding;
 			if (!flowInfo
 				.isDefinitelyAssigned(localBinding = (LocalVariableBinding) this.binding)) {
-				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
+				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this, currentScope);
 			}
 			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0)	{
 				localBinding.useFlag = LocalVariableBinding.USED;
@@ -211,7 +211,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		case Binding.LOCAL : // reading a local variable
 			LocalVariableBinding localBinding;
 			if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) this.binding)) {
-				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
+				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this, currentScope);
 			}
 			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 				localBinding.useFlag = LocalVariableBinding.USED;
@@ -876,7 +876,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 	if ((this.bits & ASTNode.RestrictiveFlagMASK) == Binding.LOCAL) {
 		LocalVariableBinding localVariableBinding = (LocalVariableBinding) this.binding;
 		if (localVariableBinding != null) {
-			if ((localVariableBinding.tagBits & TagBits.NotInitialized) != 0) {
+			if (localVariableBinding.isUninitializedIn(currentScope)) {
 				// local was tagged as uninitialized
 				return;
 			}
