@@ -740,9 +740,10 @@ public void test412119a() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
 //Error message for exception parameter not being used.
 public void test412119b() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.ERROR);
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.ERROR);
+	runner.testFiles =
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -771,25 +772,26 @@ public void test412119b() {
 				"		}\n" +
 				"    }\n" +
 				"}\n",
-			},
+			};
+	runner.expectedCompilerLog =
 			"----------\n" +
 			"1. ERROR in p\\X.java (at line 7)\n" +
 			"	} catch(Exception e) {\n" +
 			"	                  ^\n" +
 			"The value of the exception parameter e is not used\n" +
-			"----------\n",
-			null,
-			true,
-			options);
+			"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
 //Multi-catch parameters.
 public void test412119c() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.ERROR);
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.ERROR);
+	runner.testFiles =
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -816,17 +818,17 @@ public void test412119c() {
 				"			throw new RuntimeException(z2);\n" +
 				"		}\n" +
 				"	}\n" +
-				"}\n",
-			},
+				"}\n"
+			};
+	runner.expectedCompilerLog =
 			"----------\n" +
 			"1. ERROR in p\\X.java (at line 16)\n" +
 			"	} catch(Z2|Z1 z) {\n" +
 			"	              ^\n" +
 			"The value of the exception parameter z is not used\n" +
-			"----------\n",
-			null,
-			true,
-			options);
+			"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
 //Suppress Warnings.
