@@ -14387,4 +14387,91 @@ public void testBug536593() {
 			"}\n"
 		});
 }
+public void testBug536978_comment2() {
+	runNegativeTest(
+			new String[] {
+				"SimpleDemo.java",
+				"abstract interface AbstractResult {\n" + 
+				"	public abstract int test();\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class AbstractDemo<Request extends AbstractResult, Response extends AbstractResult> {\n" + 
+				"	protected abstract Response test(Request request);\n" + 
+				"}\n" +
+				"\n" +
+				"interface SimpleResult extends AbstractResult {};\n" +
+				"\n" + 
+				"class Result1 implements SimpleResult {\n" + 
+				"    public int test() { return 1; }\n" + 
+				"}\n" + 
+				"class OtherResult implements AbstractResult {\n" + 
+				"    public int test() { return 2; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class SimpleDemo<Request extends AbstractResult, Response extends AbstractResult> \n" + 
+				"extends AbstractDemo<Request, Response> {\n" + 
+				"\n" + 
+				"    @Override\n" + 
+				"    protected SimpleResult test(AbstractResult request) {\n" + 
+				"        return new Result1();\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static void main(String... args) {\n" + 
+				"        AbstractDemo<OtherResult,OtherResult> demo = new SimpleDemo<>();\n" + 
+				"        OtherResult result = demo.test(new OtherResult());\n" + 
+				"    }\n" + 
+				"\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in SimpleDemo.java (at line 22)\n" + 
+			"	protected SimpleResult test(AbstractResult request) {\n" + 
+			"	          ^^^^^^^^^^^^\n" + 
+			"The return type is incompatible with AbstractDemo<Request,Response>.test(Request)\n" + 
+			"----------\n");
+}
+public void testBug536978_comment5() {
+	runConformTest(
+		new String[] {
+			"SimpleDemo.java",
+			"\n" + 
+			"abstract interface AbstractResult {\n" + 
+			"	public abstract int test();\n" + 
+			"}\n" + 
+			"\n" + 
+			"abstract class AbstractDemo<Request extends AbstractResult, Response extends AbstractResult> {\n" + 
+			"	protected abstract Response test(Request request);\n" + 
+			"\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Result1 implements AbstractResult {\n" + 
+			"	public int test() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class OtherResult implements AbstractResult {\n" + 
+			"	public int test() {\n" + 
+			"		return 2;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class SimpleDemo<Request extends AbstractResult, Response extends AbstractResult> extends AbstractDemo<Request, Response> {\n" + 
+			"	@Override @SuppressWarnings(\"unchecked\")\n" + 
+			"	protected AbstractResult test(AbstractResult request) {\n" + 
+			"		return new Result1();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String... args) {\n" + 
+			"		AbstractDemo<OtherResult, OtherResult> demo = new SimpleDemo<>();\n" +
+			"		try {\n" + 
+			"			OtherResult result = demo.test(new OtherResult());\n" +
+			"		} catch (ClassCastException e) {\n" +
+			"			System.out.println(e.getMessage());\n" + // omit the stack trace for test robustness
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"Result1 cannot be cast to OtherResult");
+}
 }
