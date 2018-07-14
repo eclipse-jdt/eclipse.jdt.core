@@ -29,6 +29,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -982,8 +983,10 @@ protected static class JavacTestOptions {
 	protected void checkClassFile(String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
 		this.checkClassFile("", className, source, expectedOutput, mode);
 	}
-	protected void checkClassFile(String directoryName, String className, String disassembledClassName, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
-		compileAndDeploy(source, directoryName, className);
+	protected void checkClassFile(String directoryName, String className, String disassembledClassName, String source, String expectedOutput,
+			int mode, boolean suppressConsole) throws ClassFormatException, IOException
+	{
+		compileAndDeploy(source, directoryName, className, suppressConsole);
 		try {
 			File directory = new File(EVAL_DIRECTORY, directoryName);
 			if (!directory.exists()) {
@@ -1025,11 +1028,11 @@ protected static class JavacTestOptions {
 	}
 
 	protected void checkClassFile(String directoryName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
-		this.checkClassFile(directoryName, className, className, source, expectedOutput, mode);
+		this.checkClassFile(directoryName, className, className, source, expectedOutput, mode, false);
 	}
 
 	protected ClassFileReader getInternalClassFile(String directoryName, String className, String disassembledClassName, String source) throws ClassFormatException, IOException {
-		compileAndDeploy(source, directoryName, className);
+		compileAndDeploy(source, directoryName, className, false);
 		try {
 			File directory = new File(EVAL_DIRECTORY, directoryName);
 			if (!directory.exists()) {
@@ -1102,7 +1105,7 @@ protected static class JavacTestOptions {
 		}
 	}
 
-	protected void compileAndDeploy(String source, String directoryName, String className) {
+	protected void compileAndDeploy(String source, String directoryName, String className, boolean suppressConsole) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {
 			if (!directory.mkdirs()) {
@@ -1155,7 +1158,17 @@ protected static class JavacTestOptions {
 			.append(Util.getJavaClassLibsAsString())
 			.append(SOURCE_DIRECTORY)
 			.append("\"");
-		BatchCompiler.compile(buffer.toString(), new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
+		OutputStream out = System.out;
+		OutputStream err = System.err;
+		if (suppressConsole) {
+			out = err = new OutputStream() {
+				@Override
+				public void write(int b) {
+					// silently swallow
+				}
+			};
+		}
+		BatchCompiler.compile(buffer.toString(), new PrintWriter(out), new PrintWriter(err), null/*progress*/);
 	}
 
 	/*
