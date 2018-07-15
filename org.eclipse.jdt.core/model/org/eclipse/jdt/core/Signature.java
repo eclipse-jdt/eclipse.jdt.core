@@ -1070,7 +1070,8 @@ public static String createArraySignature(String typeSignature, int arrayCount) 
 
 /**
  * Creates a new type signature from the given type name encoded as a character
- * array. The type name may contain primitive types or array types or parameterized types.
+ * array. The type name may contain primitive types or array types or parameterized types
+ * or represent an intersection type in source code notation using {@code &}.
  * This method is equivalent to
  * <code>createTypeSignature(new String(typeName),isResolved).toCharArray()</code>,
  * although more efficient for callers with character arrays rather than strings.
@@ -1338,6 +1339,7 @@ private static int encodeQualifiedName(char[] typeName, int pos, int length, Str
 		    case '>' :
 		    case '[' :
 		    case ',' :
+		    case '&' :
 		        break nameLoop;
 			case '.' :
 			    buffer.append(C_DOT);
@@ -1488,32 +1490,46 @@ private static int encodeTypeSignature(char[] typeName, int start, boolean isRes
 	    end = -1;
 	}
 	buffer.append(isResolved ? C_RESOLVED : C_UNRESOLVED);
-	while (true) { // loop on qualifiedName[<args>][.qualifiedName[<args>]*
-	    pos = encodeQualifiedName(typeName, pos, length, buffer);
-		checkPos = checkNextChar(typeName, '<', pos, length, true);
-		if (checkPos > 0) {
-			buffer.append(C_GENERIC_START);
-			// Stop gap fix for <>.
-			if ((pos = checkNextChar(typeName, '>', checkPos, length, true)) > 0) {
-				buffer.append(C_GENERIC_END);
-			} else {
-				pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
-				while ((checkPos = checkNextChar(typeName, ',', pos, length, true)) > 0) {
+	while (true) { // loop on type[&type]*
+		while (true) { // loop on qualifiedName[<args>][.qualifiedName[<args>]*
+		    pos = encodeQualifiedName(typeName, pos, length, buffer);
+			checkPos = checkNextChar(typeName, '<', pos, length, true);
+			if (checkPos > 0) {
+				buffer.append(C_GENERIC_START);
+				// Stop gap fix for <>.
+				if ((pos = checkNextChar(typeName, '>', checkPos, length, true)) > 0) {
+					buffer.append(C_GENERIC_END);
+				} else {
 					pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
+					while ((checkPos = checkNextChar(typeName, ',', pos, length, true)) > 0) {
+						pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
+					}
+					pos = checkNextChar(typeName, '>', pos, length, false);
+					buffer.append(C_GENERIC_END);
 				}
-				pos = checkNextChar(typeName, '>', pos, length, false);
-				buffer.append(C_GENERIC_END);
+			}
+			checkPos = checkNextChar(typeName, '.', pos, length, true);
+			if (checkPos > 0) {
+				buffer.append(C_DOT);
+				pos = checkPos;
+			} else {
+				break;
 			}
 		}
-		checkPos = checkNextChar(typeName, '.', pos, length, true);
+		buffer.append(C_NAME_END);
+		checkPos = checkNextChar(typeName, '&', pos, length, true);
 		if (checkPos > 0) {
-			buffer.append(C_DOT);
-			pos = checkPos;
+			if (buffer.charAt(0) != C_UNION) // the constant name is wrong, its value is correct :-X
+				buffer.insert(0, C_UNION);
+			buffer.append(C_COLON);
+			pos = encodeTypeSignature(typeName, checkPos, isResolved, length, buffer);
+			if (pos == length) {
+				break;
+			}
 		} else {
 			break;
 		}
 	}
-	buffer.append(C_NAME_END);
 	if (end > 0) pos = end; // skip array dimension which were preprocessed
     return pos;
 }

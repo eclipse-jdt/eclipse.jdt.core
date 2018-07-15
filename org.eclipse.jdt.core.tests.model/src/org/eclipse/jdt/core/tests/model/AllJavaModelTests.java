@@ -102,6 +102,8 @@ private static Class[] getAllTestClasses() {
 		ResolveTests2.class,
 		ResolveTests_1_5.class,
 		ResolveTests18.class,
+		ResolveTests9.class,
+		ResolveTests10.class,
 		ResolveTests12.class,
 		SelectionJavadocModelTests.class,
 
@@ -216,7 +218,6 @@ private static Class[] getAllTestClasses() {
 		JavaElement8Tests.class,
 
 		Java9ElementTests.class,
-		ResolveTests9.class,
 
 		NullAnnotationModelTests9.class,
 

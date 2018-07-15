@@ -3172,8 +3172,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		String newJclLibString;
 		String newJclSrcString;
 		if (useFullJCL) {
-			newJclLibString = "JCL18_FULL";
-			newJclSrcString = "JCL18_SRC"; // Use the same source
+			if (compliance.equals("10")) {
+				newJclLibString = "JCL10_LIB"; // TODO: have no full variant yet
+				newJclSrcString = "JCL10_SRC";
+			} else {
+				newJclLibString = "JCL18_FULL";
+				newJclSrcString = "JCL18_SRC"; // Use the same source
+			}
 		} else {
 			if (compliance.equals("12")) {
 				newJclLibString = "JCL12_LIB";
@@ -3291,7 +3296,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				setupExternalJCL("jclMin10");
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL10_LIB", "JCL10_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath("9"), getExternalJCLSourcePath("9"), getExternalJCLRootSourcePath()},
+					new IPath[] {getExternalJCLPath("10"), getExternalJCLSourcePath("10"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else if ("11".equals(compliance)) {
