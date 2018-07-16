@@ -51,7 +51,7 @@ static {
 //	TESTS_NUMBERS = new int[] { 50, 51, 52, 53 };
 //	TESTS_RANGE = new int[] { 34, 38 };
 }
-private static final String[] test_series_classic = JEP181NestTest.getTestSeriesClassic();
+private static final String[] source_classic = JEP181NestTest.getTestSeriesClassic();
 
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_11);
@@ -77,12 +77,19 @@ private static String[] getTestSeriesClassic() {
 					"}\n",
 	};
 }
-private void verifyClassFile(String expectedOutput, String classFileName, int mode, boolean positive) throws IOException,
+private void verifyClassFile(String expectedOutput, String classFileName, int mode, boolean positive) throws IOException, ClassFormatException {
+	String result = getClassFileContents(classFileName, mode);
+	verifyOutput(result, expectedOutput, positive);
+}
+private String getClassFileContents( String classFileName, int mode) throws IOException,
 ClassFormatException {
 	File f = new File(OUTPUT_DIR + File.separator + classFileName);
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 	String result = disassembler.disassemble(classFileBytes, "\n", mode);
+	return result;
+}
+private void verifyOutput(String result, String expectedOutput, boolean positive) {
 	int index = result.indexOf(expectedOutput);
 	if (positive) {
 		if (index == -1 || expectedOutput.length() == 0) {
@@ -98,7 +105,6 @@ ClassFormatException {
 		}
 	}
 }
-
 private void verifyClassFile(String expectedOutput, String classFileName, int mode) throws IOException,
 	ClassFormatException {
 	verifyClassFile(expectedOutput, classFileName, mode, true);
@@ -112,7 +118,7 @@ public void testBug535851_001() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 
 	this.runConformTest(
-			JEP181NestTest.test_series_classic,
+			JEP181NestTest.source_classic,
 			"SUCCESS",
 			options
 	);
@@ -131,7 +137,7 @@ public void testBug535851_002() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 
 	this.runConformTest(
-		JEP181NestTest.test_series_classic,
+		JEP181NestTest.source_classic,
 		"SUCCESS",
 		options
 	);
@@ -145,7 +151,7 @@ public void testBug535851_003() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 
 	this.runConformTest(
-		JEP181NestTest.test_series_classic,
+		JEP181NestTest.source_classic,
 		"SUCCESS",
 		options
 	);
@@ -159,7 +165,7 @@ public void testBug535851_004() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 
 	this.runConformTest(
-			JEP181NestTest.test_series_classic,
+			JEP181NestTest.source_classic,
 			"SUCCESS",
 			options
 	);
@@ -339,6 +345,653 @@ public void testBug535851_008() throws Exception {
 
 	expectedPartialOutput = "Nest Host: #22 pack1/X\n";
 	verifyClassFile(expectedPartialOutput, "pack1/X$1Y.class", ClassFileBytesDisassembler.SYSTEM);
+}
+// testing the inner private instance field access from enclosing type
+public void testBug535918_001a() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	public static class Y {\n" +
+					"		private int priv_int = 100;\n" +
+					"		public int pub_int = 200;\n" +
+					"		\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = foo();\n" +
+					"		System.out.println(\"SUCCESS:\" + sum);\n" +
+					"	}\n" +
+					"	public static int foo() {\n" +
+					"		Y y = new Y();\n" +
+					"		int i = y.priv_int;\n" +
+					"		int j = y.pub_int;\n" +
+					"		return i + j;\n" +
+					"	}\n" +
+					"	public void bar() {\n" +
+					"		System.out.println(\"bar\");\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:300",
+			options
+	);
+
+	String expectedPartialOutput =
+		"getfield pack1.X$Y.priv_in";
+	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String unExpectedPartialOutput =
+			"access$";
+		verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+}
+//testing the inner private static field access from enclosing type
+public void testBug535918_001b() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	public static class Y {\n" +
+					"		private static int priv_int = 100;\n" +
+					"		public int pub_int = 200;\n" +
+					"		\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = foo();\n" +
+					"		System.out.println(\"SUCCESS:\" + sum);\n" +
+					"	}\n" +
+					"	public static int foo() {\n" +
+					"		Y y = new Y();\n" +
+					"		int i = y.priv_int;\n" +
+					"		int j = y.pub_int;\n" +
+					"		return i + j;\n" +
+					"	}\n" +
+					"	public void bar() {\n" +
+					"		System.out.println(\"bar\");\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:300",
+			options
+	);
+
+	String expectedPartialOutput = "getstatic pack1.X$Y.priv_int";
+	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	expectedPartialOutput = "Nest Members:\n" + 
+			"   #50 pack1/X$Y\n";
+	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	expectedPartialOutput = "Nest Host: #25 pack1/X\n";
+	verifyClassFile(expectedPartialOutput, "pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String unExpectedPartialOutput = "invokestatic pack1.X$Y.access$";
+	verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	unExpectedPartialOutput = "access$";
+	verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+}
+//testing the nested private field access from enclosing type
+public void testBug535918_001c() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	public static class Y {\n" +
+					"		private int priv_int = 100;\n" +
+					"		public int pub_int = 200;\n" +
+					"		\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = foo();\n" +
+					"		System.out.println(\"SUCCESS:\" + sum);\n" +
+					"	}\n" +
+					"	public static int foo() {\n" +
+					"		Y y = new Y();\n" +
+					"		int i = y.priv_int;\n" +
+					"		int j = y.pub_int;\n" +
+					"		return i + j;\n" +
+					"	}\n" +
+					"	public void bar() {\n" +
+					"		System.out.println(\"bar\");\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:300",
+			options
+	);
+
+	String unExpectedPartialOutput =
+			"access$";
+		verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+}
+//testing the nested private method access from same type (implicit nesting/nest host)
+public void testBug535918_002() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	private int priv_non_static_method() {\n" +
+					"		return 100;\n" +
+					"	}\n" +
+					"	public int pub_non_static_method() {\n" +
+					"		return priv_non_static_method();\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		X x = new X();\n" +
+					"		int result =x.pub_non_static_method();\n" +
+					"		System.out.println(result);\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"100",
+			options
+	);
+
+	String expectedPartialOutput =
+		"invokevirtual pack1.X.priv_non_static_method()";
+	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+
+// sibling access: private static field
+public void testBug535918_003a() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	public static class Y {\n" +
+					"		private static int priv_int = 100;\n" +
+					"	}\n" +
+					"	public static class Z {\n" +
+					"		public static int foo() {\n" +
+					"			int i = Y.priv_int;\n" +
+					"			return i;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = Z.foo();\n" +
+					"		System.out.println(\"SUCCESS:\"+sum);\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:100",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #55 pack1/X$Y,\n" + 
+			"   #17 pack1/X$Z";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #22 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "Nest Host: #26 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "getstatic pack1.X$Y.priv_int", true /* positive */);
+	
+	verifyOutput(XYFile, "access$", false /* positive */);
+	verifyOutput(XZFile, "invokestatic pack1.X$Y.access$0", false /* positive */);
+}
+//sibling access: private instance field
+public void testBug535918_003b() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	public static class Y {\n" +
+					"		private int priv_int = 100;\n" +
+					"	}\n" +
+					"	public static class Z {\n" +
+					"		public static int foo() {\n" +
+					"			Y y = new Y();\n" +
+					"			int i = y.priv_int;\n" +
+					"			return i;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = Z.foo();\n" +
+					"		System.out.println(\"SUCCESS:\"+sum);\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:100",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #55 pack1/X$Y,\n" + 
+			"   #17 pack1/X$Z";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #21 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "Nest Host: #29 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "getfield pack1.X$Y.priv_int", true /* positive */);
+
+	verifyOutput(XYFile, "access$", false /* positive */);
+	verifyOutput(XZFile, "invokestatic pack1.X$Y.access$0", false /* positive */);
+}
+//sibling access: private instance field via Allocation Expression Field reference
+// note: internally this follows a different code path
+public void testBug535918_003c() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	public static class Y {\n" +
+					"		private int priv_int = 100;\n" +
+					"	}\n" +
+					"	public static class Z {\n" +
+					"		public static int foo() {\n" +
+					"			int i = new Y().priv_int;\n" +
+					"			return i;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = Z.foo();\n" +
+					"		System.out.println(\"SUCCESS:\"+sum);\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:100",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #55 pack1/X$Y,\n" + 
+			"   #17 pack1/X$Z";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #21 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "Nest Host: #27 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "getfield pack1.X$Y.priv_int", true /* positive */);
+
+	verifyOutput(XYFile, "access$", false /* positive */);
+	verifyOutput(XZFile, "invokestatic pack1.X$Y.access$0", false /* positive */);
+}
+//sibling and super: private static field access of a super-type is accessed from a sub-type with
+//both super-type and sub-type being nestmates.
+public void testBug535918_003d() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	public static class Y {\n" +
+					"		private static int priv_int = 100;\n" +
+					"	}\n" +
+					"	public static class Z extends Y {\n" +
+					"		public static int foo() {\n" +
+					"			int i = Y.priv_int;\n" +
+					"			return i;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = Z.foo();\n" +
+					"		System.out.println(\"SUCCESS:\"+sum);\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:100",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #55 pack1/X$Y,\n" + 
+			"   #17 pack1/X$Z";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #22 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "Nest Host: #24 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "getstatic pack1.X$Y.priv_int", true /* positive */);
+	
+	verifyOutput(XYFile, "access$", false /* positive */);
+	verifyOutput(XZFile, "invokestatic pack1.X$Y.access$0", false /* positive */);
+}
+//sibling and super: private instance field of a super-type is accessed from a sub-type with
+//both super-type and sub-type being nestmates.
+public void testBug535918_003e() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	public static class Y{\n" +
+					"		private int priv_int = 100;\n" +
+					"	}\n" +
+					"	public static class Z extends Y {\n" +
+					"		public static int foo() {\n" +
+					"			Y y = new Y();\n" +
+					"			int i = y.priv_int;\n" +
+					"			return i;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = Z.foo();\n" +
+					"		System.out.println(\"SUCCESS:\"+sum);\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:100",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #55 pack1/X$Y,\n" + 
+			"   #17 pack1/X$Z";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #21 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "Nest Host: #26 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "getfield pack1.X$Y.priv_int", true /* positive */);
+
+	verifyOutput(XYFile, "access$", false /* positive */);
+	verifyOutput(XZFile, "invokestatic pack1.X$Y.access$0", false /* positive */);
+}
+//sibling and super with super keyword: private instance field of a super-type is accessed from a sub-type 
+// user keyword super with both super-type and sub-type being nestmates.
+public void testBug535918_003f() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	public static class Y{\n" +
+					"		private int priv_int = 100;\n" +
+					"	}\n" +
+					"	public static class Z extends Y {\n" +
+					"		public int foo() {\n" +
+					"			int i = super.priv_int;\n" +
+					"			return i;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = new Z().foo();\n" +
+					"		System.out.println(\"SUCCESS:\"+sum);\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:100",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #56 pack1/X$Y,\n" + 
+			"   #16 pack1/X$Z";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #21 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "Nest Host: #24 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "getfield pack1.X$Y.priv_int", true /* positive */);
+
+	verifyOutput(XYFile, "access$", false /* positive */);
+	verifyOutput(XZFile, "invokestatic pack1.X$Y.access$0", false /* positive */);
+}
+//vanilla field access of enclosing type: private static field of enclosing type accessed in inner type
+public void testBug535918_004a() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	private static int priv_int = 100;\n" +
+					"	public static class Y {\n" +
+					"		public static int foo() {\n" +
+					"			return priv_int;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = Y.foo();\n" +
+					"		System.out.println(\"SUCCESS:\"+sum);\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:100",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #22 pack1/X$Y\n";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #17 pack1/X", true /* positive */);
+	verifyOutput(XYFile, "getstatic pack1.X.priv_int", true /* positive */);
+	
+	verifyOutput(XFile, "access$", false /* positive */);
+	verifyOutput(XFile, "invokestatic pack1.X.access$0()", false /* positive */);
+	
+}
+//vanilla field access of enclosing type: private instance field of enclosing type accessed in inner type
+public void testBug535918_004b() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	private int priv_int = 100;\n" +
+					"	public class Y {\n" +
+					"		public int foo() {\n" +
+					"			return priv_int;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = new X().new Y().foo();\n" +
+					"		System.out.println(\"SUCCESS:\"+sum);\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:100",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #20 pack1/X$Y\n";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #22 pack1/X", true /* positive */);
+	verifyOutput(XYFile, "getfield pack1.X.priv_int", true /* positive */);
+	
+	verifyOutput(XFile, "access$", false /* positive */);
+	verifyOutput(XYFile, "invokestatic pack1.X.access$0()", false /* positive */);
+	
+}
+//testing the nested private method access from enclosing type
+public void _testBug535918_004() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	public static class Y {\n" +
+					"		private int priv_instance_method() {\n" +
+					"			return 100;\n" +
+					"		}\n" +
+					"		public int pub_instance_method() {\n" +
+					"			int pri = priv_instance_method();\n" +
+					"			return 200 + pri;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = foo();\n" +
+					"		System.out.println(\"SUCCESS:\"+sum);\n" +
+					"	}\n" +
+					"	public static int foo() {\n" +
+					"		Y y = new Y();\n" +
+					"		int i = y.priv_instance_method();\n" +
+					"		int j = y.pub_instance_method();\n" +
+					"		return i + j;\n" +
+					"	}\n" +
+					"	public void bar() {\n" +
+					"		System.out.println(\"bar\");\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:400",
+			options
+	);
+
+	String expectedPartialOutput =
+		"invokevirtual pack1.X$Y.priv_instance_method()";
+	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+//negative testing the nested private method access from enclosing type is not via invokespecial
+public void _testBug535918_005() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	public static class Y {\n" +
+					"		private int priv_instance_method() {\n" +
+					"			return 100;\n" +
+					"		}\n" +
+					"		public int pub_instance_method() {\n" +
+					"			int pri = priv_instance_method();\n" +
+					"			return 200 + pri;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = foo();\n" +
+					"		System.out.println(\"SUCCESS:\"+sum);\n" +
+					"	}\n" +
+					"	public static int foo() {\n" +
+					"		Y y = new Y();\n" +
+					"		int i = y.priv_instance_method();\n" +
+					"		int j = y.pub_instance_method();\n" +
+					"		return i + j;\n" +
+					"	}\n" +
+					"	public void bar() {\n" +
+					"		System.out.println(\"bar\");\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:400",
+			options
+	);
+
+	String unExpectedPartialOutput =
+		"invokespecial pack1.X$Y.priv_instance_method()";
+	verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+}
+//negative testing the synthetic method - access - not present in nested class
+public void _testBug535918_006() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	public static class Y {\n" +
+					"		private int priv_instance_method() {\n" +
+					"			return 100;\n" +
+					"		}\n" +
+					"		public int pub_instance_method() {\n" +
+					"			int pri = priv_instance_method();\n" +
+					"			return 200 + pri;\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		int sum = foo();\n" +
+					"		System.out.println(\"SUCCESS:\"+sum);\n" +
+					"	}\n" +
+					"	public static int foo() {\n" +
+					"		Y y = new Y();\n" +
+					"		int i = y.priv_instance_method();\n" +
+					"		int j = y.pub_instance_method();\n" +
+					"		return i + j;\n" +
+					"	}\n" +
+					"	public void bar() {\n" +
+					"		System.out.println(\"bar\");\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"SUCCESS:400",
+			options
+	);
+
+	String unExpectedPartialOutput =
+			"access$";
+		verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public static Class testClass() {
 	return JEP181NestTest.class;

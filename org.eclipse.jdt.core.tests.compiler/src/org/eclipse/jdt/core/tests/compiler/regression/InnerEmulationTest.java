@@ -6803,9 +6803,8 @@ public void test171() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=197271
 public void test172() throws Exception {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",//=======================
+	String[] files = new String[] {
+			"X.java",
 			"public class X {\n" + 
 			"	void a() {}\n" + 
 			"	private static void a(String s) {}\n" + 
@@ -6823,30 +6822,38 @@ public void test172() throws Exception {
 			"			c(null);\n" + 
 			"		}\n" + 
 			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	}\n" + 
 			"}\n",
-		},
-		"----------\n" + 
-		"1. WARNING in X.java (at line 8)\n" + 
-		"	a(null);\n" + 
-		"	^^^^^^^\n" + 
-		"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" + 
-		"----------\n" + 
-		"2. WARNING in X.java (at line 9)\n" + 
-		"	c(null);\n" + 
-		"	^^^^^^^\n" + 
-		"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" + 
-		"----------\n" + 
-		"3. WARNING in X.java (at line 14)\n" + 
-		"	a(null);\n" + 
-		"	^^^^^^^\n" + 
-		"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" + 
-		"----------\n" + 
-		"4. WARNING in X.java (at line 15)\n" + 
-		"	c(null);\n" + 
-		"	^^^^^^^\n" + 
-		"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" + 
-		"----------\n"
-	);
+		};
+	if (this.complianceLevel < ClassFileConstants.JDK11) {
+		this.runNegativeTest(
+				files,
+				"----------\n" + 
+				"1. WARNING in X.java (at line 8)\n" + 
+				"	a(null);\n" + 
+				"	^^^^^^^\n" + 
+				"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 9)\n" + 
+				"	c(null);\n" + 
+				"	^^^^^^^\n" + 
+				"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 14)\n" + 
+				"	a(null);\n" + 
+				"	^^^^^^^\n" + 
+				"Access to enclosing method a(String) from the type X is emulated by a synthetic accessor method\n" + 
+				"----------\n" + 
+				"4. WARNING in X.java (at line 15)\n" + 
+				"	c(null);\n" + 
+				"	^^^^^^^\n" + 
+				"Access to enclosing method c(String) from the type X is emulated by a synthetic accessor method\n" + 
+				"----------\n"
+				);
+	} else {
+		this.runConformTest(files, "");
+	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=308245
 public void test173() throws Exception {

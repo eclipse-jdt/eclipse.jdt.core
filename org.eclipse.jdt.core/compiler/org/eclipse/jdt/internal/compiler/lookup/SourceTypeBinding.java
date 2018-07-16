@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -2646,9 +2650,10 @@ public boolean isNestmateOf(ReferenceBinding other) {
 		options.complianceLevel < ClassFileConstants.JDK11)
 		return false; // default false if level less than 11
 
+	SourceTypeBinding otherHost = ((SourceTypeBinding) other).getNestHost();
 	return TypeBinding.equalsEquals(this, other) ||
 			TypeBinding.equalsEquals(this.nestHost == null ? this : this.nestHost, 
-					((SourceTypeBinding) other).getNestHost());
+					otherHost == null ? other : otherHost);
 }
 public void addNestMember(SourceTypeBinding member) {
 	if (this.nestMembers == null) {
