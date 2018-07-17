@@ -36,6 +36,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNames
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamethis;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamethrows;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameto;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamewhile;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamewith;
 
 import java.util.ArrayList;
@@ -56,6 +57,8 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.CreationReference;
+import org.eclipse.jdt.core.dom.DoStatement;
+import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.ExportsDirective;
@@ -93,6 +96,7 @@ import org.eclipse.jdt.core.dom.UnionType;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
@@ -647,27 +651,10 @@ public class WrapPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(IfStatement node) {
-		Statement thenStatement = node.getThenStatement();
-		Statement elseStatement = node.getElseStatement();
-		if (!(thenStatement instanceof Block)) {
-			boolean keepThenOnSameLine = this.options.keep_then_statement_on_same_line
-					|| (this.options.keep_simple_if_on_one_line && elseStatement == null);
-			if (keepThenOnSameLine) {
-				this.wrapIndexes.add(this.tm.firstIndexIn(thenStatement, -1));
-				this.wrapParentIndex = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
-				this.wrapGroupEnd = this.tm.lastIndexIn(thenStatement, -1);
-				handleWrap(this.options.alignment_for_compact_if, node);
-			}
-		}
-		if (elseStatement != null && !(elseStatement instanceof Block) && !(elseStatement instanceof IfStatement)) {
-			if (this.options.keep_else_statement_on_same_line) {
-				int elseIndex = this.tm.firstIndexIn(elseStatement, -1);
-				this.wrapIndexes.add(elseIndex);
-				this.wrapParentIndex = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
-				this.wrapGroupEnd = this.tm.lastIndexIn(elseStatement, -1);
-				handleWrap(this.options.alignment_for_compact_if, node);
-			}
-		}
+		boolean keepThenOnSameLine = this.options.keep_then_statement_on_same_line
+				|| (this.options.keep_simple_if_on_one_line && node.getElseStatement() == null);
+		if (keepThenOnSameLine)
+			handleSimpleLoop(node.getThenStatement(), this.options.alignment_for_compact_if);
 		return true;
 	}
 
@@ -684,9 +671,60 @@ public class WrapPreparator extends ASTVisitor {
 		if (!this.wrapIndexes.isEmpty()) {
 			this.wrapParentIndex = this.tm.firstIndexIn(node, TokenNameLPAREN);
 			this.wrapGroupEnd = this.tm.firstIndexBefore(node.getBody(), TokenNameRPAREN);
-			handleWrap(this.options.alignment_for_expressions_in_for_loop_header, node);
+			handleWrap(this.options.alignment_for_expressions_in_for_loop_header);
 		}
+		if (this.options.keep_simple_for_body_on_same_line)
+			handleSimpleLoop(node.getBody(), this.options.alignment_for_compact_loop);
 		return true;
+	}
+
+	@Override
+	public boolean visit(EnhancedForStatement node) {
+		if (this.options.keep_simple_for_body_on_same_line)
+			handleSimpleLoop(node.getBody(), this.options.alignment_for_compact_loop);
+		return true;
+	}
+
+	@Override
+	public boolean visit(WhileStatement node) {
+		if (this.options.keep_simple_while_body_on_same_line)
+			handleSimpleLoop(node.getBody(), this.options.alignment_for_compact_loop);
+		return true;
+	}
+
+	private void handleSimpleLoop(Statement body, int wrappingOption) {
+		if (!(body instanceof Block)) {
+			this.wrapIndexes.add(this.tm.firstIndexIn(body, -1));
+			this.wrapParentIndex = this.tm.firstIndexBefore(body, TokenNameRPAREN);
+			this.wrapGroupEnd = this.tm.lastIndexIn(body, -1);
+			handleWrap(wrappingOption, body.getParent());
+
+			body.accept(new ASTVisitor() {
+				@Override
+				public boolean visit(Block node) {
+					forceContinuousWrapping(node, WrapPreparator.this.tm.firstIndexIn(node, -1));
+					return false;
+				}
+			});
+		}
+	}
+
+	@Override
+	public void endVisit(DoStatement node) {
+		if (this.options.keep_simple_do_while_body_on_same_line && !(node.getBody() instanceof Block)) {
+			int whileIndex = this.tm.firstIndexAfter(node.getBody(), TokenNamewhile);
+			this.wrapIndexes.add(whileIndex);
+			this.wrapParentIndex = this.tm.lastIndexIn(node.getBody(), -1);
+			this.wrapGroupEnd = this.tm.lastIndexIn(node, -1);
+
+			int alignment = this.options.alignment_for_compact_loop;
+			for (int i = this.tm.firstIndexIn(node, -1) + 1; i < whileIndex; i++) {
+				Token token = this.tm.get(i);
+				if (token.getLineBreaksBefore() > 0 || token.getLineBreaksAfter() > 0)
+					alignment |= Alignment.M_FORCE;
+			}
+			handleWrap(alignment, node);
+		}
 	}
 
 	@Override
@@ -819,7 +857,7 @@ public class WrapPreparator extends ASTVisitor {
 	 * Makes sure all new lines within given node will have wrap policy so that
 	 * wrap executor will fix their indentation if necessary.
 	 */
-	private void forceContinuousWrapping(ASTNode node, int parentIndex) {
+	void forceContinuousWrapping(ASTNode node, int parentIndex) {
 		int parentIndent = this.tm.get(parentIndex).getIndent();
 		int indentChange = -parentIndent;
 		int lineStart = this.tm.findFirstTokenInLine(parentIndex);
@@ -982,8 +1020,12 @@ public class WrapPreparator extends ASTVisitor {
 			if (!this.options.indent_body_declarations_compare_to_enum_declaration_header)
 				extraIndent--;
 			isAlreadyWrapped = isFirst;
-		} else if (parentNode instanceof IfStatement) {
+		} else if (parentNode instanceof IfStatement || parentNode instanceof ForStatement
+				|| parentNode instanceof EnhancedForStatement || parentNode instanceof WhileStatement) {
 			extraIndent = 1;
+			this.wrapParentIndex = this.tm.firstIndexIn(parentNode, -1); // only if !indoentOnColumn
+		} else if (parentNode instanceof DoStatement) {
+			extraIndent = 0;
 			this.wrapParentIndex = this.tm.firstIndexIn(parentNode, -1); // only if !indoentOnColumn
 		} else if ((wrappingOption & Alignment.M_INDENT_BY_ONE) != 0) {
 			extraIndent = 1;

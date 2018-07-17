@@ -1,2 +1,2 @@
-if (true) ;
+if (true);
 else System.out.println();

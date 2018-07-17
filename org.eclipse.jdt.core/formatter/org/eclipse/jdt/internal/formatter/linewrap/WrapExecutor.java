@@ -652,7 +652,8 @@ public class WrapExecutor {
 		if (policy.indentOnColumn) {
 			wrapIndent = this.tm.getPositionInLine(policy.wrapParentIndex);
 			wrapIndent += this.tm.getLength(wrapParent, wrapIndent);
-			if (wrapParent.isSpaceAfter() || this.tm.get(policy.wrapParentIndex + 1).isSpaceBefore())
+			Token next = this.tm.get(policy.wrapParentIndex + 1);
+			if (wrapParent.isSpaceAfter() || (next.isSpaceBefore() && !next.isComment()))
 				wrapIndent++;
 		}
 		wrapIndent += policy.extraIndent;

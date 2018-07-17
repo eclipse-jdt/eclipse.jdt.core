@@ -14179,4 +14179,84 @@ public void testBug128653i() throws JavaModelException {
 	String input = getCompilationUnit("Formatter", "", "test128653", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test128653", "I_out.java").getSource());
 }
+
+/**
+ * https://bugs.eclipse.org/104910 - [formatter] add "keep simple for/while on one line" option
+ */
+public void testBug104910a() throws JavaModelException {
+	this.formatterPrefs.keep_simple_for_body_on_same_line = true;
+	String input = getCompilationUnit("Formatter", "", "test104910", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test104910", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/104910 - [formatter] add "keep simple for/while on one line" option
+ */
+public void testBug104910b() throws JavaModelException {
+	this.formatterPrefs.keep_simple_while_body_on_same_line = true;
+	String input = getCompilationUnit("Formatter", "", "test104910", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test104910", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/104910 - [formatter] add "keep simple for/while on one line" option
+ */
+public void testBug104910c() throws JavaModelException {
+	this.formatterPrefs.keep_simple_do_while_body_on_same_line = true;
+	String input = getCompilationUnit("Formatter", "", "test104910", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test104910", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/104910 - [formatter] add "keep simple for/while on one line" option
+ */
+public void testBug104910d() throws JavaModelException {
+	this.formatterPrefs.keep_simple_for_body_on_same_line = true;
+	this.formatterPrefs.keep_simple_while_body_on_same_line = true;
+	this.formatterPrefs.keep_simple_do_while_body_on_same_line = true;
+	this.formatterPrefs.keep_simple_if_on_one_line = true;
+	this.formatterPrefs.alignment_for_compact_if = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	this.formatterPrefs.alignment_for_compact_loop = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String input = getCompilationUnit("Formatter", "", "test104910", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test104910", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/104910 - [formatter] add "keep simple for/while on one line" option
+ */
+public void testBug104910e() throws JavaModelException {
+	this.formatterPrefs.keep_simple_for_body_on_same_line = true;
+	this.formatterPrefs.keep_simple_while_body_on_same_line = true;
+	this.formatterPrefs.keep_simple_do_while_body_on_same_line = true;
+	this.formatterPrefs.keep_simple_if_on_one_line = true;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.page_width = 55;
+	String input = getCompilationUnit("Formatter", "", "test104910", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test104910", "E_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/104910 - [formatter] add "keep simple for/while on one line" option
+ */
+public void testBug104910f() throws JavaModelException {
+	this.formatterPrefs.keep_simple_for_body_on_same_line = true;
+	this.formatterPrefs.keep_simple_while_body_on_same_line = true;
+	this.formatterPrefs.keep_simple_do_while_body_on_same_line = true;
+	this.formatterPrefs.keep_simple_if_on_one_line = true;
+	this.formatterPrefs.alignment_for_compact_if = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.alignment_for_compact_loop = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String input = getCompilationUnit("Formatter", "", "test104910", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test104910", "F_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/104910 - [formatter] add "keep simple for/while on one line" option
+ */
+public void testBug104910g() throws JavaModelException {
+	this.formatterPrefs.keep_simple_for_body_on_same_line = true;
+	this.formatterPrefs.keep_simple_while_body_on_same_line = true;
+	this.formatterPrefs.keep_simple_do_while_body_on_same_line = true;
+	this.formatterPrefs.keep_simple_if_on_one_line = true;
+	this.formatterPrefs.alignment_for_compact_if = Alignment.M_NO_ALIGNMENT;
+	this.formatterPrefs.page_width = 40;
+	String input = getCompilationUnit("Formatter", "", "test104910", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test104910", "G_out.java").getSource());
+}
+
 }

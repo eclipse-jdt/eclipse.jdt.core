@@ -180,6 +180,17 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_COMPACT_IF = JavaCore.PLUGIN_ID + ".formatter.alignment_for_compact_if";	 //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option for alignment of compact loops
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_compact_loops"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_ONE_PER_LINE, INDENT_BY_ONE)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.15
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_COMPACT_LOOP = JavaCore.PLUGIN_ID + ".formatter.alignment_for_compact_loops";	 //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option for alignment of conditional expression
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_conditional_expression"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
@@ -3917,6 +3928,43 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_KEEP_THEN_STATEMENT_ON_SAME_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_then_statement_on_same_line";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to keep a simple 'for' loop body on the same line
+	 *     - option id:         "org.eclipse.jdt.core.formatter.keep_simple_for_body_on_same_line"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.15
+	 */
+	public static final String FORMATTER_KEEP_SIMPLE_FOR_BODY_ON_SAME_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_simple_for_body_on_same_line";//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to keep a simple 'while' loop body on the same line
+	 *     - option id:         "org.eclipse.jdt.core.formatter.keep_simple_while_body_on_same_line"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.15
+	 */
+	public static final String FORMATTER_KEEP_SIMPLE_WHILE_BODY_ON_SAME_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_simple_while_body_on_same_line";//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to keep a simple 'do-while' loop body on the same line
+	 *     - option id:         "org.eclipse.jdt.core.formatter.keep_simple_do_while_body_on_same_line"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.15
+	 */
+	public static final String FORMATTER_KEEP_SIMPLE_DO_WHILE_BODY_ON_SAME_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_simple_do_while_body_on_same_line";//$NON-NLS-1$
 
 	/**
 	 * <pre>
