@@ -540,6 +540,20 @@ public TypeBinding getErasureCompatibleType(TypeBinding declaringClass) {
 				}
 			}
 			return this; // only occur if passed null declaringClass for arraylength
+		case Binding.INTERSECTION_TYPE18:
+			ReferenceBinding[] intersectingTypes = ((IntersectionTypeBinding18) this).getIntersectingTypes();
+			ReferenceBinding constantPoolType = intersectingTypes[0];
+			if (constantPoolType.id == TypeIds.T_JavaLangObject && intersectingTypes.length > 1)
+				constantPoolType = intersectingTypes[1];
+			if (constantPoolType.erasure().findSuperTypeOriginatingFrom(declaringClass) != null) {
+				return this; // no need for alternate receiver type
+			}
+			for (ReferenceBinding superBinding : intersectingTypes) {
+				if (superBinding.findSuperTypeOriginatingFrom(declaringClass) != null) {
+					return superBinding.getErasureCompatibleType(declaringClass);
+				}
+			}
+			return this; // should only occur if passed null declaringClass for arraylength
 		default :
 			return this;
 	}

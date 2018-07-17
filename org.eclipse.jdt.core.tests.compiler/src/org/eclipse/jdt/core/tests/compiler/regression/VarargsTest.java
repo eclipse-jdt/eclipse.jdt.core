@@ -2722,7 +2722,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 13)\n" + 
 			"	classes = X.asList2(String.class, Boolean.class);\n" + 
 			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Class<? extends "+intersection("Object","Serializable","Comparable<?>")+"> is created for a varargs parameter\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (test effect of SuppressWarnings (should suppress at declaration site, but not at call site)
@@ -2754,7 +2754,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 14)\n" + 
 			"	classes = X.asList2(String.class, Boolean.class);\n" + 
 			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Class<? extends "+intersection("Object","Serializable","Comparable<?>")+"> is created for a varargs parameter\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346042

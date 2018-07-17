@@ -9408,4 +9408,17 @@ public void testBug508834_comment0() {
 			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
 			"----------\n");
 	}
+	public void testBug537089() {
+		runConformTest(
+			new String[] {
+				"EclipseBug.java",
+				"public class EclipseBug {\n" + 
+				"    public static <T> void foo(T p1, T p2) {}\n" + 
+				"\n" + 
+				"    public void shouldCompile() {\n" + 
+				"        foo(new int[0], new byte[0]);\n" + 
+				"    }\n" + 
+				"}\n"
+			});
+	}
 }

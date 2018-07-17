@@ -4001,7 +4001,18 @@ public abstract class Scope {
 				otherBounds[rank++] = mec;
 			}
 		}
-		TypeBinding intersectionType = environment().createWildcard(null, 0, firstBound, otherBounds, Wildcard.EXTENDS);  // pass common null annotations by synthesized annotation bindings.
+		TypeBinding intersectionType;
+		if (environment().globalOptions.complianceLevel < ClassFileConstants.JDK1_8) {
+			intersectionType = environment().createWildcard(null, 0, firstBound, otherBounds, Wildcard.EXTENDS);
+		} else {
+			// It _should_ be safe to assume only ReferenceBindings at this point, because
+			// - base types are rejected in minimalErasedCandidates
+			// - arrays are peeled, different dims are rejected above ("not all types have same dimension")
+			ReferenceBinding[] intersectingTypes = new ReferenceBinding[otherBounds.length+1];
+			intersectingTypes[0] = (ReferenceBinding) firstBound;
+			System.arraycopy(otherBounds, 0, intersectingTypes, 1, otherBounds.length);
+			intersectionType = environment().createIntersectionType18(intersectingTypes);
+		}
 		return commonDim == 0 ? intersectionType : environment().createArrayType(intersectionType, commonDim);
 	}
 

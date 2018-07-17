@@ -14445,12 +14445,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"3. ERROR in X.java (at line 12)\n" +
 			"	Cloneable s4 = choose(true, Integer.valueOf(1), Float.valueOf(2));\n" +
 			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from Number&Comparable<?> to Cloneable\n" +
+			"Type mismatch: cannot convert from "+intersection("Number","Comparable<?>")+" to Cloneable\n" +
 			"----------\n" +
 			"4. ERROR in X.java (at line 13)\n" +
 			"	Cloneable s5 = choose(true, \"string\", Integer.valueOf(1));\n" +
 			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from Object&Serializable&Comparable<?> to Cloneable\n" +
+			"Type mismatch: cannot convert from "+intersection("Object","Serializable","Comparable<?>")+" to Cloneable\n" +
 			"----------\n");
 	}
 
@@ -19767,7 +19767,7 @@ public void test0617() {
     		"1. ERROR in X.java (at line 9)\n" +
     		"	String s = foo(l1, l2);\n" +
     		"	           ^^^^^^^^^^^\n" +
-    		"Type mismatch: cannot convert from List<capture#2-of ? extends Object&Serializable&Comparable<?>> to String\n" +
+    		"Type mismatch: cannot convert from List<capture#2-of ? extends "+intersection("Object","Serializable","Comparable<?>")+"> to String\n" +
     		"----------\n");
 	}
 	// check capture for conditional operator
@@ -19799,7 +19799,7 @@ public void test0617() {
 	    			"1. ERROR in X.java (at line 10)\n" + 
 	    			"	String s = l1 != null ? foo(l1, l2) : l3;\n" + 
 		    		"	                        ^^^^^^^^^^^\n" +
-		    		"Type mismatch: cannot convert from List<capture#2-of ? extends Number&Comparable<?>> to String\n" +
+		    		"Type mismatch: cannot convert from List<capture#2-of ? extends Number & Comparable<?>> to String\n" +
 	    			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=92556
@@ -24031,7 +24031,7 @@ public void test0746() {
 		"1. ERROR in X.java (at line 3)\n" +
 		"	String s = java.util.Arrays.asList(3, 3.1);\n" +
 		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from List<Number&Comparable<?>> to String\n" +
+		"Type mismatch: cannot convert from List<"+intersection("Number","Comparable<?>")+"> to String\n" +
 		"----------\n",
 		null,
 		true,
@@ -26048,7 +26048,7 @@ public void test0805() {
 		"2. ERROR in X.java (at line 14)\n" +
 		"	String s2 = foo(integers, floats);\n" +
 		"	            ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Number&Comparable<? extends Number&Comparable<?>>[] to String\n" +
+		"Type mismatch: cannot convert from "+intersection("Number","Comparable<? extends "+intersection("Number","Comparable<?>")+">[]")+" to String\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=107079
@@ -27568,7 +27568,7 @@ public void test0842() {
 		"1. ERROR in X.java (at line 12)\n" +
 		"	List<? extends String> result2 = merge(list1, list2);\n" +
 		"	                                 ^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from List<Object&Serializable&CharSequence> to List<? extends String>\n" +
+		"Type mismatch: cannot convert from List<"+intersection("Object","Serializable","CharSequence")+"> to List<? extends String>\n" +
 		"----------\n");
 }
 public void test0843() {
@@ -27594,17 +27594,17 @@ public void test0843() {
 		"1. WARNING in X.java (at line 11)\n" +
 		"	Object result3 = (List<? extends CharSequence>)merge(list1, list2);\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Unnecessary cast from List<Object&Serializable&CharSequence> to List<? extends CharSequence>\n" +
+		"Unnecessary cast from List<"+intersection("Object","Serializable","CharSequence")+"> to List<? extends CharSequence>\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 12)\n" +
 		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Cannot cast from List<Object&Serializable&CharSequence> to List<? extends String>\n" +
+		"Cannot cast from List<"+intersection("Object","Serializable","CharSequence")+"> to List<? extends String>\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 12)\n" +
 		"	Object result4 = (List<? extends String>)merge(list1, list2);\n" +
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Unnecessary cast from List<Object&Serializable&CharSequence> to List<? extends String>\n" +
+		"Unnecessary cast from List<"+intersection("Object","Serializable","CharSequence")+"> to List<? extends String>\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=112595
@@ -29242,7 +29242,7 @@ public void test0892() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	Object oc1 = m1(c2, c3).new C1Member();\n" +
 		"	                            ^^^^^^^^\n" +
-		"X.C1&X.I1.C1Member cannot be resolved to a type\n" +
+		intersection("X.C1","X.I1.C1Member")+" cannot be resolved to a type\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126177
@@ -29606,14 +29606,8 @@ public void test0901() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 6)\n" +
 		"	return foo(i, f);\n" +
-		(this.complianceLevel < ClassFileConstants.JDK1_8
-		?
 		"	       ^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Object&Serializable&Cloneable to Object[]\n"
-		:
-		"	       ^^^\n" +
-		"The method foo(T, T) in the type X is not applicable for the arguments (int[], float[])\n"
-		)+
+		"Type mismatch: cannot convert from "+intersection("Object","Serializable","Cloneable")+" to Object[]\n" +
 		"----------\n",
 		// javac options
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
@@ -32911,7 +32905,7 @@ public void test0985() {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	List<Class<Object>>  lco = Arrays.asList(String.class, Integer.class, Long.class);\n" +
 			"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from List<Class<? extends Object&Serializable&Comparable<?>>> to List<Class<Object>>\n" +
+			"Type mismatch: cannot convert from List<Class<? extends "+intersection("Object","Serializable","Comparable<?>")+">> to List<Class<Object>>\n" +
 			"----------\n",
 			null,
 			true,
@@ -41040,7 +41034,7 @@ public void test1173() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	(b ? x1 : x2).field = x1.field;\n" +
 		"	                      ^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Integer to capture#1-of ? extends Number&Comparable<?>\n" +
+		"Type mismatch: cannot convert from Integer to capture#1-of ? extends "+intersection("Number","Comparable<?>")+"\n" +
 		"----------\n");
 }
 public void test1174() {
@@ -41058,7 +41052,7 @@ public void test1174() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	(b ? x1 : x2).field = (b ? x1 : x2).field;\n" +
 		"	                      ^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from capture#2-of ? extends Number&Comparable<?> to capture#1-of ? extends Number&Comparable<?>\n" +
+		"Type mismatch: cannot convert from capture#2-of ? extends "+intersection("Number","Comparable<?>")+" to capture#1-of ? extends "+intersection("Number","Comparable<?>")+"\n" +
 		"----------\n");
 }
 public void test1175() {
@@ -47011,7 +47005,7 @@ public void test1341() {
 			"1. ERROR in X.java (at line 6)\n" +
 			"	foo((Collection<Number>) Arrays.asList(i, d));\n" +
 			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Cannot cast from List<Number&Comparable<?>> to Collection<Number>\n" +
+			"Cannot cast from List<"+intersection("Number","Comparable<?>")+"> to Collection<Number>\n" +
 			"----------\n",
 			null,
 			true,
@@ -47772,7 +47766,7 @@ public void test1363() {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	int i = getValue(0, s);\n" + 
 			"	        ^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Comparable<capture#1-of ? extends Object&Comparable<?>&Serializable> to int\n" + 
+			"Type mismatch: cannot convert from Comparable<capture#1-of ? extends "+intersection("Object","Comparable<?>","Serializable")+"> to int\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=239225
@@ -50626,7 +50620,7 @@ public void test1441() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	(x1 != null ? x1 : x2).bar(new Object());\n" + 
 			"	                       ^^^\n" + 
-			"The method bar(capture#4-of ? extends Object&Serializable&Comparable<? extends Object&Serializable&Comparable<?>>) in the type X<capture#4-of ? extends Object&Serializable&Comparable<? extends Object&Serializable&Comparable<?>>> is not applicable for the arguments (Object)\n" + 
+			"The method bar(capture#4-of ? extends "+intersection("Object","Serializable","Comparable<? extends "+intersection("Object","Serializable","Comparable<?>")+">")+") in the type X<capture#4-of ? extends "+intersection("Object","Serializable","Comparable<? extends "+intersection("Object","Serializable","Comparable<?>")+">")+"> is not applicable for the arguments (Object)\n" + 
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=221253

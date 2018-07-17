@@ -16,6 +16,8 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 import junit.framework.Test;
+
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -85,5 +87,11 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.WARNING);
 		return options;
+	}
+	
+	protected String intersection(String... types) {
+		if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+			return String.join(" & ", types);
+		return String.join("&", types);
 	}
 }

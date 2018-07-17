@@ -284,6 +284,13 @@ public boolean isCompatibleWith(TypeBinding otherType, Scope captureScope) {
 		case Binding.INTERSECTION_TYPE :
 		    return ((WildcardBinding) otherType).boundCheck(this);
 
+		case Binding.INTERSECTION_TYPE18:
+			for (ReferenceBinding intersecting : ((IntersectionTypeBinding18) otherType).intersectingTypes) {
+				if (!isCompatibleWith(intersecting, captureScope))
+					return false;
+			}
+			return true;
+
 		case Binding.TYPE_PARAMETER :
 			// check compatibility with capture of ? super X
 			if (otherType.isCapture()) {
@@ -325,6 +332,12 @@ public boolean isSubtypeOf(TypeBinding otherType, boolean simulatingBugJDK802652
 			break;
 		case Binding.BASE_TYPE :
 			return false;
+		case Binding.INTERSECTION_TYPE18:
+			for (ReferenceBinding intersecting : ((IntersectionTypeBinding18) otherType).intersectingTypes) {
+				if (!isSubtypeOf(intersecting, simulatingBugJDK8026527))
+					return false;
+			}
+			return true;
 	}
 	switch (otherType.leafComponentType().id) {
 	    case TypeIds.T_JavaLangObject :
