@@ -799,7 +799,10 @@ public class CompilerOptions {
 					return VERSION_10;
 				break;
 			default:
-				return "" + (major - ClassFileConstants.MAJOR_VERSION_0); //$NON-NLS-1$
+				if(major > ClassFileConstants.MAJOR_VERSION_10) {
+					return "" + (major - ClassFileConstants.MAJOR_VERSION_0); //$NON-NLS-1$
+				} 
+				return  Util.EMPTY_STRING; // unknown version
 				
 		}
 		return Util.EMPTY_STRING; // unknown version

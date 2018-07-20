@@ -5935,7 +5935,8 @@ public final class JavaCore extends Plugin {
 	 * @since 3.3
 	 */
 	public static void setComplianceOptions(String compliance, Map options) {
-		int major = (int) (CompilerOptions.versionToJdkLevel(compliance) >>> 16);
+		long jdkLevel = CompilerOptions.versionToJdkLevel(compliance);
+		int major = (int) (jdkLevel >>> 16);
 		switch(major) {
 			case ClassFileConstants.MAJOR_VERSION_1_3:
 				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
@@ -6002,14 +6003,16 @@ public final class JavaCore extends Plugin {
 				options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 				break;
 			default:
-				String version = CompilerOptions.versionFromJdkLevel(major);
-				options.put(JavaCore.COMPILER_COMPLIANCE, version);
-				options.put(JavaCore.COMPILER_SOURCE, version);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, version);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
-				options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+				if(major > ClassFileConstants.MAJOR_VERSION_10) {
+					String version = CompilerOptions.versionFromJdkLevel(jdkLevel);
+					options.put(JavaCore.COMPILER_COMPLIANCE, version);
+					options.put(JavaCore.COMPILER_SOURCE, version);
+					options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, version);
+					options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+					options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
+					options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
+					options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+				}
 				break;
 		}
 	}
