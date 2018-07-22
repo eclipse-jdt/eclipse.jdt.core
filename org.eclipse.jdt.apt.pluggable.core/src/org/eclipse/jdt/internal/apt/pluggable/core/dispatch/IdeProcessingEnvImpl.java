@@ -182,4 +182,7 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 	public boolean isTestCode() {
 		return _isTestCode;
 	}
+	public Compiler getCompiler() {
+		return _compiler;
+	}
 }

@@ -32,6 +32,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.internal.AptCompilationParticipant;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.core.JavaModelException;
@@ -61,8 +62,27 @@ public class IdeFilerImpl implements Filer {
 	@Override
 	public JavaFileObject createClassFile(CharSequence name, Element... originatingElements)
 			throws IOException {
-		//TODO
-		throw new UnsupportedOperationException("Creating class files is not yet implemented"); //$NON-NLS-1$
+		
+		// Pre-emptively check parameters here, rather than later on when the resource is written and closed.
+		if (null == name) {
+			throw new IllegalArgumentException("Name is null");
+		}
+    
+    	IFile file = _env.getAptProject().getGeneratedFileManager(_env.isTestCode()).getIFileForTypeName(name.toString());
+
+    	GeneratedSourceFolderManager gsfm = _env.getAptProject().getGeneratedSourceFolderManager(_env.isTestCode());
+    	IPath path = null;
+    	try {
+			path = gsfm.getBinaryOutputLocation();
+		} catch (JavaModelException e) {
+			Apt6Plugin.log(e, "Failure getting the binary output location"); //$NON-NLS-1$
+			throw new IOException(e);
+		}
+    	file = getFileFromOutputLocation(StandardLocation.CLASS_OUTPUT, "", name + ".class");
+		path = path.append(name.toString());
+		path = new Path(path.toString() + ".class");
+	
+		return new IdeOutputClassFileObject(_env, file, name.toString());
 	}
 
 	/* (non-Javadoc)
