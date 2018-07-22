@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
@@ -454,12 +453,12 @@ private static AccessRuleSet readRestriction(DataInputStream in) throws IOExcept
 	int length = in.readInt();
 	if (length == 0) return null; // no restriction specified
 	AccessRule[] accessRules = new AccessRule[length];
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	for (int i = 0; i < length; i++) {
 		char[] pattern = readName(in);
 		int problemId = in.readInt();
-		accessRules[i] = (AccessRule) JavaCore.newAccessRule(new Path(new String(pattern)), problemId);
+		accessRules[i] = manager.getAccessRuleForProblemId(pattern,problemId);
 	}
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	return new AccessRuleSet(accessRules, in.readByte(), manager.intern(in.readUTF()));
 }
 

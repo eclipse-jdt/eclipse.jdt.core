@@ -3828,7 +3828,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		private IAccessRule loadAccessRule() throws IOException {
 			int problemId = loadInt();
 			IPath pattern = loadPath();
-			return getAccessRule(pattern.toString().toCharArray(), problemId);
+			return getAccessRuleForProblemId(pattern.toString().toCharArray(), problemId);
 		}
 
 		private IAccessRule[] loadAccessRules() throws IOException {
@@ -5645,20 +5645,20 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * @return an access rule
 	 */
 	public IAccessRule getAccessRule(IPath filePattern, int kind) {
-		IAccessRule rule = new ClasspathAccessRule(filePattern, kind);
+		ClasspathAccessRule rule = new ClasspathAccessRule(filePattern, kind);
 		return getFromCache(rule);
 	}
 
 	/**
 	 * Used only for loading rules from disk.
 	 */
-	IAccessRule getAccessRule(char [] filePattern, int kind) {
-		IAccessRule rule = new ClasspathAccessRule(filePattern, kind);
+	public ClasspathAccessRule getAccessRuleForProblemId(char [] filePattern, int problemId) {
+		ClasspathAccessRule rule = new ClasspathAccessRule(filePattern, problemId);
 		return getFromCache(rule);
 	}
 
-	private IAccessRule getFromCache(IAccessRule rule) {
-		IAccessRule cachedRule = this.cache.accessRuleCache.get(rule);
+	private ClasspathAccessRule getFromCache(ClasspathAccessRule rule) {
+		ClasspathAccessRule cachedRule = this.cache.accessRuleCache.get(rule);
 		if (cachedRule != null) {
 			return cachedRule;
 		}
