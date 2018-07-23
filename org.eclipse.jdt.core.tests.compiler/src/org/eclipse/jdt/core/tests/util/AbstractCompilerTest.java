@@ -416,8 +416,11 @@ public class AbstractCompilerTest extends TestCase {
 					System.out.print(CompilerOptions.VERSION_9 + ", ");
 					System.out.print(CompilerOptions.VERSION_10 + ", ");
 					System.out.println(CompilerOptions.VERSION_11);
-					System.out.println("Defaulting to all possible compliances");
 				}
+				if (possibleComplianceLevels == 0) {
+					System.out.println("Defaulting to all possible compliances");
+					possibleComplianceLevels = UNINITIALIZED;
+				}						
 			}
 			if (possibleComplianceLevels == UNINITIALIZED) {
 				if (!RUN_JAVAC) {

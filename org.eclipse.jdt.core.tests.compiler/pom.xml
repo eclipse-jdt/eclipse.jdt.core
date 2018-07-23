@@ -102,7 +102,8 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM</tycho.surefire.argLine>
+			<!-- Overridden in https://ci.eclipse.org/jdt/job/eclipse.jdt.core-run.javac-10/configure  -->
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,10</tycho.surefire.argLine>
 		</properties>
 	</profile>
   </profiles>
