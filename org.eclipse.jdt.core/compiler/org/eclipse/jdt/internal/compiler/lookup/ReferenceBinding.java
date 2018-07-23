@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -1274,6 +1278,23 @@ public final boolean isBinaryBinding() {
 @Override
 public boolean isClass() {
 	return (this.modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation | ClassFileConstants.AccEnum)) == 0;
+}
+
+private static SourceTypeBinding getSourceTypeBinding(ReferenceBinding ref) {
+	if (ref instanceof SourceTypeBinding)
+		return (SourceTypeBinding) ref;
+	if (ref instanceof ParameterizedTypeBinding) {
+		ParameterizedTypeBinding ptb = (ParameterizedTypeBinding) ref;
+		return ptb.type instanceof SourceTypeBinding ? (SourceTypeBinding) ptb.type : null;
+	}
+	return null;
+}
+public  boolean isNestmateOf(ReferenceBinding other) {
+	SourceTypeBinding s1 = getSourceTypeBinding(this);
+	SourceTypeBinding s2 = getSourceTypeBinding(other);
+	if (s1 == null || s2 == null) return false;
+
+	return s1.isNestmateOf(s2);
 }
 
 @Override

@@ -2641,16 +2641,14 @@ public void setNestHost(SourceTypeBinding nestHost) {
 	this.nestHost = nestHost;
 }
 
-public boolean isNestmateOf(ReferenceBinding other) {
-	if (!(other instanceof SourceTypeBinding))
-		return false;
+public boolean isNestmateOf(SourceTypeBinding other) {
 
 	CompilerOptions options = this.scope.compilerOptions();
 	if (options.targetJDK < ClassFileConstants.JDK11 ||
 		options.complianceLevel < ClassFileConstants.JDK11)
 		return false; // default false if level less than 11
 
-	SourceTypeBinding otherHost = ((SourceTypeBinding) other).getNestHost();
+	SourceTypeBinding otherHost = other.getNestHost();
 	return TypeBinding.equalsEquals(this, other) ||
 			TypeBinding.equalsEquals(this.nestHost == null ? this : this.nestHost, 
 					otherHost == null ? other : otherHost);

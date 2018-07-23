@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -19697,6 +19701,40 @@ public void test0617() {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92037
 	public void test0626() {
+		String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+				"----------\n" +
+	    		"1. WARNING in X.java (at line 7)\n" +
+	    		"	private static class B<A> {\n" +
+	    		"	                       ^\n" +
+	    		"The type parameter A is hiding the type X.A\n" +
+	    		"----------\n" +
+	    		"2. ERROR in X.java (at line 21)\n" +
+	    		"	System.out.println(b instanceof C);\n" +
+	    		"	                   ^^^^^^^^^^^^^^\n" +
+	    		"Incompatible conditional operand types X.B<X.A> and X.C\n" +
+	    		"----------\n"
+	    		:
+	    		"----------\n" +
+	    		"1. WARNING in X.java (at line 7)\n" +
+	    		"	private static class B<A> {\n" +
+	    		"	                       ^\n" +
+	    		"The type parameter A is hiding the type X.A\n" +
+	    		"----------\n" +
+	    		"2. WARNING in X.java (at line 11)\n" +
+	    		"	private static class AA extends A {\n" +
+	    		"	                     ^^\n" +
+	    		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
+	    		"----------\n" +
+	    		"3. WARNING in X.java (at line 15)\n" +
+	    		"	private static class C extends B<AA> {\n" +
+	    		"	                     ^\n" +
+	    		"Access to enclosing constructor X.B<A>() is emulated by a synthetic accessor method\n" +
+	    		"----------\n" +
+	    		"4. ERROR in X.java (at line 21)\n" +
+	    		"	System.out.println(b instanceof C);\n" +
+	    		"	                   ^^^^^^^^^^^^^^\n" +
+	    		"Incompatible conditional operand types X.B<X.A> and X.C\n" +
+	    		"----------\n";
 	    this.runNegativeTest(
             new String[] {
                 "X.java",
@@ -19723,28 +19761,7 @@ public void test0617() {
 				"		System.out.println(b instanceof C);\n" +
 				"	}\n" +
 				"}\n",
-            },
-    		"----------\n" +
-    		"1. WARNING in X.java (at line 7)\n" +
-    		"	private static class B<A> {\n" +
-    		"	                       ^\n" +
-    		"The type parameter A is hiding the type X.A\n" +
-    		"----------\n" +
-    		"2. WARNING in X.java (at line 11)\n" +
-    		"	private static class AA extends A {\n" +
-    		"	                     ^^\n" +
-    		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
-    		"----------\n" +
-    		"3. WARNING in X.java (at line 15)\n" +
-    		"	private static class C extends B<AA> {\n" +
-    		"	                     ^\n" +
-    		"Access to enclosing constructor X.B<A>() is emulated by a synthetic accessor method\n" +
-    		"----------\n" +
-    		"4. ERROR in X.java (at line 21)\n" +
-    		"	System.out.println(b instanceof C);\n" +
-    		"	                   ^^^^^^^^^^^^^^\n" +
-    		"Incompatible conditional operand types X.B<X.A> and X.C\n" +
-    		"----------\n");
+            }, errMessage);
 	}
 
 	public void test0627() {
@@ -38075,6 +38092,25 @@ public void _test1097() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961
 public void test1098() {
+	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	class Y extends Zork {}\n" +
+			"	                ^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n"
+			:
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	private class Y<T> extends A {\n" +
+			"	              ^\n" +
+			"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	class Y extends Zork {}\n" +
+			"	                ^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n";		
 	this.runNegativeTest(new String[] {
 			"X.java",
 			"public class X { \n" +
@@ -38087,17 +38123,7 @@ public void test1098() {
 			"}\n" +
 			"class Y extends Zork {}\n"
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
-		"	private class Y<T> extends A {\n" +
-		"	              ^\n" +
-		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
-		"	class Y extends Zork {}\n" +
-		"	                ^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		errMessage);
 }
 public void test1099() {
 	runConformTest(
@@ -38368,7 +38394,9 @@ public void test1107() throws Exception {
 		"    25  invokevirtual java.util.HashMap.get(java.lang.Object) : java.lang.Object [34]\n" +
 		"    28  checkcast java.util.Collection [38]\n" +
 		"    31  aload 4 [call]\n" +
-		"    33  invokespecial X.externLocks(java.util.Collection, java.lang.Object) : java.util.List [40]\n" +
+		"    33  " +
+		(isMinimumCompliant(ClassFileConstants.JDK11) ? "invokevirtual" : "invokespecial") +
+		" X.externLocks(java.util.Collection, java.lang.Object) : java.util.List [40]\n" +
 		"    36  astore 5\n" +
 		"    38  aload_3 [iter]\n" +
 		"    39  invokeinterface java.util.Iterator.hasNext() : boolean [44] [nargs: 1]\n" +
@@ -38999,6 +39027,45 @@ public void test1123() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=182192
 public void test1124() {
+	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+			"----------\n" +
+			"1. WARNING in X.java (at line 13)\n" +
+			"	public static class InnerClassThatShowsBug extends X {\n" +
+			"	                                                   ^\n" +
+			"X is a raw type. References to generic type X<T> should be parameterized\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 15)\n" +
+			"	super(null);\n" +
+			"	^^^^^^^^^^^^\n" +
+			"Type safety: The constructor X(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 19)\n" +
+			"	for (Map.Entry<String, String> entry : myMap().entrySet()) {\n" +
+			"	                                       ^^^^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from element type Object to Map.Entry<String,String>\n" +
+			"----------\n"
+			:
+			"----------\n" +
+			"1. WARNING in X.java (at line 13)\n" +
+			"	public static class InnerClassThatShowsBug extends X {\n" +
+			"	                                                   ^\n" +
+			"X is a raw type. References to generic type X<T> should be parameterized\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 15)\n" +
+			"	super(null);\n" +
+			"	^^^^^^^^^^^^\n" +
+			"Type safety: The constructor X(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 15)\n" +
+			"	super(null);\n" +
+			"	^^^^^^^^^^^^\n" +
+			"Access to enclosing constructor X<T>(T) is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 19)\n" +
+			"	for (Map.Entry<String, String> entry : myMap().entrySet()) {\n" +
+			"	                                       ^^^^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from element type Object to Map.Entry<String,String>\n" +
+			"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -39038,28 +39105,7 @@ public void test1124() {
 			"		return myMap;\n" +
 			"	}\n" +
 			"}", // =================
-		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 13)\n" +
-		"	public static class InnerClassThatShowsBug extends X {\n" +
-		"	                                                   ^\n" +
-		"X is a raw type. References to generic type X<T> should be parameterized\n" +
-		"----------\n" +
-		"2. WARNING in X.java (at line 15)\n" +
-		"	super(null);\n" +
-		"	^^^^^^^^^^^^\n" +
-		"Type safety: The constructor X(Object) belongs to the raw type X. References to generic type X<T> should be parameterized\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 15)\n" +
-		"	super(null);\n" +
-		"	^^^^^^^^^^^^\n" +
-		"Access to enclosing constructor X<T>(T) is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 19)\n" +
-		"	for (Map.Entry<String, String> entry : myMap().entrySet()) {\n" +
-		"	                                       ^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from element type Object to Map.Entry<String,String>\n" +
-		"----------\n");
+		}, errMessage);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=183216
 public void test1125() {
@@ -40656,6 +40702,45 @@ public void test1162() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=203061 - variation
 public void test1163() {
+	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	Object o1 = mObj;\n" +
+			"	            ^^^^\n" +
+			"The blank final field mObj may not have been initialized\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	Object o2 = mObj;\n" +
+			"	            ^^^^\n" +
+			"The blank final field mObj may not have been initialized\n" +
+			"----------\n"
+			:
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	Object o1 = mObj;\n" +
+			"	            ^^^^\n" +
+			"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	Object o1 = mObj;\n" +
+			"	            ^^^^\n" +
+			"The blank final field mObj may not have been initialized\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 7)\n" +
+			"	Object o2 = mObj;\n" +
+			"	            ^^^^\n" +
+			"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 7)\n" +
+			"	Object o2 = mObj;\n" +
+			"	            ^^^^\n" +
+			"The blank final field mObj may not have been initialized\n" +
+			"----------\n" +
+			"5. WARNING in X.java (at line 9)\n" +
+			"	Object o3 = mObj;\n" +
+			"	            ^^^^\n" +
+			"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
+			"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -40675,36 +40760,79 @@ public void test1163() {
 			"	}\n" +
 			"}\n", // =================
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
-		"	Object o1 = mObj;\n" +
-		"	            ^^^^\n" +
-		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	Object o1 = mObj;\n" +
-		"	            ^^^^\n" +
-		"The blank final field mObj may not have been initialized\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 7)\n" +
-		"	Object o2 = mObj;\n" +
-		"	            ^^^^\n" +
-		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 7)\n" +
-		"	Object o2 = mObj;\n" +
-		"	            ^^^^\n" +
-		"The blank final field mObj may not have been initialized\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 9)\n" +
-		"	Object o3 = mObj;\n" +
-		"	            ^^^^\n" +
-		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
-		"----------\n");
+		errMessage);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=203061 - variation
 public void test1164() {
-	this.runNegativeTest(
+	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	Object o1 = mObj;\n" +
+			"	            ^^^^\n" +
+			"The blank final field mObj may not have been initialized\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	mObj = \"1\";\n" +
+			"	^^^^\n" +
+			"The final field X<T>.mObj cannot be assigned\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 8)\n" +
+			"	Object o2 = mObj = \"2\";\n" +
+			"	            ^^^^\n" +
+			"The final field X<T>.mObj cannot be assigned\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 11)\n" +
+			"	mObj = \"3\";\n" +
+			"	^^^^\n" +
+			"The final field X<T>.mObj cannot be assigned\n" +
+			"----------\n"
+			:
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	Object o1 = mObj;\n" +
+			"	            ^^^^\n" +
+			"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	Object o1 = mObj;\n" +
+			"	            ^^^^\n" +
+			"The blank final field mObj may not have been initialized\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 6)\n" +
+			"	mObj = \"1\";\n" +
+			"	^^^^\n" +
+			"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 6)\n" +
+			"	mObj = \"1\";\n" +
+			"	^^^^\n" +
+			"The final field X<T>.mObj cannot be assigned\n" +
+			"----------\n" +
+			"5. WARNING in X.java (at line 8)\n" +
+			"	Object o2 = mObj = \"2\";\n" +
+			"	            ^^^^\n" +
+			"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 8)\n" +
+			"	Object o2 = mObj = \"2\";\n" +
+			"	            ^^^^\n" +
+			"The final field X<T>.mObj cannot be assigned\n" +
+			"----------\n" +
+			"7. WARNING in X.java (at line 10)\n" +
+			"	Object o3 = mObj;\n" +
+			"	            ^^^^\n" +
+			"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"8. WARNING in X.java (at line 11)\n" +
+			"	mObj = \"3\";\n" +
+			"	^^^^\n" +
+			"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"9. ERROR in X.java (at line 11)\n" +
+			"	mObj = \"3\";\n" +
+			"	^^^^\n" +
+			"The final field X<T>.mObj cannot be assigned\n" +
+			"----------\n";	this.runNegativeTest(
 		new String[] {
 			"X.java",
 			"public final class X<T> {\n" +
@@ -40724,53 +40852,7 @@ public void test1164() {
 			"		mObj = \"\";\n" +
 			"	}\n" +
 			"}\n"
-		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
-		"	Object o1 = mObj;\n" +
-		"	            ^^^^\n" +
-		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 5)\n" +
-		"	Object o1 = mObj;\n" +
-		"	            ^^^^\n" +
-		"The blank final field mObj may not have been initialized\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 6)\n" +
-		"	mObj = \"1\";\n" +
-		"	^^^^\n" +
-		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 6)\n" +
-		"	mObj = \"1\";\n" +
-		"	^^^^\n" +
-		"The final field X<T>.mObj cannot be assigned\n" +
-		"----------\n" +
-		"5. WARNING in X.java (at line 8)\n" +
-		"	Object o2 = mObj = \"2\";\n" +
-		"	            ^^^^\n" +
-		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"6. ERROR in X.java (at line 8)\n" +
-		"	Object o2 = mObj = \"2\";\n" +
-		"	            ^^^^\n" +
-		"The final field X<T>.mObj cannot be assigned\n" +
-		"----------\n" +
-		"7. WARNING in X.java (at line 10)\n" +
-		"	Object o3 = mObj;\n" +
-		"	            ^^^^\n" +
-		"Read access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"8. WARNING in X.java (at line 11)\n" +
-		"	mObj = \"3\";\n" +
-		"	^^^^\n" +
-		"Write access to enclosing field X<T>.mObj is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"9. ERROR in X.java (at line 11)\n" +
-		"	mObj = \"3\";\n" +
-		"	^^^^\n" +
-		"The final field X<T>.mObj cannot be assigned\n" +
-		"----------\n");
+		}, errMessage);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=202404 - variation
 public void test1165() {
@@ -42743,12 +42825,13 @@ public void test1216() {
 		"	           ^^^^^^^^^\n" +
 		"The type A.P is not visible\n" +
 		"----------\n" +
+		(isMinimumCompliant(ClassFileConstants.JDK11) ? "" :
 		"----------\n" +
 		"1. WARNING in p\\A.java (at line 18)\n" +
 		"	this.box.set(new P());\n" +
 		"	             ^^^^^^^\n" +
 		"Access to enclosing constructor A.P() is emulated by a synthetic accessor method\n" +
-		"----------\n");
+		"----------\n"));
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=209153 - variation
 public void test1217() {

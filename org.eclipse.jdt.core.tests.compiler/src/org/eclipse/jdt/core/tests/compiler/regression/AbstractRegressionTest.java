@@ -1375,6 +1375,11 @@ protected static class JavacTestOptions {
 		defaultOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.WARNING);
 		return defaultOptions;
 	}
+	protected boolean isMinimumCompliant(long compliance) {
+		Map options = getCompilerOptions();
+		CompilerOptions compOptions = new CompilerOptions(options);
+		return compOptions.complianceLevel >= compliance;
+	}
 
 	protected void enableAllWarningsForIrritants(Map<String, String> options, IrritantSet irritants) {
 		int[] bits = irritants.getBits();

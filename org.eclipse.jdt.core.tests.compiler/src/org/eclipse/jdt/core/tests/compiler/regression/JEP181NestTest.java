@@ -864,8 +864,291 @@ public void testBug535918_004b() throws Exception {
 	verifyOutput(XYFile, "invokestatic pack1.X.access$0()", false /* positive */);
 	
 }
+//nestmate inner constructor call from outer - no synthetic and appropriate call site params
+public void testBug535918_005a() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	class Y {\n" +
+					"		class Z {\n" +
+					"			private Z() {\n" +
+					"			}\n" +
+					"		}\n" +
+					"		Z d;\n" +
+					"		private Y() {\n" +
+					"			this.d = new Z();\n" +
+					"		}\n" +
+					"	}\n" +
+					"	@Override\n" +
+					"	public String toString() {\n" +
+					"		return \"SUCCESS\";\n" +
+					"	}\n" +
+					"  public static void main(String[] argv) {\n" +
+					"    System.out.println(new X());\n" +
+					"  }\n" +
+					"}\n",
+			},
+			"SUCCESS",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYZFile = getClassFileContents("pack1/X$Y$Z.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #38 pack1/X$Y,\n" + 
+			"   #42 pack1/X$Y$Z";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #31 pack1/X", true /* positive */);
+	verifyOutput(XYZFile, "Nest Host: #24 pack1/X", true /* positive */);
+	verifyOutput(XYFile, "invokespecial pack1.X$Y$Z(pack1.X$Y)", true /* positive */); //only one param
+
+	verifyOutput(XYZFile, "synthetic X$Y$Z", false /* positive */);
+	verifyOutput(XYFile, "invokespecial pack1.X$Y$Z(pack1.X$Y, pack1.X$Y$Z)", false /* positive */);
+}
+//nestmate sibling constructor call - no synthetic and appropriate call site params
+public void testBug535918_005b() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	class Z {\n" +
+					"		private Z() {\n" +
+					"		}\n" +
+					"	}\n" +
+					"	class Y {\n" +
+					"		Z d;\n" +
+					"		private Y() {\n" +
+					"			this.d = new Z();\n" +
+					"		}\n" +
+					"	}\n" +
+					"	@Override\n" +
+					"	public String toString() {\n" +
+					"		return \"SUCCESS\";\n" +
+					"	}\n" +
+					"  public static void main(String[] argv) {\n" +
+					"    System.out.println(new X());\n" +
+					"  }\n" +
+					"}\n",
+			},
+			"SUCCESS",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #38 pack1/X$Y,\n" + 
+			"   #41 pack1/X$Z";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #30 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "Nest Host: #22 pack1/X", true /* positive */);
+	verifyOutput(XYFile, "invokespecial pack1.X$Z(pack1.X)", true /* positive */); //only one param
+
+	verifyOutput(XZFile, "synthetic X$Z", false /* positive */);
+	verifyOutput(XYFile, "invokespecial pack1.X$Z(pack1.X$Y, pack1.X$Z)", false /* positive */);
+}
+//nestmate outer constructor call from inner - no synthetic and appropriate call site params
+public void testBug535918_005c() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	class Y {\n" +
+					"		private Y() {\n" +
+					"		}\n" +
+					"		class Z {\n" +
+					"			Y y;\n" +
+					"			private Z() {\n" +
+					"				this.y = new Y();\n" +
+					"			}\n" +
+					"		}\n" +
+					"	}\n" +
+					"	@Override\n" +
+					"	public String toString() {\n" +
+					"		return \"SUCCESS\";\n" +
+					"	}\n" +
+					"  public static void main(String[] argv) {\n" +
+					"    System.out.println(new X());\n" +
+					"  }\n" +
+					"}\n",
+			},
+			"SUCCESS",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYZFile = getClassFileContents("pack1/X$Y$Z.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #38 pack1/X$Y,\n" + 
+			"   #42 pack1/X$Y$Z";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #24 pack1/X", true /* positive */);
+	verifyOutput(XYZFile, "Nest Host: #34 pack1/X", true /* positive */);
+	verifyOutput(XYZFile, "invokespecial pack1.X$Y(pack1.X)", true /* positive */); //only one param
+
+	verifyOutput(XYFile, "synthetic X$Y", false /* positive */);
+	verifyOutput(XYZFile, "invokespecial pack1.X$Y(pack1.X, pack1.X$Y)", false /* positive */);
+}
+//nestmate super call to private constructor from sibling nestmate which is a subtype - no synthetic and appropriate call site params
+public void testBug535918_005d() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"	  private class Y {\n" +
+					"	    private Y() {\n" +
+					"	      super();\n" +
+					"	    }\n" +
+					"	  }\n" +
+					"	  private class Z extends Y {\n" +
+					"	    private Z() {\n" +
+					"	      super();\n" +
+					"	    }\n" +
+					"	  }\n" +
+					"  public static void main(String[] argv) {\n" +
+					"		  System.out.println(\"SUCCESS\");\n" +
+					"	  }\n" +
+					"}\n",
+			},
+			"SUCCESS",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #35 pack1/X$Y,\n" + 
+			"   #38 pack1/X$Z";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #22 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "Nest Host: #21 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "invokespecial pack1.X$Y(pack1.X)", true /* positive */); //only one param
+
+	verifyOutput(XYFile, "synthetic X$Y", false /* positive */);
+	verifyOutput(XZFile, "invokespecial pack1.X$Y(pack1.X, pack1.X$Y)", false /* positive */);
+}
+// nestmate super call to private constructor from sibling nestmate which is a subtype 
+// super is a parameterized type
+public void testBug535918_005e() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"public class X {\n" +
+					"  private static class Y<T> implements AutoCloseable {\n" +
+					"    private Y() {\n" +
+					"      super();\n" +
+					"    }\n" +
+					"    public void close() {\n" +
+					"    }\n" +
+					"  }\n" +
+					"  @SuppressWarnings(\"unused\")\n" +
+					"private static class Z extends Y<Object> {\n" +
+					"    private Z() {\n" +
+					"      super();\n" +
+					"    }\n" +
+					"  }\n" +
+					"  public static void main(String[] args) {\n" +
+					"	  System.out.println(\"SUCCESS\");\n" +
+					"  }\n" +
+					"}\n",
+			},
+			"SUCCESS",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #35 pack1/X$Y,\n" + 
+			"   #38 pack1/X$Z";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(XYFile, "Nest Host: #24 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "Nest Host: #19 pack1/X", true /* positive */);
+	verifyOutput(XZFile, "invokespecial pack1.X$Y()", true /* positive */); //only one param
+
+	verifyOutput(XYFile, "synthetic pack1.X$Y(pack1.X.Y arg0)", false /* positive */);
+	verifyOutput(XZFile, "2  invokespecial pack1.X$Y(pack1.X$Y)", false /* positive */);
+}
+//nestmate constructor reference 
+public void testBug535918_005f() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"interface I {\n" +
+					"  X makeX(int x);\n" +
+					"}\n" +
+					"public class X {\n" +
+					"  void foo() {\n" +
+					"    class Y {\n" +
+					"    	void f() {\n" +
+					"    		I i = X::new;\n" +
+					"    		i.makeX(123456);\n" +
+					"    	}\n" +
+					"    }\n" +
+					"    new Y().f();\n" +
+					"  }\n" +
+					"  private X(int x) {\n" +
+					"    super();\n" +
+					"    System.out.println(\"SUCCESS\");\n" +
+					"  }\n" +
+					"  X() {\n" +
+					"    super();\n" +
+					"  }\n" +
+					"  public static void main(String[] args) {\n" +
+					"    new X().foo();\n" +
+					"  }\n" +
+					"}\n",
+			},
+			"SUCCESS",
+			options
+	);
+
+	String XFile = getClassFileContents("X.class", ClassFileBytesDisassembler.SYSTEM);
+	String X1YFile = getClassFileContents("X$1Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #8 X$1Y\n";
+	verifyOutput(XFile, partialOutput, true /* positive */);
+	verifyOutput(X1YFile, "Nest Host: #33 X", true /* positive */);
+
+	verifyOutput(X1YFile, "synthetic X$Y(pack1.X.Y arg0)", false /* positive */);
+}
 //testing the nested private method access from enclosing type
-public void _testBug535918_004() throws Exception {
+public void testBug535918_005g() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
@@ -908,7 +1191,7 @@ public void _testBug535918_004() throws Exception {
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 //negative testing the nested private method access from enclosing type is not via invokespecial
-public void _testBug535918_005() throws Exception {
+public void testBug535918_005h() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
@@ -951,7 +1234,7 @@ public void _testBug535918_005() throws Exception {
 	verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 }
 //negative testing the synthetic method - access - not present in nested class
-public void _testBug535918_006() throws Exception {
+public void testBug535918_005i() throws Exception {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);

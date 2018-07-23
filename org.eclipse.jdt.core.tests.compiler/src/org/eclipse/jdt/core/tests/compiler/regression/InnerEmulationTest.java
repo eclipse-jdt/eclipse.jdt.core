@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -140,6 +144,25 @@ public void test002() {
  * 1FZ2G7R: use of non static inner class in constuctor
  */
 public void test003() {
+	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+			"----------\n" +
+			"1. ERROR in A.java (at line 8)\n" +
+			"	super(getRunnable(), new B().toString()); \n" +
+			"	                     ^^^^^^^\n" +
+			"No enclosing instance of type A is available due to some intermediate constructor invocation\n" +
+			"----------\n"
+			:
+			"----------\n" +
+			"1. WARNING in A.java (at line 8)\n" +
+			"	super(getRunnable(), new B().toString()); \n" +
+			"	                     ^^^^^^^\n" +
+			"Access to enclosing constructor A.B() is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"2. ERROR in A.java (at line 8)\n" +
+			"	super(getRunnable(), new B().toString()); \n" +
+			"	                     ^^^^^^^\n" +
+			"No enclosing instance of type A is available due to some intermediate constructor invocation\n" +
+			"----------\n";			
 	this.runNegativeTest(
 		new String[] {
 			/* A.java */
@@ -155,17 +178,7 @@ public void test003() {
 			"	} \n" +
 			"} \n"
 		},
-		"----------\n" +
-		"1. WARNING in A.java (at line 8)\n" +
-		"	super(getRunnable(), new B().toString()); \n" +
-		"	                     ^^^^^^^\n" +
-		"Access to enclosing constructor A.B() is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"2. ERROR in A.java (at line 8)\n" +
-		"	super(getRunnable(), new B().toString()); \n" +
-		"	                     ^^^^^^^\n" +
-		"No enclosing instance of type A is available due to some intermediate constructor invocation\n" +
-		"----------\n");
+		errMessage);
 }
 /**
  * 1F995V9: Walkback in innerclass emulation when mixing source and binaries
@@ -1441,6 +1454,25 @@ public void test032() {
  * Missing implementation in the compiler compiling invalid code
  */
 public void test033() {
+	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+			"----------\n" +
+			"1. ERROR in p1\\A2.java (at line 20)\n" +
+			"	(new D.E(null, null, null, new F(get()) {}) {}).execute();	\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
+			"----------\n"
+			:
+			"----------\n" +
+			"1. WARNING in p1\\A2.java (at line 18)\n" +
+			"	private class C extends B {	\n" +
+			"	              ^\n" +
+			"Access to enclosing constructor A2.B() is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"2. ERROR in p1\\A2.java (at line 20)\n" +
+			"	(new D.E(null, null, null, new F(get()) {}) {}).execute();	\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
+			"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			/* A2.java */
@@ -1469,17 +1501,7 @@ public void test033() {
 			"	}	\n"+
 			"}\n"
 		},
-		"----------\n" +
-		"1. WARNING in p1\\A2.java (at line 18)\n" +
-		"	private class C extends B {	\n" +
-		"	              ^\n" +
-		"Access to enclosing constructor A2.B() is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"2. ERROR in p1\\A2.java (at line 20)\n" +
-		"	(new D.E(null, null, null, new F(get()) {}) {}).execute();	\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
-		"----------\n");
+		errMessage);
 }
 /**
  * Missing implementation in the compiler compiling invalid code
@@ -1524,8 +1546,26 @@ public void test034() {
  * Missing implementation in the compiler compiling invalid code
  */
 public void test035() {
-	this.runNegativeTest(
-		new String[] {
+	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+			"----------\n" +
+			"1. ERROR in p1\\A2.java (at line 20)\n" +
+			"	(new D.E(null, null, null, new F(get()) {})).execute();	\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
+			"----------\n"
+			:
+			"----------\n" +
+			"1. WARNING in p1\\A2.java (at line 18)\n" +
+			"	private class C extends B {	\n" +
+			"	              ^\n" +
+			"Access to enclosing constructor A2.B() is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"2. ERROR in p1\\A2.java (at line 20)\n" +
+			"	(new D.E(null, null, null, new F(get()) {})).execute();	\n" +
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
+			"----------\n";			
+	this.runNegativeTest(new String[] {
 			/* A2.java */
 			"p1/A2.java",
 			"package p1;	\n"+
@@ -1550,19 +1590,8 @@ public void test035() {
 			"			(new D.E(null, null, null, new F(get()) {})).execute();	\n"+
 			"		}	\n"+
 			"	}	\n"+
-			"}\n"
-		},
-		"----------\n" +
-		"1. WARNING in p1\\A2.java (at line 18)\n" +
-		"	private class C extends B {	\n" +
-		"	              ^\n" +
-		"Access to enclosing constructor A2.B() is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"2. ERROR in p1\\A2.java (at line 20)\n" +
-		"	(new D.E(null, null, null, new F(get()) {})).execute();	\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"No enclosing instance of type D is accessible. Must qualify the allocation with an enclosing instance of type D (e.g. x.new A() where x is an instance of D).\n" +
-		"----------\n");
+			"}\n"},
+		errMessage);
 }
 /**
  * ClassCastException during inner class emulation
@@ -4829,7 +4858,8 @@ public void test125() throws Exception {
 				"  \n" +
 				"  // Method descriptor #10 (LX;Ljava/lang/String;)V\n" +
 				"  // Stack: 2, Locals: 3\n" +
-				"  X$1Local(X arg0, java.lang.String arg1);\n" +
+				(isMinimumCompliant(ClassFileConstants.JDK11) ? "  private " :"  ") +
+				"X$1Local(X arg0, java.lang.String arg1);\n" +
 				"     0  aload_0 [this]\n" +
 				"     1  aload_1 [arg0]\n" +
 				"     2  putfield X$1Local.this$0 : X [12]\n" +
@@ -4860,7 +4890,11 @@ public void test125() throws Exception {
 				"\n" +
 				"  Inner classes:\n" +
 				"    [inner class info: #1 X$1Local, outer class info: #0\n" +
-				"     inner name: #44 Local, accessflags: 0 default]\n";
+				"     inner name: #44 Local, accessflags: 0 default]\n" +
+				(isMinimumCompliant(ClassFileConstants.JDK11) ? 
+				"  Enclosing Method: #39  #41 X.foo(Ljava/lang/String;)V\n" +
+				"\n" +
+				"Nest Host: #39 X\n" : "");
 
 	File f = new File(OUTPUT_DIR + File.separator + (options.complianceLevel >= ClassFileConstants.JDK1_5 ? "X$1Local.class" : "X$1$Local.class"));
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
@@ -5485,6 +5519,25 @@ public void test138() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961 - variation
 public void test139() {
+	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+			"----------\n" +
+			"1. ERROR in X.java (at line 9)\n" +
+			"	class Y extends Zork {}\n" +
+			"	                ^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n"
+			:
+			"----------\n" +
+			"1. WARNING in X.java (at line 5)\n" +
+			"	private class Y extends A {\n" +
+			"	              ^\n" +
+			"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
+			"	class Y extends Zork {}\n" +
+			"	                ^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -5498,17 +5551,7 @@ public void test139() {
 			"}\n" +
 			"class Y extends Zork {}\n", // =================
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 5)\n" +
-		"	private class Y extends A {\n" +
-		"	              ^\n" +
-		"Access to enclosing constructor X.A() is emulated by a synthetic accessor method\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 9)\n" +
-		"	class Y extends Zork {}\n" +
-		"	                ^^^^\n" +
-		"Zork cannot be resolved to a type\n" +
-		"----------\n");
+		errMessage);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
 public void test140() throws Exception {
@@ -6308,8 +6351,6 @@ public void test156() throws Exception {
 	},
 	"");
 	String expectedOutput =
-		"  // Method descriptor #33 (Lpackage2/C;)V\n" + 
-		"  // Stack: 1, Locals: 1\n" + 
 		"  static synthetic void access$0(package2.C arg0);\n" + 
 		"    0  aload_0 [arg0]\n" + 
 		"    1  invokevirtual package2.C.outerMethod() : void";
