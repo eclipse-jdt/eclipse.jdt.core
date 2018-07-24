@@ -116,6 +116,12 @@ public void tearDownSuite() throws Exception {
 	deleteProject("Reconciler9");
 	super.tearDownSuite();
 }
+private String deprecatedForRemoval(String element) {
+	if (isJRE9)
+		return element + " has been deprecated and marked for removal\n";
+	else
+		return element + " is deprecated\n";
+}
 /*
  * Ensures that the delta is correct when adding an annotation
  */
@@ -314,22 +320,35 @@ public void testTerminalDeprecation1() throws CoreException {
 public void testTerminalDeprecation2() throws CoreException, IOException {
 	try {
 		IJavaProject p1 = createJava9Project("P1");
-		createJar(
-			new String[] {
-				"p/X1.java", 
-				"package p;\n" +
+		String x1Source = "package p;\n" +
 				"@Deprecated(forRemoval=true)\n" +
-				"public class X1 {}",
-				"/P1/src/p/X2.java", 
-				"package p;\n" +
-				"public class X2 {\n" +
-				"   @Deprecated(forRemoval=true)\n" +
-				"	public Object field;\n" +
-				"   @Deprecated(forRemoval=true)\n" +
-				"	public void m() {}\n" +
-				"	@Deprecated public void m2() {}\n" +
-				"}\n"
-			},
+				"public class X1 {}";
+		String x2Source = "package p;\n" +
+			"public class X2 {\n" +
+			"   @Deprecated(forRemoval=true)\n" +
+			"	public Object field;\n" +
+			"   @Deprecated(forRemoval=true)\n" +
+			"	public void m() {}\n" +
+			"	@Deprecated public void m2() {}\n" +
+			"}\n";
+		String[] allJarSources = (isJRE9)
+				? new String[] {
+					"p/X1.java",
+					x1Source,
+					"/P1/src/p/X2.java",
+					x2Source }
+				: new String[] {
+					"java/lang/Deprecated.java",
+					"package java.lang;\n" +
+					"public @interface Deprecated {\n" +
+					"	boolean forRemoval() default false;" +
+					"}\n",
+					"p/X1.java",
+					x1Source,
+					"/P1/src/p/X2.java",
+					x2Source };
+		createJar(
+			allJarSources,
 			p1.getProject().getLocation().append("lib.jar").toOSString(),
 			null,
 			"9");
@@ -350,12 +369,12 @@ public void testTerminalDeprecation2() throws CoreException, IOException {
 			"1. WARNING in /P1/src/Y.java (at line 1)\n" + 
 			"	public class Y extends p.X1 {\n" + 
 			"	                         ^^\n" + 
-			"The type X1 has been deprecated and marked for removal\n" + 
+			deprecatedForRemoval("The type X1") +
 			"----------\n" + 
 			"2. WARNING in /P1/src/Y.java (at line 3)\n" + 
 			"	x2.m();\n" + 
 			"	   ^^^\n" + 
-			"The method m() from the type X2 has been deprecated and marked for removal\n" + 
+			deprecatedForRemoval("The method m() from the type X2") + 
 			"----------\n" + 
 			"3. WARNING in /P1/src/Y.java (at line 4)\n" + 
 			"	x2.m2();\n" + 
@@ -365,7 +384,7 @@ public void testTerminalDeprecation2() throws CoreException, IOException {
 			"4. WARNING in /P1/src/Y.java (at line 5)\n" + 
 			"	return x2.field;\n" + 
 			"	          ^^^^^\n" + 
-			"The field X2.field has been deprecated and marked for removal\n" + 
+			deprecatedForRemoval("The field X2.field") + 
 			"----------\n");
 	} finally {
 		deleteProject("P1");

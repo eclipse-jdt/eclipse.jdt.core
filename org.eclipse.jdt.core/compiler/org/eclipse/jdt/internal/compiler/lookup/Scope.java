@@ -5123,7 +5123,7 @@ public abstract class Scope {
 	}
 
 	public boolean validateNullAnnotation(long tagBits, TypeReference typeRef, Annotation[] annotations) {
-		if (typeRef == null)
+		if (typeRef == null || typeRef.resolvedType == null)
 			return true;
 		TypeBinding type = typeRef.resolvedType;
 

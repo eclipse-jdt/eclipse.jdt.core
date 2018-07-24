@@ -52,6 +52,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
@@ -79,6 +80,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
+import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -90,6 +92,8 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Substitution;
+import org.eclipse.jdt.internal.compiler.lookup.Substitution.NullSubstitution;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -98,6 +102,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope.Substitutor;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
@@ -131,6 +136,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	private HashMap<TypeBinding, LambdaExpression> copiesPerTargetType;
 	protected Expression [] resultExpressions = NO_EXPRESSIONS;
 	public InferenceContext18 inferenceContext; // when performing tentative resolve keep a back reference to the driving context
+	private Map<Integer/*sourceStart*/, LocalTypeBinding> localTypes; // support look-up of a local type from this lambda copy
+
 	
 	public LambdaExpression(CompilationResult compilationResult, boolean assistNode, boolean requiresGenericSignature) {
 		super(compilationResult);
@@ -462,6 +469,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (this.shouldCaptureInstance && this.scope.isConstructorCall) {
 			this.scope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
 		}
+		// beyond this point ensure that all local type bindings are their final binding:
+		updateLocalTypes();
 		return (argumentsHaveErrors|parametersHaveErrors) ? null : this.resolvedType;
 	}
 
@@ -1432,5 +1441,75 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			}
 		}
 		return this.classType = new LambdaTypeBinding();
+	}
+
+	public void addLocalType(LocalTypeBinding localTypeBinding) {
+		if (this.localTypes == null)
+			this.localTypes = new HashMap<>();
+		this.localTypes.put(localTypeBinding.sourceStart, localTypeBinding);
+	}
+
+	/**
+	 * During inference, several copies of a lambda may be created.
+	 * If a lambda body contains a local type declaration, one binding may be created
+	 * within each of the lambda copies. Once inference finished, we need to map all
+	 * such local type bindings to the instance from the correct lambda copy.
+	 * <p>
+	 * When a local type binding occurs as a field of another type binding (e.g.,
+	 * type argument), the local type will be replaced in-place, assuming that the
+	 * previous binding should never escape the context of resolving this lambda.
+	 * </p>
+	 */
+	class LocalTypeSubstitutor extends Substitutor {
+		Map<Integer,LocalTypeBinding> localTypes2;
+		
+		public LocalTypeSubstitutor(Map<Integer, LocalTypeBinding> localTypes) {
+			this.localTypes2 = localTypes;
+		}
+
+		@Override
+		public TypeBinding substitute(Substitution substitution, TypeBinding originalType) {
+			if (originalType.isLocalType()) {
+				LocalTypeBinding orgLocal = (LocalTypeBinding) originalType;
+				MethodScope lambdaScope2 = orgLocal.scope.enclosingLambdaScope();
+				if (lambdaScope2 != null) {
+					if (((LambdaExpression) lambdaScope2.referenceContext).sourceStart == LambdaExpression.this.sourceStart) {
+						// local type within this lambda needs replacement: 
+						TypeBinding substType = this.localTypes2.get(orgLocal.sourceStart);
+						if (substType != null)
+							return substType;
+					}
+				}
+				return originalType;
+			}
+			return super.substitute(substitution, originalType);
+		}
+	}
+
+	private void updateLocalTypes() {
+		if (this.descriptor == null || this.localTypes == null)
+			return;
+		LocalTypeSubstitutor substor = new LocalTypeSubstitutor(this.localTypes);
+		NullSubstitution subst = new NullSubstitution(this.scope.environment());
+		updateLocalTypesInMethod(this.binding, substor, subst);
+		updateLocalTypesInMethod(this.descriptor, substor, subst);
+		this.resolvedType = substor.substitute(subst, this.resolvedType);
+	}
+
+	/**
+	 * Perform substitution with a {@link LocalTypeSubstitutor} on all types mentioned in the given method binding.
+	 */
+	void updateLocalTypesInMethod(MethodBinding method) {
+		if (this.localTypes == null)
+			return;
+		updateLocalTypesInMethod(method, new LocalTypeSubstitutor(this.localTypes), new NullSubstitution(this.scope.environment()));
+	}
+
+	private void updateLocalTypesInMethod(MethodBinding method, Substitutor substor, Substitution subst) {
+		method.declaringClass = (ReferenceBinding) substor.substitute(subst, method.declaringClass);
+		method.returnType = substor.substitute(subst, method.returnType);
+		for (int i = 0; i < method.parameters.length; i++) {
+			method.parameters[i] = substor.substitute(subst, method.parameters[i]);
+		}
 	}
 }

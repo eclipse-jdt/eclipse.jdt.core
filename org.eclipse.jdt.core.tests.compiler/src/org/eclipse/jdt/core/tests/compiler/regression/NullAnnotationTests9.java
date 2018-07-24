@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -23,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.BasicModule;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
@@ -355,5 +357,72 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 			"Nullness default is redundant with a default specified for the enclosing module my.mod\n" + 
 			"----------\n";
 		runner.runNegativeTest();
+	}
+	public void testBug536037a() {
+		if (this.complianceLevel < ClassFileConstants.JDK10) return;
+		runConformTestWithLibs(
+			new String[] {
+				"Bar.java",
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+				"public class Bar {\n" + 
+				"    static void bar(Iterable<String> list) {\n" + 
+				"        for(var s : list);\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			null,
+			"");
+	}
+	public void testBug536037b() {
+		// tests combination of declaration null-annotations & 'var':
+		if (this.complianceLevel < ClassFileConstants.JDK10) return;
+		Map<String, String> options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "test.NonNull");
+		options.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "test.Nullable");
+		runNegativeTestWithLibs(
+			new String[] {
+				"test/NonNull.java",
+				"package test;\n" +
+				"import java.lang.annotation.*;\n" +
+				"@Target({ElementType.LOCAL_VARIABLE,ElementType.PARAMETER}) public @interface NonNull {}\n",
+				"test/Nullable.java",
+				"package test;\n" +
+				"import java.lang.annotation.*;\n" +
+				"@Target({ElementType.LOCAL_VARIABLE,ElementType.PARAMETER}) public @interface Nullable {}\n",
+				"Bar.java",
+				"import test.*;\n" +
+				"public class Bar {\n" + 
+				"    static void bar1(@Nullable String s1, Iterable<String> list) {\n" + 
+				"		@NonNull var s2 = s1;\n" +
+				"		for (@NonNull var s : list);\n" +
+				"	 }\n" + 
+				"    static void bar2(int[] array) {\n" + 
+				"		@NonNull var i1 = 3;\n" +
+				"		for (@NonNull var s : array);\n" +
+				"	 }\n" + 
+				"}\n"
+			},
+			options,
+			"----------\n" + 
+			"1. ERROR in Bar.java (at line 4)\n" + 
+			"	@NonNull var s2 = s1;\n" + 
+			"	                  ^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is specified as @Nullable\n" + 
+			"----------\n" + 
+			"2. WARNING in Bar.java (at line 5)\n" + 
+			"	for (@NonNull var s : list);\n" + 
+			"	                      ^^^^\n" + 
+			"Null type safety: The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" + 
+			"----------\n" + 
+			"3. ERROR in Bar.java (at line 8)\n" + 
+			"	@NonNull var i1 = 3;\n" + 
+			"	^^^^^^^^\n" + 
+			"The nullness annotation @NonNull is not applicable for the primitive type int\n" + 
+			"----------\n" + 
+			"4. ERROR in Bar.java (at line 9)\n" + 
+			"	for (@NonNull var s : array);\n" + 
+			"	     ^^^^^^^^\n" + 
+			"The nullness annotation @NonNull is not applicable for the primitive type int\n" + 
+			"----------\n");
 	}
 }

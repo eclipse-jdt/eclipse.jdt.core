@@ -873,6 +873,51 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			this.javaClassLib = save;
 		}
 	}
+	public void testBug534304() throws Exception {
+		runNegativeTest(
+			new String[] {
+				"p1/C1.java",
+				"package p1;\n" + 
+				"\n" + 
+				"import pdep.Dep1;\n" + 
+				"\n" + 
+				"public class C1 {\n" + 
+				"	Dep1 f;\n" + 
+				"}\n",
+				"pdep/Dep1.java",
+				"package pdep;\n" + 
+				"\n" + 
+				"import pmissing.CMissing;\n" + 
+				"\n" + 
+				"@Deprecated(since=\"13\")\n" + 
+				"@CMissing\n" + 
+				"public class Dep1 {\n" + 
+				"\n" + 
+				"}\n"
+			}, 
+			"----------\n" + 
+			"1. WARNING in p1\\C1.java (at line 3)\n" + 
+			"	import pdep.Dep1;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"The type Dep1 is deprecated since version 13\n" + 
+			"----------\n" + 
+			"2. WARNING in p1\\C1.java (at line 6)\n" + 
+			"	Dep1 f;\n" + 
+			"	^^^^\n" + 
+			"The type Dep1 is deprecated since version 13\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in pdep\\Dep1.java (at line 3)\n" + 
+			"	import pmissing.CMissing;\n" + 
+			"	       ^^^^^^^^\n" + 
+			"The import pmissing cannot be resolved\n" + 
+			"----------\n" + 
+			"2. ERROR in pdep\\Dep1.java (at line 6)\n" + 
+			"	@CMissing\n" + 
+			"	 ^^^^^^^^\n" + 
+			"CMissing cannot be resolved to a type\n" + 
+			"----------\n");
+	}
 	public static Class<?> testClass() {
 		return Deprecated9Test.class;
 	}
