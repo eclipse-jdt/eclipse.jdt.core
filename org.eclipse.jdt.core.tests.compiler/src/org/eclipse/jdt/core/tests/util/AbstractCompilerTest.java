@@ -383,6 +383,7 @@ public class AbstractCompilerTest extends TestCase {
 			isJRE9Plus = CompilerOptions.VERSION_9.equals(specVersion)
 					||	CompilerOptions.VERSION_10.equals(specVersion)
 					||	CompilerOptions.VERSION_11.equals(specVersion);
+			isJRE11Plus = CompilerOptions.VERSION_11.equals(specVersion);
 			String compliance = System.getProperty("compliance");
 			if (compliance != null) {
 				if (CompilerOptions.VERSION_1_3.equals(compliance)) {
