@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14590,6 +14590,27 @@ public void testBug526590b() throws JavaModelException {
 			"value[ANNOTATION_ATTRIBUTE_REF]{value, Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}\n" +
 			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 82}",
 			requestor.getResults());
+}
+
+public void test536983() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/SingleLineForEach.java",
+			"package test;\n" +	
+			 		"public class SingleLineForEach {\n" +
+			 		"	private void meth() {	\n" +	
+			 		"	Object[] f= {new Object(), new Object() };\n" +
+			 		"	for (Object abc : f) abc.\n" +	 		
+			 		"}\n" +
+			 		"}\n");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "abc.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertTrue(!requestor.getResults().equals(""));
+	assertTrue(requestor.getResults().contains("toString("));
 }
 
 }
