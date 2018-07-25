@@ -567,47 +567,6 @@ public class JavaProject
 				} else {
 					rootIDs.add(rootID);
 				}
-			} else {
-				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
-					computeExpandedClasspathFromModularProject(rootIDs, accumulatedEntries, excludeTestCode, workspaceRoot);
-				}
-			}
-		}
-	}
-
-	private void computeExpandedClasspathFromModularProject(HashSet rootIDs,
-			ObjectVector accumulatedEntries, boolean excludeTestCode, IWorkspaceRoot workspaceRoot)
-			throws JavaModelException {
-		IModuleDescription referring = this.getModuleDescription();
-		if (referring == null)
-			return;
-		IClasspathEntry[] resolvedClasspath = getResolvedClasspath();
-		for (IClasspathEntry iEntry : resolvedClasspath) {
-			ClasspathEntry entry = (ClasspathEntry) iEntry;
-			if (iEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT && entry.isModular()) {
-				String rootID = entry.rootID();
-				if (rootIDs.contains(rootID)) {
-					continue;
-				}
-				rootIDs.add(rootID);
-				IModuleDescription referred = null;
-				IResource member = workspaceRoot.findMember(iEntry.getPath());
-				JavaProject referredProject = null;
-				if (member != null && member.getType() == IResource.PROJECT) {
-					IProject projRsc = (IProject) member;
-					referredProject = (JavaProject) JavaCore.create(projRsc);
-					referred = referredProject.getModuleDescription();
-					if (referred != null) {
-						IModule module = NameLookup.getModuleDescriptionInfo(referring);
-						IModuleReference[] requires = module.requires();
-						for (IModuleReference req : requires) {
-							if (CharOperation.equals(req.name(), referred.getElementName().toCharArray())) {
-								accumulatedEntries.add(entry);
-							}
-						}
-					}
-					referredProject.computeExpandedClasspathFromModularProject(rootIDs, accumulatedEntries, excludeTestCode, workspaceRoot);
-				}
 			}
 		}
 	}
