@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -236,9 +236,12 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, accessRules, true, new IClasspathAttribute[] {JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true")}, false));
 	}
 	public void addRequiredProjectWithoutTestCode(IPath projectPath, IPath requiredProjectPath) throws JavaModelException {
+		addRequiredProjectWithoutTestCode(projectPath, requiredProjectPath, false);
+	}
+	public void addRequiredProjectWithoutTestCode(IPath projectPath, IPath requiredProjectPath, boolean isExported) throws JavaModelException {
 		checkAssertion("required project must not be in project", !projectPath.isPrefixOf(requiredProjectPath)); //$NON-NLS-1$
 		IAccessRule[] accessRules = ClasspathEntry.getAccessRules(new IPath[]{}, new IPath[]{});
-		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, accessRules, true, new IClasspathAttribute[] {JavaCore.newClasspathAttribute(IClasspathAttribute.WITHOUT_TEST_CODE, "true")}, false));
+		addEntry(projectPath, JavaCore.newProjectEntry(requiredProjectPath, accessRules, true, new IClasspathAttribute[] {JavaCore.newClasspathAttribute(IClasspathAttribute.WITHOUT_TEST_CODE, "true")}, isExported));
 	}
 
 	public void addRequiredTestProjectWithoutTestCode(IPath projectPath, IPath requiredProjectPath) throws JavaModelException {
@@ -321,7 +324,7 @@ public void addLibrary(IPath projectPath, IPath libraryPath, IPath sourceAttachm
 		JavaCore.newLibraryEntry(libraryPath, sourceAttachmentPath,	sourceAttachmentRootPath));
 }
 	public void addEntry(IPath projectPath, IClasspathEntry entryPath) throws JavaModelException {
-		IClasspathEntry[] classpath = getClasspath(projectPath);
+		IClasspathEntry[] classpath = getRawClasspath(projectPath);
 		IClasspathEntry[] newClaspath = new IClasspathEntry[classpath.length + 1];
 		System.arraycopy(classpath, 0, newClaspath, 0, classpath.length);
 		newClaspath[classpath.length] = entryPath;
@@ -544,7 +547,7 @@ public void cleanBuild(String projectName) {
 	}
 
 	/**
-	* Returns the class path.
+	* Returns the expanded class path.
 	*/
 	public IClasspathEntry[] getClasspath(IPath projectPath) {
 		try {
@@ -555,6 +558,21 @@ public void cleanBuild(String projectName) {
 //			for (int i = 0; i < entries.length; ++i)
 //				packageFragmentRootsPath[i] = entries[i].getPath();
 //			return packageFragmentRootsPath;
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+			checkAssertion("JavaModelException", false); //$NON-NLS-1$
+			return null; // not reachable
+		}
+	}
+
+	/**
+	* Returns the raw class path.
+	*/
+	public IClasspathEntry[] getRawClasspath(IPath projectPath) {
+		try {
+			checkAssertion("a workspace must be open", this.isOpen); //$NON-NLS-1$
+			JavaProject javaProject = (JavaProject) JavaCore.create(getProject(projectPath));
+			return javaProject.getRawClasspath();
 		} catch (JavaModelException e) {
 			e.printStackTrace();
 			checkAssertion("JavaModelException", false); //$NON-NLS-1$
@@ -1007,7 +1025,7 @@ public void cleanBuild(String projectName) {
 
 	private void removeEntry(IPath projectPath, IPath entryPath) throws JavaModelException {
 		checkAssertion("a workspace must be open", this.isOpen); //$NON-NLS-1$
-		IClasspathEntry[] oldEntries = getClasspath(projectPath);
+		IClasspathEntry[] oldEntries = getRawClasspath(projectPath);
 		for (int i = 0; i < oldEntries.length; ++i) {
 			if (oldEntries[i].getPath().equals(entryPath)) {
 				IClasspathEntry[] newEntries = new IClasspathEntry[oldEntries.length - 1];
@@ -1020,7 +1038,7 @@ public void cleanBuild(String projectName) {
 
 	public void changePackageFragmentRootTestAttribute(IPath projectPath, IPath entryPath, boolean isTest) throws JavaModelException {
 		checkAssertion("a workspace must be open", this.isOpen); //$NON-NLS-1$
-		IClasspathEntry[] oldEntries = getClasspath(projectPath);
+		IClasspathEntry[] oldEntries = getRawClasspath(projectPath);
 		for (int i = 0; i < oldEntries.length; ++i) {
 			final IClasspathEntry oldEntry = oldEntries[i];
 			if (oldEntry.getPath().equals(entryPath)) {

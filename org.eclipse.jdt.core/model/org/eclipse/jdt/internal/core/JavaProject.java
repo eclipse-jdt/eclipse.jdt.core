@@ -524,14 +524,8 @@ public class JavaProject
 	 */
 	private void computeExpandedClasspath(
 		ClasspathEntry referringEntry,
-		HashSet rootIDs,
-		ObjectVector accumulatedEntries, boolean excludeTestCode) throws JavaModelException {
-
-		String projectRootId = rootID();
-		if (rootIDs.contains(projectRootId)){
-			return; // break cycles if any
-		}
-		rootIDs.add(projectRootId);
+		HashMap<String, Boolean> rootIDs,
+		ArrayList<ClasspathEntry> accumulatedEntries, boolean excludeTestCode) throws JavaModelException {
 
 		IClasspathEntry[] resolvedClasspath = getResolvedClasspath();
 
@@ -544,28 +538,58 @@ public class JavaProject
 			}
 			if (isInitialProject || entry.isExported()){
 				String rootID = entry.rootID();
-				if (rootIDs.contains(rootID)) {
-					continue;
-				}
-				// combine restrictions along the project chain
-				ClasspathEntry combinedEntry = entry.combineWith(referringEntry);
-				accumulatedEntries.add(combinedEntry);
 
 				// recurse in project to get all its indirect exports (only consider exported entries from there on)
 				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+					boolean nestedWithoutTestCode = excludeTestCode || entry.isWithoutTestCode();
+					Boolean previousValue = rootIDs.get(rootID);
+					ClasspathEntry combinedEntry;
+					if (previousValue == Boolean.FALSE) {
+						continue; // already handled including test code
+					} else if (previousValue == Boolean.TRUE) {
+						// project was already handled, but without test code.
+						if (nestedWithoutTestCode) {
+							continue;
+						} else {
+							// find the existing entry and update it.
+							rootIDs.put(rootID, Boolean.FALSE);
+							for (int j = 0; j < accumulatedEntries.size(); j++) {
+								// it is unclear how oldEntry and combinedEntry could be merged.
+								// main code compilation should remain untouched as far as possible, 
+								// so take all settings from oldEntry and just remove WITHOUT_TEST_CODE
+								ClasspathEntry oldEntry = accumulatedEntries.get(j);
+								if (oldEntry.rootID().equals(rootID)) {
+									accumulatedEntries.set(j, oldEntry.withExtraAttributeRemoved(IClasspathAttribute.WITHOUT_TEST_CODE));
+									break;
+								}
+							}
+							// combine restrictions along the project chain
+							combinedEntry = entry.combineWith(referringEntry);
+						}
+					} else {
+						rootIDs.put(rootID, nestedWithoutTestCode);
+						// combine restrictions along the project chain
+						combinedEntry = entry.combineWith(referringEntry);
+						accumulatedEntries.add(combinedEntry);
+					}
 					IResource member = workspaceRoot.findMember(entry.getPath());
 					if (member != null && member.getType() == IResource.PROJECT){ // double check if bound to project (23977)
 						IProject projRsc = (IProject) member;
 						if (JavaProject.hasJavaNature(projRsc)) {
 							JavaProject javaProject = (JavaProject) JavaCore.create(projRsc);
-							javaProject.computeExpandedClasspath(
-								combinedEntry,
-								rootIDs,
-								accumulatedEntries, excludeTestCode || entry.isWithoutTestCode());
+								javaProject.computeExpandedClasspath(
+									combinedEntry,
+									rootIDs,
+									accumulatedEntries, nestedWithoutTestCode);
 						}
 					}
 				} else {
-					rootIDs.add(rootID);
+					if (!rootIDs.containsKey(rootID)) {
+						// combine restrictions along the project chain
+						ClasspathEntry combinedEntry = entry.combineWith(referringEntry);
+						accumulatedEntries.add(combinedEntry);
+						rootIDs.put(rootID, excludeTestCode); // value actually doesn't matter for non-projects
+					}
 				}
 			}
 		}
@@ -1918,11 +1942,13 @@ public class JavaProject
 	}
 	public IClasspathEntry[] getExpandedClasspath(boolean excludeTestCode)	throws JavaModelException {
 
-			ObjectVector accumulatedEntries = new ObjectVector();
-			computeExpandedClasspath(null, new HashSet(5), accumulatedEntries, excludeTestCode);
+			ArrayList<ClasspathEntry> accumulatedEntries = new ArrayList<>();
+			HashMap<String,Boolean> rootIDs = new HashMap<>(5);
+			rootIDs.put(this.rootID(), excludeTestCode);
+			computeExpandedClasspath(null, rootIDs, accumulatedEntries, excludeTestCode);
 
 			IClasspathEntry[] expandedPath = new IClasspathEntry[accumulatedEntries.size()];
-			accumulatedEntries.copyInto(expandedPath);
+			accumulatedEntries.toArray(expandedPath);
 
 			return expandedPath;
 	}

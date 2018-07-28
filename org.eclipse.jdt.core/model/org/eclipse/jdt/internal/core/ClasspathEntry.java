@@ -29,6 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -385,6 +386,27 @@ public class ClasspathEntry implements IClasspathEntry {
 		return this;
 	}
 
+	
+	public ClasspathEntry withExtraAttributeRemoved(String attrName) {
+		IClasspathAttribute[] changedAttributes = Arrays.stream(this.getExtraAttributes())
+				.filter(a -> !a.getName().equals(attrName)).toArray(IClasspathAttribute[]::new);
+		return new ClasspathEntry(
+				this.getContentKind(),
+				this.getEntryKind(),
+				this.getPath(),
+				this.getInclusionPatterns(),
+				this.getExclusionPatterns(),
+				this.getSourceAttachmentPath(),
+				this.getSourceAttachmentRootPath(),
+				this.getOutputLocation(),
+				this.getReferencingEntry(),
+				this.isExported(),
+				this.getAccessRules(),
+				this.combineAccessRules(),
+				changedAttributes);
+	}
+
+	
 	private IAccessRule[] combine(IAccessRule[] referringRules, IAccessRule[] rules, boolean combine) {
 		if (!combine) return rules;
 		if (rules == null || rules.length == 0) return referringRules;

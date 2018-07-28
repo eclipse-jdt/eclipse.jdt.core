@@ -822,4 +822,45 @@ public class TestAttributeBuilderTests extends BuilderTests {
 		incrementalBuild();
 		expectingNoProblems();
 	}
+	
+	public void testBug536868() throws JavaModelException {
+		IPath project1Path = env.addProject("Project1"); 
+		env.removePackageFragmentRoot(project1Path, "");
+		IPath tests1 = env.addTestPackageFragmentRoot(project1Path, "tests");
+		env.addExternalJars(project1Path, Util.getJavaClassLibs());		
+	
+		env.addClass(tests1, "p1", "T1Class", 
+				"package p1;\n" + 
+				"\n" + 
+				"public class T1Class {\n"+ 
+				"}\n" 
+				);
+
+		// project X just reexports Project1 without test code
+		IPath projectXPath = env.addProject("ProjectX"); 
+		env.addRequiredProjectWithoutTestCode(projectXPath, project1Path, /* isExported */ true);
+		
+
+		IPath project2Path = env.addProject("Project2"); 
+		env.removePackageFragmentRoot(project2Path, "");
+		IPath tests2 = env.addTestPackageFragmentRoot(project2Path, "tests");
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.addRequiredProject(project2Path, projectXPath);
+		env.addRequiredTestProject(project2Path, project1Path);
+		env.addClass(tests2, "p2", "Test2", 
+				"package p2;\n" + 
+				"\n" + 
+				"import p1.T1Class;\n" + 
+				"\n" + 
+				"public class Test2 {\n" + 
+				"	void test2() {\n" + 
+				"		new T1Class(); // ok\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"" 
+				);
+
+		fullBuild();
+		expectingNoProblems();
+	}
 }
