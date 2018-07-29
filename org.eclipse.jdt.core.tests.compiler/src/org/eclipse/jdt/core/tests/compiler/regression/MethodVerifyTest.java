@@ -14417,7 +14417,7 @@ public void testBug536978_comment2() {
 				"    }\n" + 
 				"    \n" + 
 				"    public static void main(String... args) {\n" + 
-				"        AbstractDemo<OtherResult,OtherResult> demo = new SimpleDemo<>();\n" + 
+				"        AbstractDemo<OtherResult,OtherResult> demo = new SimpleDemo<OtherResult,OtherResult>();\n" + 
 				"        OtherResult result = demo.test(new OtherResult());\n" + 
 				"    }\n" + 
 				"\n" + 
@@ -14428,20 +14428,9 @@ public void testBug536978_comment2() {
 			"	protected SimpleResult test(AbstractResult request) {\n" + 
 			"	          ^^^^^^^^^^^^\n" + 
 			"The return type is incompatible with AbstractDemo<Request,Response>.test(Request)\n" + 
-			"----------\n" +
-			(this.complianceLevel < ClassFileConstants.JDK1_7
-			? "2. ERROR in SimpleDemo.java (at line 27)\n" +
-					"	AbstractDemo<OtherResult,OtherResult> demo = new SimpleDemo<>();\n" +
-					"	                                                 ^^^^^^^^^^\n" +
-					"'<>' operator is not allowed for source level below 1.7\n" +
-					"----------\n"
-			: ""
-			));
+			"----------\n");
 }
 public void testBug536978_comment5() {
-	if(this.complianceLevel < ClassFileConstants.JDK1_7) {
-		return;
-	}
 	runConformTest(
 		new String[] {
 			"SimpleDemo.java",
@@ -14474,7 +14463,7 @@ public void testBug536978_comment5() {
 			"	}\n" + 
 			"\n" + 
 			"	public static void main(String... args) {\n" + 
-			"		AbstractDemo<OtherResult, OtherResult> demo = new SimpleDemo<>();\n" +
+			"		AbstractDemo<OtherResult, OtherResult> demo = new SimpleDemo<OtherResult, OtherResult>();\n" +
 			"		try {\n" + 
 			"			OtherResult result = demo.test(new OtherResult());\n" +
 			"		} catch (ClassCastException e) {\n" +
