@@ -14428,9 +14428,20 @@ public void testBug536978_comment2() {
 			"	protected SimpleResult test(AbstractResult request) {\n" + 
 			"	          ^^^^^^^^^^^^\n" + 
 			"The return type is incompatible with AbstractDemo<Request,Response>.test(Request)\n" + 
-			"----------\n");
+			"----------\n" +
+			(this.complianceLevel < ClassFileConstants.JDK1_7
+			? "2. ERROR in SimpleDemo.java (at line 27)\n" +
+					"	AbstractDemo<OtherResult,OtherResult> demo = new SimpleDemo<>();\n" +
+					"	                                                 ^^^^^^^^^^\n" +
+					"'<>' operator is not allowed for source level below 1.7\n" +
+					"----------\n"
+			: ""
+			));
 }
 public void testBug536978_comment5() {
+	if(this.complianceLevel < ClassFileConstants.JDK1_7) {
+		return;
+	}
 	runConformTest(
 		new String[] {
 			"SimpleDemo.java",
