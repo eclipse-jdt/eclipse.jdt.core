@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -66,6 +67,35 @@ protected boolean isExcluded(IResource resource) {
 		if (this.sourceFolder.equals(this.binaryFolder))
 			return Util.isExcluded(resource, this.inclusionPatterns, this.exclusionPatterns);
 	return false;
+}
+@Override
+String[] directoryList(String qualifiedPackageName) {
+	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
+	if (dirList != null) return dirList;
+
+	try {
+		IResource container = this.binaryFolder.findMember(qualifiedPackageName); // this is a case-sensitive check
+		if (container instanceof IContainer) {
+			IResource[] members = ((IContainer) container).members();
+			dirList = new String[members.length];
+			int index = 0;
+			for (int i = 0, l = members.length; i < l; i++) {
+				IResource m = members[i];
+				String name = m.getName();
+				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
+					// add exclusion pattern check here if we want to hide .class files
+					dirList[index++] = name;
+				}
+			}
+			if (index < dirList.length)
+				System.arraycopy(dirList, 0, dirList = new String[index], 0, index);
+			this.directoryCache.put(qualifiedPackageName, dirList);
+			return dirList;
+		}
+	} catch(CoreException ignored) {
+		// ignore
+	}
+	return null;
 }
 
 @Override

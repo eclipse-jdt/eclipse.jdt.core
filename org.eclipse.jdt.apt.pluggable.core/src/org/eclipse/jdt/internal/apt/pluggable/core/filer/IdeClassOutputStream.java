@@ -51,15 +51,19 @@ public class IdeClassOutputStream  extends ByteArrayOutputStream
 		
 		IBinaryType binaryType = null;
 		try {
-			binaryType = ClassFileReader.read(this._file.getLocation().toString());
+			try {
+				binaryType = ClassFileReader.read(this._file.getLocation().toString());
+			} catch(IOException ioe) {
+				// Files doesn't yet exist
+			}
 			if (binaryType == null) {
 				saveToDisk(contents, true);
 			} else {
 				saveToDisk(contents, false);
 			}
 			binaryType = ClassFileReader.read(this._file.getLocation().toString());
-			char[] name = binaryType.getName();
-			ReferenceBinding type = compiler.lookupEnvironment.getType(CharOperation.splitOn('/', name));
+			char[][] splitOn = CharOperation.splitOn('/', binaryType.getName());
+			ReferenceBinding type = compiler.lookupEnvironment.getType(splitOn);
 			if (type != null && type.isValidBinding()) {
 				if (type.isBinaryBinding()) {
 					_env.addNewClassFile(type);
@@ -70,7 +74,7 @@ public class IdeClassOutputStream  extends ByteArrayOutputStream
 				}
 			}
 		} catch(Exception ex) {
-			// move on
+			Apt6Plugin.log(ex, "Could not create generated class file " + _file.getName()); //$NON-NLS-1$
 		}
 		finally {
 			closeInputStream(contents);
@@ -81,8 +85,9 @@ public class IdeClassOutputStream  extends ByteArrayOutputStream
 		if (stream != null) {
 			try {
 				stream.close();
+			} catch (IOException ioe) {
+				// Nothing to do
 			}
-			catch (IOException ioe) {}
 		}
 	}
 	private void saveToDisk(InputStream toSave, boolean create) throws IOException{
@@ -90,8 +95,7 @@ public class IdeClassOutputStream  extends ByteArrayOutputStream
 			FileSystemUtil.makeDerivedParentFolders(_file.getParent());
 			if (create) {
 				_file.create(toSave, IResource.FORCE | IResource.DERIVED, null);
-			}
-			else {
+			} else {
 				_file.setContents(toSave, true, false, null);
 			}
 		}
@@ -99,9 +103,8 @@ public class IdeClassOutputStream  extends ByteArrayOutputStream
 			if (_file.exists()) {
 				// Do nothing. This is a case-insensitive file system mismatch,
 				// and the underlying platform has saved the contents already.
-			}
-			else {
-				Apt6Plugin.log(ce, "Could not create generated non-Java file " + _file.getName()); //$NON-NLS-1$
+			} else {
+				Apt6Plugin.log(ce, "Could not create generated class file " + _file.getName()); //$NON-NLS-1$
 				throw new IOException(ce);
 			}
 		}

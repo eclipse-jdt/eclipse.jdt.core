@@ -282,6 +282,40 @@ public class FilerTesterProc extends AbstractProcessor {
 		} finally {
 		}
 	}
+	public void testCreateClass2(Element e, String pkg, String relName) throws Exception {
+		Filer filer = processingEnv.getFiler();
+		try {
+			if (++roundNo == 1) 
+				return;
+			if (roundNo == 2) {
+				JavaFileObject jfo = filer.createSourceFile("p/Test", e.getEnclosingElement());
+				PrintWriter pw = null;
+				try {
+					pw = new PrintWriter(jfo.openWriter());
+					pw.write("package p;\n " +
+							"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+							"@FilerTestTrigger(test = \"testCreateClass1\", arg0 = \"p\", arg1 = \"Test.java\")" +
+							"public class Test {}");
+				} finally {
+					pw.close();
+				}
+			} else if(roundNo == 3) {
+					if (classContent == null) {
+						throw new IOException("Class file should have been present");
+					}
+					IdeOutputClassFileObject jfo = (IdeOutputClassFileObject) filer.createClassFile("p.Trigger");
+					OutputStream out = null;
+					try {
+						out = jfo.openOutputStream();
+						out.write(classContent);
+					} catch (Exception ex) {
+					} finally {
+						out.close();
+					}
+			}
+		} finally {
+		}
+	}
 
 	private void checkGenUri(FileObject fo, String name, String content, String category) throws Exception {
 		PrintWriter pw = null;

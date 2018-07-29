@@ -68,7 +68,8 @@ public class IdeFilerImpl implements Filer {
 			throw new IllegalArgumentException("Name is null");
 		}
     
-    	IFile file = _env.getAptProject().getGeneratedFileManager(_env.isTestCode()).getIFileForTypeName(name.toString());
+    	String nameAsString = name.toString();
+		IFile file = _env.getAptProject().getGeneratedFileManager(_env.isTestCode()).getIFileForTypeName(nameAsString);
 
     	GeneratedSourceFolderManager gsfm = _env.getAptProject().getGeneratedSourceFolderManager(_env.isTestCode());
     	IPath path = null;
@@ -78,11 +79,19 @@ public class IdeFilerImpl implements Filer {
 			Apt6Plugin.log(e, "Failure getting the binary output location"); //$NON-NLS-1$
 			throw new IOException(e);
 		}
-    	file = getFileFromOutputLocation(StandardLocation.CLASS_OUTPUT, "", name + ".class");
-		path = path.append(name.toString());
+    	int index = nameAsString.lastIndexOf('.');
+    	String pkg = null;
+    	if (index != -1) {
+    		name = nameAsString.substring(index + 1);
+    		pkg = nameAsString.substring(0, index);
+    	} else {
+    		pkg = "";
+    	}
+    	file = getFileFromOutputLocation(StandardLocation.CLASS_OUTPUT, pkg, name + ".class");
+		path = path.append(nameAsString);
 		path = new Path(path.toString() + ".class");
 	
-		return new IdeOutputClassFileObject(_env, file, name.toString());
+		return new IdeOutputClassFileObject(_env, file, nameAsString);
 	}
 
 	/* (non-Javadoc)

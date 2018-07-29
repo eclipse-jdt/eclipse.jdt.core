@@ -56,7 +56,7 @@ public class IdeOutputClassFileObject extends IdeOutputFileObject implements Jav
 	@Override
 	public OutputStream openOutputStream() throws IOException
 	{
-		return new IdeClassOutputStream(_env, _file);
+		return new IdeClassOutputStream(_env,_file);
 	}
 
 	/* (non-Javadoc)

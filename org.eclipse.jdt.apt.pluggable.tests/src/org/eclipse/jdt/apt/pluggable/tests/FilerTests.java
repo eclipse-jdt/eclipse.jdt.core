@@ -359,6 +359,7 @@ public class FilerTests extends TestBase
 	}
 
 	public void testCreateClass1() throws Exception {
+		FilerTesterProc.roundNo = 0;
 		ProcessorTestStatus.reset();
 		IJavaProject jproj = createJavaProject(_projectName);
 		disableJava5Factories(jproj);
@@ -388,6 +389,46 @@ public class FilerTests extends TestBase
 				"package g;\n" +
 				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
 				"@FilerTestTrigger(test = \"testCreateClass1\",arg0 = \"g\",arg1 = \"Test.java\") " +
+				"public class Test { }"
+		);
+
+		incrementalBuild();
+		assertEquals("should have triggered 5 rounds", 5, FilerTesterProc.roundNo);
+		assertTrue("File should exist", file.exists());
+		long lastModified2 = file.lastModified();
+		assertTrue("file should have been overwritten", (lastModified2 > lastModified));
+	}
+	public void testCreateClass2() throws Exception {
+		FilerTesterProc.roundNo = 0;
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+
+		env.addClass(projPath.append("src"), "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testCreateClass2\", arg0 = \"p\", arg1 = \"Test.java\")" +
+				"public class Trigger {\n" +
+				"}"
+			);
+		AptConfig.setEnabled(jproj, true);
+
+		fullBuild();
+		final String[] expectedClasses = {"p.Trigger" };
+		expectingUniqueCompiledClasses(expectedClasses);
+		IPath path = proj.getLocation().append("bin/p/Trigger.class");
+		File file = new File(path.toOSString());
+		assertTrue("File should exist", file.exists());
+		long lastModified = file.lastModified();
+		Thread.sleep(1000);
+		ClassFile[] classFiles = this.debugRequestor.getClassFiles();
+		FilerTesterProc.classContent = classFiles[0].getBytes();
+		env.addClass(projPath.append(".apt_generated"), "g", "Test",
+				"package g;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testCreateClass2\",arg0 = \"g\",arg1 = \"Test.java\") " +
 				"public class Test { }"
 		);
 
