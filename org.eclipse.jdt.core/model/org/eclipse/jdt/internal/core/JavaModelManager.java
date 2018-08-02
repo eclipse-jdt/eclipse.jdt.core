@@ -264,6 +264,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public static final int BATCH_INITIALIZATION_IN_PROGRESS = 2;
 	public static final int BATCH_INITIALIZATION_FINISHED = 3;
 	public int batchContainerInitializations = NO_BATCH_INITIALIZATION;
+	public Object batchContainerInitializationsLock = new Object();
 
 	public BatchInitializationMonitor batchContainerInitializationsProgress = new BatchInitializationMonitor();
 	public Hashtable<String, ClasspathContainerInitializer> containerInitializersCache = new Hashtable<>(5);
@@ -668,6 +669,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 		IClasspathContainer container = projectContainers.get(containerPath);
 		return container;
+	}
+
+	synchronized boolean containerIsSet(IJavaProject project, IPath containerPath) {
+		Map<IPath, IClasspathContainer> projectContainers = this.containers.get(project);
+		if (projectContainers == null){
+			return false;
+		}
+		IClasspathContainer container = projectContainers.get(containerPath);
+		return container != null;
 	}
 
 	public synchronized IClasspathContainer containerGetDefaultToPreviousSession(IJavaProject project, IPath containerPath) {
@@ -3073,10 +3083,23 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 								pathSet.toArray(paths); // clone as the following will have a side effect
 								for (int j = 0; j < length2; j++) {
 									IPath path = paths[j];
+									synchronized(JavaModelManager.this.batchContainerInitializationsLock) {
+										if (containerIsSet(javaProject, path)) {
+											// another thread has concurrently initialized the container.
+											continue;
+										}
+									}
 									initializeContainer(javaProject, path);
 									IClasspathContainer container = containerBeingInitializedGet(javaProject, path);
 									if (container != null) {
-										containerPut(javaProject, path, container);
+										synchronized(JavaModelManager.this.batchContainerInitializationsLock) {
+											if (containerIsSet(javaProject, path)) {
+												// another thread has concurrently initialized the container.
+												containerBeingInitializedRemove(javaProject, path);
+											} else {
+												containerPut(javaProject, path, container);
+											}
+										}
 									}
 								}
 								if (monitor != null)
