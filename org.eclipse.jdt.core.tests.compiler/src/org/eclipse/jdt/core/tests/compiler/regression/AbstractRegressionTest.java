@@ -543,6 +543,7 @@ protected static class JavacTestOptions {
 	}
 	public static class Excuse extends JavacTestOptions {
 		protected int mismatchType;
+		public boolean isIntermittent;
 		Excuse(int mismatchType) {
 			this.mismatchType = mismatchType;
 		}
@@ -758,6 +759,10 @@ protected static class JavacTestOptions {
 			this.pivotCompliance = pivotCompliance;
 			this.pivotMinor = pivotMinor;
 		}
+		public JavacHasABug(int mismatchType, long pivotCompliance, int pivotMinor, boolean intermittent) {
+			this(mismatchType, pivotCompliance, pivotMinor);
+			this.isIntermittent = intermittent;
+		}
 		Excuse excuseFor(JavacCompiler compiler) {
 			if (this.minorsFixed != null) {
 				if (compiler.compliance == ClassFileConstants.JDK1_8) {
@@ -857,7 +862,9 @@ protected static class JavacTestOptions {
 			JavacBug8204534 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8204534
 				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ((long)55)<<16, 0000) : null, // FIXME: use JDK11
 			JavacBug8207032 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8207032
-				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null;
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null,
+			JavacBug8044196 = RUN_JAVAC ? // likely https://bugs.openjdk.java.net/browse/JDK-8044196, intermittently masked by https://bugs.openjdk.java.net/browse/JDK-8029161
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK9, 0000, true) : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -2316,7 +2323,10 @@ void handleMismatch(JavacCompiler compiler, String testName, String[] testFiles,
 		}
 	}
 	if (excuse != null) {
-		fail(testName + ": unused excuse " + excuse + " for compiler " + compiler);
+		if (excuse.isIntermittent)
+			System.err.println(testName + ": unused execuse (intermittent bug) "+excuse + " for compiler " + compiler);
+		else
+			fail(testName + ": unused excuse " + excuse + " for compiler " + compiler);
 	}
 }
 
