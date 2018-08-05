@@ -633,25 +633,25 @@ public class AptConfig {
     		if (equalsAt > 0) {
     			if (spaceAt < 0 || equalsAt < spaceAt) {
     				// there is an equals, so there is a value.
-    				key = new String(_s.substring(_start, equalsAt));
+    				key = _s.substring(_start, equalsAt);
     				_start = equalsAt + 1;
     				_hasVal = (_start < _s.length());
     			}
     			else {
     				// the next thing is a space, so this is a valueless key
-    				key = new String(_s.substring(_start, spaceAt));
+    				key = _s.substring(_start, spaceAt);
     				_start = spaceAt + 1;
     			}
     		}
     		else {
 	    		if (spaceAt < 0) {
 					// no equals sign and no spaces: a valueless key, up to the end of the string. 
-					key = new String(_s.substring(_start));
+					key = _s.substring(_start);
 					_start = _s.length();
 	    		}
 	    		else {
     				// the next thing is a space, so this is a valueless key
-    				key = new String(_s.substring(_start, spaceAt));
+    				key = _s.substring(_start, spaceAt);
     				_start = spaceAt + 1;
 	    		}
     		}
@@ -685,7 +685,7 @@ public class AptConfig {
     			++end;
     		}
  
-    		return new String(_s.substring(start, end));
+    		return _s.substring(start, end);
     	}
     }
     
