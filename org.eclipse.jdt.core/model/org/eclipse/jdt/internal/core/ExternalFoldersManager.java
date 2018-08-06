@@ -39,6 +39,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -110,26 +111,72 @@ public class ExternalFoldersManager {
 
 	/**
 	 * Returns <code>true</code> if the provided path is a folder external to the project.
+	 * The path is expected to be one matching the {@link IClasspathEntry#CPE_LIBRARY} case in
+	 * {@link IClasspathEntry#getPath()} definition.
 	 */
 	public static boolean isExternalFolderPath(IPath externalPath) {
-		if (externalPath == null)
+		if (externalPath == null || externalPath.isEmpty()) {
 			return false;
-		String firstSegment = externalPath.segment(0);
-		if (firstSegment != null && ResourcesPlugin.getWorkspace().getRoot().getProject(firstSegment).exists())
-			return false;
+		}
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		if (manager.isExternalFile(externalPath) || manager.isAssumedExternalFile(externalPath))
+		if (manager.isExternalFile(externalPath) || manager.isAssumedExternalFile(externalPath)) {
 			return false;
+		}
+		if (!externalPath.isAbsolute()) {
+			// can be only project relative path
+			return false;
+		}
+		// Test if this an absolute path in local file system (not the workspace path)
 		File externalFolder = externalPath.toFile();
-		if (externalFolder.isFile()) {
+		if (Files.isRegularFile(externalFolder.toPath())) {
 			manager.addExternalFile(externalPath);
 			return false;
 		}
-		if (externalPath.getFileExtension() != null/*likely a .jar, .zip, .rar or other file*/ && !externalFolder.exists()) {
-			manager.addAssumedExternalFile(externalPath);
+		if (Files.isDirectory(externalFolder.toPath())) {
+			return true;
+		}
+		// this can be now only full workspace path or an external path to a not existing file or folder
+		if (isInternalFilePath(externalPath)) {
 			return false;
 		}
+		if (isInternalContainerPath(externalPath)) {
+			return false;
+		}
+		if (externalPath.getFileExtension() != null/*likely a .jar, .zip, .rar or other file*/) {
+			manager.addAssumedExternalFile(externalPath);
+			// not existing external file
+			return false;
+		}
+		// not existing external folder
 		return true;
+	}
+
+	/**
+	 * @param path full absolute workspace path
+	 */
+	private static boolean isInternalFilePath(IPath path) {
+		IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
+		// in case this is full workspace path it should start with project segment
+		if(path.segmentCount() > 1 && wsRoot.getFile(path).exists()) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @param path full absolute workspace path
+	 */
+	private static boolean isInternalContainerPath(IPath path) {
+		IWorkspaceRoot wsRoot = ResourcesPlugin.getWorkspace().getRoot();
+		// in case this is full workspace path it should start with project segment
+		int segmentCount = path.segmentCount();
+		if(segmentCount == 1 && wsRoot.getProject(path.segment(0)).exists()) {
+			return true;
+		}
+		if(segmentCount > 1 && wsRoot.getFolder(path).exists()) {
+			return true;
+		}
+		return false;
 	}
 
 	public static boolean isInternalPathForExternalFolder(IPath resourcePath) {
