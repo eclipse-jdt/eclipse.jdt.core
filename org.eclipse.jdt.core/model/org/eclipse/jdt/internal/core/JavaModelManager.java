@@ -938,7 +938,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		);
 	}
 
-	private void containerRemoveInitializationInProgress(IJavaProject project, IPath containerPath) {
+	void containerRemoveInitializationInProgress(IJavaProject project, IPath containerPath) {
 		Map<IJavaProject, Set<IPath>> initializations = this.containerInitializationInProgress.get();
 		if (initializations == null)
 			return;
@@ -3096,6 +3096,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 											if (containerIsSet(javaProject, path)) {
 												// another thread has concurrently initialized the container.
 												containerBeingInitializedRemove(javaProject, path);
+												containerRemoveInitializationInProgress(javaProject, path);
 											} else {
 												containerPut(javaProject, path, container);
 											}

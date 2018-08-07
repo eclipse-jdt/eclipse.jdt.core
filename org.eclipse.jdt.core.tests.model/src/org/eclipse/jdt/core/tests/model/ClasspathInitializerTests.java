@@ -1793,6 +1793,8 @@ public void testBug525597B() throws CoreException {
 		};
 		helperThread.setName("ClasspathInitializerTests Helper");
 		AtomicInteger p2Counter=new AtomicInteger(0);
+		AtomicReference<IClasspathContainer> helperContainer=new AtomicReference<>();
+		AtomicReference<IClasspathContainer> mainContainer=new AtomicReference<>();
 		Thread mainThread=Thread.currentThread();
 		Semaphore s1=new Semaphore(0);
 		Semaphore s2=new Semaphore(0);
@@ -1814,6 +1816,7 @@ public void testBug525597B() throws CoreException {
 								containerPath) != null) {
 							p2Counter.incrementAndGet();
 						}
+						helperContainer.set(JavaModelManager.getJavaModelManager().getClasspathContainer(containerPath, p2Project.get()));
 					}
 				} else if (Thread.currentThread() == mainThread) {
 					if (project.getElementName().equals("P2")) {
@@ -1824,6 +1827,7 @@ public void testBug525597B() throws CoreException {
 								containerPath) != null) {
 							p2Counter.incrementAndGet();
 						}
+						mainContainer.set(JavaModelManager.getJavaModelManager().getClasspathContainer(containerPath, p2Project.get()));
 					}
 				}
 				super.initialize(containerPath, project);
@@ -1843,6 +1847,7 @@ public void testBug525597B() throws CoreException {
 			e.printStackTrace();
 		}
 		assertEquals("more than one result for P2 used.", 1, p2Counter.get());
+		assertEquals("main and helper threads did not see the same container.", helperContainer.get(), mainContainer.get());
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");
