@@ -6958,6 +6958,63 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.deleteProject("com.greetings");
 		}
 	}
+	public void testBug534624a() throws CoreException, IOException {
+		if (!isJRE9) return;
+		IJavaProject project = null;
+		Hashtable<String, String> options = JavaCore.getOptions();
+		try {
+			project = setUpJavaProject("bug.test.b534624");
+			IClasspathEntry[] rawClasspath = project.getRawClasspath();
+			IClasspathEntry jrtEntry = getJRTLibraryEntry();
+			for(int i = 0; i < rawClasspath.length; i++) {
+				if (rawClasspath[i].getEntryKind() == IClasspathEntry.CPE_CONTAINER)
+					rawClasspath[i] = jrtEntry;
+			}
+			project.setRawClasspath(rawClasspath, null);
+			project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_10);
+			project.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_10);
+			project.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_10);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "Version9 cannot be resolved to a module", markers);
+		} finally {
+			if (project != null)
+				deleteProject(project);
+			JavaCore.setOptions(options);
+		}
+	}
+	public void testBug534624b() throws CoreException, IOException {
+		if (!isJRE9) return;
+		IJavaProject project = null;
+		Hashtable<String, String> options = JavaCore.getOptions();
+		try {
+			project = setUpJavaProject("bug.test.b534624");
+			IClasspathEntry[] rawClasspath = project.getRawClasspath();
+			IClasspathEntry jrtEntry = getJRTLibraryEntry();
+			for(int i = 0; i < rawClasspath.length; i++) {
+				if (rawClasspath[i].getEntryKind() == IClasspathEntry.CPE_CONTAINER)
+					rawClasspath[i] = jrtEntry;
+			}
+			project.setRawClasspath(rawClasspath, null);
+			project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+			project.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
+			project.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "Version10 cannot be resolved to a module", markers);
+			
+			project.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_10);
+			project.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_10);
+			project.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_10);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "Version9 cannot be resolved to a module", markers);
+		} finally {
+			if (project != null)
+				deleteProject(project);
+			JavaCore.setOptions(options);
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

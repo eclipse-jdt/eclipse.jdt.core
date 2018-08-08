@@ -1427,6 +1427,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		project.setRawClasspath(newPath, null);
 		return project;
 	}
+	protected IClasspathEntry getJRTLibraryEntry() {
+		if (!isJRE9) return null;
+		String javaHome = System.getProperty("java.home") + File.separator;
+		Path bootModPath = new Path(javaHome +"/lib/jrt-fs.jar");
+		Path sourceAttachment = new Path(javaHome +"/lib/src.zip");
+		return JavaCore.newLibraryEntry(bootModPath, sourceAttachment, null, null, null, false);
+	}
 	/*
 	}
 	 * Creates a Java project where prj=src=bin and with JCL_LIB on its classpath.
