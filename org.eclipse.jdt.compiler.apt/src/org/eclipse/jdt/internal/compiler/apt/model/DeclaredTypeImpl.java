@@ -24,8 +24,10 @@ import javax.lang.model.type.TypeMirror;
 import javax.lang.model.type.TypeVisitor;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
@@ -55,6 +57,13 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 
 	@Override
 	public Element asElement() {
+		TypeBinding prototype = null;
+		if (_binding instanceof TypeBinding) {
+			prototype = ((TypeBinding) _binding).prototype();
+		}
+		if (prototype != null) {
+			return _env.getFactory().newElement(prototype, _elementKindHint);
+		}
 		// The JDT compiler does not distinguish between type elements and declared types
 		return _env.getFactory().newElement((ReferenceBinding)_binding, _elementKindHint);
 	}

@@ -25,6 +25,7 @@ import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.AnnotatedConstruct;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
 import javax.lang.model.element.Element;
@@ -39,6 +40,7 @@ import javax.lang.model.element.ModuleElement.ProvidesDirective;
 import javax.lang.model.element.ModuleElement.RequiresDirective;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
@@ -381,6 +383,12 @@ public class Java9ElementProcessor extends BaseProcessor {
 	 * Test java.base module can be loaded and verify its exports attributes
 	 */
 	public void testModuleJavaBase1() {
+		int modCount = 108;
+		try {
+			SourceVersion.valueOf("RELEASE_10");
+			modCount = 102;
+		} catch(IllegalArgumentException iae) {
+		}
 		Set<? extends ModuleElement> allModuleElements = _elementUtils.getAllModuleElements();
 		ModuleElement base = null;
 		for (ModuleElement moduleElement : allModuleElements) {
@@ -391,7 +399,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.EXPORTS);
-		assertEquals("incorrect no of exports", 108 , filterDirective.size());
+		assertEquals("incorrect no of exports", modCount , filterDirective.size());
 		ExportsDirective pack = null;
 		for (Directive directive : filterDirective) {
 			ModuleElement.ExportsDirective exports = (ExportsDirective) directive;
@@ -584,7 +592,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		List<? extends Directive> directives = mod.getDirectives();
 		assertEquals("incorrect no of directives", 0, directives.size());
 		List<Element> filterElements = filterElements(enclosedElements, ElementKind.PACKAGE);
-		assertEquals("incorrect no of packages", 3, filterElements.size());
+		assertEquals("incorrect no of packages", 4, filterElements.size());
 		// FIXME: Note Javac fails here as well
 //		PackageElement packageOf = _elementUtils.getPackageOf(mod);
 //		assertNotNull("package should not be null", packageOf);
@@ -745,6 +753,61 @@ public class Java9ElementProcessor extends BaseProcessor {
 		}
 		assertTrue("Exception not thrown", exception);
 	}
+	public void testBug498022a() {
+		Set<? extends Element> rootElements = roundEnv.getRootElements();
+		TypeElement type = null;
+		for (Element element : rootElements) {
+			if (element.getSimpleName().toString().equals("Main")) {
+				type = (TypeElement) element;
+				break;
+			}
+		}
+		VariableElement field = null;
+		if (type != null) {
+			List<? extends Element> members = _elementUtils.getAllMembers(type);
+			for (Element member : members) {
+				if ("someField".equals(member.getSimpleName().toString())) {
+					field = (VariableElement) member;
+				}
+			}
+		}
+		assertNotNull("field should not be null", field);
+		TypeMirror asType = field.asType();
+		DeclaredType declaredType = (DeclaredType) asType;
+		Element asElement = declaredType.asElement();
+		verifyAnnotations(asElement, new String[] {"@org.eclipse.jdt.compiler.apt.tests.annotations.Type(value=c)"});
+	}
+	public void testBug498022b() {
+		Set<? extends Element> rootElements = roundEnv.getRootElements();
+		TypeElement type = null;
+		TypeElement anotherType = null;
+		for (Element element : rootElements) {
+			if (element.getSimpleName().toString().equals("OtherAnnotatedClass")) {
+				type = (TypeElement) element;
+			} else if (element.getSimpleName().toString().equals("SomeAnnotatedClass")) {
+				anotherType = (TypeElement) element;
+			}
+		}
+		verifyAnnotations(type, new String[] {"@targets.model9.q.FooBarAnnotation()"});
+		verifyAnnotations(anotherType, new String[] {"@targets.model9.q.FooBarAnnotation(otherClasses=[targets.model9.q.OtherAnnotatedClass.class,])"});
+		List<? extends AnnotationMirror> annots = anotherType.getAnnotationMirrors();
+		AnnotationMirror annotationMirror = annots.get(0);
+		Map<? extends ExecutableElement, ? extends AnnotationValue> values = annotationMirror.getElementValues();
+		AnnotationValue value = null;
+		Set<? extends ExecutableElement> keys = values.keySet();
+		for (ExecutableElement executableElement : keys) {
+			if (executableElement.getSimpleName().toString().equals("otherClasses"))
+				value = values.get(executableElement);
+		}
+		assertNotNull("value should not be null", value);
+		@SuppressWarnings("rawtypes")
+		List list = (List) value.getValue();
+		assertEquals("Incorrect no of values", 1, list.size());
+		AnnotationValue annotVal = (AnnotationValue) list.get(0);
+		DeclaredType declaredType = (DeclaredType) annotVal.getValue();
+		TypeElement typeEl = (TypeElement) declaredType.asElement();
+		verifyAnnotations(typeEl, new String[] {"@targets.model9.q.FooBarAnnotation()"});
+	}
 	private void validateModifiers(ExecutableElement method, Modifier[] expected) {
 		Set<Modifier> modifiers = method.getModifiers();
 		List<Modifier> list = new ArrayList<>(modifiers);
@@ -881,7 +944,18 @@ public class Java9ElementProcessor extends BaseProcessor {
 			buf.append(executableElement.getSimpleName());
 			buf.append('=');
 			AnnotationValue value = values.get(executableElement);
-			buf.append(value.getValue());
+			if (value.getValue() instanceof List) {
+				buf.append('[');
+				@SuppressWarnings("rawtypes")
+				List list = (List) value.getValue();
+				for (Object obj : list) {
+					buf.append(obj.toString());
+					buf.append(',');
+				}
+				buf.append(']');
+			} else {
+				buf.append(value.getValue());
+			}
 		}
 		buf.append(')');
 		return buf.toString();

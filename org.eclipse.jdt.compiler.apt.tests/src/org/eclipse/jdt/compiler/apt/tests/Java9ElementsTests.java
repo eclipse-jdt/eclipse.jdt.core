@@ -379,6 +379,22 @@ public class Java9ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest2(compiler, MODULE_PROC, "testTypesImpl", null);
 	}
+	public void testBug498022a() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, MODULE_PROC, "testBug498022a", null, "model9");
+	}
+	public void testBug498022aJavac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, MODULE_PROC, "testBug498022a", null, "model9");
+	}
+	public void testBug498022b() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, MODULE_PROC, "testBug498022b", null, "model9");
+	}
+	public void testBug498022bJavac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, MODULE_PROC, "testBug498022b", null, "model9");
+	}
 	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea) throws IOException {
 		if (!canRunJava9()) {
 			return;
