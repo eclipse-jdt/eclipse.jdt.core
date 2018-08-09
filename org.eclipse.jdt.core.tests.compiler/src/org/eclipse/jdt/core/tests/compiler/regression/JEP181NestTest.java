@@ -1276,6 +1276,66 @@ public void testBug535918_005i() throws Exception {
 			"access$";
 		verifyNegativeClassFile(unExpectedPartialOutput, "pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 }
+//private interface method invoked from a method inside the same interface should be invokeinterface
+public void testBug535918_005j() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"interface I {\n" +
+					"	private void foo() {}\n" +
+					"	public default void apply() {\n" +
+					"		foo();\n" +
+					"	}\n" +
+					"}\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"	}\n" +
+					"}\n",
+			},
+			"",
+			options
+	);
+
+	String IFile = getClassFileContents("pack1/I.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "invokeinterface pack1.I.foo";
+	verifyOutput(IFile, partialOutput, true /* positive */);
+}
+//private interface method invoked from a nestmate interface should be invokeinterface
+public void testBug535918_005k() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n" +
+					"interface I {" +
+					"	private void foo() {}" +
+					"	" +
+					"	interface J {" +
+					"		public default void apply() {" +
+					"			I i = new X();" +
+					"			i.foo();" +
+					"		}	" +
+					"	}" +
+					"}" +
+					"public class X implements I{\n" +
+					"}\n",
+			},
+			"",
+			options
+	);
+
+	String IFile = getClassFileContents("pack1/I$J.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "invokeinterface pack1.I.foo";
+	verifyOutput(IFile, partialOutput, true /* positive */);
+}
 public static Class testClass() {
 	return JEP181NestTest.class;
 }
