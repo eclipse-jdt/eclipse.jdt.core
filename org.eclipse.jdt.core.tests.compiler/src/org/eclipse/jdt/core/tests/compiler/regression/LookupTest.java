@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3490,6 +3490,43 @@ public void test106() {
 		"	private static <T> List<T> foo3(Set<T> set) {\n" + 
 		"	                           ^^^^^^^^^^^^^^^^\n" + 
 		"The method foo3(Set<T>) from the type X is never used locally\n" + 
+		"----------\n");
+}
+
+public void testBug527828() {
+	Map options = getCompilerOptions();
+	CompilerOptions compOptions = new CompilerOptions(options);
+	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+		new String[] {
+			"FieldBug.java",//------------------------------
+			"class A {\n" + 
+			"	Object obj = \"A.obj\";\n" + 
+			"}\n" + 
+			"\n" + 
+			"class B {\n" + 
+			"	private Object obj = \"B.obj\";\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class FieldBug {\n" + 
+			"	Object obj = \"FieldBug.obj\";\n" + 
+			"\n" + 
+			"	static class AA extends A {\n" + 
+			"		class BB extends B {\n" + 
+			"			Object n = obj;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(new AA().new BB().n);\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. WARNING in FieldBug.java (at line 6)\n" + 
+		"	private Object obj = \"B.obj\";\n" + 
+		"	               ^^^\n" + 
+		"The value of the field B.obj is not used\n" + 
 		"----------\n");
 }
 public static Class testClass() {	return LookupTest.class;
