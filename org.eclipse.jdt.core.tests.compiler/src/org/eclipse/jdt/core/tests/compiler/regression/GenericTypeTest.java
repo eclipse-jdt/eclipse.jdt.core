@@ -38,8 +38,9 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class GenericTypeTest extends AbstractComparableTest {
 	
-	final static boolean NESTED_CLASS_USE_DOLLAR;
-	static {
+	static boolean NESTED_CLASS_USE_DOLLAR;
+
+	static void init() {
 		if (isJRE9Plus) {
 			NESTED_CLASS_USE_DOLLAR = true;
 		} else {
@@ -65,7 +66,9 @@ public class GenericTypeTest extends AbstractComparableTest {
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
-		return buildComparableTestSuite(testClass());
+		Test suite = buildComparableTestSuite(testClass());
+		init();
+		return suite;
 	}
 
 	public static Class testClass() {
