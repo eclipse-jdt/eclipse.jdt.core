@@ -37,6 +37,21 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class GenericTypeTest extends AbstractComparableTest {
+	
+	final static boolean NESTED_CLASS_USE_DOLLAR;
+	static {
+		if (isJRE9Plus) {
+			NESTED_CLASS_USE_DOLLAR = true;
+		} else {
+			String version = System.getProperty("java.version");
+			if (version.startsWith("1.8.0_")) {
+				int build = Integer.parseInt(version.substring("1.8.0_".length()));
+				NESTED_CLASS_USE_DOLLAR = build >= 171; 
+			} else {
+				throw new IllegalStateException("Unrecognized Java version: "+version);
+			}
+		}
+	}
 
 	public GenericTypeTest(String name) {
 		super(name);
@@ -40275,7 +40290,7 @@ public void test1151() throws Exception {
 			"}\n"
 		},
 		//"java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>##java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply$Inside<java.lang.Number>>"
-		(isJRE9Plus 
+		(NESTED_CLASS_USE_DOLLAR 
 		? "java.lang.ref.Reference<X<java.lang.String>$Other<java.lang.Thread>$Deeply>"
 		: "java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>")
 	);
@@ -40391,7 +40406,7 @@ public void test1153() {
 			"}\n"
 		},
 		"java.lang.ref.Reference<p.X$Rather$Deeply>##java.lang.ref.Reference<p.X$Rather>##java.lang.ref.Reference<p.X$Rather$Deeply$Inside>##"+
-		(isJRE9Plus 
+		(NESTED_CLASS_USE_DOLLAR 
 		? "java.lang.ref.Reference<p.X<java.lang.String>$Other<java.lang.Thread>$Deeply>"
 		: "java.lang.ref.Reference<p.X<java.lang.String>.Other<java.lang.Thread>.Deeply>"),
 		null,
@@ -40473,7 +40488,7 @@ public void test1155() throws Exception {
 			"	}\n" +
 			"}\n"
 		},
-		(isJRE9Plus
+		(NESTED_CLASS_USE_DOLLAR
 		? "java.lang.ref.Reference<X<java.lang.String>$Other<java.lang.Thread>$Deeply>"
 		: "java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>")	);
 
