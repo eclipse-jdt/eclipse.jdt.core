@@ -51,6 +51,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			} else {
 				throw new IllegalStateException("Unrecognized Java version: "+version);
 			}
+			System.out.println("NESTED_CLASS_USE_DOLLAR="+NESTED_CLASS_USE_DOLLAR+" based on version="+version);
 		}
 	}
 
