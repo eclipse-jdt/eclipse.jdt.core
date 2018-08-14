@@ -38,23 +38,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class GenericTypeTest extends AbstractComparableTest {
 	
-	static boolean NESTED_CLASS_USE_DOLLAR;
-
-	static void init() {
-		if (isJRE9Plus) {
-			NESTED_CLASS_USE_DOLLAR = true;
-		} else {
-			String version = System.getProperty("java.version");
-			if (version.startsWith("1.8.0_")) {
-				int build = Integer.parseInt(version.substring("1.8.0_".length()));
-				NESTED_CLASS_USE_DOLLAR = build >= 171; 
-			} else {
-				throw new IllegalStateException("Unrecognized Java version: "+version);
-			}
-			System.out.println("NESTED_CLASS_USE_DOLLAR="+NESTED_CLASS_USE_DOLLAR+" based on version="+version);
-		}
-	}
-
 	public GenericTypeTest(String name) {
 		super(name);
 	}
@@ -67,9 +50,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
 	public static Test suite() {
-		Test suite = buildComparableTestSuite(testClass());
-		init();
-		return suite;
+		return buildComparableTestSuite(testClass());
 	}
 
 	public static Class testClass() {
@@ -40294,7 +40275,7 @@ public void test1151() throws Exception {
 			"}\n"
 		},
 		//"java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>##java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply$Inside<java.lang.Number>>"
-		(NESTED_CLASS_USE_DOLLAR 
+		(reflectNestedClassUseDollar 
 		? "java.lang.ref.Reference<X<java.lang.String>$Other<java.lang.Thread>$Deeply>"
 		: "java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>")
 	);
@@ -40410,7 +40391,7 @@ public void test1153() {
 			"}\n"
 		},
 		"java.lang.ref.Reference<p.X$Rather$Deeply>##java.lang.ref.Reference<p.X$Rather>##java.lang.ref.Reference<p.X$Rather$Deeply$Inside>##"+
-		(NESTED_CLASS_USE_DOLLAR 
+		(reflectNestedClassUseDollar 
 		? "java.lang.ref.Reference<p.X<java.lang.String>$Other<java.lang.Thread>$Deeply>"
 		: "java.lang.ref.Reference<p.X<java.lang.String>.Other<java.lang.Thread>.Deeply>"),
 		null,
@@ -40492,7 +40473,7 @@ public void test1155() throws Exception {
 			"	}\n" +
 			"}\n"
 		},
-		(NESTED_CLASS_USE_DOLLAR
+		(reflectNestedClassUseDollar
 		? "java.lang.ref.Reference<X<java.lang.String>$Other<java.lang.Thread>$Deeply>"
 		: "java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>")	);
 
