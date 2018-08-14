@@ -434,7 +434,7 @@ public class BatchTestUtils {
 		File processorJar = new File(_processorJarPath);
 		junit.framework.TestCase.assertTrue("Couldn't find processor jar at " + processorJar.getAbsolutePath(), processorJar.exists());
 
-		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class);//, EclipseCompiler.class.getClassLoader());
+		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class, BatchTestUtils.class.getClassLoader());
 		Class<?> c = null;
 		try {
 			c = Class.forName("org.eclipse.jdt.internal.compiler.tool.EclipseCompiler");
