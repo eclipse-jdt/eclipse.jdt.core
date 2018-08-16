@@ -1645,6 +1645,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		for (int i = 0, length = choices.length; i < length; i++) {
 			MethodBinding method = choices[i];
 			if (!method.isAbstract() || method.redeclaresPublicObjectMethod(scope)) continue; // (re)skip statics, defaults, public object methods ...
+			if (method.problemId() == ProblemReasons.ContradictoryNullAnnotations)
+				method = ((ProblemMethodBinding) method).closestMatch;
 			this.singleAbstractMethod[index] = method;
 			break;
 		}

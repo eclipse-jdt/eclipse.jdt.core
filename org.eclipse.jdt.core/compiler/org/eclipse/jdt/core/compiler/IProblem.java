@@ -1876,6 +1876,10 @@ void setSourceStart(int sourceStart);
 	/** @since 3.10 */
 	int IllegalTypeArgumentsInRawConstructorReference = TypeRelated + 1003;
 
+	// more on lambdas:
+	/** @since 3.18 */
+	int MissingValueFromLambda = Internal + 1004;
+
 	// default methods:
 	/** @since 3.10 */
 	int IllegalModifierForInterfaceMethod18 = MethodRelated + 1050;

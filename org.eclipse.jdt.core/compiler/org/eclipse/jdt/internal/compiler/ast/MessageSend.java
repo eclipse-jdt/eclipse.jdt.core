@@ -957,7 +957,7 @@ protected TypeBinding findMethodBinding(BlockScope scope) {
 		    return new PolyTypeBinding(this);
 	    }
 	}
-	resolvePolyExpressionArguments(this, this.binding, this.argumentTypes, scope);
+	this.binding = resolvePolyExpressionArguments(this, this.binding, this.argumentTypes, scope);
 	return this.binding.returnType;
 }
 

@@ -1527,6 +1527,13 @@ public void lambdaExpressionCannotImplementGenericMethod(LambdaExpression lambda
 			lambda.sourceStart,
 			lambda.diagnosticsSourceEnd());
 }
+public void missingValueFromLambda(LambdaExpression lambda, TypeBinding returnType) {
+	this.handle(IProblem.MissingValueFromLambda, 
+			new String[] {new String(returnType.readableName())},
+			new String[] {new String(returnType.shortReadableName())},
+			lambda.sourceStart,
+			lambda.diagnosticsSourceEnd());
+}
 public void caseExpressionMustBeConstant(Expression expression) {
 	this.handle(
 		IProblem.NonConstantExpression,
@@ -4341,6 +4348,8 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method, Scope s
 	int id = IProblem.UndefinedMethod; //default...
     MethodBinding shownMethod = method;
 	switch (method.problemId()) {
+		case ProblemReasons.ErrorAlreadyReported:
+			return;
 		case ProblemReasons.NoSuchMethodOnArray :
 			return; // secondary error.
 		case ProblemReasons.NotFound :

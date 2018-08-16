@@ -9855,4 +9855,29 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug525822() {
+		runNegativeTest(
+			new String[] {
+				"ECJTest.java",
+				"import java.util.*;\n" + 
+				"import java.util.function.*;\n" + 
+				"\n" + 
+				"public class ECJTest {\n" + 
+				"\n" + 
+				"	static {\n" + 
+				"		final List<String> list = new ArrayList<>();\n" + 
+				"		accept(list::add);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static void accept(Consumer<String> yay) {};\n" + 
+				"	static void accept(BiConsumer<String, String> nooo) {};\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in ECJTest.java (at line 8)\n" + 
+			"	accept(list::add);\n" + 
+			"	^^^^^^\n" + 
+			"The method accept(Consumer<String>) is ambiguous for the type ECJTest\n" + 
+			"----------\n");
+	}
 }
