@@ -115,12 +115,15 @@ public void test001_irritant_warning_token() {
 			}
 		}
 	}
+	// Add one for "preview", which doesn't have any irritant at the moment
+	matcher.put("preview", "preview");
 	String [] allTokens = CompilerOptions.warningTokens;
 	int length = allTokens.length;
 	matcher.put("all", "all"); // all gets undetected in the From/To loop
 	assertEquals(allTokens.length, matcher.size());
 	for (int i = 0; i < length; i++) {
-		assertNotNull(matcher.get(allTokens[i]));
+		Object object = matcher.get(allTokens[i]);
+		assertNotNull(object);
 	}
 }
 

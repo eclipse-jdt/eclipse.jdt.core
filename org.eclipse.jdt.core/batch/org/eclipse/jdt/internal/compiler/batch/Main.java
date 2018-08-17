@@ -1385,6 +1385,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	// == Main.NONE: absorbent element, do not output class files;
 	// else: use as the path of the directory into which class files must
 	//       be written.
+	protected boolean enablePreview;
 	protected String releaseVersion;
 	private boolean didSpecifySource;
 	private boolean didSpecifyTarget;
@@ -2205,6 +2206,11 @@ public void configure(String[] argv) {
 							this.bind("configure.duplicateBootClasspath", errorMessage.toString())); //$NON-NLS-1$
 					}
 					mode = INSIDE_BOOTCLASSPATH_start;
+					continue;
+				}
+				if (currentArg.equals("--enable-preview")) { //$NON-NLS-1$
+					this.enablePreview = true;
+					mode = DEFAULT;
 					continue;
 				}
 				if (currentArg.equals("--system")) { //$NON-NLS-1$
@@ -3070,6 +3076,11 @@ public void configure(String[] argv) {
 		}
 		mode = DEFAULT;
 		continue;
+	}
+	if (this.enablePreview) {
+		this.options.put(
+				CompilerOptions.OPTION_EnablePreviews,
+				CompilerOptions.ENABLED);
 	}
 
 	// set DocCommentSupport, with appropriate side effects on defaults if
@@ -5479,7 +5490,10 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 		long ver = CompilerOptions.versionToJdkLevel(sourceVersion);
 		if(this.complianceLevel < ver)
 			throw new IllegalArgumentException(this.bind("configure.incompatibleComplianceForSource", this.options.get(CompilerOptions.OPTION_Compliance), sourceVersion)); //$NON-NLS-1$
-	} 	
+	}
+	if (this.enablePreview && this.complianceLevel != ClassFileConstants.getLatestJDKLevel()) {
+		throw new IllegalArgumentException(this.bind("configure.unsupportedPreview")); //$NON-NLS-1$
+	}
 
 	// check and set compliance/source/target compatibilities
 	if (this.didSpecifyTarget) {
