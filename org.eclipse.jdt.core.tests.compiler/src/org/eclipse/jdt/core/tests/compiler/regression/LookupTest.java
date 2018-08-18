@@ -3320,7 +3320,8 @@ public void test103() {
 	Map options = getCompilerOptions();
 	CompilerOptions compOptions = new CompilerOptions(options);
 	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"A.java",//------------------------------
 			"public class A {\n" +
@@ -3337,7 +3338,8 @@ public void test103() {
 			"	    private int x;\n" +
 			"	  }\n" +
 			"	}\n",
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. WARNING in A.java (at line 2)\n" + 
 		"	private int x;\n" + 
@@ -3368,14 +3370,17 @@ public void test103() {
 		"	private int x;\n" + 
 		"	            ^\n" + 
 		"The value of the field A.C.x is not used\n" + 
-		"----------\n");
+		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runWarningTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=316956
 public void test104() {
 	Map options = getCompilerOptions();
 	CompilerOptions compOptions = new CompilerOptions(options);
 	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"A.java",//------------------------------
 			"public class A {\n" +
@@ -3392,7 +3397,8 @@ public void test104() {
 			"	    public int x;\n" +
 			"	  }\n" +
 			"	}\n",
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. WARNING in A.java (at line 2)\n" + 
 		"	private int x;\n" + 
@@ -3413,14 +3419,17 @@ public void test104() {
 		"	void foo() {\n" + 
 		"	     ^^^^^\n" + 
 		"The method foo() from the type new A.C(){} is never used locally\n" + 
-		"----------\n");
+		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runWarningTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=316956
 public void test105() {
 	Map options = getCompilerOptions();
 	CompilerOptions compOptions = new CompilerOptions(options);
 	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"A.java",//------------------------------
 			"public class A {\n" +
@@ -3434,7 +3443,8 @@ public void test105() {
 			"	    private int x;\n" +
 			"	  }\n" +
 			"	 }\n",
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. WARNING in A.java (at line 2)\n" + 
 		"	private int x;\n" + 
@@ -3460,13 +3470,16 @@ public void test105() {
 		"	private int x;\n" + 
 		"	            ^\n" + 
 		"The value of the field A.C.x is not used\n" + 
-		"----------\n");
+		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runWarningTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350738
 public void test106() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return;
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"X.java",//------------------------------
 			"import java.util.List;\n" +
@@ -3479,7 +3492,8 @@ public void test106() {
 			"	    return foo3(set);\n" +
 			"	}\n" +
 			"}\n",
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. WARNING in X.java (at line 4)\n" + 
 		"	private static List<Object> foo1(Set<Object> set) {\n" + 
@@ -3490,7 +3504,9 @@ public void test106() {
 		"	private static <T> List<T> foo3(Set<T> set) {\n" + 
 		"	                           ^^^^^^^^^^^^^^^^\n" + 
 		"The method foo3(Set<T>) from the type X is never used locally\n" + 
-		"----------\n");
+		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runWarningTest();
 }
 
 public void testBug527828() {
