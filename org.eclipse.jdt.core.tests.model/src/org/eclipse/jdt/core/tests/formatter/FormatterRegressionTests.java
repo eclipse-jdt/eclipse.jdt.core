@@ -14259,4 +14259,54 @@ public void testBug104910g() throws JavaModelException {
 	formatSource(input, getCompilationUnit("Formatter", "", "test104910", "G_out.java").getSource());
 }
 
+/**
+ * https://bugs.eclipse.org/530756 - [formatter] Align fields in columns: add option to use spaces
+ */
+public void testBug530756a() throws JavaModelException {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	this.formatterPrefs.align_type_members_on_columns = true;
+	String input = getCompilationUnit("Formatter", "", "test530756", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test530756", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/530756 - [formatter] Align fields in columns: add option to use spaces
+ */
+public void testBug530756b() throws JavaModelException {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_with_spaces = true;
+	String input = getCompilationUnit("Formatter", "", "test530756", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test530756", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/530756 - [formatter] Align fields in columns: add option to use spaces
+ */
+public void testBug530756c() throws JavaModelException {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
+	this.formatterPrefs.indentation_size = 6;
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_with_spaces = true;
+	String input = getCompilationUnit("Formatter", "", "test530756", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test530756", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/530756 - [formatter] Align fields in columns: add option to use spaces
+ */
+public void testBug530756d() throws JavaModelException {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_with_spaces = true;
+	String input = getCompilationUnit("Formatter", "", "test530756", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test530756", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/530756 - [formatter] Align fields in columns: add option to use spaces
+ */
+public void testBug530756e() throws JavaModelException {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_with_spaces = false;
+	String input = getCompilationUnit("Formatter", "", "test530756", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test530756", "E_out.java").getSource());
+}
 }

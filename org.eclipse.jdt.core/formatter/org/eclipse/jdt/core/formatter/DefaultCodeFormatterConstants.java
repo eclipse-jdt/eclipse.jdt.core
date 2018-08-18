@@ -58,7 +58,7 @@ public class DefaultCodeFormatterConstants {
 	/**
 	 * <pre>
 	 * FORMATTER / Option to align type members of a type declaration on column
-	 *     - option id:         "org.eclipse.jdt.core.formatter.formatter.align_type_members_on_columns"
+	 *     - option id:         "org.eclipse.jdt.core.formatter.align_type_members_on_columns"
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           FALSE
 	 * </pre>
@@ -67,6 +67,19 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS = JavaCore.PLUGIN_ID + ".formatter.align_type_members_on_columns";	 //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to use spaces when aligning members, independent of selected tabulation character
+	 *     - option id:         "org.eclipse.jdt.core.formatter.align_with_spaces"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.15
+	 */
+	public static final String FORMATTER_ALIGN_WITH_SPACES = JavaCore.PLUGIN_ID + ".formatter.align_with_spaces";	 //$NON-NLS-1$
 
 	/**
 	 * <pre>

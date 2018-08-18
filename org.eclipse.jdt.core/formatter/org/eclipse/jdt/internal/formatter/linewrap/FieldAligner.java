@@ -121,7 +121,7 @@ public class FieldAligner {
 			int positionInLine = this.tm.getPositionInLine(nameIndex);
 			maxNameAlign = Math.max(maxNameAlign, positionInLine);
 		}
-		maxNameAlign = this.tm.toIndent(maxNameAlign, false);
+		maxNameAlign = normalizedAlign(maxNameAlign);
 
 		int maxAssignAlign = 0;
 		for (FieldDeclaration declaration : alignGroup) {
@@ -138,7 +138,7 @@ public class FieldAligner {
 				maxAssignAlign = Math.max(maxAssignAlign, positionInLine);
 			}
 		}
-		maxAssignAlign = this.tm.toIndent(maxAssignAlign, false);
+		maxAssignAlign = normalizedAlign(maxAssignAlign);
 
 		for (FieldDeclaration declaration : alignGroup) {
 			List<VariableDeclarationFragment> fragments = declaration.fragments();
@@ -166,7 +166,7 @@ public class FieldAligner {
 				maxCommentAlign = Math.max(maxCommentAlign,
 						positionCounter.findMaxPosition(firstIndexInLine, lastIndex));
 			}
-			maxCommentAlign = this.tm.toIndent(maxCommentAlign, false);
+			maxCommentAlign = normalizedAlign(maxCommentAlign);
 
 			for (FieldDeclaration declaration : alignGroup) {
 				int typeIndex = this.tm.firstIndexIn(declaration.getType(), -1);
@@ -190,5 +190,11 @@ public class FieldAligner {
 				}
 			}
 		}
+	}
+
+	private int normalizedAlign(int desiredAlign) {
+		if (this.options.align_with_spaces)
+			return desiredAlign;
+		return this.tm.toIndent(desiredAlign, false);
 	}
 }
