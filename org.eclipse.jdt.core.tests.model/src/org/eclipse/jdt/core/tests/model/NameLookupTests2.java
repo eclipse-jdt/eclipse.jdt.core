@@ -410,7 +410,7 @@ public void testTransitionFromInvalidToValidJar() throws CoreException, IOExcept
 		assertFalse("The invalid archive cache should no longer report the jar as invalid",
 				!JavaModelManager.getJavaModelManager().getArchiveValidity(transitioningIPath).isValid());
 		type = getNameLookup(proj).findType("test1.IResource", false, NameLookup.ACCEPT_CLASSES);
-		assertFalse("Name lookup should be able to find types in the valid jar", type == null);
+		assertTrue("Name lookup should be able to find types in the valid jar", type == null);
 	} finally {
 		Files.deleteIfExists(transitioningJarPath);
 		deleteProject("P");
