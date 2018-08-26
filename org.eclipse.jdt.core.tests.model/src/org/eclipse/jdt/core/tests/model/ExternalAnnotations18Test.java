@@ -2323,4 +2323,44 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		CompilationUnit reconciled = cu.reconcile(getJSL9(), true, null, new NullProgressMonitor());
 		assertNoProblems(reconciled.getProblems());
 	}
+
+	// Bug 522377 - [null] String.format(""...) shows warning
+	public void testVargs() throws CoreException, IOException {
+		myCreateJavaProject("TestLibs");
+		String lib1Content =
+				"package libs;\n" + 
+				"public abstract class MyString {\n" +
+				"   public static String format(String format, Object... args) {\n" + 
+				"		return null;\n" +
+				"	}\n" +
+				"}\n";
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/MyString.java",
+				lib1Content								
+			}, null);
+		createFileInProject("annots/libs", "MyString.eea",
+				"class libs/MyString\n" + 
+				"\n" + 
+				"format\n" + 
+				" (Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;\n" + 
+				" (Ljava/lang/String;[Ljava/lang/Object;)L1java/lang/String;\n" + 
+				"\n");
+
+		// type check sources:
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+		ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
+				"package tests;\n" +
+				"import libs.MyString;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"public class Test1 {\n" + 
+				"  public @NonNull String test(int var) {\n" + 
+				"    return MyString.format(\"que%03d\", var);\n" + 
+				"  }\n" + 
+				"}\n",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = cu.reconcile(getJSL9(), true, null, new NullProgressMonitor());
+		assertNoProblems(reconciled.getProblems());
+	}
 }
