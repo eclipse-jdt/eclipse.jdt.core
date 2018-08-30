@@ -53,7 +53,7 @@ private static final String APACHE_DBUTILS_CONTENT = "package org.apache.commons
 	"}\n";
 
 static {
-//	TESTS_NAMES = new String[] { "testBug542707" };
+//	TESTS_NAMES = new String[] { "testBug463320" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -3088,7 +3088,12 @@ public void testBug368709a() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 18)\n" +
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	return wc.open(getObjectId(), type).openStream();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 18)\n" + 
 		"	return new ObjectStream.Filter(type, size, in);\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Potential resource leak: \'in\' may not be closed at this location\n" +
@@ -5056,7 +5061,7 @@ public void testBug397204() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
+	runLeakTest(
 		new String[] {
 			"HostIdTest.java",
 			"import java.io.*;\n" + 
@@ -5110,6 +5115,13 @@ public void testBug397204() {
 			"    \n" + 
 			"}\n"
 		},
+		// FIXME: should detect that format returns the same formatter
+		"----------\n" + 
+		"1. ERROR in HostIdTest.java (at line 42)\n" + 
+		"	formatter.format(\"%08x\", hostid);\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n",
 		options);
 }
 public void testBug397204_comment4() {
@@ -5700,6 +5712,88 @@ public void testBug486506() {
 		"	return logMessageStream;\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Potential resource leak: \'lineStream\' may not be closed at this location\n" +
+		"----------\n",
+		options);
+}
+public void testBug463320() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"Try17.java",
+			"import java.util.zip.*;\n" +
+			"import java.io.*;\n" +
+			"public class Try17 {\n" + 
+			"    void potential() throws IOException {\n" + 
+			"        String name= getZipFile().getName();\n" + 
+			"        System.out.println(name);\n" + 
+			"    }\n" + 
+			"    void definite() throws IOException {\n" + 
+			"        String name= new ZipFile(\"bla.jar\").getName();\n" + 
+			"        System.out.println(name);\n" + 
+			"    }\n" +
+			"	 void withLocal() throws IOException {\n" +
+			"		 ZipFile zipFile = getZipFile();\n" +
+			"        String name= zipFile.getName();\n" + 
+			"        System.out.println(name);\n" + 
+			"	 }\n" + 
+			"\n" + 
+			"    ZipFile getZipFile() throws IOException {\n" + 
+			"        return new ZipFile(\"bla.jar\");\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in Try17.java (at line 5)\n" + 
+		"	String name= getZipFile().getName();\n" + 
+		"	             ^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n" + 
+		"2. ERROR in Try17.java (at line 9)\n" + 
+		"	String name= new ZipFile(\"bla.jar\").getName();\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"2. ERROR in Try17.java (at line 13)\n" + 
+		"	ZipFile zipFile = getZipFile();\n" + 
+		"	        ^^^^^^^\n" + 
+		"Potential resource leak: \'zipFile\' may not be closed\n" + 
+		"----------\n",
+		options);
+}
+public void testBug463320_comment8() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // required version of java.nio.file.*
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"Try17.java",
+			"import java.io.*;\n" +
+			"import java.nio.file.*;\n" +
+			"import java.net.*;\n" +
+			"public class Try17 {\n" + 
+			"   public InputStream openInputStream(URI uri) {\n" + 
+			"		try {\n" + 
+			"			System.out.println(FileSystems.getFileSystem(uri));\n" + 
+			"			return Files.newInputStream(Paths.get(uri));\n" + 
+			"		} catch (FileSystemNotFoundException e) {\n" + 
+			"			throw new IllegalArgumentException(e);\n" + 
+			"		} catch (IOException e) {\n" + 
+			"			throw new IllegalStateException(e);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public InputStream delegateGet(URI uri) {\n" +
+			"		return openInputStream(uri);\n" + // no problem here!
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in Try17.java (at line 7)\n" + 
+		"	System.out.println(FileSystems.getFileSystem(uri));\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value from line 7>\' may not be closed\n" + 
 		"----------\n",
 		options);
 }

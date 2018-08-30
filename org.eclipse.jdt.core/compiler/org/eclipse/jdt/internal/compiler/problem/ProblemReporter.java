@@ -9887,7 +9887,8 @@ public void redundantSpecificationOfTypeArguments(ASTNode location, TypeBinding[
 }
 public void potentiallyUnclosedCloseable(FakedTrackingVariable trackVar, ASTNode location) {
 	String[] args = { trackVar.nameForReporting(location, this.referenceContext) };
-	if (location == null) {
+	if (location == null || trackVar.acquisition != null) {
+		// if acquisition is set, the problem is not location specific
 		this.handle(
 			IProblem.PotentiallyUnclosedCloseable,
 			args,
