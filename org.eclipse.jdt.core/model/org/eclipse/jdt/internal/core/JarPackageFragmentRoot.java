@@ -10,20 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.ProviderNotFoundException;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,8 +69,6 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	boolean knownToBeModuleLess;
 
 	private boolean multiVersion;
-	
-	private int sync_count = 0;
 
 	/**
 	 * Constructs a package fragment root which is the root of the Java package directory hierarchy
@@ -110,7 +98,6 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		final HashtableOfArrayToObject rawPackageInfo = new HashtableOfArrayToObject();
 		final Map<String, String> overridden = new HashMap<>();
 		IJavaElement[] children = NO_ELEMENTS;
-		java.nio.file.FileSystem fs = null;
 		try {
 			// always create the default package
 			rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
@@ -145,136 +132,61 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			// If we weren't able to compute the set of children from the index (either the index was disabled or didn't
 			// contain an up-to-date entry for this .jar) then fetch it directly from the .jar
 			if (!usedIndex) {
-				IPath path = getPath();
-				Object target = JavaModel.getTarget(path, true);
-				File localFile = JavaModelManager.getLocalFile(path);
-				long classLevel = Util.getJdkLevel(target);
+				Object file = JavaModel.getTarget(getPath(), true);
+				long classLevel = Util.getJdkLevel(file);
 				String projectCompliance = this.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
-				Path filePath = Paths.get(localFile.getAbsolutePath().toString());
-				URI uri = URI.create("jar:" + filePath.toUri());  //$NON-NLS-1$
+				long projectLevel = CompilerOptions.versionToJdkLevel(projectCompliance);
+				ZipFile jar = null;
 				try {
-					synchronized (this) {
-						this.sync_count++;
-						try {
-							fs = FileSystems.getFileSystem(uri);
-						}
-						catch (FileSystemNotFoundException e) {
-							// move on
-						}
-						if (fs == null) {
-							HashMap<String, ?> env = new HashMap<>();
-							fs = FileSystems.newFileSystem(uri, env);
-						}
-					}
-					if (fs != null) {
-						Path rootPath = fs.getPath("/"); //$NON-NLS-1$
-						Path versionsPath = fs.getPath("/", "META-INF", "versions");  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+					jar = getJar();
+					String version = "META-INF/versions/";  //$NON-NLS-1$
+					List<String> versions = new ArrayList<>();
+					if (projectLevel >= ClassFileConstants.JDK9 && jar.getEntry(version) != null) {
 						int earliestJavaVersion = ClassFileConstants.MAJOR_VERSION_9;
 						long latestJDK = CompilerOptions.releaseToJDKLevel(projectCompliance);
 						int latestJavaVer = (int) (latestJDK >> 16);
-						List<Path> versions = new ArrayList<>();
+
 						for(int i = latestJavaVer; i >= earliestJavaVersion; i--) {
-							Path p = fs.getPath("/", "META-INF", "versions", "" + (i - 44));  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-							if (Files.exists(p)) {
-								versions.add(p);
+							String s = "" + + (i - 44); //$NON-NLS-1$
+							String versionPath = version + s;
+							if (jar.getEntry(versionPath) != null) {
+								versions.add(s);
 							}
-						}
-						Path[] supportedVersions = versions.toArray(new Path[versions.size()]);
-						if (supportedVersions.length > 0) {
-							this.multiVersion = true;
-						}
-						try {
-							for (Path pa : supportedVersions) {
-								Files.walkFileTree(pa, new FileVisitor<java.nio.file.Path>() {
-									@Override
-									public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs)
-											throws IOException {
-										return FileVisitResult.CONTINUE;
-									}
-									@Override
-									public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
-											throws IOException {
-										String fileName = file.getFileName().toString();
-										if (!overridden.containsKey(fileName)) {
-											overridden.put(fileName, rootPath.relativize(pa).toString());
-										}
-										initRawPackageInfo(rawPackageInfo, pa.relativize(file).toString(), false, CompilerOptions.versionFromJdkLevel(classLevel));
-										return FileVisitResult.CONTINUE;
-									}
-
-									@Override
-									public FileVisitResult visitFileFailed(java.nio.file.Path file, IOException exc) throws IOException {
-										return FileVisitResult.CONTINUE;
-									}
-
-									@Override
-									public FileVisitResult postVisitDirectory(java.nio.file.Path dir, IOException exc)
-											throws IOException {
-										return FileVisitResult.CONTINUE;
-									}
-								});
-							}
-							Files.walkFileTree(rootPath, new FileVisitor<java.nio.file.Path>() {
-								@Override
-								public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs)
-										throws IOException {
-									if (dir.equals(versionsPath)) {
-										return FileVisitResult.SKIP_SUBTREE;
-									}
-									return FileVisitResult.CONTINUE;
-								}
-								@Override
-								public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
-										throws IOException {
-									initRawPackageInfo(rawPackageInfo, rootPath.relativize(file).toString(), false, CompilerOptions.versionFromJdkLevel(classLevel));
-									return FileVisitResult.CONTINUE;
-								}
-
-								@Override
-								public FileVisitResult visitFileFailed(java.nio.file.Path file, IOException exc) throws IOException {
-									return FileVisitResult.CONTINUE;
-								}
-
-								@Override
-								public FileVisitResult postVisitDirectory(java.nio.file.Path dir, IOException exc)
-										throws IOException {
-									return FileVisitResult.CONTINUE;
-								}
-							});
-							// loop through all of referenced packages, creating package fragments if necessary
-							// and cache the entry names in the rawPackageInfo table
-							children = new IJavaElement[rawPackageInfo.size()];
-							int index = 0;
-							for (int i = 0, length = rawPackageInfo.keyTable.length; i < length; i++) {
-								String[] pkgName = (String[]) rawPackageInfo.keyTable[i];
-								if (pkgName == null) continue;
-								children[index++] = getPackageFragment(pkgName);
-							}
-						} catch (IOException e) {
-							Util.log(IStatus.ERROR, "Error reading archive: " + toStringWithAncestors()); //$NON-NLS-1$
 						}
 					}
-				} catch (FileSystemNotFoundException fse) {
-					Util.log(IStatus.ERROR, "Error reading archive: " + toStringWithAncestors()); //$NON-NLS-1$
-					children = NO_ELEMENTS;
-				} catch (ProviderNotFoundException e) {
-					Util.log(IStatus.ERROR, "Provider not found: " + toStringWithAncestors()); //$NON-NLS-1$
-					children = NO_ELEMENTS;
-				} catch (IOException e) {
-					Util.log(IStatus.ERROR, "Error reading archive: " + toStringWithAncestors()); //$NON-NLS-1$
-					children = NO_ELEMENTS;
+					
+					String[] supportedVersions = versions.toArray(new String[versions.size()]);
+					if (supportedVersions.length > 0) {
+						this.multiVersion = true;
+					}
+					int length = version.length();
+					for (Enumeration<? extends ZipEntry> e= jar.entries(); e.hasMoreElements();) {
+						ZipEntry member= e.nextElement();
+						String name = member.getName();
+						if (this.multiVersion && name.length() > (length + 2) && name.startsWith(version)) {
+							int end = name.indexOf('/', length);
+							if (end >= name.length()) continue;
+							String versionPath = name.substring(0, end);
+							String ver = name.substring(length, end);
+							if(versions.contains(ver) && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
+								name = name.substring(end + 1);
+								overridden.put(name, versionPath);
+							}
+						}
+						initRawPackageInfo(rawPackageInfo, name, member.isDirectory(), CompilerOptions.versionFromJdkLevel(classLevel));
+					}
 				}  finally {
-					synchronized (this) {
-						if (fs != null) {
-							try {
-								if (--this.sync_count == 0)
-									fs.close();
-							} catch (IOException e) {
-								Util.log(IStatus.ERROR, "Error reading archive: " + toStringWithAncestors()); //$NON-NLS-1$
-							}
-						}
-					}
+					JavaModelManager.getJavaModelManager().closeZipFile(jar);
 				}
+			}
+			// loop through all of referenced packages, creating package fragments if necessary
+			// and cache the entry names in the rawPackageInfo table
+			children = new IJavaElement[rawPackageInfo.size()];
+			int index = 0;
+			for (int i = 0, length = rawPackageInfo.keyTable.length; i < length; i++) {
+				String[] pkgName = (String[]) rawPackageInfo.keyTable[i];
+				if (pkgName == null) continue;
+				children[index++] = getPackageFragment(pkgName);
 			}
 		} catch (CoreException e) {
 			if (e.getCause() instanceof ZipException) {

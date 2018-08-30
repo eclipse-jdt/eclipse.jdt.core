@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -410,7 +410,7 @@ public void testTransitionFromInvalidToValidJar() throws CoreException, IOExcept
 		assertFalse("The invalid archive cache should no longer report the jar as invalid",
 				!JavaModelManager.getJavaModelManager().getArchiveValidity(transitioningIPath).isValid());
 		type = getNameLookup(proj).findType("test1.IResource", false, NameLookup.ACCEPT_CLASSES);
-		assertTrue("Name lookup should be able to find types in the valid jar", type == null);
+		assertFalse("Name lookup should be able to find types in the valid jar", type == null);
 	} finally {
 		Files.deleteIfExists(transitioningJarPath);
 		deleteProject("P");

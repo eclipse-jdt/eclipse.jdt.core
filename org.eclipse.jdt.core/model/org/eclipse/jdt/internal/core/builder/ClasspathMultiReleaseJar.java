@@ -75,7 +75,6 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 			ClassFileReader classfile = null;
 			try {
 				for (Path path : this.supportedVersions) {
-					System.out.println(path.toString());
 					classfile = ClassFileReader.read(file, path.toString() + '/' + IModule.MODULE_INFO_CLASS);
 					if (classfile != null)
 						break;
