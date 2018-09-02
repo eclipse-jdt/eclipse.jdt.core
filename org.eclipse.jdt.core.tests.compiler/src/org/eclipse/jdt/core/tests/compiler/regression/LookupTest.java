@@ -3512,11 +3512,11 @@ public void test106() {
 	runner.runWarningTest();
 }
 
-public void testBug527828() {
+public void testBug537828() {
 	Map options = getCompilerOptions();
 	CompilerOptions compOptions = new CompilerOptions(options);
 	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 			"FieldBug.java",//------------------------------
 			"class A {\n" + 
@@ -3525,6 +3525,7 @@ public void testBug527828() {
 			"\n" + 
 			"class B {\n" + 
 			"	private Object obj = \"B.obj\";\n" + 
+			"	public Object getObj() {return obj;}\n" + 
 			"}\n" + 
 			"\n" + 
 			"public class FieldBug {\n" + 
@@ -3541,12 +3542,7 @@ public void testBug527828() {
 			"	}\n" + 
 			"}",
 		},
-		"----------\n" + 
-		"1. WARNING in FieldBug.java (at line 6)\n" + 
-		"	private Object obj = \"B.obj\";\n" + 
-		"	               ^^^\n" + 
-		"The value of the field B.obj is not used\n" + 
-		"----------\n");
+		"A.obj");
 }
 public static Class testClass() {	return LookupTest.class;
 }
