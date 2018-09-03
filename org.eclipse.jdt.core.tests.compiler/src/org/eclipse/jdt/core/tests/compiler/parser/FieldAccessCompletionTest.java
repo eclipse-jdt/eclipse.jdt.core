@@ -718,7 +718,7 @@ public void testConditionalExpressionConditionalExpression() {
 		"  Bar() {\n" +
 		"  }\n" +
 		"  boolean foo() {\n" +
-		"    (isTrue ? true : <CompleteOnMemberAccess:fred().x>);\n" +
+		"    return (isTrue ? true : <CompleteOnMemberAccess:fred().x>);\n" +
 		"  }\n" +
 		"}\n",
 		// expectedCompletionIdentifier:

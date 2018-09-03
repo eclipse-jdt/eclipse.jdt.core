@@ -630,7 +630,9 @@ protected void attachOrphanCompletionNode(){
 				|| (expression instanceof AllocationExpression
 					&& ((AllocationExpression)expression).type == this.assistNode)
 				|| (expression instanceof AND_AND_Expression
-						&& (this.elementPtr >= 0 && this.elementObjectInfoStack[this.elementPtr] instanceof InstanceOfExpression))){
+						&& (this.elementPtr >= 0 && this.elementObjectInfoStack[this.elementPtr] instanceof InstanceOfExpression))
+				|| (expression instanceof ConditionalExpression
+						  && ((ConditionalExpression) expression).valueIfFalse == this.assistNode)){
 				buildMoreCompletionContext(expression);
 				if (this.assistNodeParent == null
 					&& expression instanceof Assignment) {

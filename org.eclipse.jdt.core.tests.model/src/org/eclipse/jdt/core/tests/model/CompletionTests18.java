@@ -3264,4 +3264,70 @@ public void testBug537679() throws JavaModelException {
 			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+overrideRelevance+"}",
 			requestor.getResults());
 }
+
+public void testBug460750a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"public class Foo {\n" +
+			"	 enum MyEnum {\n" +
+			"		  FOO, BAR\n" +
+			"		}\n" +
+			"	public void setMyEnumValue(MyEnum myEnumValue) {\n" +
+			"	}\n" +
+			"	public void meth() {\n" +
+			"		this.setMyEnumValue(new String().isEmpty() ? MyEnum.FOO:BAR);\n" +
+			"	    }\n" +	
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "FOO:BAR";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	System.out.println("res=");
+	System.out.println("");
+	
+	assertResults(
+			"BAR[FIELD_REF]{MyEnum.BAR, LFoo$MyEnum;, LFoo$MyEnum;, BAR, null, 108}",
+			requestor.getResults());
+}
+
+public void testBug460750b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/EnumRelatedCompletions.java",
+			"public class EnumRelatedCompletions {\n" +
+			"	 enum MyEnum {\n" +
+			"		  FOO, BAR, QUZ \n" +
+			"		}\n" +
+			"	public void setMyEnumValue(MyEnum myEnumValue) {\n" +
+			"	}\n" +
+			"	public void meth() {\n" +
+			"		this.setMyEnumValue(new String().isEmpty() ? MyEnum.FOO:BAR);\n" +
+			"	    MyEnum e= MyEnum.FOO;\n" +
+			"	    if(e  !=QUZ) {    	\n" +
+			"	    }\n" +	
+			"	    }\n" +	
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "=QUZ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	System.out.println("res=");
+	System.out.println("");
+	System.out.println("res=");
+	System.out.println(requestor.getResults());
+	
+	assertResults(
+			"QUZ[FIELD_REF]{MyEnum.QUZ, LEnumRelatedCompletions$MyEnum;, LEnumRelatedCompletions$MyEnum;, QUZ, null, 108}",
+			requestor.getResults());
+}
+
+
+
 }
