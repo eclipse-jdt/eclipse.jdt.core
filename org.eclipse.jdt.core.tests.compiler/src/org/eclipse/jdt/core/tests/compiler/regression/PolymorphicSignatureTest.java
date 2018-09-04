@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 IBM Corporation.
+ * Copyright (c) 2011, 2018 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -82,6 +82,22 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 				"		mh.invoke(null, Collections.emptyList());  // This triggers UOE\n" + 
 				"		\n" + 
 				"	}\n" + 
+				"}\n"
+			});
+	}
+	public void testBug475996() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.invoke.VarHandle;\n" +
+				"public class X<T> {\n" +
+				"	static class Token {}\n" +
+				"	Token NIL = new Token();\n" +
+				"	VarHandle RESULT;\n" +
+				"	void call(T t) {\n" +
+				"		RESULT.compareAndSet(this, null, (t==null) ? NIL : t);\n" +
+				"	}\n" +
+				"" +
 				"}\n"
 			});
 	}

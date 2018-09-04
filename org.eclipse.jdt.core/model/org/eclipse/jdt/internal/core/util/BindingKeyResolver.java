@@ -431,7 +431,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 					for (int j = 0; j < length; j++) {
 						parameterTypes[j] = getType(typeParameters[j]);
 					}
-					PolymorphicMethodBinding polymorphicMethod = this.environment.createPolymorphicMethod(method, parameterTypes);
+					PolymorphicMethodBinding polymorphicMethod = this.environment.createPolymorphicMethod(method, parameterTypes, this.scope);
 					this.methodBinding = polymorphicMethod;
 					this.methodBinding = this.environment.updatePolymorphicMethodReturnType(
 							polymorphicMethod,

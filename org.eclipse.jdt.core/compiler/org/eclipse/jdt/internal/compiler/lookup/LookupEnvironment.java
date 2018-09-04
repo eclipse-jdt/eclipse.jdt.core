@@ -1217,7 +1217,7 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 	cachedInfo[index] = parameterizedGenericMethod;
 	return parameterizedGenericMethod;
 }
-public PolymorphicMethodBinding createPolymorphicMethod(MethodBinding originalPolymorphicMethod, TypeBinding[] parameters) {
+public PolymorphicMethodBinding createPolymorphicMethod(MethodBinding originalPolymorphicMethod, TypeBinding[] parameters, Scope scope) {
 	// cached info is array of already created polymorphic methods for this type
 	String key = new String(originalPolymorphicMethod.selector);
 	PolymorphicMethodBinding[] cachedInfo = (PolymorphicMethodBinding[]) this.uniquePolymorphicMethodBindings.get(key);
@@ -1230,7 +1230,12 @@ public PolymorphicMethodBinding createPolymorphicMethod(MethodBinding originalPo
 		} else {
 			if (parameterTypeBinding.isPolyType()) {
 				PolyTypeBinding ptb = (PolyTypeBinding) parameterTypeBinding;
-				parametersTypeBinding[i] = ptb.expression.resolvedType;
+				if (scope instanceof BlockScope && ptb.expression.resolvedType == null) {
+					ptb.expression.setExpectedType(scope.getJavaLangObject());
+					parametersTypeBinding[i] = ptb.expression.resolveType((BlockScope) scope);
+				} else {
+					parametersTypeBinding[i] = ptb.expression.resolvedType;
+				}
 			} else {
 				parametersTypeBinding[i] = parameterTypeBinding.erasure();
 			}
