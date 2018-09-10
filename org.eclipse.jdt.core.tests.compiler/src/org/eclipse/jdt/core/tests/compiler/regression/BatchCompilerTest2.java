@@ -1,3 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2018 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
@@ -52,35 +66,35 @@ public class BatchCompilerTest2 extends AbstractBatchCompilerTest {
 		        "Preview of features is supported only at the latest source level\n",
 		        true);
 }
-	public void test002() {
-		this.runNegativeTest(
-				new String[] {
+public void test002() throws Exception {
+	this.runNegativeTest(
+			new String[] {
 					"X.java",
 					"import java.util.List;\n" +
-					"\n" +
-					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
-					")\n" +
-					"public class X {\n" +
-					"	public static void main(String[] args) {\n" +
-					"		if (false) {\n" +
-					"			;\n" +
-					"		} else {\n" +
-					"		}\n" +
-					"		Zork z;\n" +
-					"	}\n" +
-					"}"
-		        },
-		        "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		        + " -11 --enable-preview",
-		        "",
-		        "----------\n" + 
-        		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 11)\n" + 
-        		"	Zork z;\n" + 
-        		"	^^^^\n" + 
-        		"Zork cannot be resolved to a type\n" + 
-        		"----------\n" + 
-        		"1 problem (1 error)\n",
-		        true);
+							"\n" +
+							"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
+							")\n" +
+							"public class X {\n" +
+							"	public static void main(String[] args) {\n" +
+							"		if (false) {\n" +
+							"			;\n" +
+							"		} else {\n" +
+							"		}\n" +
+							"		Zork z;\n" +
+							"	}\n" +
+							"}"
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+					+ " -11 --enable-preview",
+					"",
+					"----------\n" +
+							"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 11)\n" + 
+							"	Zork z;\n" +
+							"	^^^^\n" +
+							"Zork cannot be resolved to a type\n" + 
+							"----------\n" +
+							"1 problem (1 error)\n",
+							true);
 }
 public void test003() {
 	this.runNegativeTest(
@@ -107,5 +121,80 @@ public void test003() {
 					"----------\n" + 
 					"1 problem (1 error)\n",
 					true);
+}
+public void test004() throws Exception {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"\n" +
+					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
+					")\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		if (false) {\n" +
+					"			;\n" +
+					"		} else {\n" +
+					"		}\n" +
+					"	}\n" +
+					"}"
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+					+ " -11 --enable-preview",
+					"",
+					"",
+					true);
+	String expectedOutput = "// Compiled from X.java (version 11 : 55.65535, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+public void test005() throws Exception {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"\n" +
+					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
+					")\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		if (false) {\n" +
+					"			;\n" +
+					"		} else {\n" +
+					"		}\n" +
+					"	}\n" +
+					"}"
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+					+ " --enable-preview -11 ",
+					"",
+					"",
+					true);
+	String expectedOutput = "// Compiled from X.java (version 11 : 55.65535, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
+public void test006() throws Exception {
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"\n" +
+					"@SuppressWarnings(\"all\"//$NON-NLS-1$\n" +
+					")\n" +
+					"public class X {\n" +
+					"	public static void main(String[] args) {\n" +
+					"		if (false) {\n" +
+					"			;\n" +
+					"		} else {\n" +
+					"		}\n" +
+					"	}\n" +
+					"}"
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+					+ " -source 11",
+					"",
+					"",
+					true);
+	String expectedOutput = "// Compiled from X.java (version 11 : 55.0, super bit)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 }
