@@ -254,6 +254,8 @@ static class JavacCompiler {
 			this.version = JavaCore.VERSION_9;
 		} else if(rawVersion.startsWith("10")) {
 			this.version = JavaCore.VERSION_10;
+		} else if(rawVersion.startsWith("11")) {
+			this.version = JavaCore.VERSION_11;
 		}  else {
 			int index = rawVersion.indexOf('.');
 			if (index != -1) {
@@ -385,7 +387,15 @@ static class JavacCompiler {
 			}
 		}
 		if (version == JavaCore.VERSION_11) {
-			return 0000; // We are still in EA
+			if ("11".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("11.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("11.0.2".equals(rawVersion)) {
+				return 0200;
+			}
 		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);
 	}
