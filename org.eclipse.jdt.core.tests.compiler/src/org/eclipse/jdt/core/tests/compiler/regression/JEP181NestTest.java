@@ -89,6 +89,12 @@ ClassFormatException {
 	String result = disassembler.disassemble(classFileBytes, "\n", mode);
 	return result;
 }
+private void verifyOutputPositive(String result, String expectedOutput) {
+	verifyOutput(result, expectedOutput, true);
+}
+private void verifyOutputNegative(String result, String expectedOutput) {
+	verifyOutput(result, expectedOutput, false);
+}
 private void verifyOutput(String result, String expectedOutput, boolean positive) {
 	int index = result.indexOf(expectedOutput);
 	if (positive) {
@@ -545,13 +551,13 @@ public void testBug535918_003a() throws Exception {
 	String partialOutput = "Nest Members:\n" + 
 			"   #55 pack1/X$Y,\n" + 
 			"   #17 pack1/X$Z";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #22 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "Nest Host: #26 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "getstatic pack1.X$Y.priv_int", true /* positive */);
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
+	verifyOutputPositive(XZFile, "Nest Host: #26 pack1/X");
+	verifyOutputPositive(XZFile, "getstatic pack1.X$Y.priv_int");
 	
-	verifyOutput(XYFile, "access$", false /* positive */);
-	verifyOutput(XZFile, "invokestatic pack1.X$Y.access$0", false /* positive */);
+	verifyOutputNegative(XYFile, "access$");
+	verifyOutputNegative(XZFile, "invokestatic pack1.X$Y.access$0");
 }
 //sibling access: private instance field
 public void testBug535918_003b() throws Exception {
@@ -591,13 +597,13 @@ public void testBug535918_003b() throws Exception {
 	String partialOutput = "Nest Members:\n" + 
 			"   #55 pack1/X$Y,\n" + 
 			"   #17 pack1/X$Z";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #21 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "Nest Host: #29 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "getfield pack1.X$Y.priv_int", true /* positive */);
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
+	verifyOutputPositive(XZFile, "Nest Host: #29 pack1/X");
+	verifyOutputPositive(XZFile, "getfield pack1.X$Y.priv_int");
 
-	verifyOutput(XYFile, "access$", false /* positive */);
-	verifyOutput(XZFile, "invokestatic pack1.X$Y.access$0", false /* positive */);
+	verifyOutputNegative(XYFile, "access$");
+	verifyOutputNegative(XZFile, "invokestatic pack1.X$Y.access$0");
 }
 //sibling access: private instance field via Allocation Expression Field reference
 // note: internally this follows a different code path
@@ -637,13 +643,13 @@ public void testBug535918_003c() throws Exception {
 	String partialOutput = "Nest Members:\n" + 
 			"   #55 pack1/X$Y,\n" + 
 			"   #17 pack1/X$Z";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #21 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "Nest Host: #27 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "getfield pack1.X$Y.priv_int", true /* positive */);
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
+	verifyOutputPositive(XZFile, "Nest Host: #27 pack1/X");
+	verifyOutputPositive(XZFile, "getfield pack1.X$Y.priv_int");
 
-	verifyOutput(XYFile, "access$", false /* positive */);
-	verifyOutput(XZFile, "invokestatic pack1.X$Y.access$0", false /* positive */);
+	verifyOutputNegative(XYFile, "access$");
+	verifyOutputNegative(XZFile, "invokestatic pack1.X$Y.access$0");
 }
 //sibling and super: private static field access of a super-type is accessed from a sub-type with
 //both super-type and sub-type being nestmates.
@@ -683,13 +689,13 @@ public void testBug535918_003d() throws Exception {
 	String partialOutput = "Nest Members:\n" + 
 			"   #55 pack1/X$Y,\n" + 
 			"   #17 pack1/X$Z";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #22 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "Nest Host: #24 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "getstatic pack1.X$Y.priv_int", true /* positive */);
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
+	verifyOutputPositive(XZFile, "Nest Host: #24 pack1/X");
+	verifyOutputPositive(XZFile, "getstatic pack1.X$Y.priv_int");
 	
-	verifyOutput(XYFile, "access$", false /* positive */);
-	verifyOutput(XZFile, "invokestatic pack1.X$Y.access$0", false /* positive */);
+	verifyOutputNegative(XYFile, "access$");
+	verifyOutputNegative(XZFile, "invokestatic pack1.X$Y.access$0");
 }
 //sibling and super: private instance field of a super-type is accessed from a sub-type with
 //both super-type and sub-type being nestmates.
@@ -730,13 +736,13 @@ public void testBug535918_003e() throws Exception {
 	String partialOutput = "Nest Members:\n" + 
 			"   #55 pack1/X$Y,\n" + 
 			"   #17 pack1/X$Z";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #21 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "Nest Host: #26 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "getfield pack1.X$Y.priv_int", true /* positive */);
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
+	verifyOutputPositive(XZFile, "Nest Host: #26 pack1/X");
+	verifyOutputPositive(XZFile, "getfield pack1.X$Y.priv_int");
 
-	verifyOutput(XYFile, "access$", false /* positive */);
-	verifyOutput(XZFile, "invokestatic pack1.X$Y.access$0", false /* positive */);
+	verifyOutputNegative(XYFile, "access$");
+	verifyOutputNegative(XZFile, "invokestatic pack1.X$Y.access$0");
 }
 //sibling and super with super keyword: private instance field of a super-type is accessed from a sub-type 
 // user keyword super with both super-type and sub-type being nestmates.
@@ -776,13 +782,13 @@ public void testBug535918_003f() throws Exception {
 	String partialOutput = "Nest Members:\n" + 
 			"   #56 pack1/X$Y,\n" + 
 			"   #16 pack1/X$Z";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #21 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "Nest Host: #24 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "getfield pack1.X$Y.priv_int", true /* positive */);
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
+	verifyOutputPositive(XZFile, "Nest Host: #24 pack1/X");
+	verifyOutputPositive(XZFile, "getfield pack1.X$Y.priv_int");
 
-	verifyOutput(XYFile, "access$", false /* positive */);
-	verifyOutput(XZFile, "invokestatic pack1.X$Y.access$0", false /* positive */);
+	verifyOutputNegative(XYFile, "access$");
+	verifyOutputNegative(XZFile, "invokestatic pack1.X$Y.access$0");
 }
 //vanilla field access of enclosing type: private static field of enclosing type accessed in inner type
 public void testBug535918_004a() throws Exception {
@@ -816,12 +822,12 @@ public void testBug535918_004a() throws Exception {
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String partialOutput = "Nest Members:\n" + 
 			"   #22 pack1/X$Y\n";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #17 pack1/X", true /* positive */);
-	verifyOutput(XYFile, "getstatic pack1.X.priv_int", true /* positive */);
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #17 pack1/X");
+	verifyOutputPositive(XYFile, "getstatic pack1.X.priv_int");
 	
-	verifyOutput(XFile, "access$", false /* positive */);
-	verifyOutput(XFile, "invokestatic pack1.X.access$0()", false /* positive */);
+	verifyOutputNegative(XFile, "access$");
+	verifyOutputNegative(XFile, "invokestatic pack1.X.access$0()");
 	
 }
 //vanilla field access of enclosing type: private instance field of enclosing type accessed in inner type
@@ -856,12 +862,12 @@ public void testBug535918_004b() throws Exception {
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String partialOutput = "Nest Members:\n" + 
 			"   #20 pack1/X$Y\n";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #22 pack1/X", true /* positive */);
-	verifyOutput(XYFile, "getfield pack1.X.priv_int", true /* positive */);
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
+	verifyOutputPositive(XYFile, "getfield pack1.X.priv_int");
 	
-	verifyOutput(XFile, "access$", false /* positive */);
-	verifyOutput(XYFile, "invokestatic pack1.X.access$0()", false /* positive */);
+	verifyOutputNegative(XFile, "access$");
+	verifyOutputNegative(XYFile, "invokestatic pack1.X.access$0()");
 	
 }
 //nestmate inner constructor call from outer - no synthetic and appropriate call site params
@@ -904,13 +910,13 @@ public void testBug535918_005a() throws Exception {
 	String partialOutput = "Nest Members:\n" + 
 			"   #38 pack1/X$Y,\n" + 
 			"   #42 pack1/X$Y$Z";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #31 pack1/X", true /* positive */);
-	verifyOutput(XYZFile, "Nest Host: #24 pack1/X", true /* positive */);
-	verifyOutput(XYFile, "invokespecial pack1.X$Y$Z(pack1.X$Y)", true /* positive */); //only one param
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #31 pack1/X");
+	verifyOutputPositive(XYZFile, "Nest Host: #24 pack1/X");
+	verifyOutputPositive(XYFile, "invokespecial pack1.X$Y$Z(pack1.X$Y)"); //only one param
 
-	verifyOutput(XYZFile, "synthetic X$Y$Z", false /* positive */);
-	verifyOutput(XYFile, "invokespecial pack1.X$Y$Z(pack1.X$Y, pack1.X$Y$Z)", false /* positive */);
+	verifyOutputNegative(XYZFile, "synthetic X$Y$Z");
+	verifyOutputNegative(XYFile, "invokespecial pack1.X$Y$Z(pack1.X$Y, pack1.X$Y$Z)");
 }
 //nestmate sibling constructor call - no synthetic and appropriate call site params
 public void testBug535918_005b() throws Exception {
@@ -952,13 +958,13 @@ public void testBug535918_005b() throws Exception {
 	String partialOutput = "Nest Members:\n" + 
 			"   #38 pack1/X$Y,\n" + 
 			"   #41 pack1/X$Z";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #30 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "Nest Host: #22 pack1/X", true /* positive */);
-	verifyOutput(XYFile, "invokespecial pack1.X$Z(pack1.X)", true /* positive */); //only one param
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #30 pack1/X");
+	verifyOutputPositive(XZFile, "Nest Host: #22 pack1/X");
+	verifyOutputPositive(XYFile, "invokespecial pack1.X$Z(pack1.X)"); //only one param
 
-	verifyOutput(XZFile, "synthetic X$Z", false /* positive */);
-	verifyOutput(XYFile, "invokespecial pack1.X$Z(pack1.X$Y, pack1.X$Z)", false /* positive */);
+	verifyOutputNegative(XZFile, "synthetic X$Z");
+	verifyOutputNegative(XYFile, "invokespecial pack1.X$Z(pack1.X$Y, pack1.X$Z)");
 }
 //nestmate outer constructor call from inner - no synthetic and appropriate call site params
 public void testBug535918_005c() throws Exception {
@@ -1000,13 +1006,13 @@ public void testBug535918_005c() throws Exception {
 	String partialOutput = "Nest Members:\n" + 
 			"   #38 pack1/X$Y,\n" + 
 			"   #42 pack1/X$Y$Z";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #24 pack1/X", true /* positive */);
-	verifyOutput(XYZFile, "Nest Host: #34 pack1/X", true /* positive */);
-	verifyOutput(XYZFile, "invokespecial pack1.X$Y(pack1.X)", true /* positive */); //only one param
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #24 pack1/X");
+	verifyOutputPositive(XYZFile, "Nest Host: #34 pack1/X");
+	verifyOutputPositive(XYZFile, "invokespecial pack1.X$Y(pack1.X)"); //only one param
 
-	verifyOutput(XYFile, "synthetic X$Y", false /* positive */);
-	verifyOutput(XYZFile, "invokespecial pack1.X$Y(pack1.X, pack1.X$Y)", false /* positive */);
+	verifyOutputNegative(XYFile, "synthetic X$Y");
+	verifyOutputNegative(XYZFile, "invokespecial pack1.X$Y(pack1.X, pack1.X$Y)");
 }
 //nestmate super call to private constructor from sibling nestmate which is a subtype - no synthetic and appropriate call site params
 public void testBug535918_005d() throws Exception {
@@ -1044,13 +1050,13 @@ public void testBug535918_005d() throws Exception {
 	String partialOutput = "Nest Members:\n" + 
 			"   #35 pack1/X$Y,\n" + 
 			"   #38 pack1/X$Z";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #22 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "Nest Host: #21 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "invokespecial pack1.X$Y(pack1.X)", true /* positive */); //only one param
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
+	verifyOutputPositive(XZFile, "Nest Host: #21 pack1/X");
+	verifyOutputPositive(XZFile, "invokespecial pack1.X$Y(pack1.X)"); //only one param
 
-	verifyOutput(XYFile, "synthetic X$Y", false /* positive */);
-	verifyOutput(XZFile, "invokespecial pack1.X$Y(pack1.X, pack1.X$Y)", false /* positive */);
+	verifyOutputNegative(XYFile, "synthetic X$Y");
+	verifyOutputNegative(XZFile, "invokespecial pack1.X$Y(pack1.X, pack1.X$Y)");
 }
 // nestmate super call to private constructor from sibling nestmate which is a subtype 
 // super is a parameterized type
@@ -1092,13 +1098,13 @@ public void testBug535918_005e() throws Exception {
 	String partialOutput = "Nest Members:\n" + 
 			"   #35 pack1/X$Y,\n" + 
 			"   #38 pack1/X$Z";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(XYFile, "Nest Host: #24 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "Nest Host: #19 pack1/X", true /* positive */);
-	verifyOutput(XZFile, "invokespecial pack1.X$Y()", true /* positive */); //only one param
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #24 pack1/X");
+	verifyOutputPositive(XZFile, "Nest Host: #19 pack1/X");
+	verifyOutputPositive(XZFile, "invokespecial pack1.X$Y()"); //only one param
 
-	verifyOutput(XYFile, "synthetic pack1.X$Y(pack1.X.Y arg0)", false /* positive */);
-	verifyOutput(XZFile, "2  invokespecial pack1.X$Y(pack1.X$Y)", false /* positive */);
+	verifyOutputNegative(XYFile, "synthetic pack1.X$Y(pack1.X.Y arg0)");
+	verifyOutputNegative(XZFile, "2  invokespecial pack1.X$Y(pack1.X$Y)");
 }
 //nestmate constructor reference 
 public void testBug535918_005f() throws Exception {
@@ -1142,10 +1148,10 @@ public void testBug535918_005f() throws Exception {
 	String X1YFile = getClassFileContents("X$1Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String partialOutput = "Nest Members:\n" + 
 			"   #8 X$1Y\n";
-	verifyOutput(XFile, partialOutput, true /* positive */);
-	verifyOutput(X1YFile, "Nest Host: #33 X", true /* positive */);
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(X1YFile, "Nest Host: #33 X");
 
-	verifyOutput(X1YFile, "synthetic X$Y(pack1.X.Y arg0)", false /* positive */);
+	verifyOutputNegative(X1YFile, "synthetic X$Y(pack1.X.Y arg0)");
 }
 //testing the nested private method access from enclosing type
 public void testBug535918_005g() throws Exception {
@@ -1303,7 +1309,7 @@ public void testBug535918_005j() throws Exception {
 
 	String IFile = getClassFileContents("pack1/I.class", ClassFileBytesDisassembler.SYSTEM);
 	String partialOutput = "invokeinterface pack1.I.foo";
-	verifyOutput(IFile, partialOutput, true /* positive */);
+	verifyOutputPositive(IFile, partialOutput);
 }
 //private interface method invoked from a nestmate interface should be invokeinterface
 public void testBug535918_005k() throws Exception {
@@ -1334,7 +1340,7 @@ public void testBug535918_005k() throws Exception {
 
 	String IFile = getClassFileContents("pack1/I$J.class", ClassFileBytesDisassembler.SYSTEM);
 	String partialOutput = "invokeinterface pack1.I.foo";
-	verifyOutput(IFile, partialOutput, true /* positive */);
+	verifyOutputPositive(IFile, partialOutput);
 }
 public static Class testClass() {
 	return JEP181NestTest.class;
