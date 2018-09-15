@@ -1342,6 +1342,51 @@ public void testBug535918_005k() throws Exception {
 	String partialOutput = "invokeinterface pack1.I.foo";
 	verifyOutputPositive(IFile, partialOutput);
 }
+//test for SyntheticMethodBinding.SuperField*Access
+public void testBug535918_0056a() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n"+
+					"public class X {\n"+
+					"	private int priv_int;\n"+
+					"\n"+
+					"	class Y extends X {\n"+
+					"		class Z extends Y {\n"+
+					"			public void foo() {\n"+
+					"				X.Y.super.priv_int = 0;\n"+
+					"			}\n"+
+					"		}\n"+
+					"	}\n"+
+					"\n"+
+					"	public static void main(String[] args) {\n"+
+					"		new X().new Y().new Z().foo();\n"+
+					"	}\n"+
+					"}\n",
+			},
+			"",
+			options
+	);
+
+	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
+	String XYZFile = getClassFileContents("pack1/X$Y$Z.class", ClassFileBytesDisassembler.SYSTEM);
+	String partialOutput = "Nest Members:\n" + 
+			"   #20 pack1/X$Y,\n" + 
+			"   #18 pack1/X$Y$Z";
+	verifyOutputPositive(XFile, partialOutput);
+	verifyOutputPositive(XYFile, "Nest Host: #3 pack1/X");
+	verifyOutputPositive(XYZFile, "Nest Host: #22 pack1/X");
+	verifyOutputPositive(XYZFile, "putfield pack1.X.priv_int"); //direct access
+
+	verifyOutputNegative(XYFile, "synthetic X$Y");
+	verifyOutputNegative(XYZFile, "invokestatic X.access$0(X, int)");
+}
+
 public static Class testClass() {
 	return JEP181NestTest.class;
 }
