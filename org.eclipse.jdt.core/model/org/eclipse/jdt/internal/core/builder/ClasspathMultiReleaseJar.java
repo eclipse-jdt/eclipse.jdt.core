@@ -2,6 +2,7 @@ package org.eclipse.jdt.internal.core.builder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.FileSystemAlreadyExistsException;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -31,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathMultiReleaseJar extends ClasspathJar {
 	private java.nio.file.FileSystem fs = null;
@@ -42,14 +44,14 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 			boolean isOnModulePath, String compliance) {
 		super(resource, accessRuleSet, externalAnnotationPath, isOnModulePath);
 		this.compliance = compliance;
-		initializeVersions();
+		initializeVersions(this);
 	}
 
 	ClasspathMultiReleaseJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet,
 			IPath externalAnnotationPath, boolean isOnModulePath, String compliance) {
 		super(zipFilename, lastModified, accessRuleSet, externalAnnotationPath, isOnModulePath);
 		this.compliance = compliance;
-		initializeVersions();
+		initializeVersions(this);
 	}
 
 	public ClasspathMultiReleaseJar(ZipFile zipFile, AccessRuleSet accessRuleSet, IPath externalAnnotationPath,
@@ -103,42 +105,46 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		return mod;
 	}
 
-	private void initializeVersions() {
-		Path filePath = Paths.get(this.zipFilename);
+	private static synchronized void initializeVersions(ClasspathMultiReleaseJar jar) {
+		Path filePath = Paths.get(jar.zipFilename);
 		if (Files.exists(filePath)) {
 			URI uri = URI.create("jar:" + filePath.toUri()); //$NON-NLS-1$
 			try {
 				try {
-					this.fs = FileSystems.getFileSystem(uri);
+					jar.fs = FileSystems.getFileSystem(uri);
 				} catch (FileSystemNotFoundException e) {
 					// move on
 				}
-				if (this.fs == null) {
+				if (jar.fs == null) {
 					HashMap<String, ?> env = new HashMap<>();
-					this.fs = FileSystems.newFileSystem(uri, env);
+					jar.fs = FileSystems.newFileSystem(uri, env);
 				}
 			} catch (FileSystemNotFoundException | ProviderNotFoundException e) {
 				// move on
+			} catch (FileSystemAlreadyExistsException e) {
+				Util.log(e, "Failed to initialize versions for: " + jar);  //$NON-NLS-1$
+				jar.supportedVersions = new Path[0];
 			} catch (IOException e) {
 				// move on
 			}
-			if (this.fs == null)
+			if (jar.fs == null) {
 				return;
-			this.rootPath = this.fs.getPath("/"); //$NON-NLS-1$
+			}
+			jar.rootPath = jar.fs.getPath("/"); //$NON-NLS-1$
 			int earliestJavaVersion = ClassFileConstants.MAJOR_VERSION_9;
-			long latestJDK = CompilerOptions.releaseToJDKLevel(this.compliance);
+			long latestJDK = CompilerOptions.releaseToJDKLevel(jar.compliance);
 			int latestJavaVer = (int) (latestJDK >> 16);
 			List<Path> versions = new ArrayList<>();
 			for (int i = latestJavaVer; i >= earliestJavaVersion; i--) {
-				Path path = this.fs.getPath("/", "META-INF", "versions", "" + (i - 44)); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				Path path = jar.fs.getPath("/", "META-INF", "versions", "" + (i - 44)); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				if (Files.exists(path)) {
-					versions.add(this.rootPath.relativize(path));
+					versions.add(jar.rootPath.relativize(path));
 				}
 			}
-			this.supportedVersions = versions.toArray(new Path[versions.size()]);
-			if (this.supportedVersions.length <= 0) {
+			jar.supportedVersions = versions.toArray(new Path[versions.size()]);
+			if (jar.supportedVersions.length <= 0) {
 				try {
-					this.fs.close();
+					jar.fs.close();
 				} catch (IOException e) {
 					// ignore
 				}
@@ -248,5 +254,17 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		}
 		return super.findClass(binaryFileName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, asBinaryOnly,
 				moduleNameFilter);
+	}
+
+	@Override
+	public void cleanup() {
+		if (this.fs != null && this.fs.isOpen()) {
+			try {
+				this.fs.close();
+			} catch (IOException e) {
+				// probably already closed, race condition may be?
+			}
+		}
+		super.cleanup();
 	}
 }
