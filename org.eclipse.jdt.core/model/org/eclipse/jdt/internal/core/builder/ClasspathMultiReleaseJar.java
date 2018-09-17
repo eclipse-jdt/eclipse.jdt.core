@@ -35,9 +35,9 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathMultiReleaseJar extends ClasspathJar {
-	private java.nio.file.FileSystem fs = null;
-	Path releasePath = null;
-	Path rootPath = null;
+	private java.nio.file.FileSystem fs;
+	Path releasePath;
+	Path rootPath;
 	Path[] supportedVersions;
 
 	ClasspathMultiReleaseJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath,
@@ -64,26 +64,26 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 	public ClasspathMultiReleaseJar(String fileName, AccessRuleSet accessRuleSet, IPath externalAnnotationPath,
 			boolean isOnModulePath, String compliance) {
 		this(fileName, 0, accessRuleSet, externalAnnotationPath, isOnModulePath, compliance);
-		if (externalAnnotationPath != null)
+		if (externalAnnotationPath != null) {
 			this.externalAnnotationPath = externalAnnotationPath.toString();
+		}
 	}
 
 	@Override
 	IModule initializeModule() {
 		IModule mod = null;
-		ZipFile file = null;
-		try {
-			file = new ZipFile(this.zipFilename);
+		try (ZipFile file = new ZipFile(this.zipFilename)){
 			ClassFileReader classfile = null;
 			try {
 				for (Path path : this.supportedVersions) {
 					classfile = ClassFileReader.read(file, path.toString() + '/' + IModule.MODULE_INFO_CLASS);
-					if (classfile != null)
+					if (classfile != null) {
 						break;
+					}
 				}
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				Util.log(e, "Failed to initialize module for: " + this);  //$NON-NLS-1$
 				// move on to the default
 			}
 			if (classfile == null) {
@@ -93,14 +93,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 				mod = classfile.getModuleDeclaration();
 			}
 		} catch (ClassFormatException | IOException e) {
-			// do nothing
-		} finally {
-			try {
-				if (file != null)
-					file.close();
-			} catch (IOException e) {
-				// do nothing
-			}
+			Util.log(e, "Failed to initialize module for: " + this);  //$NON-NLS-1$
 		}
 		return mod;
 	}
@@ -116,16 +109,12 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 					// move on
 				}
 				if (jar.fs == null) {
-					HashMap<String, ?> env = new HashMap<>();
-					jar.fs = FileSystems.newFileSystem(uri, env);
+					jar.fs = FileSystems.newFileSystem(uri, new HashMap<>());
 				}
-			} catch (FileSystemNotFoundException | ProviderNotFoundException e) {
-				// move on
-			} catch (FileSystemAlreadyExistsException e) {
+			} catch (IllegalArgumentException | FileSystemNotFoundException | ProviderNotFoundException
+					| FileSystemAlreadyExistsException | IOException | SecurityException e) {
 				Util.log(e, "Failed to initialize versions for: " + jar);  //$NON-NLS-1$
 				jar.supportedVersions = new Path[0];
-			} catch (IOException e) {
-				// move on
 			}
 			if (jar.fs == null) {
 				return;
@@ -159,20 +148,21 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		try {
 			for (Path path : this.supportedVersions) {
 				Path relativePath = this.rootPath.resolve(path);
-				Files.walkFileTree(path, new FileVisitor<java.nio.file.Path>() {
+				Files.walkFileTree(path, new FileVisitor<Path>() {
 					@Override
-					public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs)
+					public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
 							throws IOException {
 						return FileVisitResult.CONTINUE;
 					}
 
 					@Override
-					public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs)
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
 							throws IOException {
 						Path p = relativePath.relativize(file);
 						addToPackageSet(packageSet, p.toString(), false);
 						if (modInfo[0] == null) {
-							if (p.getFileName().toString().equalsIgnoreCase(IModule.MODULE_INFO_CLASS)) {
+							Path fileName = p.getFileName();
+							if (fileName != null && fileName.toString().equalsIgnoreCase(IModule.MODULE_INFO_CLASS)) {
 								modInfo[0] = relativePath.relativize(file).toString();
 							}
 						}
@@ -180,20 +170,20 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 					}
 
 					@Override
-					public FileVisitResult visitFileFailed(java.nio.file.Path file, IOException exc)
+					public FileVisitResult visitFileFailed(Path file, IOException exc)
 							throws IOException {
 						return FileVisitResult.CONTINUE;
 					}
 
 					@Override
-					public FileVisitResult postVisitDirectory(java.nio.file.Path dir, IOException exc)
+					public FileVisitResult postVisitDirectory(Path dir, IOException exc)
 							throws IOException {
 						return FileVisitResult.CONTINUE;
 					}
 				});
 			}
 		} catch (Exception e) {
-			// move on;
+			Util.log(e, "Failed to read jar content for: " + packageSet + " in: " + this);  //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return modInfo[0];
 	}
@@ -201,14 +191,17 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 	@Override
 	public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String moduleName,
 			String qualifiedBinaryFileName, boolean asBinaryOnly, Predicate<String> moduleNameFilter) {
-		if (!isPackage(qualifiedPackageName, moduleName))
+		if (!isPackage(qualifiedPackageName, moduleName)) {
 			return null; // most common case
+		}
 		for (Path path : this.supportedVersions) {
 			Path relativePath = this.rootPath.resolve(path);
+			Path p = null;
 			try {
-				Path p = relativePath.resolve(qualifiedPackageName).resolve(binaryFileName);
-				if (!Files.exists(p))
+				p = relativePath.resolve(qualifiedPackageName).resolve(binaryFileName);
+				if (!Files.exists(p)) {
 					continue;
+				}
 				byte[] content = Files.readAllBytes(p);
 				IBinaryType reader = null;
 				if (content != null) {
@@ -218,10 +211,11 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 					char[] modName = this.module == null ? null : this.module.name();
 					if (reader instanceof ClassFileReader) {
 						ClassFileReader classReader = (ClassFileReader) reader;
-						if (classReader.moduleName == null)
+						if (classReader.moduleName == null) {
 							classReader.moduleName = modName;
-						else
+						} else {
 							modName = classReader.moduleName;
+						}
 					}
 					String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0,
 							qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
@@ -242,13 +236,14 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 							reader = new ExternalAnnotationDecorator(reader, null);
 						}
 					}
-					if (this.accessRuleSet == null)
+					if (this.accessRuleSet == null) {
 						return new NameEnvironmentAnswer(reader, null, modName);
+					}
 					return new NameEnvironmentAnswer(reader,
 							this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), modName);
 				}
 			} catch (IOException | ClassFormatException e) {
-				e.printStackTrace();
+				Util.log(e, "Failed to find class for: " + p + " in: " + this);  //$NON-NLS-1$ //$NON-NLS-2$
 				// treat as if class file is missing
 			}
 		}
