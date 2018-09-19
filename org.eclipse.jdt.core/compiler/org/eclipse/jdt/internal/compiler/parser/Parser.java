@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -809,6 +812,10 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	}
 	public static int tAction(int state, int sym) {
 		return term_action[term_check[base_action[state]+sym] == sym ? base_action[state] + sym : base_action[state]];
+	}
+	/** Overridable hook, to allow CompletionParser to synthesize a few trailing tokens at (faked) EOF. */
+	protected int actFromTokenOrSynthetic(int previousAct) {
+		return tAction(previousAct, this.currentToken);
 	}
 	protected int astLengthPtr;
 
@@ -11344,12 +11351,7 @@ protected boolean moveRecoveryCheckpoint() {
 	do {
 		try {
 			this.scanner.lookBack[0] = this.scanner.lookBack[1] = TokenNameNotAToken; // stay clear of the voodoo in the present method
-			this.nextIgnoredToken = this.scanner.getNextToken();
-			if(this.scanner.currentPosition == this.scanner.startPosition){
-				this.scanner.currentPosition++; // on fake completion identifier
-				this.nextIgnoredToken = -1;
-			}
-
+			this.nextIgnoredToken = this.scanner.getNextNotFakedToken();
 		} catch(InvalidInputException e){
 			pos = this.scanner.currentPosition;
 		} finally {
@@ -11560,7 +11562,7 @@ try {
 				stackLength);
 		}
 		this.stack[this.stateStackTop] = act;
-		this.unstackedAct = act = tAction(act, this.currentToken);
+		this.unstackedAct = act = actFromTokenOrSynthetic(act);
 		if (act == ERROR_ACTION || this.restartRecovery) {
 			if (DEBUG_AUTOMATON) {
 				if (this.restartRecovery) {

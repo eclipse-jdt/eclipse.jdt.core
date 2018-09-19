@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2016 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -11,6 +14,7 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.resources.*;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -66,6 +70,35 @@ protected boolean isExcluded(IResource resource) {
 		if (this.sourceFolder.equals(this.binaryFolder))
 			return Util.isExcluded(resource, this.inclusionPatterns, this.exclusionPatterns);
 	return false;
+}
+@Override
+String[] directoryList(String qualifiedPackageName) {
+	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
+	if (dirList != null) return dirList;
+
+	try {
+		IResource container = this.binaryFolder.findMember(qualifiedPackageName); // this is a case-sensitive check
+		if (container instanceof IContainer) {
+			IResource[] members = ((IContainer) container).members();
+			dirList = new String[members.length];
+			int index = 0;
+			for (int i = 0, l = members.length; i < l; i++) {
+				IResource m = members[i];
+				String name = m.getName();
+				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
+					// add exclusion pattern check here if we want to hide .class files
+					dirList[index++] = name;
+				}
+			}
+			if (index < dirList.length)
+				System.arraycopy(dirList, 0, dirList = new String[index], 0, index);
+			this.directoryCache.put(qualifiedPackageName, dirList);
+			return dirList;
+		}
+	} catch(CoreException ignored) {
+		// ignore
+	}
+	return null;
 }
 
 @Override

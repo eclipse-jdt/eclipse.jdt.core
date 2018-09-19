@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  * 
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
@@ -93,7 +96,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 				// check if assigning a final blank field
 				LocalVariableBinding localBinding;
 				if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) this.binding)) {
-					currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
+					currentScope.problemReporter().uninitializedLocalVariable(localBinding, this, currentScope);
 					// we could improve error msg here telling "cannot use compound assignment on final local variable"
 				}
 				if (localBinding.useFlag != LocalVariableBinding.USED) {
@@ -201,7 +204,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		case Binding.LOCAL : // reading a local variable
 			LocalVariableBinding localBinding;
 			if (!flowInfo.isDefinitelyAssigned(localBinding = (LocalVariableBinding) this.binding)) {
-				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this);
+				currentScope.problemReporter().uninitializedLocalVariable(localBinding, this, currentScope);
 			}
 			if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
 				localBinding.useFlag = LocalVariableBinding.USED;
@@ -225,7 +228,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	if (fieldBinding.isStatic()) {
 		// check if accessing enum static field in initializer
 		ReferenceBinding declaringClass = fieldBinding.declaringClass;
-		if (declaringClass.isEnum()) {
+		if (declaringClass.isEnum() && !scope.isModuleScope()) {
 			SourceTypeBinding sourceType = scope.enclosingSourceType();
 			if (this.constant == Constant.NotAConstant
 					&& !methodScope.isStatic
@@ -901,7 +904,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 	if ((this.bits & ASTNode.RestrictiveFlagMASK) == Binding.LOCAL) {
 		LocalVariableBinding localVariableBinding = (LocalVariableBinding) this.binding;
 		if (localVariableBinding != null) {
-			if ((localVariableBinding.tagBits & TagBits.NotInitialized) != 0) {
+			if (localVariableBinding.isUninitializedIn(currentScope)) {
 				// local was tagged as uninitialized
 				return;
 			}

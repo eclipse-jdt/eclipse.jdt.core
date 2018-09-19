@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14370,5 +14370,108 @@ public void testBug506653() {
 		"cce",
 		"",
 		JavacTestOptions.DEFAULT);
+}
+public void testBug536593() {
+	runConformTest(
+		new String[] {
+			"AbstractComp.java",
+			"public abstract class AbstractComp {\n" + 
+			"	protected abstract boolean isReadOnly();\n" + 
+			"}\n",
+			"HasValue.java",
+			"public interface HasValue<T> {\n" + 
+			"	boolean isReadOnly();\n" + 
+			"}\n",
+			"Factory.java",
+			"public class Factory<T, F extends AbstractComp & HasValue<T>> {\n" + 
+			"}\n"
+		});
+}
+public void testBug536978_comment2() {
+	runNegativeTest(
+			new String[] {
+				"SimpleDemo.java",
+				"abstract interface AbstractResult {\n" + 
+				"	public abstract int test();\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class AbstractDemo<Request extends AbstractResult, Response extends AbstractResult> {\n" + 
+				"	protected abstract Response test(Request request);\n" + 
+				"}\n" +
+				"\n" +
+				"interface SimpleResult extends AbstractResult {};\n" +
+				"\n" + 
+				"class Result1 implements SimpleResult {\n" + 
+				"    public int test() { return 1; }\n" + 
+				"}\n" + 
+				"class OtherResult implements AbstractResult {\n" + 
+				"    public int test() { return 2; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class SimpleDemo<Request extends AbstractResult, Response extends AbstractResult> \n" + 
+				"extends AbstractDemo<Request, Response> {\n" + 
+				"\n" + 
+				"    @Override\n" + 
+				"    protected SimpleResult test(AbstractResult request) {\n" + 
+				"        return new Result1();\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    public static void main(String... args) {\n" + 
+				"        AbstractDemo<OtherResult,OtherResult> demo = new SimpleDemo<OtherResult,OtherResult>();\n" + 
+				"        OtherResult result = demo.test(new OtherResult());\n" + 
+				"    }\n" + 
+				"\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in SimpleDemo.java (at line 22)\n" + 
+			"	protected SimpleResult test(AbstractResult request) {\n" + 
+			"	          ^^^^^^^^^^^^\n" + 
+			"The return type is incompatible with AbstractDemo<Request,Response>.test(Request)\n" + 
+			"----------\n");
+}
+public void testBug536978_comment5() {
+	runConformTest(
+		new String[] {
+			"SimpleDemo.java",
+			"\n" + 
+			"abstract interface AbstractResult {\n" + 
+			"	public abstract int test();\n" + 
+			"}\n" + 
+			"\n" + 
+			"abstract class AbstractDemo<Request extends AbstractResult, Response extends AbstractResult> {\n" + 
+			"	protected abstract Response test(Request request);\n" + 
+			"\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Result1 implements AbstractResult {\n" + 
+			"	public int test() {\n" + 
+			"		return 1;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class OtherResult implements AbstractResult {\n" + 
+			"	public int test() {\n" + 
+			"		return 2;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class SimpleDemo<Request extends AbstractResult, Response extends AbstractResult> extends AbstractDemo<Request, Response> {\n" + 
+			"	@Override @SuppressWarnings(\"unchecked\")\n" + 
+			"	protected AbstractResult test(AbstractResult request) {\n" + 
+			"		return new Result1();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String... args) {\n" + 
+			"		AbstractDemo<OtherResult, OtherResult> demo = new SimpleDemo<OtherResult, OtherResult>();\n" +
+			"		try {\n" + 
+			"			OtherResult result = demo.test(new OtherResult());\n" +
+			"		} catch (ClassCastException e) {\n" +
+			"			System.out.println(e.getMessage());\n" + // omit the stack trace for test robustness
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"Result1 cannot be cast to OtherResult");
 }
 }

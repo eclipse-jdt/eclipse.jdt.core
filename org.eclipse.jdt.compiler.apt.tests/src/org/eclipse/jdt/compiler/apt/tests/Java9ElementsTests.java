@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2017, 2018 IBM Corporation.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -378,6 +381,22 @@ public class Java9ElementsTests extends TestCase {
 	public void testTypesImpl() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest2(compiler, MODULE_PROC, "testTypesImpl", null);
+	}
+	public void testBug498022a() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, MODULE_PROC, "testBug498022a", null, "model9");
+	}
+	public void testBug498022aJavac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, MODULE_PROC, "testBug498022a", null, "model9");
+	}
+	public void testBug498022b() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, MODULE_PROC, "testBug498022b", null, "model9");
+	}
+	public void testBug498022bJavac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest(compiler, MODULE_PROC, "testBug498022b", null, "model9");
 	}
 	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea) throws IOException {
 		if (!canRunJava9()) {

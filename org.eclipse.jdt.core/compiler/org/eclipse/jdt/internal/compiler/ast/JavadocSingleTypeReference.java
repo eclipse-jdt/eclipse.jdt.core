@@ -1,9 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -17,8 +20,11 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -58,6 +64,14 @@ public class JavadocSingleTypeReference extends SingleTypeReference {
 			}
 		}
 		this.resolvedType = getTypeBinding(scope);
+		if (this.resolvedType instanceof LocalTypeBinding) {
+			// scope grants access to local types within this method, which, however, are illegal in javadoc
+			LocalTypeBinding localType = (LocalTypeBinding) this.resolvedType;
+			if (localType.scope != null && localType.scope.parent == scope) {
+				this.resolvedType = new ProblemReferenceBinding(new char[][] { localType.sourceName },
+						(ReferenceBinding) this.resolvedType, ProblemReasons.NotFound);
+			}
+		}
 		// End resolution when getTypeBinding(scope) returns null. This may happen in
 		// certain circumstances, typically when an illegal access is done on a type
 		// variable (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=204749)

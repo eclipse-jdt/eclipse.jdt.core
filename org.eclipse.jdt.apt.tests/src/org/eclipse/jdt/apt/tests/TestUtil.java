@@ -1,10 +1,13 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2010 BEA Systems, Inc, IBM Corporation, and others
  *
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    mkaufman@bea.com - initial API and implementation
@@ -50,6 +53,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.tests.util.ZipEntryStorageException;
 
 public class TestUtil
 {
@@ -356,13 +360,22 @@ public class TestUtil
 		return rtrn;
 	
 	}
+	private static File getZipEntryFile(File destDir, ZipEntry e, String canonicalDestDirPath) throws IOException {
+		  String result = e.getName();
+		  File destfile = new File(destDir, result);
+		  String canonicalDestFile = destfile.getCanonicalPath();
+		  if (!canonicalDestFile.startsWith(canonicalDestDirPath + File.separator)) {
+			  throw new ZipEntryStorageException("Entry is outside of the target dir: " + e.getName());
+		  }
+		  return destfile;
+	}
 	
 	public static void unzip (File srcZip, File destDir) throws IOException {
 		ZipFile zf = new ZipFile(srcZip);
+		String canonicalDestDirPath = destDir.getCanonicalPath();
 		for (Enumeration<? extends ZipEntry> entries = zf.entries(); entries.hasMoreElements();) {
 			ZipEntry entry = entries.nextElement();
-			String name = entry.getName();
-			File dest = new File(destDir, name);
+			File dest = getZipEntryFile(destDir, entry, canonicalDestDirPath);
 			if (entry.isDirectory()) {
 				FileSystemUtil.mkdirs(dest);
 			}
@@ -391,9 +404,9 @@ public class TestUtil
 	
 	public static void unzip (ZipInputStream srcZip, File destDir) throws IOException {
 		ZipEntry entry;
+		String canonicalDestDirPath = destDir.getCanonicalPath();
 		while ((entry = srcZip.getNextEntry()) != null) {
-			String name = entry.getName();
-			File dest = new File(destDir, name);
+			File dest = getZipEntryFile(destDir, entry, canonicalDestDirPath);
 			if (entry.isDirectory()) {
 				FileSystemUtil.mkdirs(dest);
 			}

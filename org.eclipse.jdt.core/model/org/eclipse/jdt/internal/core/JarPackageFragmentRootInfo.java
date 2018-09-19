@@ -1,16 +1,19 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.Set;
+import java.util.Map;
 
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 
@@ -20,6 +23,6 @@ import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 class JarPackageFragmentRootInfo extends PackageFragmentRootInfo {
 	// a map from package name (String[]) to a size-2 array of Array<String>, the first element being the .class file names, and the second element being the non-Java resource names
 	HashtableOfArrayToObject rawPackageInfo;
-	Set<String> overriddenClasses;
+	Map<String, String> overriddenClasses;
 	
 }

@@ -37,10 +37,13 @@ import junit.framework.Test;
 public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 
 	static {
-//		 TESTS_NAMES = new String[] { "testPackageConflict4a" };
+//		 TESTS_NAMES = new String[] { "test_npe_bug535107" };
 		// TESTS_NUMBERS = new int[] { 1 };
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
+
+	// use -source rather than --release but suppress: warning: [options] bootstrap class path not set in conjunction with -source 9:
+	private static final String JAVAC_SOURCE_9_OPTIONS = "-source 9 -Xlint:-options";
 
 	public ModuleCompilationTests(String name) {
 		super(name);
@@ -79,6 +82,40 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		}
 	}
 	
+	class Runner extends AbstractRegressionTest.Runner {
+		StringBuffer commandLine = new StringBuffer();
+		String outputDir = OUTPUT_DIR + File.separator + "javac";
+		List<String> fileNames = new ArrayList<>();
+		/** will replace any -8, -9 ... option for javac */
+		String javacVersionOptions;
+
+		Runner() {
+			this.javacTestOptions = JavacTestOptions.DEFAULT;
+			this.expectedOutputString = "";
+			this.expectedErrorString = "";
+		}
+		/** Create a source file and add the filename to the compiler command line. */
+		void createFile(String directoryName, String fileName, String source) {
+			writeFileCollecting(this.fileNames, directoryName, fileName, source);
+		}
+		Set<String> runConformModuleTest() {
+			if (!this.fileNames.isEmpty()) {
+				this.shouldFlushOutputDirectory = false;
+				if (this.testFiles == null)
+					this.testFiles = new String[0];
+				for (String fileName : this.fileNames) {
+					this.commandLine.append(" \"").append(fileName).append("\"");
+				}
+			}
+			String commandLineString = this.commandLine.toString();
+			String javacCommandLine = adjustForJavac(commandLineString, this.javacVersionOptions);
+			return ModuleCompilationTests.this.runConformModuleTest(this.testFiles, commandLineString,
+					this.expectedOutputString, this.expectedErrorString,
+					this.shouldFlushOutputDirectory, this.outputDir,
+					this.javacTestOptions, javacCommandLine);
+		}
+	}
+
 	void runConformModuleTest(List<String> testFileNames, StringBuffer commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory)
@@ -94,19 +131,21 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		for (String file : testFileNames)
 			commandLine.append(" \"").append(file).append("\"");
 		runConformModuleTest(new String[0], commandLine.toString(),
-				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, output);
+				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory,
+				output, JavacTestOptions.DEFAULT, null);
 	}
 
 	Set<String> runConformModuleTest(String[] testFiles, String commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory)
 	{
-		return runConformModuleTest(testFiles, commandLine, expectedFailureErrOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, OUTPUT_DIR);
+		return runConformModuleTest(testFiles, commandLine, expectedFailureErrOutputString, expectedFailureErrOutputString,
+				shouldFlushOutputDirectory, OUTPUT_DIR, JavacTestOptions.DEFAULT, null);
 	}
 
 	Set<String> runConformModuleTest(String[] testFiles, String commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
-			boolean shouldFlushOutputDirectory, String output)
+			boolean shouldFlushOutputDirectory, String output, JavacTestOptions options, String javacCommandLine)
 	{
 		this.runConformTest(testFiles, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory);
 		if (RUN_JAVAC) {
@@ -117,18 +156,25 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			for (int i = 0; i < testFileNames.length; i++) {
 				testFileNames[i] = testFiles[i*2];
 			}
+			if (javacCommandLine == null) {
+				javacCommandLine = adjustForJavac(commandLine, null);
+			}
 			for (Object comp : javacCompilers) {
 				JavacCompiler javacCompiler = (JavacCompiler) comp;
 				if (javacCompiler.compliance < ClassFileConstants.JDK9)
 					continue;
-				commandLine = adjustForJavac(commandLine);
+				if (options.skip(javacCompiler)) {
+					System.err.println("Skip testing javac in "+testName());
+					continue;
+				}
 				StringBuffer log = new StringBuffer();
 				try {
 					long compileResult = javacCompiler.compile(
 											outputDir, /* directory */
-											commandLine /* options */,
+											javacCommandLine /* options */,
 											testFileNames /* source file names */,
-											log);
+											log,
+											false); // don't repeat filenames on the command line
 					if (compileResult != 0) {
 						System.err.println("Previous error was from "+testName());
 						fail("Unexpected error from javac");
@@ -158,21 +204,29 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory, String javacErrorMatch, String output)
 	{
+		runNegativeModuleTest(testFileNames, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString,
+				shouldFlushOutputDirectory, javacErrorMatch, output, JavacTestOptions.DEFAULT);
+	}
+	void runNegativeModuleTest(List<String> testFileNames, StringBuffer commandLine,
+			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
+			boolean shouldFlushOutputDirectory, String javacErrorMatch, String output, JavacTestOptions options)
+	{
 		for (String file : testFileNames)
 			commandLine.append(" \"").append(file).append("\"");
 		runNegativeModuleTest(new String[0], commandLine.toString(),
-				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, javacErrorMatch, output);
+				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, javacErrorMatch, output,
+				options);
 	}
 	void runNegativeModuleTest(String[] testFiles, String commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory, String javacErrorMatch) {
 		runNegativeModuleTest(testFiles, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString,
-				shouldFlushOutputDirectory, javacErrorMatch, OUTPUT_DIR);
+				shouldFlushOutputDirectory, javacErrorMatch, OUTPUT_DIR, JavacTestOptions.DEFAULT);
 	}
 
 	void runNegativeModuleTest(String[] testFiles, String commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
-			boolean shouldFlushOutputDirectory, String javacErrorMatch, String output)
+			boolean shouldFlushOutputDirectory, String javacErrorMatch, String output, JavacTestOptions options)
 	{
 		this.runNegativeTest(testFiles, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory);
 		if (RUN_JAVAC) {
@@ -187,8 +241,11 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				JavacCompiler javacCompiler = (JavacCompiler) comp;
 				if (javacCompiler.compliance < ClassFileConstants.JDK9)
 					continue;
-				commandLine = adjustForJavac(commandLine);
+				JavacTestOptions.Excuse excuse = options.excuseFor(javacCompiler);
+
+				commandLine = adjustForJavac(commandLine, null);
 				StringBuffer log = new StringBuffer();
+				int mismatch = 0;
 				try {
 					long compileResult = javacCompiler.compile(
 											outputDir, /* directory */
@@ -196,17 +253,20 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 											testFileNames /* source file names */,
 											log);
 					if (compileResult == 0) {
+						mismatch = JavacTestOptions.MismatchType.EclipseErrorsJavacNone;
+						javacErrorMatch = expectedFailureErrOutputString;
 						System.err.println("Previous error was from "+testName());
-						fail(testName()+": Unexpected success from javac");
-					}
-					if (!log.toString().contains(javacErrorMatch)) {
+					} else if (!log.toString().contains(javacErrorMatch)) {
+						mismatch = JavacTestOptions.MismatchType.CompileErrorMismatch;
 						System.err.println(testName()+": Error match " + javacErrorMatch + " not found in \n"+log.toString());
-						fail("Expected error match not found: "+javacErrorMatch);
 					}
 				} catch (IOException | InterruptedException e) {
 					e.printStackTrace();
 					throw new AssertionFailedError(e.getMessage());
 				}
+				handleMismatch(javacCompiler, testName(), testFiles, javacErrorMatch,
+						"", "", log, "", "",
+						excuse, mismatch);
 				final Set<String> expectedFiles = new HashSet<>(outFiles);
 				walkOutFiles(output, expectedFiles, false);
 				for (String missingFile : expectedFiles)
@@ -215,7 +275,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		}
 	}
 
-	String adjustForJavac(String commandLine) {
+	/**
+	 * @param commandLine command line arguments as used for ecj
+	 * @param versionOptions if non-null use this to replace any ecj-specific -8, -9 etc. arg.
+	 * 		If ecj-specific arg is not found, append anyway
+	 * @return commandLine adjusted for javac
+	 */
+	String adjustForJavac(String commandLine, String versionOptions) {
 		String[] tokens = commandLine.split(" ");
 		StringBuffer buf = new StringBuffer();
 		boolean skipNext = false;
@@ -225,11 +291,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				continue;
 			}
 			if (tokens[i].trim().equals("-9")) {
-				buf.append(" -source 9 ");
+				if (versionOptions == null)
+					buf.append(' ').append(" --release 9 ");
 				continue;
 			}
 			if (tokens[i].trim().equals("-8")) {
-				buf.append(" -source 1.8 ");
+				if (versionOptions == null)
+					buf.append(' ').append(" --release 8 ");
 				continue;
 			}
 			if (tokens[i].startsWith("-warn") || tokens[i].startsWith("-err") || tokens[i].startsWith("-info")) {
@@ -242,6 +310,9 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				continue;
 			}
 			buf.append(tokens[i]).append(' ');
+		}
+		if (versionOptions != null) {
+			buf.append(versionOptions);
 		}
 		return buf.toString();
 	}
@@ -1014,7 +1085,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"1 problem (1 error)\n",
 				false,
 				"cannot be resolved",
-				OUTPUT_DIR + File.separator + out);
+				OUTPUT_DIR + File.separator + out,
+				JavacTestOptions.JavacHasABug.JavacBug8207032);
 	}
 	public void test016() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1178,13 +1250,13 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 	 * Unnamed module tries to access a type from an unexported package successfully due to --add-exports
 	 */
 	public void test019() {
+		Runner runner = new Runner();
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		List<String> files = new ArrayList<>(); 
-		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
+		runner.createFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
 						"public abstract class X extends com.sun.security.ntlm.Server {\n" +
 						"	//public X() {}\n" +
@@ -1193,8 +1265,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+		runner.commandLine.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
@@ -1202,11 +1273,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append(" -sourcepath " + "\"" + moduleLoc + "\" ")
 			.append(" --add-exports java.base/com.sun.security.ntlm=ALL-UNNAMED ");
 
-		runConformModuleTest(files, 
-				buffer,
-				"",
-				"",
-				false);
+		runner.javacVersionOptions = JAVAC_SOURCE_9_OPTIONS; // otherwise javac: error: exporting a package from system module java.base is not allowed with --release
+		runner.runConformModuleTest();
 	}
 	/*
 	 * Named module tries to access a type from an unnamed module successfully due to --add-reads
@@ -1299,7 +1367,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"1 problem (1 error)\n",
 				false,
 				"package s",
-				 OUTPUT_DIR + File.separator + out);
+				 OUTPUT_DIR + File.separator + out,
+				 JavacTestOptions.JavacHasABug.JavacBug8204534);
 	}
 	/*
 	 * Unnamed module tries to access a type from an unexported package, fail
@@ -1344,7 +1413,25 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"----------\n" + 
 				"2 problems (2 errors)\n",
 				false,
-				"does not export it to the unnamed module");
+				"package com.sun.security.ntlm");
+				/* javac9:
+				 * src/mod.one/p/X.java:2: error: package com.sun.security.ntlm is not visible
+				 * public abstract class X extends com.sun.security.ntlm.Server {
+				 *                                                 ^
+				 *   (package com.sun.security.ntlm is declared in module java.base, which does not export it to the unnamed module)
+				 * src/mod.one/p/X.java:4: error: package com.sun.security.ntlm is not visible
+				 * public X(String arg0, String arg1) throws com.sun.security.ntlm.NTLMException {
+				 *                                                           ^
+				 *   (package com.sun.security.ntlm is declared in module java.base, which does not export it to the unnamed module)
+				 */
+				/* javac10:
+				 * src/mod.one/p/X.java:2: error: package com.sun.security.ntlm does not exist
+				 * public abstract class X extends com.sun.security.ntlm.Server {
+				 *                                                      ^
+				 * src/mod.one/p/X.java:4: error: package com.sun.security.ntlm does not exist
+				 * public X(String arg0, String arg1) throws com.sun.security.ntlm.NTLMException {
+				 *                                                                ^
+				 */
 	}
 	public void test020() {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -1543,29 +1630,25 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"endorseddirs");
 	}
 	public void test026() {
+		Runner runner = new Runner();
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
 		String out = "bin";
 		String directory = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = directory + File.separator + "mod.one";
-		List<String> files = new ArrayList<>(); 
-		writeFileCollecting(files, moduleLoc, "module-info.java", 
+		runner.createFile(
+						moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
 		String javaHome = System.getProperty("java.home");
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+		runner.commandLine.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
-			.append(" --system \"").append(javaHome).append("\"")
-			.append(" \"" + moduleLoc +  File.separator + "module-info.java\" ");
+			.append(" --system \"").append(javaHome).append("\"");
 
-		runConformModuleTest(new String[0], 
-				buffer.toString(),
-				"",
-				"",
-				false);
+		runner.javacVersionOptions = JAVAC_SOURCE_9_OPTIONS;
+		runner.runConformModuleTest();
 	}
 	/**
 	 * Mixed case of exported and non exported packages being referred to in another module
@@ -3388,17 +3471,18 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			.append("\" ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
 
-		runConformModuleTest(files, 
+		runNegativeModuleTest(files, 
 			buffer,
 			"",
 			"----------\n" + 
-			"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/X.java (at line 1)\n" + 
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/X.java (at line 1)\n" + 
 			"	public class X {\n" + 
 			"	^\n" + 
 			"Must declare a named package because this compilation unit is associated to the named module \'mod.one\'\n" + 
 			"----------\n" + 
-			"1 problem (1 warning)\n",
+			"1 problem (1 error)\n",
 			false,
+			"unnamed package is not allowed in named modules",
 			OUTPUT_DIR + File.separator + out);
 	}
 	public void testAutoModule1() throws Exception {
@@ -3546,10 +3630,10 @@ public void testBug521362_emptyFile() {
 			"The package p1 does not exist or is empty\n" + 
 			"----------\n" +
 			"----------\n" + 
-			"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p1/X.java\n" + 
+			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p1/X.java\n" + 
 			"Must declare a named package because this compilation unit is associated to the named module \'mod.one\'\n" + 
 			"----------\n" + 
-			"2 problems (1 error, 1 warning)\n",
+			"2 problems (2 errors)\n",
 			false,
 			"empty",
 			OUTPUT_DIR + File.separator + out);
@@ -3835,11 +3919,23 @@ public void testBug521362_emptyFile() {
 			.append("\" ")
 			.append(" --module-path " + "\"" + OUTPUT_DIR + File.separator + out + "\" ")
 			.append(" --module-source-path " + "\"" + directory + "\" ");
-		runConformModuleTest(files, 
+		runNegativeModuleTest(files, 
 				buffer,
 				"",
-				"",
-				false);
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/module-info.java (at line 2)\n" + 
+				"	requires mod.one;\n" + 
+				"	^^^^^^^^^^^^^^^^\n" + 
+				"The package x.y.z is accessible from more than one module: mod.one, mod.one.a\n" + 
+				"----------\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/module-info.java (at line 3)\n" + 
+				"	requires mod.one.a;\n" + 
+				"	^^^^^^^^^^^^^^^^^^\n" + 
+				"The package x.y.z is accessible from more than one module: mod.one, mod.one.a\n" + 
+				"----------\n" + 
+				"2 problems (2 errors)\n",
+				false,
+				"module mod.two reads package x.y.z from both mod.one and mod.one.a");
 	}
 	public void testReleaseOption1() throws Exception {
 		this.runConformTest(
@@ -4090,24 +4186,22 @@ public void testBug521362_emptyFile() {
 	        true);
 	}
 	public void testReleaseOption13a() {
-		runConformModuleTest(
-			new String[] {
-				"p/X.java",
+		Runner runner = new Runner();
+		runner.createFile( 
+				OUTPUT_DIR +File.separator+"p", "X.java",
 				"package p;\n" +
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +
 				"	}\n" +
-				"}",
-				"module-info.java",
+				"}");
+		runner.createFile( 
+				OUTPUT_DIR, "module-info.java",
 				"module mod.one { \n" +
 				"	requires java.base;\n" +
-				"}"
-	        },
-			" --release 10 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
-	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
-	        "",
-	        "",
-	        true);
+				"}");
+		runner.commandLine.append(" --release 10");
+		runner.javacTestOptions = new JavacTestOptions(ClassFileConstants.JDK10);
+		runner.runConformModuleTest();
 	}
 	public void testReleaseOption14() {
 		runNegativeModuleTest(
@@ -4136,25 +4230,22 @@ public void testBug521362_emptyFile() {
 	}
 	// Test from https://bugs.eclipse.org/bugs/show_bug.cgi?id=526997
 	public void testReleaseOption15() {
-		runConformModuleTest(
-			new String[] {
-				"foo/Module.java",
+		Runner runner = new Runner();
+		String fooDir = OUTPUT_DIR + File.separator + "foo";
+		runner.createFile(
+				fooDir, "Module.java",
 				"package foo;\n" +
-				"public class Module {}\n",
-				"foo/X.java",
+				"public class Module {}\n");
+		runner.createFile(
+				fooDir, "X.java",
 				"package foo;\n" +
 				"public class X { \n" +
 				"	public Module getModule(String name) {\n" + 
 				"		return null;\n" +
 				"	}\n" + 
-				"}"
-	        },
-			" --release 8 \"" + OUTPUT_DIR +  File.separator + "foo" + File.separator + "Module.java\" " +
-			"\"" +  OUTPUT_DIR +  File.separator + "foo" + File.separator + "X.java\" ",
-	        "",
-    		"",
-	        true,
-	        OUTPUT_DIR);
+				"}");
+		runner.commandLine.append(" --release 8 ");
+	    runner.runConformModuleTest();
 	}
 	// Test from https://bugs.eclipse.org/bugs/show_bug.cgi?id=526997
 	public void testReleaseOption16() {
@@ -4415,10 +4506,10 @@ public void testBug521362_emptyFile() {
 		String outDir = OUTPUT_DIR + File.separator + "bin";
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = srcDir + File.separator + "test";
-		List<String> files = new ArrayList<>(); 
-		writeFileCollecting(files, moduleLoc, "module-info.java", 
+		Runner runner = new Runner();
+		runner.createFile(moduleLoc, "module-info.java", 
 						"module test {}");
-		writeFileCollecting(files, moduleLoc + File.separator + "test", "Thing.java", 
+		runner.createFile(moduleLoc + File.separator + "test", "Thing.java", 
 				"package test;\n" +
 				"import java.util.Comparator;\n" + 
 				"import java.util.Iterator;\n" + 
@@ -4430,14 +4521,11 @@ public void testBug521362_emptyFile() {
 				"    }\n" + 
 				"}\n");
 
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("-d " + outDir )
+		runner.commandLine.append("-d " + outDir )
 			.append(" -source 9 ")
 			.append(" --module-source-path " + "\"" + srcDir + "\" ");
-		runConformModuleTest(files, buffer,
-				"",
-				"",
-				false);
+		runner.javacVersionOptions = "-Xlint:-options"; // -source 9 already provided
+		runner.runConformModuleTest();
 	}
 	public void testBug508889_001() throws Exception {
 		this.runConformTest(
@@ -4576,115 +4664,105 @@ public void testBug521362_emptyFile() {
 		String outDir = OUTPUT_DIR + File.separator + "bin";
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = srcDir + File.separator + "test";
-		List<String> files = new ArrayList<>(); 
-		writeFileCollecting(files, moduleLoc, "module-info.java", 
+		Runner runner = new Runner();
+		runner.createFile(moduleLoc, "module-info.java", 
 						"module test {\n" +
 						"	requires org.astro;\n" +
 						"}");
-		writeFileCollecting(files, moduleLoc + File.separator + "p", "Test.java", 
+		runner.createFile(moduleLoc + File.separator + "p", "Test.java", 
 			"package p;\n" +
 			"import org.astro.World;\n" + 
 			"public class Test {\n" +
 			"	World w = null;\n" +
 			"}");
 		moduleLoc = srcDir + File.separator + "org.astro";
-		writeFileCollecting(files, moduleLoc, "module-info.java", 
+		runner.createFile(moduleLoc, "module-info.java", 
 				"module org.astro {\n" +
 				"	exports org.astro;\n" +
 				"}");
-		writeFileCollecting(files, moduleLoc + File.separator + "org" + File.separator + "astro", "World.java", 
+		runner.createFile(moduleLoc + File.separator + "org" + File.separator + "astro", "World.java", 
 			"package org.astro;\n" +
 			"public interface World {\n" + 
 			"	public static String name() {\n" + 
 			"		return \"\";\n" + 
 			"	}\n" + 
 			"}");
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("-d " + outDir )
+		runner.commandLine.append("-d " + outDir )
 			.append(" -source 9 ")
 			.append(" --module-source-path " + "\"" + srcDir + "\" ");
-		runConformModuleTest(files, buffer,
-				"",
-				"",
-				false);
+		runner.javacVersionOptions = " -Xlint:-options";
+		runner.runConformModuleTest();
 	}
 	public void testBug520858a() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = srcDir + File.separator + "test";
-		List<String> files = new ArrayList<>(); 
-		writeFileCollecting(files, moduleLoc, "module-info.java", 
+		Runner runner = new Runner();
+		// not adding some files to the command line
+		writeFile(moduleLoc, "module-info.java", 
 						"module test {\n" +
 						"	requires org.astro;\n" +
 						"}");
-		writeFileCollecting(files, moduleLoc + File.separator + "p", "Test.java", 
+		// the only file added:
+		runner.createFile(moduleLoc + File.separator + "p", "Test.java", 
 			"package p;\n" +
 			"import org.astro.World;\n" + 
 			"public class Test {\n" +
 			"	World w = null;\n" +
 			"}");
 		moduleLoc = srcDir + File.separator + "org.astro";
-		writeFileCollecting(files, moduleLoc, "module-info.java", 
+		writeFile(moduleLoc, "module-info.java", 
 				"module org.astro {\n" +
 				"	exports org.astro;\n" +
 				"}");
-		writeFileCollecting(files, moduleLoc + File.separator + "org" + File.separator + "astro", "World.java", 
+		writeFile(moduleLoc + File.separator + "org" + File.separator + "astro", "World.java", 
 			"package org.astro;\n" +
 			"public interface World {\n" + 
 			"	public static String name() {\n" + 
 			"		return \"\";\n" + 
 			"	}\n" + 
 			"}");
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("-d " + outDir )
+		runner.commandLine.append("-d " + outDir )
 			.append(" -source 9 ")
-			.append(" --module-source-path " + "\"" + srcDir + "\" ")
-			.append(srcDir + File.separator + "test" + File.separator + "p" + File.separator + "Test.java");
-		runConformModuleTest(Collections.emptyList(), buffer,
-				"",
-				"",
-				false);
+			.append(" --module-source-path " + "\"" + srcDir + "\" ");
+		runner.javacVersionOptions = " -Xlint:-options";
+		runner.runConformModuleTest();
 	}
 	public void testBug520858b() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
 		String outDir = OUTPUT_DIR + File.separator + "bin";
 		String srcDir = OUTPUT_DIR + File.separator + "src";
 		String moduleLoc = srcDir + File.separator + "test";
-		List<String> files = new ArrayList<>(); 
-		writeFileCollecting(files, moduleLoc, "module-info.java", 
+		Runner runner = new Runner();
+		runner.createFile(moduleLoc, "module-info.java", 
 						"module test {\n" +
 						"	requires org.astro;\n" +
 						"}");
-		writeFileCollecting(files, moduleLoc + File.separator + "p", "Test.java", 
+		runner.createFile(moduleLoc + File.separator + "p", "Test.java", 
 			"package p;\n" +
 			"import org.astro.World;\n" + 
 			"public class Test {\n" +
 			"	World w = null;\n" +
 			"}");
 		moduleLoc = srcDir + File.separator + "org.astro";
-		writeFileCollecting(files, moduleLoc, "module-info.java", 
+		// not adding this file to the command line (intentional?):
+		writeFile(moduleLoc, "module-info.java", 
 				"module org.astro {\n" +
 				"	exports org.astro;\n" +
 				"}");
-		writeFileCollecting(files, moduleLoc + File.separator + "org" + File.separator + "astro", "World.java", 
+		runner.createFile(moduleLoc + File.separator + "org" + File.separator + "astro", "World.java", 
 			"package org.astro;\n" +
 			"public interface World {\n" + 
 			"	public static String name() {\n" + 
 			"		return \"\";\n" + 
 			"	}\n" + 
 			"}");
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("-d " + outDir )
+		runner.commandLine.append("-d " + outDir )
 			.append(" -source 9 ")
-			.append(" --module-source-path " + "\"" + srcDir + "\" ")
-			.append(srcDir + File.separator + "test" + File.separator + "p" + File.separator + "Test.java ")
-			.append(srcDir + File.separator + "test" + File.separator + "module-info.java ")
-			.append(srcDir + File.separator + "org.astro" + File.separator + "org" + File.separator + "astro" + File.separator + "World.java");
-		runConformModuleTest(Collections.emptyList(), buffer,
-				"",
-				"",
-				false);
+			.append(" --module-source-path " + "\"" + srcDir + "\" ");
+		runner.javacVersionOptions = " -Xlint:-options";
+		runner.runConformModuleTest();
 	}
 	public void testBug520858c() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
@@ -4902,5 +4980,27 @@ public void testBug521362_emptyFile() {
 				false);
 		String fileName = OUTPUT_DIR + File.separator + out + File.separator + "mod.one" + File.separator + "module-info.class";
 		assertClassFile("Missing modul-info.class: " + fileName, fileName, classFiles);
+	}
+	public void test_npe_bug535107() {
+		runConformModuleTest(
+				new String[] {
+					"p/X.java",
+					"package p;\n" +
+			  		"import java.lang.annotation.*;\n" + 
+					"@Target(ElementType.MODULE)\n" +
+					"public @interface X {\n" +
+					"	ElementType value();\n" + 
+					"}",
+					"module-info.java",
+			  		"import java.lang.annotation.*;\n" + 
+			  		"@p.X(ElementType.MODULE)\n" + 
+					"module mod.one { \n" +
+					"}"
+		        },
+				" -9 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+		        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
+		        "",
+		        "",
+		        true);
 	}
 }

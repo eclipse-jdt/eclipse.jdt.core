@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,7 +46,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 * @deprecated
 	 */
 	private void checkClassFileUsingInputStream(String directoryName, String className, String source, String expectedOutput, int mode) throws IOException {
-		compileAndDeploy(source, directoryName, className);
+		compileAndDeploy(source, directoryName, className, false);
 		BufferedInputStream inputStream = null;
 		try {
 			File directory = new File(EVAL_DIRECTORY, directoryName);
@@ -613,7 +613,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 				"    )\n" + 
 				"}";
 		int mode = ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT | ClassFileBytesDisassembler.SYSTEM;
-		checkClassFile("test", "AllTests", source, expectedOutput, mode);
+		checkClassFile("test", "AllTests", "AllTests", source, expectedOutput, mode, true/*suppress expected errors*/);
 	}
 
 }

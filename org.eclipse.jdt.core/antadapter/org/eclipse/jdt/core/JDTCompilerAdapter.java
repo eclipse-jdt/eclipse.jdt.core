@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2013 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -522,7 +525,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			niceSourceList.append("s"); //$NON-NLS-1$
 		}
 		niceSourceList.append(" to be compiled:"); //$NON-NLS-1$
-		niceSourceList.append(lSep);
+		niceSourceList.append(System.lineSeparator());
 
 		String[] encodedFiles = null, encodedDirs = null;
 		int encodedFilesLength = 0, encodedDirsLength = 0;
@@ -574,7 +577,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 				}
 			}
 			cmd.createArgument().setValue(arg);
-			niceSourceList.append("    " + arg + lSep); //$NON-NLS-1$
+			niceSourceList.append("    " + arg + System.lineSeparator()); //$NON-NLS-1$
 		}
 
 		this.attributes.log(niceSourceList.toString(), Project.MSG_VERBOSE);

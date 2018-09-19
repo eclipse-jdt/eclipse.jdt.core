@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2014, 2018 Mateusz Matela and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
@@ -58,7 +61,7 @@ public class TextEditsBuilder extends TokenTraverser {
 		this.options = options;
 		this.regions = adaptRegions(regions);
 
-		this.alignChar = this.options.tab_char;
+		this.alignChar = this.options.align_with_spaces ? DefaultCodeFormatterOptions.SPACE : this.options.tab_char;
 		this.sourceLimit = source.length();
 		this.parent = null;
 
@@ -238,6 +241,10 @@ public class TextEditsBuilder extends TokenTraverser {
 				if (wrapPolicy.wrapMode != WrapMode.BLOCK_INDENT)
 					spaces += token.getIndent() - parentLineStart.getIndent();
 				token = parentLineStart;
+				if (wrapPolicy == token.getWrapPolicy()) {
+					assert wrapPolicy == WrapPolicy.FORCE_FIRST_COLUMN || wrapPolicy == WrapPolicy.DISABLE_WRAP;
+					break;
+				}
 				wrapPolicy = token.getWrapPolicy();
 			}
 		}

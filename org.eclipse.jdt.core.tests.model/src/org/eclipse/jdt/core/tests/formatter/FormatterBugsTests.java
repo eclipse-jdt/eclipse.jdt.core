@@ -12862,4 +12862,60 @@ public void testBug534225() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/534742 - Error on save file due to formatter:
+ * IndexOutOfBoundsException in CommentWrapExecutor
+ */
+public void testBug534742() {
+	setPageWidth80();
+	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
+	String source =
+		"class C {\n" + 
+		"	String ssssssssssss = fffffffffffffffff(\"aaaaaaaaaaaaaaaaa\", bbbbbbbbbbbbbbbbbb); //$NON-NLS-1$\n" + 
+		"}";
+	formatSource(source,
+		"class C {\n" + 
+		"	String ssssssssssss = fffffffffffffffff(\"aaaaaaaaaaaaaaaaa\", //$NON-NLS-1$\n" + 
+		"			bbbbbbbbbbbbbbbbbb);\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/536322 - Java formatter misses one level of
+ * indentation in enum declaration if Javadoc is present
+ */
+public void testBug536322() {
+	String source =
+		"class C {\n" + 
+		"	/** */\n" + 
+		"	enum E {\n" + 
+		"		enum1;\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/536552 - Freeze when formatting Java source code
+ */
+public void testBug536552a() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
+	String source =
+		"// comment\n" + 
+		"class C {\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/536552 - Freeze when formatting Java source code
+ */
+public void testBug536552b() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.never_indent_block_comments_on_first_column = true;
+	String source =
+		"/* comment */\n" + 
+		"class C {\n" + 
+		"}";
+	formatSource(source);
+}
 }

@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2015, 2016 Google, Inc and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *   Stefan Xenos (Google) - Initial implementation
@@ -74,7 +77,8 @@ public class BinaryTypeFactory {
 		String overridePath = root.getClassFilePath(entryName);
 		if (overridePath != entryName) {
 			entryName = overridePath;
-			name = ((JarPackageFragmentRoot) root).versionPath + name;
+			String versionPath = overridePath.substring(0, overridePath.indexOf(entryName));
+			name = versionPath + name;
 		}
 		char[] fieldDescriptor = CharArrayUtils.concat(new char[] { 'L' },
 				name.toCharArray(), new char[] { ';' });

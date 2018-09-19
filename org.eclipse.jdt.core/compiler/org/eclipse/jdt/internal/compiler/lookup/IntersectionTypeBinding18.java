@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -26,7 +29,15 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
-public class IntersectionTypeBinding18 extends ReferenceBinding { // abstraction used for intersection casts in Java 8 + type inference at 1.8+
+/**
+ * Abstraction used for intersection casts in Java 8 + and inferred types:
+ * <ul>
+ * <li>type inference at 1.8+</li>
+ * <li>lub at 1.8+</li>
+ * <li>projections for 'var' at 10+</li>
+ * </ul>
+ */
+public class IntersectionTypeBinding18 extends ReferenceBinding {
 
 	public ReferenceBinding [] intersectingTypes;
 	private ReferenceBinding javaLangObject;
@@ -118,6 +129,11 @@ public class IntersectionTypeBinding18 extends ReferenceBinding { // abstraction
 	
 	@Override
 	public char[] constantPoolName() {
+		TypeBinding erasure = erasure();
+		if (erasure != this) //$IDENTITY-COMPARISON$
+			return erasure.constantPoolName();
+		if (this.intersectingTypes[0].id == TypeIds.T_JavaLangObject && this.intersectingTypes.length > 1)
+			return this.intersectingTypes[1].constantPoolName(); // improve stack map
 		return this.intersectingTypes[0].constantPoolName();
 	}
 
@@ -206,6 +222,24 @@ public class IntersectionTypeBinding18 extends ReferenceBinding { // abstraction
 				return true;
 		}
 		return false;
+	}
+
+	@Override
+	public TypeBinding erasure() {
+		int classIdx = -1;
+		for (int i = 0; i < this.intersectingTypes.length; i++) {
+			if (this.intersectingTypes[i].isClass() && this.intersectingTypes[i].id != TypeIds.T_JavaLangObject) { // ignore j.l.Object to improve stack map
+				if (classIdx == -1) {
+					classIdx = i;
+				} else {
+					classIdx = Integer.MAX_VALUE;
+					break;
+				}
+			}
+		}
+		if (classIdx > -1 && classIdx < Integer.MAX_VALUE)
+			return this.intersectingTypes[classIdx];
+		return this;
 	}
 
 	@Override

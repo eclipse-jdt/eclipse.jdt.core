@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation  - initial API and implementation
@@ -58,7 +61,7 @@ public class DefaultCodeFormatterConstants {
 	/**
 	 * <pre>
 	 * FORMATTER / Option to align type members of a type declaration on column
-	 *     - option id:         "org.eclipse.jdt.core.formatter.formatter.align_type_members_on_columns"
+	 *     - option id:         "org.eclipse.jdt.core.formatter.align_type_members_on_columns"
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           FALSE
 	 * </pre>
@@ -70,7 +73,49 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Option to align groups of members independently if they are separated by a certain number of blank lines
+	 * FORMATTER / Option to align variable declarations on column
+	 *     - option id:         "org.eclipse.jdt.core.formatter.align_variable_declarations_on_columns"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.15
+	 */
+	public static final String FORMATTER_ALIGN_VARIABLE_DECLARATIONS_ON_COLUMNS = JavaCore.PLUGIN_ID + ".formatter.align_variable_declarations_on_columns";	 //$NON-NLS-1$
+	
+	/**
+	 * <pre>
+	 * FORMATTER / Option to align assignment statements on column
+	 *     - option id:         "org.eclipse.jdt.core.formatter.align_assignment_statements_on_columns"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.15
+	 */
+	public static final String FORMATTER_ALIGN_ASSIGNMENT_STATEMENTS_ON_COLUMNS = JavaCore.PLUGIN_ID + ".formatter.align_assignment_statements_on_columns";	 //$NON-NLS-1$
+	
+	/**
+	 * <pre>
+	 * FORMATTER / Option to use spaces when aligning members, independent of selected tabulation character
+	 *     - option id:         "org.eclipse.jdt.core.formatter.align_with_spaces"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.15
+	 */
+	public static final String FORMATTER_ALIGN_WITH_SPACES = JavaCore.PLUGIN_ID + ".formatter.align_with_spaces";	 //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to affect aligning on columns: groups of items are aligned independently
+	 * if they are separated by at least the selected number of blank lines.
+	 * Note: since 3.15 the 'fields' part is a (potentially misleading) residue as this option
+	 * affects other types of aligning on columns as well.
 	 *     - option id:         "org.eclipse.jdt.core.formatter.align_fields_grouping_blank_lines"
 	 *     - possible values:   "&lt;n&gt;", where n is a positive integer
 	 *     - default:           {@code Integer.MAX_VALUE}
@@ -178,6 +223,17 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_ALIGNMENT_FOR_COMPACT_IF = JavaCore.PLUGIN_ID + ".formatter.alignment_for_compact_if";	 //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of compact loops
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_compact_loops"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_ONE_PER_LINE, INDENT_BY_ONE)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.15
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_COMPACT_LOOP = JavaCore.PLUGIN_ID + ".formatter.alignment_for_compact_loops";	 //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option for alignment of conditional expression
@@ -3917,6 +3973,43 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_KEEP_THEN_STATEMENT_ON_SAME_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_then_statement_on_same_line";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to keep a simple 'for' loop body on the same line
+	 *     - option id:         "org.eclipse.jdt.core.formatter.keep_simple_for_body_on_same_line"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.15
+	 */
+	public static final String FORMATTER_KEEP_SIMPLE_FOR_BODY_ON_SAME_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_simple_for_body_on_same_line";//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to keep a simple 'while' loop body on the same line
+	 *     - option id:         "org.eclipse.jdt.core.formatter.keep_simple_while_body_on_same_line"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.15
+	 */
+	public static final String FORMATTER_KEEP_SIMPLE_WHILE_BODY_ON_SAME_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_simple_while_body_on_same_line";//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to keep a simple 'do-while' loop body on the same line
+	 *     - option id:         "org.eclipse.jdt.core.formatter.keep_simple_do_while_body_on_same_line"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.15
+	 */
+	public static final String FORMATTER_KEEP_SIMPLE_DO_WHILE_BODY_ON_SAME_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_simple_do_while_body_on_same_line";//$NON-NLS-1$
 
 	/**
 	 * <pre>

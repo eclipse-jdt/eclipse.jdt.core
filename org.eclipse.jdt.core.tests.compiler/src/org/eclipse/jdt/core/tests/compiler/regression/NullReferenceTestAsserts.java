@@ -164,7 +164,8 @@ public void testBug127575a() throws IOException {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 public void testBug127575b() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -172,20 +173,24 @@ public void testBug127575b() {
 				"    org.eclipse.core.runtime.Assert.isLegal(o == null);\n" + 	// forces null
 				"    o.toString();\n" + 		// can only be null
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
 		"	o.toString();\n" +
 		"	^\n" +
 		"Null pointer access: The variable o can only be null at this location\n" +
-		"----------\n",
-		this.assertLib,
-		true);
+		"----------\n";
+	runner.classLibraries =
+		this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 public void testBug127575c() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -193,20 +198,24 @@ public void testBug127575c() {
 				"    org.eclipse.core.runtime.Assert.isLegal(o != null || b, \"FAIL\");\n" + // shed doubts
 				"    o.toString();\n" + 		// complain
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 		"----------\n" +
 		"1. ERROR in X.java (at line 4)\n" +
 		"	o.toString();\n" +
 		"	^\n" +
 		"Potential null pointer access: The variable o may be null at this location\n" +
-		"----------\n",
-	    this.assertLib,
-	    true);
+		"----------\n";
+	runner.classLibraries =
+	    this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 public void testBug127575d() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -215,7 +224,8 @@ public void testBug127575d() {
 				"    if (o1 == null) { };\n" + 		// complain
 				"    if (o2 == null) { };\n" + 		// complain
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	if (o1 == null) { };\n" + 
@@ -231,14 +241,17 @@ public void testBug127575d() {
 			"	if (o2 == null) { };\n" + 
 			"	    ^^\n" + 
 			"Redundant null check: The variable o2 can only be null at this location\n" + 
-			"----------\n",
-		    this.assertLib,
-		    true);
+			"----------\n";
+	runner.classLibraries =
+		    this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 public void testBug127575e() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -246,18 +259,23 @@ public void testBug127575e() {
 				"    org.eclipse.core.runtime.Assert.isLegal(false && o != null);\n" +
 				"    if (o == null) { };\n" + 		// quiet
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 				"----------\n" + 
 				"1. WARNING in X.java (at line 3)\n" + 
 				"	org.eclipse.core.runtime.Assert.isLegal(false && o != null);\n" + 
 				"	                                                 ^^^^^^^^^\n" + 
 				"Dead code\n" + 
-				"----------\n",
-				this.assertLib, true);
+				"----------\n";
+	runner.classLibraries =
+				this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runConformTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 public void testBug127575e_1() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -266,7 +284,8 @@ public void testBug127575e_1() {
 				"    org.eclipse.core.runtime.Assert.isLegal(false && o != null);\n" +
 				"    if (o == null) { };\n" + 		// warn on o because o was null above.
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 				"----------\n" + 
 				"1. WARNING in X.java (at line 4)\n" + 
 				"	org.eclipse.core.runtime.Assert.isLegal(false && o != null);\n" + 
@@ -277,13 +296,17 @@ public void testBug127575e_1() {
 				"	if (o == null) { };\n" + 
 				"	    ^\n" + 
 				"Redundant null check: The variable o can only be null at this location\n" + 
-				"----------\n",
-				this.assertLib, true);
+				"----------\n";
+	runner.classLibraries =
+				this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 public void testBug127575e_2() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -291,18 +314,23 @@ public void testBug127575e_2() {
 				"    org.eclipse.core.runtime.Assert.isLegal(true || o != null);\n" +
 				"    if (o == null) { };\n" + 		// quiet
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 				"----------\n" + 
 				"1. WARNING in X.java (at line 3)\n" + 
 				"	org.eclipse.core.runtime.Assert.isLegal(true || o != null);\n" + 
 				"	                                                ^^^^^^^^^\n" + 
 				"Dead code\n" + 
-				"----------\n",
-				this.assertLib, true);
+				"----------\n";
+	runner.classLibraries =
+				this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runConformTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 public void testBug127575f() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -310,7 +338,8 @@ public void testBug127575f() {
 				"    org.eclipse.core.runtime.Assert.isLegal(false || o != null);\n" +
 				"    if (o == null) { };\n" + 		// complain
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	if (o == null) { };\n" + 
@@ -321,14 +350,18 @@ public void testBug127575f() {
 		"	if (o == null) { };\n" + 
 		"	               ^^^\n" + 
 		"Dead code\n" + 
-		"----------\n",
-	    this.assertLib, true);
+		"----------\n";
+	runner.classLibraries =
+	    this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // do warn always false comparisons even inside org.eclipse.core.runtime.Assert.isLegal
 public void testBug127575g() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -337,7 +370,8 @@ public void testBug127575g() {
 				"    org.eclipse.core.runtime.Assert.isLegal(o != null);\n" +    // don't complain
 				"    if (o == null) { };\n" +   // complain
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 4)\n" + 
 		"	org.eclipse.core.runtime.Assert.isLegal(o != null);\n" + 
@@ -353,15 +387,19 @@ public void testBug127575g() {
 		"	if (o == null) { };\n" + 
 		"	               ^^^\n" + 
 		"Dead code\n" + 
-		"----------\n",
-		this.assertLib, true);
+		"----------\n";
+	runner.classLibraries =
+		this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // Test to verify that asserts are exempted from redundant null check warnings,
 // but this doesn't affect the downstream info.
 public void testBug127575h() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -379,7 +417,8 @@ public void testBug127575h() {
 				"	 org.eclipse.core.runtime.Assert.isLegal (bar2 != null);\n" +	// always false check - warn
 				"	 if (bar2 == null) {}\n" +
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	if (foo == null) {}\n" + 
@@ -420,15 +459,19 @@ public void testBug127575h() {
 		"	if (bar2 == null) {}\n" + 
 		"	                  ^^\n" + 
 		"Dead code\n" + 
-		"----------\n",
-	    this.assertLib, true);
+		"----------\n";
+	runner.classLibraries =
+	    this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // Test to verify that asserts are exempted from redundant null check warnings,
 // but this doesn't affect the downstream info.
 public void testBug127575i() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -443,7 +486,8 @@ public void testBug127575i() {
 				"	 if (bar == null) {}\n" +		// warn
 				"  }\n" +
 				"  public X getX() { return new X();}\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 		"----------\n" +
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	if (foo != null) {}\n" + 
@@ -454,15 +498,19 @@ public void testBug127575i() {
 		"	if (bar == null) {}\n" + 
 		"	    ^^^\n" + 
 		"Redundant null check: The variable bar can only be null at this location\n" + 
-		"----------\n",
-	    this.assertLib, true);
+		"----------\n";
+	runner.classLibraries =
+	    this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // Test to verify that asserts are exempted from redundant null check warnings in a looping context,
 // but this doesn't affect the downstream info.
 public void testBug127575j() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -482,7 +530,8 @@ public void testBug127575j() {
 				"	 	if (bar2 == null) {}\n" +
 				"	 }\n" +
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 9)\n" + 
 		"	if (foo == null) {}\n" + 
@@ -523,15 +572,19 @@ public void testBug127575j() {
 		"	if (bar2 == null) {}\n" + 
 		"	                  ^^\n" + 
 		"Dead code\n" + 
-		"----------\n",
-	    this.assertLib, true);
+		"----------\n";
+	runner.classLibraries =
+	    this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // Test to verify that asserts are exempted from redundant null check warnings in a finally context,
 // but this doesn't affect the downstream info.
 public void testBug127575k() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -554,7 +607,8 @@ public void testBug127575k() {
 				"	 	if (bar2 == null) {}\n" +
 				"	 }\n" +
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	if (foo == null) {}\n" + 
@@ -595,15 +649,19 @@ public void testBug127575k() {
 		"	if (bar2 == null) {}\n" + 
 		"	                  ^^\n" + 
 		"Dead code\n" + 
-		"----------\n",
-	    this.assertLib, true);
+		"----------\n";
+	runner.classLibraries =
+	    this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // The condition of org.eclipse.core.runtime.Assert.isLegal is considered always true
 // and alters the following analysis suitably.
 public void testBug127575l() {
-		this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 			new String[] {
 				"Test.java",
 				"public class Test {\n" +
@@ -633,7 +691,8 @@ public void testBug127575l() {
 				"		Test test = new Test();\n" +
 				"		test.foo(null,null, null);\n" +
 				"	}\n" +
-				"}\n"},
+				"}\n"};
+	runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in Test.java (at line 4)\n" + 
 			"	if (a!=null) {\n" + 
@@ -673,14 +732,18 @@ public void testBug127575l() {
 			"	if (c.equals(a)) {\n" + 
 			"	    ^\n" + 
 			"Null pointer access: The variable c can only be null at this location\n" + 
-			"----------\n",
-			this.assertLib, true);
+			"----------\n";
+	runner.classLibraries =
+			this.assertLib;
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127575
 // NPE warnings should be given inside org.eclipse.core.runtime.Assert.isLegal too
 public void testBug127575m() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] {
 				"Info.java",
 				"public class Info {\n" +
@@ -700,15 +763,18 @@ public void testBug127575m() {
 				"	}\n" +
 				"	void doSomething()  {}\n" +
 				"	boolean checkSomething() {return true;}\n" +
-				"}\n"},
+				"}\n"};
+		runner.expectedCompilerLog =
 				"----------\n" + 
 			"1. ERROR in Info.java (at line 11)\n" + 
 			"	org.eclipse.core.runtime.Assert.isLegal(info.checkSomething());\n" + 
 			"	                                        ^^^^\n" + 
 			"Null pointer access: The variable info can only be null at this location\n" + 
-			"----------\n",
-			this.assertLib,
-			true);
+			"----------\n";
+		runner.classLibraries =
+			this.assertLib;
+		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+		runner.runNegativeTest();
 	}
 }
 
@@ -716,7 +782,8 @@ public void testBug127575m() {
 // always false comparison in Assert.isLegal in loop should be warned against
 public void testBug127575n() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] {
 		"DoWhileBug.java",
 				"public class DoWhileBug {\n" + 
@@ -730,7 +797,8 @@ public void testBug127575n() {
 				"		} while (true);\n" + 
 				"	}\n" + 
 				"}"	
-			},
+			};
+		runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in DoWhileBug.java (at line 7)\n" + 
 			"	o1 = null;\n" + 
@@ -741,9 +809,11 @@ public void testBug127575n() {
 			"	org.eclipse.core.runtime.Assert.isLegal (o1 != null);\n" + 
 			"	                                         ^^\n" + 
 			"Null comparison always yields false: The variable o1 can only be null at this location\n" + 
-			"----------\n",
-			this.assertLib,
-			true);
+			"----------\n";
+		runner.classLibraries =
+			this.assertLib;
+		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+		runner.runNegativeTest();
 	}
 }
 
@@ -751,7 +821,8 @@ public void testBug127575n() {
 // "redundant null check" in Assert.isLegal in loop should not be warned against
 public void testBug127575o() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] {
 		"DoWhileBug.java",
 				"public class DoWhileBug {\n" + 
@@ -765,21 +836,26 @@ public void testBug127575o() {
 				"		} while (true);\n" + 
 				"	}\n" + 
 				"}"	
-			},
+			};
+		runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in DoWhileBug.java (at line 7)\n" + 
 			"	o1 = null;\n" + 
 			"	^^\n" + 
 			"Redundant assignment: The variable o1 can only be null at this location\n" + 
-			"----------\n",
-			this.assertLib,
-			true);
+			"----------\n";
+		runner.classLibraries =
+			this.assertLib;
+		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+		runner.runNegativeTest();
 	}
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=373953
 public void testBug373953() throws IOException {
-		this.runNegativeTest(
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -805,7 +881,8 @@ public void testBug373953() throws IOException {
 				"public class Assert {\n" +
 				"  public static void isLegal(boolean b) {\n" +
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+		runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	o.toString();\n" + 
@@ -816,7 +893,10 @@ public void testBug373953() throws IOException {
 			"	o.toString();\n" + 
 			"	^\n" + 
 			"Potential null pointer access: The variable o may be null at this location\n" + 
-			"----------\n");
+			"----------\n";
+		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+		runner.runNegativeTest();
+	}
 }
 
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
@@ -868,7 +948,8 @@ public void testBug382069b() {
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // junit's assertNull and dead code analysis
 public void testBug382069c() throws IOException {
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			JUNIT_ASSERT_NAME,
 			JUNIT_ASSERT_CONTENT,
@@ -887,7 +968,8 @@ public void testBug382069c() throws IOException {
 			"      return; // dead code\n" +
 			"    }\n" +
 			"  }\n" +
-			"}\n"},
+			"}\n"};
+	runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	return o1 != null;\n" + 
@@ -903,12 +985,15 @@ public void testBug382069c() throws IOException {
 			"	return; // dead code\n" + 
 			"	^^^^^^^\n" + 
 			"Dead code\n" + 
-			"----------\n");
+			"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // various asserts from org.apache.commons.lang.Validate
 public void testBug382069d() throws IOException {
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			APACHE_VALIDATE_NAME,
 			APACHE_VALIDATE_CONTENT,
@@ -925,19 +1010,23 @@ public void testBug382069d() throws IOException {
 			"    Validate.isTrue(x == null, \"ups\", x);\n" +
 			"    x.foo(null, null, null); // definite NPE\n" +
 			"  }\n" +
-			"}\n"},
+			"}\n"};
+	runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	x.foo(null, null, null); // definite NPE\n" + 
 			"	^\n" + 
 			"Null pointer access: The variable x can only be null at this location\n" + 
-			"----------\n");
+			"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // various asserts from org.apache.commons.lang3Validate
 public void testBug382069e() throws IOException {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] {
 				APACHE_3_VALIDATE_NAME,
 				APACHE_3_VALIDATE_CONTENT,
@@ -954,20 +1043,24 @@ public void testBug382069e() throws IOException {
 				"    Validate.isTrue(x == null, \"ups\", x);\n" +
 				"    x.foo(null, null, null); // definite NPE\n" +
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+		runner.expectedCompilerLog =
 				"----------\n" + 
 				"1. ERROR in X.java (at line 11)\n" + 
 				"	x.foo(null, null, null); // definite NPE\n" + 
 				"	^\n" + 
 				"Null pointer access: The variable x can only be null at this location\n" + 
-				"----------\n");
+				"----------\n";
+		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+		runner.runNegativeTest();
 	}
 }
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
 // various asserts from com.google.common.base.Preconditions
 public void testBug382069f() throws IOException {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
+		Runner runner = new Runner();
+		runner.testFiles =
 			new String[] {
 				GOOGLE_PRECONDITIONS_NAME,
 				GOOGLE_PRECONDITIONS_CONTENT,
@@ -984,13 +1077,16 @@ public void testBug382069f() throws IOException {
 				"    Preconditions.checkArgument(x == null, \"ups\");\n" +
 				"    x.foo(null, null, null); // definite NPE\n" +
 				"  }\n" +
-				"}\n"},
+				"}\n"};
+		runner.expectedCompilerLog =
 				"----------\n" + 
 				"1. ERROR in X.java (at line 11)\n" + 
 				"	x.foo(null, null, null); // definite NPE\n" + 
 				"	^\n" + 
 				"Null pointer access: The variable x can only be null at this location\n" + 
-				"----------\n");
+				"----------\n";
+		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+		runner.runNegativeTest();
 	}
 }
 // https://bugs.eclipse.org/382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
@@ -1038,7 +1134,8 @@ public void testBug382069h() throws IOException {
 // Bug 401159 - [null] Respect org.junit.Assert for control flow
 // various asserts from org.junit.Assert
 public void testBug401159() throws IOException {
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			ORG_JUNIT_ASSERT_NAME,
 			ORG_JUNIT_ASSERT_CONTENT,
@@ -1055,13 +1152,15 @@ public void testBug401159() throws IOException {
 			"    Assert.assertTrue(\"ups\", x == null);\n" +
 			"    x.foo(null, null, null); // definite NPE\n" +
 			"  }\n" +
-			"}\n"},
+			"}\n"};
+	runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	x.foo(null, null, null); // definite NPE\n" + 
 			"	^\n" + 
 			"Null pointer access: The variable x can only be null at this location\n" + 
-			"----------\n");
+			"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 }
 
 // https://bugs.eclipse.org/472618 - [compiler][null] assertNotNull vs. Assert.assertNotNull

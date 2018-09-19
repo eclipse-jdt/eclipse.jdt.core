@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -29,6 +32,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -385,6 +389,27 @@ public class ClasspathEntry implements IClasspathEntry {
 		return this;
 	}
 
+	
+	public ClasspathEntry withExtraAttributeRemoved(String attrName) {
+		IClasspathAttribute[] changedAttributes = Arrays.stream(this.getExtraAttributes())
+				.filter(a -> !a.getName().equals(attrName)).toArray(IClasspathAttribute[]::new);
+		return new ClasspathEntry(
+				this.getContentKind(),
+				this.getEntryKind(),
+				this.getPath(),
+				this.getInclusionPatterns(),
+				this.getExclusionPatterns(),
+				this.getSourceAttachmentPath(),
+				this.getSourceAttachmentRootPath(),
+				this.getOutputLocation(),
+				this.getReferencingEntry(),
+				this.isExported(),
+				this.getAccessRules(),
+				this.combineAccessRules(),
+				changedAttributes);
+	}
+
+	
 	private IAccessRule[] combine(IAccessRule[] referringRules, IAccessRule[] rules, boolean combine) {
 		if (!combine) return rules;
 		if (rules == null || rules.length == 0) return referringRules;

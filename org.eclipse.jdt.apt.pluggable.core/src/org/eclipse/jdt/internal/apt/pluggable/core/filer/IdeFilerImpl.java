@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2007 - 2018 BEA Systems, Inc. and others
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
@@ -32,6 +35,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.internal.AptCompilationParticipant;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.core.IJavaProject;
@@ -63,8 +67,36 @@ public class IdeFilerImpl implements Filer {
 	@Override
 	public JavaFileObject createClassFile(CharSequence name, Element... originatingElements)
 			throws IOException {
-		//TODO
-		throw new UnsupportedOperationException("Creating class files is not yet implemented"); //$NON-NLS-1$
+		
+		// Pre-emptively check parameters here, rather than later on when the resource is written and closed.
+		if (null == name) {
+			throw new IllegalArgumentException("Name is null");
+		}
+    
+    	String nameAsString = name.toString();
+		IFile file = _env.getAptProject().getGeneratedFileManager(_env.isTestCode()).getIFileForTypeName(nameAsString);
+
+    	GeneratedSourceFolderManager gsfm = _env.getAptProject().getGeneratedSourceFolderManager(_env.isTestCode());
+    	IPath path = null;
+    	try {
+			path = gsfm.getBinaryOutputLocation();
+		} catch (JavaModelException e) {
+			Apt6Plugin.log(e, "Failure getting the binary output location"); //$NON-NLS-1$
+			throw new IOException(e);
+		}
+    	int index = nameAsString.lastIndexOf('.');
+    	String pkg = null;
+    	if (index != -1) {
+    		name = nameAsString.substring(index + 1);
+    		pkg = nameAsString.substring(0, index);
+    	} else {
+    		pkg = "";
+    	}
+    	file = getFileFromOutputLocation(StandardLocation.CLASS_OUTPUT, pkg, name + ".class");
+		path = path.append(nameAsString);
+		path = new Path(path.toString() + ".class");
+	
+		return new IdeOutputClassFileObject(_env, file, nameAsString);
 	}
 
 	/* (non-Javadoc)

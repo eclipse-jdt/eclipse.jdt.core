@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2010 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -63,9 +66,9 @@ protected char getHandleMementoDelimiter() {
 public IImportDeclaration getImport(String importName) {
 	int index = importName.indexOf(".*"); ///$NON-NLS-1$
 	boolean isOnDemand = index != -1;
-	if (isOnDemand)
-		// make sure to copy the string (so that it doesn't hold on the underlying char[] that might be much bigger than necessary)
-		importName = new String(importName.substring(0, index));
+	if (isOnDemand) {
+		importName = importName.substring(0, index);
+	}
 	return getImport(importName, isOnDemand);
 }
 protected IImportDeclaration getImport(String importName, boolean isOnDemand) {

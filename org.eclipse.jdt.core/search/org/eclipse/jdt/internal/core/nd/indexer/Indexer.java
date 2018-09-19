@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2016 Google, Inc and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *   Stefan Xenos (Google) - Initial implementation
@@ -564,7 +567,7 @@ public final class Indexer {
 				NdType nextDeletion = toDelete.getType(numChildren - 1);
 				if (DEBUG_INSERTIONS) {
 					Package.logInfo("Deleting " + nextDeletion.getTypeId().getFieldDescriptor().getString() + " from "  //$NON-NLS-1$//$NON-NLS-2$
-							+ new String(toDelete.getLocation().getString()) + " " + toDelete.address); //$NON-NLS-1$
+							+ toDelete.getLocation().getString() + " " + toDelete.address); //$NON-NLS-1$
 				}
 				nextDeletion.delete();
 			} finally {

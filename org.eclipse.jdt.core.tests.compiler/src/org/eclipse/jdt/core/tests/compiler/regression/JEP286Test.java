@@ -70,7 +70,7 @@ static {
 	simpleTypeNames.put("ComparableAny", "Comparable<?>");
 	simpleTypeNames.put("CollectionExt_ComparableAny", "Collection<? extends Comparable<?>>");
 	simpleTypeNames.put("CollectionSuperComparableAny", "Collection<? super Comparable<?>>");
-	simpleTypeNames.put("IntLongFloat", "java.lang.Number&Comparable<?>");
+	simpleTypeNames.put("IntLongFloat", "java.lang.Number & Comparable<?>");
 	simpleTypeNames.put("ListTestAndSerializable", "List<? extends Z & java.io.Serializable>");
 	simpleTypeNames.put("TestAndSerializable", "Z & java.io.Serializable");
 }

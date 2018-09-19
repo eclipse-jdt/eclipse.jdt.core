@@ -68,8 +68,9 @@ public class VarargsTest extends AbstractComparableTest {
 				"		Y.count(new int[] {1, 2, 3, 4 });\n" +
 				"		System.out.print('>');\n" +
 				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
+				"}\n",
+				"Y.java",
+				"public class Y {\n" +
 				"	public Y(int ... values) {\n" +
 				"		int result = 0;\n" +
 				"		for (int i = 0, l = values == null ? 0 : values.length; i < l; i++)\n" +
@@ -128,8 +129,9 @@ public class VarargsTest extends AbstractComparableTest {
 				"		y = new Y(new int[] {1, 2, 3, 4 });\n" +
 				"		System.out.print('>');\n" +
 				"	}\n" +
-				"}\n" +
-				"class Y extends Z {\n" +
+				"}\n",
+				"Y.java",
+				"public class Y extends Z {\n" +
 				"	public Y(int ... values) { super(values); }\n" +
 				"}\n" +
 				"class Z {\n" +
@@ -179,8 +181,9 @@ public class VarargsTest extends AbstractComparableTest {
 				"		Y.count(new int[][] {new int[] {1, 2, 3}, new int[] {4}});\n" +
 				"		System.out.print('>');\n" +
 				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
+				"}\n",
+				"Y.java",
+				"public class Y {\n" +
 				"	public static int count(int[] values) {\n" +
 				"		int result = 0;\n" +
 				"		for (int i = 0, l = values == null ? 0 : values.length; i < l; i++)\n" +
@@ -237,8 +240,9 @@ public class VarargsTest extends AbstractComparableTest {
 				"		Y.count((byte) 4, new int[][] {new int[] {1}, new int[] {2, 3}, new int[] {4}});\n" +
 				"		System.out.print('>');\n" +
 				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
+				"}\n",
+				"Y.java",
+				"public class Y {\n" +
 				"	public static int count(int j, int[] values) {\n" +
 				"		int result = j;\n" +
 				"		System.out.print(' ');\n" +
@@ -293,13 +297,14 @@ public class VarargsTest extends AbstractComparableTest {
 				"	public static void main(String[] s) {\n" +
 				"		System.out.print('<');\n" +
 				"		Y.print();\n" +
-				"		Y.print(new Integer(1));\n" +
-				"		Y.print(new Integer(1), new Byte((byte) 3), new Integer(7));\n" +
-				"		Y.print(new Integer[] {new Integer(11) });\n" +
+				"		Y.print(Integer.valueOf(1));\n" +
+				"		Y.print(Integer.valueOf(1), Byte.valueOf((byte) 3), Integer.valueOf(7));\n" +
+				"		Y.print(new Integer[] {Integer.valueOf(11) });\n" +
 				"		System.out.print('>');\n" +
 				"	}\n" +
-				"}\n" +
-				"class Y {\n" +
+				"}\n",
+				"Y.java",
+				"public class Y {\n" +
 				"	public static void print(Number ... values) {\n" +
 				"		for (int i = 0, l = values.length; i < l; i++) {\n" +
 				"			System.out.print(' ');\n" +
@@ -317,9 +322,9 @@ public class VarargsTest extends AbstractComparableTest {
 				"	public static void main(String[] s) {\n" +
 				"		System.out.print('<');\n" +
 				"		Y.print();\n" +
-				"		Y.print(new Integer(1));\n" +
-				"		Y.print(new Integer(1), new Byte((byte) 3), new Integer(7));\n" +
-				"		Y.print(new Integer[] {new Integer(11) });\n" +
+				"		Y.print(Integer.valueOf(1));\n" +
+				"		Y.print(Integer.valueOf(1), Byte.valueOf((byte) 3), Integer.valueOf(7));\n" +
+				"		Y.print(new Integer[] {Integer.valueOf(11) });\n" +
 				"		System.out.print('>');\n" +
 				"	}\n" +
 				"}\n",
@@ -338,7 +343,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"	public static void main(String[] s) {\n" +
 				"		String[] T_NAMES = new String[] {\"foo\"};\n" +
 				"		String error = \"error\";\n" +
-				"		Y.format(\"E_UNSUPPORTED_CONV\", new Integer(0));\n" +
+				"		Y.format(\"E_UNSUPPORTED_CONV\", Integer.valueOf(0));\n" +
 				"		Y.format(\"E_SAVE\", T_NAMES[0], error);\n" +
 				"	}\n" +
 				"}\n" +
@@ -618,8 +623,8 @@ public class VarargsTest extends AbstractComparableTest {
 				"public class X {\n" +
 				"	public static void main(String[] s) {\n" +
 				"		System.out.print('<');\n" +
-				"		Y.count((Object) new Integer(1));\n" +
-				"		Y.count(new Integer(1));\n" +
+				"		Y.count((Object) Integer.valueOf(1));\n" +
+				"		Y.count(Integer.valueOf(1));\n" +
 				"\n" +
 				"		Y.count((Object) null);\n" +
 				"		Y.count((Object[]) null);\n" +
@@ -639,8 +644,8 @@ public class VarargsTest extends AbstractComparableTest {
 				"public class X {\n" +
 				"	public static void main(String[] s) {\n" +
 				"		System.out.print('<');\n" +
-				"		Y.count(new Object[] {new Integer(1)});\n" +
-				"		Y.count(new Integer[] {new Integer(1)});\n" +
+				"		Y.count(new Object[] {Integer.valueOf(1)});\n" +
+				"		Y.count(new Integer[] {Integer.valueOf(1)});\n" +
 				"\n" +
 				"		Y.count((Object[]) null);\n" +
 				"		Y.count((Object[][]) null);\n" +
@@ -1215,7 +1220,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"import java.io.Serializable;\n" +
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +
-				"		audit(\"osvaldo\", \"localhost\", \"logged\", \"X\", new Integer(0));\n" +
+				"		audit(\"osvaldo\", \"localhost\", \"logged\", \"X\", Integer.valueOf(0));\n" +
 				"		audit(\"osvaldo\", \"localhost\", \"logged\", \"X\", \"Y\");\n" +
 				"		audit(\"osvaldo\", \"localhost\", \"logged\", new Float(0), new java.awt.Point(0, 0));\n" +
 				"	}\n" +
@@ -2335,7 +2340,7 @@ public class VarargsTest extends AbstractComparableTest {
 				"	}\r\n" + 
 				"	\r\n" + 
 				"	Object foo(final Float f) {\r\n" + 
-				"		return new A(new Integer(0), CONST) {\r\n" + 
+				"		return new A(Integer.valueOf(0), CONST) {\r\n" + 
 				"			public String toString() {\r\n" + 
 				"				return f.toString();\r\n" + 
 				"			}\r\n" + 
@@ -2355,17 +2360,6 @@ public class VarargsTest extends AbstractComparableTest {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 		this.runConformTest(
 			new String[] {
-				"java/lang/SafeVarargs.java",
-				"package java.lang;\n" +
-				"import java.lang.annotation.Retention;\n" + 
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
-				"import static java.lang.annotation.ElementType.METHOD;\n" + 
-				"\n" + 
-				"@Retention(value=RUNTIME)\n" + 
-				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
-				"public @interface SafeVarargs {}",
 				"Y.java",
 				"import java.util.ArrayList;\n" +
 				"import java.util.List;\n" +
@@ -2399,21 +2393,6 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 	public void test064() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
-		this.runConformTest(
-			new String[] {
-				"java/lang/SafeVarargs.java",
-				"package java.lang;\n" +
-				"import java.lang.annotation.Retention;\n" + 
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
-				"import static java.lang.annotation.ElementType.METHOD;\n" + 
-				"\n" + 
-				"@Retention(value=RUNTIME)\n" + 
-				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
-				"public @interface SafeVarargs {}",
-			},
-			"");
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
 		this.runConformTest(
@@ -2440,21 +2419,6 @@ public class VarargsTest extends AbstractComparableTest {
 	}
 	public void test065() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
-		this.runConformTest(
-			new String[] {
-				"java/lang/SafeVarargs.java",
-				"package java.lang;\n" +
-				"import java.lang.annotation.Retention;\n" + 
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
-				"import static java.lang.annotation.ElementType.METHOD;\n" + 
-				"\n" + 
-				"@Retention(value=RUNTIME)\n" + 
-				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
-				"public @interface SafeVarargs {}",
-			},
-			"");
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
 		this.runConformTest(
@@ -2532,21 +2496,6 @@ public class VarargsTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
 	public void test067() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
-		this.runConformTest(
-			new String[] {
-				"java/lang/SafeVarargs.java",
-				"package java.lang;\n" +
-				"import java.lang.annotation.Retention;\n" + 
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
-				"import static java.lang.annotation.ElementType.METHOD;\n" + 
-				"\n" + 
-				"@Retention(value=RUNTIME)\n" + 
-				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
-				"public @interface SafeVarargs {}",
-			},
-			"");
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
 		this.runNegativeTest(
@@ -2607,21 +2556,6 @@ public class VarargsTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337799
 	public void test067b() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
-		this.runConformTest(
-			new String[] {
-				"java/lang/SafeVarargs.java",
-				"package java.lang;\n" +
-				"import java.lang.annotation.Retention;\n" + 
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
-				"import static java.lang.annotation.ElementType.METHOD;\n" + 
-				"\n" + 
-				"@Retention(value=RUNTIME)\n" + 
-				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
-				"public @interface SafeVarargs {}",
-			},
-			"");
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
 		this.runNegativeTest(
@@ -2647,21 +2581,6 @@ public class VarargsTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (make sure there is no warning if vararg parameter is reifiable)
 	public void test068() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
-		this.runConformTest(
-			new String[] {
-				"java/lang/SafeVarargs.java",
-				"package java.lang;\n" +
-				"import java.lang.annotation.Retention;\n" + 
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
-				"import static java.lang.annotation.ElementType.METHOD;\n" + 
-				"\n" + 
-				"@Retention(value=RUNTIME)\n" + 
-				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
-				"public @interface SafeVarargs {}",
-			},
-			"");
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
 		this.runNegativeTest(
@@ -2691,21 +2610,6 @@ public class VarargsTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (make sure there is a warning if vararg parameter is not reifiable)
 	public void test068b() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
-		this.runConformTest(
-			new String[] {
-				"java/lang/SafeVarargs.java",
-				"package java.lang;\n" +
-				"import java.lang.annotation.Retention;\n" + 
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
-				"import static java.lang.annotation.ElementType.METHOD;\n" + 
-				"\n" + 
-				"@Retention(value=RUNTIME)\n" + 
-				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
-				"public @interface SafeVarargs {}",
-			},
-			"");
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
 		this.runNegativeTest(
@@ -2750,21 +2654,6 @@ public class VarargsTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
 	public void test068c() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
-		this.runConformTest(
-			new String[] {
-				"java/lang/SafeVarargs.java",
-				"package java.lang;\n" +
-				"import java.lang.annotation.Retention;\n" + 
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
-				"import static java.lang.annotation.ElementType.METHOD;\n" + 
-				"\n" + 
-				"@Retention(value=RUNTIME)\n" + 
-				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
-				"public @interface SafeVarargs {}",
-			},
-			"");
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
 		this.runNegativeTest(
@@ -2803,21 +2692,6 @@ public class VarargsTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795
 	public void test068d() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
-		this.runConformTest(
-			new String[] {
-				"java/lang/SafeVarargs.java",
-				"package java.lang;\n" +
-				"import java.lang.annotation.Retention;\n" + 
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
-				"import static java.lang.annotation.ElementType.METHOD;\n" + 
-				"\n" + 
-				"@Retention(value=RUNTIME)\n" + 
-				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
-				"public @interface SafeVarargs {}",
-			},
-			"");
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
 		this.runNegativeTest(
@@ -2848,27 +2722,12 @@ public class VarargsTest extends AbstractComparableTest {
 			"2. WARNING in X.java (at line 13)\n" + 
 			"	classes = X.asList2(String.class, Boolean.class);\n" + 
 			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Class<? extends "+intersection("Object","Serializable","Comparable<?>")+"> is created for a varargs parameter\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=337795 (test effect of SuppressWarnings (should suppress at declaration site, but not at call site)
 	public void test068e() throws Exception {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
-		this.runConformTest(
-			new String[] {
-				"java/lang/SafeVarargs.java",
-				"package java.lang;\n" +
-				"import java.lang.annotation.Retention;\n" + 
-				"import java.lang.annotation.Target;\n" + 
-				"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" + 
-				"import static java.lang.annotation.ElementType.CONSTRUCTOR;\n" + 
-				"import static java.lang.annotation.ElementType.METHOD;\n" + 
-				"\n" + 
-				"@Retention(value=RUNTIME)\n" + 
-				"@Target(value={CONSTRUCTOR,METHOD})\n" + 
-				"public @interface SafeVarargs {}",
-			},
-			"");
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
 		this.runNegativeTest(
@@ -2895,7 +2754,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"1. WARNING in X.java (at line 14)\n" + 
 			"	classes = X.asList2(String.class, Boolean.class);\n" + 
 			"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Class<? extends "+intersection("Object","Serializable","Comparable<?>")+"> is created for a varargs parameter\n" + 
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=346042

@@ -2772,7 +2772,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"}";
 		String expectedOutput =
 			"private static class p.X$A {\n";
-		checkClassFile("p", "X", "X$A", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+		checkClassFile("p", "X", "X$A", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT, false);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102473

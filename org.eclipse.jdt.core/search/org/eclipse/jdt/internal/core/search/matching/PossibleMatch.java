@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -86,7 +89,7 @@ public char[] getContents() {
 				}
 			}
 		} else if (this.autoModuleName != null) { // fab a module
-			contents = new String("module " + this.autoModuleName + "{}").toCharArray();  //$NON-NLS-1$//$NON-NLS-2$
+			contents = ("module " + this.autoModuleName + "{}").toCharArray();  //$NON-NLS-1$//$NON-NLS-2$
 			this.sourceFileName = "module-info.java"; //$NON-NLS-1$
 			this.compoundName = new char[][] { "module-info".toCharArray()}; //$NON-NLS-1$
 		} else {

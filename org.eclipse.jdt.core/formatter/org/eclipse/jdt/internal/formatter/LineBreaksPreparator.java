@@ -1,9 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 Mateusz Matela and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2014, 2018 Mateusz Matela and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
@@ -369,9 +372,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 	@Override
 	public boolean visit(DoStatement node) {
 		Statement body = node.getBody();
-		handleLoopBody(body);
+		boolean sameLine = this.options.keep_simple_do_while_body_on_same_line;
+		if (!sameLine)
+			handleLoopBody(body);
 		if (this.options.insert_new_line_before_while_in_do_statement
-				|| (!(body instanceof Block) && !(body instanceof EmptyStatement))) {
+				|| (!(body instanceof Block) && !(body instanceof EmptyStatement) && !sameLine)) {
 			Token whileToken = this.tm.firstTokenBefore(node.getExpression(), TokenNamewhile);
 			whileToken.breakBefore();
 		}
@@ -535,7 +540,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(WhileStatement node) {
-		handleLoopBody(node.getBody());
+		if (!this.options.keep_simple_while_body_on_same_line)
+			handleLoopBody(node.getBody());
 
 		int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
 		int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
@@ -545,7 +551,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(ForStatement node) {
-		handleLoopBody(node.getBody());
+		if (!this.options.keep_simple_for_body_on_same_line)
+			handleLoopBody(node.getBody());
 
 		int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
 		int rParen = this.tm.firstIndexBefore(node.getBody(), TokenNameRPAREN);
@@ -555,7 +562,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(EnhancedForStatement node) {
-		handleLoopBody(node.getBody());
+		if (!this.options.keep_simple_for_body_on_same_line)
+			handleLoopBody(node.getBody());
 
 		int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
 		int rParen = this.tm.firstIndexBefore(node.getBody(), TokenNameRPAREN);

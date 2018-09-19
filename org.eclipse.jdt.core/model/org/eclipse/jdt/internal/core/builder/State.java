@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -15,7 +18,6 @@ package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
@@ -454,12 +456,12 @@ private static AccessRuleSet readRestriction(DataInputStream in) throws IOExcept
 	int length = in.readInt();
 	if (length == 0) return null; // no restriction specified
 	AccessRule[] accessRules = new AccessRule[length];
+	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	for (int i = 0; i < length; i++) {
 		char[] pattern = readName(in);
 		int problemId = in.readInt();
-		accessRules[i] = (AccessRule) JavaCore.newAccessRule(new Path(new String(pattern)), problemId);
+		accessRules[i] = manager.getAccessRuleForProblemId(pattern,problemId);
 	}
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	return new AccessRuleSet(accessRules, in.readByte(), manager.intern(in.readUTF()));
 }
 

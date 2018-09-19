@@ -1,9 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2017 BEA Systems, Inc.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2006, 2018 BEA Systems, Inc.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
@@ -55,6 +58,13 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 
 	@Override
 	public Element asElement() {
+		TypeBinding prototype = null;
+		if (_binding instanceof TypeBinding) {
+			prototype = ((TypeBinding) _binding).prototype();
+		}
+		if (prototype != null) {
+			return _env.getFactory().newElement(prototype, _elementKindHint);
+		}
 		// The JDT compiler does not distinguish between type elements and declared types
 		return _env.getFactory().newElement((ReferenceBinding)_binding, _elementKindHint);
 	}

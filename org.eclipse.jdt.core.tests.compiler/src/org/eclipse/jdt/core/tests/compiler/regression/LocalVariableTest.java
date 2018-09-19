@@ -21,6 +21,9 @@ import junit.framework.Test;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class LocalVariableTest extends AbstractRegressionTest {
 
+static {
+//	TESTS_NAMES = new String[] { "testBug537033" };
+}
 public LocalVariableTest(String name) {
 	super(name);
 }
@@ -737,9 +740,10 @@ public void test412119a() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
 //Error message for exception parameter not being used.
 public void test412119b() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.ERROR);
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.ERROR);
+	runner.testFiles =
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -768,25 +772,26 @@ public void test412119b() {
 				"		}\n" +
 				"    }\n" +
 				"}\n",
-			},
+			};
+	runner.expectedCompilerLog =
 			"----------\n" +
 			"1. ERROR in p\\X.java (at line 7)\n" +
 			"	} catch(Exception e) {\n" +
 			"	                  ^\n" +
 			"The value of the exception parameter e is not used\n" +
-			"----------\n",
-			null,
-			true,
-			options);
+			"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
 //Multi-catch parameters.
 public void test412119c() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.ERROR);
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.ERROR);
+	runner.testFiles =
 			new String[] {
 				"p/X.java",
 				"package p;\n" +
@@ -813,17 +818,17 @@ public void test412119c() {
 				"			throw new RuntimeException(z2);\n" +
 				"		}\n" +
 				"	}\n" +
-				"}\n",
-			},
+				"}\n"
+			};
+	runner.expectedCompilerLog =
 			"----------\n" +
 			"1. ERROR in p\\X.java (at line 16)\n" +
 			"	} catch(Z2|Z1 z) {\n" +
 			"	              ^\n" +
 			"The value of the exception parameter z is not used\n" +
-			"----------\n",
-			null,
-			true,
-			options);
+			"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412119, Optional warning for unused throwable variable in catch block
 //Suppress Warnings.
@@ -855,6 +860,51 @@ public void test412119d() {
 			null,
 			true,
 			options);
+}
+public void testBug537033() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runNegativeTest(
+		new String[] {
+			"ShowBug.java",
+			"import java.util.concurrent.Callable;\n" + 
+			"\n" + 
+			"public class ShowBug {\n" + 
+			"    private static abstract class X {\n" + 
+			"        abstract void x(int val);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public ShowBug() {\n" + 
+			"        final X x = new X() {\n" + 
+			"            void x(int val) {\n" + 
+			"                if (val > 0) {\n" + 
+			"                    // (1) The local variable x may not have been initialized\n" + 
+			"                    x.x(val - 1);\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"\n" + 
+			"        new Callable<Void>() {\n" + 
+			"            public Void call() {\n" + 
+			"                // (2) Missing code implementation in the compiler\n" + 
+			"                x.x(10);          \n" + 
+			"                return null;\n" + 
+			"            }\n" + 
+			"        }.call();\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in ShowBug.java (at line 9)\n" + 
+		"	final X x = new X() {\n" + 
+		"	                ^^^\n" + 
+		"Access to enclosing constructor ShowBug.X() is emulated by a synthetic accessor method\n" + 
+		"----------\n" + 
+		"2. ERROR in ShowBug.java (at line 13)\n" + 
+		"	x.x(val - 1);\n" + 
+		"	^\n" + 
+		"The local variable x may not have been initialized\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return LocalVariableTest.class;

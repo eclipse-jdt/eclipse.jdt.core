@@ -1,9 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2007 - 2009 BEA Systems, Inc. and others
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2007 - 2018 BEA Systems, Inc. and others
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
@@ -12,8 +15,10 @@
 
 package org.eclipse.jdt.apt.pluggable.tests.processors.filertester;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
@@ -38,6 +43,7 @@ import javax.tools.StandardLocation;
 
 import org.eclipse.jdt.apt.pluggable.tests.ProcessorTestStatus;
 import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;
+import org.eclipse.jdt.internal.apt.pluggable.core.filer.IdeOutputClassFileObject;
 
 /**
  * Testing annotation processors through JUnit in the IDE is complex, because each test requires
@@ -55,6 +61,8 @@ public class FilerTesterProc extends AbstractProcessor {
 
 	private ProcessingEnvironment _processingEnv;
 	private Filer _filer;
+	public static int roundNo = 0;
+	public static byte[] classContent = null;
 	
 	public static final String resource01FileContents = 
 		"package g;\n" +
@@ -230,7 +238,7 @@ public class FilerTesterProc extends AbstractProcessor {
 		FileObject foGenSrc = _filer.createSourceFile("g.G", e);
 		checkGenUri(foGenSrc, "G", javaStr, "generated source file");
 	}
-
+	
 	public void testBug534979(Element e, String pkg, String relName) throws Exception {
 		JavaFileObject jfo = _filer.createSourceFile(e.getEnclosingElement().getSimpleName() + "/" + e.getSimpleName());
 		PrintWriter pw = null;
@@ -241,6 +249,74 @@ public class FilerTesterProc extends AbstractProcessor {
 		finally {
 			if (pw != null)
 				pw.close();
+		}
+	}
+	public void testCreateClass1(Element e, String pkg, String relName) throws Exception {
+		Filer filer = processingEnv.getFiler();
+		try {
+			if (++roundNo == 1) 
+				return;
+			if (roundNo == 2) {
+				JavaFileObject jfo = filer.createSourceFile("p/Test", e.getEnclosingElement());
+				PrintWriter pw = null;
+				try {
+					pw = new PrintWriter(jfo.openWriter());
+					pw.write("package p;\n " +
+							"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+							"@FilerTestTrigger(test = \"testCreateClass1\", arg0 = \"p\", arg1 = \"Test.java\")" +
+							"public class Test {}");
+				} finally {
+					pw.close();
+				}
+			} else if(roundNo == 3) {
+					if (classContent == null) {
+						throw new IOException("Class file should have been present");
+					}
+					IdeOutputClassFileObject jfo = (IdeOutputClassFileObject) filer.createClassFile("p/Trigger");
+					OutputStream out = null;
+					try {
+						out = jfo.openOutputStream();
+						out.write(classContent);
+					} catch (Exception ex) {
+					} finally {
+						out.close();
+					}
+			}
+		} finally {
+		}
+	}
+	public void testCreateClass2(Element e, String pkg, String relName) throws Exception {
+		Filer filer = processingEnv.getFiler();
+		try {
+			if (++roundNo == 1) 
+				return;
+			if (roundNo == 2) {
+				JavaFileObject jfo = filer.createSourceFile("p/Test", e.getEnclosingElement());
+				PrintWriter pw = null;
+				try {
+					pw = new PrintWriter(jfo.openWriter());
+					pw.write("package p;\n " +
+							"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+							"@FilerTestTrigger(test = \"testCreateClass1\", arg0 = \"p\", arg1 = \"Test.java\")" +
+							"public class Test {}");
+				} finally {
+					pw.close();
+				}
+			} else if(roundNo == 3) {
+					if (classContent == null) {
+						throw new IOException("Class file should have been present");
+					}
+					IdeOutputClassFileObject jfo = (IdeOutputClassFileObject) filer.createClassFile("p.Trigger");
+					OutputStream out = null;
+					try {
+						out = jfo.openOutputStream();
+						out.write(classContent);
+					} catch (Exception ex) {
+					} finally {
+						out.close();
+					}
+			}
+		} finally {
 		}
 	}
 
@@ -339,5 +415,4 @@ public class FilerTesterProc extends AbstractProcessor {
 			ProcessorTestStatus.fail("getCharContent() did not return expected contents");
 		}
 	}
-
 }

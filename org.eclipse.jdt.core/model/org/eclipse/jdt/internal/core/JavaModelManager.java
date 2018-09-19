@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -264,6 +267,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public static final int BATCH_INITIALIZATION_IN_PROGRESS = 2;
 	public static final int BATCH_INITIALIZATION_FINISHED = 3;
 	public int batchContainerInitializations = NO_BATCH_INITIALIZATION;
+	public Object batchContainerInitializationsLock = new Object();
 
 	public BatchInitializationMonitor batchContainerInitializationsProgress = new BatchInitializationMonitor();
 	public Hashtable<String, ClasspathContainerInitializer> containerInitializersCache = new Hashtable<>(5);
@@ -652,6 +656,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return container;
 	}
 
+	synchronized boolean containerIsSet(IJavaProject project, IPath containerPath) {
+		Map<IPath, IClasspathContainer> projectContainers = this.containers.get(project);
+		if (projectContainers == null){
+			return false;
+		}
+		IClasspathContainer container = projectContainers.get(containerPath);
+		return container != null;
+	}
+
 	public synchronized IClasspathContainer containerGetDefaultToPreviousSession(IJavaProject project, IPath containerPath) {
 		Map<IPath, IClasspathContainer> projectContainers = this.containers.get(project);
 		if (projectContainers == null)
@@ -910,7 +923,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		);
 	}
 
-	private void containerRemoveInitializationInProgress(IJavaProject project, IPath containerPath) {
+	void containerRemoveInitializationInProgress(IJavaProject project, IPath containerPath) {
 		Map<IJavaProject, Set<IPath>> initializations = this.containerInitializationInProgress.get();
 		if (initializations == null)
 			return;
@@ -3055,10 +3068,24 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 								pathSet.toArray(paths); // clone as the following will have a side effect
 								for (int j = 0; j < length2; j++) {
 									IPath path = paths[j];
+									synchronized(JavaModelManager.this.batchContainerInitializationsLock) {
+										if (containerIsSet(javaProject, path)) {
+											// another thread has concurrently initialized the container.
+											continue;
+										}
+									}
 									initializeContainer(javaProject, path);
 									IClasspathContainer container = containerBeingInitializedGet(javaProject, path);
 									if (container != null) {
-										containerPut(javaProject, path, container);
+										synchronized(JavaModelManager.this.batchContainerInitializationsLock) {
+											if (containerIsSet(javaProject, path)) {
+												// another thread has concurrently initialized the container.
+												containerBeingInitializedRemove(javaProject, path);
+												containerRemoveInitializationInProgress(javaProject, path);
+											} else {
+												containerPut(javaProject, path, container);
+											}
+										}
 									}
 								}
 								if (monitor != null)
@@ -3347,8 +3374,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public synchronized String intern(String s) {
-		// make sure to copy the string (so that it doesn't hold on the underlying char[] that might be much bigger than necessary)
-		return (String) this.stringSymbols.add(new String(s));
+		return (String) this.stringSymbols.add(s);
 
 		// Note1: String#intern() cannot be used as on some VMs this prevents the string from being garbage collected
 		// Note 2: Instead of using a WeakHashset, one could use a WeakHashMap with the following implementation
@@ -3810,7 +3836,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		private IAccessRule loadAccessRule() throws IOException {
 			int problemId = loadInt();
 			IPath pattern = loadPath();
-			return getAccessRule(pattern, problemId);
+			return getAccessRuleForProblemId(pattern.toString().toCharArray(), problemId);
 		}
 
 		private IAccessRule[] loadAccessRules() throws IOException {
@@ -5627,8 +5653,20 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * @return an access rule
 	 */
 	public IAccessRule getAccessRule(IPath filePattern, int kind) {
-		IAccessRule rule = new ClasspathAccessRule(filePattern, kind);
-		IAccessRule cachedRule = this.cache.accessRuleCache.get(rule);
+		ClasspathAccessRule rule = new ClasspathAccessRule(filePattern, kind);
+		return getFromCache(rule);
+	}
+
+	/**
+	 * Used only for loading rules from disk.
+	 */
+	public ClasspathAccessRule getAccessRuleForProblemId(char [] filePattern, int problemId) {
+		ClasspathAccessRule rule = new ClasspathAccessRule(filePattern, problemId);
+		return getFromCache(rule);
+	}
+
+	private ClasspathAccessRule getFromCache(ClasspathAccessRule rule) {
+		ClasspathAccessRule cachedRule = this.cache.accessRuleCache.get(rule);
 		if (cachedRule != null) {
 			return cachedRule;
 		}

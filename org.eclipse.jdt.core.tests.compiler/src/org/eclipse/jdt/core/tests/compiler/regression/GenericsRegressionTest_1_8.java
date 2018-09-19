@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
@@ -9000,6 +9001,423 @@ public void testBug508834_comment0() {
 				"			return o.myInt.toString();\n" + 
 				"		}).collect(Collectors.toList());\n" + 
 				"	}\n" + 
+				"}\n"
+			});
+	}
+	public void testBug535969b() {
+		runConformTest(
+			new String[] {
+				"B.java",
+				"\n" + 
+				"import java.util.Optional;\n" + 
+				"import java.util.function.Supplier;\n" +
+				"import java.io.Serializable;\n" + 
+				"\n" + 
+				"public class B {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"\n" + 
+				"        // This works fine:\n" + 
+				"        System.out.println(new Object() {\n" + 
+				"            int j = 5;\n" + 
+				"        }.j);\n" + 
+				"\n" + 
+				"        // This also\n" + 
+				"        System.out.println(trace(new Object() {\n" + 
+				"            int j = 5;\n" + 
+				"        }).j);\n" + 
+				"\n" + 
+				"        // Also no problem\n" + 
+				"        System.out.println(unwrapAndTrace(Optional.of(new Object() {\n" + 
+				"            int j = 5;\n" + 
+				"        })).j);\n" + 
+				"\n" + 
+				"        // Lambdas work:\n" + 
+				"        System.out.println(((Supplier & Serializable) () -> new Object()).get()); \n" + 
+				"\n" + 
+				"        // This doesn't work.\n" + 
+				"        System.out.println(invokeAndTrace(() -> new Object() {\n" + 
+				"            int j = 5;\n" + 
+				"        }).j);\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static <T> T trace(T obj) {\n" + 
+				"        System.out.println(obj);\n" + 
+				"        return obj;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static <T> T invokeAndTrace(Supplier<T> supplier) {\n" + 
+				"        T result = supplier.get();\n" + 
+				"        System.out.println(result);\n" + 
+				"        return result;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static <T> T unwrapAndTrace(Optional<T> optional) {\n" + 
+				"        T result = optional.get();\n" + 
+				"        System.out.println(result);\n" + 
+				"        return result;\n" + 
+				"    }\n" +
+				"}\n"
+			});
+	}
+	public void testBug477894() {
+		runConformTest(
+			new String[] {
+				"Main.java",
+				"public class Main {\n" + 
+				"	static class Foo<T> {\n" + 
+				"		private final T arg;\n" + 
+				"		public Foo(T arg) {\n" + 
+				"			this.arg = arg;\n" + 
+				"		}\n" + 
+				"		<R> Foo<R> select(java.util.function.Function<T, R> transformer) {\n" + 
+				"			return new Foo<>(transformer.apply(this.arg));\n" + 
+				"		}\n" + 
+				"		<R> R select2(java.util.function.Function<T, R> transformer) {\n" + 
+				"			return transformer.apply(this.arg);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String out = new Foo<Object>(null)\n" + 
+				"		.select(x -> new Object() {\n" + 
+				"			String alias = \"anonymous#1\";\n" + 
+				"		})\n" + 
+				"		.select2(x -> x.alias);\n" + 
+				"		System.out.println(out);\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
+	public void testBug427265() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		List<String> ss = Arrays.asList(\"1\", \"2\", \"3\");\n" + 
+				"		ss.stream().map(s -> new Object() { });\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
+	public void testBug427265_comment6() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Arrays;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	void m() {\n" + 
+				"        List<String> ss = Arrays.asList(\"1\", \"2\", \"3\");\n" + 
+				"        \n" + 
+				"        ss.stream().map(s -> {\n" + 
+				"          class L1 {};\n" + 
+				"          class L2 {\n" + 
+				"            L1 mm(L1 l) { return l;}\n" + 
+				"          }\n" + 
+				"          return new L2().mm(new L1());\n" + 
+				"        }).forEach(e -> System.out.println(e));\n" + 
+				"    }\n" + 
+				"}\n"
+			});
+	}
+	public void testBug525580() {
+		Runner runner = new Runner();
+		runner.customOptions = new HashMap<String, String>();
+		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.IGNORE);
+		runner.testFiles =
+			new String[] { 
+				"org/a/a/g/d.java",
+				"package org.a.a.g;\n" + 
+				"\n" + 
+				"public class d {\n" + 
+				"\n" + 
+				"    public <T extends e> T a(Class<T> cls) {\n" + 
+				"        T t = (e) cls.newInstance();\n" + 
+				"        while (size >= 0) {\n" + 
+				"            T a = ((b) this.e.m.get(size)).a();\n" + 
+				"            t = a;\n" + 
+				"        }\n" + 
+				"        return t;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public interface b {\n" + 
+				"        <T extends e> T a();\n" + 
+				"\n" + 
+				"        <T extends j> T b();\n" + 
+				"    }\n" + 
+				"}\n"
+			};
+		runner.expectedCompilerLog =
+			"----------\n" + 
+			"1. ERROR in org\\a\\a\\g\\d.java (at line 5)\n" + 
+			"	public <T extends e> T a(Class<T> cls) {\n" + 
+			"	                  ^\n" + 
+			"e cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in org\\a\\a\\g\\d.java (at line 6)\n" + 
+			"	T t = (e) cls.newInstance();\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"e cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in org\\a\\a\\g\\d.java (at line 6)\n" + 
+			"	T t = (e) cls.newInstance();\n" + 
+			"	       ^\n" + 
+			"e cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"4. ERROR in org\\a\\a\\g\\d.java (at line 7)\n" + 
+			"	while (size >= 0) {\n" + 
+			"	       ^^^^\n" + 
+			"size cannot be resolved to a variable\n" + 
+			"----------\n" + 
+			"5. ERROR in org\\a\\a\\g\\d.java (at line 8)\n" + 
+			"	T a = ((b) this.e.m.get(size)).a();\n" + 
+			"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from e to T\n" + 
+			"----------\n" + 
+			"6. ERROR in org\\a\\a\\g\\d.java (at line 8)\n" + 
+			"	T a = ((b) this.e.m.get(size)).a();\n" + 
+			"	                ^\n" + 
+			"e cannot be resolved or is not a field\n" + 
+			"----------\n" + 
+			"7. ERROR in org\\a\\a\\g\\d.java (at line 8)\n" + 
+			"	T a = ((b) this.e.m.get(size)).a();\n" + 
+			"	                        ^^^^\n" + 
+			"size cannot be resolved to a variable\n" + 
+			"----------\n" + 
+			"8. ERROR in org\\a\\a\\g\\d.java (at line 15)\n" + 
+			"	<T extends e> T a();\n" + 
+			"	           ^\n" + 
+			"e cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"9. ERROR in org\\a\\a\\g\\d.java (at line 17)\n" + 
+			"	<T extends j> T b();\n" + 
+			"	           ^\n" + 
+			"j cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"10. WARNING in org\\a\\a\\g\\d.java (at line 17)\n" + 
+			"	<T extends j> T b();\n" + 
+			"	                ^^^\n" + 
+			"This method has a constructor name\n" + 
+			"----------\n";
+		runner.runNegativeTest();
+	}
+	public void testBug525580_comment28() {
+		Runner runner = new Runner();
+		runner.customOptions = new HashMap<String, String>();
+		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.IGNORE);
+		runner.testFiles =
+			new String[] {
+				"xxxxxx/iiibii.java",
+				"package xxxxxx;\n" + 
+				"\n" + 
+				"public class iiibii {\n" + 
+				"\n" + 
+				"    public <T extends xxxxxx.jajaja> T b041D041D041D041DН041DН(xxxxxx.jjajaa jjajaa) {\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public xxxxxx.jajaja bН041D041D041DН041DН(byte b, byte b2) {\n" + 
+				"        return b041D041D041D041DН041DН(new xxxxxx.jjajaa(b, b2));\n" + 
+				"    }\n" + 
+				"}\n",
+				"xxxxxx/jjajaa.java",
+				"package xxxxxx;\n" + 
+				"\n" + 
+				"public class jjajaa implements java.io.Serializable, java.lang.Comparable<xxxxxx.jjajaa> {\n" + 
+				"    private byte b0445х0445хх04450445;\n" + 
+				"    private byte bхх0445хх04450445;\n" + 
+				"\n" + 
+				"    public jjajaa(byte b, byte b2) {\n" + 
+				"        this.bхх0445хх04450445 = b;\n" + 
+				"        this.b0445х0445хх04450445 = b2;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public int b043704370437з04370437з(xxxxxx.jjajaa jjajaa) {\n" + 
+				"        int i = this.bхх0445хх04450445 - jjajaa.bхх0445хх04450445;\n" + 
+				"        return i != 0 ? i : this.b0445х0445хх04450445 - jjajaa.b0445х0445хх04450445;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public byte[] bззз043704370437з() {\n" + 
+				"        return new byte[]{this.bхх0445хх04450445, this.b0445х0445хх04450445};\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public /* synthetic */ int compareTo(java.lang.Object obj) {\n" + 
+				"        return b043704370437з04370437з((xxxxxx.jjajaa) obj);\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public boolean equals(java.lang.Object obj) {\n" + 
+				"        if (obj == null || getClass() != obj.getClass()) {\n" + 
+				"            return false;\n" + 
+				"        }\n" + 
+				"        xxxxxx.jjajaa jjajaa = (xxxxxx.jjajaa) obj;\n" + 
+				"        return this.bхх0445хх04450445 == jjajaa.bхх0445хх04450445 && this.b0445х0445хх04450445 == jjajaa.b0445х0445хх04450445;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public int hashCode() {\n" + 
+				"        return ((this.bхх0445хх04450445 + 427) * 61) + this.b0445х0445хх04450445;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public java.lang.String toString() {\n" + 
+				"        return xxxxxx.ttotoo.bг04330433г04330433г(this.bхх0445хх04450445) + xxxxxx.ttotoo.bг04330433г04330433г(this.b0445х0445хх04450445);\n" + 
+				"    }\n" + 
+				"}\n"
+			};
+		runner.expectedCompilerLog =
+				"----------\n" + 
+				"1. ERROR in xxxxxx\\iiibii.java (at line 5)\n" + 
+				"	public <T extends xxxxxx.jajaja> T b041D041D041D041DН041DН(xxxxxx.jjajaa jjajaa) {\n" + 
+				"	                  ^^^^^^^^^^^^^\n" + 
+				"xxxxxx.jajaja cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"2. ERROR in xxxxxx\\iiibii.java (at line 8)\n" + 
+				"	public xxxxxx.jajaja bН041D041D041DН041DН(byte b, byte b2) {\n" + 
+				"	       ^^^^^^^^^^^^^\n" + 
+				"xxxxxx.jajaja cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"3. ERROR in xxxxxx\\iiibii.java (at line 9)\n" + 
+				"	return b041D041D041D041DН041DН(new xxxxxx.jjajaa(b, b2));\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from jajaja to jajaja\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"1. ERROR in xxxxxx\\jjajaa.java (at line 3)\n" + 
+				"	public class jjajaa implements java.io.Serializable, java.lang.Comparable<xxxxxx.jjajaa> {\n" + 
+				"	             ^^^^^^\n" + 
+				"The type jjajaa must implement the inherited abstract method Comparable<jjajaa>.compareTo(jjajaa)\n" + 
+				"----------\n" + 
+				"2. WARNING in xxxxxx\\jjajaa.java (at line 3)\n" + 
+				"	public class jjajaa implements java.io.Serializable, java.lang.Comparable<xxxxxx.jjajaa> {\n" + 
+				"	             ^^^^^^\n" + 
+				"The serializable class jjajaa does not declare a static final serialVersionUID field of type long\n" + 
+				"----------\n" + 
+				"3. ERROR in xxxxxx\\jjajaa.java (at line 21)\n" + 
+				"	public /* synthetic */ int compareTo(java.lang.Object obj) {\n" + 
+				"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Name clash: The method compareTo(Object) of type jjajaa has the same erasure as compareTo(T) of type Comparable<T> but does not override it\n" + 
+				"----------\n" + 
+				"4. ERROR in xxxxxx\\jjajaa.java (at line 38)\n" + 
+				"	return xxxxxx.ttotoo.bг04330433г04330433г(this.bхх0445хх04450445) + xxxxxx.ttotoo.bг04330433г04330433г(this.b0445х0445хх04450445);\n" + 
+				"	       ^^^^^^^^^^^^^\n" + 
+				"xxxxxx.ttotoo cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"5. ERROR in xxxxxx\\jjajaa.java (at line 38)\n" + 
+				"	return xxxxxx.ttotoo.bг04330433г04330433г(this.bхх0445хх04450445) + xxxxxx.ttotoo.bг04330433г04330433г(this.b0445х0445хх04450445);\n" + 
+				"	                                                                    ^^^^^^^^^^^^^\n" + 
+				"xxxxxx.ttotoo cannot be resolved to a type\n" + 
+				"----------\n";
+		runner.runNegativeTest();
+	}
+	public void testBug340506() {
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+				"    public <T> void setValue(Parameter<T> parameter, T value) {\n" + 
+				"        System.out.println(\"Object\");\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public <T> void setValue(Parameter<T> parameter, Field<T> value) {\n" + 
+				"        System.out.println(\"Field\");\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        new Test().test();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private void test() {\n" + 
+				"        Parameter<String> p1 = p1();\n" + 
+				"        Field<String> f1 = f1();\n" + 
+				"        setValue(p1, f1);\n" +
+				"		 setValue(p1, null);\n" + 
+				"\n" + 
+				"        Parameter<Object> p2 = p2();\n" + 
+				"        Field<Object> f2 = f2();\n" + 
+				"        setValue(p2, f2);\n" + 
+				"  		 setValue(p2, null);" + 
+				"    }\n" + 
+				"\n" + 
+				"    private Field<String> f1() {\n" + 
+				"        Field<String> f1 = null;\n" + 
+				"        return f1;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private Parameter<String> p1() {\n" + 
+				"        Parameter<String> p1 = null;\n" + 
+				"        return p1;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private Parameter<Object> p2() {\n" + 
+				"        Parameter<Object> p2 = null;\n" + 
+				"        return p2;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private Field<Object> f2() {\n" + 
+				"        Field<Object> f2 = null;\n" + 
+				"        return f2;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface Field<T> {}\n" + 
+				"interface Parameter <T> {}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 18)\n" + 
+			"	setValue(p1, null);\n" + 
+			"	^^^^^^^^\n" + 
+			"The method setValue(Parameter<String>, String) is ambiguous for the type Test\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 22)\n" + 
+			"	setValue(p2, f2);\n" + 
+			"	^^^^^^^^\n" + 
+			"The method setValue(Parameter<Object>, Object) is ambiguous for the type Test\n" + 
+			"----------\n" + 
+			"3. ERROR in Test.java (at line 23)\n" + 
+			"	setValue(p2, null);    }\n" + 
+			"	^^^^^^^^\n" + 
+			"The method setValue(Parameter<Object>, Object) is ambiguous for the type Test\n" + 
+			"----------\n");
+	}
+	public void testBug333011() {
+		runNegativeTest(
+			new String[] {
+				"Example.java",
+				"import java.util.ArrayList;\n" +
+				"public class Example {\n" + 
+				"	public static void doSomething() {\n" + 
+				"		DoJobMr bean = getOnlyElement(new ArrayList());\n" + 
+				"	}\n" + 
+				"	public static <T> T getOnlyElement(Iterable<T> iterable) { \n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	public static class DoJobMr {\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Example.java (at line 4)\n" + 
+			"	DoJobMr bean = getOnlyElement(new ArrayList());\n" + 
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to Example.DoJobMr\n" + 
+			"----------\n" + 
+			"2. WARNING in Example.java (at line 4)\n" + 
+			"	DoJobMr bean = getOnlyElement(new ArrayList());\n" + 
+			"	                                  ^^^^^^^^^\n" + 
+			"ArrayList is a raw type. References to generic type ArrayList<E> should be parameterized\n" + 
+			"----------\n");
+	}
+	public void testBug537089() {
+		runConformTest(
+			new String[] {
+				"EclipseBug.java",
+				"public class EclipseBug {\n" + 
+				"    public static <T> void foo(T p1, T p2) {}\n" + 
+				"\n" + 
+				"    public void shouldCompile() {\n" + 
+				"        foo(new int[0], new byte[0]);\n" + 
+				"    }\n" + 
 				"}\n"
 			});
 	}

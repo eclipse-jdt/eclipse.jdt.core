@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2017, 2018 IBM Corporation.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -40,6 +43,7 @@ import javax.lang.model.element.ModuleElement.ProvidesDirective;
 import javax.lang.model.element.ModuleElement.RequiresDirective;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
@@ -397,6 +401,10 @@ public class Java9ElementProcessor extends BaseProcessor {
 	 * Test java.base module can be loaded and verify its exports attributes
 	 */
 	public void testModuleJavaBase1() {
+		try {
+			SourceVersion.valueOf("RELEASE_10");
+		} catch(IllegalArgumentException iae) {
+		}
 		Set<? extends ModuleElement> allModuleElements = _elementUtils.getAllModuleElements();
 		ModuleElement base = null;
 		for (ModuleElement moduleElement : allModuleElements) {
@@ -600,7 +608,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		List<? extends Directive> directives = mod.getDirectives();
 		assertEquals("incorrect no of directives", 0, directives.size());
 		List<Element> filterElements = filterElements(enclosedElements, ElementKind.PACKAGE);
-		assertEquals("incorrect no of packages", 3, filterElements.size());
+		assertEquals("incorrect no of packages", 4, filterElements.size());
 		// FIXME: Note Javac fails here as well
 //		PackageElement packageOf = _elementUtils.getPackageOf(mod);
 //		assertNotNull("package should not be null", packageOf);
@@ -761,6 +769,61 @@ public class Java9ElementProcessor extends BaseProcessor {
 		}
 		assertTrue("Exception not thrown", exception);
 	}
+	public void testBug498022a() {
+		Set<? extends Element> rootElements = roundEnv.getRootElements();
+		TypeElement type = null;
+		for (Element element : rootElements) {
+			if (element.getSimpleName().toString().equals("Main")) {
+				type = (TypeElement) element;
+				break;
+			}
+		}
+		VariableElement field = null;
+		if (type != null) {
+			List<? extends Element> members = _elementUtils.getAllMembers(type);
+			for (Element member : members) {
+				if ("someField".equals(member.getSimpleName().toString())) {
+					field = (VariableElement) member;
+				}
+			}
+		}
+		assertNotNull("field should not be null", field);
+		TypeMirror asType = field.asType();
+		DeclaredType declaredType = (DeclaredType) asType;
+		Element asElement = declaredType.asElement();
+		verifyAnnotations(asElement, new String[] {"@org.eclipse.jdt.compiler.apt.tests.annotations.Type(value=c)"});
+	}
+	public void testBug498022b() {
+		Set<? extends Element> rootElements = roundEnv.getRootElements();
+		TypeElement type = null;
+		TypeElement anotherType = null;
+		for (Element element : rootElements) {
+			if (element.getSimpleName().toString().equals("OtherAnnotatedClass")) {
+				type = (TypeElement) element;
+			} else if (element.getSimpleName().toString().equals("SomeAnnotatedClass")) {
+				anotherType = (TypeElement) element;
+			}
+		}
+		verifyAnnotations(type, new String[] {"@targets.model9.q.FooBarAnnotation()"});
+		verifyAnnotations(anotherType, new String[] {"@targets.model9.q.FooBarAnnotation(otherClasses=[targets.model9.q.OtherAnnotatedClass.class,])"});
+		List<? extends AnnotationMirror> annots = anotherType.getAnnotationMirrors();
+		AnnotationMirror annotationMirror = annots.get(0);
+		Map<? extends ExecutableElement, ? extends AnnotationValue> values = annotationMirror.getElementValues();
+		AnnotationValue value = null;
+		Set<? extends ExecutableElement> keys = values.keySet();
+		for (ExecutableElement executableElement : keys) {
+			if (executableElement.getSimpleName().toString().equals("otherClasses"))
+				value = values.get(executableElement);
+		}
+		assertNotNull("value should not be null", value);
+		@SuppressWarnings("rawtypes")
+		List list = (List) value.getValue();
+		assertEquals("Incorrect no of values", 1, list.size());
+		AnnotationValue annotVal = (AnnotationValue) list.get(0);
+		DeclaredType declaredType = (DeclaredType) annotVal.getValue();
+		TypeElement typeEl = (TypeElement) declaredType.asElement();
+		verifyAnnotations(typeEl, new String[] {"@targets.model9.q.FooBarAnnotation()"});
+	}
 	private void validateModifiers(ExecutableElement method, Modifier[] expected) {
 		Set<Modifier> modifiers = method.getModifiers();
 		List<Modifier> list = new ArrayList<>(modifiers);
@@ -897,7 +960,18 @@ public class Java9ElementProcessor extends BaseProcessor {
 			buf.append(executableElement.getSimpleName());
 			buf.append('=');
 			AnnotationValue value = values.get(executableElement);
-			buf.append(value.getValue());
+			if (value.getValue() instanceof List) {
+				buf.append('[');
+				@SuppressWarnings("rawtypes")
+				List list = (List) value.getValue();
+				for (Object obj : list) {
+					buf.append(obj.toString());
+					buf.append(',');
+				}
+				buf.append(']');
+			} else {
+				buf.append(value.getValue());
+			}
 		}
 		buf.append(')');
 		return buf.toString();

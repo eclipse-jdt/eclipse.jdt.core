@@ -1,9 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 Mateusz Matela and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2014, 2018 Mateusz Matela and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
@@ -15,6 +18,7 @@ package org.eclipse.jdt.internal.formatter.linewrap;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameWHITESPACE;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -334,7 +338,9 @@ public class WrapExecutor {
 				// (these are currently in a future line comment but will be removed)
 				structure.addAll(this.nlsTags);
 
-				if (structure.isEmpty()) { // all the tags have been moved to other lines
+				if (structure.isEmpty()
+						|| (structure.size() == 1 && structure.get(0).tokenType == TokenNameWHITESPACE)) {
+					// all the tags have been moved to other lines
 					WrapExecutor.this.tm.remove(index);
 					structureChanged();
 				}
@@ -649,7 +655,8 @@ public class WrapExecutor {
 		if (policy.indentOnColumn) {
 			wrapIndent = this.tm.getPositionInLine(policy.wrapParentIndex);
 			wrapIndent += this.tm.getLength(wrapParent, wrapIndent);
-			if (wrapParent.isSpaceAfter() || this.tm.get(policy.wrapParentIndex + 1).isSpaceBefore())
+			Token next = this.tm.get(policy.wrapParentIndex + 1);
+			if (wrapParent.isSpaceAfter() || (next.isSpaceBefore() && !next.isComment()))
 				wrapIndent++;
 		}
 		wrapIndent += policy.extraIndent;

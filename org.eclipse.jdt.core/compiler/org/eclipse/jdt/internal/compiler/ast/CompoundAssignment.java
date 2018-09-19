@@ -1,9 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -51,6 +54,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		// account for exceptions thrown by any arithmetics:
 		flowContext.recordAbruptExit();
 	}
+	this.expression.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 	flowInfo = ((Reference) this.lhs).analyseAssignment(currentScope, flowContext, flowInfo, this, true).unconditionalInits();
 	if (this.resolvedType.id == T_JavaLangString) {
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=339250

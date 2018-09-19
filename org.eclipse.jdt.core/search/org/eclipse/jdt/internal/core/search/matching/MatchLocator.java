@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -400,8 +403,10 @@ public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, Acc
 				// no need for field initialization
 				this.lookupEnvironment.problemReporter,
 				result);
-		this.lookupEnvironment.buildTypeBindings(unit, accessRestriction);
-		this.lookupEnvironment.completeTypeBindings(unit, true);
+		if(unit != null) {
+			this.lookupEnvironment.buildTypeBindings(unit, accessRestriction);
+			this.lookupEnvironment.completeTypeBindings(unit, true);
+		}
 	}
 }
 protected Parser basicParser() {

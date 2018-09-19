@@ -3436,7 +3436,8 @@ public void test104() {
 	Map options = getCompilerOptions();
 	CompilerOptions compOptions = new CompilerOptions(options);
 	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"A.java",//------------------------------
 			"public class A {\n" +
@@ -3453,7 +3454,8 @@ public void test104() {
 			"	    public int x;\n" +
 			"	  }\n" +
 			"	}\n",
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. WARNING in A.java (at line 2)\n" + 
 		"	private int x;\n" + 
@@ -3474,7 +3476,9 @@ public void test104() {
 		"	void foo() {\n" + 
 		"	     ^^^^^\n" + 
 		"The method foo() from the type new A.C(){} is never used locally\n" + 
-		"----------\n");
+		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runWarningTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=316956
 public void test105() {
@@ -3552,7 +3556,8 @@ public void test105() {
 public void test106() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return;
-	this.runNegativeTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"X.java",//------------------------------
 			"import java.util.List;\n" +
@@ -3565,7 +3570,8 @@ public void test106() {
 			"	    return foo3(set);\n" +
 			"	}\n" +
 			"}\n",
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. WARNING in X.java (at line 4)\n" + 
 		"	private static List<Object> foo1(Set<Object> set) {\n" + 
@@ -3576,6 +3582,45 @@ public void test106() {
 		"	private static <T> List<T> foo3(Set<T> set) {\n" + 
 		"	                           ^^^^^^^^^^^^^^^^\n" + 
 		"The method foo3(Set<T>) from the type X is never used locally\n" + 
+		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
+	runner.runWarningTest();
+}
+
+public void testBug527828() {
+	Map options = getCompilerOptions();
+	CompilerOptions compOptions = new CompilerOptions(options);
+	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
+	this.runNegativeTest(
+		new String[] {
+			"FieldBug.java",//------------------------------
+			"class A {\n" + 
+			"	Object obj = \"A.obj\";\n" + 
+			"}\n" + 
+			"\n" + 
+			"class B {\n" + 
+			"	private Object obj = \"B.obj\";\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class FieldBug {\n" + 
+			"	Object obj = \"FieldBug.obj\";\n" + 
+			"\n" + 
+			"	static class AA extends A {\n" + 
+			"		class BB extends B {\n" + 
+			"			Object n = obj;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(new AA().new BB().n);\n" + 
+			"	}\n" + 
+			"}",
+		},
+		"----------\n" + 
+		"1. WARNING in FieldBug.java (at line 6)\n" + 
+		"	private Object obj = \"B.obj\";\n" + 
+		"	               ^^^\n" + 
+		"The value of the field B.obj is not used\n" + 
 		"----------\n");
 }
 public static Class testClass() {	return LookupTest.class;

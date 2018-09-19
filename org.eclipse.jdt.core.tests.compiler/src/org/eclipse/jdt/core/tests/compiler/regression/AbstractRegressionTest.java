@@ -33,6 +33,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -237,40 +238,7 @@ static class JavacCompiler {
 		if (rawVersion == null) {
 			rawVersion = getVersion(this.javacPathName);
 		}
-		if (rawVersion.indexOf("1.4") != -1 ||
-				this.javacPathName.indexOf("1.4") != -1
-				/* in fact, SUN javac 1.4 does not support the -version option;
-				 * this is a imperfect heuristic to catch the case */) {
-			this.version = JavaCore.VERSION_1_4;
-		} else if (rawVersion.indexOf("1.5") != -1) {
-			this.version = JavaCore.VERSION_1_5;
-		} else if (rawVersion.indexOf("1.6") != -1) {
-			this.version = JavaCore.VERSION_1_6;
-		} else if (rawVersion.indexOf("1.7") != -1) {
-			this.version = JavaCore.VERSION_1_7;
-		} else if (rawVersion.indexOf("1.8") != -1) {
-			this.version = JavaCore.VERSION_1_8;
-		} else if(rawVersion.startsWith("9")) {
-			this.version = JavaCore.VERSION_9;
-		} else if(rawVersion.startsWith("10")) {
-			this.version = JavaCore.VERSION_10;
-		} else if(rawVersion.startsWith("11")) {
-			this.version = JavaCore.VERSION_11;
-		}  else {
-			int index = rawVersion.indexOf('.');
-			if (index != -1) {
-				rawVersion = rawVersion.substring(0, index);
-			} else {
-				index = rawVersion.indexOf('-');
-				if (index != -1)
-					rawVersion = rawVersion.substring(0, index);
-			}
-			this.version = rawVersion;
-			this.compliance = CompilerOptions.versionToJdkLevel(this.version);
-			if (this.compliance == 0) {
-				throw new RuntimeException("unknown javac version: " + rawVersion);
-			}
-		}
+		this.version = versionFromRawVersion(rawVersion, this.javacPathName);
 		this.compliance = CompilerOptions.versionToJdkLevel(this.version);
 		this.minor = minorFromRawVersion(this.version, rawVersion);
 		this.rawVersion = rawVersion;
@@ -304,6 +272,31 @@ static class JavacCompiler {
 			if (fetchVersionProcess != null) {
 				fetchVersionProcess.destroy(); // closes process streams
 			}
+		}
+	}
+	static String versionFromRawVersion(String rawVersion, String javacPathName) {
+		if (rawVersion.indexOf("1.4") != -1 ||
+				(javacPathName != null &&
+				javacPathName.indexOf("1.4") != -1)
+				/* in fact, SUN javac 1.4 does not support the -version option;
+				 * this is a imperfect heuristic to catch the case */) {
+			return JavaCore.VERSION_1_4;
+		} else if (rawVersion.indexOf("1.5") != -1) {
+			return JavaCore.VERSION_1_5;
+		} else if (rawVersion.indexOf("1.6") != -1) {
+			return JavaCore.VERSION_1_6;
+		} else if (rawVersion.indexOf("1.7") != -1) {
+			return JavaCore.VERSION_1_7;
+		} else if (rawVersion.indexOf("1.8") != -1) {
+			return JavaCore.VERSION_1_8;
+		} else if(rawVersion.startsWith("9")) {
+			return JavaCore.VERSION_9;
+		} else if(rawVersion.startsWith("10")) {
+			return JavaCore.VERSION_10;
+		} else if(rawVersion.startsWith("11")) {
+			return JavaCore.VERSION_11;
+		} else {
+			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
 	}
 	// projects known raw versions to minors; minors should grow with time, so
@@ -366,6 +359,18 @@ static class JavacCompiler {
 			if ("1.8.0_162".equals(rawVersion)) {
 				return 2100;
 			}
+			if ("1.8.0_171".equals(rawVersion)) {
+				return 2200;
+			}
+			if ("1.8.0_172".equals(rawVersion)) {
+				return 2300;
+			}
+			if ("1.8.0_181".equals(rawVersion)) {
+				return 2400;
+			}
+			if ("1.8.0_182".equals(rawVersion)) {
+				return 2500;
+			}
 		}
 		if (version == JavaCore.VERSION_9) {
 			if ("9".equals(rawVersion)) {
@@ -373,6 +378,9 @@ static class JavacCompiler {
 			}
 			if ("9.0.1".equals(rawVersion)) {
 				return 0100;
+			}
+			if ("9.0.4".equals(rawVersion)) {
+				return 0400;
 			}
 		}
 		if (version == JavaCore.VERSION_10) {
@@ -402,6 +410,9 @@ static class JavacCompiler {
 	// returns 0L if everything went fine; else the lower word contains the
 	// exit value and the upper word is non-zero iff the error log has contents
 	long compile(File directory, String options, String[] sourceFileNames, StringBuffer log) throws IOException, InterruptedException {
+		return compile(directory, options, sourceFileNames, log, true);
+	}
+	long compile(File directory, String options, String[] sourceFileNames, StringBuffer log, boolean extendCommandLine) throws IOException, InterruptedException {
 		Process compileProcess = null;
 		long result = 0L;
 		// WORK classpath should depend on the compiler, not on the default runtime
@@ -413,9 +424,11 @@ static class JavacCompiler {
 			cmdLine.append(this.classpath);
 			cmdLine.append(". ");
 			cmdLine.append(options);
-			for (int i = 0; i < sourceFileNames.length; i ++) {
-				cmdLine.append(' ');
-				cmdLine.append(sourceFileNames[i]);
+			if (extendCommandLine) {
+				for (int i = 0; i < sourceFileNames.length; i ++) {
+					cmdLine.append(' ');
+					cmdLine.append(sourceFileNames[i]);
+				}
 			}
 			String cmdLineAsString;
 			// WORK improve double-quotes management on Linux
@@ -456,6 +469,18 @@ static class JavaRuntime {
 		if (cached == null) {
 			cached = new JavaRuntime(compiler.rootDirectoryPath, compiler.version, compiler.rawVersion, compiler.minor);
 			runtimes.put(compiler.rawVersion, cached);
+		}
+		return cached;
+	}
+	public static JavaRuntime fromCurrentVM() throws IOException, InterruptedException {
+		String rawVersion = System.getProperty("java.version");
+		JavaRuntime cached = (JavaRuntime) runtimes.get(rawVersion);
+		if (cached == null) {
+			String jreRootDirPath = Util.getJREDirectory();
+			String version = JavacCompiler.versionFromRawVersion(rawVersion, jreRootDirPath);
+			int minor = JavacCompiler.minorFromRawVersion(version, rawVersion);
+			cached = new JavaRuntime(jreRootDirPath, version, rawVersion, minor);
+			runtimes.put(rawVersion, cached);
 		}
 		return cached;
 	}
@@ -506,7 +531,7 @@ protected static class JavacTestOptions {
 	};
 	@java.lang.SuppressWarnings("synthetic-access")
 	static JavacTestOptions forRelease(String release) {
-		JavacTestOptions options = new JavacTestOptions();
+		JavacTestOptions options = new JavacTestOptions(Long.parseLong(release));
 		if (isJRE9Plus)
 			options.setCompilerOptions("-release "+release);
 		else
@@ -528,11 +553,15 @@ protected static class JavacTestOptions {
 			return true;
 		}
 	};
+	long minJavacCompliance = 0;
 	private String compilerOptions = "";
 	public JavacTestOptions() {
 	}
 	public JavacTestOptions(String compilerOptions) {
 		this.compilerOptions = compilerOptions;
+	}
+	public JavacTestOptions(long compliance) {
+		this.minJavacCompliance = compliance;
 	}
 	String getCompilerOptions() {
 		return this.compilerOptions;
@@ -541,6 +570,8 @@ protected static class JavacTestOptions {
 		this.compilerOptions = options;
 	}
 	boolean skip(JavacCompiler compiler) {
+		if (this.minJavacCompliance > 0)
+			return compiler.compliance < this.minJavacCompliance;
 		return false;
 	}
 	static class MismatchType {
@@ -556,9 +587,11 @@ protected static class JavacTestOptions {
 		static final int JavacNotLaunched = 0x0200;
 		static final int JavaAborted = 0x0400;
 		static final int JavaNotLaunched = 0x0800;
+		static final int CompileErrorMismatch = 0x1000;
 	}
 	public static class Excuse extends JavacTestOptions {
 		protected int mismatchType;
+		public boolean isIntermittent;
 		Excuse(int mismatchType) {
 			this.mismatchType = mismatchType;
 		}
@@ -774,6 +807,10 @@ protected static class JavacTestOptions {
 			this.pivotCompliance = pivotCompliance;
 			this.pivotMinor = pivotMinor;
 		}
+		public JavacHasABug(int mismatchType, long pivotCompliance, int pivotMinor, boolean intermittent) {
+			this(mismatchType, pivotCompliance, pivotMinor);
+			this.isIntermittent = intermittent;
+		}
 		Excuse excuseFor(JavacCompiler compiler) {
 			if (this.minorsFixed != null) {
 				if (compiler.compliance == ClassFileConstants.JDK1_8) {
@@ -869,7 +906,13 @@ protected static class JavacTestOptions {
 			JavacBug8033810 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8033810
 				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null,
 			JavacBug8144673 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8144673
-				new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0100) : null;
+				new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0100) : null,
+			JavacBug8204534 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8204534
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ((long)55)<<16, 0000) : null, // FIXME: use JDK11
+			JavacBug8207032 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8207032
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null,
+			JavacBug8044196 = RUN_JAVAC ? // likely https://bugs.openjdk.java.net/browse/JDK-8044196, intermittently masked by https://bugs.openjdk.java.net/browse/JDK-8029161
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK9, 0000, true) : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -995,8 +1038,10 @@ protected static class JavacTestOptions {
 	protected void checkClassFile(String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
 		this.checkClassFile("", className, source, expectedOutput, mode);
 	}
-	protected void checkClassFile(String directoryName, String className, String disassembledClassName, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
-		compileAndDeploy(source, directoryName, className);
+	protected void checkClassFile(String directoryName, String className, String disassembledClassName, String source, String expectedOutput,
+			int mode, boolean suppressConsole) throws ClassFormatException, IOException
+	{
+		compileAndDeploy(source, directoryName, className, suppressConsole);
 		try {
 			File directory = new File(EVAL_DIRECTORY, directoryName);
 			if (!directory.exists()) {
@@ -1038,11 +1083,11 @@ protected static class JavacTestOptions {
 	}
 
 	protected void checkClassFile(String directoryName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
-		this.checkClassFile(directoryName, className, className, source, expectedOutput, mode);
+		this.checkClassFile(directoryName, className, className, source, expectedOutput, mode, false);
 	}
 
 	protected ClassFileReader getInternalClassFile(String directoryName, String className, String disassembledClassName, String source) throws ClassFormatException, IOException {
-		compileAndDeploy(source, directoryName, className);
+		compileAndDeploy(source, directoryName, className, false);
 		try {
 			File directory = new File(EVAL_DIRECTORY, directoryName);
 			if (!directory.exists()) {
@@ -1115,7 +1160,7 @@ protected static class JavacTestOptions {
 		}
 	}
 
-	protected void compileAndDeploy(String source, String directoryName, String className) {
+	protected void compileAndDeploy(String source, String directoryName, String className, boolean suppressConsole) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {
 			if (!directory.mkdirs()) {
@@ -1171,7 +1216,17 @@ protected static class JavacTestOptions {
 			.append(Util.getJavaClassLibsAsString())
 			.append(SOURCE_DIRECTORY)
 			.append("\"");
-		BatchCompiler.compile(buffer.toString(), new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
+		OutputStream out = System.out;
+		OutputStream err = System.err;
+		if (suppressConsole) {
+			out = err = new OutputStream() {
+				@Override
+				public void write(int b) {
+					// silently swallow
+				}
+			};
+		}
+		BatchCompiler.compile(buffer.toString(), new PrintWriter(out), new PrintWriter(err), null/*progress*/);
 	}
 
 	/*
@@ -2216,7 +2271,7 @@ protected void runJavac(
 				if ((expectedOutputString != null || expectedErrorString != null) &&
 						!javacTestErrorFlag && mismatch == 0 && sourceFileNames != null &&
 						!className.endsWith(PACKAGE_INFO_NAME) && !className.endsWith(MODULE_INFO_NAME)) {
-					JavaRuntime runtime = JavaRuntime.runtimeFor(compiler);
+					JavaRuntime runtime = JavaRuntime.fromCurrentVM();
 					StringBuffer stderr = new StringBuffer();
 					StringBuffer stdout = new StringBuffer();
 					String vmOptions = "";
@@ -2260,62 +2315,74 @@ protected void runJavac(
 				e.printStackTrace();
 				mismatch = JavacTestOptions.MismatchType.JavaNotLaunched;
 			}
-			if (mismatch != 0) {
-				if (excuse != null && excuse.clears(mismatch)) {
-					excuse = null;
-				} else {
-					System.err.println("----------------------------------------");
-					logTestFiles(true, testFiles);
-					switch (mismatch) {
-						case JavacTestOptions.MismatchType.EclipseErrorsJavacNone:
-							assertEquals(testName + " - Eclipse found error(s) but Javac did not find any",
-									"", expectedCompilerLog.toString());
-							break;
-						case JavacTestOptions.MismatchType.EclipseErrorsJavacWarnings:
-							assertEquals(testName + " - Eclipse found error(s) but Javac only found warning(s)",
-									expectedCompilerLog.toString(),	compilerLog.toString());
-							break;
-						case JavacTestOptions.MismatchType.JavacErrorsEclipseNone:
-							assertEquals(testName + " - Javac found error(s) but Eclipse did not find any",
-									"", compilerLog.toString());
-							break;
-						case JavacTestOptions.MismatchType.JavacErrorsEclipseWarnings:
-							assertEquals(testName + " - Javac found error(s) but Eclipse only found warning(s)",
-									expectedCompilerLog.toString(),	compilerLog.toString());
-							break;
-						case JavacTestOptions.MismatchType.EclipseWarningsJavacNone:
-							assertEquals(testName + " - Eclipse found warning(s) but Javac did not find any",
-									"", expectedCompilerLog.toString());
-							break;
-						case JavacTestOptions.MismatchType.JavacWarningsEclipseNone:
-							assertEquals(testName + " - Javac found warning(s) but Eclipse did not find any",
-									"", compilerLog.toString());
-							break;
-						case JavacTestOptions.MismatchType.StandardOutputMismatch:
-							assertEquals(testName + " - Eclipse/Javac standard output mismatch",
-									expectedOutputString, output);
-							break;
-						case JavacTestOptions.MismatchType.ErrorOutputMismatch:
-							assertEquals(testName + " - Eclipse/Javac standard error mismatch",
-									expectedErrorString, err);
-							break;
-						case JavacTestOptions.MismatchType.JavacAborted:
-						case JavacTestOptions.MismatchType.JavacNotLaunched:
-							fail(testName + " - Javac failure");
-							break;
-						case JavacTestOptions.MismatchType.JavaAborted:
-						case JavacTestOptions.MismatchType.JavaNotLaunched:
-							fail(testName + " - Java failure");
-							break;
-						default:
-							throw new RuntimeException("unexpected mismatch value: " + mismatch);
-					}
-				}
-			}
-			if (excuse != null) {
-				fail(testName + ": unused excuse " + excuse + " for compiler " + compiler);
+			handleMismatch(compiler, testName, testFiles, expectedCompilerLog, expectedOutputString,
+					expectedErrorString, compilerLog, output, err, excuse, mismatch);
+		}
+	}
+}
+void handleMismatch(JavacCompiler compiler, String testName, String[] testFiles, String expectedCompilerLog,
+		String expectedOutputString, String expectedErrorString, StringBuffer compilerLog, String output, String err,
+		JavacTestOptions.Excuse excuse, int mismatch) {
+	if (mismatch != 0) {
+		if (excuse != null && excuse.clears(mismatch)) {
+			excuse = null;
+		} else {
+			System.err.println("----------------------------------------");
+			logTestFiles(true, testFiles);
+			switch (mismatch) {
+				case JavacTestOptions.MismatchType.EclipseErrorsJavacNone:
+					assertEquals(testName + " - Eclipse found error(s) but Javac did not find any",
+							"", expectedCompilerLog.toString());
+					break;
+				case JavacTestOptions.MismatchType.EclipseErrorsJavacWarnings:
+					assertEquals(testName + " - Eclipse found error(s) but Javac only found warning(s)",
+							expectedCompilerLog.toString(),	compilerLog.toString());
+					break;
+				case JavacTestOptions.MismatchType.JavacErrorsEclipseNone:
+					assertEquals(testName + " - Javac found error(s) but Eclipse did not find any",
+							"", compilerLog.toString());
+					break;
+				case JavacTestOptions.MismatchType.JavacErrorsEclipseWarnings:
+					assertEquals(testName + " - Javac found error(s) but Eclipse only found warning(s)",
+							expectedCompilerLog.toString(),	compilerLog.toString());
+					break;
+				case JavacTestOptions.MismatchType.EclipseWarningsJavacNone:
+					assertEquals(testName + " - Eclipse found warning(s) but Javac did not find any",
+							"", expectedCompilerLog.toString());
+					break;
+				case JavacTestOptions.MismatchType.JavacWarningsEclipseNone:
+					assertEquals(testName + " - Javac found warning(s) but Eclipse did not find any",
+							"", compilerLog.toString());
+					break;
+				case JavacTestOptions.MismatchType.StandardOutputMismatch:
+					assertEquals(testName + " - Eclipse/Javac standard output mismatch",
+							expectedOutputString, output);
+					break;
+				case JavacTestOptions.MismatchType.ErrorOutputMismatch:
+					assertEquals(testName + " - Eclipse/Javac standard error mismatch",
+							expectedErrorString, err);
+					break;
+				case JavacTestOptions.MismatchType.JavacAborted:
+				case JavacTestOptions.MismatchType.JavacNotLaunched:
+					fail(testName + " - Javac failure");
+					break;
+				case JavacTestOptions.MismatchType.JavaAborted:
+				case JavacTestOptions.MismatchType.JavaNotLaunched:
+					fail(testName + " - Java failure");
+					break;
+				case JavacTestOptions.MismatchType.CompileErrorMismatch:
+					fail(testName + " Javac failure did not match \"" + expectedCompilerLog +'\"');
+					break;
+				default:
+					throw new RuntimeException("unexpected mismatch value: " + mismatch);
 			}
 		}
+	}
+	if (excuse != null) {
+		if (excuse.isIntermittent)
+			System.err.println(testName + ": unused execuse (intermittent bug) "+excuse + " for compiler " + compiler);
+		else
+			fail(testName + ": unused excuse " + excuse + " for compiler " + compiler);
 	}
 }
 

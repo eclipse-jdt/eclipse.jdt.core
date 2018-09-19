@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2017 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -509,7 +512,7 @@ public String getSuperclassTypeSignature() throws JavaModelException {
 		if (superclassName == null) {
 			return null;
 		}
-		return new String(Signature.createTypeSignature(ClassFile.translatedName(superclassName), true));
+		return Signature.createTypeSignature(ClassFile.translatedName(superclassName), true);
 	}
 }
 
@@ -605,7 +608,7 @@ public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
 		names= ClassFile.translatedNames(names);
 		String[] strings= new String[length];
 		for (int i= 0; i < length; i++) {
-			strings[i]= new String(Signature.createTypeSignature(names[i], true));
+			strings[i]= Signature.createTypeSignature(names[i], true);
 		}
 		return strings;
 	}
@@ -1008,7 +1011,7 @@ public JavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaM
 				typeName.insert(0, '.');
 			}
 		}
-		typeQualifiedName = new String(typeName.toString());
+		typeQualifiedName = typeName.toString();
 	} else {
 		typeQualifiedName = getElementName();
 	}

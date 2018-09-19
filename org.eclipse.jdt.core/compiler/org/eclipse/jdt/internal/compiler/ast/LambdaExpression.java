@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2012, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
@@ -1476,8 +1479,10 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					if (((LambdaExpression) lambdaScope2.referenceContext).sourceStart == LambdaExpression.this.sourceStart) {
 						// local type within this lambda needs replacement: 
 						TypeBinding substType = this.localTypes2.get(orgLocal.sourceStart);
-						if (substType != null)
+						if (substType != null) {
+							orgLocal.transferConstantPoolNameTo(substType);
 							return substType;
+						}
 					}
 				}
 				return originalType;
@@ -1494,6 +1499,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		updateLocalTypesInMethod(this.binding, substor, subst);
 		updateLocalTypesInMethod(this.descriptor, substor, subst);
 		this.resolvedType = substor.substitute(subst, this.resolvedType);
+		this.expectedType = substor.substitute(subst, this.expectedType);
 	}
 
 	/**

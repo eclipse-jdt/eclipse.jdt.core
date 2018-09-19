@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,12 +13,15 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
@@ -1658,4 +1661,198 @@ public void testBug346002() throws Exception {
 		fail("Should not throw AssertionFailedException");
 	}
 }
+
+/*
+ * Ensures that when multiple threads enter the batch container initialization, 
+ * a second thread does not initialize a container if the first thread has already completed it
+ */
+public void testBug525597() throws CoreException {
+	try {
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar", "P3", "/P1/lib.jar"}));
+		createJavaProject(
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
+				"");
+		createJavaProject(
+				"P3",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
+				"");
+		createJavaProject(
+				"P4",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
+				"");
+
+		// simulate state on startup
+		simulateExitRestart();
+
+		Thread helperThread = new Thread() {
+			@Override
+				public void run() {
+					try {
+						JavaModelManager javaModelManager = JavaModelManager.getJavaModelManager();
+						javaModelManager.containerRemove(null);
+						javaModelManager.forceBatchInitializations(false);
+						javaModelManager.getClasspathContainer(Path.EMPTY, null);
+					} catch (JavaModelException e) {
+						e.printStackTrace();
+					}
+				}
+		};
+		helperThread.setName("ClasspathInitializerTests Helper");
+		AtomicInteger p3Counter=new AtomicInteger(0);
+		Thread mainThread=Thread.currentThread();
+		Semaphore s1=new Semaphore(0);
+		Semaphore s2=new Semaphore(0);
+
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar", "P3", "/P1/lib.jar"}) {
+			public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+				if (Thread.currentThread() == helperThread) {
+					if (project.getElementName().equals("P2")) {
+						s1.release();
+						try {
+							s2.acquire(10000);
+						} catch (TimeOutException e) {
+							// ignore
+						}
+					} else if (project.getElementName().equals("P3")) {
+						p3Counter.incrementAndGet();
+					}
+				} else if (Thread.currentThread() == mainThread) {
+					if (project.getElementName().equals("P3")) {
+						p3Counter.incrementAndGet();
+					} else if (project.getElementName().equals("P4")) {
+						// this point is reached when helperThread is still waiting in P2
+						// and already has P3 on its TODO list.
+						s2.release();
+					}
+				}
+				super.initialize(containerPath, project);
+			}
+		});
+		helperThread.start();
+		// wait till helperThread has reached initializer
+		try {
+			s1.acquire(10000);
+		} catch (TimeOutException e1) {
+			// ignore
+		}
+		JavaModelManager.getJavaModelManager().getClasspathContainer(Path.EMPTY, null);
+		try {
+			helperThread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		assertEquals("P3 initialized more than once.", 1, p3Counter.get());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+		deleteProject("P3");
+		deleteProject("P4");
+	}
+}
+/*
+ * Ensures that when multiple threads enter the batch container initialization, 
+ * and two threads both initialize a container, only one result is used.
+ */
+public void testBug525597B() throws CoreException {
+	try {
+		createProject("P1");
+		createFile("/P1/lib.jar", "");
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar", "P3", "/P1/lib.jar"}));
+		createJavaProject(
+				"P2",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
+				"");
+		createJavaProject(
+				"P3",
+				new String[] {},
+				new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"},
+				"");
+
+		// simulate state on startup
+		simulateExitRestart();
+
+		Thread helperThread = new Thread() {
+			@Override
+				public void run() {
+					try {
+						JavaModelManager javaModelManager = JavaModelManager.getJavaModelManager();
+						javaModelManager.containerRemove(null);
+						javaModelManager.forceBatchInitializations(false);
+						javaModelManager.getClasspathContainer(Path.EMPTY, null);
+					} catch (JavaModelException e) {
+						e.printStackTrace();
+					}
+				}
+		};
+		helperThread.setName("ClasspathInitializerTests Helper");
+		AtomicInteger p2Counter=new AtomicInteger(0);
+		AtomicReference<IClasspathContainer> helperContainer=new AtomicReference<>();
+		AtomicReference<IClasspathContainer> mainContainer=new AtomicReference<>();
+		Thread mainThread=Thread.currentThread();
+		Semaphore s1=new Semaphore(0);
+		Semaphore s2=new Semaphore(0);
+		AtomicReference<IJavaProject> p2Project=new AtomicReference<>();
+
+		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar", "P3", "/P1/lib.jar"}) {
+			public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+				if (Thread.currentThread() == helperThread) {
+					if (project.getElementName().equals("P2")) {
+						p2Project.set(project);
+						s1.release();
+						try {
+							s2.acquire(10000);
+						} catch (TimeOutException e) {
+							// ignore
+						}
+					} else if (project.getElementName().equals("P3")) {
+						if (JavaModelManager.getJavaModelManager().containerBeingInitializedGet(p2Project.get(),
+								containerPath) != null) {
+							p2Counter.incrementAndGet();
+						}
+						helperContainer.set(JavaModelManager.getJavaModelManager().getClasspathContainer(containerPath, p2Project.get()));
+					}
+				} else if (Thread.currentThread() == mainThread) {
+					if (project.getElementName().equals("P2")) {
+						// this point is reached when helperThread is also still waiting in P2
+						s2.release();
+					} else if (project.getElementName().equals("P3")) {
+						if (JavaModelManager.getJavaModelManager().containerBeingInitializedGet(p2Project.get(),
+								containerPath) != null) {
+							p2Counter.incrementAndGet();
+						}
+						mainContainer.set(JavaModelManager.getJavaModelManager().getClasspathContainer(containerPath, p2Project.get()));
+					}
+				}
+				super.initialize(containerPath, project);
+			}
+		});
+		helperThread.start();
+		// wait till helperThread has reached initializer
+		try {
+			s1.acquire(10000);
+		} catch (TimeOutException e1) {
+			// ignore
+		}
+		JavaModelManager.getJavaModelManager().getClasspathContainer(Path.EMPTY, null);
+		try {
+			helperThread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		assertEquals("more than one result for P2 used.", 1, p2Counter.get());
+		assertEquals("main and helper threads did not see the same container.", helperContainer.get(), mainContainer.get());
+	} finally {
+		deleteProject("P1");
+		deleteProject("P2");
+		deleteProject("P3");
+	}
+}
+
 }

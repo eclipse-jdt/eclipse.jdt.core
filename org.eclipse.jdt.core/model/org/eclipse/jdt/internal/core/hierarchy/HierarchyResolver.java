@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -746,7 +749,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 					// We would have got all the necessary local types by now and hence there is no further need 
 					// to parse the method bodies. Parser.getMethodBodies, which is called latter in this function, 
 					// will not parse the method statements if ASTNode.HasAllMethodBodies is set. 
-					if (containsLocalType) 	parsedUnit.bits |= ASTNode.HasAllMethodBodies;
+					if (containsLocalType && parsedUnit != null) parsedUnit.bits |= ASTNode.HasAllMethodBodies;
 				} else {
 					// create parsed unit from file
 					IFile file = (IFile) cu.getResource();

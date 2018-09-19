@@ -1,9 +1,12 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2018 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -119,6 +122,7 @@ public class DefaultCodeFormatterOptions {
 	public int alignment_for_assignment;
 	public int alignment_for_binary_expression;
 	public int alignment_for_compact_if;
+	public int alignment_for_compact_loop;
 	public int alignment_for_conditional_expression;
 	public int alignment_for_enum_constants;
 	public int alignment_for_expressions_in_array_initializer;
@@ -142,6 +146,9 @@ public class DefaultCodeFormatterOptions {
 	public int alignment_for_union_type_in_multicatch;
 
 	public boolean align_type_members_on_columns;
+	public boolean align_variable_declarations_on_columns;
+	public boolean align_assignment_statements_on_columns;
+	public boolean align_with_spaces;
 	public int align_fields_grouping_blank_lines;
 
 	public String brace_position_for_annotation_type_declaration;
@@ -414,6 +421,9 @@ public class DefaultCodeFormatterOptions {
 	public boolean keep_empty_array_initializer_on_one_line;
 	public boolean keep_simple_if_on_one_line;
 	public boolean keep_then_statement_on_same_line;
+	public boolean keep_simple_for_body_on_same_line;
+	public boolean keep_simple_while_body_on_same_line;
+	public boolean keep_simple_do_while_body_on_same_line;
 	public boolean never_indent_block_comments_on_first_column;
 	public boolean never_indent_line_comments_on_first_column;
 	public int number_of_empty_lines_to_preserve;
@@ -458,6 +468,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ASSIGNMENT, getAlignment(this.alignment_for_assignment));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION, getAlignment(this.alignment_for_binary_expression));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_COMPACT_IF, getAlignment(this.alignment_for_compact_if));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_COMPACT_LOOP, getAlignment(this.alignment_for_compact_loop));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION, getAlignment(this.alignment_for_conditional_expression));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ENUM_CONSTANTS, getAlignment(this.alignment_for_enum_constants));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER, getAlignment(this.alignment_for_expressions_in_array_initializer));
@@ -479,7 +490,10 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_TYPE_PARAMETERS, getAlignment(this.alignment_for_type_parameters));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_UNION_TYPE_IN_MULTICATCH, getAlignment(this.alignment_for_union_type_in_multicatch));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS, this.align_type_members_on_columns ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_VARIABLE_DECLARATIONS_ON_COLUMNS, this.align_variable_declarations_on_columns ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_ASSIGNMENT_STATEMENTS_ON_COLUMNS, this.align_assignment_statements_on_columns ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_FIELDS_GROUPING_BLANK_LINES, Integer.toString(this.align_fields_grouping_blank_lines));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_WITH_SPACES, this.align_with_spaces ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ANNOTATION_TYPE_DECLARATION, this.brace_position_for_annotation_type_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ANONYMOUS_TYPE_DECLARATION, this.brace_position_for_anonymous_type_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ARRAY_INITIALIZER, this.brace_position_for_array_initializer);
@@ -737,6 +751,9 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_EMPTY_ARRAY_INITIALIZER_ON_ONE_LINE, this.keep_empty_array_initializer_on_one_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_IF_ON_ONE_LINE, this.keep_simple_if_on_one_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_THEN_STATEMENT_ON_SAME_LINE, this.keep_then_statement_on_same_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_FOR_BODY_ON_SAME_LINE, this.keep_simple_for_body_on_same_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_WHILE_BODY_ON_SAME_LINE, this.keep_simple_while_body_on_same_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_DO_WHILE_BODY_ON_SAME_LINE, this.keep_simple_do_while_body_on_same_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_BLOCK_COMMENTS_ON_FIRST_COLUMN, this.never_indent_block_comments_on_first_column ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN, this.never_indent_line_comments_on_first_column ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, Integer.toString(this.number_of_empty_lines_to_preserve));
@@ -859,6 +876,10 @@ public class DefaultCodeFormatterOptions {
 				this.alignment_for_compact_if = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
 			}
 		}
+		final Object alignmentForCompactLoopOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_COMPACT_LOOP);
+		if (alignmentForCompactLoopOption != null)
+			this.alignment_for_compact_loop = toInt(alignmentForCompactLoopOption, Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE);
+
 		final Object alignmentForConditionalExpressionOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION);
 		if (alignmentForConditionalExpressionOption != null) {
 			try {
@@ -1033,6 +1054,14 @@ public class DefaultCodeFormatterOptions {
 		if (alignTypeMembersOnColumnsOption != null) {
 			this.align_type_members_on_columns = DefaultCodeFormatterConstants.TRUE.equals(alignTypeMembersOnColumnsOption);
 		}
+		final Object alignVariableDeclarationsOnColumnsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGN_VARIABLE_DECLARATIONS_ON_COLUMNS);
+		if (alignVariableDeclarationsOnColumnsOption != null) {
+			this.align_variable_declarations_on_columns = DefaultCodeFormatterConstants.TRUE.equals(alignVariableDeclarationsOnColumnsOption);
+		}
+		final Object alignAssignmentStatementsOnColumnsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGN_ASSIGNMENT_STATEMENTS_ON_COLUMNS);
+		if (alignAssignmentStatementsOnColumnsOption != null) {
+			this.align_assignment_statements_on_columns = DefaultCodeFormatterConstants.TRUE.equals(alignAssignmentStatementsOnColumnsOption);
+		}
 		final Object alignGroupSepartionBlankLinesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGN_FIELDS_GROUPING_BLANK_LINES);
 		if (alignTypeMembersOnColumnsOption != null) {
 			try {
@@ -1042,6 +1071,10 @@ public class DefaultCodeFormatterOptions {
 			} catch(ClassCastException e) {
 				this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
 			}
+		}
+		final Object alignWithSpaces = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGN_WITH_SPACES);
+		if (alignWithSpaces != null) {
+			this.align_with_spaces = DefaultCodeFormatterConstants.TRUE.equals(alignWithSpaces);
 		}
 		final Object bracePositionForAnnotationTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ANNOTATION_TYPE_DECLARATION);
 		if (bracePositionForAnnotationTypeDeclarationOption != null) {
@@ -2188,6 +2221,18 @@ public class DefaultCodeFormatterOptions {
 		if (keepThenStatementOnSameLineOption != null) {
 			this.keep_then_statement_on_same_line = DefaultCodeFormatterConstants.TRUE.equals(keepThenStatementOnSameLineOption);
 		}
+		final Object keepSimpleForBodyOnSameLineOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_FOR_BODY_ON_SAME_LINE);
+		if (keepSimpleForBodyOnSameLineOption != null) {
+			this.keep_simple_for_body_on_same_line = DefaultCodeFormatterConstants.TRUE.equals(keepSimpleForBodyOnSameLineOption);
+		}
+		final Object keepSimpleWhileBodyOnSameLineOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_WHILE_BODY_ON_SAME_LINE);
+		if (keepSimpleWhileBodyOnSameLineOption != null) {
+			this.keep_simple_while_body_on_same_line = DefaultCodeFormatterConstants.TRUE.equals(keepSimpleWhileBodyOnSameLineOption);
+		}
+		final Object keepSimpleDoWhileBodyOnSameLineOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_DO_WHILE_BODY_ON_SAME_LINE);
+		if (keepSimpleDoWhileBodyOnSameLineOption != null) {
+			this.keep_simple_do_while_body_on_same_line = DefaultCodeFormatterConstants.TRUE.equals(keepSimpleDoWhileBodyOnSameLineOption);
+		}
 		final Object neverIndentBlockCommentOnFirstColumnOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_BLOCK_COMMENTS_ON_FIRST_COLUMN);
 		if (neverIndentBlockCommentOnFirstColumnOption != null) {
 			this.never_indent_block_comments_on_first_column = DefaultCodeFormatterConstants.TRUE.equals(neverIndentBlockCommentOnFirstColumnOption);
@@ -2443,6 +2488,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_assignment = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_binary_expression = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_compact_if = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
+		this.alignment_for_compact_loop = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
 		this.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT;
 		this.alignment_for_enum_constants = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
@@ -2464,6 +2510,9 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_type_parameters = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
 		this.align_type_members_on_columns = false;
+		this.align_variable_declarations_on_columns = false;
+		this.align_assignment_statements_on_columns = false;
+		this.align_with_spaces = false;
 		this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
 		this.brace_position_for_annotation_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_anonymous_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
@@ -2720,6 +2769,9 @@ public class DefaultCodeFormatterOptions {
 		this.keep_empty_array_initializer_on_one_line = false;
 		this.keep_simple_if_on_one_line = false;
 		this.keep_then_statement_on_same_line = false;
+		this.keep_simple_for_body_on_same_line = false;
+		this.keep_simple_while_body_on_same_line = false;
+		this.keep_simple_do_while_body_on_same_line = false;
 		this.never_indent_block_comments_on_first_column = false;
 		this.never_indent_line_comments_on_first_column = false;
 		this.number_of_empty_lines_to_preserve = 1;
@@ -2756,6 +2808,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_assignment = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_binary_expression = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_compact_if = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_compact_loop = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_conditional_expression = Alignment.M_NEXT_PER_LINE_SPLIT;
 		this.alignment_for_enum_constants = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
@@ -2777,6 +2830,9 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_type_parameters = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
 		this.align_type_members_on_columns = false;
+		this.align_variable_declarations_on_columns = false;
+		this.align_assignment_statements_on_columns = false;
+		this.align_with_spaces = false;
 		this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
 		this.brace_position_for_annotation_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_anonymous_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
@@ -3033,6 +3089,9 @@ public class DefaultCodeFormatterOptions {
 		this.keep_empty_array_initializer_on_one_line = false;
 		this.keep_simple_if_on_one_line = false;
 		this.keep_then_statement_on_same_line = false;
+		this.keep_simple_for_body_on_same_line = false;
+		this.keep_simple_while_body_on_same_line = false;
+		this.keep_simple_do_while_body_on_same_line = false;
 		this.never_indent_block_comments_on_first_column = false;
 		this.never_indent_line_comments_on_first_column = false;
 		this.number_of_empty_lines_to_preserve = 1;

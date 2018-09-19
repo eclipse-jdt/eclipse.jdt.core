@@ -1,9 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License v1.0
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -303,27 +306,39 @@ public void resolve(MethodScope initializationScope) {
 				initializationScope.problemReporter().assignmentHasNoEffect(this, this.name);
 			}
 		}
-		// Resolve Javadoc comment if one is present
-		if (this.javadoc != null) {
-			this.javadoc.resolve(initializationScope);
-		} else if (this.binding != null && this.binding.declaringClass != null && !this.binding.declaringClass.isLocalType()) {
-			// Set javadoc visibility
-			int javadocVisibility = this.binding.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
-			ProblemReporter reporter = initializationScope.problemReporter();
-			int severity = reporter.computeSeverity(IProblem.JavadocMissing);
-			if (severity != ProblemSeverities.Ignore) {
-				if (classScope != null) {
-					javadocVisibility = Util.computeOuterMostVisibility(classScope.referenceType(), javadocVisibility);
-				}
-				int javadocModifiers = (this.binding.modifiers & ~ExtraCompilerModifiers.AccVisibilityMASK) | javadocVisibility;
-				reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
-			}
-		}
 	} finally {
 		initializationScope.initializedField = previousField;
 		initializationScope.lastVisibleFieldID = previousFieldID;
 		if (this.binding.constant(initializationScope) == null)
 			this.binding.setConstant(Constant.NotAConstant);
+	}
+}
+public void resolveJavadoc(MethodScope initializationScope) {
+	if (this.javadoc != null) {
+		FieldBinding previousField = initializationScope.initializedField;
+		int previousFieldID = initializationScope.lastVisibleFieldID;
+		try {
+			initializationScope.initializedField = this.binding;
+			if (this.binding != null)
+				initializationScope.lastVisibleFieldID = this.binding.id;
+			this.javadoc.resolve(initializationScope);
+		} finally {
+			initializationScope.initializedField = previousField;
+			initializationScope.lastVisibleFieldID = previousFieldID;
+		}
+	} else if (this.binding != null && this.binding.declaringClass != null && !this.binding.declaringClass.isLocalType()) {
+		// Set javadoc visibility
+		int javadocVisibility = this.binding.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
+		ProblemReporter reporter = initializationScope.problemReporter();
+		int severity = reporter.computeSeverity(IProblem.JavadocMissing);
+		if (severity != ProblemSeverities.Ignore) {
+			ClassScope classScope = initializationScope.enclosingClassScope();
+			if (classScope != null) {
+				javadocVisibility = Util.computeOuterMostVisibility(classScope.referenceType(), javadocVisibility);
+			}
+			int javadocModifiers = (this.binding.modifiers & ~ExtraCompilerModifiers.AccVisibilityMASK) | javadocVisibility;
+			reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
+		}
 	}
 }
 
