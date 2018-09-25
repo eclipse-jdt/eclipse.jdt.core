@@ -100,38 +100,42 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 
 	private static synchronized void initializeVersions(ClasspathMultiReleaseJar jar) {
 		Path filePath = Paths.get(jar.zipFilename);
-		if (Files.exists(filePath)) {
-			URI uri = URI.create("jar:" + filePath.toUri()); //$NON-NLS-1$
-			try {
+		try {
+			if (Files.exists(filePath)) {
+				URI uri = URI.create("jar:" + filePath.toUri()); //$NON-NLS-1$
 				try {
-					jar.fs = FileSystems.getFileSystem(uri);
-				} catch (FileSystemNotFoundException e) {
-					// move on
+					try {
+						jar.fs = FileSystems.getFileSystem(uri);
+					} catch (FileSystemNotFoundException e) {
+						// move on
+					}
+					if (jar.fs == null) {
+						jar.fs = FileSystems.newFileSystem(uri, new HashMap<>());
+					}
+				} catch (IllegalArgumentException | FileSystemNotFoundException | ProviderNotFoundException
+						| FileSystemAlreadyExistsException | IOException | SecurityException e) {
+					Util.log(e, "Failed to initialize versions for: " + jar);  //$NON-NLS-1$
+					jar.supportedVersions = new Path[0];
 				}
 				if (jar.fs == null) {
-					jar.fs = FileSystems.newFileSystem(uri, new HashMap<>());
+					return;
 				}
-			} catch (IllegalArgumentException | FileSystemNotFoundException | ProviderNotFoundException
-					| FileSystemAlreadyExistsException | IOException | SecurityException e) {
-				Util.log(e, "Failed to initialize versions for: " + jar);  //$NON-NLS-1$
-				jar.supportedVersions = new Path[0];
-			}
-			if (jar.fs == null) {
-				return;
-			}
-			jar.rootPath = jar.fs.getPath("/"); //$NON-NLS-1$
-			int earliestJavaVersion = ClassFileConstants.MAJOR_VERSION_9;
-			long latestJDK = CompilerOptions.versionToJdkLevel(jar.compliance);
-			int latestJavaVer = (int) (latestJDK >> 16);
-			List<Path> versions = new ArrayList<>();
-			for (int i = latestJavaVer; i >= earliestJavaVersion; i--) {
-				Path path = jar.fs.getPath("/", "META-INF", "versions", "" + (i - 44)); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				if (Files.exists(path)) {
-					versions.add(jar.rootPath.relativize(path));
+				jar.rootPath = jar.fs.getPath("/"); //$NON-NLS-1$
+				int earliestJavaVersion = ClassFileConstants.MAJOR_VERSION_9;
+				long latestJDK = CompilerOptions.versionToJdkLevel(jar.compliance);
+				int latestJavaVer = (int) (latestJDK >> 16);
+				List<Path> versions = new ArrayList<>();
+				for (int i = latestJavaVer; i >= earliestJavaVersion; i--) {
+					Path path = jar.fs.getPath("/", "META-INF", "versions", "" + (i - 44)); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					if (Files.exists(path)) {
+						versions.add(jar.rootPath.relativize(path));
+					}
 				}
+				jar.supportedVersions = versions.toArray(new Path[versions.size()]);
 			}
-			jar.supportedVersions = versions.toArray(new Path[versions.size()]);
-			if (jar.supportedVersions.length <= 0) {
+		} finally {
+			if ((jar.supportedVersions == null || jar.supportedVersions.length <= 0) 
+					&& (jar.fs != null && jar.fs.isOpen())) {
 				try {
 					jar.fs.close();
 				} catch (IOException e) {
