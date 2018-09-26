@@ -260,7 +260,7 @@ public final class AST {
 	 * up to and including Java SE 11 (aka JDK 11).
 	 * </p>
 	 *
-	 * @since 3.15 
+	 * @since 3.16
 	 */
 	public static final int JLS11 = 11;
 

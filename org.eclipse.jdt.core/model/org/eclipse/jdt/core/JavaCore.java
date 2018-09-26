@@ -6048,7 +6048,7 @@ public final class JavaCore extends Plugin {
 	 * Returns the latest version of Java supported by the Java Model. This is usually the last entry
 	 * from {@link JavaCore#getAllVersions()}.
 	 *
-	 * @since 3.15
+	 * @since 3.16
 	 * @return the latest Java version support by Java Model
 	 */
 	public static String latestSupportedJavaVersion() {

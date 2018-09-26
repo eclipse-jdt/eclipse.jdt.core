@@ -120,7 +120,7 @@ public interface IClassFileReader {
 	 * Answer back the nest members attribute of this .class file, null if none.
 	 *
 	 * @return the nest members attribute of this .class file, null if none
-	 * @since 3.15 
+	 * @since 3.16
 	 */
 	default INestMembersAttribute getNestMembersAttribute() {
 		return null;

@@ -193,13 +193,13 @@ public interface IAttributeNamesConstants {
 	
 	/**
 	 * "NestHost" attribute (JVMS 11).
-	 * @since 3.15 
+	 * @since 3.16 
 	 */
 	char[] NEST_HOST = "NestHost".toCharArray(); //$NON-NLS-1$
 
 	/**
 	 * "NestMembers" attribute (JVMS 11).
-	 * @since 3.15 
+	 * @since 3.16
 	 */
 	char[] NEST_MEMBERS = "NestMembers".toCharArray(); //$NON-NLS-1$
 
