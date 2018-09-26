@@ -2064,7 +2064,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is used below JLS11
-	 * @since 3.14 BETA_JAVA11
+	 * @since 3.14 
 	 */
 	final void unsupportedBelow11() {
 		if (this.ast.apiLevel < AST.JLS11_INTERNAL) {
