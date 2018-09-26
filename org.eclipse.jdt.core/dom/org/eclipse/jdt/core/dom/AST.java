@@ -260,14 +260,14 @@ public final class AST {
 	 * up to and including Java SE 11 (aka JDK 11).
 	 * </p>
 	 *
-	 * @since 3.15 BETA_JAVA11
+	 * @since 3.15 
 	 */
 	public static final int JLS11 = 11;
 
 	/**
 	 * Internal synonym for {@link #JLS11}. Use to alleviate
 	 * deprecation warnings once JLS11 is deprecated
-	 * @since 3.14 BETA_JAVA11
+	 * @since 3.14 
 	 */
 	/*package*/ static final int JLS11_INTERNAL = JLS11;
 
