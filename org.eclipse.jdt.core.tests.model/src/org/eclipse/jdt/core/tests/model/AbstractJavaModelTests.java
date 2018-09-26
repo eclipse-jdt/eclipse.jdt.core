@@ -78,6 +78,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
+		int index = -1;
+		if ( (index = javaVersion.indexOf('-')) != -1) {
+			javaVersion = javaVersion.substring(0, index);
+		} else {
+			if (javaVersion.length() > 3) {
+				javaVersion = javaVersion.substring(0, 3);
+			}
+		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
 		if (jdkLevel >= ClassFileConstants.JDK9) {
 			isJRE9 = true;
@@ -116,8 +124,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Internal synonym for constant AST.JSL10
 	 * to alleviate deprecation warnings once AST.JLS10 is deprecated in future.
+	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS10 = AST.JLS10;
+
+	/**
+	 * Internal synonym for constant AST.JSL11
+	 * to alleviate deprecation warnings once AST.JLS11 is deprecated in future.
+	 */
+	protected static final int AST_INTERNAL_JLS11 = AST.JLS11;
 
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}
@@ -1401,6 +1416,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected IJavaProject createJava10Project(String name, String[] srcFolders) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "10");
 	}
+	protected IJavaProject createJava11Project(String name, String[] srcFolders) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "11");
+	}
 	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, attributes, "9");
 	}
@@ -1972,6 +1990,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_10);
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_10);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
+					javaProject.setOptions(options);
+				} else if ("11".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
 					javaProject.setOptions(options);
 				}
 				result[0] = javaProject;
@@ -3065,10 +3089,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			newJclLibString = "JCL18_FULL";
 			newJclSrcString = "JCL18_SRC"; // Use the same source
 		} else {
-			if (compliance.equals("10")) {
+			if (compliance.equals("11")) {
+				newJclLibString = "JCL11_LIB";
+				newJclSrcString = "JCL11_SRC";
+			} else if (compliance.equals("10")) {
 				newJclLibString = "JCL10_LIB";
 				newJclSrcString = "JCL10_SRC";
-		} else if (compliance.length() < 3) {
+			} else if (compliance.length() < 3) {
 					newJclLibString = "JCL19_LIB";
 					newJclSrcString = "JCL19_SRC";
 			} else if (compliance.charAt(2) > '7') {
@@ -3118,9 +3145,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IPath jcl8Lib = new Path("JCL18_LIB");
 		IPath jcl9Lib = new Path("JCL19_LIB");
 		IPath jcl10Lib = new Path("JCL10_LIB");
+		IPath jcl11Lib = new Path("JCL11_LIB");
 		IPath jclFull = new Path("JCL18_FULL");
 
-		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jcl9Lib) || path.equals(jcl10Lib) ||  path.equals(jclFull);
+		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jcl9Lib)
+				|| path.equals(jcl10Lib) ||  path.equals(jcl11Lib) || path.equals(jclFull);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		setUpJCLClasspathVariables(compliance, false);
@@ -3173,6 +3202,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL10_LIB", "JCL10_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath("9"), getExternalJCLSourcePath("9"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("11".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL11_LIB") == null) {
+				setupExternalJCL("jclMin11");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL11_LIB", "JCL11_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("11"), getExternalJCLSourcePath("11"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {

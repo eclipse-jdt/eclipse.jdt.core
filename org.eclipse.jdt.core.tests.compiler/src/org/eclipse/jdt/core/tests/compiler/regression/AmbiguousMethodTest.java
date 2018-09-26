@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2739,7 +2739,8 @@ public void test051() {
 		"	                                        ^\n" + 
 		"I is a raw type. References to generic type I<T> should be parameterized\n" + 
 		"----------\n"
-		: // in 1.8 bar(Z) is recognized as being more specific than bar(I<#RAW>)
+		: this.complianceLevel < ClassFileConstants.JDK11 ?
+			// in 1.8 bar(Z) is recognized as being more specific than bar(I<#RAW>)
 			"----------\n" + 
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	bar(new Z());\n" + 
@@ -2750,7 +2751,14 @@ public void test051() {
 			"	private static final class Z implements I {\n" + 
 			"	                                        ^\n" + 
 			"I is a raw type. References to generic type I<T> should be parameterized\n" + 
-			"----------\n"));
+			"----------\n" 
+			:
+				"----------\n" + 
+				"1. WARNING in X.java (at line 13)\n" + 
+				"	private static final class Z implements I {\n" + 
+				"	                                        ^\n" + 
+				"I is a raw type. References to generic type I<T> should be parameterized\n" + 
+				"----------\n"));
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 // variant
@@ -2813,7 +2821,8 @@ public void test053() {
 		"	                                  ^\n" + 
 		"I is a raw type. References to generic type I<T> should be parameterized\n" + 
 		"----------\n"
-		: // in 1.8 bar(Z) is recognized as being more specific than bar(I<#RAW>)
+		:  this.complianceLevel < ClassFileConstants.JDK11 ?
+			// in 1.8 bar(Z) is recognized as being more specific than bar(I<#RAW>)
 			"----------\n" + 
 			"1. WARNING in X.java (at line 9)\n" + 
 			"	bar(new Z(){});\n" + 
@@ -2824,7 +2833,13 @@ public void test053() {
 			"	private static class Z implements I {\n" + 
 			"	                                  ^\n" + 
 			"I is a raw type. References to generic type I<T> should be parameterized\n" + 
-			"----------\n"));
+			"----------\n" :
+				"----------\n" + 
+				"1. WARNING in X.java (at line 13)\n" + 
+				"	private static class Z implements I {\n" + 
+				"	                                  ^\n" + 
+				"I is a raw type. References to generic type I<T> should be parameterized\n" + 
+				"----------\n"));
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 // variant

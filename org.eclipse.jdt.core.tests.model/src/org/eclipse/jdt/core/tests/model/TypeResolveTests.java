@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.LambdaExpression;
@@ -1503,6 +1504,39 @@ public void testBug533884c() throws Exception {
 			assertEquals("incorrect type", "Ljava.io.FileInputStream;", variable.getTypeSignature());
 		else
 			assertEquals("incorrect type", "LFileInputStream;", variable.getTypeSignature()); // unresolved because JRT lib not available
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug536387() throws Exception {
+	try {
+		createJava11Project("P", new String[] {"src"});
+		String source =   "package p;\n\n" +
+				"public class X {\n" +
+				"	public class NewType {\n" +
+				"		public int indexOf(int two) {\n" +
+				"       	return 0;\n" +
+				"       }\n" +
+				"	}\n\n"+
+				"	public interface Finder {\n" +
+				"		public int find(NewType one, int two);\n" +
+				"	}\n\n"+ 
+				" 	public static void main(String[] args) {\n" +
+				" 		final Finder finder = (var s1,var s2) -> s1.indexOf(s2);\n"+					 
+				"	}\n" + 
+				"\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "var";
+		IJavaElement[] elements = unit.codeSelect(source.indexOf(select), select.length());
+		assertEquals("should not be empty", 1, elements.length);
+		IType type = (IType) elements[0];
+		String signature= Signature.createTypeSignature(type.getFullyQualifiedName(), true);
+		assertEquals("incorrect type", "Lp.X$NewType;", signature);
 	} finally {
 		deleteProject("P");
 	}

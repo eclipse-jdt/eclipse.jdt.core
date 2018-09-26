@@ -100,6 +100,7 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		CompilerOptions.VERSION_1_8,
 		CompilerOptions.VERSION_9,
 		CompilerOptions.VERSION_10,
+		CompilerOptions.VERSION_11,
 	};
 
 	/*

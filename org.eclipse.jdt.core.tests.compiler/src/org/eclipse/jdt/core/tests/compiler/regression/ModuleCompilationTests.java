@@ -4027,7 +4027,7 @@ public void testBug521362_emptyFile() {
 		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
 		     + " --release 5 -d \"" + OUTPUT_DIR + "\"",
 		     "",
-		     "release version 5 is not supported\n",
+		     "release 5 is not found in the system\n",
 		     true);
 	}
 	public void testReleaseOption7() throws Exception {
@@ -4296,7 +4296,7 @@ public void testBug521362_emptyFile() {
 			" --release 60 \"" + OUTPUT_DIR +  File.separator + "foo" + File.separator + "Module.java\" " +
 			"\"" +  OUTPUT_DIR +  File.separator + "foo" + File.separator + "X.java\" ",
 	        "",
-    		"release 60 is not found in the system\n",
+	        "release version 60 is not supported\n",
 	        true,
 	        /*not tested with javac*/"");
 	}

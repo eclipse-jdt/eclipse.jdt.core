@@ -5216,10 +5216,7 @@ public void test143() {
     }
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99009
     public void test164() {
-		Map options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.WARNING);
-        this.runNegativeTest(
-            new String[] {
+    	String[] testFiles = new String[] {
                 "X.java",
                 "@SuppressWarnings({\"synthetic-access\", \"unused\"})\n" +
 				"public class X {\n" +
@@ -5236,7 +5233,15 @@ public void test143() {
 				"		new C().bar();\n" +
 				"    }\n" +
 				"}"
-            },
+        };
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.WARNING);
+		if (isMinimumCompliant(ClassFileConstants.JDK11)) { // no synthetic due to nestmate
+			this.runConformTest(testFiles);
+			return;
+		}
+		this.runNegativeTest(
+            testFiles,
             "",
 			null,
 			true,
@@ -10270,6 +10275,8 @@ public void testBug365437a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 public void testBug365437b() {
+	if (isJRE11Plus)
+		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
@@ -10858,6 +10865,8 @@ public void _testBug386356_1() {
 // Bug 386356 - Type mismatch error with annotations and generics
 // test case from comment 6
 public void testBug386356_2() {
+	if (isJRE11Plus)
+		return;
 	INameEnvironment save = this.javaClassLib;
 	try {
 		if (isJRE9Plus) {
@@ -11649,6 +11658,27 @@ public void testBug470665() throws Exception {
 		return; // Enough to run in the last two levels!
 	}
 	boolean apt = this.enableAPT;
+	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+			"----------\n" + 
+			"1. ERROR in A.java (at line 10)\n" + 
+			"	};\n" + 
+			"	^\n" + 
+			"Syntax error on token \"}\", delete this token\n" + 
+			"----------\n" + 
+			"----------\n"
+			:
+			"----------\n" + 
+			"1. ERROR in A.java (at line 10)\n" + 
+			"	};\n" + 
+			"	^\n" + 
+			"Syntax error on token \"}\", delete this token\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. WARNING in B.java (at line 12)\n" + 
+			"	X x = new X();\n" + 
+			"	      ^^^^^^^\n" + 
+			"Access to enclosing constructor B.X() is emulated by a synthetic accessor method\n" + 
+			"----------\n";
 	String[] sources = new String[] {
 			"A.java",
 			"public final class A {\n" +
@@ -11680,19 +11710,7 @@ public void testBug470665() throws Exception {
 	};
 	try {
 		this.enableAPT = true;
-		runNegativeTest(sources,
-				"----------\n" + 
-				"1. ERROR in A.java (at line 10)\n" + 
-				"	};\n" + 
-				"	^\n" + 
-				"Syntax error on token \"}\", delete this token\n" + 
-				"----------\n" + 
-				"----------\n" + 
-				"1. WARNING in B.java (at line 12)\n" + 
-				"	X x = new X();\n" + 
-				"	      ^^^^^^^\n" + 
-				"Access to enclosing constructor B.X() is emulated by a synthetic accessor method\n" + 
-				"----------\n");
+		runNegativeTest(sources, errMessage);
 	} finally {
 		this.enableAPT = apt;
 	}

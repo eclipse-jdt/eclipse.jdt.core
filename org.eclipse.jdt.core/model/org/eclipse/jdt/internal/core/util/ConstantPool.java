@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -153,6 +153,19 @@ public class ConstantPool extends ClassFileStruct implements IConstantPool {
 				methodDescriptorIndex = u2At(this.classFileBytes,  3, this.constantPoolOffset[nameAndTypeIndex]);
 				constantPoolEntry2.setMethodName(getUtf8ValueAt(methodNameIndex));
 				constantPoolEntry2.setMethodDescriptor(getUtf8ValueAt(methodDescriptorIndex));
+				constantPoolEntry = constantPoolEntry2;
+				break;
+			case IConstantPoolConstant.CONSTANT_Dynamic :
+				constantPoolEntry2 = new ConstantPoolEntry2();
+				constantPoolEntry2.reset();
+				constantPoolEntry2.setKind(kind);
+				constantPoolEntry2.setBootstrapMethodAttributeIndex(u2At(this.classFileBytes,  1, this.constantPoolOffset[index]));
+				int nameAndTypeIndex2 = u2At(this.classFileBytes,  3, this.constantPoolOffset[index]);
+				constantPoolEntry2.setNameAndTypeIndex(nameAndTypeIndex2);
+				fieldNameIndex = u2At(this.classFileBytes,  1, this.constantPoolOffset[nameAndTypeIndex2]);
+				fieldDescriptorIndex = u2At(this.classFileBytes,  3, this.constantPoolOffset[nameAndTypeIndex2]);
+				constantPoolEntry2.setFieldName(getUtf8ValueAt(fieldNameIndex));
+				constantPoolEntry2.setFieldDescriptor(getUtf8ValueAt(fieldDescriptorIndex));
 				constantPoolEntry = constantPoolEntry2;
 				break;
 			case IConstantPoolConstant.CONSTANT_Module :

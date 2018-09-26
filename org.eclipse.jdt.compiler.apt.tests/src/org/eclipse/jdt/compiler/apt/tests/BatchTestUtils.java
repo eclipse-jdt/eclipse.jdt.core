@@ -123,6 +123,10 @@ public class BatchTestUtils {
 
 	public static void compileInModuleMode(JavaCompiler compiler, List<String> options, String processor,
 			File targetFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule) {
+		compileInModuleMode(compiler, options, processor, targetFolder, listener, multiModule, true);
+	}
+	public static void compileInModuleMode(JavaCompiler compiler, List<String> options, String processor,
+			File targetFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule, boolean processBinariesAgain) {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 		Iterable<? extends File> location = manager.getLocation(StandardLocation.CLASS_PATH);
 		// create new list containing inputfile
@@ -150,6 +154,9 @@ public class BatchTestUtils {
 			String errorOutput = stringWriter.getBuffer().toString();
 			System.err.println("Compilation failed: " + errorOutput);
 	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
+		}
+		if (!processBinariesAgain) {
+			return;
 		}
 		List<String> classes = new ArrayList<>();
 		try {

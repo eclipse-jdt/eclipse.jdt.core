@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2017 IBM Corporation and others.
+ * Copyright (c) 2006, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -468,7 +468,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		}
 		assertNotNull("No reader", reader);
 		// This needs fix. This test case by design will produce different output every compiler version.
- 		assertEquals("Wrong value", ClassFileConstants.JDK10, reader.getVersion());
+ 		assertEquals("Wrong value", ClassFileConstants.getLatestJDKLevel(), reader.getVersion()); // TODO: Fix this for JDK11
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
 	}

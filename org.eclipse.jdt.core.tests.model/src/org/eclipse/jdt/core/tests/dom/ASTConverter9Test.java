@@ -67,8 +67,13 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	}
 	public static Test suite() {
 		String javaVersion = System.getProperty("java.version");
-		if (javaVersion.length() > 3) {
-			javaVersion = javaVersion.substring(0, 3);
+		int index = -1;
+		if ( (index = javaVersion.indexOf('-')) != -1) {
+			javaVersion = javaVersion.substring(0, index);
+		} else {
+			if (javaVersion.length() > 3) {
+				javaVersion = javaVersion.substring(0, 3);
+			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion);
 		if (jdkLevel >= ClassFileConstants.JDK9) {

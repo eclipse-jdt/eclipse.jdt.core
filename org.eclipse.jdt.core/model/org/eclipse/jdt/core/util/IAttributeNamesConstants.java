@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -190,4 +190,17 @@ public interface IAttributeNamesConstants {
 	 * @since 3.14
 	 */
 	char[] MODULE_MAIN_CLASS = "ModuleMainClass".toCharArray(); //$NON-NLS-1$
+	
+	/**
+	 * "NestHost" attribute (JVMS 11).
+	 * @since 3.15 BETA_JAVA11
+	 */
+	char[] NEST_HOST = "NestHost".toCharArray(); //$NON-NLS-1$
+
+	/**
+	 * "NestMembers" attribute (JVMS 11).
+	 * @since 3.15 BETA_JAVA11
+	 */
+	char[] NEST_MEMBERS = "NestMembers".toCharArray(); //$NON-NLS-1$
+
 }

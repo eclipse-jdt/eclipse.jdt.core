@@ -292,6 +292,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_9;
 		} else if(rawVersion.startsWith("10")) {
 			return JavaCore.VERSION_10;
+		} else if(rawVersion.startsWith("11")) {
+			return JavaCore.VERSION_11;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -381,11 +383,25 @@ static class JavacCompiler {
 			}
 		}
 		if (version == JavaCore.VERSION_10) {
-			if ("10.0.0".equals(rawVersion)) {
+			if ("10".equals(rawVersion)) {
 				return 0000;
 			}
 			if ("10.0.1".equals(rawVersion)) {
 				return 0100;
+			}
+			if ("10.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_11) {
+			if ("11".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("11.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("11.0.2".equals(rawVersion)) {
+				return 0200;
 			}
 		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);
@@ -1190,6 +1206,9 @@ protected static class JavacTestOptions {
 			buffer.append("\" -9 " + processAnnot);
 		} else if (this.complianceLevel == ClassFileConstants.JDK10) {
 			buffer.append("\" -10 " + processAnnot);
+		} else {
+			int major = (int)(this.complianceLevel>>16);
+			buffer.append("\" -" + (major - ClassFileConstants.MAJOR_VERSION_0));
 		}
 		buffer
 			.append(" -preserveAllLocals -proceedOnError -nowarn -g -classpath \"")
@@ -1419,6 +1438,11 @@ protected static class JavacTestOptions {
 		defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.WARNING );
 		defaultOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.WARNING);
 		return defaultOptions;
+	}
+	protected boolean isMinimumCompliant(long compliance) {
+		Map options = getCompilerOptions();
+		CompilerOptions compOptions = new CompilerOptions(options);
+		return compOptions.complianceLevel >= compliance;
 	}
 
 	protected void enableAllWarningsForIrritants(Map<String, String> options, IrritantSet irritants) {

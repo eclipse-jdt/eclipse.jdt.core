@@ -63,11 +63,26 @@ public class Java9ElementProcessor extends BaseProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
 	Messager _messager = null;
+	boolean isJre11;
+	boolean isJre10;
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		_typeUtils = processingEnv.getTypeUtils();
 		_messager = processingEnv.getMessager();
+		try {
+			SourceVersion.valueOf("RELEASE_11");
+			this.isJre10 = true;
+			this.isJre11 = true;
+		} catch(IllegalArgumentException iae) {
+		}
+		if (!this.isJre11) {
+			try {
+				SourceVersion.valueOf("RELEASE_10");
+				this.isJre10 = true;
+			} catch(IllegalArgumentException iae) {
+			}
+		}
 	}
 	// Always return false from this processor, because it supports "*".
 	// The return value does not signify success or failure!
@@ -386,10 +401,8 @@ public class Java9ElementProcessor extends BaseProcessor {
 	 * Test java.base module can be loaded and verify its exports attributes
 	 */
 	public void testModuleJavaBase1() {
-		int modCount = 108;
 		try {
 			SourceVersion.valueOf("RELEASE_10");
-			modCount = 102;
 		} catch(IllegalArgumentException iae) {
 		}
 		Set<? extends ModuleElement> allModuleElements = _elementUtils.getAllModuleElements();
@@ -402,7 +415,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.EXPORTS);
-		assertEquals("incorrect no of exports", modCount , filterDirective.size());
+		assertEquals("incorrect no of exports", this.isJre11 ? 108 : (this.isJre10 ? 102 : 108) , filterDirective.size());
 		ExportsDirective pack = null;
 		for (Directive directive : filterDirective) {
 			ModuleElement.ExportsDirective exports = (ExportsDirective) directive;
@@ -517,7 +530,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.sql module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.REQUIRES);
-		assertEquals("Incorrect no of requires", 3, filterDirective.size());
+		assertEquals("Incorrect no of requires", this.isJre11 ? 4 : 3, filterDirective.size());
 		RequiresDirective req = null;
 		for (Directive directive : filterDirective) {
 			if (((RequiresDirective) directive).getDependency().getQualifiedName().toString().equals("java.logging")) {

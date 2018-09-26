@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  * 
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- * 
  * Contributors:
  *     Jesper Steen Møller - initial API and implementation
  *******************************************************************************/
@@ -58,7 +54,7 @@ public void test0001_class_var_warning() throws IOException {
 			"Syntax error on token \"+\", delete this token\n" + 
 			"----------\n";
 
-	if (this.complianceLevel == ClassFileConstants.JDK10) {
+	if (Long.compare(this.complianceLevel, ClassFileConstants.JDK10) >= 0) {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -101,7 +97,7 @@ public void test0002_interface_var_warning() throws IOException {
 			"Syntax error on token \"+\", delete this token\n" + 
 			"----------\n";
 
-	if (this.complianceLevel == ClassFileConstants.JDK10) {
+	if (Long.compare(this.complianceLevel, ClassFileConstants.JDK10) >= 0) {
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -134,7 +130,7 @@ public void testBug530920() throws IOException {
 			"X.java",
 			classX
 		},
-		this.complianceLevel == ClassFileConstants.JDK10 ?
+		Long.compare(this.complianceLevel, ClassFileConstants.JDK10) >= 0 ?
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public class X<var extends Number> { }\n" +
@@ -158,7 +154,7 @@ public void testBug530920a() throws IOException {
 			"	}\n" +
 			"}"	
 		},
-		this.complianceLevel == ClassFileConstants.JDK10 ?
+		Long.compare(this.complianceLevel, ClassFileConstants.JDK10) >= 0 ?
 			"----------\n" +
 			"1. ERROR in X.java (at line 2)\n" +
 			"	<var extends Number> var getNumber() {\n" +

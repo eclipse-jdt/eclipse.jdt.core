@@ -26,7 +26,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(AST_INTERNAL_JLS10);
+		this.ast = AST.newAST(AST_INTERNAL_JLS11);
 	}
 
 	public TypeAnnotationsConverterTest(String name) {

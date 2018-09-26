@@ -9469,6 +9469,14 @@ public void varIsNotAllowedHere(ASTNode astNode) {
 		astNode.sourceStart,
 		astNode.sourceEnd);
 }
+public void varCannotBeMixedWithNonVarParams(ASTNode astNode) {
+	this.handle(
+		IProblem.VarCannotBeMixedWithNonVarParams,
+		NoArgument,
+		NoArgument,
+		astNode.sourceStart,
+		astNode.sourceEnd);
+}
 public void variableTypeCannotBeVoidArray(AbstractVariableDeclaration varDecl) {
 	this.handle(
 		IProblem.CannotAllocateVoidArray,
