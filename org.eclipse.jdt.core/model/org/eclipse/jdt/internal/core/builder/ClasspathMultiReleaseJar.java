@@ -1,21 +1,11 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import java.io.IOException;
-import java.net.URI;
-import java.nio.file.FileSystemAlreadyExistsException;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.ProviderNotFoundException;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IFile;
@@ -35,10 +25,9 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathMultiReleaseJar extends ClasspathJar {
-	private java.nio.file.FileSystem fs;
-	Path releasePath;
-	Path rootPath;
-	Path[] supportedVersions;
+	private static final String META_INF_VERSIONS = "META-INF/versions/"; //$NON-NLS-1$
+	private static final int META_INF_LENGTH = META_INF_VERSIONS.length();
+	String[] supportedVersions;
 
 	ClasspathMultiReleaseJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath,
 			boolean isOnModulePath, String compliance) {
@@ -75,7 +64,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		try (ZipFile file = new ZipFile(this.zipFilename)){
 			ClassFileReader classfile = null;
 			try {
-				for (Path path : this.supportedVersions) {
+				for (String path : this.supportedVersions) {
 					classfile = ClassFileReader.read(file, path.toString() + '/' + IModule.MODULE_INFO_CLASS);
 					if (classfile != null) {
 						break;
@@ -99,97 +88,52 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 	}
 
 	private static synchronized void initializeVersions(ClasspathMultiReleaseJar jar) {
-		Path filePath = Paths.get(jar.zipFilename);
-		try {
-			if (Files.exists(filePath)) {
-				URI uri = URI.create("jar:" + filePath.toUri()); //$NON-NLS-1$
-				try {
-					try {
-						jar.fs = FileSystems.getFileSystem(uri);
-					} catch (FileSystemNotFoundException e) {
-						// move on
-					}
-					if (jar.fs == null) {
-						jar.fs = FileSystems.newFileSystem(uri, new HashMap<>());
-					}
-				} catch (IllegalArgumentException | FileSystemNotFoundException | ProviderNotFoundException
-						| FileSystemAlreadyExistsException | IOException | SecurityException e) {
-					Util.log(e, "Failed to initialize versions for: " + jar);  //$NON-NLS-1$
-					jar.supportedVersions = new Path[0];
-				}
-				if (jar.fs == null) {
-					return;
-				}
-				jar.rootPath = jar.fs.getPath("/"); //$NON-NLS-1$
-				int earliestJavaVersion = ClassFileConstants.MAJOR_VERSION_9;
-				long latestJDK = CompilerOptions.versionToJdkLevel(jar.compliance);
-				int latestJavaVer = (int) (latestJDK >> 16);
-				List<Path> versions = new ArrayList<>();
-				for (int i = latestJavaVer; i >= earliestJavaVersion; i--) {
-					Path path = jar.fs.getPath("/", "META-INF", "versions", "" + (i - 44)); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-					if (Files.exists(path)) {
-						versions.add(jar.rootPath.relativize(path));
-					}
-				}
-				jar.supportedVersions = versions.toArray(new Path[versions.size()]);
+		if (jar.zipFile == null) {
+			if (org.eclipse.jdt.internal.core.JavaModelManager.ZIP_ACCESS_VERBOSE) {
+				System.out.println("(" + Thread.currentThread() + ") [ClasspathMultiReleaseJar.initializeVersions(String)] Creating ZipFile on " + jar.zipFilename); //$NON-NLS-1$	//$NON-NLS-2$
 			}
-		} finally {
-			if ((jar.supportedVersions == null || jar.supportedVersions.length <= 0) 
-					&& (jar.fs != null && jar.fs.isOpen())) {
-				try {
-					jar.fs.close();
-				} catch (IOException e) {
-					// ignore
-				}
+			try {
+				jar.zipFile = new ZipFile(jar.zipFilename);
+			} catch (IOException e) {
+				return;
+			}
+			jar.closeZipFileAtEnd = true;
+		}
+		int earliestJavaVersion = ClassFileConstants.MAJOR_VERSION_9;
+		long latestJDK = CompilerOptions.versionToJdkLevel(jar.compliance);
+		int latestJavaVer = (int) (latestJDK >> 16);
+		List<String> versions = new ArrayList<>();
+		for (int i = latestJavaVer; i >= earliestJavaVersion; i--) {
+			String name = META_INF_VERSIONS+ (i - 44);
+			ZipEntry entry = jar.zipFile.getEntry(name);
+			if (entry != null) {
+				versions.add(name);
 			}
 		}
+		jar.supportedVersions = versions.toArray(new String[versions.size()]);
 	}
 
 	@Override
 	protected String readJarContent(final SimpleSet packageSet) {
-		String[] modInfo = new String[1];
-		modInfo[0] = super.readJarContent(packageSet);
-		try {
-			for (Path path : this.supportedVersions) {
-				Path relativePath = this.rootPath.resolve(path);
-				Files.walkFileTree(path, new FileVisitor<Path>() {
-					@Override
-					public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-							throws IOException {
-						return FileVisitResult.CONTINUE;
-					}
-
-					@Override
-					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-							throws IOException {
-						Path p = relativePath.relativize(file);
-						addToPackageSet(packageSet, p.toString(), false);
-						if (modInfo[0] == null) {
-							Path fileName = p.getFileName();
-							if (fileName != null && fileName.toString().equalsIgnoreCase(IModule.MODULE_INFO_CLASS)) {
-								modInfo[0] = relativePath.relativize(file).toString();
-							}
-						}
-						return FileVisitResult.CONTINUE;
-					}
-
-					@Override
-					public FileVisitResult visitFileFailed(Path file, IOException exc)
-							throws IOException {
-						return FileVisitResult.CONTINUE;
-					}
-
-					@Override
-					public FileVisitResult postVisitDirectory(Path dir, IOException exc)
-							throws IOException {
-						return FileVisitResult.CONTINUE;
-					}
-				});
+		String modInfo = null;
+		for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
+			String fileName = ((ZipEntry) e.nextElement()).getName();
+			if (fileName.startsWith(META_INF_VERSIONS) && fileName.length() > META_INF_LENGTH) {
+				int i = fileName.indexOf('/', META_INF_LENGTH);
+				fileName = fileName.substring(i + 1);
+			} else if (fileName.startsWith("META-INF/")) //$NON-NLS-1$
+				continue;
+			if (modInfo == null) {
+				int folderEnd = fileName.lastIndexOf('/');
+				folderEnd += 1;
+				String className = fileName.substring(folderEnd, fileName.length());
+				if (className.equalsIgnoreCase(IModule.MODULE_INFO_CLASS)) {
+					modInfo = fileName;
+				}
 			}
-		} catch (Exception e) {
-			Util.log(e, "Failed to read jar content for: " + packageSet + " in: " + this);  //$NON-NLS-1$ //$NON-NLS-2$
+			addToPackageSet(packageSet, fileName, false);
 		}
-		return modInfo[0];
+		return modInfo;
 	}
 
 	@Override
@@ -198,19 +142,14 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		if (!isPackage(qualifiedPackageName, moduleName)) {
 			return null; // most common case
 		}
-		for (Path path : this.supportedVersions) {
-			Path relativePath = this.rootPath.resolve(path);
-			Path p = null;
+		for (String path : this.supportedVersions) {
+			String s = null;
 			try {
-				p = relativePath.resolve(qualifiedPackageName).resolve(binaryFileName);
-				if (!Files.exists(p)) {
+				s = META_INF_VERSIONS + path + "/" + binaryFileName;  //$NON-NLS-1$
+				ZipEntry entry = this.zipFile.getEntry(s);
+				if (entry == null)
 					continue;
-				}
-				byte[] content = Files.readAllBytes(p);
-				IBinaryType reader = null;
-				if (content != null) {
-					reader = new ClassFileReader(content, qualifiedBinaryFileName.toCharArray());
-				}
+				IBinaryType reader = ClassFileReader.read(this.zipFile, s);
 				if (reader != null) {
 					char[] modName = this.module == null ? null : this.module.name();
 					if (reader instanceof ClassFileReader) {
@@ -247,7 +186,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 							this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), modName);
 				}
 			} catch (IOException | ClassFormatException e) {
-				Util.log(e, "Failed to find class for: " + p + " in: " + this);  //$NON-NLS-1$ //$NON-NLS-2$
+				Util.log(e, "Failed to find class for: " + s + " in: " + this);  //$NON-NLS-1$ //$NON-NLS-2$
 				// treat as if class file is missing
 			}
 		}
@@ -255,15 +194,4 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 				moduleNameFilter);
 	}
 
-	@Override
-	public void cleanup() {
-		if (this.fs != null && this.fs.isOpen()) {
-			try {
-				this.fs.close();
-			} catch (IOException e) {
-				// probably already closed, race condition may be?
-			}
-		}
-		super.cleanup();
-	}
 }
