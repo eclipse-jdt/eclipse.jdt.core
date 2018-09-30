@@ -388,4 +388,36 @@ public class BuilderTests extends TestBase
 		fullBuild();
 		assertTrue("Processor should be able to compile with passed options", Bug341298Processor.success());
 	}
+	
+	public void testBug539663() throws Throwable {
+		if (!canRunJava9()) {
+			return;
+		}
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJava9Project(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+		IPath root = projPath.append("src");
+		IPath packagePath = root.append("test");
+		try {
+			env.addClass(root, null, "module-info", "module example {}");
+			
+			env.addClass(root, "test", "Foo",
+					"package test;\n" +
+					"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
+			        "@GenClass6(name = \"ImmutableFoo\", pkg = \"test\")\n" +
+				    "public class Foo {\n" +
+			        "    public void f(ImmutableFoo o) { }\n" +
+				    "}");
+			AptConfig.setEnabled(jproj, true);
+			
+			fullBuild();
+			expectingNoProblems();			
+		} finally {
+			env.removeClass(packagePath, "module-info");
+			env.removeClass(packagePath, "Foo");
+			env.removeClass(packagePath, "ImmutableFoo");
+		}
+	}
 }

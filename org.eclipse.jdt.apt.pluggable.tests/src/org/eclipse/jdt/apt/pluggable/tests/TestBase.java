@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
+import javax.lang.model.SourceVersion;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -38,6 +40,7 @@ public class TestBase extends BuilderTests
 
 	protected static final String JAVA_16_COMPLIANCE = "1.6";
 	protected static final String JAVA_18_COMPLIANCE = "1.8";
+	protected static final String JAVA_9_COMPLIANCE = "9";
 	
 	protected String _projectName;
 	protected static int _projectSerial = 0; // used to create unique project names, to avoid resource deletion problems
@@ -119,7 +122,29 @@ public class TestBase extends BuilderTests
 		addAnnotationJar(javaProj);
 		return javaProj;
 	}
-	
+
+	/**
+	 * Create a java project with java libraries and test annotations on classpath
+	 * (compiler level is 1.9). Use "src" as source folder and "bin" as output folder. APT
+	 * is not enabled.
+	 *
+	 * @param projectName
+	 * @return a java project that has been added to the current workspace.
+	 * @throws Exception
+	 */
+	protected static IJavaProject createJava9Project(final String projectName) throws Exception {
+		// Note, make sure this is run only with a JRE 9 and above.
+		IPath projectPath = env.addProject(projectName, JAVA_9_COMPLIANCE);
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		final IJavaProject javaProj = env.getJavaProject(projectPath);
+		addAnnotationJar(javaProj);
+		return javaProj;
+	}
+
 	/**
 	 * Ensure that there are no Java 5 processors on the factory path, as they can cause
 	 * units to be multiply compiled, which can mess up tests that expect a certain number
@@ -177,5 +202,12 @@ public class TestBase extends BuilderTests
 		env.setAutoBuilding(false);
 		_projectName = String.format("testproj%04d", ++_projectSerial);
 	}
-	
+	public boolean canRunJava9() {
+		try {
+			SourceVersion.valueOf("RELEASE_9");
+		} catch(IllegalArgumentException iae) {
+			return false;
+		}
+		return true;
+	}
 }

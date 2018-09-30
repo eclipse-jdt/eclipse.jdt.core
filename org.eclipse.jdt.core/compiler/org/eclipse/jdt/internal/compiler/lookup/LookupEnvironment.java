@@ -120,7 +120,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	private ArrayList missingTypes;
 	Set<SourceTypeBinding> typesBeingConnected;	// SHARED
-	public boolean isProcessingAnnotations = false;
+	public boolean isProcessingAnnotations = false; // ROOT_ONLY
 	public boolean mayTolerateMissingType = false;
 
 	PackageBinding nullableAnnotationPackage;			// the package supposed to contain the Nullable annotation type
