@@ -401,39 +401,42 @@ public class AbstractCompilerTest extends TestCase {
 					||	CompilerOptions.VERSION_11.equals(specVersion);
 			isJRE11Plus = CompilerOptions.VERSION_11.equals(specVersion);
 			initReflectionVersion();
-			String compliance = System.getProperty("compliance");
-			if (compliance != null) {
-				if (CompilerOptions.VERSION_1_3.equals(compliance)) {
-					possibleComplianceLevels = RUN_JAVAC ? NONE : F_1_3;
-				} else if (CompilerOptions.VERSION_1_4.equals(compliance)) {
-					possibleComplianceLevels = RUN_JAVAC ? NONE : F_1_4;
-				} else if (CompilerOptions.VERSION_1_5.equals(compliance)) {
-					possibleComplianceLevels = F_1_5;
-				} else if (CompilerOptions.VERSION_1_6.equals(compliance)) {
-					possibleComplianceLevels = F_1_6;
-				} else if (CompilerOptions.VERSION_1_7.equals(compliance)) {
-					possibleComplianceLevels = F_1_7;
-				} else if (CompilerOptions.VERSION_1_8.equals(compliance)) {
-					possibleComplianceLevels = F_1_8;
-				} else if (CompilerOptions.VERSION_9.equals(compliance)) {
-					possibleComplianceLevels = F_9;
-				} else if (CompilerOptions.VERSION_10.equals(compliance)) {
-					possibleComplianceLevels = F_10;
-				} else if (CompilerOptions.VERSION_11.equals(compliance)) {
-					possibleComplianceLevels = F_11;
-				} else {
-					System.out.println("Invalid compliance specified (" + compliance + ")");
-					System.out.print("Use one of ");
-					System.out.print(CompilerOptions.VERSION_1_3 + ", ");
-					System.out.print(CompilerOptions.VERSION_1_4 + ", ");
-					System.out.print(CompilerOptions.VERSION_1_5 + ", ");
-					System.out.print(CompilerOptions.VERSION_1_6 + ", ");
-					System.out.print(CompilerOptions.VERSION_1_7 + ", ");
-					System.out.print(CompilerOptions.VERSION_1_8 + ", ");
-					System.out.print(CompilerOptions.VERSION_1_8 + ", ");
-					System.out.print(CompilerOptions.VERSION_9 + ", ");
-					System.out.print(CompilerOptions.VERSION_10 + ", ");
-					System.out.println(CompilerOptions.VERSION_11);
+			String compliances = System.getProperty("compliance");
+			if (compliances != null) {
+				possibleComplianceLevels = 0;
+				for (String compliance : compliances.split(",")) {
+					if (CompilerOptions.VERSION_1_3.equals(compliance)) {
+						possibleComplianceLevels |= RUN_JAVAC ? NONE : F_1_3;
+					} else if (CompilerOptions.VERSION_1_4.equals(compliance)) {
+						possibleComplianceLevels |= RUN_JAVAC ? NONE : F_1_4;
+					} else if (CompilerOptions.VERSION_1_5.equals(compliance)) {
+						possibleComplianceLevels |= F_1_5;
+					} else if (CompilerOptions.VERSION_1_6.equals(compliance)) {
+						possibleComplianceLevels |= F_1_6;
+					} else if (CompilerOptions.VERSION_1_7.equals(compliance)) {
+						possibleComplianceLevels |= F_1_7;
+					} else if (CompilerOptions.VERSION_1_8.equals(compliance)) {
+						possibleComplianceLevels |= F_1_8;
+					} else if (CompilerOptions.VERSION_9.equals(compliance)) {
+						possibleComplianceLevels |= F_9;
+					} else if (CompilerOptions.VERSION_10.equals(compliance)) {
+						possibleComplianceLevels |= F_10;
+					} else if (CompilerOptions.VERSION_11.equals(compliance)) {
+						possibleComplianceLevels |= F_11;
+					} else {
+						System.out.println("Ignoring invalid compliance (" + compliance + ")");
+						System.out.print("Use one of ");
+						System.out.print(CompilerOptions.VERSION_1_3 + ", ");
+						System.out.print(CompilerOptions.VERSION_1_4 + ", ");
+						System.out.print(CompilerOptions.VERSION_1_5 + ", ");
+						System.out.print(CompilerOptions.VERSION_1_6 + ", ");
+						System.out.print(CompilerOptions.VERSION_1_7 + ", ");
+						System.out.print(CompilerOptions.VERSION_1_8 + ", ");
+						System.out.print(CompilerOptions.VERSION_1_8 + ", ");
+						System.out.print(CompilerOptions.VERSION_9 + ", ");
+						System.out.print(CompilerOptions.VERSION_10 + ", ");
+						System.out.println(CompilerOptions.VERSION_11);
+					}
 				}
 				if (possibleComplianceLevels == 0) {
 					System.out.println("Defaulting to all possible compliances");
