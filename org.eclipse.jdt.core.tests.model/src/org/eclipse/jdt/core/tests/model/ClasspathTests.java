@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.InvalidPathException;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -2932,7 +2933,13 @@ public void testEmptyClasspath() throws CoreException {
  */
 public void testEncoding1() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src\u3400"}, "bin");
+		try {
+			createJavaProject("P", new String[] {"src\u3400"}, "bin");
+		} catch (InvalidPathException e) {
+			System.err.println("File system cannot handle UTF-8 path: "+e.getMessage());
+			System.err.println("Skipping ClasspathTests.testEncoding1");
+			return;
+		}
 		IFile file = getFile("/P/.classpath");
 		String encodedContents = new String (org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsCharArray(file, "UTF-8"));
 		encodedContents = Util.convertToIndependantLineDelimiter(encodedContents);
