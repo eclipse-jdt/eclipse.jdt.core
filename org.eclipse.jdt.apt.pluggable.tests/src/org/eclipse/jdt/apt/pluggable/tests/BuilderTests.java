@@ -401,7 +401,7 @@ public class BuilderTests extends TestBase
 		IPath root = projPath.append("src");
 		IPath packagePath = root.append("test");
 		try {
-			env.addClass(root, null, "module-info", "module example {}");
+			env.addClass(root, null, "module-info", "module example {requires annotations;}");
 			
 			env.addClass(root, "test", "Foo",
 					"package test;\n" +

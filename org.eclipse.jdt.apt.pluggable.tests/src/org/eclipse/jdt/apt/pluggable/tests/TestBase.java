@@ -29,9 +29,12 @@ import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 
 import junit.framework.Test;
 
@@ -57,7 +60,7 @@ public class TestBase extends BuilderTests
 	/**
 	 * Extract lib/annotations.jar from the test bundle and add it to the specified project
 	 */
-	private static void addAnnotationJar(IJavaProject jproj) throws Exception {
+	private static void addAnnotationJar(IJavaProject jproj, boolean addToModulePath) throws Exception {
 		final String resName = "lib/annotations.jar"; // name in bundle
 		final String libName = resName; // name in destination project
 		InputStream is = null;
@@ -72,7 +75,13 @@ public class TestBase extends BuilderTests
 		} else {
 			libFile.create(is, true, null);
 		}
-		env.addLibrary(projPath, libFile.getFullPath(), null, null);
+		if (addToModulePath) {
+			IClasspathAttribute[] attributes = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+			env.addEntry(projPath, JavaCore.newLibraryEntry(libFile.getFullPath(), null, null,
+					ClasspathEntry.NO_ACCESS_RULES, attributes, false));
+		} else {
+			env.addLibrary(projPath, libFile.getFullPath(), null, null);
+		}
 	}
 	
 	/**
@@ -93,7 +102,7 @@ public class TestBase extends BuilderTests
 		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		final IJavaProject javaProj = env.getJavaProject(projectPath);
-		addAnnotationJar(javaProj);
+		addAnnotationJar(javaProj, false);
 		return javaProj;
 	}
 
@@ -119,12 +128,12 @@ public class TestBase extends BuilderTests
 		javaProj.getProject().getFolder("prebuilt").create(true, true, null);
 		javaProj.getProject().getFolder("prebuilt").getFolder("p").create(true, true, null);
 		env.addClassFolder(projectPath, projectPath.append("prebuilt"), true);
-		addAnnotationJar(javaProj);
+		addAnnotationJar(javaProj, false);
 		return javaProj;
 	}
 
 	/**
-	 * Create a java project with java libraries and test annotations on classpath
+	 * Create a java project with java libraries and test annotations on modulepath
 	 * (compiler level is 1.9). Use "src" as source folder and "bin" as output folder. APT
 	 * is not enabled.
 	 *
@@ -141,7 +150,7 @@ public class TestBase extends BuilderTests
 		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		final IJavaProject javaProj = env.getJavaProject(projectPath);
-		addAnnotationJar(javaProj);
+		addAnnotationJar(javaProj, true);
 		return javaProj;
 	}
 
