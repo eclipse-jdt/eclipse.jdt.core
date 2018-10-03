@@ -21,6 +21,8 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class BreakStatement extends BranchStatement {
 
+	public Expression expression;
+
 public BreakStatement(char[] label, int sourceStart, int e) {
 	super(label, sourceStart, e);
 }

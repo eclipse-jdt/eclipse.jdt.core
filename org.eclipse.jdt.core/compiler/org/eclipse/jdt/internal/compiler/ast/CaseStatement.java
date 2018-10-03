@@ -31,6 +31,8 @@ public class CaseStatement extends Statement {
 
 	public Expression constantExpression;
 	public BranchLabel targetLabel;
+	public Expression[] constantExpressions; // case with multiple expressions
+	public boolean isExpr = false;
 
 public CaseStatement(Expression constantExpression, int sourceEnd, int sourceStart) {
 	this.constantExpression = constantExpression;
@@ -61,7 +63,15 @@ public StringBuffer printStatement(int tab, StringBuffer output) {
 		output.append("default :"); //$NON-NLS-1$
 	} else {
 		output.append("case "); //$NON-NLS-1$
-		this.constantExpression.printExpression(0, output).append(" :"); //$NON-NLS-1$
+		if (this.constantExpressions != null && this.constantExpressions.length > 0) {
+			for (int i = 0, l = this.constantExpressions.length; i < l; ++i) {
+				this.constantExpressions[i].printExpression(0, output);
+				if (i < l -1) output.append(',');
+			}
+		} else {
+			this.constantExpression.printExpression(0, output);
+		}
+		output.append(this.isExpr ? " ->" : " :"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	return output;
 }

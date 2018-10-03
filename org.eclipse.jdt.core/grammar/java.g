@@ -113,6 +113,7 @@ $Terminals
 	ElidedSemicolonAndRightBrace
 	AT308
 	AT308DOTDOTDOT
+	BeginCaseExpr
 
 --    BodyMarker
 
@@ -1276,12 +1277,69 @@ SwitchLabels ::= SwitchLabels SwitchLabel
 /.$putCase consumeSwitchLabels() ; $break ./
 /:$readableName SwitchLabels:/
 
-SwitchLabel ::= 'case' ConstantExpression ':'
+SwitchLabel ::= SwitchLabelCaseLhs ':'
 /. $putCase consumeCaseLabel(); $break ./
 
 SwitchLabel ::= 'default' ':'
 /. $putCase consumeDefaultLabel(); $break ./
 /:$readableName SwitchLabel:/
+
+-- BEGIN SwitchExpression (JEP 325) --
+
+PrimaryNoNewArray -> SwitchExpression
+
+SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchExpressionBlock
+/.$putCase consumeSwitchExpression() ; $break ./
+/:$readableName SwitchExpression:/
+
+SwitchExpressionBlock ::= '{' SwitchExprArms '}'
+
+SwitchExprArms -> SwitchExprArm
+SwitchExprArms ::= SwitchExprArms SwitchExprArm
+/.$putCase consumeSwitchLabels() ; $break ./
+/:$readableName SwitchLabels:/
+
+SwitchExprArm -> SwitchExprExprArm
+SwitchExprArm -> SwitchExprExprDefaultArm
+SwitchExprArm -> SwitchExprBreakArm
+SwitchExprArm -> SwitchExprThrowArm
+SwitchExprArm -> SwitchExprThrowDefaultArm
+/. $putCase consumeSwitchExprArm(); $break ./
+/:$readableName SwitchExprArm:/
+
+SwitchExprExprArm ::= SwitchLabelExpr Expression ';'
+/. $putCase consumeSwitchExprExprArm(); $break ./
+/:$readableName SwitchExprExprArm:/
+
+SwitchExprBreakArm ::= SwitchLabelExpr BreakExpression ';'
+/. $putCase consumeSwitchExprBreakArm(); $break ./
+/:$readableName SwitchExprBreakArm:/
+
+SwitchExprThrowArm ::= SwitchLabelExpr ThrowExpression ';'
+/. $putCase consumeSwitchExprThrowArm(); $break ./
+/:$readableName SwitchExprThrowArm:/
+
+SwitchExprExprDefaultArm ::= SwitchLabelDefaultExpr ThrowExpression ';'
+/. $putCase consumeSwitchExprThrowDefaultArm(); $break ./
+/:$readableName SwitchExprThrowDefaultArm:/
+
+SwitchExprThrowDefaultArm ::= SwitchLabelDefaultExpr Expression ';'
+/. $putCase consumeSwitchExprExprDefaultArm(); $break ./
+/:$readableName SwitchExprExprDefaultArm:/
+
+SwitchLabelDefaultExpr ::= 'default' BeginCaseExpr '->'
+/. $putCase consumeDefaultLabelExpr(); $break ./
+/:$readableName SwitchLabelDefaultExpr:/
+
+SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
+/. $putCase consumeCaseLabelExpr(); $break ./
+/:$readableName SwitchLabelExpr:/
+
+SwitchLabelCaseLhs ::= 'case' ConstantExpressions
+/. $putCase consumeSwitchLabelCaseLhs(); $break ./
+/:$readableName SwitchLabelCaseLhs:/
+
+-- END SwitchExpression (JEP 325) --
 
 WhileStatement ::= 'while' '(' Expression ')' Statement
 /.$putCase consumeStatementWhile() ; $break ./
@@ -1330,9 +1388,13 @@ AssertStatement ::= 'assert' Expression ':' Expression ';'
 BreakStatement ::= 'break' ';'
 /.$putCase consumeStatementBreak() ; $break ./
 
-BreakStatement ::= 'break' Identifier ';'
+BreakStatement ::= BreakExpression ';'
 /.$putCase consumeStatementBreakWithLabel() ; $break ./
 /:$readableName BreakStatement:/
+
+BreakExpression ::= 'break' Expression
+/.$putCase consumeBreakExpression() ; $break ./
+/:$readableName BreakExpression:/
 
 ContinueStatement ::= 'continue' ';'
 /.$putCase consumeStatementContinue() ; $break ./
@@ -1345,9 +1407,13 @@ ReturnStatement ::= 'return' Expressionopt ';'
 /.$putCase consumeStatementReturn() ; $break ./
 /:$readableName ReturnStatement:/
 
-ThrowStatement ::= 'throw' Expression ';'
+ThrowStatement ::= ThrowExpression ';'
 /.$putCase consumeStatementThrow(); $break ./
 /:$readableName ThrowStatement:/
+
+ThrowExpression ::= 'throw' Expression
+/.$putCase consumeThrowExpression() ; $break ./
+/:$readableName ThrowExpression:/
 
 SynchronizedStatement ::= OnlySynchronized '(' Expression ')' Block
 /.$putCase consumeStatementSynchronized(); $break ./
@@ -1989,6 +2055,11 @@ Expressionopt ::= $empty
 /.$putCase consumeEmptyExpression(); $break ./
 Expressionopt -> Expression
 /:$readableName Expression:/
+
+ConstantExpressions -> Expression
+ConstantExpressions ::= ConstantExpressions ',' Expression
+/.$putCase consumeConstantExpressions(); $break ./
+/:$readableName ConstantExpressions:/
 
 ConstantExpression -> Expression
 /:$readableName ConstantExpression:/
