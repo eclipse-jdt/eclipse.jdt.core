@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 /**
@@ -148,6 +149,17 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 	 */
 	@Override
 	public void processAnnotations(CompilationUnitDeclaration[] units, ReferenceBinding[] referenceBindings, boolean isLastRound) {
+		if (units != null) {
+			for (CompilationUnitDeclaration declaration : units) {
+				if (declaration != null && declaration.scope != null) {
+					ModuleBinding m = declaration.scope.module();
+					if (m != null) {
+						_processingEnv._current_module = m;
+						break;
+					}
+				}
+			}
+		}
 		RoundEnvImpl roundEnv = new RoundEnvImpl(units, referenceBindings, isLastRound, _processingEnv);
 		if (_isFirstRound) {
 			_isFirstRound = false;
@@ -161,5 +173,4 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 				this, roundEnv, roundEnv.getRootAnnotations(), traceProcessorInfo, traceRounds);
 		dispatcher.round();
 	}
-
 }
