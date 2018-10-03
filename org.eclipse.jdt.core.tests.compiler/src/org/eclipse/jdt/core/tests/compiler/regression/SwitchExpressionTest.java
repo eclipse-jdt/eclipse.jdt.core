@@ -65,5 +65,38 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			},
 			"6");
 	}
+	public void testSwitchExpression_531714_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"package se1;\n" +
+				"\n" +
+				"import java.io.IOException;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	static int twice(int i) throws IOException {\n" +
+				"		int tw = switch (i) {\n" +
+				"			case 0 -> 0;\n" +
+				"			case 1 -> { \n" +
+				"				System.out.println(\"heel\");\n" +
+				"				break 1;\n" +
+				"			} \n" +
+				"		//	case 2 -> 2;\n" +
+				"			case 3 -> throw new IOException(\"hello\");\n" +
+				"			default -> throw new IOException(\"world\");\n" +
+				"		};\n" +
+				"		return tw;\n" +
+				"	}\n" +
+				"	public static void main(String... args) {\n" +
+				"		try {\n" +
+				"		    System.out.print(twice(3));\n" +
+				"		} catch (IOException e) {\n" +
+				"		  //\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"6");
+	}
 }
 	

@@ -16,8 +16,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 public class SwitchExpression extends Expression implements IPolyExpression {
 
 	public Expression expression;
-	public Statement[] caseExpressions; // Sequence of CaseStatement & BreakExpression
-	public CaseStatement[] caseLabels;
+	public SwitchExprArm[] exprArms;
 	
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
@@ -27,13 +26,8 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("switch ("); //$NON-NLS-1$
 		this.expression.printExpression(0, output).append(") {"); //$NON-NLS-1$
-		if (this.caseExpressions != null) {
-			for (int i = 0; i < this.caseExpressions.length; i++) {
-				output.append('\n');
-				Statement statement = this.caseExpressions[i];
-				statement.printStatement(statement instanceof CaseStatement ? indent : indent+2, output);
-			}
-		}
+		for (SwitchExprArm arm : this.exprArms)
+			arm.print(0, output);
 		output.append('\n');
 		return printIndent(indent, output).append('}');
 	}

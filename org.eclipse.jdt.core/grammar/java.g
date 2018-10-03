@@ -1286,7 +1286,7 @@ SwitchLabel ::= 'default' ':'
 
 -- BEGIN SwitchExpression (JEP 325) --
 
-PrimaryNoNewArray -> SwitchExpression
+UnaryExpressionNotPlusMinus -> SwitchExpression
 
 SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchExpressionBlock
 /.$putCase consumeSwitchExpression() ; $break ./
@@ -1296,9 +1296,10 @@ SwitchExpressionBlock ::= '{' SwitchExprArms '}'
 
 SwitchExprArms -> SwitchExprArm
 SwitchExprArms ::= SwitchExprArms SwitchExprArm
-/.$putCase consumeSwitchLabels() ; $break ./
-/:$readableName SwitchLabels:/
+/.$putCase consumeSwitchExprArms() ; $break ./
+/:$readableName SwitchExprArms:/
 
+SwitchExprArm -> SwitchExprBlockArm
 SwitchExprArm -> SwitchExprExprArm
 SwitchExprArm -> SwitchExprExprDefaultArm
 SwitchExprArm -> SwitchExprBreakArm
@@ -1306,6 +1307,10 @@ SwitchExprArm -> SwitchExprThrowArm
 SwitchExprArm -> SwitchExprThrowDefaultArm
 /. $putCase consumeSwitchExprArm(); $break ./
 /:$readableName SwitchExprArm:/
+
+SwitchExprBlockArm ::= SwitchLabelExpr Block
+/. $putCase consumeSwitchExprBlockArm(); $break ./
+/:$readableName SwitchExprBlockArm:/
 
 SwitchExprExprArm ::= SwitchLabelExpr Expression ';'
 /. $putCase consumeSwitchExprExprArm(); $break ./
@@ -1319,13 +1324,13 @@ SwitchExprThrowArm ::= SwitchLabelExpr ThrowExpression ';'
 /. $putCase consumeSwitchExprThrowArm(); $break ./
 /:$readableName SwitchExprThrowArm:/
 
-SwitchExprExprDefaultArm ::= SwitchLabelDefaultExpr ThrowExpression ';'
-/. $putCase consumeSwitchExprThrowDefaultArm(); $break ./
-/:$readableName SwitchExprThrowDefaultArm:/
-
-SwitchExprThrowDefaultArm ::= SwitchLabelDefaultExpr Expression ';'
+SwitchExprExprDefaultArm ::= SwitchLabelDefaultExpr Expression ';'
 /. $putCase consumeSwitchExprExprDefaultArm(); $break ./
 /:$readableName SwitchExprExprDefaultArm:/
+
+SwitchExprThrowDefaultArm ::= SwitchLabelDefaultExpr ThrowExpression ';'
+/. $putCase consumeSwitchExprThrowDefaultArm(); $break ./
+/:$readableName SwitchExprThrowDefaultArm:/
 
 SwitchLabelDefaultExpr ::= 'default' BeginCaseExpr '->'
 /. $putCase consumeDefaultLabelExpr(); $break ./

@@ -60,7 +60,8 @@ public FlowInfo analyseCode(
 public StringBuffer printStatement(int tab, StringBuffer output) {
 	printIndent(tab, output);
 	if (this.constantExpression == null) {
-		output.append("default :"); //$NON-NLS-1$
+		output.append("default "); //$NON-NLS-1$
+		output.append(this.isExpr ? "->" : ":"); //$NON-NLS-1$ //$NON-NLS-2$
 	} else {
 		output.append("case "); //$NON-NLS-1$
 		if (this.constantExpressions != null && this.constantExpressions.length > 0) {

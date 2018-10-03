@@ -1842,6 +1842,9 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) expression);
 		}
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.SwitchExpression) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.SwitchExpression) expression);
+		}
 		return null;
 	}
 
@@ -2686,6 +2689,14 @@ class ASTConverter {
 		return result;
 	}
 
+	public Expression convert(org.eclipse.jdt.internal.compiler.ast.SwitchExpression expression) {
+		// TODO: Entry point for dom ast conversion.
+		// Replace the code below with actual implementation
+		NullLiteral nullLiteral = new NullLiteral(this.ast);
+		nullLiteral.setFlags(nullLiteral.getFlags() | ASTNode.MALFORMED);
+		nullLiteral.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
+		return nullLiteral;
+	}
 	public ReturnStatement convert(org.eclipse.jdt.internal.compiler.ast.ReturnStatement statement) {
 		final ReturnStatement returnStatement = new ReturnStatement(this.ast);
 		returnStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
