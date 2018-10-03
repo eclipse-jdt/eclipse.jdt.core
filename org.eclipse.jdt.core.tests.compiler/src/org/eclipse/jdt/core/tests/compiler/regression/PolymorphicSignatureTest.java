@@ -86,6 +86,8 @@ public class PolymorphicSignatureTest extends AbstractRegressionTest {
 			});
 	}
 	public void testBug475996() {
+		if (!isJRE9Plus)
+			return; // VarHandle is @since 9
 		runConformTest(
 			new String[] {
 				"X.java",
