@@ -3500,7 +3500,7 @@ public void testBug519151_023() throws Exception {
 		project1.open(null);
 		waitUntilIndexesReady();
 		SearchPattern pattern = SearchPattern.createPattern("module519151/pack519151.X519151", IJavaSearchConstants.TYPE, DECLARATIONS, ERASURE_RULE);
-		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {project1, project2});
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {project2, project1});
 		search(pattern, scope, this.resultCollector);
 		assertSearchResults(
 				"lib/lib519151.jar pack519151.X519151 EXACT_MATCH",
