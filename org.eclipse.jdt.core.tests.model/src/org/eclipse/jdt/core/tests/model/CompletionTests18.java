@@ -3548,4 +3548,138 @@ public void testBug477626() throws Exception {
 			"",
 			requestor.getResults());
 }
+public void testBug490096() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/ShowSOEInEclipseMars2.java",
+			"import java.util.concurrent.CompletableFuture;\n" + 
+			"\n" + 
+			"public class ShowSOEInEclipseMars2 {\n" + 
+			" \n" + 
+			"public void crashWithStackOverflowError() {\n" + 
+			"   \n" + 
+			" CompletableFuture<Double> intermediate = CompletableFuture.supplyAsync(() -> {\n" + 
+			"  try {\n" + 
+			"   CompletableFuture.supplyAsync(() -> { return 0D; }).;\n" + 
+			"  } catch (Exception e) {\n" + 
+			"  }\n" + 
+			"  return 1D;\n" + 
+			" });\n" + 
+			" }\n" + 
+			"}\n");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "}).";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
+	int relevance2 = relevance1 + R_NON_STATIC;
+	assertResults(
+			"allOf[METHOD_REF]{allOf(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ([Ljava.util.concurrent.CompletableFuture<*>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, allOf, (arg0), " + relevance1 + "}\n" + 
+			"anyOf[METHOD_REF]{anyOf(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ([Ljava.util.concurrent.CompletableFuture<*>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Object;>;, anyOf, (arg0), " + relevance1 + "}\n" + 
+			"completedFuture[METHOD_REF]{completedFuture(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(TU;)Ljava.util.concurrent.CompletableFuture<TU;>;, completedFuture, (arg0), " + relevance1 + "}\n" + 
+			"new[KEYWORD]{new, null, null, new, null, " + relevance1 + "}\n" + 
+			"runAsync[METHOD_REF]{runAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAsync, (arg0), " + relevance1 + "}\n" + 
+			"runAsync[METHOD_REF]{runAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAsync, (arg0, arg1), " + relevance1 + "}\n" + 
+			"supplyAsync[METHOD_REF]{supplyAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Supplier<TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, supplyAsync, (arg0), " + relevance1 + "}\n" + 
+			"supplyAsync[METHOD_REF]{supplyAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Supplier<TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, supplyAsync, (arg0, arg1), " + relevance1 + "}\n" + 
+			"acceptEither[METHOD_REF]{acceptEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEither, (arg0, arg1), " + relevance2 + "}\n" + 
+			"acceptEitherAsync[METHOD_REF]{acceptEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEitherAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"acceptEitherAsync[METHOD_REF]{acceptEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
+			"applyToEither[METHOD_REF]{applyToEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEither, (arg0, arg1), " + relevance2 + "}\n" + 
+			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
+			"cancel[METHOD_REF]{cancel(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Z)Z, cancel, (arg0), " + relevance2 + "}\n" + 
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + relevance2 + "}\n" + 
+			"complete[METHOD_REF]{complete(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Double;)Z, complete, (arg0), " + relevance2 + "}\n" + 
+			"completeExceptionally[METHOD_REF]{completeExceptionally(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Throwable;)Z, completeExceptionally, (arg0), " + relevance2 + "}\n" + 
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + relevance2 + "}\n" + 
+			"exceptionally[METHOD_REF]{exceptionally(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.Function<Ljava.lang.Throwable;+Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, exceptionally, (arg0), " + relevance2 + "}\n" + 
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + relevance2 + "}\n" + 
+			"get[METHOD_REF]{get(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Ljava.lang.Double;, get, null, " + relevance2 + "}\n" + 
+			"get[METHOD_REF]{get(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (JLjava.util.concurrent.TimeUnit;)Ljava.lang.Double;, get, (arg0, arg1), " + relevance2 + "}\n" + 
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, " + relevance2 + "}\n" + 
+			"getNow[METHOD_REF]{getNow(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Double;)Ljava.lang.Double;, getNow, (arg0), " + relevance2 + "}\n" + 
+			"getNumberOfDependents[METHOD_REF]{getNumberOfDependents(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()I, getNumberOfDependents, null, " + relevance2 + "}\n" + 
+			"handle[METHOD_REF]{handle(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.BiFunction<-Ljava.lang.Double;Ljava.lang.Throwable;+TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, handle, (arg0), " + relevance2 + "}\n" + 
+			"handleAsync[METHOD_REF]{handleAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.BiFunction<-Ljava.lang.Double;Ljava.lang.Throwable;+TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, handleAsync, (arg0), " + relevance2 + "}\n" + 
+			"handleAsync[METHOD_REF]{handleAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.BiFunction<-Ljava.lang.Double;Ljava.lang.Throwable;+TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, handleAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + relevance2 + "}\n" + 
+			"isCancelled[METHOD_REF]{isCancelled(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Z, isCancelled, null, " + relevance2 + "}\n" + 
+			"isCompletedExceptionally[METHOD_REF]{isCompletedExceptionally(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Z, isCompletedExceptionally, null, " + relevance2 + "}\n" + 
+			"isDone[METHOD_REF]{isDone(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Z, isDone, null, " + relevance2 + "}\n" + 
+			"join[METHOD_REF]{join(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Ljava.lang.Double;, join, null, " + relevance2 + "}\n" + 
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, " + relevance2 + "}\n" + 
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, " + relevance2 + "}\n" + 
+			"obtrudeException[METHOD_REF]{obtrudeException(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Throwable;)V, obtrudeException, (arg0), " + relevance2 + "}\n" + 
+			"obtrudeValue[METHOD_REF]{obtrudeValue(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Double;)V, obtrudeValue, (arg0), " + relevance2 + "}\n" + 
+			"runAfterBoth[METHOD_REF]{runAfterBoth(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterBoth, (arg0, arg1), " + relevance2 + "}\n" + 
+			"runAfterBothAsync[METHOD_REF]{runAfterBothAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterBothAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"runAfterBothAsync[METHOD_REF]{runAfterBothAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterBothAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
+			"runAfterEither[METHOD_REF]{runAfterEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterEither, (arg0, arg1), " + relevance2 + "}\n" + 
+			"runAfterEitherAsync[METHOD_REF]{runAfterEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterEitherAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"runAfterEitherAsync[METHOD_REF]{runAfterEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<*>;Ljava.lang.Runnable;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, runAfterEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
+			"thenAccept[METHOD_REF]{thenAccept(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAccept, (arg0), " + relevance2 + "}\n" + 
+			"thenAcceptAsync[METHOD_REF]{thenAcceptAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptAsync, (arg0), " + relevance2 + "}\n" + 
+			"thenAcceptAsync[METHOD_REF]{thenAcceptAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.Consumer<-Ljava.lang.Double;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"thenAcceptBoth[METHOD_REF]{thenAcceptBoth(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiConsumer<-Ljava.lang.Double;-TU;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptBoth, (arg0, arg1), " + relevance2 + "}\n" + 
+			"thenAcceptBothAsync[METHOD_REF]{thenAcceptBothAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiConsumer<-Ljava.lang.Double;-TU;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptBothAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"thenAcceptBothAsync[METHOD_REF]{thenAcceptBothAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiConsumer<-Ljava.lang.Double;-TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenAcceptBothAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
+			"thenApply[METHOD_REF]{thenApply(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenApply, (arg0), " + relevance2 + "}\n" + 
+			"thenApplyAsync[METHOD_REF]{thenApplyAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenApplyAsync, (arg0), " + relevance2 + "}\n" + 
+			"thenApplyAsync[METHOD_REF]{thenApplyAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenApplyAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"thenCombine[METHOD_REF]{thenCombine(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;V:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiFunction<-Ljava.lang.Double;-TU;+TV;>;)Ljava.util.concurrent.CompletableFuture<TV;>;, thenCombine, (arg0, arg1), " + relevance2 + "}\n" + 
+			"thenCombineAsync[METHOD_REF]{thenCombineAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;V:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiFunction<-Ljava.lang.Double;-TU;+TV;>;)Ljava.util.concurrent.CompletableFuture<TV;>;, thenCombineAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"thenCombineAsync[METHOD_REF]{thenCombineAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;V:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+TU;>;Ljava.util.function.BiFunction<-Ljava.lang.Double;-TU;+TV;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TV;>;, thenCombineAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
+			"thenCompose[METHOD_REF]{thenCompose(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+Ljava.util.concurrent.CompletionStage<TU;>;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenCompose, (arg0), " + relevance2 + "}\n" + 
+			"thenComposeAsync[METHOD_REF]{thenComposeAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+Ljava.util.concurrent.CompletionStage<TU;>;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenComposeAsync, (arg0), " + relevance2 + "}\n" + 
+			"thenComposeAsync[METHOD_REF]{thenComposeAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.function.Function<-Ljava.lang.Double;+Ljava.util.concurrent.CompletionStage<TU;>;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, thenComposeAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"thenRun[METHOD_REF]{thenRun(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenRun, (arg0), " + relevance2 + "}\n" + 
+			"thenRunAsync[METHOD_REF]{thenRunAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenRunAsync, (arg0), " + relevance2 + "}\n" + 
+			"thenRunAsync[METHOD_REF]{thenRunAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.lang.Runnable;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, thenRunAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"toCompletableFuture[METHOD_REF]{toCompletableFuture(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, toCompletableFuture, null, " + relevance2 + "}\n" + 
+			"toString[METHOD_REF]{toString(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ()Ljava.lang.String;, toString, null, " + relevance2 + "}\n" + 
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, " + relevance2 + "}\n" + 
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), " + relevance2 + "}\n" + 
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), " + relevance2 + "}\n" + 
+			"whenComplete[METHOD_REF]{whenComplete(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.BiConsumer<-Ljava.lang.Double;-Ljava.lang.Throwable;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, whenComplete, (arg0), " + relevance2 + "}\n" + 
+			"whenCompleteAsync[METHOD_REF]{whenCompleteAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.BiConsumer<-Ljava.lang.Double;-Ljava.lang.Throwable;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, whenCompleteAsync, (arg0), " + relevance2 + "}\n" + 
+			"whenCompleteAsync[METHOD_REF]{whenCompleteAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.function.BiConsumer<-Ljava.lang.Double;-Ljava.lang.Throwable;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, whenCompleteAsync, (arg0, arg1), " + relevance2 + "}",
+			requestor.getResults());
+}
+public void testBug490096a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/ShowSOEInEclipseMars2.java",
+			"import java.util.concurrent.CompletableFuture;\n" + 
+			"\n" + 
+			"public class ShowSOEInEclipseMars2 {\n" + 
+			" \n" + 
+			"public void crashWithStackOverflowError() {\n" + 
+			"   \n" + 
+			" CompletableFuture<Double> intermediate = CompletableFuture.supplyAsync(() -> {\n" + 
+			"  try {\n" + 
+			"   CompletableFuture.supplyAsync(() -> { return 0D; }).a;\n" + 
+			"  } catch (Exception e) {\n" + 
+			"  }\n" + 
+			"  return 1D;\n" + 
+			" });\n" + 
+			" }\n" + 
+			"}\n");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "}).a";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
+	int relevance2 = relevance1 + R_NON_STATIC;
+	assertResults(
+			"allOf[METHOD_REF]{allOf(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ([Ljava.util.concurrent.CompletableFuture<*>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, allOf, (arg0), " + relevance1 + "}\n" + 
+			"anyOf[METHOD_REF]{anyOf(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, ([Ljava.util.concurrent.CompletableFuture<*>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Object;>;, anyOf, (arg0), " + relevance1 + "}\n" + 
+			"acceptEither[METHOD_REF]{acceptEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEither, (arg0, arg1), " + relevance2 + "}\n" + 
+			"acceptEitherAsync[METHOD_REF]{acceptEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEitherAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"acceptEitherAsync[METHOD_REF]{acceptEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, (Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Consumer<-Ljava.lang.Double;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<Ljava.lang.Void;>;, acceptEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}\n" + 
+			"applyToEither[METHOD_REF]{applyToEither(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEither, (arg0, arg1), " + relevance2 + "}\n" + 
+			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1), " + relevance2 + "}\n" + 
+			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}",
+			requestor.getResults());
+}
 }
