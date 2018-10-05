@@ -23519,7 +23519,8 @@ public void testBug346454f() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"", // nothing useful can be proposed since type inference will inevitably fail on "new Test<>()."
+			"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<Ljava.lang.Object;>.T2<>;, (TZ;)V, T2, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+			"Test<java.lang.Object>.T2<>[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<Ljava.lang.Object;>.T2<>;, (TZ;)V, null, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -23565,7 +23566,8 @@ public void testBug346454g() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"", // nothing useful can be proposed since type inference will inevitably fail on "new pack.Test<>()."
+				"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<>.T2<>;, (TZ;)V, T2, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Test<>.T2<>[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<>.T2<>;, (TZ;)V, null, (z), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -23660,7 +23662,8 @@ public void testBug346454i() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"", // nothing useful can be proposed since enclosing instance "new <String> Test<>()' is illegal (and thus can never be type infered)
+				"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<>.T2<>;, (TU;)V, T2, (u), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"Test<>.T2<>[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<>.T2<>;, (TU;)V, null, (u), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -23705,22 +23708,8 @@ public void testBug346454j() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			// TODO: it would be great if type inference could narrow this down to only proposals of type String
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 47}\n" +
-			"foo[METHOD_REF]{foo(), Ltest.X;, (Ljava.lang.String;)V, foo, (str), 47}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 47}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 47}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 47}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 47}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 47}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}\n" +
-			"X[TYPE_REF]{X, test, Ltest.X;, null, null, 72}\n" +
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 72}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 72}\n" +
-			"str[LOCAL_VARIABLE_REF]{str, null, Ljava.lang.String;, str, null, 72}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 72}\n" +
-			"Z[TYPE_REF]{pack.Z, pack, TZ;, null, null, 79}",
+			"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<Ljava.lang.String;>.T2<>;, (TZ;)V, T2, (z), 39}\n" +
+			"Test<java.lang.String>.T2<>[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<Ljava.lang.String;>.T2<>;, (TZ;)V, null, (z), 39}",
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -23766,22 +23755,8 @@ public void testBug346454k() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			// TODO: it would be great if type inference could narrow this down to only proposals of type String
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 47}\n" +
-			"foo[METHOD_REF]{foo(), Ltest.X;, (Ljava.lang.String;)V, foo, (str), 47}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 47}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 47}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 47}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 47}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 47}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}\n" +
-			"X[TYPE_REF]{X, test, Ltest.X;, null, null, 72}\n" +
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 72}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, 72}\n" +
-			"str[LOCAL_VARIABLE_REF]{str, null, Ljava.lang.String;, str, null, 72}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 72}\n" +
-			"Z[TYPE_REF]{pack.Z, pack, TZ;, null, null, 79}",
+			"T2[METHOD_REF<CONSTRUCTOR>]{, Lpack.Test<Ljava.lang.String;>.T2<>;, (TZ;)V, T2, (z), 39}\n" +
+			"Test<java.lang.String>.T2<>[ANONYMOUS_CLASS_DECLARATION]{, Lpack.Test<Ljava.lang.String;>.T2<>;, (TZ;)V, null, (z), 39}",
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.

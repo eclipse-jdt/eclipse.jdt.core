@@ -188,8 +188,9 @@ public void test005() throws JavaModelException {
 	String completeBehind = "arg";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED;
 	assertResults(
-			"argument[LOCAL_VARIABLE_REF]{argument, null, I, argument, null, " + (R_DEFAULT + 52) + "}",
+			"argument[LOCAL_VARIABLE_REF]{argument, null, I, argument, null, " + relevance + "}",
 			requestor.getResults());
 }
 public void test006() throws JavaModelException {
@@ -528,8 +529,9 @@ public void test014() throws JavaModelException { // ensure higher relevance for
 	String completeBehind = "arrayO";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED;
 	assertResults("arrayOfStrings[LOCAL_VARIABLE_REF]{arrayOfStrings, null, [Ljava.lang.String;, null, null, arrayOfStrings, null, [168, 174], " + (R_DEFAULT + 22) + "}\n" +
-					"arrayOfInts[LOCAL_VARIABLE_REF]{arrayOfInts, null, [I, null, null, arrayOfInts, null, [168, 174], " + (R_DEFAULT + 52) + "}", requestor.getResults());
+					"arrayOfInts[LOCAL_VARIABLE_REF]{arrayOfInts, null, [I, null, null, arrayOfInts, null, [168, 174], " + relevance + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
 public void test015() throws JavaModelException { // ensure higher relevance for matching return type.
@@ -3112,8 +3114,9 @@ public void test485492b() throws JavaModelException {
 	String completeBehind = "return zil";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	assertResults(
-			"zilch[LOCAL_VARIABLE_REF]{zilch, null, Ljava.lang.String;, null, null, zilch, null, [81, 84], "+(R_EXACT_EXPECTED_TYPE+52)+"}",
+			"zilch[LOCAL_VARIABLE_REF]{zilch, null, Ljava.lang.String;, null, null, zilch, null, [81, 84], " + relevance + "}",
 			requestor.getResults());
 }
 public void test485492c() throws JavaModelException {
@@ -4692,5 +4695,50 @@ public void testBug543617() throws JavaModelException {
             "findAll[METHOD_REF]{findAll(), Ltest.TestApp;, ()Ljava.util.List<Ljava.lang.String;>;, findAll, null, "+expectedTypeRelevance+"}\n" +
             "load[METHOD_REF]{load(), Ltest.TestApp;, (Ljava.util.List<Ljava.lang.Long;>;)Ljava.util.List<Ljava.lang.String;>;, load, (ids), "+expectedTypeRelevance+"}",
     		requestor.getResults());
+}
+public void testBug539617_alloc() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/CodeCompletion.java",
+			"public class CodeCompletion {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Thread( () -> {\n" +
+			"			Double d = new Double(\n" +
+			"		});\n" +
+			"	}\n" +
+			"}\n");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new Double(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED;
+	assertResults(
+			"Double[METHOD_REF<CONSTRUCTOR>]{, Ljava.lang.Double;, (D)V, Double, (arg0), "+relevance+"}\n" +
+			"Double[METHOD_REF<CONSTRUCTOR>]{, Ljava.lang.Double;, (Ljava.lang.String;)V, Double, (arg0), "+relevance+"}",
+			requestor.getResults());
+}
+public void testBug539617_msg() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/CodeCompletion.java",
+			"public class CodeCompletion {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new Thread( () -> {\n" +
+			"			Double d = meth(\n" +
+			"		});\n" +
+			"	}\n" +
+			"	static Double meth(String arg) { return null; }\n" +
+			"	static Number meth(String arg, boolean flag) { return null; }\n" +
+			"}\n");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "meth(";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance =  R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED;
+	int relevanceExpectedType = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE;
+	assertResults(
+			"meth[METHOD_REF]{, LCodeCompletion;, (Ljava.lang.String;Z)Ljava.lang.Number;, meth, (arg, flag), "+relevance+"}\n" +
+			"meth[METHOD_REF]{, LCodeCompletion;, (Ljava.lang.String;)Ljava.lang.Double;, meth, (arg), "+relevanceExpectedType+"}",
+			requestor.getResults());
 }
 }

@@ -8917,9 +8917,9 @@ public void testBug346454b(){
 
 	String testName = "<complete after diamond type>";
 	String completeBehind = "new Test<>().new T2<>(";
-	String expectedCompletionNodeToString = "<CompleteOnName:>";
+	String expectedCompletionNodeToString = "<CompleteOnQualifiedAllocationExpression:new Test<>().new T2<>(<CompleteOnName:>)>";
 	String completionIdentifier = "";
-	String expectedReplacedSource = "";
+	String expectedReplacedSource = "new Test<>().new T2<>()";
 	String expectedUnitDisplayString =
 		"public class Test<T> {\n" +
 		"  public class T2<Z> {\n" +
@@ -8929,7 +8929,7 @@ public void testBug346454b(){
 		"  public Test() {\n" +
 		"  }\n" +
 		"  public void foo() {\n" +
-		"    Test<String>.T2<String> t = new Test<>().new T2<>(<CompleteOnName:>);\n" + // outer allocation is illegal to begin with
+		"    Test<String>.T2<String> t = <CompleteOnQualifiedAllocationExpression:new Test<>().new T2<>(<CompleteOnName:>)>;\n" +
 		"  }\n" +
 		"}\n";
 

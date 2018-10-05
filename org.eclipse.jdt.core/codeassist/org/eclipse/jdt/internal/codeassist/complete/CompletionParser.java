@@ -5618,6 +5618,15 @@ private MessageSend internalNewMessageSend() {
 	}
 	return null;
 }
+@Override
+protected AllocationExpression newAllocationExpression(boolean isQualified) {
+	if (this.assistNode != null && this.lParenPos == this.assistNode.sourceEnd) {
+		CompletionOnQualifiedAllocationExpression allocation = new CompletionOnQualifiedAllocationExpression();
+		this.assistNode = allocation;
+		return allocation;
+	}
+	return super.newAllocationExpression(isQualified);
+}
 public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int cursorLoc) {
 
 	this.cursorLocation = cursorLoc;

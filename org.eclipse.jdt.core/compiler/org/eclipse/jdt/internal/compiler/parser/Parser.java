@@ -1295,11 +1295,7 @@ protected void classInstanceCreation(boolean isQualified) {
 		&& (this.astStack[this.astPtr] == null)) {
 		//NO ClassBody
 		this.astPtr--;
-		if (isQualified) {
-			alloc = new QualifiedAllocationExpression();
-		} else {
-			alloc = new AllocationExpression();
-		}
+		alloc = newAllocationExpression(isQualified);
 		alloc.sourceEnd = this.endPosition; //the position has been stored explicitly
 
 		if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
@@ -1333,6 +1329,15 @@ protected void classInstanceCreation(boolean isQualified) {
 		this.astPtr--;
 		this.astLengthPtr--;
 	}
+}
+protected AllocationExpression newAllocationExpression(boolean isQualified) {
+	AllocationExpression alloc;
+	if (isQualified) {
+		alloc = new QualifiedAllocationExpression();
+	} else {
+		alloc = new AllocationExpression();
+	}
+	return alloc;
 }
 protected void checkForDiamond(TypeReference allocType) {
 	if (allocType instanceof ParameterizedSingleTypeReference) {
