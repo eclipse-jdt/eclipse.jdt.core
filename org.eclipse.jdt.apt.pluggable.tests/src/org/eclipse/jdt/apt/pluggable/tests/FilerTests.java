@@ -17,7 +17,6 @@ package org.eclipse.jdt.apt.pluggable.tests;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
-import java.util.Arrays;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
