@@ -117,7 +117,7 @@ public final class AST {
      * </p>
      *
 	 * @since 3.0
-	 * @deprecated Clients should use the {@link #JLS10} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS11} AST API instead.
 	 */
 	public static final int JLS2 = 2;
 
@@ -141,7 +141,7 @@ public final class AST {
      * </p>
      *
 	 * @since 3.1
-	 * @deprecated Clients should use the {@link #JLS10} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS11} AST API instead.
 	 */
 	public static final int JLS3 = 3;
 	
@@ -165,7 +165,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.7.1
-	 * @deprecated Clients should use the {@link #JLS10} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS11} AST API instead.
 	 */
 	public static final int JLS4 = 4;
 	
@@ -189,7 +189,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.10
-	 * @deprecated Clients should use the {@link #JLS10} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS11} AST API instead.
 	 */
 	public static final int JLS8 = 8;
 
@@ -213,7 +213,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.14
-	 * @deprecated Clients should use the {@link #JLS10} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS11} AST API instead.
 	 */
 	public static final int JLS9 = 9;
 
@@ -375,7 +375,7 @@ public final class AST {
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules.
      * <p>
-     * Clients should use this method specifying {@link #JLS10} as the
+     * Clients should use this method specifying {@link #JLS11} as the
      * AST level in all cases, even when dealing with source of earlier JDK versions like 1.3 or 1.4.
      * </p>
      *
