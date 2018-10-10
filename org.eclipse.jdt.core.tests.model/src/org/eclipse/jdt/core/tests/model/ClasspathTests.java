@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -49,6 +49,7 @@ import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentDescription;
@@ -7398,6 +7399,35 @@ public void testClasspathTestSourceValidation5() throws CoreException {
 		assertStatus("should complain because main sources have the same own output folder", "Test source folder 'src-tests' in project 'P' must have an output folder that is not also used for main sources", status);
 	} finally {
 		this.deleteProject("P");
+	}
+}
+
+public void testBug539998() throws CoreException {
+	try {
+		IJavaProject proj1TestOnly = this.createJavaProject("P1", new String[] {}, "bin-tests");
+		IClasspathEntry[] originalCP1 = proj1TestOnly.getRawClasspath();
+
+		IClasspathEntry[] newCP1 = new IClasspathEntry[originalCP1.length + 1];
+		System.arraycopy(originalCP1, 0, newCP1, 0, originalCP1.length);
+		newCP1[originalCP1.length] = JavaCore.newSourceEntry(new Path("/P1/src-tests"), null, null, null,
+				new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, "true") });
+		proj1TestOnly.setRawClasspath(newCP1, new NullProgressMonitor());
+		IJavaProject proj = this.createJavaProject("P2", new String[] {}, "bin");
+		IClasspathEntry[] originalCP = proj.getRawClasspath();
+
+		IClasspathEntry[] newCP = new IClasspathEntry[originalCP.length + 2];
+		System.arraycopy(originalCP, 0, newCP, 0, originalCP.length);
+		newCP[originalCP.length] = JavaCore.newSourceEntry(new Path("/P2/src"), null, null, null,
+				new IClasspathAttribute[] {});
+		newCP[originalCP.length + 1] = JavaCore.newProjectEntry(new Path("/P1/"));
+
+		IJavaModelStatus status = JavaConventions.validateClasspath(proj, newCP, proj.getOutputLocation());
+
+		assertStatus("should complain",
+				"Project has only main sources but depends on project 'P1' which has only test sources.",
+				status);
+	} finally {
+		this.deleteProjects(new String[] { "P1", "P2" });
 	}
 }
 }
