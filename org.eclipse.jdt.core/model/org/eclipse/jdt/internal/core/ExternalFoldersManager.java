@@ -55,8 +55,10 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.DeltaProcessor.RootInfo;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.osgi.service.environment.Constants;
 
 public class ExternalFoldersManager {
+	private static final boolean WINDOWS = Platform.getOS().equals(Constants.OS_WIN32);
 	private static final String EXTERNAL_PROJECT_NAME = ".org.eclipse.jdt.core.external.folders"; //$NON-NLS-1$
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$
 	private Map<IPath, IFolder> folders;
@@ -118,11 +120,12 @@ public class ExternalFoldersManager {
 		if (externalPath == null || externalPath.isEmpty()) {
 			return false;
 		}
+		
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		if (manager.isExternalFile(externalPath) || manager.isAssumedExternalFile(externalPath)) {
 			return false;
 		}
-		if (!externalPath.isAbsolute()) {
+		if (!externalPath.isAbsolute() || (WINDOWS && externalPath.getDevice() == null)) {
 			// can be only project relative path
 			return false;
 		}
@@ -142,12 +145,14 @@ public class ExternalFoldersManager {
 		if (isInternalContainerPath(externalPath)) {
 			return false;
 		}
+		// From here on the legacy code assumes that not existing resource must be external.
+		// We just follow the old assumption.
 		if (externalPath.getFileExtension() != null/*likely a .jar, .zip, .rar or other file*/) {
 			manager.addAssumedExternalFile(externalPath);
-			// not existing external file
+			// assume not existing external (?) file (?) (can also be a folder with dotted name!)
 			return false;
 		}
-		// not existing external folder
+		// assume not existing external (?) folder (?)
 		return true;
 	}
 
