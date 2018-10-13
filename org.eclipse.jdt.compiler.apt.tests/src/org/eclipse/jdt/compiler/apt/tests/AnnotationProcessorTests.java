@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBM Corporation and others.
+ * Copyright (c) 2014, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -89,6 +89,20 @@ public class AnnotationProcessorTests extends TestCase {
 		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug456986", targetFolder);
 		List<String> options = new ArrayList<String>();
 		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug456986Proc";
+		options.add("-processorpath");
+		options.add(" ");
+		options.add("-processor");
+		options.add(PROC);
+		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, null);
+		assertEquals(true, success);
+	}
+
+	public void testBug540090() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
+		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug540090", targetFolder);
+		List<String> options = new ArrayList<String>();
+		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug540090Proc";
 		options.add("-processorpath");
 		options.add(" ");
 		options.add("-processor");
