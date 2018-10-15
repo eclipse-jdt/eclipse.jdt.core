@@ -55,10 +55,9 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.DeltaProcessor.RootInfo;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
-import org.eclipse.osgi.service.environment.Constants;
 
 public class ExternalFoldersManager {
-	private static final boolean WINDOWS = Platform.getOS().equals(Constants.OS_WIN32);
+	private static final boolean WINDOWS = System.getProperty("os.name").startsWith("Win");  //$NON-NLS-1$//$NON-NLS-2$
 	private static final String EXTERNAL_PROJECT_NAME = ".org.eclipse.jdt.core.external.folders"; //$NON-NLS-1$
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$
 	private Map<IPath, IFolder> folders;
