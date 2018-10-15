@@ -57,7 +57,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ExternalFoldersManager {
-	private static final boolean WINDOWS = System.getProperty("os.name").startsWith("Win");  //$NON-NLS-1$//$NON-NLS-2$
+	private static final boolean WINDOWS = System.getProperty("os.name").toLowerCase().contains("windows");  //$NON-NLS-1$//$NON-NLS-2$
 	private static final String EXTERNAL_PROJECT_NAME = ".org.eclipse.jdt.core.external.folders"; //$NON-NLS-1$
 	private static final String LINKED_FOLDER_NAME = ".link"; //$NON-NLS-1$
 	private Map<IPath, IFolder> folders;
