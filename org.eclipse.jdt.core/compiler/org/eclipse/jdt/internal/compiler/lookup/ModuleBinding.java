@@ -569,8 +569,11 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		if (!isUnnamed()) {
 			binding = combineWithPackagesFromRequired(binding, subPkgCompoundName);
 		}
-		if (binding == null || !binding.isValidBinding())
+		if (binding == null || !binding.isValidBinding()) {
+			if (parent != null)
+				parent.knownPackages.put(name, binding == null ? LookupEnvironment.TheNotFoundPackage : binding);
 			return null;
+		}
 		// remember
 		if (parentName.length == 0)
 			binding.environment.knownPackages.put(name, binding);
