@@ -6432,5 +6432,49 @@ public void testBug540313b() {
 		};
 	runner.runConformTest();
 }
+public void testBug478708() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"bug/IInterface.java",
+			"package bug;\n" + 
+			"\n" + 
+			"public class IInterface {\n" + 
+			"\n" + 
+			"}\n",
+			"bug/AbstractA.java",
+			"package bug;\n" + 
+			"\n" + 
+			"public abstract class AbstractA<T extends IInterface> {\n" + 
+			"\n" + 
+			"	public abstract class AbstractD<U> {\n" + 
+			"\n" + 
+			"	}\n" + 
+			"}\n",
+			"bug/AbstractC.java",
+			"package bug;\n" + 
+			"\n" + 
+			"\n" + 
+			"public abstract class AbstractC<T extends IInterface> extends T.AbstractD<E>  {\n" + 
+			"\n" + 
+			"	public AbstractC(AbstractA<T> a) {\n" + 
+			"		a.super();\n" + 
+			"	}\n" + 
+			"}\n",
+			"bug/E.java",
+			"package bug;\n" + 
+			"\n" + 
+			"public class E {\n" + 
+			"\n" + 
+			"}\n"
+		};
+	runner.expectedCompilerLog =
+			"----------\n" + 
+			"1. ERROR in bug\\AbstractC.java (at line 4)\n" + 
+			"	public abstract class AbstractC<T extends IInterface> extends T.AbstractD<E>  {\n" + 
+			"	                                                              ^^^^^^^^^^^\n" + 
+			"T.AbstractD cannot be resolved to a type\n" + 
+			"----------\n";
+	runner.runNegativeTest();
+}
 }
 
