@@ -11912,4 +11912,28 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue("Bad field definition", fields != null && fields.length == 1);
 		assertEquals("Type binding mismatch", elem, fields[0].getType());
 	}
+
+	public void testBug540313() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X/C120644mr.java", true/*resolve*/);
+		String contents =
+			"package X;\n" + 
+			"\n" + 
+			"/* renamed from: X.4mr */\n" + 
+			"public class C120644mr<V, X extends java.lang.Exception> extends X.C16280iv<V> {\n" + 
+			"}\n";
+		ASTNode node = buildAST(
+				contents,
+				this.workingCopy,
+				false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit unit = (CompilationUnit) node;
+		String expectedError = "X.C16280iv cannot be resolved to a type";
+		assertProblemsSize(unit, 1, expectedError);
+		node = (ASTNode) unit.types().get(0);
+		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		Type superclassType = ((TypeDeclaration) node).getSuperclassType();
+		ITypeBinding typeBinding = superclassType.resolveBinding();
+		assertNull("Binding", typeBinding);
+	}
+
 }
