@@ -5408,11 +5408,13 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 							|| CompilerOptions.VERSION_1_6.equals(source)) {
 						this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 					} else {
-						if (CompilerOptions.versionToJdkLevel(source) > 0)
+						// 1.3 is the lowest version that can be specified as -source
+						// The following check will ensure '0' is ignored.
+						if (CompilerOptions.versionToJdkLevel(source) >= ClassFileConstants.JDK1_7)
 							this.options.put(CompilerOptions.OPTION_TargetPlatform, source);
 					}
 				} else {
-					if (CompilerOptions.versionToJdkLevel(version) > 0) {
+					if (CompilerOptions.versionToJdkLevel(version) > ClassFileConstants.JDK10) {
 						this.options.put(CompilerOptions.OPTION_Source, version);
 						this.options.put(CompilerOptions.OPTION_TargetPlatform, version);
 					}
@@ -5445,7 +5447,7 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_10);
 			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
 		} else {
-			if (CompilerOptions.versionToJdkLevel(version) > 0) {
+			if (CompilerOptions.versionToJdkLevel(version) > ClassFileConstants.JDK10) {
 				if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, version);
 				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, version);
 			}
