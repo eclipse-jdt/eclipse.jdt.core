@@ -13,6 +13,7 @@
  *    IBM Corporation - fix for 342936
  *    Kenneth Olson - Contribution for bug 188796 - [jsr199] Using JSR199 to extend ECJ
  *    Dennis Hendriks - Contribution for bug 188796 - [jsr199] Using JSR199 to extend ECJ
+ *    Frits Jalvingh  - fix for bug 533830.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.tool;
 
@@ -93,6 +94,7 @@ public class EclipseCompilerImpl extends Main {
 				performCompilation();
 			}
 		} catch(IllegalArgumentException e) {
+			diagnosticListener.report(new ExceptionDiagnostic(e));
 			this.logger.logException(e);
 			if (this.systemExitWhenFinished) {
 				cleanup();
@@ -100,6 +102,7 @@ public class EclipseCompilerImpl extends Main {
 			}
 			return false;
 		} catch (RuntimeException e) { // internal compiler failure
+			diagnosticListener.report(new ExceptionDiagnostic(e));
 			e.printStackTrace();
 			this.logger.logException(e);
 			return false;

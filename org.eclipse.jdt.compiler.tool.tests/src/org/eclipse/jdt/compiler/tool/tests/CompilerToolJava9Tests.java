@@ -21,6 +21,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
@@ -486,14 +487,15 @@ public class CompilerToolJava9Tests extends TestCase {
 		options.add("7");
 		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
 		PrintWriter err = new PrintWriter(errBuffer);
-		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err) {
-			@Override
-			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
-				JavaFileObject source = diagnostic.getSource();
-				assertNotNull("No source", source);
-				super.report(diagnostic);
-			}
-		};
+		CompilerInvocationDiagnosticListener listener = new CompilerInvocationDiagnosticListener(err);
+//		{ bug 533830 removed: an option error has no source associated with it, so the below was copied wrongly.
+//			@Override
+//			public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+//				JavaFileObject source = diagnostic.getSource();
+//				assertNotNull("No source", source);
+//				super.report(diagnostic);
+//			}
+//		};
 		try {
 			compiler.getTask(printWriter, forwardingJavaFileManager, listener, options, null, units);
 			fail("compilation didn't fail as expected");
@@ -593,6 +595,174 @@ public class CompilerToolJava9Tests extends TestCase {
 	public void testAsPath() {
 		if (this.isJREBelow9) return;
 	}
+	
+	/*-- Code for testing bug 533830 --*/
+	
+	public void testBug533830_1() {
+		if (this.isJREBelow9) return;
+		
+		File src = createClassSource(
+			"package p;\n"
+		+	"public class X {}"	
+		);
+		
+		CompilerBuilder b = new CompilerBuilder()
+			.option("--release", "8")
+			.option("-source", "7")
+			.file(src)
+			;
+		try {
+			b.compile();
+			fail("compilation didn't fail as expected");
+		} catch(IllegalArgumentException iae) {
+			assertEquals("option -source is not supported when --release is used", iae.getMessage());
+		}
+		
+		//-- We must now also have a diagnostic
+		assertTrue("The diagnostic listener did not receive an error for the illegal option", b.listener().hasDiagnostic("option -source is not supported when --release is used"));
+	}
+	
+	/**
+	 * Helps with building a compiler invocation, handling the common parts of testing.
+	 */
+	private final class CompilerBuilder {
+		private final JavaCompiler compiler;
+		
+		private final List<String> options = new ArrayList<>();
+		
+		private final List<File> files = new ArrayList<>();
+		
+		private final StringWriter errorWriter = new StringWriter();
+		
+		private DiagListener listener; 
+		
+		CompilerBuilder() {
+			compiler = compilers[1];
+		}
+
+		public void compile() {
+			String tmpFolder = System.getProperty("java.io.tmpdir");
+			StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+			Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+			PrintWriter errWriter = new PrintWriter(errorWriter);
+
+			if(! options.contains("-d")) {
+				option("-d", tmpFolder);
+			}
+			
+			listener = new DiagListener(errWriter);
+			
+			ForwardingJavaFileManager<StandardJavaFileManager> forwardingManager = createFileManager(manager);
+			compiler.getTask(errWriter, forwardingManager, listener, options, null, units);
+		}
+		
+		public CompilerBuilder option(String... s) {
+			for(int i = 0; i < s.length; i++)
+				options.add(s[i]);
+			return this;
+		}
+		
+		public CompilerBuilder file(File f) {
+			files.add(f);
+			return this;
+		}
+		
+		public DiagListener listener() {
+			if(null == listener)
+				throw new IllegalStateException("Call compile() before using the listener");
+			return listener;
+		}
+		
+		public ForwardingJavaFileManager<StandardJavaFileManager> createFileManager(StandardJavaFileManager manager) {
+			ForwardingJavaFileManager<StandardJavaFileManager> forwardingJavaFileManager = new ForwardingJavaFileManager<StandardJavaFileManager>(manager) {
+				@Override
+				public FileObject getFileForInput(Location location, String packageName, String relativeName)
+						throws IOException {
+					if (DEBUG) {
+						System.out.println("Create file for input : " + packageName + " " + relativeName + " in location " + location);
+					}
+					return super.getFileForInput(location, packageName, relativeName);
+				}
+				@Override
+				public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind)
+						throws IOException {
+					if (DEBUG) {
+						System.out.println("Create java file for input : " + className + " in location " + location);
+					}
+					return super.getJavaFileForInput(location, className, kind);
+				}
+				@Override
+				public JavaFileObject getJavaFileForOutput(Location location,
+						String className,
+						Kind kind,
+						FileObject sibling) throws IOException {
+
+					if (DEBUG) {
+						System.out.println("Create .class file for " + className + " in location " + location + " with sibling " + sibling.toUri());
+					}
+					JavaFileObject javaFileForOutput = super.getJavaFileForOutput(location, className, kind, sibling);
+					if (DEBUG) {
+						System.out.println(javaFileForOutput.toUri());
+					}
+					return javaFileForOutput;
+				}
+			};
+			return forwardingJavaFileManager;
+		}
+	}
+	
+	static private final class DiagListener extends CompilerInvocationDiagnosticListener {
+		private List<Diagnostic<? extends JavaFileObject>> errorList = new ArrayList<>();
+
+		DiagListener(PrintWriter err) {
+			super(err);
+		}
+		
+		@Override
+		public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
+			errorList.add(diagnostic);
+			super.report(diagnostic);
+		}
+		
+		public int getErrorCount() {
+			return errorList.size();
+		}
+		
+		public boolean hasDiagnostic(String match) {
+			for(Diagnostic<? extends JavaFileObject> d: errorList) {
+				String msg = d.getMessage(Locale.US).toLowerCase();
+				if(msg.contains(match.toLowerCase()))
+					return true;
+			}
+			return false;
+		}
+	}
+	
+	private File createClassSource(String source) {
+		String tmpFolder = System.getProperty("java.io.tmpdir");
+		File inputFile = new File(tmpFolder, "X.java");
+		Writer writer = null;
+		try {
+			writer = new FileWriter(inputFile);
+			writer.write(source);
+			writer.close();
+			return inputFile;
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+	}
+	
+	/*-- end code for bug 533830 --*/
+	
 	/**
 	 * Recursively delete the contents of a directory, including any subdirectories.
 	 * This is not optimized to handle very large or deep directory trees efficiently.
