@@ -969,7 +969,7 @@ public Manifest getManifest() {
 	return null;
 }
 
-private boolean isComplianceJava9OrHigher() {
+protected boolean isComplianceJava9OrHigher() {
 	IJavaProject javaProject = getJavaProject();
 	return isComplianceJava9OrHigher(javaProject);
 }
