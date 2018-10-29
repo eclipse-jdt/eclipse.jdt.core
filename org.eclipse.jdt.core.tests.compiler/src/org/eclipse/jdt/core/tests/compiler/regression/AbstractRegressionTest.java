@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -294,6 +298,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_10;
 		} else if(rawVersion.startsWith("11")) {
 			return JavaCore.VERSION_11;
+		} else if(rawVersion.startsWith("12")) {
+			return JavaCore.VERSION_12;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -401,6 +407,17 @@ static class JavacCompiler {
 				return 0100;
 			}
 			if ("11.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_12) {
+			if ("12".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("12.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("12.0.2".equals(rawVersion)) {
 				return 0200;
 			}
 		}

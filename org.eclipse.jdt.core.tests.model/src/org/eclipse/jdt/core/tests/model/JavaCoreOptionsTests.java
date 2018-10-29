@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -120,6 +124,8 @@ public void test5() {
 	assertTrue(JavaCore.compareJavaVersions("9", "1.8") > 0);
 	assertTrue(JavaCore.compareJavaVersions("9.0.1", "9.1.2") == 0);
 	assertTrue(JavaCore.compareJavaVersions("9", "9.1.2") == 0);
+	assertTrue(JavaCore.compareJavaVersions("12", "11") > 0);
+	assertTrue(JavaCore.compareJavaVersions("12", "1.5") > 0);
 }
 }
 

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="3.16.0"/>
+                <message_argument value="3.16.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="model/org/eclipse/jdt/core/util/IClassFileReader.java" type="org.eclipse.jdt.core.util.IClassFileReader">
         <filter comment="default method added for getting nest members" id="404000815">
             <message_arguments>

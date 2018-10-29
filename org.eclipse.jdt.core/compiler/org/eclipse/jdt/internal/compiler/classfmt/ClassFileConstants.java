@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -128,9 +132,10 @@ public interface ClassFileConstants {
 	int MAJOR_VERSION_9 = 53;
 	int MAJOR_VERSION_10 = 54;
 	int MAJOR_VERSION_11 = 55;
+	int MAJOR_VERSION_12 = 56;
 
 	int MAJOR_VERSION_0 = 44;
-	int MAJOR_LATEST_VERSION = MAJOR_VERSION_11;
+	int MAJOR_LATEST_VERSION = MAJOR_VERSION_12;
 
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
