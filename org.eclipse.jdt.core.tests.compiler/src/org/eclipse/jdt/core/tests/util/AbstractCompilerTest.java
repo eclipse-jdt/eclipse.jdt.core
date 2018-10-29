@@ -418,10 +418,10 @@ public class AbstractCompilerTest extends TestCase {
 	public static int getPossibleComplianceLevels() {
 		if (possibleComplianceLevels == UNINITIALIZED) {
 			String specVersion = System.getProperty("java.specification.version");
-			isJRE9Plus = CompilerOptions.VERSION_9.equals(specVersion)
-					||	CompilerOptions.VERSION_10.equals(specVersion)
-					||	CompilerOptions.VERSION_11.equals(specVersion);
-			isJRE11Plus = CompilerOptions.VERSION_11.equals(specVersion);
+			isJRE11Plus = CompilerOptions.VERSION_11.equals(specVersion) ||
+							CompilerOptions.VERSION_12.equals(specVersion);
+			isJRE9Plus = isJRE11Plus || CompilerOptions.VERSION_9.equals(specVersion)
+					||	CompilerOptions.VERSION_10.equals(specVersion);
 			initReflectionVersion();
 			String compliances = System.getProperty("compliance");
 			if (compliances != null) {
@@ -508,7 +508,7 @@ public class AbstractCompilerTest extends TestCase {
 					}
 					boolean canRun12 = canRun11 && !CompilerOptions.VERSION_11.equals(specVersion);
 					if (canRun12) {
-						possibleComplianceLevels |= F_11;
+						possibleComplianceLevels |= F_12;
 					}
 				} else if ("1.0".equals(specVersion)
 							|| CompilerOptions.VERSION_1_1.equals(specVersion)

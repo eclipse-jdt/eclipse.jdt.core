@@ -183,6 +183,26 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		TestCase.RUN_ONLY_ID = null;
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11), tests_11));
 	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_12) != 0) {
+		ArrayList tests_12 = (ArrayList)testClasses.clone();
+		tests_12.addAll(TEST_CLASSES_1_5);
+		tests_12.add(ParserTest1_7.class);
+		tests_12.add(LambdaExpressionSyntaxTest.class);
+		tests_12.add(ReferenceExpressionSyntaxTest.class);
+		tests_12.add(TypeAnnotationSyntaxTest.class);
+		tests_12.add(CompletionParserTest18.class);
+		tests_12.add(SelectionParserTest18.class);
+		tests_12.add(SelectionParserTest9.class);
+		tests_12.add(ModuleDeclarationSyntaxTest.class);
+		tests_12.add(JEP286ReservedWordTest.class);
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_12), tests_12));
+	}
 	return all;
 }
 public static Test suite() {
