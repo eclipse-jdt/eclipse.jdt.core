@@ -39,7 +39,7 @@ import junit.framework.Test;
 public class LambdaExpressionsTest extends AbstractRegressionTest {
 
 static {
-	TESTS_NAMES = new String[] { "test449063"};
+//	TESTS_NAMES = new String[] { "testBug540520"};
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -6996,6 +6996,76 @@ public void testBug531093() {
 		}, 
 		""
 	);
+}
+public void testBug540520() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"Run.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.HashMap;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class Run {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		\n" + 
+			"		List<TypeDeptCount> list = new ArrayList<>();\n" + 
+			"		for(int i=0;i<10;i++) {\n" + 
+			"			TypeDeptCount ty = new TypeDeptCount();\n" + 
+			"			ty.setCykbbm(\"10\"+i);\n" + 
+			"			ty.setCount(i);\n" + 
+			"		}\n" + 
+			"        List<Map<String, Object>> datas = list.stream().collect(Collectors.groupingBy(TypeDeptCount::getType))\n" + 
+			"                .entrySet().stream().map(item -> item.getValue().stream().reduce(new HashMap<String, Object>() {\n" + 
+			"                    private static final long serialVersionUID = 1L;\n" + 
+			"                    {\n" + 
+			"                        put(\"count\", 0);\n" + 
+			"                        put(\"type\", item.getKey());\n" + 
+			"                    }\n" + 
+			"                }, (data1, val) -> {\n" + 
+			"                    data1.put(val.getCykbbm(), val.getCount());\n" + 
+			"                    data1.put(\"count\", (Integer) data1.get(\"count\") + val.getCount());\n" + 
+			"                    return data1;\n" + 
+			"                }, (data1, data2) -> {\n" + 
+			"                    data2.put(\"count\", (Integer) data1.get(\"count\") + (Integer) data2.get(\"count\"));\n" + 
+			"                    data1.putAll(data2);\n" + 
+			"                    return data1;\n" + 
+			"                })).sorted((item1, item2) -> (Integer) item2.get(\"count\") - (Integer) item1.get(\"count\"))\n" + 
+			"                .collect(Collectors.toList());\n" + 
+			"        System.out.println(datas);\n" + 
+			"	}\n" + 
+			"}\n",
+			"TypeDeptCount.java",
+			"public class TypeDeptCount {\n" + 
+			"\n" + 
+			"    private String type;\n" + 
+			"    private String cykbbm;\n" + 
+			"    private Integer count;\n" + 
+			"    \n" + 
+			"	public String getType() {\n" + 
+			"		return type;\n" + 
+			"	}\n" + 
+			"	public void setType(String type) {\n" + 
+			"		this.type = type;\n" + 
+			"	}\n" + 
+			"	public String getCykbbm() {\n" + 
+			"		return cykbbm;\n" + 
+			"	}\n" + 
+			"	public void setCykbbm(String cykbbm) {\n" + 
+			"		this.cykbbm = cykbbm;\n" + 
+			"	}\n" + 
+			"	public Integer getCount() {\n" + 
+			"		return count;\n" + 
+			"	}\n" + 
+			"	public void setCount(Integer count) {\n" + 
+			"		this.count = count;\n" + 
+			"	}\n" + 
+			"}\n"
+		};
+	runner.runConformTest();
+	
 }
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
