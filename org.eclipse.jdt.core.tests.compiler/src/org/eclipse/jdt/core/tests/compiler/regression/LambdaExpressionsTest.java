@@ -1277,8 +1277,8 @@ public void test045() {
 				"----------\n" + 
 				"5. ERROR in X.java (at line 15)\n" + 
 				"	i = X.Y::new;\n" + 
-				"	      ^\n" + 
-				"Y cannot be resolved or is not a field\n" + 
+				"	    ^^^\n" + 
+				"X.Y cannot be resolved to a type\n" + 
 				"----------\n" + 
 				"6. ERROR in X.java (at line 27)\n" + 
 				"	new X().new Y().f();\n" + 
@@ -7065,7 +7065,35 @@ public void testBug540520() {
 			"}\n"
 		};
 	runner.runConformTest();
-	
+}
+public void testBug540631() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+			"EclipseCompileBug.java",
+			"public enum EclipseCompileBug {\n" + 
+			"	/*\n" + 
+			"	 * Next line fails with these errors in Eclipse, works with javac:\n" + 
+			"	 * <li>Test cannot be resolved to a type\n" + 
+			"	 * <li>Cannot reference a field before it is defined\n" + 
+			"	 */\n" + 
+			"	Test(Test::new);\n" + 
+			"\n" + 
+			"	@FunctionalInterface\n" + 
+			"    public interface IConstructor<T extends Object> {\n" + 
+			"        T apply();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private final IConstructor<?> constructor;\n" + 
+			"	private EclipseCompileBug (IConstructor<?> newObj) {\n" + 
+			"		constructor = newObj;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static class Test {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"}\n"
+		};
+	runner.runConformTest();
 }
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
