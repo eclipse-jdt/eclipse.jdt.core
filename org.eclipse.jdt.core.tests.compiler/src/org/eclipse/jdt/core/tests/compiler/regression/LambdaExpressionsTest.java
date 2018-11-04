@@ -1027,11 +1027,9 @@ public void test038() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406641, [1.8][compiler][codegen] Code generation for intersection cast.
 public void test039() {
-// FIXME: was differentiating error messages ever implemented?
-//	String errMsg = (this.complianceLevel >= ClassFileConstants.JDK9) ?
-//			"X (in module: Unnamed Module) cannot be cast to I (in module: Unnamed Module)" :
-//				"X cannot be cast to I";
-	String errMsg = "X cannot be cast to I";
+	String errMsg = isJRE11Plus
+		? "class X cannot be cast to class I (X and I are in unnamed module of loader"
+		: "X cannot be cast to I";
 	this.runConformTest(
 			new String[] {
 					"X.java",
