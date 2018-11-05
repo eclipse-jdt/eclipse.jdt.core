@@ -93,7 +93,7 @@ public class Aligner {
 	}
 
 	public void handleAlign(List<BodyDeclaration> bodyDeclarations) {
-		if (!this.options.align_type_members_on_columns)
+		if (!this.options.align_type_members_on_columns || areKeptOnOneLine(bodyDeclarations))
 			return;
 		List<List<FieldDeclaration>> fieldGroups = toAlignGroups(bodyDeclarations,
 				n -> optionalCast(n, FieldDeclaration.class));
@@ -110,10 +110,16 @@ public class Aligner {
 
 	public void handleAlign(Block block) {
 		List<Statement> statements = block.statements();
+		if (areKeptOnOneLine(statements))
+			return;
 		if (this.options.align_variable_declarations_on_columns)
 			alignDeclarations(statements);
 		if (this.options.align_assignment_statements_on_columns)
 			alignAssignmentStatements(statements);
+	}
+
+	private boolean areKeptOnOneLine(List<? extends ASTNode> nodes) {
+		return nodes.stream().allMatch(n -> this.tm.firstTokenIn(n, -1).getLineBreaksBefore() == 0);
 	}
 
 	private void alignDeclarations(List<Statement> statements) {
