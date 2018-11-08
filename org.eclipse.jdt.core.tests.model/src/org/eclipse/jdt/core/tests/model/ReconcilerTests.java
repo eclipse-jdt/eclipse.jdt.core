@@ -5904,5 +5904,59 @@ public void testBug485092() throws CoreException, IOException, InterruptedExcept
 			deleteProject(project18);
 	}
 }
+public void testBug534865() throws CoreException, IOException {
+	IJavaProject project18 = null;
+	try {
+		project18 = createJavaProject("Reconciler18", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin");
+		setUpProjectCompliance(project18, "1.8");
+		project18.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+		createFolder("/Reconciler18/src/org/eclipse/jdt/annotation");
+		createFile(
+			"/Reconciler18/src/org/eclipse/jdt/annotation/Nullable.java",
+			"package org.eclipse.jdt.annotation;\n" +
+					"import static java.lang.annotation.ElementType.TYPE_USE;\n" + 
+					"\n" + 
+					"import java.lang.annotation.Documented;\n" + 
+					"import java.lang.annotation.Retention;\n" + 
+					"import java.lang.annotation.RetentionPolicy;\n" + 
+					"import java.lang.annotation.Target;\n" +
+					"@Documented\n" + 
+					"@Retention(RetentionPolicy.CLASS)\n" + 
+					"@Target({ TYPE_USE })\n" + 
+					"public @interface Nullable {\n" + 
+					"	// marker annotation with no members\n" + 
+					"}\n"
+		);
+		String source = 
+				"package org.eclipse.jdt.annotation;\n" +
+				"import static java.lang.annotation.ElementType.TYPE_USE;\n" + 
+				"\n" + 
+				"import java.lang.annotation.Documented;\n" + 
+				"import java.lang.annotation.Retention;\n" + 
+				"import java.lang.annotation.RetentionPolicy;\n" + 
+				"import java.lang.annotation.Target;\n" +
+				"@Documented\n" + 
+				"@Retention(RetentionPolicy.CLASS)\n" + 
+				"@Target({ TYPE_USE })\n" + 
+				"public @interface NonNull {\n" + 
+				"	// marker annotation with no members\n" + 
+				"}\n";
 
+		createFile(
+			"/Reconciler18/src/org/eclipse/jdt/annotation/NonNull.java",
+			source
+		);
+		this.workingCopies = new ICompilationUnit[1];
+		this.problemRequestor.initialize(source.toCharArray());
+		this.workingCopies[0] = getCompilationUnit("/Reconciler18/src/org/eclipse/jdt/annotation/NonNull.java").getWorkingCopy(this.wcOwner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (project18 != null)
+			deleteProject(project18);
+	}
+}
 }
