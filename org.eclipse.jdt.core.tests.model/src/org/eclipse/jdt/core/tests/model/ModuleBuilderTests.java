@@ -6276,7 +6276,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testBug526054() throws Exception {
-		if (!isJRE9) return;
+		if (!isJRE9 || isJRE12) return;
 		ClasspathJrt.resetCaches();
 		try {
 			IJavaProject javaProject = createJava9Project("mod1", new String[] {"src"});
@@ -6817,7 +6817,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569c() throws CoreException {
-		if (!isJRE9) return;
+		if (!isJRE9 || isJRE12) return;
 		IJavaProject p1 = createJava9Project("Bug527569", "1.7");
 		Map<String, String> options = new HashMap<>();
 		// Make sure the new options map doesn't reset.
@@ -6868,7 +6868,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569e() throws CoreException {
-		if (!isJRE9) return;
+		if (!isJRE9 || isJRE12) return;
 		IJavaProject p1 = createJava9Project("Bug527569", "1.8");
 		Map<String, String> options = new HashMap<>();
 		// Make sure the new options map doesn't reset.
