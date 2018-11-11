@@ -5536,7 +5536,7 @@ public void testBug470542() {
 		"1. ERROR in X.java (at line 5)\n" + 
 		"	process(missing::new);\n" + 
 		"	        ^^^^^^^\n" + 
-		"missing cannot be resolved\n" + 
+		"missing cannot be resolved to a type\n" + 
 		"----------\n");
 }
 public void testBug471280_comment0() {

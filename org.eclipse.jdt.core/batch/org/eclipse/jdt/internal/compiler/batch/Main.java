@@ -28,6 +28,7 @@
  *     Jesper S Moller   - Contributions for
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
  *    Mat Booth - Contribution for bug 405176 
+ *    Frits Jalvingh - fix for bug 533830.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -103,6 +104,7 @@ import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -799,6 +801,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		private void logProblem(CategorizedProblem problem, int localErrorCount,
 			int globalErrorCount, char[] unitSource) {
+			if(problem instanceof DefaultProblem) {
+				((DefaultProblem) problem).reportError();
+			}
 			if ((this.tagBits & Logger.EMACS) != 0) {
 				String severity = problem.isError() ? "output.emacs.error" : //$NON-NLS-1$
 									problem.isInfo() ? "output.emacs.info" //$NON-NLS-1$

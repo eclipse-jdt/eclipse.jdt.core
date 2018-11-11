@@ -7018,6 +7018,27 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			JavaCore.setOptions(options);
 		}
 	}
+	// missing linked jar must not cause NPE
+	public void testBug540904() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			String[] src = new String[] { 
+					"src/test/Test.java",
+					"package test;\n" +
+					"public class Test {\n" +
+					"}"
+			};
+			IJavaProject p2 = setupModuleProject("Bug540904", src, new IClasspathEntry[] {  });
+			IFile file = getFile("/Bug540904/link.jar");
+			file.createLink(new Path("MISSING/missing.jar"), IResource.ALLOW_MISSING_LOCAL, null);
+			addLibraryEntry(p2, file.getFullPath(), false);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			this.deleteProject("Bug540904");
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

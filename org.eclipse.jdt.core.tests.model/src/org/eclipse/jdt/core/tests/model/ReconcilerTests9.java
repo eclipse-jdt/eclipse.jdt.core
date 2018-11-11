@@ -16,8 +16,15 @@ package org.eclipse.jdt.core.tests.model;
 
 
 import java.io.IOException;
+import java.util.Hashtable;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathAttribute;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -393,4 +400,54 @@ public void testTerminalDeprecation2() throws CoreException, IOException {
 		deleteProject("P1");
 	}
 }
+public void testBug540541() throws CoreException, IOException {
+	if (!isJRE9) return;
+	IJavaProject project1 = null;
+	IJavaProject project2 = null;
+	Hashtable<String, String> options = JavaCore.getOptions();
+	try {
+		project1 = createJava9Project("java.base", "9");
+		createFile("/java.base/src/module-info.java",
+					"module java.base {\n" +
+					"	exports java.lang;\n" +
+					"}");
+		createFolder("/java.base/src/java/lang");
+		createFile("/java.base/src/java/lang/Object.java",
+					"package java.lang;\n" +
+					"public class Object {\n" +
+					"}\n");
+		
+		project1.setRawClasspath(new IClasspathEntry[] {JavaCore.newSourceEntry(new Path("/java.base/src"))}, null);
+		project1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = project1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers on java.base", "", markers);
+		
+		project2 = createJava9Project("client", "9");
+		IClasspathAttribute[] attributes = new IClasspathAttribute[] { JavaCore.newClasspathAttribute("module", "true") };
+		IClasspathEntry projectEntry = JavaCore.newProjectEntry(project1.getPath(), null, false, attributes, false);
+		project2.setRawClasspath(new IClasspathEntry[] {projectEntry, JavaCore.newSourceEntry(new Path("/client/src"))}, null);
+		createFolder("/client/src/p");
+		createFile("/client/src/p/X.java",
+					"package p;\n" +
+					"public class X {\n" +
+					"}\n");
+		this.workingCopy = getCompilationUnit("client/src/p/X.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
+		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		assertProblems("Expecting no problems",
+						"----------\n" + 
+						"----------\n",
+						this.problemRequestor);
+		
+		markers = project2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers on client", "", markers);
+	} finally {
+		if (project1 != null)
+			deleteProject(project1);
+		if (project2 != null)
+			deleteProject(project2);
+		JavaCore.setOptions(options);
+	}
+}
+
 }

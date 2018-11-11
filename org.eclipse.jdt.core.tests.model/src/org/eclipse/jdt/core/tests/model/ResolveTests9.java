@@ -267,13 +267,11 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 			int length = selection.length();
 			
 			waitUntilIndexesReady();
-			// once indexes are ready, there's no second try and since
-			// SelectionOnQualifiedTypeReference ("test.ITest") cannot be resolved, 
-			// we don't recognize the selection:
+			// even after indexes are built we meanwhile (after bug 540541) find the selected type
 			IJavaElement[] elements = this.wc.codeSelect(start, length);
 			assertElementsEqual(
 				"Unexpected elements",
-				"",
+				"ITest [in ITest.java [in test [in src [in Resolve]]]]",
 				elements
 			);
 		} finally {

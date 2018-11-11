@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfModule;
 
 /**
@@ -91,6 +92,9 @@ public class ElementsImpl9 extends ElementsImpl {
 			}
 		}
 		if (null == binding) {
+			return null;
+		}
+		if ((binding.tagBits & TagBits.HasMissingType) != 0) {
 			return null;
 		}
 		return new TypeElementImpl(_env, binding, null);

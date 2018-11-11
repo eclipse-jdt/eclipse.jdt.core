@@ -10,6 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Frits Jalvingh  - fix for bug 533830.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.tool;
 
@@ -169,6 +170,8 @@ public class EclipseCompiler implements JavaCompiler {
 		try {
 			eclipseCompiler2.configure(optionsToProcess);
 		} catch (IllegalArgumentException e) {
+			if(null != someDiagnosticListener)
+				someDiagnosticListener.report(new ExceptionDiagnostic(e));
 			throw e;
 		}
 

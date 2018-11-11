@@ -362,6 +362,8 @@ void connectTypeHierarchy() {
 		this.topLevelTypes[i].scope.connectTypeHierarchy();
 }
 void faultInImports() {
+	if (this.tempImports != null)
+		return; // faultInImports already in progress
 	boolean unresolvedFound = false;
 	// should report unresolved only if we are not suppressing caching of failed resolutions
 	boolean reportUnresolved = !this.suppressImportErrors;
@@ -491,6 +493,7 @@ void faultInImports() {
 	if (this.tempImports.length > this.importPtr)
 		System.arraycopy(this.tempImports, 0, this.tempImports = new ImportBinding[this.importPtr], 0, this.importPtr);
 	this.imports = this.tempImports;
+	this.tempImports = null;
 	int length = this.imports.length;
 	this.typeOrPackageCache = new HashtableOfObject(length);
 	for (int i = 0; i < length; i++) {
