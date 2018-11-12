@@ -3491,6 +3491,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
 		} catch (CoreException e) {
+			logError("exception occurred while waiting on indexing", e);
+		}
+	}
+
+	private static void logError(String errorMessage, CoreException e) {
+		Plugin plugin = JavaCore.getPlugin();
+		if (plugin != null) {
+			ILog log = plugin.getLog();
+			Status status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, errorMessage, e);
+			log.log(status);
 		}
 	}
 }
