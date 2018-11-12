@@ -154,6 +154,7 @@ import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
+import org.eclipse.jdt.internal.compiler.ast.SwitchExpression;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -6470,13 +6471,20 @@ public void notAFunctionalInterface(TypeDeclaration type) {
 		type.sourceStart,
 		type.sourceEnd);
 }
+
 public void missingEnumConstantCase(SwitchStatement switchStatement, FieldBinding enumConstant) {
+	missingEnumConstantCase(switchStatement.defaultCase, enumConstant, switchStatement.expression);
+}
+public void missingEnumConstantCase(SwitchExpression switchExpression, FieldBinding enumConstant) {
+	missingEnumConstantCase(switchExpression.defaultCase, enumConstant, switchExpression.expression);
+}
+private void missingEnumConstantCase(CaseStatement defaultCase, FieldBinding enumConstant, ASTNode expression) {
 	this.handle(
-		switchStatement.defaultCase == null ? IProblem.MissingEnumConstantCase : IProblem.MissingEnumConstantCaseDespiteDefault,
-		new String[] {new String(enumConstant.declaringClass.readableName()), new String(enumConstant.name) },
-		new String[] {new String(enumConstant.declaringClass.shortReadableName()), new String(enumConstant.name) },
-		switchStatement.expression.sourceStart,
-		switchStatement.expression.sourceEnd);
+			defaultCase == null ? IProblem.MissingEnumConstantCase : IProblem.MissingEnumConstantCaseDespiteDefault,
+			new String[] {new String(enumConstant.declaringClass.readableName()), new String(enumConstant.name) },
+			new String[] {new String(enumConstant.declaringClass.shortReadableName()), new String(enumConstant.name) },
+			expression.sourceStart,
+			expression.sourceEnd);
 }
 public void missingDefaultCase(SwitchStatement switchStatement, boolean isEnumSwitch, TypeBinding expressionType) {
 	if (isEnumSwitch) {
@@ -6493,6 +6501,23 @@ public void missingDefaultCase(SwitchStatement switchStatement, boolean isEnumSw
 				NoArgument,
 				switchStatement.expression.sourceStart,
 				switchStatement.expression.sourceEnd);
+	}
+}
+public void missingDefaultCase(SwitchExpression switchExpression, boolean isEnumSwitch, TypeBinding expressionType) {
+	if (isEnumSwitch) {
+		this.handle(
+				IProblem.MissingEnumDefaultCase,
+				new String[] {new String(expressionType.readableName())},
+				new String[] {new String(expressionType.shortReadableName())},
+				switchExpression.expression.sourceStart,
+				switchExpression.expression.sourceEnd);
+	} else {
+		this.handle(
+				IProblem.MissingDefaultCase,
+				NoArgument,
+				NoArgument,
+				switchExpression.expression.sourceStart,
+				switchExpression.expression.sourceEnd);
 	}
 }
 public void missingOverrideAnnotation(AbstractMethodDeclaration method) {
@@ -10979,5 +11004,30 @@ public void autoModuleWithUnstableName(ModuleReference moduleReference) {
 			args,
 			moduleReference.sourceStart,
 			moduleReference.sourceEnd);
+}
+public void switchExpressionIncompatibleResultExpressions(SwitchExpression expression) {
+	TypeBinding type = expression.exprArms[0].resolvedType;  // TODO: Need to show more accurately
+	this.handle(
+		IProblem.SwitchExpressionsIncompatibleResultExpressionTypes,
+		new String[] {new String(type.readableName())},
+		new String[] {new String(type.shortReadableName())},
+		expression.sourceStart,
+		expression.sourceEnd);
+}
+public void switchExpressionEmptySwitchBlock(SwitchExpression expression) {
+	this.handle(
+		IProblem.SwitchExpressionsEmptySwitchBlock,
+		NoArgument,
+		NoArgument,
+		expression.sourceStart,
+		expression.sourceEnd);
+}
+public void switchExpressionNoResultExpressions(SwitchExpression expression) {
+	this.handle(
+		IProblem.SwitchExpressionsNoResultExpression,
+		NoArgument,
+		NoArgument,
+		expression.sourceStart,
+		expression.sourceEnd);
 }
 }

@@ -98,5 +98,139 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			},
 			"6");
 	}
+	public void testBug531714_error_003() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    int x, y;\n" +
+				"    I i = () -> {\n" +
+				"      int z = 10;\n" +
+				"    };\n" +
+				"    i++;\n" +
+				"  }\n" +
+				"	public static int twice(int i) {\n" +
+				"		int tw = switch (i) {\n" +
+				"		};\n" +
+				"		return tw;\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	int tw = switch (i) {\n" + 
+			"	      ^^^^^\n" + 
+			" A switch expression should have at least one result expression\n" + 
+			"----------\n");
+	}
+	public void testBug531714_error_004() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    int x, y;\n" +
+				"    I i = () -> {\n" +
+				"      int z = 10;\n" +
+				"    };\n" +
+				"    i++;\n" +
+				"  }\n" +
+				"	public static int twice(int i) {\n" +
+				"		int tw = switch (i) {\n" +
+				"			case 0 -> 0;\n" +
+				"			case 1 -> { \n" +
+				"				System.out.println(\"heel\");\n" +
+				"				break 1;\n" +
+				"			} \n" +
+				"		//	case 2 -> 2;\n" +
+				"			case \"hello\" -> throw new IOException(\"hello\");\n" +
+				"			default -> throw new IOException(\"world\");\n" +
+				"		};\n" +
+				"		return tw;\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	int tw = switch (i) {\n" + 
+			"	      ^^^^^\n" + 
+			" Incompatible switch results expressions\n" + 
+			"----------\n");
+	}
+	public void testBug531714_error_005() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    int x, y;\n" +
+				"    I i = () -> {\n" +
+				"      int z = 10;\n" +
+				"    };\n" +
+				"    i++;\n" +
+				"  }\n" +
+				"	public static int twice(int i) {\n" +
+				"		int tw = switch (i) {\n" +
+				"			case 0 -> 0;\n" +
+				"			case 1 -> { \n" +
+				"				System.out.println(\"heel\");\n" +
+				"				break 1;\n" +
+				"			} \n" +
+				"		//	case 2 -> 2;\n" +
+				"			case \"hello\" -> throw new IOException(\"hello\");\n" +
+				"		};\n" +
+				"		return tw;\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	int tw = switch (i) {\n" + 
+			"	      ^^^^^\n" + 
+			" The switch expression should have a default case\n" + 
+			"----------\n");
+	}
+	/**
+	 * Add a test case for enum
+	 * If the type of the selector expression is an enum type, 
+	 * then the set of all the case constants associated with the switch block
+	 *  must contain all the enum constants of that enum type
+	 *  Add a missing enum test case
+	 */
+	public void testBug531714_error_006() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    int x, y;\n" +
+				"    I i = () -> {\n" +
+				"      int z = 10;\n" +
+				"    };\n" +
+				"    i++;\n" +
+				"  }\n" +
+				"	public static int twice(int i) {\n" +
+				"		int tw = switch (i) {\n" +
+				"			case 0 -> 0;\n" +
+				"			case 1 -> { \n" +
+				"				System.out.println(\"heel\");\n" +
+				"				break 1;\n" +
+				"			} \n" +
+				"		//	case 2 -> 2;\n" +
+				"			case \"hello\" -> throw new IOException(\"hello\");\n" +
+				"		};\n" +
+				"		return tw;\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	int tw = switch (i) {\n" + 
+			"	      ^^^^^\n" + 
+			" The switch expression should have a default case\n" + 
+			"----------\n");
+	}
+
 }
 	

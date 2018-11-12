@@ -93,6 +93,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 }
 
 @Override
+public TypeBinding resolveExpressionType(BlockScope scope) {
+	return this.expression != null ? this.expression.resolveType(scope) : null;
+}
+
+@Override
 public StringBuffer printStatement(int tab, StringBuffer output) {
 	printIndent(tab, output).append("break"); //$NON-NLS-1$
 	if (this.label != null) output.append(' ').append(this.label);
@@ -102,6 +107,8 @@ public StringBuffer printStatement(int tab, StringBuffer output) {
 @Override
 public void traverse(ASTVisitor visitor, BlockScope blockscope) {
 	visitor.visit(this, blockscope);
+	if (this.expression != null)
+		this.expression.traverse(visitor, blockscope);
 	visitor.endVisit(this, blockscope);
 }
 @Override

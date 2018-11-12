@@ -9514,7 +9514,7 @@ protected void consumeSwitchExpression() {
 	for (int i= numLabels-1; i>=0; i--) {
 		expression.exprArms[i] = (SwitchExprArm) this.astStack[this.astPtr--];
 	}
-	expression.sourceStart = expression.exprArms[0].sourceStart;
+	expression.sourceStart = this.intStack[this.intPtr--];
 	expression.sourceEnd = expression.exprArms[numLabels - 1].sourceEnd;
 	pushOnExpressionStack(expression);
 }
@@ -9558,8 +9558,8 @@ private void processSwitchExprArm(SwitchExprArm.EXPR_KIND kind) {
 }
 private void processSwitchExprExprArm(SwitchExprArm.EXPR_KIND kind) {
 	if (this.expressionLengthStack[this.expressionLengthPtr] != 0) {
-		Expression expr = this.expressionStack[this.expressionPtr];
-		pushOnIntStack(expr.sourceStart); // pretend break starts at expr
+//		Expression expr = this.expressionStack[this.expressionPtr];
+//		pushOnIntStack(expr.sourceStart); // pretend break starts at expr
 		consumeStatementBreakWithLabel();
 		processSwitchExprArm(kind);
 	}

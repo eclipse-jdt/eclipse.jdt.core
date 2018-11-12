@@ -101,10 +101,9 @@ public void resolve(BlockScope scope) {
 
 /**
  * Returns the constant intValue or ordinal for enum constants. If constant is NotAConstant, then answers Float.MIN_VALUE
- * @see org.eclipse.jdt.internal.compiler.ast.Statement#resolveCase(org.eclipse.jdt.internal.compiler.lookup.BlockScope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.ast.SwitchStatement)
+ * see org.eclipse.jdt.internal.compiler.ast.Statement#resolveCase(org.eclipse.jdt.internal.compiler.lookup.BlockScope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.ast.SwitchStatement)
  */
-@Override
-public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
+public Constant _resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
 	// switchExpressionType maybe null in error case
 	scope.enclosingCase = this; // record entering in a switch case block
 
@@ -152,6 +151,88 @@ public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, 
 	}
 	scope.problemReporter().typeMismatchError(caseType, switchExpressionType, this.constantExpression, switchStatement.expression);
 	return Constant.NotAConstant;
+}
+
+/**
+ * Returns the constant intValue or ordinal for enum constants. If constant is NotAConstant, then answers Float.MIN_VALUE
+ * Switch Expressions in JLS 12 onwards
+ */
+@Override
+public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionExpressionType, Statement node) {
+	boolean isSwitchStatement = node instanceof SwitchStatement;
+	// switchExpressionType maybe null in error case
+	scope.enclosingCase = this; // record entering in a switch case block
+
+	if (this.constantExpression == null) {
+		// remember the default case into the associated switch statement
+		if (isSwitchStatement)
+			setDefaultCase(scope, (SwitchStatement) node);
+		else
+			setDefaultCase(scope, (SwitchExpression) node);
+		return Constant.NotAConstant;
+	}
+	// add into the collection of cases of the associated switch statement
+	if (isSwitchStatement)
+		addNormalCase((SwitchStatement) node);
+	else
+		addNormalCase((SwitchExpression) node);
+	// tag constant name with enum type for privileged access to its members
+	if (switchExpressionExpressionType != null && switchExpressionExpressionType.isEnum() && (this.constantExpression instanceof SingleNameReference)) {
+		((SingleNameReference) this.constantExpression).setActualReceiverType((ReferenceBinding)switchExpressionExpressionType);
+	}
+	TypeBinding caseType = this.constantExpression.resolveType(scope);
+	if (caseType == null || switchExpressionExpressionType == null) return Constant.NotAConstant;
+	if (this.constantExpression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionExpressionType)
+			|| caseType.isCompatibleWith(switchExpressionExpressionType)) {
+		if (caseType.isEnum()) {
+			if (((this.constantExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
+				scope.problemReporter().enumConstantsCannotBeSurroundedByParenthesis(this.constantExpression);
+			}
+
+			if (this.constantExpression instanceof NameReference
+					&& (this.constantExpression.bits & ASTNode.RestrictiveFlagMASK) == Binding.FIELD) {
+				NameReference reference = (NameReference) this.constantExpression;
+				FieldBinding field = reference.fieldBinding();
+				if ((field.modifiers & ClassFileConstants.AccEnum) == 0) {
+					 scope.problemReporter().enumSwitchCannotTargetField(reference, field);
+				} else 	if (reference instanceof QualifiedNameReference) {
+					 scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel(reference, field);
+				}
+				return IntConstant.fromValue(field.original().id + 1); // (ordinal value + 1) zero should not be returned see bug 141810
+			}
+		} else {
+			return this.constantExpression.constant;
+		}
+	} else if (isBoxingCompatible(caseType, switchExpressionExpressionType, this.constantExpression, scope)) {
+		// constantExpression.computeConversion(scope, caseType, switchExpressionType); - do not report boxing/unboxing conversion
+		return this.constantExpression.constant;
+	}
+	Expression expression = isSwitchStatement ? ((SwitchStatement) node).expression : ((SwitchExpression) node).expression;
+	scope.problemReporter().typeMismatchError(caseType, switchExpressionExpressionType, this.constantExpression, expression);
+	return Constant.NotAConstant;
+}
+
+private void addNormalCase(SwitchStatement switchStatement) {
+	switchStatement.cases[switchStatement.caseCount++] = this;
+}
+
+private void setDefaultCase(BlockScope scope, SwitchStatement switchStatement) {
+	if (switchStatement.defaultCase != null)
+		scope.problemReporter().duplicateDefaultCase(this);
+
+	// on error the last default will be the selected one ...
+	switchStatement.defaultCase = this;
+}
+private void addNormalCase(SwitchExpression switchExpression) {
+	switchExpression.cases[switchExpression.caseCount++] = this;
+}
+
+private void setDefaultCase(BlockScope scope, SwitchExpression switchExpression) {
+	if (switchExpression.defaultCase != null)
+		scope.problemReporter().duplicateDefaultCase(this);
+
+	// on error the last default will be the selected one ...
+	switchExpression.defaultCase = this;
 }
 
 @Override

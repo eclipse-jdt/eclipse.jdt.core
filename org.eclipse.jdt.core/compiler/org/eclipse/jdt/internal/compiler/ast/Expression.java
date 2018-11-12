@@ -1034,6 +1034,10 @@ public void resolve(BlockScope scope) {
 	this.resolveType(scope);
 	return;
 }
+@Override
+public TypeBinding resolveExpressionType(BlockScope scope) {
+	return resolveType(scope);
+}
 
 /**
  * Resolve the type of this expression in the context of a blockScope

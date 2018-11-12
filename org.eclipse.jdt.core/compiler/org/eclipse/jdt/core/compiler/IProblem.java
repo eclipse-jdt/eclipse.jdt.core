@@ -2076,5 +2076,11 @@ void setSourceStart(int sourceStart);
 	int VarIsNotAllowedHere = Syntax + 1511; // ''var'' is not allowed here
 	/** @since 3.16 */
 	int VarCannotBeMixedWithNonVarParams = Syntax + 1512; // ''var'' cannot be mixed with explicit or implicit parameters
-	
+	/** @since 3.16 BETA_JAVA_12 */
+	int SwitchExpressionsIncompatibleResultExpressionTypes = TypeRelated + 1600;
+	/** @since 3.16 BETA_JAVA_12 */
+	int SwitchExpressionsEmptySwitchBlock = TypeRelated + 1601;
+	/** @since 3.16 BETA_JAVA_12 */
+	int SwitchExpressionsNoResultExpression = TypeRelated + 1602;
+
 }
