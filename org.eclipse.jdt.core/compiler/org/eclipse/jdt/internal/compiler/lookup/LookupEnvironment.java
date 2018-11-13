@@ -729,7 +729,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 	if (packageBinding == null || packageBinding == TheNotFoundPackage) {
 		if (this.useModuleSystem) {
 			if (this.module.isUnnamed()) {
-				char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModulesDeclaringPackage(null, constantPoolName[0], ModuleBinding.ANY);
+				char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getUniqueModulesDeclaringPackage(null, constantPoolName[0], ModuleBinding.ANY);
 				if (declaringModules != null) {
 					for (char[] mod : declaringModules) {
 						ModuleBinding declaringModule = this.root.getModule(mod);

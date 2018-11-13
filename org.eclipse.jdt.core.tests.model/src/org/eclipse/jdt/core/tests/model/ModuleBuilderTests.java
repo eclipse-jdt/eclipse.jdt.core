@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -94,6 +95,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		deleteProject("P1");
 	}
 	
+	IClasspathAttribute[] moduleAttribute() {
+		return new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+	}
+	void addModularProjectEntry(IJavaProject project, IJavaProject depProject) throws JavaModelException {
+		addClasspathEntry(project, JavaCore.newProjectEntry(depProject.getPath(), null, false, moduleAttribute(), false));
+	}
+	void addModularLibraryEntry(IJavaProject project, String libraryPath) throws JavaModelException {
+		addLibraryEntry(project, new Path(libraryPath), null, null, null, null, moduleAttribute(), false);	
+	}
+
 	// Test that the java.base found as a module package fragment root in the project 
 	public void test001() throws CoreException {
 		if (!isJRE9) return;
@@ -1837,8 +1848,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("com.greetings");
 		}
 	}
-	// Changes to implicit dependencies should be reflected
-	public void test_ModuleSourcePath_implicitdeps2() throws CoreException {
+	// Changes to implicit dependencies should be reflected // FIXME: container JavaCore.MODULE_PATH_CONTAINER_ID is unreliable
+	public void _test_ModuleSourcePath_implicitdeps2() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
@@ -7037,6 +7048,97 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			assertMarkers("Unexpected markers", "", markers);
 		} finally {
 			this.deleteProject("Bug540904");
+		}
+	}
+	public void testBug540788() throws Exception {
+		if (!isJRE9) return;
+		try {
+			// project common:
+			IJavaProject common = createJava9Project("Bug540788.common", new String[] { "src/main/java" });
+			createSourceFiles(common,
+					new String[] {
+						"src/main/java/module-info.java",
+						"module org.sheepy.common {\n" + 
+						"	requires transitive org.eclipse.emf.common;\n" + 
+						"	requires transitive org.eclipse.emf.ecore;\n" + 
+						"}\n"
+					});
+			IFolder libs = createFolder("/Bug540788.common/libs");
+			String emfCommonPath = libs.getLocation()+"/org.eclipse.emf.common.jar";
+			Util.createJar(
+					new String[] {
+							"src/org/eclipse/emf/common/Foo.java",
+							"package org.eclipse.emf.common;\n" +
+							"public interface Foo {\n" +
+							"}",
+					},
+					null,
+					new HashMap<>(),
+					null,
+					emfCommonPath);
+			addModularLibraryEntry(common, emfCommonPath);
+			String ecorePath = libs.getLocation()+"/org.eclipse.emf.ecore.jar";
+			Util.createJar(
+					new String[] {
+						"src/org/eclipse/emf/ecore/EObject.java",
+						"package org.eclipse.emf.ecore;\n" +
+						"public interface EObject {\n" +
+						"}",
+					},
+					null,
+					new HashMap<>(),
+					null,
+					ecorePath);
+			addModularLibraryEntry(common, ecorePath);
+			// project vulkan:
+			IJavaProject vulkan = createJava9Project("Bug540788.vulkan", new String[] { "src/main/java" });
+			createSourceFiles(vulkan,
+					new String[] {
+						"src/main/java/module-info.java",
+						"module org.sheepy.vulkan {\n" + 
+						"	requires transitive org.sheepy.common;\n" + 
+						"	exports org.sheepy.vulkan.model.resource;\n" + 
+						"}\n",
+						"src/main/java/org/sheepy/vulkan/model/resource/Resource.java",
+						"package org.sheepy.vulkan.model.resource;\n" + 
+						"import org.eclipse.emf.ecore.EObject;\n" + 
+						"public interface Resource extends EObject {\n" + 
+						"}\n",
+						"src/main/java/org/sheepy/vulkan/model/resource/VulkanBuffer.java",
+						"package org.sheepy.vulkan.model.resource;\n" + 
+						"public interface VulkanBuffer extends Resource {\n" + 
+						"}\n",
+					});
+			addModularProjectEntry(vulkan, common);
+			addModularLibraryEntry(vulkan, emfCommonPath);
+			addModularLibraryEntry(vulkan, ecorePath);
+			// project vulkan.demo
+			IJavaProject vulkan_demo = createJava9Project("Bug540788.vulkan.demo", new String[] { "src/main/java" });
+			createSourceFiles(vulkan_demo,
+					new String[] {
+						"src/main/java/module-info.java",
+						"module org.sheepy.vulkan.demo {\n" + 
+						"	exports org.sheepy.vulkan.demo.model;\n" + 
+						"	requires org.sheepy.vulkan;\n" + 
+						"}\n",
+						"src/main/java/org/sheepy/vulkan/demo/model/UniformBuffer.java",
+						"package org.sheepy.vulkan.demo.model;\n" + 
+						"import org.sheepy.vulkan.model.resource.VulkanBuffer;\n" + 
+						"public interface UniformBuffer extends VulkanBuffer {\n" + 
+						"}\n",
+					});
+			addModularProjectEntry(vulkan_demo, vulkan);
+			addModularProjectEntry(vulkan_demo, common);
+			addModularLibraryEntry(vulkan_demo, emfCommonPath);
+			addModularLibraryEntry(vulkan_demo, ecorePath);
+			
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = vulkan_demo.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			deleteProject("Bug540788.common");
+			deleteProject("Bug540788.vulkan");
+			deleteProject("Bug540788.vulkan.demo");
 		}
 	}
 	protected void assertNoErrors() throws CoreException {
