@@ -511,7 +511,7 @@ public abstract class ASTVisitor {
 	public void endVisit(SwitchExpression switchExpression,	BlockScope scope) {
 		// do nothing by default
 	}
-	public void endVisit(SwitchExprArm switchExprArm, BlockScope scope) {
+	public void endVisit(SwitchLabeledRule switchExprArm, BlockScope scope) {
 		// do nothing by default
 	}
 	public boolean visit(
@@ -1008,7 +1008,7 @@ public abstract class ASTVisitor {
 	public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
 		return true; // do nothing by default, keep traversing
 	}
-	public boolean visit(SwitchExprArm switchExprArm, BlockScope blockScope) {
+	public boolean visit(SwitchLabeledRule switchExprArm, BlockScope blockScope) {
 		return true; // do nothing by default, keep traversing
 	}
 }

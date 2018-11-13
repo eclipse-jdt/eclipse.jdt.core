@@ -5,7 +5,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class SwitchExprArm extends Expression implements IPolyExpression {
+public class SwitchLabeledRule extends Expression implements IPolyExpression {
 
 	public enum EXPR_KIND {
 		BLOCK,
@@ -20,7 +20,7 @@ public class SwitchExprArm extends Expression implements IPolyExpression {
 	private Statement rhs; 
 	/* package */ TypeBinding expectedType;
 
-	public SwitchExprArm(EXPR_KIND kind, CaseStatement lhs, Statement rhs, int start, int end) {
+	public SwitchLabeledRule(EXPR_KIND kind, CaseStatement lhs, Statement rhs, int start, int end) {
 		this.setKind(kind); 
 		this.setLhs(lhs);
 		this.setRhs(rhs);

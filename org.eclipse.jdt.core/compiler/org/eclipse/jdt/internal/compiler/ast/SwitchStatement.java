@@ -52,6 +52,7 @@ public class SwitchStatement extends Statement {
 	public BranchLabel breakLabel;
 	public CaseStatement[] cases;
 	public CaseStatement defaultCase;
+	public SwitchLabeledRule[] switchLabeledRules;
 	public int blockStart;
 	public int caseCount;
 	int[] constants;

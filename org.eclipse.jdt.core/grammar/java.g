@@ -1260,6 +1260,7 @@ SwitchBlock ::= '{' '}'
 SwitchBlock ::= '{' SwitchBlockStatements '}'
 SwitchBlock ::= '{' SwitchLabels '}'
 SwitchBlock ::= '{' SwitchBlockStatements SwitchLabels '}'
+SwitchBlock ::= '{' SwitchLabeledRules '}'
 /.$putCase consumeSwitchBlock() ; $break ./
 /:$readableName SwitchBlock:/
 
@@ -1288,51 +1289,34 @@ SwitchLabel ::= 'default' ':'
 
 UnaryExpressionNotPlusMinus -> SwitchExpression
 
-SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchExpressionBlock
+SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchBlock
 /.$putCase consumeSwitchExpression() ; $break ./
 /:$readableName SwitchExpression:/
 
-SwitchExpressionBlock ::= '{' SwitchExprArms '}'
+SwitchLabeledRules -> SwitchLabeledRule
+SwitchLabeledRules ::= SwitchLabeledRules SwitchLabeledRule
+/.$putCase consumeSwitchLabeledRules() ; $break ./
+/:$readableName SwitchLabeledRules:/
 
-SwitchExprArms -> SwitchExprArm
-SwitchExprArms ::= SwitchExprArms SwitchExprArm
-/.$putCase consumeSwitchExprArms() ; $break ./
-/:$readableName SwitchExprArms:/
+SwitchLabeledRule -> SwitchLabeledExpression
+SwitchLabeledRule -> SwitchLabeledBlock
+SwitchLabeledRule -> SwitchLabeledThrowStatement
+/. $putCase consumeSwitchLabeledRule(); $break ./
+/:$readableName SwitchLabeledRule:/
 
-SwitchExprArm -> SwitchExprBlockArm
-SwitchExprArm -> SwitchExprExprArm
-SwitchExprArm -> SwitchExprExprDefaultArm
-SwitchExprArm -> SwitchExprBreakArm
-SwitchExprArm -> SwitchExprThrowArm
-SwitchExprArm -> SwitchExprThrowDefaultArm
-/. $putCase consumeSwitchExprArm(); $break ./
-/:$readableName SwitchExprArm:/
+SwitchLabeledExpression ::= SwitchLabelExpr Expression ';'
+/. $putCase consumeSwitchLabeledExpression(); $break ./
+/:$readableName SwitchLabeledExpression:/
 
-SwitchExprBlockArm ::= SwitchLabelExpr Block
-/. $putCase consumeSwitchExprBlockArm(); $break ./
-/:$readableName SwitchExprBlockArm:/
+SwitchLabeledBlock ::= SwitchLabelExpr Block
+/. $putCase consumeSwitchLabeledBlock(); $break ./
+/:$readableName SwitchLabeledBlock:/
 
-SwitchExprExprArm ::= SwitchLabelExpr Expression ';'
-/. $putCase consumeSwitchExprExprArm(); $break ./
-/:$readableName SwitchExprExprArm:/
+SwitchLabeledThrowStatement ::= SwitchLabelExpr ThrowExpression ';'
+/. $putCase consumeSwitchLabeledThrowStatement(); $break ./
+/:$readableName SwitchLabeledThrowStatement:/
 
-SwitchExprBreakArm ::= SwitchLabelExpr BreakExpression ';'
-/. $putCase consumeSwitchExprBreakArm(); $break ./
-/:$readableName SwitchExprBreakArm:/
-
-SwitchExprThrowArm ::= SwitchLabelExpr ThrowExpression ';'
-/. $putCase consumeSwitchExprThrowArm(); $break ./
-/:$readableName SwitchExprThrowArm:/
-
-SwitchExprExprDefaultArm ::= SwitchLabelDefaultExpr Expression ';'
-/. $putCase consumeSwitchExprExprDefaultArm(); $break ./
-/:$readableName SwitchExprExprDefaultArm:/
-
-SwitchExprThrowDefaultArm ::= SwitchLabelDefaultExpr ThrowExpression ';'
-/. $putCase consumeSwitchExprThrowDefaultArm(); $break ./
-/:$readableName SwitchExprThrowDefaultArm:/
-
-SwitchLabelDefaultExpr ::= 'default' BeginCaseExpr '->'
+SwitchLabelExpr ::= 'default'  '->'
 /. $putCase consumeDefaultLabelExpr(); $break ./
 /:$readableName SwitchLabelDefaultExpr:/
 

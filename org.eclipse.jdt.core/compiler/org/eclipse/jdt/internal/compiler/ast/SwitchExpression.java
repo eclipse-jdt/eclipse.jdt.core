@@ -41,7 +41,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 public class SwitchExpression extends Expression implements IPolyExpression {
 
 	public Expression expression;
-	public SwitchExprArm[] exprArms;
+	public SwitchLabeledRule[] switchLabeledRules;
 	public BlockScope scope;
 
 	public CaseStatement[] cases;
@@ -117,9 +117,9 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 
 			if (visitor.visit(this, blockScope)) {
 				this.expression.traverse(visitor, blockScope);
-				if (this.exprArms != null && this.exprArms.length > 0) {
-					SwitchExprArm arms[] = this.exprArms; 
-					for (SwitchExprArm arm : arms)
+				if (this.switchLabeledRules != null && this.switchLabeledRules.length > 0) {
+					SwitchLabeledRule arms[] = this.switchLabeledRules; 
+					for (SwitchLabeledRule arm : arms)
 						arm.traverse(visitor, blockScope);
 				}
 			}
@@ -262,7 +262,7 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 				this.dispatchStringCopy.useFlag = LocalVariableBinding.USED;
 			}
 			
-			SwitchExprArm arms[] = this.exprArms;
+			SwitchLabeledRule arms[] = this.switchLabeledRules;
 			if (arms == null || arms.length == 0) {
 				//	Report Error JLS 12 15.29.1  The switch block must not be empty.
 				upperScope.problemReporter().switchExpressionEmptySwitchBlock(this);
@@ -275,7 +275,7 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 
 			int length;
 			// collection of cases is too big but we will only iterate until caseCount
-			this.cases = new CaseStatement[length = this.exprArms.length];
+			this.cases = new CaseStatement[length = this.switchLabeledRules.length];
 			if (!isStringSwitch) {
 				this.constants = new int[length];
 			} else {
@@ -284,7 +284,7 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 			int counter = 0;
 			for (int i = 0; i < length; i++) {
 				Constant constant1;
-				final SwitchExprArm arm = this.exprArms[i];
+				final SwitchLabeledRule arm = this.switchLabeledRules[i];
 				if ((constant1 = arm.resolveCase(this.scope, expressionType, this)) != Constant.NotAConstant) {
 					if (!isStringSwitch) {
 						int key = constant1.intValue();
@@ -508,8 +508,8 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 	private boolean isIntegerConvertible(TypeBinding targetType) {
 		if (TypeBinding.equalsEquals(targetType, TypeBinding.INT))
 			return true;
-		for (int i = 0, l = this.exprArms.length; i < l; ++i) {
-			Expression e = this.exprArms[i];
+		for (int i = 0, l = this.switchLabeledRules.length; i < l; ++i) {
+			Expression e = this.switchLabeledRules[i];
 			TypeBinding t = this.originalValueResultExpressionTypes[i];
 			if (!TypeBinding.equalsEquals(t, TypeBinding.INT)) continue;
 			if (!e.isConstantValueOfTypeAssignableToType(t, targetType))
@@ -541,7 +541,7 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 			if (tmp == null) // resolution error.
 				return false;
 		
-		for (SwitchExprArm arm : this.exprArms)
+		for (SwitchLabeledRule arm : this.switchLabeledRules)
 			if (arm.isPolyExpression())
 				return true;
 		
@@ -560,7 +560,7 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 	public StringBuffer printExpression(int indent, StringBuffer output) {
 		output.append("switch ("); //$NON-NLS-1$
 		this.expression.printExpression(0, output).append(") {"); //$NON-NLS-1$
-		for (SwitchExprArm arm : this.exprArms)
+		for (SwitchLabeledRule arm : this.switchLabeledRules)
 			arm.print(0, output);
 		output.append('\n');
 		return printIndent(indent, output).append('}');
