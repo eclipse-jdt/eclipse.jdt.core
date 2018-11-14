@@ -860,11 +860,8 @@ public class CompilerOptions {
 						if (index != -1)
 							version = version.substring(0, index);
 					}
-					int major = Integer.parseInt(version) + ClassFileConstants.MAJOR_VERSION_0;
-					if (major <= ClassFileConstants.MAJOR_LATEST_VERSION) {
-						long jdkLevel = ((long) major << 16) + ClassFileConstants.MINOR_VERSION_0;
-						return jdkLevel;
-					}
+					int major = Math.min(Integer.parseInt(version) + ClassFileConstants.MAJOR_VERSION_0, ClassFileConstants.MAJOR_LATEST_VERSION);
+					return ((long) major << 16) + ClassFileConstants.MINOR_VERSION_0;
 				} catch (NumberFormatException e) {
 					// do nothing and return 0 at the end
 				}
