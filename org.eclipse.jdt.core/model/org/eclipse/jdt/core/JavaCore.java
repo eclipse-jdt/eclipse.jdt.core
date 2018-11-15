@@ -3048,6 +3048,21 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
+	 * Returns whether the given version of Java or Java Runtime is supported 
+	 * by the Java Development Toolkit.
+	 * 
+	 * A true indicates that the given version is supported. For e.g., if the argument
+	 * is <code>11.0.1</code> and {@link #getAllVersions()} contains <code>11</code>, 
+	 * the method returns <code>true</code>.
+	 * 
+	 * @return a boolean indicating support for the given version of Java or Java Runtime.
+	 * @since 3.16
+	 */
+	public static boolean isSupportedJavaVersion(String version) {
+		return CompilerOptions.versionToJdkLevel(version, false) > 0;
+	}
+
+	/**
 	 * Configurable option value: {@value}.
 	 * @since 2.0
 	 * @category OptionValue

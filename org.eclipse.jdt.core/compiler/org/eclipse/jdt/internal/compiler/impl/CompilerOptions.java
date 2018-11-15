@@ -826,6 +826,9 @@ public class CompilerOptions {
 		return 0;
 	}
 	public static long versionToJdkLevel(String versionID) {
+		return versionToJdkLevel(versionID, true);
+	}
+	public static long versionToJdkLevel(String versionID, boolean supportUnreleased) {
 		String version = versionID;
 		// verification is optimized for all versions with same length and same "1." prefix
 		if (version != null && version.length() > 0) {
@@ -860,7 +863,13 @@ public class CompilerOptions {
 						if (index != -1)
 							version = version.substring(0, index);
 					}
-					int major = Math.min(Integer.parseInt(version) + ClassFileConstants.MAJOR_VERSION_0, ClassFileConstants.MAJOR_LATEST_VERSION);
+					int major = Integer.parseInt(version) + ClassFileConstants.MAJOR_VERSION_0;
+					if (major > ClassFileConstants.MAJOR_LATEST_VERSION) {
+						if (supportUnreleased)
+							major = ClassFileConstants.MAJOR_LATEST_VERSION;
+						else
+							return 0; // unknown
+					}
 					return ((long) major << 16) + ClassFileConstants.MINOR_VERSION_0;
 				} catch (NumberFormatException e) {
 					// do nothing and return 0 at the end
