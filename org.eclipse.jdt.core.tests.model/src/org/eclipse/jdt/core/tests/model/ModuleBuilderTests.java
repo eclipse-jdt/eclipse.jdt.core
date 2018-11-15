@@ -7141,6 +7141,81 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("Bug540788.vulkan.demo");
 		}
 	}
+	public void testBug541015() throws Exception {
+		try {
+			IJavaProject m1 = createJava9Project("m1", new String[] { "src" });
+			createSourceFiles(m1,
+					new String[] {
+						"src/module-info.java",
+						"module m1 { exports org.p1; }\n",
+						"src/org/p1/T1.java",
+						"package org.p1;\n" +
+						"public class T1 {}\n"
+					});
+			IJavaProject m2 = createJava9Project("m2", new String[] { "src" });
+			createSourceFiles(m2,
+					new String[] {
+						"src/module-info.java",
+						"module m2 { exports org.p1; }\n",
+						"src/org/p1/T1.java",
+						"package org.p1;\n" +
+						"public class T1 {}\n"
+					});
+			IJavaProject m3 = createJava9Project("m3", new String[] { "src" });
+			createSourceFiles(m3,
+					new String[] {
+						"src/module-info.java",
+						"module m3 { exports org.p1; }\n",
+						"src/org/p1/T1.java",
+						"package org.p1;\n" +
+						"public class T1 {}\n"
+					});
+			IJavaProject unnamed = createJava9Project("unnamed", new String[] { "src" });
+			String testSource = "package test;\n" +
+			"import org.p1.T1;\n" +
+			"public class Test {\n" +
+			"	T1 t1;\n" +
+			"}\n";
+			createSourceFiles(unnamed,
+					new String[] {
+						"src/test/Test.java",
+						testSource
+					});
+			addModularProjectEntry(unnamed, m1);
+			addModularProjectEntry(unnamed, m2);
+			addModularProjectEntry(unnamed, m3);
+			
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = unnamed.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"The import org.p1.T1 cannot be resolved\n" + 
+					"T1 cannot be resolved to a type",
+					markers);
+			
+			char[] sourceChars = testSource.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			getCompilationUnit("/unnamed/src/test/Test.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /unnamed/src/test/Test.java (at line 2)\n" + 
+					"	import org.p1.T1;\n" + 
+					"	       ^^^^^^^^^\n" + 
+					"The import org.p1.T1 cannot be resolved\n" + 
+					"----------\n" + 
+					"2. ERROR in /unnamed/src/test/Test.java (at line 4)\n" + 
+					"	T1 t1;\n" + 
+					"	^^\n" + 
+					"T1 cannot be resolved to a type\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject("m1");
+			deleteProject("m2");
+			deleteProject("m3");
+			deleteProject("unnamed");
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
