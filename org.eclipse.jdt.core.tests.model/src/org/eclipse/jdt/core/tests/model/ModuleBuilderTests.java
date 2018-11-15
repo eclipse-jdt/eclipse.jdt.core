@@ -6290,21 +6290,28 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		if (!isJRE9) return;
 		ClasspathJrt.resetCaches();
 		try {
-			IJavaProject javaProject = createJava9Project("mod1", new String[] {"src"});
+			// jdk.rmic is not be visible to code in an unnamed module, but using requires we can see the module.
+			// only, there's nothing exported from it (which is why JEP 261 hides it from unnamed), so we --add-reads:
+			IClasspathAttribute[] attrs = new IClasspathAttribute[] {
+				JavaCore.newClasspathAttribute(IClasspathAttribute.ADD_EXPORTS, "jdk.rmic/sun.rmi.rmic=mod1")
+			};
+			IJavaProject javaProject = createJava9ProjectWithJREAttributes("mod1", new String[] {"src"}, attrs);
 
 			String srcMod =
-				"@SuppressWarnings(\"removal\")\n" + // javax.xml.ws.annotation is deprecated for removal
 				"module mod1 {\n" + 
 				"	exports com.mod1.pack1;\n" + 
-				"	requires java.xml.ws.annotation;\n" + 
+				"	requires jdk.rmic;\n" + 
 				"}";
 			createFile("/mod1/src/module-info.java", 
 				srcMod);
 			createFolder("/mod1/src/com/mod1/pack1");
 			String srcX =
 				"package com.mod1.pack1;\n" +
-				"@javax.annotation.Generated(\"com.acme.generator.CodeGen\")\n" +
+				"import sun.rmi.rmic.Main;\n" +
 				"public class Dummy {\n" +
+				"	String test() {\n" +
+				"		return Main.getString(\"in\");\n" +
+				"	}\n" +
 				"}";
 			createFile("/mod1/src/com/mod1/pack1/Dummy.java", srcX);
 
@@ -6326,6 +6333,92 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			assertNoErrors();
 		} finally {
 			deleteProject("mod1");
+		}
+	}
+
+	public void testBug526054b() throws Exception {
+		if (!isJRE9) return;
+		ClasspathJrt.resetCaches();
+		try {
+			// one project can see jdk.rmic/sun.rmi.rmic
+			IClasspathAttribute[] attrs = new IClasspathAttribute[] {
+				JavaCore.newClasspathAttribute(IClasspathAttribute.ADD_EXPORTS, "jdk.rmic/sun.rmi.rmic=mod1")
+			};
+			createJava9ProjectWithJREAttributes("mod1", new String[] {"src"}, attrs);
+
+			String srcMod1 =
+				"module mod1 {\n" + 
+				"	exports com.mod1.pack1;\n" + 
+				"	requires jdk.rmic;\n" + 
+				"}";
+			createFile("/mod1/src/module-info.java", 
+				srcMod1);
+			createFolder("/mod1/src/com/mod1/pack1");
+			String srcX1 =
+				"package com.mod1.pack1;\n" +
+				"import sun.rmi.rmic.Constants;\n" + // this should never be complained against due to above add-exports.
+				"public class Dummy implements Constants {\n" +
+				"}";
+			createFile("/mod1/src/com/mod1/pack1/Dummy.java", srcX1);
+			
+			// second project cannot see jdk.rmic/sun.rmi.rmic:
+			createJava9Project("mod2", new String[] {"src"});
+
+			String srcMod2 =
+				"module mod2 {\n" + 
+				"	exports com.mod2.pack1;\n" + 
+				"	requires jdk.rmic;\n" + 
+				"}";
+			createFile("/mod2/src/module-info.java", 
+				srcMod2);
+			createFolder("/mod2/src/com/mod2/pack1");
+			String srcX2 =
+				"package com.mod2.pack1;\n" +
+				"import sun.rmi.rmic.Main;\n" +
+				"public class Dummy {\n" +
+				"	String test() {\n" +
+				"		return Main.getString(\"in\");\n" +
+				"	}\n" +
+				"}";
+			createFile("/mod2/src/com/mod2/pack1/Dummy.java", srcX2);
+
+			// check first:
+			this.problemRequestor.initialize(srcX1.toCharArray());
+			getWorkingCopy("/mod1/src/com/mod1/pack1/Dummy.java", srcX1, true);
+			assertProblems("Dummy in mod1 should have no problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			// check second:
+			this.problemRequestor.initialize(srcX2.toCharArray());
+			getWorkingCopy("/mod2/src/com/mod2/pack1/Dummy.java", srcX2, true);
+			assertProblems("Dummy in mod2 should have problems",
+					"----------\n" + 
+					"1. ERROR in /mod2/src/com/mod2/pack1/Dummy.java (at line 2)\n" + 
+					"	import sun.rmi.rmic.Main;\n" + 
+					"	       ^^^^^^^^^^^^^^^^^\n" + 
+					"The type sun.rmi.rmic.Main is not accessible\n" + 
+					"----------\n" + 
+					"2. ERROR in /mod2/src/com/mod2/pack1/Dummy.java (at line 5)\n" + 
+					"	return Main.getString(\"in\");\n" + 
+					"	       ^^^^\n" + 
+					"Main cannot be resolved\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			// check both in a combined build
+			getWorkspace().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = getWorkspace().getRoot().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers",
+					"The type sun.rmi.rmic.Main is not accessible\n" + 
+					"Main cannot be resolved",
+					markers);
+		} finally {
+			deleteProject("mod1");
+			deleteProject("mod2");
 		}
 	}
 
@@ -7187,6 +7280,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = unnamed.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
 					"The import org.p1.T1 cannot be resolved\n" + 
 					"T1 cannot be resolved to a type",
