@@ -1160,8 +1160,10 @@ public void ungetToken(int unambiguousToken) {
 	this.nextToken = unambiguousToken;
 }
 private void updateCase(int token) {
-	if (token == TokenNamecase) this.inCase = true;
-	if (token == TokenNameCOLON || token == TokenNameARROW) this.inCase = false;
+	if (token == TokenNamecase) 
+		this.inCase = true;
+	if (token == TokenNameCOLON || token == TokenNameARROW) 
+		this.inCase = false;
 }
 public int getNextToken() throws InvalidInputException {
 	
@@ -4829,9 +4831,12 @@ int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 }
 int disambiguatedToken(int token) {
 	final VanguardParser parser = getVanguardParser();
-	if (token == TokenNameARROW  && this.inCase) {
+	if (token == TokenNameARROW  && this.lookBack[0] == TokenNamecase) {
 		this.nextToken = TokenNameARROW;
 		return TokenNameBeginCaseExpr;
+	} else	if (token == TokenNameARROW  && this.lookBack[1] == TokenNamedefault) {
+		this.nextToken = TokenNameARROW;
+		return TokenNameBeginDefaultExpr;
 	} else	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
 		if (parser.parse(Goal.LambdaParameterListGoal) == VanguardParser.SUCCESS) {
 			this.nextToken = TokenNameLPAREN;

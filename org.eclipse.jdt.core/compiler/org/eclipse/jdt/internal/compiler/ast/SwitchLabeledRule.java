@@ -7,20 +7,20 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class SwitchLabeledRule extends Expression implements IPolyExpression {
 
-	public enum EXPR_KIND {
-		BLOCK,
+	public enum RULE_KIND {
 		EXPR,
-		BREAK,
+		BLOCK,
 		THROW,
+		BREAK,
 		DEFAULT_EXPR,
 		DEFAULT_THROW
 	}
-	private EXPR_KIND kind;
+	private RULE_KIND kind;
 	private CaseStatement lhs;
 	private Statement rhs; 
 	/* package */ TypeBinding expectedType;
 
-	public SwitchLabeledRule(EXPR_KIND kind, CaseStatement lhs, Statement rhs, int start, int end) {
+	public SwitchLabeledRule(RULE_KIND kind, CaseStatement lhs, Statement rhs, int start, int end) {
 		this.setKind(kind); 
 		this.setLhs(lhs);
 		this.setRhs(rhs);
@@ -44,11 +44,11 @@ public class SwitchLabeledRule extends Expression implements IPolyExpression {
 		this.rhs = rhs;
 	}
 
-	public EXPR_KIND getKind() {
+	public RULE_KIND getKind() {
 		return this.kind;
 	}
 
-	public void setKind(EXPR_KIND kind) {
+	public void setKind(RULE_KIND kind) {
 		this.kind = kind;
 	}
 

@@ -114,6 +114,7 @@ $Terminals
 	AT308
 	AT308DOTDOTDOT
 	BeginCaseExpr
+	BeginDefaultExpr
 
 --    BodyMarker
 
@@ -1257,10 +1258,10 @@ SwitchStatement ::= 'switch' '(' Expression ')' OpenBlock SwitchBlock
 SwitchBlock ::= '{' '}'
 /.$putCase consumeEmptySwitchBlock() ; $break ./
 
+SwitchBlock ::= '{' SwitchLabeledRules '}'
 SwitchBlock ::= '{' SwitchBlockStatements '}'
 SwitchBlock ::= '{' SwitchLabels '}'
 SwitchBlock ::= '{' SwitchBlockStatements SwitchLabels '}'
-SwitchBlock ::= '{' SwitchLabeledRules '}'
 /.$putCase consumeSwitchBlock() ; $break ./
 /:$readableName SwitchBlock:/
 
@@ -1298,9 +1299,9 @@ SwitchLabeledRules ::= SwitchLabeledRules SwitchLabeledRule
 /.$putCase consumeSwitchLabeledRules() ; $break ./
 /:$readableName SwitchLabeledRules:/
 
-SwitchLabeledRule -> SwitchLabeledExpression
-SwitchLabeledRule -> SwitchLabeledBlock
-SwitchLabeledRule -> SwitchLabeledThrowStatement
+SwitchLabeledRule ::= SwitchLabeledExpression
+SwitchLabeledRule ::= SwitchLabeledBlock
+SwitchLabeledRule ::= SwitchLabeledThrowStatement
 /. $putCase consumeSwitchLabeledRule(); $break ./
 /:$readableName SwitchLabeledRule:/
 
@@ -1316,7 +1317,7 @@ SwitchLabeledThrowStatement ::= SwitchLabelExpr ThrowExpression ';'
 /. $putCase consumeSwitchLabeledThrowStatement(); $break ./
 /:$readableName SwitchLabeledThrowStatement:/
 
-SwitchLabelExpr ::= 'default'  '->'
+SwitchLabelExpr ::= 'default' BeginDefaultExpr '->'
 /. $putCase consumeDefaultLabelExpr(); $break ./
 /:$readableName SwitchLabelDefaultExpr:/
 
@@ -1396,7 +1397,7 @@ ReturnStatement ::= 'return' Expressionopt ';'
 /.$putCase consumeStatementReturn() ; $break ./
 /:$readableName ReturnStatement:/
 
-ThrowStatement ::= ThrowExpression ';'
+ThrowStatement ::= 'throw' Expression ';'
 /.$putCase consumeStatementThrow(); $break ./
 /:$readableName ThrowStatement:/
 

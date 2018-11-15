@@ -7176,7 +7176,7 @@ protected void consumeRule(int act) {
 		    consumeEmptySwitchBlock() ;  
 			break;
  
-    case 386 : if (DEBUG) { System.out.println("SwitchBlock ::= LBRACE SwitchLabeledRules RBRACE"); }  //$NON-NLS-1$
+    case 386 : if (DEBUG) { System.out.println("SwitchBlock ::= LBRACE SwitchBlockStatements..."); }  //$NON-NLS-1$
 		    consumeSwitchBlock() ;  
 			break;
  
@@ -7208,7 +7208,7 @@ protected void consumeRule(int act) {
 		    consumeSwitchLabeledRules() ;  
 			break;
  
-     case 400 : if (DEBUG) { System.out.println("SwitchLabeledRule -> SwitchLabeledThrowStatement"); }  //$NON-NLS-1$
+     case 400 : if (DEBUG) { System.out.println("SwitchLabeledRule ::= SwitchLabeledThrowStatement"); }  //$NON-NLS-1$
 		    consumeSwitchLabeledRule();  
 			break;
  
@@ -7224,7 +7224,7 @@ protected void consumeRule(int act) {
 		    consumeSwitchLabeledThrowStatement();  
 			break;
  
-     case 404 : if (DEBUG) { System.out.println("SwitchLabelExpr ::= default ARROW"); }  //$NON-NLS-1$
+     case 404 : if (DEBUG) { System.out.println("SwitchLabelExpr ::= default BeginDefaultExpr ARROW"); }  //$NON-NLS-1$
 		    consumeDefaultLabelExpr();  
 			break;
  
@@ -7296,7 +7296,7 @@ protected void consumeRule(int act) {
 		    consumeStatementReturn() ;  
 			break;
  
-    case 425 : if (DEBUG) { System.out.println("ThrowStatement ::= ThrowExpression SEMICOLON"); }  //$NON-NLS-1$
+    case 425 : if (DEBUG) { System.out.println("ThrowStatement ::= throw Expression SEMICOLON"); }  //$NON-NLS-1$
 		    consumeStatementThrow();  
 			break;
  
@@ -9475,7 +9475,7 @@ protected void consumeSwitchBlockStatements() {
 }
 protected void consumeSwitchLabels() {
 	// SwitchLabels ::= SwitchLabels SwitchLabel
-	concatNodeLists();
+	optimizedConcatNodeLists();
 }
 protected void consumeSwitchLabelCaseLhs() {
 //	System.out.println("consumeSwitchLabelCaseLhs");
@@ -9509,11 +9509,7 @@ protected void consumeSwitchExpression() {
 protected void consumeSwitchExprThrowDefaultArm() {
 //	SwitchExprThrowDefaultArm ::= SwitchLabelDefaultExpr Expression ';'
 	consumeStatementThrow();
-	processSwitchExprArm(SwitchLabeledRule.EXPR_KIND.DEFAULT_THROW);
-}
-protected void consumeSwitchExprExprDefaultArm() {
-//	SwitchExprThrowDefaultArm ::= SwitchLabelDefaultExpr Expression ';'
-	processSwitchExprExprArm(SwitchLabeledRule.EXPR_KIND.DEFAULT_EXPR);
+//	pushSwitchLabeledRule(SwitchLabeledRule.RULE_KIND.DEFAULT_THROW);
 }
 protected void consumeConstantExpression() {
 	// do nothing for now.
@@ -9525,63 +9521,30 @@ protected void consumeBreakExpression() {
 	// BreakExpression ::= 'break' Expression
 	// do nothing
 }
-protected void consumeSwitchExprArms() {
+protected void consumeSwitchLabeledRules() {
 	concatNodeLists();
 }
-protected void consumeSwitchExprBlockArm() {
-	processSwitchExprArm(SwitchLabeledRule.EXPR_KIND.BLOCK);
-}
-protected void consumeSwitchExprArm() {
-	// do nothing
-}
-private void processSwitchExprArm(SwitchLabeledRule.EXPR_KIND kind) {
-	this.astLengthPtr--;
-	Statement r = (Statement) this.astStack[this.astPtr--];
-	
-	this.astLengthPtr--;
-	CaseStatement l = (CaseStatement) this.astStack[this.astPtr--];
-
-	SwitchLabeledRule arm = new SwitchLabeledRule(kind, l, r, l.sourceStart, r.sourceEnd);
-	pushOnAstStack(arm);
-}
-private void processSwitchExprExprArm(SwitchLabeledRule.EXPR_KIND kind) {
-	if (this.expressionLengthStack[this.expressionLengthPtr] != 0) {
-//		Expression expr = this.expressionStack[this.expressionPtr];
-//		pushOnIntStack(expr.sourceStart); // pretend break starts at expr
-		consumeStatementBreakWithLabel();
-		processSwitchExprArm(kind);
-	}
-}
-protected void consumeSwitchExprExprArm() {
-	processSwitchExprExprArm(SwitchLabeledRule.EXPR_KIND.EXPR);
-}
-protected void consumeSwitchLabeledRules() {
-	// TODO
-}
 protected void consumeSwitchLabeledRule() {
-	// TODO
+//	SwitchLabeledRule ::= SwitchLabeledExpression
+//	SwitchLabeledRule ::= SwitchLabeledBlock
+//	SwitchLabeledRule ::= SwitchLabeledThrowStatement
+//	concatNodeLists();
+
+	// do nothing explicit here
 }
 protected void consumeSwitchLabeledExpression() {
-	// TODO
+	consumeExpressionStatement();
+	concatNodeLists();
 } 
 protected void consumeSwitchLabeledBlock() {
-	// TODO
+	concatNodeLists();
 }  
 protected void consumeSwitchLabeledThrowStatement() {
-	// TODO
-}
-protected void consumeSwitchExprBreakArm() {
-//	SwitchExprBreakArm ::= SwitchLabelExpr BreakExpression ';'
-	consumeStatementBreakWithLabel();
-	processSwitchExprArm(SwitchLabeledRule.EXPR_KIND.BREAK);
-}
-protected void consumeSwitchExprThrowArm() {
-//	SwitchExprThrowArm ::= SwitchLabelExpr ThrowExpression ';'
-	consumeStatementThrow();
-	processSwitchExprArm(SwitchLabeledRule.EXPR_KIND.THROW);
+	// TODO: Semicolon not there - so we call this early
+	consumeStatementThrow(); 
+	concatNodeLists();
 }
 protected void consumeThrowExpression() {
-	// ThrowExpression ::= 'throw' Expression
 	// do nothing
 }
 private boolean caseFlagSet = false;
@@ -9608,7 +9571,7 @@ protected void consumeToken(int type) {
 	//System.out.println(this.scanner.toStringAction(type));
 	switch (type) {
 		case TokenNameARROW:
-			if (!this.caseFlagSet)
+			if (!this.caseFlagSet  && this.scanner.lookBack[0] != TokenNamedefault)
 				consumeLambdaHeader();
 			this.caseFlagSet = false;
 			break;
