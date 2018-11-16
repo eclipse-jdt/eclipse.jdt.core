@@ -1257,7 +1257,6 @@ SwitchStatement ::= 'switch' '(' Expression ')' OpenBlock SwitchBlock
 SwitchBlock ::= '{' '}'
 /.$putCase consumeEmptySwitchBlock() ; $break ./
 
-SwitchBlock ::= '{' SwitchLabeledRules '}'
 SwitchBlock ::= '{' SwitchBlockStatements '}'
 SwitchBlock ::= '{' SwitchLabels '}'
 SwitchBlock ::= '{' SwitchBlockStatements SwitchLabels '}'
@@ -1269,6 +1268,7 @@ SwitchBlockStatements ::= SwitchBlockStatements SwitchBlockStatement
 /.$putCase consumeSwitchBlockStatements() ; $break ./
 /:$readableName SwitchBlockStatements:/
 
+SwitchBlockStatement -> SwitchLabeledRule
 SwitchBlockStatement ::= SwitchLabels BlockStatements
 /.$putCase consumeSwitchBlockStatement() ; $break ./
 /:$readableName SwitchBlockStatement:/
@@ -1292,11 +1292,6 @@ UnaryExpressionNotPlusMinus -> SwitchExpression
 SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchBlock
 /.$putCase consumeSwitchExpression() ; $break ./
 /:$readableName SwitchExpression:/
-
-SwitchLabeledRules -> SwitchLabeledRule
-SwitchLabeledRules ::= SwitchLabeledRules SwitchLabeledRule
-/.$putCase consumeSwitchLabeledRules() ; $break ./
-/:$readableName SwitchLabeledRules:/
 
 SwitchLabeledRule ::= SwitchLabeledExpression
 SwitchLabeledRule ::= SwitchLabeledBlock

@@ -4831,8 +4831,9 @@ int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 }
 int disambiguatedToken(int token) {
 	final VanguardParser parser = getVanguardParser();
-	if (token == TokenNameARROW  && this.lookBack[0] == TokenNamecase) {
+	if (token == TokenNameARROW  && this.inCase) {
 		this.nextToken = TokenNameARROW;
+		this.inCase = false;
 		return TokenNameBeginCaseExpr;
 	} else	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
 		if (parser.parse(Goal.LambdaParameterListGoal) == VanguardParser.SUCCESS) {

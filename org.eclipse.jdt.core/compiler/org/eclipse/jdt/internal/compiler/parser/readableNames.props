@@ -305,7 +305,6 @@ SwitchLabelExpr=SwitchLabelDefaultExpr
 SwitchLabeledBlock=SwitchLabeledBlock
 SwitchLabeledExpression=SwitchLabeledExpression
 SwitchLabeledRule=SwitchLabeledRule
-SwitchLabeledRules=SwitchLabeledRules
 SwitchLabeledThrowStatement=SwitchLabeledThrowStatement
 SwitchLabels=SwitchLabels
 SwitchStatement=SwitchStatement
