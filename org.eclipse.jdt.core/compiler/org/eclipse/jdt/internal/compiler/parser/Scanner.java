@@ -4834,9 +4834,6 @@ int disambiguatedToken(int token) {
 	if (token == TokenNameARROW  && this.lookBack[0] == TokenNamecase) {
 		this.nextToken = TokenNameARROW;
 		return TokenNameBeginCaseExpr;
-	} else	if (token == TokenNameARROW  && this.lookBack[1] == TokenNamedefault) {
-		this.nextToken = TokenNameARROW;
-		return TokenNameBeginDefaultExpr;
 	} else	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
 		if (parser.parse(Goal.LambdaParameterListGoal) == VanguardParser.SUCCESS) {
 			this.nextToken = TokenNameLPAREN;

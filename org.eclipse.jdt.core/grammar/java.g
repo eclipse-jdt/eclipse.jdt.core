@@ -114,7 +114,6 @@ $Terminals
 	AT308
 	AT308DOTDOTDOT
 	BeginCaseExpr
-	BeginDefaultExpr
 
 --    BodyMarker
 
@@ -1317,7 +1316,7 @@ SwitchLabeledThrowStatement ::= SwitchLabelExpr ThrowExpression ';'
 /. $putCase consumeSwitchLabeledThrowStatement(); $break ./
 /:$readableName SwitchLabeledThrowStatement:/
 
-SwitchLabelExpr ::= 'default' BeginDefaultExpr '->'
+SwitchLabelExpr ::= 'default'  '->'
 /. $putCase consumeDefaultLabelExpr(); $break ./
 /:$readableName SwitchLabelDefaultExpr:/
 

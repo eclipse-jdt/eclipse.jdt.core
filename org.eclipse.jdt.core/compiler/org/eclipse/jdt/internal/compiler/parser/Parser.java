@@ -7224,7 +7224,7 @@ protected void consumeRule(int act) {
 		    consumeSwitchLabeledThrowStatement();  
 			break;
  
-     case 404 : if (DEBUG) { System.out.println("SwitchLabelExpr ::= default BeginDefaultExpr ARROW"); }  //$NON-NLS-1$
+     case 404 : if (DEBUG) { System.out.println("SwitchLabelExpr ::= default ARROW"); }  //$NON-NLS-1$
 		    consumeDefaultLabelExpr();  
 			break;
  
