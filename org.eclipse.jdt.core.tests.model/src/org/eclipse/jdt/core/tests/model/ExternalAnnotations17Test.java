@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 GK Software AG, and others.
+ * Copyright (c) 2015, 2019 GK Software SE, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.Map;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -21,6 +23,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -163,6 +166,178 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		assertProblems(problems, new String[] {
 			"Pb(933) Null type mismatch: required '@NonNull String' but the provided value is specified as @Nullable",
 		}, new int[] { 8 });
+	}
+
+	public void testTwoProjects_a() throws Exception {
+		IJavaProject prj2 = null;
+		try {
+			//  create project #1:
+			myCreateJavaProject("TestLibs1");
+			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "/TestLibs1", new String[] {
+					"/UnannotatedLib/libs/Lib1.java",
+					"package libs;\n" + 
+					"\n" +
+					"public class Lib1 {\n" + 
+					"	public static String one = \"1\";\n" +  // not final!
+					"	public static String none = null;\n" + 
+					"}\n"
+				}, null);
+			createFileInProject("libs", "Lib1.eea", 
+					"class libs/Lib1\n" +
+					"\n" + 
+					"one\n" + 
+					" Ljava/lang/String;\n" + 
+					" L1java/lang/String;\n" + 
+					"\n" + 
+					"none\n" + 
+					" Ljava/lang/String;\n" +
+					" L0java/lang/String;\n" +
+					"\n");
+			IPackageFragment fragment1 = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+
+			//  create project #2 (referring to the same lib, but without external annotations):
+			prj2 = createJavaProject("TestLibs2", new String[]{"src"}, new String[]{this.jclLib, "/TestLibs1/lib1.jar"}, null, null, "bin", null, null, null, this.compliance);
+			addLibraryEntry(prj2, this.ANNOTATION_LIB, false);
+			Map<String,String> options = prj2.getOptions(true);
+			options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+			prj2.setOptions(options);
+			IPackageFragment fragment2 = prj2.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+
+			// test project #1:
+			ICompilationUnit unit = fragment1.createCompilationUnit("Test1.java",
+					"package tests;\n" + 
+					"import org.eclipse.jdt.annotation.*;\n" + 
+					"\n" + 
+					"import libs.Lib1;\n" + 
+					"\n" + 
+					"public class Test1 {\n" + 
+					"	@NonNull String test0() {\n" + 
+					"		return Lib1.none;\n" + 
+					"	}\n" +
+					"	@NonNull String test1() {\n" + 
+					"		return Lib1.one;\n" + 
+					"	}\n" +
+					"}\n",
+					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertProblems(problems, new String[] {
+				"Pb(933) Null type mismatch: required '@NonNull String' but the provided value is specified as @Nullable",
+			}, new int[] { 8 });
+
+			// test project #2:
+			unit = fragment2.createCompilationUnit("Test1.java",
+					"package tests;\n" + 
+					"import org.eclipse.jdt.annotation.*;\n" + 
+					"\n" + 
+					"import libs.Lib1;\n" + 
+					"\n" + 
+					"public class Test1 {\n" + 
+					"	@NonNull String test0() {\n" + 
+					"		return Lib1.none;\n" + 
+					"	}\n" +
+					"	@NonNull String test1() {\n" + 
+					"		return Lib1.one;\n" + 
+					"	}\n" +
+					"}\n",
+					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+			reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
+			problems = reconciled.getProblems();
+			assertProblems(problems, new String[] {
+					"Pb(912) Null type safety: The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'",
+					"Pb(912) Null type safety: The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'",
+				}, new int[] { 8, 11 });
+		} finally {
+			if (prj2 != null)
+				prj2.getProject().delete(true, true, null);
+		}
+	}
+
+	// same as above but swapped order
+	public void testTwoProjects_b() throws Exception {
+		IJavaProject prj2 = null;
+		try {
+			//  create project #1:
+			myCreateJavaProject("TestLibs1");
+			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "/TestLibs1", new String[] {
+					"/UnannotatedLib/libs/Lib1.java",
+					"package libs;\n" + 
+					"\n" +
+					"public class Lib1 {\n" + 
+					"	public static String one = \"1\";\n" + // not final! 
+					"	public static String none = null;\n" + 
+					"}\n"
+				}, null);
+			createFileInProject("libs", "Lib1.eea", 
+					"class libs/Lib1\n" +
+					"\n" + 
+					"one\n" + 
+					" Ljava/lang/String;\n" + 
+					" L1java/lang/String;\n" + 
+					"\n" + 
+					"none\n" + 
+					" Ljava/lang/String;\n" +
+					" L0java/lang/String;\n" +
+					"\n");
+			IPackageFragment fragment1 = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+
+			//  create project #2 (referring to the same lib, but without external annotations):
+			prj2 = createJavaProject("TestLibs2", new String[]{"src"}, new String[]{this.jclLib, "/TestLibs1/lib1.jar"}, null, null, "bin", null, null, null, this.compliance);
+			addLibraryEntry(prj2, this.ANNOTATION_LIB, false);
+			Map<String,String> options = prj2.getOptions(true);
+			options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+			prj2.setOptions(options);
+			IPackageFragment fragment2 = prj2.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+
+			// test project #2:
+			ICompilationUnit unit = fragment2.createCompilationUnit("Test1.java", 
+					"package tests;\n" + 
+					"import org.eclipse.jdt.annotation.*;\n" + 
+					"\n" + 
+					"import libs.Lib1;\n" + 
+					"\n" + 
+					"public class Test1 {\n" + 
+					"	@NonNull String test0() {\n" + 
+					"		return Lib1.none;\n" + 
+					"	}\n" +
+					"	@NonNull String test1() {\n" + 
+					"		return Lib1.one;\n" + 
+					"	}\n" +
+					"}\n",
+					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertProblems(problems, new String[] {
+					"Pb(912) Null type safety: The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'",
+					"Pb(912) Null type safety: The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'",
+				}, new int[] { 8, 11 });
+
+
+			// test project #1:
+			unit = fragment1.createCompilationUnit("Test1.java",
+					"package tests;\n" + 
+					"import org.eclipse.jdt.annotation.*;\n" + 
+					"\n" + 
+					"import libs.Lib1;\n" + 
+					"\n" + 
+					"public class Test1 {\n" + 
+					"	@NonNull String test0() {\n" + 
+					"		return Lib1.none;\n" + 
+					"	}\n" +
+					"	@NonNull String test1() {\n" + 
+					"		return Lib1.one;\n" + 
+					"	}\n" +
+					"}\n",
+					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+			reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
+			problems = reconciled.getProblems();
+			assertProblems(problems, new String[] {
+				"Pb(933) Null type mismatch: required '@NonNull String' but the provided value is specified as @Nullable",
+			}, new int[] { 8 });
+		} finally {
+			if (prj2 != null)
+				prj2.getProject().delete(true, true, null);
+		}
 	}
 
 	/** Reconcile an individual CU. */

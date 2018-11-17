@@ -366,10 +366,10 @@ public class HandleFactory {
 				if (classpathEnty != null) {
 					if (target instanceof IFile) {
 						// internal jar
-						return (PackageFragmentRoot) javaProject.getPackageFragmentRoot((IFile)target);
+						return (PackageFragmentRoot) javaProject.getPackageFragmentRoot((IFile)target, null, classpathEnty.getExtraAttributes());
 					} else {
 						// external jar
-						return (PackageFragmentRoot) javaProject.getPackageFragmentRoot0(jarPath);
+						return (PackageFragmentRoot) javaProject.getPackageFragmentRoot0(jarPath, classpathEnty.getExtraAttributes());
 					}
 				}
 			} catch (JavaModelException e) {

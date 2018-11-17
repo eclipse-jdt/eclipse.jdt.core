@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 IBM Corporation and others.
+ * Copyright (c) 2017, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.core.builder.ClasspathJMod;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
@@ -38,15 +38,8 @@ public class JModPackageFragmentRoot extends JarPackageFragmentRoot {
 	 * based on a JMOD file that is not contained in a <code>IJavaProject</code> and
 	 * does not have an associated <code>IResource</code>.
 	 */
-	protected JModPackageFragmentRoot(IPath externalPath, JavaProject project) {
-		super(externalPath, project);
-	}
-	/**
-	 * Constructs a package fragment root which is the root of the Java package directory hierarchy
-	 * based on a JMOD file.
-	 */
-	protected JModPackageFragmentRoot(IResource resource, JavaProject project) {
-		super(resource, project);
+	protected JModPackageFragmentRoot(IPath externalPath, JavaProject project, IClasspathAttribute[] extraAttributes) {
+		super(null, externalPath, project, extraAttributes);
 	}
 
 	/**

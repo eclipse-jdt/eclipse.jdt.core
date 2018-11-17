@@ -14,6 +14,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
@@ -74,6 +75,9 @@ protected void assertMemento(String expected, IJavaElement element) {
 }
 protected String getEscapedExternalJCLPath() {
 	return getEscapedPath(getExternalJCLPath().toString());
+}
+String getEscapedJrtJarPath() {
+	return getEscapedPath(System.getProperty("java.home")+"/lib/jrt-fs.jar");
 }
 protected String getEscapedPath(String path) {
 	StringBuffer buffer = new StringBuffer();
@@ -807,5 +811,96 @@ public void testBug331821() throws JavaModelException {
 	String handleIdentifier = root.getHandleIdentifier();
 	IPackageFragmentRoot newRoot = (IPackageFragmentRoot) JavaCore.create(handleIdentifier);
 	assertEquals(root, newRoot);
+}
+public void testAnnotationPath18() throws CoreException, IOException {
+	// tests annotationpath in memento for a regular jar library:
+	try {
+		IJavaProject project = createJavaProject("Test", new String[] {"src"}, null, "bin", "1.8", false);
+		addLibraryWithExternalAnnotations(project, "1.8", "lib.jar", "/Test/annots", 
+				new String[] {
+					"test/Test.java",
+					"package test;\n" +
+					"public class Test{}\n"
+				},
+				null);
+		String[] expectedIdentifiers = {
+			"=Test/src",
+			"=Test/lib.jar=/annotationpath=/\\/Test\\/annots"	
+		};
+		IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+		boolean archiveSeen = false;
+		for (int i = 0; i < roots.length; i++) {
+			// JarPackageFragmentRoot
+			IPackageFragmentRoot packageRoot = roots[i];
+			String handleIdentifier = packageRoot.getHandleIdentifier();
+			assertEquals("Root mementos", expectedIdentifiers[i], handleIdentifier);
+			IJavaElement element = JavaCore.create(handleIdentifier, null);
+			assertEquals("Root equivalence", packageRoot, element);
+			if (packageRoot.isArchive()) {
+				archiveSeen = true;
+				// PackageFragment
+				IPackageFragment test = packageRoot.getPackageFragment("test");
+				handleIdentifier = test.getHandleIdentifier();
+				String expected = expectedIdentifiers[i]+"<test"; 
+				assertEquals("PackageFragment mementos", expected, handleIdentifier);
+				element = JavaCore.create(handleIdentifier, null);
+				assertEquals("PackageFragment equivalence", test, element);
+				// ClassFile:
+				IClassFile classFile = test.getClassFile("Test.class");
+				handleIdentifier = classFile.getHandleIdentifier();
+				assertEquals("ClassFile mementos", expected+"(Test.class", handleIdentifier);
+				element = JavaCore.create(handleIdentifier);
+				assertEquals("ClassFile equivalence", classFile, element);
+			}
+		}
+		assertTrue("Should have seen an archive", archiveSeen);
+	} finally {
+		deleteProject("Test");
+	}
+}
+public void testAnnotationPath9() throws CoreException, IOException {
+	// tests annotationpath & add-exports in memento for a jrt system library:
+	if (!isJRE9) return;
+	try {
+		IClasspathAttribute[] annPathAttr = {
+			JavaCore.newClasspathAttribute(IClasspathAttribute.EXTERNAL_ANNOTATION_PATH, "annots"),
+			JavaCore.newClasspathAttribute(IClasspathAttribute.ADD_EXPORTS, "jdk.rmic/sun.rmi.rmic=ALL-UNNAMED")
+		};
+		IJavaProject project = createJava9ProjectWithJREAttributes("Test", new String[] {"src"}, annPathAttr);
+		String attributesMemento = "=/annotationpath=/annots=/add-exports=/jdk.rmic\\/sun.rmi.rmic\\=ALL-UNNAMED";
+
+		// Module java.base:
+		String expectedIdentifier = "=Test/"+getEscapedJrtJarPath()+"`java.base"+attributesMemento; // for specific PFR (see below)
+		IModuleDescription module = project.findModule("java.base", null);
+		String moduleIdentifier = expectedIdentifier+"<'`java.base"; // PFR - PackageFragment - ModularClassFile - Module
+		assertEquals("Module mementos", moduleIdentifier, module.getHandleIdentifier());
+		IJavaElement module2 = JavaCore.create(module.getHandleIdentifier(), null);
+		assertTrue("Module existence", module2.exists());
+		assertEquals("Module equivalence", module, module2);
+
+		// JrtPackageFragmentRoot - for module java.base:
+		IPackageFragmentRoot packageRoot = (IPackageFragmentRoot) module.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+		String handleIdentifier = packageRoot.getHandleIdentifier();
+		assertEquals("Root mementos", expectedIdentifier, handleIdentifier);
+		IJavaElement element = JavaCore.create(handleIdentifier, null);
+		assertEquals("Root equivalence", packageRoot, element);
+
+		// PackageFragment
+		IPackageFragment test = packageRoot.getPackageFragment("java.lang");
+		handleIdentifier = test.getHandleIdentifier();
+		String expected = expectedIdentifier+"<java.lang"; 
+		assertEquals("PackageFragment mementos", expected, handleIdentifier);
+		element = JavaCore.create(handleIdentifier, null);
+		assertEquals("PackageFragment equivalence", test, element);
+
+		// ClassFile:
+		IClassFile classFile = test.getClassFile("Object.class");
+		handleIdentifier = classFile.getHandleIdentifier();
+		assertEquals("ClassFile mementos", expected+"(Object.class", handleIdentifier);
+		element = JavaCore.create(handleIdentifier);
+		assertEquals("ClassFile equivalence", classFile, element);
+	} finally {
+		deleteProject("Test");
+	}
 }
 }

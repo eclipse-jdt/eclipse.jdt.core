@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2017 IBM Corporation and others.
+ * Copyright (c) 2004, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -36,6 +36,7 @@ public class MementoTokenizer {
 	public static final String LAMBDA_EXPRESSION = Character.toString(JavaElement.JEM_LAMBDA_EXPRESSION);
 	public static final String LAMBDA_METHOD = Character.toString(JavaElement.JEM_LAMBDA_METHOD);
 	public static final String STRING = Character.toString(JavaElement.JEM_STRING);
+	public static final String CLASSPATH_ATTRIBUTE = JAVAPROJECT+PACKAGEFRAGMENTROOT;
 
 	private final char[] memento;
 	private final int length;
@@ -75,6 +76,8 @@ public class MementoTokenizer {
 							return LAMBDA_METHOD;
 						case JavaElement.JEM_STRING:
 							return STRING;
+						case JavaElement.JEM_PACKAGEFRAGMENTROOT:
+							return CLASSPATH_ATTRIBUTE;
 						default:
 							this.index--;
 							break;

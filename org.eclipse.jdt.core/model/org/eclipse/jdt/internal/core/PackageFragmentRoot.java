@@ -507,6 +507,19 @@ protected void getHandleMemento(StringBuffer buff) {
 		buff.append(JavaElement.JEM_MODULE);
 		escapeMementoName(buff, getElementName());
 	}
+	try {
+		IClasspathEntry entry = getJavaProject().getClasspathEntryFor(getPath());
+		if (entry != null) {
+			for (IClasspathAttribute attribute : entry.getExtraAttributes()) {
+				appendEscapedDelimiter(buff, JavaElement.JEM_PACKAGEFRAGMENTROOT);
+				escapeMementoName(buff, attribute.getName());
+				appendEscapedDelimiter(buff, JavaElement.JEM_PACKAGEFRAGMENTROOT);
+				escapeMementoName(buff, attribute.getValue());
+			}
+		}
+	} catch (JavaModelException e) {
+		// ignore
+	}
 }
 /**
  * @see IPackageFragmentRoot

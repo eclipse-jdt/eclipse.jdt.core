@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -594,6 +595,33 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 		return project;
 	}
+
+	static IClasspathAttribute[] externalAnnotationExtraAttributes(String path) {
+		return new IClasspathAttribute[] {
+				new ClasspathAttribute(IClasspathAttribute.EXTERNAL_ANNOTATION_PATH, path)	
+		};
+	}
+
+	protected void addLibraryWithExternalAnnotations(
+			IJavaProject javaProject,
+			String compliance,
+			String jarName,
+			String externalAnnotationPath,
+			String[] pathAndContents,
+			Map options) throws CoreException, IOException
+	{
+		createLibrary(javaProject, jarName, "src.zip", pathAndContents, null, compliance, options);
+		String jarPath = '/' + javaProject.getProject().getName() + '/' + jarName;
+		IClasspathEntry entry = JavaCore.newLibraryEntry(
+				new Path(jarPath),
+				new Path('/'+javaProject.getProject().getName()+"/src.zip"),
+				null/*src attach root*/,
+				null/*access rules*/,
+				externalAnnotationExtraAttributes(externalAnnotationPath),
+				false/*exported*/);
+		addClasspathEntry(javaProject, entry);
+	}
+
 	protected void addLibraryEntry(String path, boolean exported) throws JavaModelException {
 		addLibraryEntry(this.currentProject, new Path(path), null, null, null, null, exported);
 	}

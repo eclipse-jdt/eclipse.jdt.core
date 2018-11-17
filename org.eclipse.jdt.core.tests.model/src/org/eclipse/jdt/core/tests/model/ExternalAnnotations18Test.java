@@ -115,12 +115,6 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			return false;
 		}
 	}
-
-	static IClasspathAttribute[] externalAnnotationExtraAttributes(String path) {
-		return new IClasspathAttribute[] {
-				new ClasspathAttribute(IClasspathAttribute.EXTERNAL_ANNOTATION_PATH, path)	
-		};
-	}
 	
 	static class LogListener implements ILogListener {
     	List<IStatus> loggedStatus = new ArrayList<>();
@@ -271,23 +265,9 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		super.tearDown();
 	}
 
-	protected void addLibraryWithExternalAnnotations(
-			IJavaProject javaProject,
-			String jarName,
-			String externalAnnotationPath,
-			String[] pathAndContents,
-			Map options) throws CoreException, IOException
-	{
-		createLibrary(javaProject, jarName, "src.zip", pathAndContents, null, this.compliance, options);
-		String jarPath = '/' + javaProject.getProject().getName() + '/' + jarName;
-		IClasspathEntry entry = JavaCore.newLibraryEntry(
-				new Path(jarPath),
-				new Path('/'+javaProject.getProject().getName()+"/src.zip"),
-				null/*src attach root*/,
-				null/*access rules*/,
-				externalAnnotationExtraAttributes(externalAnnotationPath),
-				false/*exported*/);
-		addClasspathEntry(this.project, entry);
+	protected void addLibraryWithExternalAnnotations(IJavaProject javaProject, String jarName, String externalAnnotationPath,
+			String[] pathAndContents, Map options) throws CoreException, IOException {
+		addLibraryWithExternalAnnotations(javaProject, this.compliance, jarName, externalAnnotationPath, pathAndContents, options);
 	}
 
 	protected void addProjectDependencyWithExternalAnnotations(

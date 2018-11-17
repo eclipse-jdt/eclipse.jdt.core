@@ -120,31 +120,34 @@ public class DeltaProcessor {
 		final public JavaProject project;
 		final IPath rootPath;
 		final int entryKind;
+		final IClasspathAttribute[] extraAttributes;
 		IPackageFragmentRoot root;
 		IPackageFragmentRoot cache;
 
-		RootInfo(JavaProject project, IPath rootPath, char[][] inclusionPatterns, char[][] exclusionPatterns, int entryKind) {
+		RootInfo(JavaProject project, IPath rootPath, char[][] inclusionPatterns, char[][] exclusionPatterns, IClasspathEntry entry) {
 			this.project = project;
 			this.rootPath = rootPath;
 			this.inclusionPatterns = inclusionPatterns;
 			this.exclusionPatterns = exclusionPatterns;
-			this.entryKind = entryKind;
+			this.entryKind = entry.getEntryKind();
+			this.extraAttributes = entry.getExtraAttributes();
 			this.cache = getPackageFragmentRoot();
 		}
 		public IPackageFragmentRoot getPackageFragmentRoot() {
 			IPackageFragmentRoot tRoot = null;
 			Object target = JavaModel.getTarget(this.rootPath, false/*don't check existence*/);
 			if (target instanceof IResource) {
-				tRoot = this.project.getPackageFragmentRoot((IResource)target, this.rootPath);
+				tRoot = this.project.getPackageFragmentRoot((IResource)target, this.rootPath, this.extraAttributes);
 			} else {
-				tRoot = this.project.getPackageFragmentRoot(this.rootPath.toOSString());
+				IPath canonicalizedPath = JavaProject.canonicalizedPath(new Path(this.rootPath.toOSString()));
+				tRoot = this.project.getPackageFragmentRoot0(canonicalizedPath, this.extraAttributes);
 			}
 			return tRoot;
 		}
 		public IPackageFragmentRoot getPackageFragmentRoot(IResource resource) {
 			if (this.root == null) {
 				if (resource != null) {
-					this.root = this.project.getPackageFragmentRoot(resource);
+					this.root = this.project.getPackageFragmentRoot(resource, null/*no entry path*/, this.extraAttributes);
 				} else {
 					this.root = getPackageFragmentRoot();
 				}
