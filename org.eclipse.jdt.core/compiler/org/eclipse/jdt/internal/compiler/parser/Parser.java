@@ -9546,7 +9546,7 @@ protected void consumeSwitchLabeledThrowStatement() {
 protected void consumeThrowExpression() {
 	// do nothing
 }
-private boolean caseFlagSet = false;
+protected boolean caseFlagSet = false;
 protected void consumeToken(int type) {
 	/* remember the last consumed value */
 	/* try to minimize the number of build values */

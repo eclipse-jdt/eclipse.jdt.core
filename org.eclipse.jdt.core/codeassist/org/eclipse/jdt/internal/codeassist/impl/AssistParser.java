@@ -1249,8 +1249,11 @@ private void adjustBracket(int token) {
 			break;
 	}
 }
+private boolean lastArrowAssociatedWithCase = false;
 @Override
 protected void consumeToken(int token) {
+	if (TokenNameARROW == token)
+		this.lastArrowAssociatedWithCase = this.caseFlagSet; // remember the arrow association before reset.
 	super.consumeToken(token);
 
 	if(this.isFirst) {
@@ -1283,7 +1286,7 @@ protected void consumeToken(int token) {
 				}
 				break;
 			case TokenNameLBRACE:
-				if (this.previousToken == TokenNameARROW) {
+				if (this.previousToken == TokenNameARROW && !this.lastArrowAssociatedWithCase) {
 					popElement(K_LAMBDA_EXPRESSION_DELIMITER);
 					pushOnElementStack(K_LAMBDA_EXPRESSION_DELIMITER, BLOCK_BODY, this.previousObjectInfo);
 				}
