@@ -7581,6 +7581,59 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject(current);
 		}
 	}
+	public void testBug541328() throws Exception {
+		IJavaProject pa = createJava9Project("m.a");
+		IJavaProject pb = createJava9Project("m.b");
+		IJavaProject test = createJava9Project("test");
+		try {
+			createFolder("m.a/src/a/foo");
+			createFile("m.a/src/a/foo/Bar.java", "package a.foo;\n public class Bar {}\n");
+			createFile("m.a/src/module-info.java",
+					"module m.a {\n" +
+					"	exports a.foo to m.b;\n" +
+					"}\n");
+			createFile("m.b/src/module-info.java",
+					"module m.b {\n" +
+					"	requires m.a;\n" +
+					"	exports b;\n" +
+					"}\n");
+			createFolder("m.b/src/b");
+			createFile("m.b/src/b/Boo.java",
+					"package b;\n" +
+					"import a.foo.Bar;\n" +
+					"public class Boo extends Bar {}\n");
+			addModularProjectEntry(pb, pa);
+
+			IClasspathAttribute[] forceExport = { 
+						JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
+						JavaCore.newClasspathAttribute(IClasspathAttribute.ADD_EXPORTS, "m.a/a.foo=ALL-UNNAMED")
+					};
+			addClasspathEntry(test, JavaCore.newProjectEntry(pa.getPath(), null, false, forceExport, false));
+			addModularProjectEntry(test, pb);
+
+			String testSource =
+					"import a.foo.Bar;\n" +
+					"import b.Boo;\n" +
+					"public class Test {\n" +
+					"	Bar b = new Boo();\n" +
+					"}\n";
+			String testPath = "test/src/Test.java";
+			createFile(testPath, testSource);
+			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			assertNoErrors();
+
+			this.problemRequestor.initialize(testSource.toCharArray());
+			getCompilationUnit(testPath).getWorkingCopy(this.wcOwner, null);
+			assertProblems("unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject(pa);
+			deleteProject(pb);
+			deleteProject(test);
+		}
+	}
 
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
