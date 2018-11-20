@@ -25,6 +25,7 @@ import junit.framework.Test;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
@@ -37,6 +38,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IBuffer;
 import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -1902,12 +1904,18 @@ public void testModule2() throws CoreException, IOException {
 		return;
 	}
 	try {
-		createJava9Project("Test", new String[]{"src"});
+		IJavaProject prj = createJava9Project("Test", new String[]{"src"});
 		String moduleSrc =
 			"module test {\n" +
 			"	requires oracle.net;\n" +
 			"}\n";
 		createFile("/Test/src/module-info.java", moduleSrc);
+		prj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = prj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		if (markers.length == 1 && markers[0].toString().contains("oracle.net cannot be resolved to a module")) {
+			System.out.println("Skipping "+getClass().getName()+".testModule2() because module oracle.net is unavailable");
+			return; // oracle.net is missing from openjdk builds
+		}
 		ICompilationUnit unit = getCompilationUnit("/Test/src/module-info.java");
 		int start = moduleSrc.indexOf("oracle.net");
 		int length = "oracle.net".length();
@@ -1921,6 +1929,57 @@ public void testModule2() throws CoreException, IOException {
 			null,
 			cf.getSource());
 		ISourceRange javadocRange = oracleNet.getJavadocRange();
+		assertEquals("javadoc from source", null, javadocRange);
+	} finally {
+		deleteProject("Test");
+	}
+}
+public void testModule2b() throws CoreException, IOException {
+	if (!isJRE9) {
+		System.err.println(this.getClass().getName()+'.'+getName()+" needs a Java 9 JRE - skipped");
+		return;
+	}
+	try {
+		// create project with incomplete source attachment:
+		String javaHome = System.getProperty("java.home") + File.separator;
+		Path bootModPath = new Path(javaHome +"/lib/jrt-fs.jar");
+		createSourceZip(
+				new String[] {
+					"java.base/module-info.java",
+					"module java.base {}\n",
+					"java.se.ee/module-info.java",
+					"module java.se.ee {}\n"
+				},
+				getWorkspacePath()+"/Test/src.zip");
+		Path sourceAttachment = new Path("/Test/src.zip");
+		IClasspathEntry jrtEntry;
+		jrtEntry = JavaCore.newLibraryEntry(bootModPath, sourceAttachment, null, null, null, false);
+		IJavaProject project = this.createJavaProject("Test", new String[] {"src"}, new String[0],
+				new String[0], "bin", "9");
+		IClasspathEntry[] old = project.getRawClasspath();
+		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];
+		System.arraycopy(old, 0, newPath, 0, old.length);
+		newPath[old.length] = jrtEntry;
+		project.setRawClasspath(newPath, null);
+		//
+		String moduleSrc =
+			"module test {\n" +
+			"	requires java.desktop;\n" +
+			"}\n";
+		createFile("/Test/src/module-info.java", moduleSrc);
+		ICompilationUnit unit = getCompilationUnit("/Test/src/module-info.java");
+		int start = moduleSrc.indexOf("java.desktop");
+		int length = "java.desktop".length();
+		IJavaElement[] elements = unit.codeSelect(start, length);
+		assertEquals("expected #elements", 1, elements.length);
+
+		IModuleDescription javaDesktop = (IModuleDescription) elements[0];
+		IModularClassFile cf = (IModularClassFile) javaDesktop.getClassFile();
+		assertSourceEquals(
+			"Unexpected source for class file java.desktop/module-info.class",
+			null,
+			cf.getSource());
+		ISourceRange javadocRange = javaDesktop.getJavadocRange();
 		assertEquals("javadoc from source", null, javadocRange);
 	} finally {
 		deleteProject("Test");
