@@ -114,7 +114,7 @@ public class TypeSystem {
 				return this.type == that.type && this.enclosingType == that.enclosingType && Util.effectivelyEqual(this.arguments, that.arguments); //$IDENTITY-COMPARISON$
 			}
 			final int hash(TypeBinding b) {
-				if(b instanceof WildcardBinding || b instanceof TypeVariableBinding) {
+				if(b instanceof WildcardBinding || b instanceof TypeVariableBinding || b.getClass() == ParameterizedTypeBinding.class) {
 					return System.identityHashCode(b);
 				}
 				return b.hashCode();
