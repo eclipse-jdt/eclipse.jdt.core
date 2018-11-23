@@ -1296,6 +1296,7 @@ SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchBlock
 SwitchLabeledRule ::= SwitchLabeledExpression
 SwitchLabeledRule ::= SwitchLabeledBlock
 SwitchLabeledRule ::= SwitchLabeledThrowStatement
+SwitchLabeledRule ::= SwitchLabeledBreakStatement
 /. $putCase consumeSwitchLabeledRule(); $break ./
 /:$readableName SwitchLabeledRule:/
 
@@ -1310,6 +1311,10 @@ SwitchLabeledBlock ::= SwitchLabelExpr Block
 SwitchLabeledThrowStatement ::= SwitchLabelExpr ThrowExpression ';'
 /. $putCase consumeSwitchLabeledThrowStatement(); $break ./
 /:$readableName SwitchLabeledThrowStatement:/
+
+SwitchLabeledBreakStatement ::= SwitchLabelExpr BreakExpression ';'
+/. $putCase consumeSwitchLabeledBreakStatement(); $break ./
+/:$readableName SwitchLabeledBreakStatement:/
 
 SwitchLabelExpr ::= 'default'  '->'
 /. $putCase consumeDefaultLabelExpr(); $break ./
@@ -1372,7 +1377,7 @@ AssertStatement ::= 'assert' Expression ':' Expression ';'
 BreakStatement ::= 'break' ';'
 /.$putCase consumeStatementBreak() ; $break ./
 
-BreakStatement ::= BreakExpression ';'
+BreakStatement ::= 'break' Expression ';'
 /.$putCase consumeStatementBreakWithLabel() ; $break ./
 /:$readableName BreakStatement:/
 
