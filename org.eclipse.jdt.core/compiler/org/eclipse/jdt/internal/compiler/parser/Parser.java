@@ -9236,25 +9236,24 @@ protected void consumeStatementReturn() {
 		pushOnAstStack(new ReturnStatement(null, this.intStack[this.intPtr--], this.endStatementPosition));
 	}
 }
-protected void consumeStatementSwitch() {
-	// SwitchStatement ::= 'switch' OpenBlock '(' Expression ')' SwitchBlock
-
+private void createSwitchStatementOrExpression(boolean isStmt) {
+	
 	//OpenBlock just makes the semantic action blockStart()
 	//the block is inlined but a scope need to be created
 	//if some declaration occurs.
-
+	
 	int length;
-	SwitchStatement switchStatement = new SwitchStatement();
+	SwitchStatement switchStatement = isStmt ? new SwitchStatement() : new SwitchExpression();
 	this.expressionLengthPtr--;
 	switchStatement.expression = this.expressionStack[this.expressionPtr--];
 	if ((length = this.astLengthStack[this.astLengthPtr--]) != 0) {
 		this.astPtr -= length;
 		System.arraycopy(
-			this.astStack,
-			this.astPtr + 1,
-			switchStatement.statements = new Statement[length],
-			0,
-			length);
+				this.astStack,
+				this.astPtr + 1,
+				switchStatement.statements = new Statement[length],
+				0,
+				length);
 	}
 	switchStatement.explicitDeclarations = this.realBlockStack[this.realBlockPtr--];
 	pushOnAstStack(switchStatement);
@@ -9263,7 +9262,11 @@ protected void consumeStatementSwitch() {
 	switchStatement.sourceEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(switchStatement.blockStart, switchStatement.sourceEnd)) {
 		switchStatement.bits |= ASTNode.UndocumentedEmptyBlock;
-	}
+	}	
+}
+protected void consumeStatementSwitch() {
+	// SwitchStatement ::= 'switch' OpenBlock '(' Expression ')' SwitchBlock
+	createSwitchStatementOrExpression(true);
 }
 protected void consumeStatementSynchronized() {
 	// SynchronizedStatement ::= OnlySynchronized '(' Expression ')' Block
@@ -9490,17 +9493,11 @@ protected void consumeDefaultLabelExpr() {
 }
 protected void consumeSwitchExpression() {
 // SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchExpressionBlock
-	SwitchExpression expression = new SwitchExpression();
-	expression.expression = this.expressionStack[this.expressionPtr--];
-//	this.realBlockPtr--; // drop unused, a SwitchExpression does *not* define a Block with explicit declarations
-	int numLabels = this.astLengthStack[this.astLengthPtr--];
-	expression.switchLabeledRules = new SwitchLabeledRule[numLabels];
-	for (int i= numLabels-1; i>=0; i--) {
-		expression.switchLabeledRules[i] = (SwitchLabeledRule) this.astStack[this.astPtr--];
+	createSwitchStatementOrExpression(false);
+	if (this.astLengthStack[this.astLengthPtr--] != 0) {
+		SwitchExpression s = (SwitchExpression) this.astStack[this.astPtr--];
+		pushOnExpressionStack(s);
 	}
-	expression.sourceStart = this.intStack[this.intPtr--];
-	expression.sourceEnd = expression.switchLabeledRules[numLabels - 1].sourceEnd;
-	pushOnExpressionStack(expression);
 }
 protected void consumeSwitchExprThrowDefaultArm() {
 //	SwitchExprThrowDefaultArm ::= SwitchLabelDefaultExpr Expression ';'

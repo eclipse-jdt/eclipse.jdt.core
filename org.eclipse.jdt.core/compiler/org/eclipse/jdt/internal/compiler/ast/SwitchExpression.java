@@ -18,37 +18,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Stack;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
-public class SwitchExpression extends Expression implements IPolyExpression {
+public class SwitchExpression extends SwitchStatement implements IPolyExpression {
 
-	public Expression expression;
 	public SwitchLabeledRule[] switchLabeledRules;
-	public BlockScope scope;
-
-	public CaseStatement[] cases;
-	public CaseStatement defaultCase;
-	public int caseCount;
-	int[] constants;
-	String[] stringConstants;
 
 	/* package */ TypeBinding expectedType;
 	private ExpressionContext expressionContext = VANILLA_CONTEXT;
@@ -57,12 +42,6 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 	private TypeBinding[] finalValueResultExpressionTypes;
 
 	private List<Expression> resultExpressions;
-
-	CaseStatement[] duplicateCaseStatements = null;
-	int duplicateCaseStatementsCounter = 0;
-	private LocalVariableBinding dispatchStringCopy = null;
-	// for switch on strings
-	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
 
 	@Override
 	public void setExpressionContext(ExpressionContext context) {
@@ -113,19 +92,6 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 		return false;
 	}
 	@Override
-	public void traverse(ASTVisitor visitor, BlockScope blockScope) {
-
-			if (visitor.visit(this, blockScope)) {
-				this.expression.traverse(visitor, blockScope);
-				if (this.switchLabeledRules != null && this.switchLabeledRules.length > 0) {
-					SwitchLabeledRule arms[] = this.switchLabeledRules; 
-					for (SwitchLabeledRule arm : arms)
-						arm.traverse(visitor, blockScope);
-				}
-			}
-			visitor.endVisit(this, blockScope);
-	}
-	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		// TODO
 	}
@@ -164,190 +130,107 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 		}
 		return ok;
 	}
-	private void reportDuplicateCase(final CaseStatement duplicate, final CaseStatement original, int length) {
-		if (this.duplicateCaseStatements == null) {
-			this.scope.problemReporter().duplicateCase(original);
-			this.scope.problemReporter().duplicateCase(duplicate);
-			this.duplicateCaseStatements = new CaseStatement[length];
-			this.duplicateCaseStatements[this.duplicateCaseStatementsCounter++] = original;
-			this.duplicateCaseStatements[this.duplicateCaseStatementsCounter++] = duplicate;
-		} else {
-			boolean found = false;
-			searchReportedDuplicate: for (int k = 2; k < this.duplicateCaseStatementsCounter; k++) {
-				if (this.duplicateCaseStatements[k] == duplicate) {
-					found = true;
-					break searchReportedDuplicate;
-				}
-			}
-			if (!found) {
-				this.scope.problemReporter().duplicateCase(duplicate);
-				this.duplicateCaseStatements[this.duplicateCaseStatementsCounter++] = duplicate;
-			}
-		}
-	}
-
 	private void collectResultExpressions() {
 		if (this.resultExpressions != null)
 			return; // already calculated.
 
 		class ResultExpressionsCollector extends ASTVisitor {
-			Stack<SwitchExpression> seStack = new Stack<>();
-			@SuppressWarnings("synthetic-access")
-			@Override
-			public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
-				switchExpression.resultExpressions = new ArrayList<>(0); // by default
-				this.seStack.add(switchExpression);
-				return true; // do nothing by default, keep traversing
+			SwitchExpression targetSwitchExpression;
+			public ResultExpressionsCollector(SwitchExpression se) {
+				this.targetSwitchExpression = se;
 			}
 			@Override
-			public void endVisit(SwitchExpression switchExpression, BlockScope blockScope) {
-				this.seStack.pop();
+			public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
+				return false; 
 			}
 			@SuppressWarnings("synthetic-access")
 			@Override
 			public boolean visit(BreakStatement breakStatement, BlockScope blockScope) {
-				if (breakStatement.expression != null && !this.seStack.isEmpty()) {
-					this.seStack.peek().resultExpressions.add(breakStatement.expression);
+				if (breakStatement.expression != null) {
+					this.targetSwitchExpression.resultExpressions.add(breakStatement.expression);
+					breakStatement.switchExpression = this.targetSwitchExpression;
 				}
+				return false;			
+			}
+			@Override
+			public boolean visit(DoStatement stmt, BlockScope blockScope) {
+				return false;
+			}
+			@Override
+			public boolean visit(ForStatement stmt, BlockScope blockScope) {
+				return false;
+			}
+			@Override
+			public boolean visit(ForeachStatement stmt, BlockScope blockScope) {
+				return false;
+			}
+			@Override
+			public boolean visit(SwitchStatement stmt, BlockScope blockScope) {
+				return false;
+			}
+			@Override
+			public boolean visit(TypeDeclaration stmt, BlockScope blockScope) {
+				return false;
+			}
+			@Override
+			public boolean visit(WhileStatement stmt, BlockScope blockScope) {
+				return false;
+			}
+			@Override
+			public boolean visit(CaseStatement caseStatement, BlockScope blockScope) {
 				return true; // do nothing by default, keep traversing
 			}
 		}
-		ResultExpressionsCollector reCollector = new ResultExpressionsCollector();
-		this.traverse(reCollector, this.scope);
+		this.resultExpressions = new ArrayList<>(0); // indicates processed
+		for (int i = 0, l = this.statements.length; i < l; ++i) {
+			Statement stmt = this.statements[i];
+			if (stmt instanceof CaseStatement) {
+				CaseStatement caseStatement = (CaseStatement) stmt;
+				if (!caseStatement.isExpr) continue;
+				stmt = this.statements[++i];
+				if (stmt instanceof Expression) {
+					this.resultExpressions.add((Expression) stmt);
+					continue;
+				} else if (stmt instanceof ThrowStatement) {
+					// TODO: Throw Expression Processing. Anything to be done here for resolve?
+					continue;
+				}
+			}
+			// break statement and block statement of SwitchLabelRule or block statement of ':'
+			ResultExpressionsCollector reCollector = new ResultExpressionsCollector(this);
+			stmt.traverse(reCollector, this.scope);
+
+			/*TODO: Do the following error check in analyseCode() rather than here - JLS 12 15.29
+			 * Given a switch expression, if the switch block consists of switch labeled rules, then
+			 * it is a compile-time error if any switch labeled block can complete normally. If, on  the
+			 * other hand, the switch block consists of switch labeled statement groups, then it is a
+			 * compile-time error if either the last statement in the switch block can complete
+			 * normally, or the switch block includes one or more switch labels at the end.
+			 */
+		}
 	}
 	@Override
 	public TypeBinding resolveType(BlockScope upperScope) {
 		try {
 			// JLS12 15.29.1
-			boolean isEnumSwitch = false;
-			boolean isStringSwitch = false;
-			TypeBinding expressionType = this.expression.resolveType(upperScope);
 			CompilerOptions compilerOptions = upperScope.compilerOptions();
-			
-			/* The type of the selector expression must be char, byte, short, int, Character, Byte, Short, Integer, String,
-			 * or an enum type (8.9), or a compile-time error occurs.
-			 */
-			if (expressionType != null) {
-				this.expression.computeConversion(upperScope, expressionType, expressionType);
-				checkType: {
-					if (!expressionType.isValidBinding()) {
-						expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
-						break checkType;
-					} else if (expressionType.isBaseType()) {
-						if (this.expression.isConstantValueOfTypeAssignableToType(expressionType, TypeBinding.INT))
-							break checkType;
-						if (expressionType.isCompatibleWith(TypeBinding.INT))
-							break checkType;
-					} else if (expressionType.isEnum()) {
-						isEnumSwitch = true;
-						break checkType;
-					} else if (upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT)) {
-						this.expression.computeConversion(upperScope, TypeBinding.INT, expressionType);
-						break checkType;
-					} else if (expressionType.id == TypeIds.T_JavaLangString) {
-						isStringSwitch = true;
-						break checkType;
-					}
-					upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType);
-					expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
-				}
-			}
-			if (isStringSwitch) {
-				// the secret variable should be created before iterating over the switch's statements that could
-				// create more locals. This must be done to prevent overlapping of locals
-				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=356002 [ref SwitchStatement]
-				this.dispatchStringCopy  = new LocalVariableBinding(SecretStringVariableName, upperScope.getJavaLangString(), ClassFileConstants.AccDefault, false);
-				upperScope.addLocalVariable(this.dispatchStringCopy);
-				this.dispatchStringCopy.setConstant(Constant.NotAConstant);
-				this.dispatchStringCopy.useFlag = LocalVariableBinding.USED;
-			}
-			
-			SwitchLabeledRule arms[] = this.switchLabeledRules;
-			if (arms == null || arms.length == 0) {
+			this.scope = new BlockScope(upperScope);
+			LookupEnvironment env = this.scope.environment();
+
+			resolve(upperScope);
+
+			if (this.statements == null || this.statements.length == 0) {
 				//	Report Error JLS 12 15.29.1  The switch block must not be empty.
 				upperScope.problemReporter().switchExpressionEmptySwitchBlock(this);
 				return null;
 			}
-
-			// At this point, this.exprArms.length > 0
-			this.scope = new BlockScope(upperScope);
-			LookupEnvironment env = this.scope.environment();
-
-			int length;
-			// collection of cases is too big but we will only iterate until caseCount
-			this.cases = new CaseStatement[length = this.switchLabeledRules.length];
-			if (!isStringSwitch) {
-				this.constants = new int[length];
-			} else {
-				this.stringConstants = new String[length];
-			}
-			int counter = 0;
-			for (int i = 0; i < length; i++) {
-				Constant constant1;
-				final SwitchLabeledRule arm = this.switchLabeledRules[i];
-				if ((constant1 = arm.resolveCase(this.scope, expressionType, this)) != Constant.NotAConstant) {
-					if (!isStringSwitch) {
-						int key = constant1.intValue();
-						//----check for duplicate case statement------------
-						for (int j = 0; j < counter; j++) {
-							if (this.constants[j] == key) {
-								reportDuplicateCase(arm.getLhs(), this.cases[j], length);
-							}
-						}
-						this.constants[counter++] = key;
-					} else {
-						String key = constant1.stringValue();
-						//----check for duplicate case statement------------
-						for (int j = 0; j < counter; j++) {
-							if (this.stringConstants[j].equals(key)) {
-								reportDuplicateCase(arm.getLhs(), this.cases[j], length);
-							}
-						}
-						this.stringConstants[counter++] = key;			
-					}
-				}
-			}
-			if (length != counter) { // resize constants array
-				if (!isStringSwitch) {
-					System.arraycopy(this.constants, 0, this.constants = new int[counter], 0, counter);
-				} else {
-					System.arraycopy(this.stringConstants, 0, this.stringConstants = new String[counter], 0, counter);
-				}
-			}
-
-			// check default case for all kinds of switch:
 			if (this.defaultCase == null) {
 				if (compilerOptions.getSeverity(CompilerOptions.MissingDefaultCase) == ProblemSeverities.Ignore) {
-					if (isEnumSwitch) {
-						upperScope.methodScope().hasMissingSwitchDefault = true;
-					}
-				}
-				// cannot ignore in SwitchExpressions - this is a compile-time error
-				if (!isEnumSwitch) // check for all cases of enum below and report if there an entry missing
-					upperScope.problemReporter().missingDefaultCase(this, false /* isEnumSwitch */, expressionType);
-			}
-			// for enum switch, check if all constants are accounted for (perhaps depending on existence of a default case)
-			if (isEnumSwitch) {
-				if (this.defaultCase == null || compilerOptions.reportMissingEnumCaseDespiteDefault) {
-					int constantCount = this.constants == null ? 0 : this.constants.length; // could be null if no case statement
-					if (constantCount == this.caseCount
-							&& this.caseCount != ((ReferenceBinding)expressionType).enumConstantCount()) {
-						FieldBinding[] enumFields = ((ReferenceBinding)expressionType.erasure()).fields();
-						for (int i = 0, max = enumFields.length; i <max; i++) {
-							FieldBinding enumConstant = enumFields[i];
-							if ((enumConstant.modifiers & ClassFileConstants.AccEnum) == 0) continue;
-							findConstant : {
-								for (int j = 0; j < this.caseCount; j++) {
-									if ((enumConstant.id + 1) == this.constants[j]) // zero should not be returned see bug 141810
-										break findConstant;
-								}
-								// enum constant did not get referenced from switch
-								boolean suppress = (this.defaultCase != null && (this.defaultCase.bits & DocumentedCasesOmitted) != 0);
-								if (!suppress) {
-									upperScope.problemReporter().missingEnumConstantCase(this, enumConstant);
-								}
-							}
-						}
+					TypeBinding expressionType = this.expression.resolvedType;
+					if (!expressionType.isEnum()) {
+						// cannot ignore in SwitchExpressions - this is a compile-time error
+						// it was not reported earlier in super.resolve() since it was ignored.
+						upperScope.problemReporter().missingDefaultCase(this, false /* isEnumSwitch*/, expressionType);
 					}
 				}
 			}
@@ -445,7 +328,9 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 			TypeBinding resultNumeric = this.originalValueResultExpressionTypes[0];
 			HashSet<TypeBinding> typeSet = new HashSet<>(); // for inconclusive in first attempt
 			for (int i = 0; i < resultExpressionsCount; ++i) {
-				tmp = this.originalValueResultExpressionTypes[i].isNumericType() ? this.originalValueResultExpressionTypes[i] : env.computeBoxingType(this.originalValueResultExpressionTypes[i]);
+				tmp = this.originalValueResultExpressionTypes[i].isNumericType() ?
+						this.originalValueResultExpressionTypes[i] :
+							env.computeBoxingType(this.originalValueResultExpressionTypes[i]);
 				if (!tmp.isNumericType()) {
 					typeNumeric = false;
 					break;
@@ -454,11 +339,13 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 				typeSet.add(TypeBinding.wellKnownType(this.scope, tmp.id));
 			}
 			if (typeNumeric) {
-				resultNumeric = resultNumeric != null ? resultNumeric : getResultNumeric(typeSet, this.originalValueResultExpressionTypes);
+				resultNumeric = resultNumeric != null ? resultNumeric :
+					getResultNumeric(typeSet, this.originalValueResultExpressionTypes);
 				typeSet = null; // hey gc!
 				for (int i = 0; i < resultExpressionsCount; ++i) {
 					// auto-unboxing and/or widening/narrrowing JLS 12 5.6.3
-					this.resultExpressions.get(i).computeConversion(this.scope, resultNumeric, this.originalValueResultExpressionTypes[i]);
+					this.resultExpressions.get(i).computeConversion(this.scope,
+							resultNumeric, this.originalValueResultExpressionTypes[i]);
 					this.finalValueResultExpressionTypes[i] = resultNumeric;
 				}
 				// After the conversion(s), if any, value set conversion (5.1.13) is then applied to each result expression.
@@ -469,15 +356,14 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 			/* Otherwise, boxing conversion (5.1.7) is applied to each result expression that has a primitive type,
 			 * after which the type of the switch expression is the result of applying capture conversion (5.1.10)
 			 * to the least upper bound (4.10.4) of the types of the result expressions.
-			 */
-			
+			 */		
 			for (int i = 0; i < resultExpressionsCount; ++i) {
 				if (this.finalValueResultExpressionTypes[i].isBaseType())
 					this.finalValueResultExpressionTypes[i] = env.computeBoxingType(this.finalValueResultExpressionTypes[i]);
 			}
 			TypeBinding commonType = this.scope.lowerUpperBound(this.finalValueResultExpressionTypes);
 			if (commonType != null) {
-				for (int i = 0, l = arms.length; i < l; ++i) {
+				for (int i = 0, l = this.resultExpressions.size(); i < l; ++i) {
 					this.resultExpressions.get(i).computeConversion(this.scope, commonType, this.originalValueResultExpressionTypes[i]);
 					this.finalValueResultExpressionTypes[i] = commonType;
 				}
@@ -508,8 +394,8 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 	private boolean isIntegerConvertible(TypeBinding targetType) {
 		if (TypeBinding.equalsEquals(targetType, TypeBinding.INT))
 			return true;
-		for (int i = 0, l = this.switchLabeledRules.length; i < l; ++i) {
-			Expression e = this.switchLabeledRules[i];
+		for (int i = 0, l = this.resultExpressions.size(); i < l; ++i) {
+			Expression e = this.resultExpressions.get(i);
 			TypeBinding t = this.originalValueResultExpressionTypes[i];
 			if (!TypeBinding.equalsEquals(t, TypeBinding.INT)) continue;
 			if (!e.isConstantValueOfTypeAssignableToType(t, targetType))
@@ -534,35 +420,7 @@ public class SwitchExpression extends Expression implements IPolyExpression {
 		if (this.isPolyExpression)
 			return true;
 
-		if (this.expressionContext != ASSIGNMENT_CONTEXT && this.expressionContext != INVOCATION_CONTEXT)
-			return false;
-		
-		for (TypeBinding tmp : this.originalValueResultExpressionTypes)
-			if (tmp == null) // resolution error.
-				return false;
-		
-		for (SwitchLabeledRule arm : this.switchLabeledRules)
-			if (arm.isPolyExpression())
-				return true;
-		
-		// "... unless all arms produce primitives (or boxed primitives)":	
-		boolean allPrimitives = true;
-		for (TypeBinding tmp : this.originalValueResultExpressionTypes) {
-			allPrimitives &= tmp.isBaseType() || (tmp.id >= TypeIds.T_JavaLangByte && tmp.id <= TypeIds.T_JavaLangBoolean);
-		}
-		if (!allPrimitives)
-			return false;
-
-		return this.isPolyExpression = true;
-	}
-	
-	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
-		output.append("switch ("); //$NON-NLS-1$
-		this.expression.printExpression(0, output).append(") {"); //$NON-NLS-1$
-		for (SwitchLabeledRule arm : this.switchLabeledRules)
-			arm.print(0, output);
-		output.append('\n');
-		return printIndent(indent, output).append('}');
+		return this.isPolyExpression = this.expressionContext == ASSIGNMENT_CONTEXT || 
+				this.expressionContext == INVOCATION_CONTEXT;
 	}
 }

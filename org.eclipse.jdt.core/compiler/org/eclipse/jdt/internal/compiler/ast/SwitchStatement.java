@@ -43,7 +43,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 @SuppressWarnings("rawtypes")
-public class SwitchStatement extends Statement {
+public class SwitchStatement extends Expression {
 
 	public Expression expression;
 	public Statement[] statements;
@@ -52,7 +52,6 @@ public class SwitchStatement extends Statement {
 	public BranchLabel breakLabel;
 	public CaseStatement[] cases;
 	public CaseStatement defaultCase;
-	public SwitchLabeledRule[] switchLabeledRules;
 	public int blockStart;
 	public int caseCount;
 	int[] constants;
@@ -352,14 +351,14 @@ public class SwitchStatement extends Statement {
 				this.defaultCase.targetLabel = defaultLabel;
 			}
 
-			final TypeBinding resolvedType = this.expression.resolvedType;
+			final TypeBinding resolvedType1 = this.expression.resolvedType;
 			boolean valueRequired = false;
-			if (resolvedType.isEnum()) {
+			if (resolvedType1.isEnum()) {
 				// go through the translation table
 				codeStream.invoke(Opcodes.OPC_invokestatic, this.synthetic, null /* default declaringClass */);
 				this.expression.generateCode(currentScope, codeStream, true);
 				// get enum constant ordinal()
-				codeStream.invokeEnumOrdinal(resolvedType.constantPoolName());
+				codeStream.invokeEnumOrdinal(resolvedType1.constantPoolName());
 				codeStream.iaload();
 				if (!hasCases) {
 					// we can get rid of the generated ordinal value
@@ -525,11 +524,11 @@ public class SwitchStatement extends Statement {
 				}
 				int counter = 0;
 				for (int i = 0; i < length; i++) {
-					Constant constant;
+					Constant constant1;
 					final Statement statement = this.statements[i];
-					if ((constant = statement.resolveCase(this.scope, expressionType, this)) != Constant.NotAConstant) {
+					if ((constant1 = statement.resolveCase(this.scope, expressionType, this)) != Constant.NotAConstant) {
 						if (!isStringSwitch) {
-							int key = constant.intValue();
+							int key = constant1.intValue();
 							//----check for duplicate case statement------------
 							for (int j = 0; j < counter; j++) {
 								if (this.constants[j] == key) {
@@ -538,7 +537,7 @@ public class SwitchStatement extends Statement {
 							}
 							this.constants[counter++] = key;
 						} else {
-							String key = constant.stringValue();
+							String key = constant1.stringValue();
 							//----check for duplicate case statement------------
 							for (int j = 0; j < counter; j++) {
 								if (this.stringConstants[j].equals(key)) {
@@ -675,5 +674,10 @@ public class SwitchStatement extends Statement {
 				return true;
 		}
 		return false;
+	}
+
+	@Override
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		return printStatement(indent, output);
 	}
 }
