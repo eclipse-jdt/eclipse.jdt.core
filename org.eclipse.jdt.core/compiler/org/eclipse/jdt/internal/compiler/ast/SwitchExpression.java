@@ -33,15 +33,13 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class SwitchExpression extends SwitchStatement implements IPolyExpression {
 
-	public SwitchLabeledRule[] switchLabeledRules;
-
 	/* package */ TypeBinding expectedType;
 	private ExpressionContext expressionContext = VANILLA_CONTEXT;
 	private boolean isPolyExpression = false;
 	private TypeBinding[] originalValueResultExpressionTypes;
 	private TypeBinding[] finalValueResultExpressionTypes;
 
-	private List<Expression> resultExpressions;
+	public List<Expression> resultExpressions;
 
 	@Override
 	public void setExpressionContext(ExpressionContext context) {

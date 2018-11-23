@@ -43,7 +43,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (this.label == null) {
 			currentScope.problemReporter().invalidBreak(this);
 		} else {
-			currentScope.problemReporter().undefinedLabel(this);
+			if (this.switchExpression == null)
+				currentScope.problemReporter().undefinedLabel(this);
 		}
 		return flowInfo; // pretend it did not break since no actual target
 	}

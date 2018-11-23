@@ -11006,7 +11006,7 @@ public void autoModuleWithUnstableName(ModuleReference moduleReference) {
 			moduleReference.sourceEnd);
 }
 public void switchExpressionIncompatibleResultExpressions(SwitchExpression expression) {
-	TypeBinding type = expression.switchLabeledRules[0].resolvedType;  // TODO: Need to show more accurately
+	TypeBinding type = expression.resultExpressions.get(0).resolvedType;
 	this.handle(
 		IProblem.SwitchExpressionsIncompatibleResultExpressionTypes,
 		new String[] {new String(type.readableName())},
