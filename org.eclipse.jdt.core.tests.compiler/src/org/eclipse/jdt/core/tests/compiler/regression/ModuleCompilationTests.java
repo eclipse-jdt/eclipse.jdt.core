@@ -162,8 +162,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			if (javacCommandLine == null) {
 				javacCommandLine = adjustForJavac(commandLine, null);
 			}
-			for (Object comp : javacCompilers) {
-				JavacCompiler javacCompiler = (JavacCompiler) comp;
+			for (JavacCompiler javacCompiler : javacCompilers) {
 				if (javacCompiler.compliance < ClassFileConstants.JDK9)
 					continue;
 				if (options.skip(javacCompiler)) {
@@ -240,8 +239,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			File outputDir = new File(OUTPUT_DIR);
 			final Set<String> outFiles = new HashSet<>();
 			walkOutFiles(output, outFiles, true);
-			for (Object comp : javacCompilers) {
-				JavacCompiler javacCompiler = (JavacCompiler) comp;
+			for (JavacCompiler javacCompiler : javacCompilers) {
 				if (javacCompiler.compliance < ClassFileConstants.JDK9)
 					continue;
 				JavacTestOptions.Excuse excuse = options.excuseFor(javacCompiler);
