@@ -61,6 +61,7 @@ public class SwitchStatement extends Expression {
 	public final static int CASE = 0;
 	public final static int FALLTHROUGH = 1;
 	public final static int ESCAPING = 2;
+	public final static int BREAKING  = 3;
 	
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
@@ -76,6 +77,9 @@ public class SwitchStatement extends Expression {
 	int duplicateCaseStatementsCounter = 0;
 	private LocalVariableBinding dispatchStringCopy = null;
 
+	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
+		return FALLTHROUGH;
+	}
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		try {
@@ -120,7 +124,7 @@ public class SwitchStatement extends Expression {
 						complaintLevel = initialComplaintLevel; // reset complaint
 						fallThroughState = CASE;
 					} else {
-						fallThroughState = FALLTHROUGH; // reset below if needed
+						fallThroughState = getFallThroughState(statement, currentScope); // reset below if needed
 					}
 					if ((complaintLevel = statement.complainIfUnreachable(caseInits, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 						caseInits = statement.analyseCode(this.scope, switchContext, caseInits);

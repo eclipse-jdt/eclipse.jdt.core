@@ -11030,4 +11030,12 @@ public void switchExpressionNoResultExpressions(SwitchExpression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
+public void switchExpressionBlockCompletesNormally(Block block) {
+	this.handle(
+		IProblem.SwitchExpressionBlockCompletesNormally,
+		NoArgument,
+		NoArgument,
+		block.sourceStart,
+		block.sourceEnd);
+}
 }

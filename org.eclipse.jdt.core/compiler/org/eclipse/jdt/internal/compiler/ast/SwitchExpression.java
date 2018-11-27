@@ -56,6 +56,21 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		return this.expressionContext;
 	}
 	@Override
+	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
+		if (stmt instanceof Expression || stmt instanceof ThrowStatement)
+			return BREAKING;
+		if (stmt instanceof Block) {
+			Block block = (Block) stmt;
+			if (block.doesNotCompleteNormally()) {
+				return BREAKING;
+			}
+			//JLS 12 15.29.1 Given a switch expression, if the switch block consists of switch labeled rules,
+			//then it is a compile-time error if any switch labeled block can complete normally.
+			blockScope.problemReporter().switchExpressionBlockCompletesNormally(block);
+		}
+		return FALLTHROUGH;
+	}
+	@Override
 	public Expression[] getPolyExpressions() {
 		List<Expression> polys = new ArrayList<>();
 		for (Expression e : this.resultExpressions) {
@@ -139,16 +154,15 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			}
 			@Override
 			public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
-				return false; 
+				return false;
 			}
-			@SuppressWarnings("synthetic-access")
 			@Override
 			public boolean visit(BreakStatement breakStatement, BlockScope blockScope) {
 				if (breakStatement.expression != null) {
 					this.targetSwitchExpression.resultExpressions.add(breakStatement.expression);
 					breakStatement.switchExpression = this.targetSwitchExpression;
 				}
-				return false;			
+				return false;
 			}
 			@Override
 			public boolean visit(DoStatement stmt, BlockScope blockScope) {

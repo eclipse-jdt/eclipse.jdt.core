@@ -2082,5 +2082,7 @@ void setSourceStart(int sourceStart);
 	int SwitchExpressionsEmptySwitchBlock = TypeRelated + 1601;
 	/** @since 3.16 BETA_JAVA_12 */
 	int SwitchExpressionsNoResultExpression = TypeRelated + 1602;
+	/** @since 3.16 BETA_JAVA_12 */
+	int SwitchExpressionBlockCompletesNormally = TypeRelated + 1603;
 
-}
+	}
