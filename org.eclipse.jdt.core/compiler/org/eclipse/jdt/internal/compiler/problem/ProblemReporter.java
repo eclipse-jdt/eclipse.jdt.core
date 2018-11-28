@@ -11038,4 +11038,12 @@ public void switchExpressionBlockCompletesNormally(Block block) {
 		block.sourceStart,
 		block.sourceEnd);
 }
+public void mixedCase(ASTNode statement) {
+	this.handle(
+		IProblem.MixedCase,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
 }

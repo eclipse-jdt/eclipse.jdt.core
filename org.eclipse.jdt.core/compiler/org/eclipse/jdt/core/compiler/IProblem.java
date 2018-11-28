@@ -2079,10 +2079,11 @@ void setSourceStart(int sourceStart);
 	/** @since 3.16 BETA_JAVA_12 */
 	int SwitchExpressionsIncompatibleResultExpressionTypes = TypeRelated + 1600;
 	/** @since 3.16 BETA_JAVA_12 */
-	int SwitchExpressionsEmptySwitchBlock = TypeRelated + 1601;
+	int SwitchExpressionsEmptySwitchBlock = Internal + 1601;
 	/** @since 3.16 BETA_JAVA_12 */
 	int SwitchExpressionsNoResultExpression = TypeRelated + 1602;
 	/** @since 3.16 BETA_JAVA_12 */
-	int SwitchExpressionBlockCompletesNormally = TypeRelated + 1603;
-
+	int SwitchExpressionBlockCompletesNormally = Internal + 1603;
+	/** @since 3.16 BETA_JAVA_12 */
+	int MixedCase = Syntax + 1604;
 	}

@@ -567,6 +567,7 @@ public class SwitchStatement extends Expression {
 					upperScope.problemReporter().undocumentedEmptyBlock(this.blockStart, this.sourceEnd);
 				}
 			}
+			reportMixingCaseTypes();
 			// check default case for all kinds of switch:
 			if (this.defaultCase == null) {
 				if (compilerOptions.getSeverity(CompilerOptions.MissingDefaultCase) == ProblemSeverities.Ignore) {
@@ -607,6 +608,20 @@ public class SwitchStatement extends Expression {
 		}
 	}
 
+	private void reportMixingCaseTypes() {
+		if (this.caseCount == 0)
+			return;
+		boolean isExpr = this.cases[0].isExpr;
+		for (int i = 1, l = this.caseCount; i < l; ++i) {
+			if (this.cases[i].isExpr != isExpr) {
+				this.scope.problemReporter().mixedCase(this.cases[i]);
+				return;
+			}
+		}
+		if (this.defaultCase.isExpr != isExpr) {
+			this.scope.problemReporter().mixedCase(this.defaultCase);
+		}
+	}
 	private void reportDuplicateCase(final CaseStatement duplicate, final CaseStatement original, int length) {
 		if (this.duplicateCaseStatements == null) {
 			this.scope.problemReporter().duplicateCase(original);
