@@ -206,6 +206,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean comment_format_html;
 	public boolean comment_format_source;
 	public boolean comment_indent_parameter_description;
+	public boolean comment_indent_tag_description;
 	public boolean comment_indent_root_tags;
 	public boolean comment_align_tags_names_descriptions;
 	public boolean comment_align_tags_descriptions_grouped;
@@ -544,6 +545,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT_STARTING_ON_FIRST_COLUMN, this.comment_format_line_comment_starting_on_first_column ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_SOURCE, this.comment_format_source ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION, this.comment_indent_parameter_description ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_TAG_DESCRIPTION, this.comment_indent_tag_description ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_ROOT_TAGS, this.comment_indent_root_tags ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_ALIGN_TAGS_NAMES_DESCRIPTIONS, this.comment_align_tags_names_descriptions ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_ALIGN_TAGS_DESCREIPTIONS_GROUPED, this.comment_align_tags_descriptions_grouped ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -1411,6 +1413,8 @@ public class DefaultCodeFormatterOptions {
 		if (commentIndentParameterDescriptionOption != null) {
 			this.comment_indent_parameter_description = DefaultCodeFormatterConstants.TRUE.equals(commentIndentParameterDescriptionOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_TAG_DESCRIPTION, DefaultCodeFormatterConstants.TRUE,
+				v -> this.comment_indent_tag_description = v);
 		final Object commentIndentRootTagsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INDENT_ROOT_TAGS);
 		if (commentIndentRootTagsOption != null) {
 			this.comment_indent_root_tags = DefaultCodeFormatterConstants.TRUE.equals(commentIndentRootTagsOption);
@@ -2623,6 +2627,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_format_html = true;
 		this.comment_format_source = true;
 		this.comment_indent_parameter_description = true;
+		this.comment_indent_tag_description = false;
 		this.comment_indent_root_tags = true;
 		this.comment_align_tags_names_descriptions = false;
 		this.comment_align_tags_descriptions_grouped = false;
@@ -2947,6 +2952,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_format_html = true;
 		this.comment_format_source = true;
 		this.comment_indent_parameter_description = false;
+		this.comment_indent_tag_description = false;
 		this.comment_indent_root_tags = false;
 		this.comment_align_tags_names_descriptions = false;
 		this.comment_align_tags_descriptions_grouped = true;

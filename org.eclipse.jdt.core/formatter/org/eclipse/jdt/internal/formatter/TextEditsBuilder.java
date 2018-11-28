@@ -487,6 +487,8 @@ public class TextEditsBuilder extends TokenTraverser {
 
 			if (fragment.getLineBreaksBefore() > 0) {
 				bufferLineSeparator(fragment, false);
+				if (this.parent != null)
+					bufferAlign(lineComment, index);
 				bufferIndent(fragment, index);
 			} else if (fragment.isSpaceBefore() && i > 0) {
 				this.buffer.append(' ');

@@ -14557,4 +14557,107 @@ public void testBug205973j() throws JavaModelException {
 	String input = getCompilationUnit("Formatter", "", "test205973", "J_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test205973", "J_out.java").getSource());
 }
+
+/**
+ * https://bugs.eclipse.org/541133 - [formatter] javadoc: no indent of @return description
+ */
+public void testBug541133a() {
+	this.formatterPrefs.comment_align_tags_descriptions_grouped = false;
+	this.formatterPrefs.comment_indent_parameter_description = false;
+	this.formatterPrefs.comment_indent_tag_description = true;
+	String source =
+		"class C {\n" + 
+		"	/**\n" + 
+		"	 * @param bar param description should NOT get additional indentation when it's wrapped\n" + 
+		"	 * @return return description should get additional indentation when it's wrapped\n" + 
+		"	 */\n" + 
+		"	String foo(String bar) {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"class C {\n" + 
+		"	/**\n" + 
+		"	 * @param bar param description should NOT get additional indentation when it's\n" + 
+		"	 * wrapped\n" + 
+		"	 * @return return description should get additional indentation when it's\n" + 
+		"	 *     wrapped\n" + 
+		"	 */\n" + 
+		"	String foo(String bar) {\n" + 
+		"	}\n" + 
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/541133 - [formatter] javadoc: no indent of @return description
+ */
+public void testBug541133b() {
+	this.formatterPrefs.comment_indent_root_tags = true;
+	this.formatterPrefs.comment_indent_parameter_description = false;
+	this.formatterPrefs.comment_indent_tag_description = true;
+	String source =
+		"class C {\n" + 
+		"	/**\n" + 
+		"	 * @deprecated Do not use this class, it's only to test formatting on. One two three four five six seven eight nine ten\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"class C {\n" + 
+		"	/**\n" + 
+		"	 * @deprecated Do not use this class, it's only to test formatting on. One two\n" + 
+		"	 *                 three four five six seven eight nine ten\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/541133 - [formatter] javadoc: no indent of @return description
+ */
+public void testBug541133c() {
+	this.formatterPrefs.comment_indent_tag_description = true;
+	String source =
+		"/**\n" + 
+		" * Mensagens SMTP tem o seguinte formato:\n" + 
+		" * \n" + 
+		" * <pre>\n" + 
+		" * resposta de uma linha só:\n" + 
+		" * </pre>\n" + 
+		" * \n" + 
+		" * {@link java.lang.String </code>a simple string<code>}.\n" +
+		" * \n" + 
+		" * @deprecated Mensagens SMTP tem o seguinte formato:\n" + 
+		" * \n" + 
+		" *                 <pre>\n" + 
+		" *                 resposta de uma linha só:\n" + 
+		" *                 </pre>\n" + 
+		" */";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/541133 - [formatter] javadoc: no indent of @return description
+ */
+public void testBug541133d() {
+	String source =
+		"/**\n" + 
+		" * @return something <pre>\n" + 
+		" * class Runnable {\n" + 
+		" * 	// Hello really bad Ganymede formatter !!!\n" + 
+		" * 	// Shit happens when somebody tries to change a running system\n" + 
+		" * }</pre> something\n" + 
+		" */";
+	formatSource(source,
+		"/**\n" + 
+		" * @return something\n" + 
+		" * \n" + 
+		" *         <pre>\n" + 
+		" *         class Runnable {\n" + 
+		" *         	// Hello really bad Ganymede formatter !!!\n" + 
+		" *         	// Shit happens when somebody tries to change a running system\n" + 
+		" *         }\n" + 
+		" *         </pre>\n" + 
+		" * \n" + 
+		" *         something\n" + 
+		" */");
+}
 }

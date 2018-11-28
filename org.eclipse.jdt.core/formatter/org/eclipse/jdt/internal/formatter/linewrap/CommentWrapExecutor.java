@@ -84,6 +84,8 @@ public class CommentWrapExecutor extends TokenTraverser {
 			return position;
 
 		traverse(structure, 0);
+		cleanupIndent(structure);
+
 		if (this.newLinesAtBoundries)
 			return this.lineStartPosition + 1 + this.tm.getLength(structure.get(structure.size() - 1), 0);
 		return this.counter;
@@ -119,8 +121,8 @@ public class CommentWrapExecutor extends TokenTraverser {
 		return -1;
 	}
 
-	private int getStartingPosition(Token token) {
-		int position = this.lineStartPosition + token.getAlign() + token.getIndent();
+	private int getStartingPosition(Token token, boolean isNewLine) {
+		int position = this.lineStartPosition + token.getAlign() + (isNewLine ? token.getIndent() : 0);
 		if (token.tokenType != TokenNameNotAToken)
 			position += COMMENT_LINE_SEPARATOR_LENGTH;
 		return position;
@@ -128,7 +130,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 
 	@Override
 	protected boolean token(Token token, int index) {
-		final int positionIfNewLine = getStartingPosition(token);
+		final int positionIfNewLine = getStartingPosition(token, true);
 
 		int lineBreaksBefore = getLineBreaksBefore();
 		if ((index == 1 || getNext() == null) && this.newLinesAtBoundries && lineBreaksBefore == 0) {
@@ -143,14 +145,6 @@ public class CommentWrapExecutor extends TokenTraverser {
 			this.potentialWrapToken = this.potentialWrapTokenSubstitute = null;
 			this.lineLimit = getLineLimit(this.lineStartPosition);
 
-			boolean isFormattedCode = token.getWrapPolicy() != null
-					&& token.getWrapPolicy() != WrapPolicy.SUBSTITUTE_ONLY;
-			if (!isFormattedCode && token.getAlign() == 0 && !this.simulation) {
-				// Indents are reserved for code inside <pre>.
-				// Indentation of javadoc tags can be achieved with align
-				token.setAlign(token.getIndent());
-				token.setIndent(0);
-			}
 		}
 
 		boolean canWrap = getNext() != null && lineBreaksBefore == 0 && index > 1 && positionIfNewLine < this.counter;
@@ -165,7 +159,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 		}
 
 		if (index > 1 && getNext() != null && (token.getAlign() + token.getIndent()) > 0)
-			this.counter = Math.max(this.counter, getStartingPosition(token));
+			this.counter = Math.max(this.counter, getStartingPosition(token, getLineBreaksBefore() > 0));
 		this.counter += this.tm.getLength(token, this.counter);
 		this.counterIfWrapped += this.tm.getLength(token, this.counterIfWrapped);
 		this.counterIfWrappedSubstitute += this.tm.getLength(token, this.counterIfWrappedSubstitute);
@@ -177,10 +171,6 @@ public class CommentWrapExecutor extends TokenTraverser {
 			}
 			if (!this.simulation) {
 				this.potentialWrapToken.breakBefore();
-				// Indents are reserved for code inside <pre>.
-				// Indentation of javadoc tags can be achieved with align
-				this.potentialWrapToken.setAlign(this.potentialWrapToken.getIndent());
-				this.potentialWrapToken.setIndent(0);
 			}
 			this.counter = this.counterIfWrapped;
 			this.lineCounter++;
@@ -214,6 +204,22 @@ public class CommentWrapExecutor extends TokenTraverser {
 		}
 
 		return true;
+	}
+
+	private void cleanupIndent(List<Token> structure) {
+		if (this.simulation)
+			return;
+		new TokenTraverser() {
+			@Override
+			protected boolean token(Token token, int index) {
+				if (token.tokenType == TokenNameCOMMENT_JAVADOC && token.getInternalStructure() == null) {
+					if (getLineBreaksBefore() > 0)
+						token.setAlign(token.getAlign() + token.getIndent());
+					token.setIndent(0);
+				}
+				return true;
+			}
+		}.traverse(structure, 0);
 	}
 
 	public void wrapLineComment(Token commentToken, int startPosition) {

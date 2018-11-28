@@ -1080,9 +1080,24 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see #TRUE
 	 * @see #FALSE
+	 * @see #FORMATTER_COMMENT_INDENT_TAG_DESCRIPTION
 	 * @since 3.1
 	 */
-	public final static String FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION = "org.eclipse.jdt.core.formatter.comment.indent_parameter_description"; //$NON-NLS-1$
+	public static final String FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION = "org.eclipse.jdt.core.formatter.comment.indent_parameter_description"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether Javadoc tag descriptions are indented when wrapped,
+	 *     excluding tags controlled by #FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.indent_return_description"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @see #FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION
+	 * @since 3.16
+	 */
+	public static final String FORMATTER_COMMENT_INDENT_TAG_DESCRIPTION = "org.eclipse.jdt.core.formatter.comment.indent_tag_description"; //$NON-NLS-1$
 
 	/**
 	 * <pre>
