@@ -16,6 +16,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -92,6 +93,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		System.arraycopy(this.subroutines, 0, (this.subroutines = new SubRoutineStatement[subCount]), 0, subCount);
 	}
 	return FlowInfo.DEAD_END;
+}
+
+
+@Override
+protected void generateExpressionResultCode(BlockScope currentScope, CodeStream codeStream) {
+	if (this.label == null && this.expression != null && this.switchExpression != null) {
+		this.expression.generateCode(currentScope, codeStream, true /* valueRequired */);
+	}
 }
 
 @Override

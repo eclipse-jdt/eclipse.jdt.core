@@ -295,7 +295,7 @@ public class SwitchStatement extends Expression {
 							}
 						}
 					}
-					statement.generateCode(this.scope, codeStream);
+					statementGenerateCode(currentScope, codeStream, statement);
 				}
 			}
 			
@@ -429,7 +429,7 @@ public class SwitchStatement extends Expression {
 							}
 						}
 					}
-					statement.generateCode(this.scope, codeStream);
+					statementGenerateCode(currentScope, codeStream, statement);
 				}
 			}
 			// May loose some local variable initializations : affecting the local variable attributes
@@ -451,6 +451,9 @@ public class SwitchStatement extends Expression {
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
+	}
+	protected void statementGenerateCode(BlockScope currentScope, CodeStream codeStream, Statement statement) {
+		statement.generateCode(this.scope, codeStream);
 	}
 
 	@Override

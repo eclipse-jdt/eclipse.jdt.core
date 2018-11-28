@@ -32,6 +32,9 @@ public BranchStatement(char[] label, int sourceStart,int sourceEnd) {
 	this.sourceEnd = sourceEnd;
 }
 
+protected void generateExpressionResultCode(BlockScope currentScope, CodeStream codeStream) {
+	// do nothing here
+}
 /**
  * Branch code generation
  *
@@ -42,6 +45,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if ((this.bits & ASTNode.IsReachable) == 0) {
 		return;
 	}
+	generateExpressionResultCode(currentScope, codeStream);
 	int pc = codeStream.position;
 
 	// generation of code responsible for invoking the finally

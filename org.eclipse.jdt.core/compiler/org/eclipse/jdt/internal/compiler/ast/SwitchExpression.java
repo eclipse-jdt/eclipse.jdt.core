@@ -105,7 +105,17 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		return false;
 	}
 	@Override
+	protected void statementGenerateCode(BlockScope currentScope, CodeStream codeStream, Statement statement) {
+		if (!(statement instanceof Expression)) {
+			super.statementGenerateCode(currentScope, codeStream, statement);
+			return;
+		}
+		Expression expression1 = (Expression) statement;
+		expression1.generateCode(currentScope, codeStream, true /* valueRequired */);
+	}
+	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		super.generateCode(currentScope, codeStream);
 		// TODO
 	}
 	protected boolean computeConversions(BlockScope blockScope, TypeBinding targetType) {
@@ -161,6 +171,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				if (breakStatement.expression != null) {
 					this.targetSwitchExpression.resultExpressions.add(breakStatement.expression);
 					breakStatement.switchExpression = this.targetSwitchExpression;
+					breakStatement.label = null; // not a label, but an expression
 				}
 				return false;
 			}
