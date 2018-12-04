@@ -1,0 +1,35 @@
+# Notices for Eclipse Java development tools
+
+This content is produced and maintained by the Eclipse Java development tools
+project.
+
+* Project home: https://projects.eclipse.org/projects/eclipse.jdt
+
+## Trademarks
+
+Eclipse Java development tools, Java development tools, Eclipse JDT, and JDT are
+trademarks of the Eclipse Foundation.
+
+## Copyright
+
+All content is the property of the respective authors or their employers. For
+more information regarding authorship of content, please consult the listed
+source code repository logs.
+
+## Declared Project Licenses
+
+This program and the accompanying materials are made available under the terms
+of the Eclipse Public License v. 2.0 which is available at
+http://www.eclipse.org/legal/epl-2.0.
+
+SPDX-License-Identifier: EPL-2.0
+
+## Source Code
+
+The project maintains the following source code repositories:
+
+* http://git.eclipse.org/c/jdt/eclipse.jdt.core.binaries.git
+* http://git.eclipse.org/c/jdt/eclipse.jdt.core.git
+* http://git.eclipse.org/c/jdt/eclipse.jdt.debug.git
+* http://git.eclipse.org/c/jdt/eclipse.jdt.git
+* http://git.eclipse.org/c/jdt/eclipse.jdt.ui.git

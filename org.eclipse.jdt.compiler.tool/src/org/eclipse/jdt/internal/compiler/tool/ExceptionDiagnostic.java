@@ -17,7 +17,6 @@ import java.util.Locale;
 
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
-import javax.tools.Diagnostic.Kind;
 
 final class ExceptionDiagnostic implements Diagnostic<JavaFileObject> {
 	private final Exception exception;
@@ -28,7 +27,7 @@ final class ExceptionDiagnostic implements Diagnostic<JavaFileObject> {
 
 	@Override
 	public String getCode() {
-		return "exception";
+		return "exception"; //$NON-NLS-1$
 	}
 
 	@Override
@@ -53,7 +52,7 @@ final class ExceptionDiagnostic implements Diagnostic<JavaFileObject> {
 
 	@Override
 	public String getMessage(Locale arg0) {
-		return exception.toString();
+		return this.exception.toString();
 	}
 
 	@Override

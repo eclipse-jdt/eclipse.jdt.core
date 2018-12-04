@@ -5723,7 +5723,7 @@ public void testBug298243() {
  */
 public void testBug298844a() {
 	setFormatLineCommentOnFirstColumn();
-	this.formatterPrefs.insert_new_line_in_empty_method_body = false;
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 	String source = 
 		"public class X01 {\n" + 
 		"public X01() {\n" + 
@@ -5739,7 +5739,7 @@ public void testBug298844a() {
 	);
 }
 public void testBug298844b() {
-	this.formatterPrefs.insert_new_line_in_empty_method_body = false;
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 	String source = 
 		"public class X02 {\n" + 
 		"public void foo() {\n" + 
@@ -11767,7 +11767,7 @@ public void testBug472413() {
  * https://bugs.eclipse.org/475793 - [formatter] Incorrect whitespace after lambda block
  */
 public void testBug475793() {
-	this.formatterPrefs.insert_new_line_in_empty_block = false;
+	this.formatterPrefs.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 	String source =
 		"public class C {\r\n" + 
 		"	public void f() {\r\n" + 
@@ -11786,7 +11786,7 @@ public void testBug475793() {
  * https://bugs.eclipse.org/475746 - [formatter] insert-space rules sometimes ignored with anonymous subclass or when Annotations present
  */
 public void testBug475746() {
-	this.formatterPrefs.insert_new_line_in_empty_block = false;
+	this.formatterPrefs.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 	this.formatterPrefs.insert_space_after_opening_paren_in_method_invocation = true;
 	this.formatterPrefs.insert_space_before_closing_paren_in_method_invocation = true;
 	this.formatterPrefs.insert_space_after_opening_paren_in_method_declaration = true;

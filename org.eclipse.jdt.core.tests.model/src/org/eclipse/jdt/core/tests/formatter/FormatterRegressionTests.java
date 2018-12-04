@@ -645,7 +645,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test041() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_type_declaration = false;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test041", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -653,7 +653,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test042() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.number_of_empty_lines_to_preserve = 0;
-		preferences.insert_new_line_in_empty_type_declaration = false;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		preferences.insert_space_before_opening_brace_in_block = true;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test042", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
@@ -662,7 +662,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test043() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_type_declaration = false;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test043", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -1940,10 +1940,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.number_of_empty_lines_to_preserve = 0;
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = false;
-		preferences.insert_new_line_in_empty_method_body = false;
-		preferences.insert_new_line_in_empty_block = false;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test173", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -1954,10 +1954,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test174() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = false;
-		preferences.insert_new_line_in_empty_method_body = false;
-		preferences.insert_new_line_in_empty_block = false;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test174", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -1969,10 +1969,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.number_of_empty_lines_to_preserve = 0;
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = false;
-		preferences.insert_new_line_in_empty_method_body = false;
-		preferences.insert_new_line_in_empty_block = true;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test175", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -1983,10 +1982,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test176() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = false;
-		preferences.insert_new_line_in_empty_method_body = true;
-		preferences.insert_new_line_in_empty_block = false;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test176", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -1997,10 +1995,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test177() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = false;
-		preferences.insert_new_line_in_empty_method_body = false;
-		preferences.insert_new_line_in_empty_block = false;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test177", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -2011,10 +2008,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test178() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = true;
-		preferences.insert_new_line_in_empty_method_body = false;
-		preferences.insert_new_line_in_empty_block = false;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test178", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -2025,10 +2021,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test179() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = true;
-		preferences.insert_new_line_in_empty_type_declaration = true;
-		preferences.insert_new_line_in_empty_method_body = false;
-		preferences.insert_new_line_in_empty_block = false;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test179", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -2039,10 +2034,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test180() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = false;
-		preferences.insert_new_line_in_empty_method_body = false;
-		preferences.insert_new_line_in_empty_block = false;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test180", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -4293,10 +4287,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.number_of_empty_lines_to_preserve = 0;
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = false;
-		preferences.insert_new_line_in_empty_method_body = false;
-		preferences.insert_new_line_in_empty_block = false;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test319", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -4305,10 +4298,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.number_of_empty_lines_to_preserve = 0;
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = false;
-		preferences.insert_new_line_in_empty_method_body = false;
-		preferences.insert_new_line_in_empty_block = false;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test320", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -4317,10 +4309,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.number_of_empty_lines_to_preserve = 0;
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = false;
-		preferences.insert_new_line_in_empty_method_body = false;
-		preferences.insert_new_line_in_empty_block = false;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test321", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -4329,10 +4320,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.number_of_empty_lines_to_preserve = 0;
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = false;
-		preferences.insert_new_line_in_empty_method_body = false;
-		preferences.insert_new_line_in_empty_block = true;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test322", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -4341,10 +4331,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.number_of_empty_lines_to_preserve = 0;
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_anonymous_type_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = false;
-		preferences.insert_new_line_in_empty_method_body = false;
-		preferences.insert_new_line_in_empty_block = false;
+		preferences.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test323", "A.java", CodeFormatter.K_CLASS_BODY_DECLARATIONS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -4614,7 +4604,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
 		preferences.blank_lines_before_method = 1;
 		preferences.blank_lines_before_first_class_body_declaration = 1;
-		preferences.insert_new_line_in_empty_method_body = false;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test347", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -4631,7 +4621,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
 		preferences.blank_lines_before_method = 1;
 		preferences.blank_lines_before_first_class_body_declaration = 1;
-		preferences.insert_new_line_in_empty_method_body = false;
+		preferences.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test348", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -7273,9 +7263,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_type_declaration = true;
-		preferences.insert_new_line_in_empty_enum_constant = false;
-		preferences.insert_new_line_in_empty_enum_declaration = false;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		preferences.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
         preferences.tab_size = 4;
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
@@ -7303,9 +7293,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_type_declaration = true;
-		preferences.insert_new_line_in_empty_enum_constant = false;
-		preferences.insert_new_line_in_empty_enum_declaration = true;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		preferences.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
         preferences.tab_size = 4;
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
@@ -7333,9 +7323,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_type_declaration = true;
-		preferences.insert_new_line_in_empty_enum_constant = true;
-		preferences.insert_new_line_in_empty_enum_declaration = false;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		preferences.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		preferences.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
         preferences.tab_size = 4;
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
@@ -7363,9 +7353,9 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_new_line_in_empty_type_declaration = true;
-		preferences.insert_new_line_in_empty_enum_constant = true;
-		preferences.insert_new_line_in_empty_enum_declaration = true;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		preferences.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		preferences.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
         preferences.tab_size = 4;
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
@@ -8970,8 +8960,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.indent_body_declarations_compare_to_annotation_declaration_header = false;
 		preferences.indent_body_declarations_compare_to_type_header = true;
-		preferences.insert_new_line_in_empty_annotation_declaration = false;
-		preferences.insert_new_line_in_empty_type_declaration = true;
+		preferences.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
@@ -8996,8 +8986,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		preferences.indent_body_declarations_compare_to_annotation_declaration_header = true;
 		preferences.indent_body_declarations_compare_to_type_header = false;
-		preferences.insert_new_line_in_empty_annotation_declaration = true;
-		preferences.insert_new_line_in_empty_type_declaration = false;
+		preferences.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		preferences.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
 		Hashtable javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable newJavaCoreOptions = JavaCore.getOptions();
@@ -14371,5 +14361,200 @@ public void testBug131292f() throws JavaModelException {
 	this.formatterPrefs.align_fields_grouping_blank_lines = 2;
 	String input = getCompilationUnit("Formatter", "", "test131292", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test131292", "F_out.java").getSource());
+}
+
+/**
+ * https://bugs.eclipse.org/205973 - [formatter] Allow to keep simple methods on one line (for exemple simple getter or setter)
+ */
+public void testBug205973a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_if_then_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_loop_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_simple_getter_setter_on_one_line = false;
+	this.formatterPrefs.keep_guardian_clause_on_one_line = false;
+	String input = getCompilationUnit("Formatter", "", "test205973", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test205973", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/205973 - [formatter] Allow to keep simple methods on one line (for exemple simple getter or setter)
+ */
+public void testBug205973b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_if_then_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_loop_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_simple_getter_setter_on_one_line = true;
+	this.formatterPrefs.keep_guardian_clause_on_one_line = false;
+	String input = getCompilationUnit("Formatter", "", "test205973", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test205973", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/205973 - [formatter] Allow to keep simple methods on one line (for exemple simple getter or setter)
+ */
+public void testBug205973c() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_if_then_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_loop_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_simple_getter_setter_on_one_line = false;
+	this.formatterPrefs.keep_guardian_clause_on_one_line = true;
+	String input = getCompilationUnit("Formatter", "", "test205973", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test205973", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/205973 - [formatter] Allow to keep simple methods on one line (for exemple simple getter or setter)
+ */
+public void testBug205973d() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_if_then_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_loop_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_simple_getter_setter_on_one_line = false;
+	this.formatterPrefs.keep_guardian_clause_on_one_line = false;
+	String input = getCompilationUnit("Formatter", "", "test205973", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test205973", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/205973 - [formatter] Allow to keep simple methods on one line (for exemple simple getter or setter)
+ */
+public void testBug205973e() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_if_then_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_loop_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_simple_getter_setter_on_one_line = true;
+	this.formatterPrefs.keep_guardian_clause_on_one_line = true;
+	String input = getCompilationUnit("Formatter", "", "test205973", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test205973", "E_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/205973 - [formatter] Allow to keep simple methods on one line (for exemple simple getter or setter)
+ */
+public void testBug205973f() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_if_then_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_loop_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_simple_getter_setter_on_one_line = false;
+	this.formatterPrefs.keep_guardian_clause_on_one_line = false;
+	String input = getCompilationUnit("Formatter", "", "test205973", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test205973", "F_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/205973 - [formatter] Allow to keep simple methods on one line (for exemple simple getter or setter)
+ */
+public void testBug205973g() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_if_then_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_loop_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_simple_getter_setter_on_one_line = false;
+	this.formatterPrefs.keep_guardian_clause_on_one_line = false;
+	String input = getCompilationUnit("Formatter", "", "test205973", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test205973", "G_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/205973 - [formatter] Allow to keep simple methods on one line (for exemple simple getter or setter)
+ */
+public void testBug205973h() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_PRESERVE;
+	this.formatterPrefs.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_PRESERVE;
+	this.formatterPrefs.keep_if_then_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_PRESERVE;
+	this.formatterPrefs.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_PRESERVE;
+	this.formatterPrefs.keep_loop_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_PRESERVE;
+	this.formatterPrefs.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+	this.formatterPrefs.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_PRESERVE;
+	this.formatterPrefs.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_PRESERVE;
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_PRESERVE;
+	this.formatterPrefs.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_PRESERVE;
+	this.formatterPrefs.keep_simple_getter_setter_on_one_line = false;
+	this.formatterPrefs.keep_guardian_clause_on_one_line = false;
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_variable_declarations_on_columns = true;
+	this.formatterPrefs.align_assignment_statements_on_columns = true;
+	String input = getCompilationUnit("Formatter", "", "test205973", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test205973", "H_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/205973 - [formatter] Allow to keep simple methods on one line (for exemple simple getter or setter)
+ */
+public void testBug205973i() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.page_width = 50;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_if_then_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_loop_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_EMPTY;
+	this.formatterPrefs.keep_enum_constant_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_simple_getter_setter_on_one_line = false;
+	this.formatterPrefs.keep_guardian_clause_on_one_line = false;
+	String input = getCompilationUnit("Formatter", "", "test205973", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test205973", "I_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/205973 - [formatter] Allow to keep simple methods on one line (for exemple simple getter or setter)
+ */
+public void testBug205973j() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	String input = getCompilationUnit("Formatter", "", "test205973", "J_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test205973", "J_out.java").getSource());
 }
 }
