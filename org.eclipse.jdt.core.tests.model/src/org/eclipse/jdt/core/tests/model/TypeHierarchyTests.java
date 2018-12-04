@@ -3076,4 +3076,35 @@ public void testBug533949() throws CoreException {
 		if (javaProject2 != null) deleteProject(javaProject2);
 	}
 }
+
+public void testBug541217() throws CoreException {
+    if (!isJRE9) return;
+    IJavaProject javaProject1 = null;
+    try {
+        javaProject1 = createJava9Project("mod1");
+        String packA = "/mod1/src/a/";
+        createFolder(packA);
+        createFile(packA + "A.java",
+                        "package a;\n" +
+                        "public interface A extends java.sql.Driver{\n"+
+                        "}\n");
+        createFile("/mod1/src/module-info.java",
+                        "module mod1 {\n" +
+                        "       requires java.sql;\n"+
+                        "       exports a;\n"+
+                        "}\n");
+
+        waitUntilIndexesReady();
+
+        IType focus = javaProject1.findType("java.sql.Driver");
+        ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
+        IType[] allSubTypes = hierarchy.getAllSubtypes(focus);
+        assertTypesEqual("Incorrect sub hierarchy",
+                        "a.A\n",
+                        allSubTypes,
+                        true);
+    } finally{
+        if (javaProject1 != null) deleteProject(javaProject1);
+    }
+}
 }

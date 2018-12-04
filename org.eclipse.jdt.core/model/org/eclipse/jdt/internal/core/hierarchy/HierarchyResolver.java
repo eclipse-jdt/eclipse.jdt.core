@@ -37,6 +37,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jdt.core.IModuleDescription;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
@@ -753,7 +755,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 				} else {
 					// create parsed unit from file
 					IFile file = (IFile) cu.getResource();
-					ICompilationUnit sourceUnit = this.builder.createCompilationUnitFromPath(openable, file);
+					ICompilationUnit sourceUnit = this.builder.createCompilationUnitFromPath(openable, file, findAssociatedModuleName(openable));
 					CompilationResult unitResult = new CompilationResult(sourceUnit, i, openablesLength, this.options.maxProblemsPerUnit);
 					parsedUnit = parser.dietParse(sourceUnit, unitResult);
 				}
@@ -891,6 +893,23 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 		reset();
 	}
 }
+
+private char[] findAssociatedModuleName(Openable openable) {
+	IModuleDescription module = null;
+	IPackageFragmentRoot root = openable.getPackageFragmentRoot();
+	try {
+		if (root.getKind() == IPackageFragmentRoot.K_SOURCE)
+			module = root.getJavaProject().getModuleDescription(); // from any root in this project
+		else
+			module = root.getModuleDescription();
+	} catch (JavaModelException jme) {
+		// ignore, cannot associate to any module
+	}
+	if (module != null)
+		return module.getElementName().toCharArray();
+	return null;
+}
+
 private void setEnvironment(LookupEnvironment lookupEnvironment, HierarchyBuilder builder) {
 	this.lookupEnvironment = lookupEnvironment;
 	this.builder = builder;

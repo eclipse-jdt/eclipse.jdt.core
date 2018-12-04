@@ -1441,6 +1441,21 @@ public AccessRestriction getAccessRestriction(TypeBinding type) {
  * assuming C is a type in both cases. In the a.b.C.D.E case, null is the answer.
  */
 public ReferenceBinding getCachedType(char[][] compoundName) {
+	ReferenceBinding result = getCachedType0(compoundName);
+	if (result == null && this.useModuleSystem) {
+		ModuleBinding[] modulesToSearch = this.module.isUnnamed() || this.module.isAuto
+				? this.root.knownModules.valueTable
+				: this.module.getAllRequiredModules();
+		for (ModuleBinding someModule : modulesToSearch) {
+			if (someModule == null) continue;
+			result = someModule.environment.getCachedType0(compoundName);
+			if (result != null && result.isValidBinding())
+				break;
+		}
+	}
+	return result;
+}
+public ReferenceBinding getCachedType0(char[][] compoundName) {
 	if (compoundName.length == 1) {
 		return this.defaultPackage.getType0(compoundName[0]);
 	}

@@ -404,8 +404,8 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 	}
 }
 @Override
-protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file) {
-	ICompilationUnit unit = super.createCompilationUnitFromPath(handle, file);
+protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file, char[] moduleName) {
+	ICompilationUnit unit = super.createCompilationUnitFromPath(handle, file, moduleName);
 	this.cuToHandle.put(unit, handle);
 	return unit;
 }
