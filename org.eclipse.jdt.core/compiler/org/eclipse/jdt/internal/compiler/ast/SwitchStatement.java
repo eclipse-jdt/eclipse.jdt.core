@@ -56,6 +56,7 @@ public class SwitchStatement extends Expression {
 	public int caseCount;
 	int[] constants;
 	String[] stringConstants;
+	public boolean switchLabeledRules = false; // true if case ->, false if case :
 
 	// fallthrough
 	public final static int CASE = 0;
@@ -79,6 +80,9 @@ public class SwitchStatement extends Expression {
 
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
 		return FALLTHROUGH;
+	}
+	protected void completeNormallyCheck(BlockScope blockScope) {
+		// do nothing
 	}
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -126,6 +130,7 @@ public class SwitchStatement extends Expression {
 					} else {
 						fallThroughState = getFallThroughState(statement, currentScope); // reset below if needed
 					}
+					completeNormallyCheck(currentScope);
 					if ((complaintLevel = statement.complainIfUnreachable(caseInits, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 						caseInits = statement.analyseCode(this.scope, switchContext, caseInits);
 						if (caseInits == FlowInfo.DEAD_END) {
@@ -570,7 +575,7 @@ public class SwitchStatement extends Expression {
 			reportMixingCaseTypes();
 			// check default case for all kinds of switch:
 			if (this.defaultCase == null) {
-				if (compilerOptions.getSeverity(CompilerOptions.MissingDefaultCase) == ProblemSeverities.Ignore) {
+				if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch)) {
 					if (isEnumSwitch) {
 						upperScope.methodScope().hasMissingSwitchDefault = true;
 					}
@@ -607,18 +612,23 @@ public class SwitchStatement extends Expression {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
 	}
+	protected boolean ignoreMissingDefaultCase(CompilerOptions compilerOptions, boolean isEnumSwitch) {
+		return compilerOptions.getSeverity(CompilerOptions.MissingDefaultCase) == ProblemSeverities.Ignore;
+	}
 
 	private void reportMixingCaseTypes() {
-		if (this.caseCount == 0)
+		if (this.caseCount == 0) {
+			this.switchLabeledRules = this.defaultCase != null ? this.defaultCase.isExpr : this.switchLabeledRules;
 			return;
-		boolean isExpr = this.cases[0].isExpr;
+		}
+		boolean isExpr = this.switchLabeledRules = this.cases[0].isExpr;
 		for (int i = 1, l = this.caseCount; i < l; ++i) {
 			if (this.cases[i].isExpr != isExpr) {
 				this.scope.problemReporter().mixedCase(this.cases[i]);
 				return;
 			}
 		}
-		if (this.defaultCase.isExpr != isExpr) {
+		if (this.defaultCase != null && this.defaultCase.isExpr != isExpr) {
 			this.scope.problemReporter().mixedCase(this.defaultCase);
 		}
 	}

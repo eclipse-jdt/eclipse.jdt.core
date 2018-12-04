@@ -22,14 +22,12 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class SwitchExpression extends SwitchStatement implements IPolyExpression {
 
@@ -56,19 +54,52 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		return this.expressionContext;
 	}
 	@Override
+	protected boolean ignoreMissingDefaultCase(CompilerOptions compilerOptions, boolean isEnumSwitch) {
+		return isEnumSwitch; // mandatory error if not enum in switch expressions
+	}
+	@Override
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
 		if (stmt instanceof Expression || stmt instanceof ThrowStatement)
 			return BREAKING;
-		if (stmt instanceof Block) {
+		if (this.switchLabeledRules // do this check for every block if '->' (Switch Labeled Rules) 
+				&& stmt instanceof Block) {
 			Block block = (Block) stmt;
 			if (block.doesNotCompleteNormally()) {
 				return BREAKING;
 			}
 			//JLS 12 15.29.1 Given a switch expression, if the switch block consists of switch labeled rules,
 			//then it is a compile-time error if any switch labeled block can complete normally.
-			blockScope.problemReporter().switchExpressionBlockCompletesNormally(block);
+			blockScope.problemReporter().switchExpressionSwitchLabeledBlockCompletesNormally(block);
 		}
 		return FALLTHROUGH;
+	}
+	@Override
+	protected void completeNormallyCheck(BlockScope blockScope) {
+		if (this.switchLabeledRules) return; // already taken care in getFallThroughState()
+		int sz = this.statements != null ? this.statements.length : 0;
+		if (sz == 0) return;
+		/* JLS 12 15.29.1
+		 * If, on the other hand, the switch block consists of switch labeled statement groups, then it is a
+		 * compile-time error if either the last statement in the switch block can complete normally, or the
+		 * switch block includes one or more switch labels at the end.
+		 */
+		Statement lastNonCaseStmt = null;
+		Statement firstTrailingCaseStmt = null;
+		for (int i = sz - 1; i >= 0; i--) {
+			Statement stmt = this.statements[sz - 1];
+			if (stmt instanceof CaseStatement)
+				firstTrailingCaseStmt = stmt;
+			else {
+				lastNonCaseStmt = stmt;
+				break;
+			}
+		}
+		if (lastNonCaseStmt != null && !lastNonCaseStmt.doesNotCompleteNormally()) {
+			blockScope.problemReporter().switchExpressionLastStatementCompletesNormally(lastNonCaseStmt);				
+		}
+		if (firstTrailingCaseStmt != null) {
+			blockScope.problemReporter().switchExpressionTrailingSwitchLabels(firstTrailingCaseStmt);				
+		}
 	}
 	@Override
 	public Expression[] getPolyExpressions() {
@@ -247,16 +278,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				upperScope.problemReporter().switchExpressionEmptySwitchBlock(this);
 				return null;
 			}
-			if (this.defaultCase == null) {
-				if (compilerOptions.getSeverity(CompilerOptions.MissingDefaultCase) == ProblemSeverities.Ignore) {
-					TypeBinding expressionType = this.expression.resolvedType;
-					if (!expressionType.isEnum()) {
-						// cannot ignore in SwitchExpressions - this is a compile-time error
-						// it was not reported earlier in super.resolve() since it was ignored.
-						upperScope.problemReporter().missingDefaultCase(this, false /* isEnumSwitch*/, expressionType);
-					}
-				}
-			}
 			// now we are done with case constants, let us collect the result expressions
 			collectResultExpressions();
 			
@@ -279,24 +300,14 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				}
 			}
 			
-			if (this.constant != Constant.NotAConstant) {
-				this.constant = Constant.NotAConstant;
+			if (this.originalValueResultExpressionTypes == null) {
 				this.originalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
+				this.finalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
 				for (int i = 0; i < resultExpressionsCount; ++i) {
-					this.originalValueResultExpressionTypes[i] = this.resultExpressions.get(i).resolveType(this.scope);
+					this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i] =
+							this.resultExpressions.get(i).resolvedType;
 				}
-				// TODO: should we return if one of the types is null? to check
-			} else {
-				for (int i = 0; i < resultExpressionsCount; ++i) {
-					if (this.originalValueResultExpressionTypes[i].kind() == Binding.POLY_TYPE)
-						this.originalValueResultExpressionTypes[i] = this.resultExpressions.get(i).resolveType(this.scope);
-				}
-				// TODO: should we return if one of the types is null? to check
 			}
-			this.finalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
-			for (int i = 0; i < resultExpressionsCount; ++i)
-				this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i];
-			
 			if (isPolyExpression()) { //The type of a poly switch expression is the same as its target type.
 				if (this.expectedType == null || !this.expectedType.isProperType(true)) {
 					return new PolyTypeBinding(this);

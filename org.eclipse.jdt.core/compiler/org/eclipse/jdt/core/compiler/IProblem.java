@@ -2083,7 +2083,13 @@ void setSourceStart(int sourceStart);
 	/** @since 3.16 BETA_JAVA_12 */
 	int SwitchExpressionsNoResultExpression = TypeRelated + 1602;
 	/** @since 3.16 BETA_JAVA_12 */
-	int SwitchExpressionBlockCompletesNormally = Internal + 1603;
+	int SwitchExpressionSwitchLabeledBlockCompletesNormally = Internal + 1603;
 	/** @since 3.16 BETA_JAVA_12 */
-	int MixedCase = Syntax + 1604;
+	int SwitchExpressionLastStatementCompletesNormally = Internal + 1604;
+	/** @since 3.16 BETA_JAVA_12 */
+	int SwitchExpressionTrailingSwitchLabels = Internal + 1605;
+	/** @since 3.16 BETA_JAVA_12 */
+	int MixedCase = Syntax + 1606;
+	/** @since 3.16 BETA_JAVA_12 */
+	int SwitchExpressionMissingDefaultCase = Internal + 1607;
 	}

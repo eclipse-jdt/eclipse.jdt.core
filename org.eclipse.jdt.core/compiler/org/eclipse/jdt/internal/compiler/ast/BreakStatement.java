@@ -102,6 +102,12 @@ protected void generateExpressionResultCode(BlockScope currentScope, CodeStream 
 		this.expression.generateCode(currentScope, codeStream, true /* valueRequired */);
 	}
 }
+@Override
+public void resolve(BlockScope scope) {
+	super.resolve(scope);
+	if (this.expression != null)
+		this.expression.resolve(scope);
+}
 
 @Override
 public TypeBinding resolveExpressionType(BlockScope scope) {

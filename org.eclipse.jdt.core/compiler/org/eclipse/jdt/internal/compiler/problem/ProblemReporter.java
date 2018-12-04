@@ -6496,28 +6496,12 @@ public void missingDefaultCase(SwitchStatement switchStatement, boolean isEnumSw
 				switchStatement.expression.sourceEnd);
 	} else {
 		this.handle(
-				IProblem.MissingDefaultCase,
+				switchStatement instanceof SwitchExpression ?
+						IProblem.SwitchExpressionMissingDefaultCase : IProblem.MissingDefaultCase,
 				NoArgument,
 				NoArgument,
 				switchStatement.expression.sourceStart,
 				switchStatement.expression.sourceEnd);
-	}
-}
-public void missingDefaultCase(SwitchExpression switchExpression, boolean isEnumSwitch, TypeBinding expressionType) {
-	if (isEnumSwitch) {
-		this.handle(
-				IProblem.MissingEnumDefaultCase,
-				new String[] {new String(expressionType.readableName())},
-				new String[] {new String(expressionType.shortReadableName())},
-				switchExpression.expression.sourceStart,
-				switchExpression.expression.sourceEnd);
-	} else {
-		this.handle(
-				IProblem.MissingDefaultCase,
-				NoArgument,
-				NoArgument,
-				switchExpression.expression.sourceStart,
-				switchExpression.expression.sourceEnd);
 	}
 }
 public void missingOverrideAnnotation(AbstractMethodDeclaration method) {
@@ -11030,13 +11014,29 @@ public void switchExpressionNoResultExpressions(SwitchExpression expression) {
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void switchExpressionBlockCompletesNormally(Block block) {
+public void switchExpressionSwitchLabeledBlockCompletesNormally(Block block) {
 	this.handle(
-		IProblem.SwitchExpressionBlockCompletesNormally,
+		IProblem.SwitchExpressionSwitchLabeledBlockCompletesNormally,
 		NoArgument,
 		NoArgument,
 		block.sourceStart,
 		block.sourceEnd);
+}
+public void switchExpressionLastStatementCompletesNormally(Statement stmt) {
+	this.handle(
+		IProblem.SwitchExpressionSwitchLabeledBlockCompletesNormally,
+		NoArgument,
+		NoArgument,
+		stmt.sourceStart,
+		stmt.sourceEnd);
+}
+public void switchExpressionTrailingSwitchLabels(Statement stmt) {
+	this.handle(
+		IProblem.SwitchExpressionTrailingSwitchLabels,
+		NoArgument,
+		NoArgument,
+		stmt.sourceStart,
+		stmt.sourceEnd);
 }
 public void mixedCase(ASTNode statement) {
 	this.handle(

@@ -44,6 +44,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
 		return defaultOptions;
 	}
+	
 
 	public void testSimpleExpressions() {
 		runConformTest(
@@ -52,9 +53,9 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"public class X {\n" +
 				"	static int twice(int i) {\n" +
 				"		int tw = switch (i) {\n" +
-				"			case 0 -> 0;\n" +
+				"			case 0 -> i * 0;\n" +
 				"			case 1 -> 2;\n" +
-				"			default -> i * 2;\n" +
+				"			default -> 3;\n" +
 				"		};\n" +
 				"		return tw;\n" +
 				"	}\n" +
@@ -104,11 +105,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"X.java",
 				"public class X {\n" +
 				"  public static void main(String[] args) {\n" +
-				"    int x, y;\n" +
-				"    I i = () -> {\n" +
-				"      int z = 10;\n" +
-				"    };\n" +
-				"    i++;\n" +
+				"    twice(1);\n" +
 				"  }\n" +
 				"	public static int twice(int i) {\n" +
 				"		int tw = switch (i) {\n" +
@@ -118,10 +115,16 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
 			"	int tw = switch (i) {\n" + 
-			"	      ^^^^^\n" + 
-			" A switch expression should have at least one result expression\n" + 
+			"		};\n" + 
+			"	         ^^^^^^^^^^^^^^^^\n" + 
+			"A switch expression should have a non-empty switch block\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	int tw = switch (i) {\n" + 
+			"	                 ^\n" + 
+			"A switch expression should have a default case\n" + 
 			"----------\n");
 	}
 	public void testBug531714_error_004() {
@@ -130,11 +133,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"X.java",
 				"public class X {\n" +
 				"  public static void main(String[] args) {\n" +
-				"    int x, y;\n" +
-				"    I i = () -> {\n" +
-				"      int z = 10;\n" +
-				"    };\n" +
-				"    i++;\n" +
+				"    twice(1);\n" +
 				"  }\n" +
 				"	public static int twice(int i) {\n" +
 				"		int tw = switch (i) {\n" +
@@ -143,19 +142,18 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"				System.out.println(\"heel\");\n" +
 				"				break 1;\n" +
 				"			} \n" +
-				"		//	case 2 -> 2;\n" +
-				"			case \"hello\" -> throw new IOException(\"hello\");\n" +
-				"			default -> throw new IOException(\"world\");\n" +
+				"			case \"hello\" -> throw new java.io.IOException(\"hello\");\n" +
+				"			default -> throw new java.io.IOException(\"world\");\n" +
 				"		};\n" +
 				"		return tw;\n" +
 				"	}\n" +
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
-			"	int tw = switch (i) {\n" + 
-			"	      ^^^^^\n" + 
-			" Incompatible switch results expressions\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+			"	case \"hello\" -> throw new java.io.IOException(\"hello\");\n" + 
+			"	     ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from String to int\n" + 
 			"----------\n");
 	}
 	public void testBug531714_error_005() {
@@ -164,11 +162,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"X.java",
 				"public class X {\n" +
 				"  public static void main(String[] args) {\n" +
-				"    int x, y;\n" +
-				"    I i = () -> {\n" +
-				"      int z = 10;\n" +
-				"    };\n" +
-				"    i++;\n" +
+				"    twice(1);\n" +
 				"  }\n" +
 				"	public static int twice(int i) {\n" +
 				"		int tw = switch (i) {\n" +
@@ -177,18 +171,17 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"				System.out.println(\"heel\");\n" +
 				"				break 1;\n" +
 				"			} \n" +
-				"		//	case 2 -> 2;\n" +
-				"			case \"hello\" -> throw new IOException(\"hello\");\n" +
+				"		    case 2 -> 2;\n" +
 				"		};\n" +
 				"		return tw;\n" +
 				"	}\n" +
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 7)\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
 			"	int tw = switch (i) {\n" + 
-			"	      ^^^^^\n" + 
-			" The switch expression should have a default case\n" + 
+			"	                 ^\n" + 
+			"A switch expression should have a default case\n" + 
 			"----------\n");
 	}
 	/**
@@ -198,7 +191,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	 *  must contain all the enum constants of that enum type
 	 *  Add a missing enum test case
 	 */
-	public void testBug531714_error_006() {
+	public void _testBug531714_error_006() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
