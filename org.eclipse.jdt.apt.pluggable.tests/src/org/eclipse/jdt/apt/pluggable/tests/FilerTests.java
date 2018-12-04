@@ -452,6 +452,49 @@ public class FilerTests extends TestBase
 		fullBuild();
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
+	public void testBug542090() throws Throwable {
+		if (!canRunJava9()) {
+			return;
+		}
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJava9Project(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+
+		IPath root = projPath.append("src");
+		env.addClass(root, null, "module-info", "module example {requires annotations;}");
+		env.addClass(root, "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testBug542090a\", arg0 = \"p\", arg1 = \"Other\")" +
+				"public class Trigger {\n" +
+				"}"
+		); 
+
+		AptConfig.setEnabled(jproj, true);
+		fullBuild();
+		env.addClass(root, "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testBug542090a\", arg0 = \"p\", arg1 = \"Other\")" +
+				"public class Trigger {\n" +
+				"}/*added comment */"
+		); 
+		incrementalBuild();
+		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
+
+		env.addClass(root, "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testBug542090b\", arg0 = \"p\", arg1 = \"Other\")" +
+				"public class Trigger {\n" +
+				"}/*added comment */"
+		); 
+		incrementalBuild();
+		assertEquals("Processor reported errors", "FilerException invoking test method testBug542090b - see console for details", ProcessorTestStatus.getErrors());
+	}
+
 	public void testCreateClass1() throws Exception {
 		FilerTesterProc.roundNo = 0;
 		ProcessorTestStatus.reset();

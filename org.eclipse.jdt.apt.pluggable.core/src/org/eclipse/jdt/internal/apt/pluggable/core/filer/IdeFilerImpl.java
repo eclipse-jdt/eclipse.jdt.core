@@ -54,12 +54,12 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
  */
 public class IdeFilerImpl implements Filer {
 	
-	//private final IdeAnnotationProcessorManager _dispatchManager;
+	private final IdeAnnotationProcessorManager _dispatchManager;
 	private final IdeProcessingEnvImpl _env;
 
 	public IdeFilerImpl(IdeAnnotationProcessorManager dispatchManager,
 			IdeProcessingEnvImpl env) {
-		//_dispatchManager = dispatchManager;
+		_dispatchManager = dispatchManager;
 		_env = env;
 	}
 
@@ -174,7 +174,14 @@ public class IdeFilerImpl implements Filer {
 			m = _env.getCompiler().lookupEnvironment.UnNamedModule;
 		ReferenceBinding type = m.environment.getType(CharOperation.splitOn('.', name.toString().toCharArray()), m);
 		if (type != null && (type.tagBits & TagBits.HasMissingType) == 0) {
-			throw new FilerException("Source file already exists : " + name); //$NON-NLS-1$
+			IFile classFile = getFileFromOutputLocation(StandardLocation.CLASS_OUTPUT, CharOperation.toString(type.fPackage.compoundName), new String(type.sourceName()) + ".class");
+			String fileName = new String(type.getFileName());
+			if (fileName != null) {
+				String osString = classFile.getFullPath().toOSString();
+				if (!osString.equals(fileName) || !_dispatchManager._isFirstRound) {
+					throw new FilerException("Source file already exists : " + name); //$NON-NLS-1$
+				}
+			}
 		}
 		Set<IFile> parentFiles = Collections.emptySet();
 		if (originatingElements != null && originatingElements.length > 0) {
