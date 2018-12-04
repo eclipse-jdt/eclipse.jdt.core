@@ -415,6 +415,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("BytecodeExceeds64KLimit", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("BytecodeExceeds64KLimitForClinit", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("BytecodeExceeds64KLimitForConstructor", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("BytecodeExceeds64KLimitForSwitchTable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("CannotAllocateVoidArray", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("CannotDeclareEnumSpecialMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("CannotDefineAnnotationInLocalType", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1334,6 +1335,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("BytecodeExceeds64KLimit", SKIP);
 		expectedProblemAttributes.put("BytecodeExceeds64KLimitForClinit", SKIP);
 		expectedProblemAttributes.put("BytecodeExceeds64KLimitForConstructor", SKIP);
+		expectedProblemAttributes.put("BytecodeExceeds64KLimitForSwitchTable", SKIP);
 		expectedProblemAttributes.put("CannotAllocateVoidArray", SKIP);
 		expectedProblemAttributes.put("CannotDeclareEnumSpecialMethod", SKIP);
 		expectedProblemAttributes.put("CannotDefineAnnotationInLocalType", SKIP);

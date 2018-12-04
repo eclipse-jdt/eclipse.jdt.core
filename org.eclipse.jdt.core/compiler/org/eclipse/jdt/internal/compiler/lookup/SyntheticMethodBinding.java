@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
+import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class SyntheticMethodBinding extends MethodBinding {
@@ -35,6 +36,9 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public MethodBinding targetMethod;			// method or constructor
 	public TypeBinding targetEnumType; 			// enum type
 	public LambdaExpression lambda;
+	
+	/** Switch (one from many) linked to the switch table */
+	public SwitchStatement switchStatement; 
 	/**
 	 * Method reference expression whose target FI is Serializable. Should be set when
 	 * purpose is {@link #SerializableMethodReference}
@@ -178,7 +182,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.sourceStart = declaringSourceType.scope.referenceContext.sourceStart; // use the target declaring class name position instead
 	}
 
-	public SyntheticMethodBinding(FieldBinding targetField, ReferenceBinding declaringClass, TypeBinding enumBinding, char[] selector) {
+	public SyntheticMethodBinding(FieldBinding targetField, ReferenceBinding declaringClass, TypeBinding enumBinding, char[] selector,  SwitchStatement switchStatement) {
 		this.modifiers = (declaringClass.isInterface() ? ClassFileConstants.AccPublic : ClassFileConstants.AccDefault) | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
@@ -193,7 +197,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.purpose = SyntheticMethodBinding.SwitchTable;
 		this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		this.declaringClass = declaringSourceType;
-
+		this.switchStatement = switchStatement;
 		if (declaringSourceType.isStrictfp()) {
 			this.modifiers |= ClassFileConstants.AccStrictfp;
 		}
