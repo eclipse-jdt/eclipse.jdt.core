@@ -24,6 +24,7 @@ public class BreakStatement extends BranchStatement {
 
 	public Expression expression;
 	public SwitchExpression switchExpression;
+	public boolean isImplicit;
 
 public BreakStatement(char[] label, int sourceStart, int e) {
 	super(label, sourceStart, e);
@@ -116,8 +117,10 @@ public TypeBinding resolveExpressionType(BlockScope scope) {
 
 @Override
 public StringBuffer printStatement(int tab, StringBuffer output) {
-	printIndent(tab, output).append("break"); //$NON-NLS-1$
+	if (!this.isImplicit) // implicit for SwitchLabeledExpressions
+		printIndent(tab, output).append("break"); //$NON-NLS-1$
 	if (this.label != null) output.append(' ').append(this.label);
+	if (this.expression != null) output.append(' ').append(this.expression.printExpression(tab, output));
 	return output.append(';');
 }
 

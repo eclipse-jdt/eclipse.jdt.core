@@ -9506,10 +9506,6 @@ protected void consumeConstantExpression() {
 protected void consumeConstantExpressions() {
 	concatExpressionLists();
 }
-protected void consumeBreakExpression() {
-	// BreakExpression ::= 'break' Expression
-	// do nothing
-}
 protected void consumeSwitchLabeledRules() {
 	concatNodeLists();
 }
@@ -9526,6 +9522,14 @@ protected void consumeSwitchLabeledRuleToBlockStatement() {
 }
 protected void consumeSwitchLabeledExpression() {
 	consumeExpressionStatement();
+	Expression expr = (Expression) this.astStack[this.astPtr];
+	BreakStatement breakStatement = new BreakStatement(
+			null,
+			expr.sourceStart,
+			this.endStatementPosition);
+	breakStatement.isImplicit = true;
+	breakStatement.expression = expr;
+	this.astStack[this.astPtr] = breakStatement;
 	concatNodeLists();
 } 
 protected void consumeSwitchLabeledBlock() {
