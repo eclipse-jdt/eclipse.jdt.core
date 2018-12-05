@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -224,6 +228,7 @@ public class CompilerOptions {
 	public static final String VERSION_9 = "9"; //$NON-NLS-1$
 	public static final String VERSION_10 = "10"; //$NON-NLS-1$
 	public static final String VERSION_11 = "11"; //$NON-NLS-1$
+	public static final String VERSION_12 = "12"; //$NON-NLS-1$
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String INFO = "info"; //$NON-NLS-1$
@@ -826,6 +831,9 @@ public class CompilerOptions {
 		return 0;
 	}
 	public static long versionToJdkLevel(String versionID) {
+		return versionToJdkLevel(versionID, true);
+	}
+	public static long versionToJdkLevel(String versionID, boolean supportUnreleased) {
 		String version = versionID;
 		// verification is optimized for all versions with same length and same "1." prefix
 		if (version != null && version.length() > 0) {
@@ -861,10 +869,13 @@ public class CompilerOptions {
 							version = version.substring(0, index);
 					}
 					int major = Integer.parseInt(version) + ClassFileConstants.MAJOR_VERSION_0;
-					if (major <= ClassFileConstants.MAJOR_LATEST_VERSION) {
-						long jdkLevel = ((long) major << 16) + ClassFileConstants.MINOR_VERSION_0;
-						return jdkLevel;
+					if (major > ClassFileConstants.MAJOR_LATEST_VERSION) {
+						if (supportUnreleased)
+							major = ClassFileConstants.MAJOR_LATEST_VERSION;
+						else
+							return 0; // unknown
 					}
+					return ((long) major << 16) + ClassFileConstants.MINOR_VERSION_0;
 				} catch (NumberFormatException e) {
 					// do nothing and return 0 at the end
 				}

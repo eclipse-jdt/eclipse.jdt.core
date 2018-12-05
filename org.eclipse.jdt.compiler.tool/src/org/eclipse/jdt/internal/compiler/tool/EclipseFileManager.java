@@ -1364,9 +1364,9 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			Map<String, String> options = new HashMap<>();
 			// FIXME: Find a way to get the options from the EclipseCompiler and pass it to the parser.
 			// FIXME: need to be the latest and not hardcoded value
-			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
-			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
-			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 			CompilerOptions compilerOptions = new CompilerOptions(options);
 			ProblemReporter problemReporter = 
 					new ProblemReporter(

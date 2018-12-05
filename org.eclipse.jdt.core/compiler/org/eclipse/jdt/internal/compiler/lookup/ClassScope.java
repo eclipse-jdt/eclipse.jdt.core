@@ -276,7 +276,7 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextMember : for (int i = 0; i < length; i++) {
 				TypeDeclaration memberContext = this.referenceContext.memberTypes[i];
-				if (this.environment().isProcessingAnnotations && this.environment().isMissingType(memberContext.name)) {
+				if (this.environment().root.isProcessingAnnotations && this.environment().isMissingType(memberContext.name)) {
 					throw new SourceTypeCollisionException(); // resolved a type ref before APT generated the type
 				}
 				switch(TypeDeclaration.kind(memberContext.modifiers)) {

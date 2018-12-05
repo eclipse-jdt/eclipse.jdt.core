@@ -279,6 +279,54 @@ public void testAddExternalLibFolder6() throws CoreException, IOException {
 		deleteProject("ExternalContainer");
 	}
 }
+
+/*
+ * Bug 537666 - Ensures that an external path beginning with an existing project name is not falsely reported as internal.
+ */
+public void testAddExternalLibFolder7() throws CoreException {
+	String firstSegmentOfExternalPath = new Path(getExternalPath()).segment(0);
+	try {
+		
+		IJavaProject p = createJavaProject(firstSegmentOfExternalPath, new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
+		expandAll(p);
+		createExternalFolder("externalLib");
+		refresh(p);
+		assertElementDescendants(
+			"Unexpected project content",
+			firstSegmentOfExternalPath + "\n" +
+			"  "+ getExternalPath() + "externalLib\n" +
+			"    <default> (...)",
+			p
+		);
+	} finally {
+		deleteExternalResource("externalLib");
+		deleteProject(firstSegmentOfExternalPath);
+	}
+}
+
+/*
+ * Ensures that creating an external library folder with a dot in the name, referenced by a library entry and refreshing updates the model
+ */
+// Test is disabled, there seem to be no easy way to properly refresh exteral resources cache
+public void XtestAddExternalLibFolder8() throws CoreException {
+	try {
+		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("external.Lib")}, "");
+		expandAll(p);
+		createExternalFolder("external.Lib");
+		refresh(p);
+		assertElementDescendants(
+			"Unexpected project content",
+			"P\n" +
+			"  "+ getExternalPath() + "external.Lib\n" +
+			"    <default> (...)",
+			p
+		);
+	} finally {
+		deleteExternalResource("externalLib");
+		deleteProject("P");
+	}
+}
+
 /**
  * Test adding a non-java resource in a package fragment root that correspond to
  * the project.

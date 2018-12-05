@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -2556,6 +2560,21 @@ public final class JavaCore extends Plugin {
 	 * @since 3.6.4
 	 */
 	public static final String CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE = PLUGIN_ID + ".classpath.outputOverlappingAnotherSource";  //$NON-NLS-1$
+
+	/**
+	 * Core option ID: Reporting if a project which has only main sources depends on a project with only test sources.
+	 * <p> Indicate the severity of the problem reported when a project that has one or more main source folders but 
+	 * no test source folders has a project on its build path that only has one or more test source folders, but no main source folders.</p>
+	 * 
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.classpath.mainOnlyProjectHasTestOnlyDependency"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"error"</code></dd>
+	 * </dl>
+	 * @since 3.16
+	 */
+	public static final String CORE_MAIN_ONLY_PROJECT_HAS_TEST_ONLY_DEPENDENCY = PLUGIN_ID + ".classpath.mainOnlyProjectHasTestOnlyDependency";  //$NON-NLS-1$
+
 	/**
 	 * Core option ID: Set the timeout value for retrieving the method's parameter names from javadoc.
 	 * <p>Timeout in milliseconds to retrieve the method's parameter names from javadoc.</p>
@@ -3014,12 +3033,18 @@ public final class JavaCore extends Plugin {
 	public static final String VERSION_11 = "11"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
+	 * @since 3.16
+	 * @category OptionValue
+	 */
+	public static final String VERSION_12 = "12"; //$NON-NLS-1$
+	/**
+	 * Configurable option value: {@value}.
 	 * @since 3.4
 	 * @category OptionValue
 	 */
 	public static final String VERSION_CLDC_1_1 = "cldc1.1"; //$NON-NLS-1$
 	private static List<String> allVersions = Arrays.asList(VERSION_CLDC_1_1, VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4, VERSION_1_5,
-			VERSION_1_6, VERSION_1_7, VERSION_1_8, VERSION_9, VERSION_10, VERSION_11);
+			VERSION_1_6, VERSION_1_7, VERSION_1_8, VERSION_9, VERSION_10, VERSION_11, VERSION_12);
 
 	/**
 	 * Returns all {@link JavaCore}{@code #VERSION_*} levels in the order of their 
@@ -3030,6 +3055,21 @@ public final class JavaCore extends Plugin {
 	 */
 	public static List<String> getAllVersions() {
 		return allVersions;
+	}
+
+	/**
+	 * Returns whether the given version of Java or Java Runtime is supported 
+	 * by the Java Development Toolkit.
+	 * 
+	 * A true indicates that the given version is supported. For e.g., if the argument
+	 * is <code>11.0.1</code> and {@link #getAllVersions()} contains <code>11</code>, 
+	 * the method returns <code>true</code>.
+	 * 
+	 * @return a boolean indicating support for the given version of Java or Java Runtime.
+	 * @since 3.16
+	 */
+	public static boolean isSupportedJavaVersion(String version) {
+		return CompilerOptions.versionToJdkLevel(version, false) > 0;
 	}
 
 	/**
@@ -4235,6 +4275,37 @@ public final class JavaCore extends Plugin {
 	 */
 	public static String getOptionForConfigurableSeverity(int problemID) {
 		return CompilerOptions.optionKeyFromIrritant(ProblemReporter.getIrritant(problemID));
+	}
+
+	/**
+	 * Returns the option that can be used to configure the severity of the
+	 * compiler build path problem identified by <code>id</code> if any,
+	 * <code>null</code> otherwise. Non-null return values are taken from the
+	 * constants defined by this class whose names start with
+	 * <code>CORE_</code> and for which the possible values of the
+	 * option are defined by <code>{ "error", "warning", "info", "ignore" }</code>. A
+	 * null return value means that the provided id is unknown or that
+	 * it matches a problem whose severity cannot be configured.
+	 * @param id one of the build path problems defined in IJavaModelStatusConstants
+	 * @return the option that can be used to configure the severity of the
+	 *         compiler problem identified by <code>id</code> if any,
+	 *         <code>null</code> otherwise
+	 * @since 3.16
+	 */
+	public static String getOptionForConfigurableBuildPathProblemSeverity(int id) {
+		switch (id) {
+			case IJavaModelStatusConstants.CLASSPATH_CYCLE:
+				return JavaCore.CORE_CIRCULAR_CLASSPATH;
+			case IJavaModelStatusConstants.INCOMPATIBLE_JDK_LEVEL:
+				return JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL;
+			case IJavaModelStatusConstants.OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE:
+				return JavaCore.CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE;
+			case IJavaModelStatusConstants.MAIN_ONLY_PROJECT_DEPENDS_ON_TEST_ONLY_PROJECT:
+				return JavaCore.CORE_MAIN_ONLY_PROJECT_HAS_TEST_ONLY_DEPENDENCY;
+			case IJavaModelStatusConstants.INVALID_CLASSPATH:
+				return JavaCore.CORE_INCOMPLETE_CLASSPATH;
+		}
+		return null;
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -125,8 +125,8 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 				moduleDecl.createScope(this);
 				moduleDecl.checkAndSetModifiers();
 			}
-		} else if (this.environment.module != this.environment.UnNamedModule) {
-			problemReporter().unnamedPackageInNamedModule(this.environment.module);
+		} else if (module() != this.environment.UnNamedModule) {
+			problemReporter().unnamedPackageInNamedModule(module());
 		}
 	} else {
 		if ((this.fPackage = this.environment.createPackage(this.currentPackageName)) == null) {
@@ -158,7 +158,7 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 	int count = 0;
 	nextType: for (int i = 0; i < typeLength; i++) {
 		TypeDeclaration typeDecl = types[i];
-		if (this.environment.isProcessingAnnotations && this.environment.isMissingType(typeDecl.name))
+		if (this.environment.root.isProcessingAnnotations && this.environment.isMissingType(typeDecl.name))
 			throw new SourceTypeCollisionException(); // resolved a type ref before APT generated the type
 		ReferenceBinding typeBinding = this.fPackage.getType0(typeDecl.name);
 		if (Binding.isValid(typeBinding) && this.fPackage instanceof SplitPackageBinding && !this.environment.module.canAccess(typeBinding.fPackage))
@@ -166,7 +166,7 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 		recordSimpleReference(typeDecl.name); // needed to detect collision cases
 		if (Binding.isValid(typeBinding) && !(typeBinding instanceof UnresolvedReferenceBinding)) {
 			// if its an unresolved binding - its fixed up whenever its needed, see UnresolvedReferenceBinding.resolve()
-			if (this.environment.isProcessingAnnotations)
+			if (this.environment.root.isProcessingAnnotations)
 				throw new SourceTypeCollisionException(); // resolved a type ref before APT generated the type
 			// if a type exists, check that its a valid type
 			// it can be a NotFound problem type if its a secondary type referenced before its primary type found in additional units
@@ -362,6 +362,8 @@ void connectTypeHierarchy() {
 		this.topLevelTypes[i].scope.connectTypeHierarchy();
 }
 void faultInImports() {
+	if (this.tempImports != null)
+		return; // faultInImports already in progress
 	boolean unresolvedFound = false;
 	// should report unresolved only if we are not suppressing caching of failed resolutions
 	boolean reportUnresolved = !this.suppressImportErrors;
@@ -491,6 +493,7 @@ void faultInImports() {
 	if (this.tempImports.length > this.importPtr)
 		System.arraycopy(this.tempImports, 0, this.tempImports = new ImportBinding[this.importPtr], 0, this.importPtr);
 	this.imports = this.tempImports;
+	this.tempImports = null;
 	int length = this.imports.length;
 	this.typeOrPackageCache = new HashtableOfObject(length);
 	for (int i = 0; i < length; i++) {
@@ -673,6 +676,18 @@ public final Binding getImport(char[][] compoundName, boolean onDemand, boolean 
 
 public int nextCaptureID() {
 	return this.captureID++;
+}
+
+@Override
+public ModuleBinding module() {
+	if (!this.referenceContext.isModuleInfo() &&
+			this.referenceContext.types == null &&
+			this.referenceContext.currentPackage == null &&
+			this.referenceContext.imports == null) {
+		this.environment = this.environment.UnNamedModule.environment;
+		return this.environment.UnNamedModule;
+	}
+	return super.module();
 }
 
 /* Answer the problem reporter to use for raising new problems.

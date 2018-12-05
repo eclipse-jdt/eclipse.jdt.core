@@ -16,22 +16,38 @@
 
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IAccessRule;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.MethodNameMatch;
@@ -42,6 +58,7 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatch;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 
@@ -785,19 +802,48 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			return;
 		}
 		IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib376673.jar", "JCL17_LIB" }, "", "1.7");
+		IPath jarPath = p.getProject().getLocation().append("lib376673.jar");
 		
 		org.eclipse.jdt.core.tests.util.Util.createJar(
 						new String[] {
 						"p\uD842\uDF9F/i\uD842\uDF9F/Test.java",
 						"package p\uD842\uDF9F.i\uD842\uDF9F;\n" +
 						"public class Test{}\n" },
-						p.getProject().getLocation().append("lib376673.jar").toOSString(),
+						jarPath.toOSString(),
 						"1.7");
 		refresh(p);
+		waitForAutoBuild();
 		waitUntilIndexesReady();
 		int mask = IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES;
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, mask);
 		search("Test", TYPE, DECLARATIONS, scope, this.resultCollector);
+
+		try {
+			if (this.resultCollector.count == 0) {
+				System.out.println("Test " + getName() + " about to fail, listing extra debug info");
+				System.out.println("LANG env variable: " + System.getenv("LANG"));
+				System.out.println("Listing markers of test project");
+				IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+				for (IMarker marker : markers) {
+					System.out.println(marker.getAttribute(IMarker.SEVERITY) + ":" + marker.getAttribute(IMarker.MESSAGE));
+				}
+				System.out.println("Resolved classpath entries for test project:");
+				for (IClasspathEntry e : p.getResolvedClasspath(false)) {
+					System.out.println(e);
+				}
+				System.out.println("All classpath entries for test project:");
+				for (IClasspathEntry e : p.getResolvedClasspath(true)) {
+					System.out.println(e);
+				}
+				printJavaElements(p, System.out);
+				String jarFilePath = jarPath.toOSString();
+				printZipContents(new File(jarFilePath), System.out);
+			}
+		} catch (Throwable t) {
+			System.out.println("Exception occurred while printing extra infos for test " + getName());
+			t.printStackTrace(System.out);
+		}
+
 		assertSearchResults("lib376673.jar p\uD842\uDF9F.i\uD842\uDF9F.Test [No source] EXACT_MATCH");
 	} finally {
 		deleteProject("P");
@@ -2771,5 +2817,60 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		} finally {
 			deleteProject("P");
 		}
+	}
+
+	private static void printJavaElements(IJavaProject javaProject, PrintStream output) throws Exception {
+		output.println("Printing Java elements of Java project: " + javaProject);
+		List<IJavaElement> queue = new LinkedList<>();
+		while (!queue.isEmpty()) {
+			IJavaElement element = queue.remove(queue.size() - 1);
+			output.println(element);
+			output.print(element);
+			if (element instanceof IParent) {
+				IParent parent = (IParent) element;
+				queue.addAll(Arrays.asList(parent.getChildren()));
+			}
+		}
+	}
+
+	private static void printZipContents(File jarFile, PrintStream output) throws Exception {
+		if (jarFile.exists()) {
+			output.println("Listing contents of jar file: " + jarFile);
+			try (ZipFile zipFile = new ZipFile(jarFile)) {
+				Enumeration<? extends ZipEntry> entries = zipFile.entries();
+				while (entries.hasMoreElements()) {
+					ZipEntry zipEntry = entries.nextElement();
+					String zipEntryName = zipEntry.getName();
+					output.println("Listing contents of zip entry: " + zipEntryName);
+					InputStream zipEntryInputStream = zipFile.getInputStream(zipEntry);
+					if (zipEntryName.endsWith(".class")) {
+						byte[] classFileBytes = toByteArray(zipEntryInputStream);
+						ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+						String classContents = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+						output.println(classContents);
+					} else {
+						@SuppressWarnings("resource") // the zip file resource-try will close the stream
+						Scanner scanner = new Scanner(zipEntryInputStream);
+						while (scanner.hasNextLine()) {
+							output.println(scanner.nextLine());
+						}
+					}
+				}
+			}
+		} else {
+			output.println("File does not exist: " + jarFile);
+		}
+	}
+
+	private static byte[] toByteArray(InputStream inputStream) throws IOException {
+		ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+		byte[] data = new byte[8192];
+
+		int nRead;
+		while ((nRead = inputStream.read(data, 0, data.length)) != -1) {
+			buffer.write(data, 0, nRead);
+		}
+
+		return buffer.toByteArray();
 	}
 }

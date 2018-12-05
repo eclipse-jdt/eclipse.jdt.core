@@ -118,7 +118,15 @@ public abstract class AssistParser extends Parser {
 
 	protected boolean isFirst = false;
 
-	public AssistParser snapShot;
+	/**
+	 * Each nested block may capture a snapshot at its start, which may be updated during commit().
+	 * {@link #snapShotPositions} is a matching stack of bodyStart positions.
+	 * Both stacks are indexed by their shared stack pointer {@link #snapShotPtr}.
+	 */
+	AssistParser[] snapShotStack = new AssistParser[3];
+	int[] snapShotPositions = new int[3];
+	int snapShotPtr = -1;
+
 	protected static final int[] RECOVERY_TOKENS = { TokenNameSEMICOLON, TokenNameRPAREN, TokenNameRBRACE, TokenNameRBRACKET};
 
 
@@ -189,7 +197,7 @@ public RecoveredElement buildInitialRecoveryState(){
 		RecoveredElement element = super.buildInitialRecoveryState();
 		flushAssistState();
 		flushElementStack();
-		this.snapShot = null;
+		this.snapShotPtr = -1;
 		initModuleInfo(element);
 		return element;
 	}
@@ -513,7 +521,7 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 							stackLength);
 				}
 				this.stack[this.stateStackTop] = this.unstackedAct;
-				commit();
+				commit(false);
 				this.stateStackTop --;
 			}
 			return false;
@@ -575,7 +583,8 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 			}
 		}
 	}
-	this.snapShot = null;
+	if (this.snapShotPtr > -1)
+		popSnapShot();
 	return lambdaClosed;
 }
 public Statement replaceAssistStatement(RecoveredElement top, ASTNode assistParent, int start, int end, Statement stmt) {
@@ -635,6 +644,18 @@ protected void consumeBlockStatements() {
 	}
 }
 @Override
+protected void consumeBlock() {
+	super.consumeBlock();
+	if (this.snapShotPtr > -1) {
+		ASTNode top = this.astStack[this.astPtr];
+		if (top instanceof Block) {
+			// check positions for sanity:
+			assert this.snapShotPositions[this.snapShotPtr] == top.sourceStart : "Block positions should be consistent"; //$NON-NLS-1$
+			popSnapShot();
+		}
+	}
+}
+@Override
 protected void consumeFieldDeclaration() {
 	super.consumeFieldDeclaration();
 	if (triggerRecoveryUponLambdaClosure((Statement) this.astStack[this.astPtr], true)) {
@@ -685,6 +706,14 @@ protected void consumeMethodDeclaration(boolean isNotAbstract, boolean isDefault
 		popElement(K_METHOD_DELIMITER);
 	}
 	super.consumeMethodDeclaration(isNotAbstract, isDefaultMethod);
+	if (this.snapShotPtr > -1) {
+		ASTNode top = this.astStack[this.astPtr];
+		if (top instanceof AbstractMethodDeclaration) {
+			// check positions for sanity:
+			assert this.snapShotPositions[this.snapShotPtr] + 1 == ((AbstractMethodDeclaration) top).bodyStart : "Method positions should be consistent"; //$NON-NLS-1$
+			popSnapShot();
+		}
+	}
 }
 @Override
 protected void consumeMethodHeader() {
@@ -828,7 +857,7 @@ protected void consumeOpenBlock() {
 			}
 			this.stack[this.stateStackTop++] = this.unstackedAct; // transition to Block ::= OpenBlock  .LBRACE BlockStatementsopt RBRACE
 			this.stack[this.stateStackTop] = tAction(this.unstackedAct, this.currentToken); // transition to Block ::= OpenBlock LBRACE  .BlockStatementsopt RBRACE 
-			commit();
+			commit(true);
 			this.stateStackTop -= 2;
 		}
 	}
@@ -2204,11 +2233,32 @@ public void reset(){
 	flushAssistState();
 }
 
-protected void commit() {
-	if (this.snapShot == null) {
-		this.snapShot = createSnapShotParser();
+void commit(boolean isStart) {
+	int newSnapShotPosition = this.scanner.startPosition;
+	if (this.snapShotPtr == -1) {
+		// first commit:
+		addNewSnapShot(newSnapShotPosition);
+	} else {
+		// already have a snapshot, does it match the current position and can thus be reused?
+		int currentStartPosition = isStart ? newSnapShotPosition : this.blockStarts[this.realBlockPtr];
+		if (currentStartPosition != this.snapShotPositions[this.snapShotPtr])
+			addNewSnapShot(newSnapShotPosition); // no match, create a new one
 	}
-	this.snapShot.copyState(this);
+	this.snapShotStack[this.snapShotPtr].copyState(this);
+}
+
+void addNewSnapShot(int newSnapShotPosition) {
+	if (++this.snapShotPtr >= this.snapShotStack.length) {
+		int len = this.snapShotStack.length;
+		System.arraycopy(this.snapShotStack, 0, this.snapShotStack = new AssistParser[len+3], 0, len);
+		System.arraycopy(this.snapShotPositions, 0, this.snapShotPositions = new int[len+3], 0, len);
+	}
+	this.snapShotStack[this.snapShotPtr] = createSnapShotParser();
+	this.snapShotPositions[this.snapShotPtr] = newSnapShotPosition;
+}
+
+void popSnapShot() {
+	this.snapShotStack[this.snapShotPtr--] = null;
 }
 
 protected boolean assistNodeNeedsStacking() {
@@ -2265,10 +2315,10 @@ protected int fallBackToSpringForward(Statement unused) {
 		}
 	}
 	// OK, no in place resumption, no local repair, fast forward to next statement.
-	if (this.snapShot == null)
+	if (this.snapShotPtr == -1)
 		return RESTART;
 
-	this.copyState(this.snapShot);
+	this.copyState(this.snapShotStack[this.snapShotPtr]);
 	if (assistNodeNeedsStacking()) {
 		this.currentToken = TokenNameSEMICOLON;
 		return RESUME;

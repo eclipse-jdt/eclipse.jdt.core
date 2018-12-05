@@ -209,6 +209,7 @@ public class ASTConverter10Test extends ConverterTestSetup {
 			ITypeBinding typeBinding = (ITypeBinding) binding;
 			assertTrue("wrong type binding", typeBinding.getName().equals("int"));
 	}
+	@SuppressWarnings("deprecation")
 	public void testBug525580_comment38() throws CoreException, IOException {
 		// not really using Java 10, but apiLevel JLS10 as per bug report
 		String jarPath = null;

@@ -74,6 +74,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected String endChar = ",";
 
 	protected static boolean isJRE9 = false;
+	protected static boolean isJRE12 = false;
 	protected static String DEFAULT_MODULES = null;
 	static {
 		String javaVersion = System.getProperty("java.version");
@@ -87,6 +88,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.getLatestJDKLevel()) {
+			isJRE12 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK9) {
 			isJRE9 = true;
 			if (vmName.contains("HotSpot")) {
@@ -3491,6 +3495,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
 		} catch (CoreException e) {
+			logError("exception occurred while waiting on indexing", e);
+		}
+	}
+
+	private static void logError(String errorMessage, CoreException e) {
+		Plugin plugin = JavaCore.getPlugin();
+		if (plugin != null) {
+			ILog log = plugin.getLog();
+			Status status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, errorMessage, e);
+			log.log(status);
 		}
 	}
 }

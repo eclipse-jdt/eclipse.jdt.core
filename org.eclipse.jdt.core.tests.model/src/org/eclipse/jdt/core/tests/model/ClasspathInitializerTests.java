@@ -1801,6 +1801,8 @@ public void testBug525597B() throws CoreException {
 		Thread mainThread=Thread.currentThread();
 		Semaphore s1=new Semaphore(0);
 		Semaphore s2=new Semaphore(0);
+		Semaphore s3=new Semaphore(0);
+		Semaphore s4=new Semaphore(0);
 		AtomicReference<IJavaProject> p2Project=new AtomicReference<>();
 
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P2", "/P1/lib.jar", "P3", "/P1/lib.jar"}) {
@@ -1815,6 +1817,12 @@ public void testBug525597B() throws CoreException {
 							// ignore
 						}
 					} else if (project.getElementName().equals("P3")) {
+						s3.release();
+						try {
+							s4.acquire(10000);
+						} catch (TimeOutException e) {
+							// ignore
+						}
 						if (JavaModelManager.getJavaModelManager().containerBeingInitializedGet(p2Project.get(),
 								containerPath) != null) {
 							p2Counter.incrementAndGet();
@@ -1826,6 +1834,12 @@ public void testBug525597B() throws CoreException {
 						// this point is reached when helperThread is also still waiting in P2
 						s2.release();
 					} else if (project.getElementName().equals("P3")) {
+						try {
+							s3.acquire(10000);
+						} catch (TimeOutException e) {
+							// ignore
+						}
+						s4.release();
 						if (JavaModelManager.getJavaModelManager().containerBeingInitializedGet(p2Project.get(),
 								containerPath) != null) {
 							p2Counter.incrementAndGet();

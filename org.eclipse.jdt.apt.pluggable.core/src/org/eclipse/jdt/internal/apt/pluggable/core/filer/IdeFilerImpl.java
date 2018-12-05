@@ -38,12 +38,14 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.internal.AptCompilationParticipant;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.apt.pluggable.core.Apt6Plugin;
 import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeAnnotationProcessorManager;
 import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
 /**
  * Implementation of the Filer interface that is used in IDE mode.
@@ -162,14 +164,16 @@ public class IdeFilerImpl implements Filer {
 		if (AptCompilationParticipant.getInstance().getJava6GeneratedFiles().contains(file)) {
 			throw new FilerException("Source file already created: " + file.getFullPath()); //$NON-NLS-1$
 		}
-		IJavaProject javaProject = _env.getJavaProject();
-		IType type = null;
-		try {
-			name = name.toString().replace('/', '.');
-			type = javaProject.findType(name.toString());
-		} catch (JavaModelException e) {
-		}
-		if (type != null) {
+		// TODO: is the following correct?
+		// JDK 9's createSourceFile API mentions '/' as separator for a module prefix. 
+		// Otherwise shouldn't <code>name</code> already be "."-separated?
+		name = name.toString().replace('/', '.');
+		
+		ModuleBinding m = _env._current_module;
+		if (m == null)
+			m = _env.getCompiler().lookupEnvironment.UnNamedModule;
+		ReferenceBinding type = m.environment.getType(CharOperation.splitOn('.', name.toString().toCharArray()), m);
+		if (type != null && (type.tagBits & TagBits.HasMissingType) == 0) {
 			throw new FilerException("Source file already exists : " + name); //$NON-NLS-1$
 		}
 		Set<IFile> parentFiles = Collections.emptySet();

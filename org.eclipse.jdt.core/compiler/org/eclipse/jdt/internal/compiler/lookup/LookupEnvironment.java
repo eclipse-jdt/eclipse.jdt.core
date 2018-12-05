@@ -120,7 +120,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	private ArrayList missingTypes;
 	Set<SourceTypeBinding> typesBeingConnected;	// SHARED
-	public boolean isProcessingAnnotations = false;
+	public boolean isProcessingAnnotations = false; // ROOT_ONLY
 	public boolean mayTolerateMissingType = false;
 
 	PackageBinding nullableAnnotationPackage;			// the package supposed to contain the Nullable annotation type
@@ -300,6 +300,8 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, ModuleBi
 	ReferenceBinding candidate = null;
 	for (NameEnvironmentAnswer answer : answers) {
 		if (answer == null) continue;
+		if (candidate != null && candidate.problemId() == ProblemReasons.Ambiguous)
+			return candidate; // saw enough
 		ModuleBinding answerModule = answer.moduleBinding != null ? answer.moduleBinding : this.UnNamedModule;
 		PackageBinding answerPackage = packageBinding;
 		
@@ -343,8 +345,6 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, ModuleBi
 			continue;
 		}
 		candidate = combine(candidate, answerPackage.getType0(name), clientModule);
-		if (candidate != null && candidate.problemId() == ProblemReasons.Ambiguous)
-			return candidate; // saw enough
 	}
 	return candidate;
 }
@@ -729,7 +729,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 	if (packageBinding == null || packageBinding == TheNotFoundPackage) {
 		if (this.useModuleSystem) {
 			if (this.module.isUnnamed()) {
-				char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModulesDeclaringPackage(null, constantPoolName[0], ModuleBinding.ANY);
+				char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getUniqueModulesDeclaringPackage(null, constantPoolName[0], ModuleBinding.ANY);
 				if (declaringModules != null) {
 					for (char[] mod : declaringModules) {
 						ModuleBinding declaringModule = this.root.getModule(mod);
@@ -762,7 +762,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 						}
 					}
 				} else {
-					packageBinding = this.module.getVisiblePackage(parent, constantPoolName[i]);
+					packageBinding = this.module.getVisiblePackage(parent, constantPoolName[i], true);
 				}
 			}
 			if (packageBinding == null || packageBinding == TheNotFoundPackage) {

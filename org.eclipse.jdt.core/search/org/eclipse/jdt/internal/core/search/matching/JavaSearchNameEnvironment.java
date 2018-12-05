@@ -70,7 +70,7 @@ public class JavaSearchNameEnvironment implements IModuleAwareNameEnvironment, S
 	Map<String, org.eclipse.jdt.core.ICompilationUnit> workingCopies;
 
 public JavaSearchNameEnvironment(IJavaProject javaProject, org.eclipse.jdt.core.ICompilationUnit[] copies) {
-	if (CompilerOptions.versionToJdkLevel(javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9) {
+	if (isComplianceJava9OrHigher(javaProject)) {
 		this.moduleLocations = new HashMap<>();
 		this.moduleToClassPathLocations = new HashMap<>();
 	}
@@ -185,6 +185,13 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 		// problem opening zip file or getting root kind
 		// consider root corrupt and ignore
 	}
+	if (isComplianceJava9OrHigher(root.getJavaProject())) {
+		addModuleClassPathInfo(root, defaultModule, cp);
+	}
+	return cp;
+}
+
+private void addModuleClassPathInfo(PackageFragmentRoot root, IModuleDescription defaultModule, ClasspathLocation cp) {
 	IModuleDescription imd = root.getModuleDescription();
 	if (imd != null) {
 		String moduleName = addModuleClassPathInfo(cp, imd);
@@ -195,7 +202,6 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 	} else if (defaultModule != null) {
 		addModuleClassPathInfo(cp, defaultModule);
 	}
-	return cp;
 }
 private String addModuleClassPathInfo(ClasspathLocation cp, IModuleDescription imd) {
 	IModule mod = NameLookup.getModuleDescriptionInfo(imd);
@@ -395,5 +401,12 @@ public char[][] getAllAutomaticModules() {
 	Set<char[]> set = this.moduleLocations.values().stream().map(e -> e.getModule()).filter(m -> m != null && m.isAutomatic())
 			.map(m -> m.name()).collect(Collectors.toSet());
 	return set.toArray(new char[set.size()][]);
+}
+
+private static boolean isComplianceJava9OrHigher(IJavaProject javaProject) {
+	if (javaProject == null) {
+		return false;
+	}
+	return CompilerOptions.versionToJdkLevel(javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9;
 }
 }

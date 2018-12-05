@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -244,6 +248,10 @@ static class JavacCompiler {
 		StringBuffer classpathBuffer = new StringBuffer(" -classpath ");
 		this.classpath = classpathBuffer.toString();
 	}
+	/** Call this if " -classpath " should be replaced by some other option token. */
+	protected void usePathOption(String option) {
+		this.classpath = option;
+	}
 	static String getVersion(String javacPathName) throws IOException, InterruptedException {
 		Process fetchVersionProcess = null;
 		try {
@@ -294,6 +302,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_10;
 		} else if(rawVersion.startsWith("11")) {
 			return JavaCore.VERSION_11;
+		} else if(rawVersion.startsWith("12")) {
+			return JavaCore.VERSION_12;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -401,6 +411,17 @@ static class JavacCompiler {
 				return 0100;
 			}
 			if ("11.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_12) {
+			if ("12".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("12.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("12.0.2".equals(rawVersion)) {
 				return 0200;
 			}
 		}
@@ -1011,7 +1032,7 @@ protected static class JavacTestOptions {
 	// list of available javac compilers, as defined by the jdk.roots
 	// variable, which should hold a File.pathSeparatorChar separated
 	// list of paths for to-be-tested JDK root directories
-	protected static List javacCompilers = null;
+	protected static List<JavacCompiler> javacCompilers = null;
 
 	public static final String OUTPUT_DIR = Util.getOutputDirectory() + File.separator + "regression";
 	public static final String LIB_DIR = Util.getOutputDirectory() + File.separator + "lib";
@@ -1864,7 +1885,15 @@ protected static class JavacTestOptions {
 				expectedSuccessOutputString,
 				null,
 				javacTestOptions);
+	}
+
+	protected static void javacUsePathOption(String option) {
+		if (AbstractRegressionTest.javacCompilers != null) {
+			for (JavacCompiler compiler : AbstractRegressionTest.javacCompilers) {
+				compiler.usePathOption(option);
+			}
 		}
+	}
 
 	/*
 	 * Run Sun compilation using javac.
@@ -2179,9 +2208,9 @@ protected void runJavac(
 		}
 	}
 	String testName = testName();
-	Iterator compilers = javacCompilers.iterator();
+	Iterator<JavacCompiler> compilers = javacCompilers.iterator();
 	while (compilers.hasNext()) {
-		JavacCompiler compiler = (JavacCompiler) compilers.next();
+		JavacCompiler compiler = compilers.next();
 		if (!options.skip(compiler) && compiler.compliance == this.complianceLevel) {
 			// WORK this may exclude some compilers under some conditions (when
 			//      complianceLevel is not set); consider accepting the compiler
@@ -2203,6 +2232,7 @@ protected void runJavac(
 				for (int i = 0, length = testFiles.length; i < length; ) {
 					String fileName = testFiles[i++];
 					String contents = testFiles[i++];
+					fileName = expandFileNameForJavac(fileName);
 					File file = new File(javacOutputDirectory, fileName);
 					if (fileName.lastIndexOf('/') >= 0) {
 						File dir = file.getParentFile();
@@ -2216,7 +2246,7 @@ protected void runJavac(
 				int testFilesLength = testFiles.length;
 				sourceFileNames = new String[testFilesLength / 2];
 				for (int i = 0, j = 0; i < testFilesLength; i += 2, j++) {
-					sourceFileNames[j] = testFiles[i];
+					sourceFileNames[j] = expandFileNameForJavac(testFiles[i]);
 				}
 
 				// compile
@@ -2318,6 +2348,10 @@ protected void runJavac(
 					expectedErrorString, compilerLog, output, err, excuse, mismatch);
 		}
 	}
+}
+/** Hook for AbstractRegressionTest9 */
+protected String expandFileNameForJavac(String fileName) {
+	return fileName;
 }
 void handleMismatch(JavacCompiler compiler, String testName, String[] testFiles, String expectedCompilerLog,
 		String expectedOutputString, String expectedErrorString, StringBuffer compilerLog, String output, String err,
@@ -3568,7 +3602,7 @@ protected void runNegativeTest(
 					System.out.println("* Sun Javac compiler output archived into file:");
 					System.out.println("* " + javacFullLogFileName);
 					System.out.println("***************************************************************************");
-					javacCompilers = new ArrayList();
+					javacCompilers = new ArrayList<>();
 					String jdkRoots = System.getProperty("jdk.roots");
 					if (jdkRoots == null) {
 						javacCompilers.add(new JavacCompiler(jdkRootDirPath.toString()));

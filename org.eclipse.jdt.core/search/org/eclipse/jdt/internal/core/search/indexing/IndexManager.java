@@ -570,27 +570,35 @@ public void indexAll(IProject project) {
 	this.indexer.makeDirty(project);
 	if (JavaCore.getPlugin() == null) return;
 
-	// Also request indexing of binaries on the classpath
-	// determine the new children
 	try {
-		JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
-		JavaProject javaProject = (JavaProject) model.getJavaProject(project);
-		// only consider immediate libraries - each project will do the same
-		// NOTE: force to resolve CP variables before calling indexer - 19303, so that initializers
-		// will be run in the current thread.
-		IClasspathEntry[] entries = javaProject.getResolvedClasspath();
-		for (int i = 0; i < entries.length; i++) {
-			IClasspathEntry entry= entries[i];
-			if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY)
-				indexLibrary(entry.getPath(), project, ((ClasspathEntry)entry).getLibraryIndexLocation());
-		}
-	} catch(JavaModelException e){ // cannot retrieve classpath info
-	}
+		// Disable index manager to avoid synchronization lock contention when adding new index requests to the queue.
+		disable();
 
-	// check if the same request is not already in the queue
-	IndexRequest request = new IndexAllProject(project, this);
-	if (!isJobWaiting(request))
-		request(request);
+		// Also request indexing of binaries on the classpath
+		// determine the new children
+		try {
+			JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+			JavaProject javaProject = (JavaProject) model.getJavaProject(project);
+			// only consider immediate libraries - each project will do the same
+			// NOTE: force to resolve CP variables before calling indexer - 19303, so that initializers
+			// will be run in the current thread.
+			IClasspathEntry[] entries = javaProject.getResolvedClasspath();
+			for (int i = 0; i < entries.length; i++) {
+				IClasspathEntry entry= entries[i];
+				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY)
+					indexLibrary(entry.getPath(), project, ((ClasspathEntry)entry).getLibraryIndexLocation());
+			}
+		} catch(JavaModelException e){ // cannot retrieve classpath info
+		}
+
+		// check if the same request is not already in the queue
+		IndexRequest request = new IndexAllProject(project, this);
+		if (!isJobWaiting(request))
+			request(request);
+	} finally {
+		// Enable index manager after adding all new index requests to the queue.
+		enable();
+	}
 }
 public void indexLibrary(IPath path, IProject requestingProject, URL indexURL) {
 	this.indexLibrary(path, requestingProject, indexURL, false);

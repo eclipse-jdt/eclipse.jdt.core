@@ -370,7 +370,7 @@ public class FilerTests extends TestBase
 		env.addClass(projPath.append("src"), "p", "Trigger",
 				"package p;\n" +
 				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
-				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"t\", arg1 = \"Test\")" +
+				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"p\", arg1 = \"Trigger\")" +
 				"public class Trigger {\n" +
 				"}"
 		); 
@@ -378,6 +378,79 @@ public class FilerTests extends TestBase
 		AptConfig.setEnabled(jproj, true);
 		fullBuild();
 		assertEquals("Processor reported errors", "FilerException invoking test method testBug534979 - see console for details", ProcessorTestStatus.getErrors());
+	}
+
+	public void testCollisionInOtherModule() throws Throwable {
+		if (!canRunJava9()) {
+			return;
+		}
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJava9Project(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+
+		IPath root = projPath.append("src");
+		env.addClass(root, null, "module-info", "module example {requires annotations;}");
+		env.addClass(root, "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"java.util\", arg1 = \"HashMap\")" +
+				"public class Trigger {\n" +
+				"}"
+		); 
+
+		AptConfig.setEnabled(jproj, true);
+		fullBuild();
+		assertEquals("Processor reported errors", "FilerException invoking test method testBug534979 - see console for details", ProcessorTestStatus.getErrors());
+	}
+	public void testCollisionWithClassThatTriggers() throws Throwable {
+		if (!canRunJava9()) {
+			return;
+		}
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJava9Project(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+
+		IPath root = projPath.append("src");
+		env.addClass(root, null, "module-info", "module example {requires annotations;}");
+		env.addClass(root, "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"p\", arg1 = \"Trigger\")" +
+				"public class Trigger {\n" +
+				"}"
+		); 
+
+		AptConfig.setEnabled(jproj, true);
+		fullBuild();
+		assertEquals("Processor reported errors", "FilerException invoking test method testBug534979 - see console for details", ProcessorTestStatus.getErrors());
+	}
+	public void testNoCollisionInSameModule() throws Throwable {
+		if (!canRunJava9()) {
+			return;
+		}
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJava9Project(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+
+		IPath root = projPath.append("src");
+		env.addClass(root, null, "module-info", "module example {requires annotations;}");
+		env.addClass(root, "p", "Trigger",
+				"package p;\n" +
+				"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
+				"@FilerTestTrigger(test = \"testBug534979\", arg0 = \"p\", arg1 = \"Other\")" +
+				"public class Trigger {\n" +
+				"}"
+		); 
+
+		AptConfig.setEnabled(jproj, true);
+		fullBuild();
+		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
 	public void testCreateClass1() throws Exception {
 		FilerTesterProc.roundNo = 0;

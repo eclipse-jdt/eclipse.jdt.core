@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2017 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2018 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -647,6 +647,9 @@ public class ElementsImpl implements Elements {
 			}
 		}
 		if (null == binding) {
+			return null;
+		}
+		if((binding.tagBits & TagBits.HasMissingType) != 0) {
 			return null;
 		}
 		return new TypeElementImpl(_env, binding, null);

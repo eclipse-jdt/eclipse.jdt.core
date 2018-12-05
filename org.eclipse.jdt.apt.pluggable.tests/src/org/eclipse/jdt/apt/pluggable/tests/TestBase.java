@@ -19,6 +19,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Map;
 
+import javax.lang.model.SourceVersion;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
@@ -27,9 +29,12 @@ import org.eclipse.jdt.apt.core.internal.util.FactoryContainer;
 import org.eclipse.jdt.apt.core.internal.util.FactoryContainer.FactoryType;
 import org.eclipse.jdt.apt.core.internal.util.FactoryPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 
 import junit.framework.Test;
 
@@ -38,6 +43,7 @@ public class TestBase extends BuilderTests
 
 	protected static final String JAVA_16_COMPLIANCE = "1.6";
 	protected static final String JAVA_18_COMPLIANCE = "1.8";
+	protected static final String JAVA_9_COMPLIANCE = "9";
 	
 	protected String _projectName;
 	protected static int _projectSerial = 0; // used to create unique project names, to avoid resource deletion problems
@@ -54,7 +60,7 @@ public class TestBase extends BuilderTests
 	/**
 	 * Extract lib/annotations.jar from the test bundle and add it to the specified project
 	 */
-	private static void addAnnotationJar(IJavaProject jproj) throws Exception {
+	private static void addAnnotationJar(IJavaProject jproj, boolean addToModulePath) throws Exception {
 		final String resName = "lib/annotations.jar"; // name in bundle
 		final String libName = resName; // name in destination project
 		InputStream is = null;
@@ -69,7 +75,13 @@ public class TestBase extends BuilderTests
 		} else {
 			libFile.create(is, true, null);
 		}
-		env.addLibrary(projPath, libFile.getFullPath(), null, null);
+		if (addToModulePath) {
+			IClasspathAttribute[] attributes = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+			env.addEntry(projPath, JavaCore.newLibraryEntry(libFile.getFullPath(), null, null,
+					ClasspathEntry.NO_ACCESS_RULES, attributes, false));
+		} else {
+			env.addLibrary(projPath, libFile.getFullPath(), null, null);
+		}
 	}
 	
 	/**
@@ -90,7 +102,7 @@ public class TestBase extends BuilderTests
 		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 		final IJavaProject javaProj = env.getJavaProject(projectPath);
-		addAnnotationJar(javaProj);
+		addAnnotationJar(javaProj, false);
 		return javaProj;
 	}
 
@@ -116,10 +128,32 @@ public class TestBase extends BuilderTests
 		javaProj.getProject().getFolder("prebuilt").create(true, true, null);
 		javaProj.getProject().getFolder("prebuilt").getFolder("p").create(true, true, null);
 		env.addClassFolder(projectPath, projectPath.append("prebuilt"), true);
-		addAnnotationJar(javaProj);
+		addAnnotationJar(javaProj, false);
 		return javaProj;
 	}
-	
+
+	/**
+	 * Create a java project with java libraries and test annotations on modulepath
+	 * (compiler level is 1.9). Use "src" as source folder and "bin" as output folder. APT
+	 * is not enabled.
+	 *
+	 * @param projectName
+	 * @return a java project that has been added to the current workspace.
+	 * @throws Exception
+	 */
+	protected static IJavaProject createJava9Project(final String projectName) throws Exception {
+		// Note, make sure this is run only with a JRE 9 and above.
+		IPath projectPath = env.addProject(projectName, JAVA_9_COMPLIANCE);
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		final IJavaProject javaProj = env.getJavaProject(projectPath);
+		addAnnotationJar(javaProj, true);
+		return javaProj;
+	}
+
 	/**
 	 * Ensure that there are no Java 5 processors on the factory path, as they can cause
 	 * units to be multiply compiled, which can mess up tests that expect a certain number
@@ -177,5 +211,12 @@ public class TestBase extends BuilderTests
 		env.setAutoBuilding(false);
 		_projectName = String.format("testproj%04d", ++_projectSerial);
 	}
-	
+	public boolean canRunJava9() {
+		try {
+			SourceVersion.valueOf("RELEASE_9");
+		} catch(IllegalArgumentException iae) {
+			return false;
+		}
+		return true;
+	}
 }

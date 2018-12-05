@@ -10,6 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Frits Jalvingh  - fix for bug 533830.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.tool;
 
@@ -118,9 +119,9 @@ public class EclipseCompiler implements JavaCompiler {
 			eclipseCompiler2.fileManager = this.getStandardFileManager(someDiagnosticListener, null, null);
 		}
 
-		eclipseCompiler2.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);
-		eclipseCompiler2.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
-		eclipseCompiler2.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+		eclipseCompiler2.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+		eclipseCompiler2.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+		eclipseCompiler2.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 
 		ArrayList<String> allOptions = new ArrayList<>();
 		if (options != null) {
@@ -169,6 +170,8 @@ public class EclipseCompiler implements JavaCompiler {
 		try {
 			eclipseCompiler2.configure(optionsToProcess);
 		} catch (IllegalArgumentException e) {
+			if(null != someDiagnosticListener)
+				someDiagnosticListener.report(new ExceptionDiagnostic(e));
 			throw e;
 		}
 

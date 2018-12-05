@@ -28,6 +28,7 @@
  *     Jesper S Moller   - Contributions for
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
  *    Mat Booth - Contribution for bug 405176 
+ *    Frits Jalvingh - fix for bug 533830.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -103,6 +104,7 @@ import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -799,6 +801,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		private void logProblem(CategorizedProblem problem, int localErrorCount,
 			int globalErrorCount, char[] unitSource) {
+			if(problem instanceof DefaultProblem) {
+				((DefaultProblem) problem).reportError();
+			}
 			if ((this.tagBits & Logger.EMACS) != 0) {
 				String severity = problem.isError() ? "output.emacs.error" : //$NON-NLS-1$
 									problem.isInfo() ? "output.emacs.info" //$NON-NLS-1$
@@ -2174,6 +2179,16 @@ public void configure(String[] argv) {
 					mode = DEFAULT;
 					continue;
 				}
+				if (currentArg.equals("-12") || currentArg.equals("-12.0")) { //$NON-NLS-1$ //$NON-NLS-2$
+					if (didSpecifyCompliance) {
+						throw new IllegalArgumentException(
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+					}
+					didSpecifyCompliance = true;
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+					mode = DEFAULT;
+					continue;
+				}
 				if (currentArg.equals("-d")) { //$NON-NLS-1$
 					if (this.destinationPath != null) {
 						StringBuffer errorMessage = new StringBuffer();
@@ -2721,6 +2736,8 @@ public void configure(String[] argv) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
 				} else if (currentArg.equals("11") || currentArg.equals("11.0")) { //$NON-NLS-1$//$NON-NLS-2$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+				} else if (currentArg.equals("12") || currentArg.equals("12.0")) { //$NON-NLS-1$//$NON-NLS-2$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 				}
 				else if (currentArg.equals("jsr14")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_JSR14);
@@ -2810,6 +2827,8 @@ public void configure(String[] argv) {
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_10);
 				} else if (currentArg.equals("11") ||  currentArg.equals("11.0")) { //$NON-NLS-1$//$NON-NLS-2$
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+				} else if (currentArg.equals("12") ||  currentArg.equals("12.0")) { //$NON-NLS-1$//$NON-NLS-2$
+					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 				} else {
 					throw new IllegalArgumentException(this.bind("configure.source", currentArg)); //$NON-NLS-1$
 				}
@@ -5408,11 +5427,13 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 							|| CompilerOptions.VERSION_1_6.equals(source)) {
 						this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 					} else {
-						if (CompilerOptions.versionToJdkLevel(source) > 0)
+						// 1.3 is the lowest version that can be specified as -source
+						// The following check will ensure '0' is ignored.
+						if (CompilerOptions.versionToJdkLevel(source) >= ClassFileConstants.JDK1_7)
 							this.options.put(CompilerOptions.OPTION_TargetPlatform, source);
 					}
 				} else {
-					if (CompilerOptions.versionToJdkLevel(version) > 0) {
+					if (CompilerOptions.versionToJdkLevel(version) > ClassFileConstants.JDK10) {
 						this.options.put(CompilerOptions.OPTION_Source, version);
 						this.options.put(CompilerOptions.OPTION_TargetPlatform, version);
 					}
@@ -5445,7 +5466,7 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 			if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_10);
 			if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_10);
 		} else {
-			if (CompilerOptions.versionToJdkLevel(version) > 0) {
+			if (CompilerOptions.versionToJdkLevel(version) > ClassFileConstants.JDK10) {
 				if (!didSpecifyCompliance) this.options.put(CompilerOptions.OPTION_Compliance, version);
 				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, version);
 			}

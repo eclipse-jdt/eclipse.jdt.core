@@ -177,6 +177,8 @@ public static Test suite() {
 	 since_11.add(JEP323VarLambdaParamsTest.class);
 	 since_11.add(JEP181NestTest.class);
 
+	 ArrayList since_12 = new ArrayList();
+
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));
@@ -273,6 +275,20 @@ public static Test suite() {
 		tests_11.addAll(since_11);
 		TestCase.resetForgottenFilters(tests_11);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11), tests_11));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_12) != 0) {
+		ArrayList tests_12 = (ArrayList)standardTests.clone();
+		tests_12.addAll(since_1_4);
+		tests_12.addAll(since_1_5);
+		tests_12.addAll(since_1_6);
+		tests_12.addAll(since_1_7);
+		tests_12.addAll(since_1_8);
+		tests_12.addAll(since_9);
+		tests_12.addAll(since_10);
+		tests_12.addAll(since_11);
+		tests_12.addAll(since_12);
+		TestCase.resetForgottenFilters(tests_12);
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_12), tests_12));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;
