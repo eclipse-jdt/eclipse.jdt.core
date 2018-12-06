@@ -30,7 +30,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		return SwitchExpressionTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_9); // FIXME
+		return buildMinimalComplianceTestSuite(testClass(), F_12); // FIXME
 	}
 	public SwitchExpressionTest(String testName){
 		super(testName);
@@ -39,9 +39,9 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9); // FIXME
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); // FIXME
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 		return defaultOptions;
 	}
 	
@@ -221,6 +221,36 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"	      ^^^^^\n" + 
 			" The switch expression should have a default case\n" + 
 			"----------\n");
+	}
+	/*
+	 * should compile - test for adding additional nesting in variables
+	 * dev note: ref consumeToken().case Switch 
+	 */
+	public void testBug531714_error_007() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	static int foo(int i) {\n"+
+				"		int tw = \n"+
+				"		switch (i) {\n"+
+				"			case 1 -> \n"+
+				"			 {\n"+
+				" 				int z = 100;\n"+
+				" 				break z;\n"+
+				"			}\n"+
+				"			default -> {\n"+
+				"				break 12;\n"+
+				"			}\n"+
+				"		};\n"+
+				"		return tw;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.print(foo(1));\n"+
+				"	}\n"+
+				"}\n"
+			},
+			"100");
 	}
 
 }

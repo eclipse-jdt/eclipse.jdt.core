@@ -9241,7 +9241,8 @@ private void createSwitchStatementOrExpression(boolean isStmt) {
 	//OpenBlock just makes the semantic action blockStart()
 	//the block is inlined but a scope need to be created
 	//if some declaration occurs.
-	
+	this.nestedType--;
+
 	int length;
 	SwitchStatement switchStatement = isStmt ? new SwitchStatement() : new SwitchExpression();
 	this.expressionLengthPtr--;
@@ -9463,6 +9464,7 @@ protected void consumeStaticOnly() {
 protected void consumeSwitchBlock() {
 	// SwitchBlock ::= '{' SwitchBlockStatements SwitchLabels '}'
 	concatNodeLists();
+	
 }
 protected void consumeSwitchBlockStatement() {
 	// SwitchBlockStatement ::= SwitchLabels BlockStatements
@@ -9792,7 +9794,6 @@ protected void consumeToken(int type) {
 		case TokenNamethrow :
 		case TokenNamedo :
 		case TokenNameif :
-		case TokenNameswitch :
 		case TokenNametry :
 		case TokenNamewhile :
 		case TokenNamebreak :
@@ -9805,6 +9806,11 @@ protected void consumeToken(int type) {
 		case TokenNameopens:
 		case TokenNameuses:
 		case TokenNameprovides:
+			pushOnIntStack(this.scanner.startPosition);
+			break;
+		case TokenNameswitch :
+			consumeNestedType();
+			this.nestedMethod[this.nestedType] ++;
 			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNamenew :
