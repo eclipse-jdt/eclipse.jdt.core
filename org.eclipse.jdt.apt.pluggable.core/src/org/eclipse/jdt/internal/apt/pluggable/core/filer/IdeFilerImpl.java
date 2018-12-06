@@ -39,13 +39,9 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.apt.core.internal.AptCompilationParticipant;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.apt.pluggable.core.Apt6Plugin;
 import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeAnnotationProcessorManager;
 import org.eclipse.jdt.internal.apt.pluggable.core.dispatch.IdeProcessingEnvImpl;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
 /**
  * Implementation of the Filer interface that is used in IDE mode.
@@ -54,12 +50,12 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
  */
 public class IdeFilerImpl implements Filer {
 	
-	private final IdeAnnotationProcessorManager _dispatchManager;
+	//private final IdeAnnotationProcessorManager _dispatchManager;
 	private final IdeProcessingEnvImpl _env;
 
 	public IdeFilerImpl(IdeAnnotationProcessorManager dispatchManager,
 			IdeProcessingEnvImpl env) {
-		_dispatchManager = dispatchManager;
+		//_dispatchManager = dispatchManager;
 		_env = env;
 	}
 
@@ -167,22 +163,22 @@ public class IdeFilerImpl implements Filer {
 		// TODO: is the following correct?
 		// JDK 9's createSourceFile API mentions '/' as separator for a module prefix. 
 		// Otherwise shouldn't <code>name</code> already be "."-separated?
-		name = name.toString().replace('/', '.');
-		
-		ModuleBinding m = _env._current_module;
-		if (m == null)
-			m = _env.getCompiler().lookupEnvironment.UnNamedModule;
-		ReferenceBinding type = m.environment.getType(CharOperation.splitOn('.', name.toString().toCharArray()), m);
-		if (type != null && (type.tagBits & TagBits.HasMissingType) == 0) {
-			IFile classFile = getFileFromOutputLocation(StandardLocation.CLASS_OUTPUT, CharOperation.toString(type.fPackage.compoundName), new String(type.sourceName()) + ".class");
-			String fileName = new String(type.getFileName());
-			if (fileName != null) {
-				String osString = classFile.getFullPath().toOSString();
-				if (!osString.equals(fileName) || !_dispatchManager._isFirstRound) {
-					throw new FilerException("Source file already exists : " + name); //$NON-NLS-1$
-				}
-			}
-		}
+//		name = name.toString().replace('/', '.');
+//		
+//		ModuleBinding m = _env._current_module;
+//		if (m == null)
+//			m = _env.getCompiler().lookupEnvironment.UnNamedModule;
+//		ReferenceBinding type = m.environment.getType(CharOperation.splitOn('.', name.toString().toCharArray()), m);
+//		if (type != null && (type.tagBits & TagBits.HasMissingType) == 0) {
+//			IFile classFile = getFileFromOutputLocation(StandardLocation.CLASS_OUTPUT, CharOperation.toString(type.fPackage.compoundName), new String(type.sourceName()) + ".class");
+//			String fileName = new String(type.getFileName());
+//			if (fileName != null) {
+//				String osString = classFile.getFullPath().toOSString();
+//				if (!osString.equals(fileName)) {
+//					throw new FilerException("Source file already exists : " + name); //$NON-NLS-1$
+//				}
+//			}
+//		}
 		Set<IFile> parentFiles = Collections.emptySet();
 		if (originatingElements != null && originatingElements.length > 0) {
 			parentFiles = new HashSet<IFile>(originatingElements.length);

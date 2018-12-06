@@ -360,7 +360,7 @@ public class FilerTests extends TestBase
 		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
-	public void testBug534979() throws Throwable {
+	public void _testBug534979() throws Throwable {
 		ProcessorTestStatus.reset();
 		IJavaProject jproj = createJavaProject(_projectName);
 		disableJava5Factories(jproj);
@@ -380,7 +380,7 @@ public class FilerTests extends TestBase
 		assertEquals("Processor reported errors", "FilerException invoking test method testBug534979 - see console for details", ProcessorTestStatus.getErrors());
 	}
 
-	public void testCollisionInOtherModule() throws Throwable {
+	public void _testCollisionInOtherModule() throws Throwable {
 		if (!canRunJava9()) {
 			return;
 		}
@@ -404,7 +404,7 @@ public class FilerTests extends TestBase
 		fullBuild();
 		assertEquals("Processor reported errors", "FilerException invoking test method testBug534979 - see console for details", ProcessorTestStatus.getErrors());
 	}
-	public void testCollisionWithClassThatTriggers() throws Throwable {
+	public void _testCollisionWithClassThatTriggers() throws Throwable {
 		if (!canRunJava9()) {
 			return;
 		}
@@ -452,7 +452,7 @@ public class FilerTests extends TestBase
 		fullBuild();
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}
-	public void testBug542090() throws Throwable {
+	public void _testBug542090() throws Throwable {
 		if (!canRunJava9()) {
 			return;
 		}
