@@ -204,6 +204,28 @@ void internalAnalyseOneArgument18(BlockScope currentScope, FlowContext flowConte
 		flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, flowInfo, nullStatus, annotationStatus);
 	}
 }
+/* package */ void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, Expression expr) {
+	int nullStatus = expr.nullStatus(flowInfo, flowContext);
+	long tagBits;
+	MethodBinding methodBinding = null;
+	boolean useTypeAnnotations = scope.environment().usesNullTypeAnnotations();
+	try {
+		methodBinding = scope.methodScope().referenceMethodBinding();
+		tagBits = (useTypeAnnotations) ? methodBinding.returnType.tagBits : methodBinding.tagBits;
+	} catch (NullPointerException npe) {
+		// chain of references in try-block has several potential nulls;
+		// any null means we cannot perform the following check
+		return;			
+	}
+	if (useTypeAnnotations) {
+		checkAgainstNullTypeAnnotation(scope, methodBinding.returnType, expr, flowContext, flowInfo);
+	} else if (nullStatus != FlowInfo.NON_NULL) {
+		// if we can't prove non-null check against declared null-ness of the enclosing method:
+		if ((tagBits & TagBits.AnnotationNonNull) != 0) {
+			flowContext.recordNullityMismatch(scope, expr, expr.resolvedType, methodBinding.returnType, flowInfo, nullStatus, null);
+		}
+	}
+}
 
 protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requiredType, Expression expression, FlowContext flowContext, FlowInfo flowInfo) {
 	if (expression instanceof ConditionalExpression && expression.isPolyExpression()) {
