@@ -106,7 +106,7 @@ protected void generateExpressionResultCode(BlockScope currentScope, CodeStream 
 @Override
 public void resolve(BlockScope scope) {
 	super.resolve(scope);
-	if (this.expression != null)
+	if (this.switchExpression != null && this.expression != null)
 		this.expression.resolve(scope);
 }
 

@@ -236,7 +236,8 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			}
 		}
 		this.resultExpressions = new ArrayList<>(0); // indicates processed
-		for (int i = 0, l = this.statements.length; i < l; ++i) {
+		int l = this.statements == null ? 0 : this.statements.length;
+		for (int i = 0; i < l; ++i) {
 			Statement stmt = this.statements[i];
 			if (stmt instanceof CaseStatement) {
 				CaseStatement caseStatement = (CaseStatement) stmt;
@@ -271,6 +272,9 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			this.scope = new BlockScope(upperScope);
 			LookupEnvironment env = this.scope.environment();
 
+			// tag break statements and (alongwih in the same pass) collect the result expressions
+			collectResultExpressions();
+
 			resolve(upperScope);
 
 			if (this.statements == null || this.statements.length == 0) {
@@ -278,8 +282,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				upperScope.problemReporter().switchExpressionEmptySwitchBlock(this);
 				return null;
 			}
-			// now we are done with case constants, let us collect the result expressions
-			collectResultExpressions();
 			
 			int resultExpressionsCount = this.resultExpressions != null ? this.resultExpressions.size() : 0;
 			if (resultExpressionsCount == 0) {
