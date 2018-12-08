@@ -45,6 +45,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); // FIXME
 		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		return defaultOptions;
 	}
 	
@@ -257,6 +258,102 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			},
 			"100");
 	}
+	public void testBug531714_008() {
+		Map<String, String> disablePreviewOptions = getCompilerOptions();
+		disablePreviewOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static int twice(int i) {\n" +
+				"		int tw = switch (i) {\n" +
+				"			case 0 -> i * 0;\n" +
+				"			case 1 -> 2;\n" +
+				"			default -> 3;\n" +
+				"		};\n" +
+				"		return tw;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.print(twice(3));\n" +
+				"	}\n" +
+				"}\n",
+		};
 
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	int tw = switch (i) {\n" + 
+				"			case 0 -> i * 0;\n" + 
+				"			case 1 -> 2;\n" + 
+				"			default -> 3;\n" + 
+				"		};\n" + 
+				"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Switch expression is a preview feature; use --enable-preview at source level 12 or above to enable\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	case 0 -> i * 0;\n" + 
+				"	^^^^^^\n" + 
+				"Switch Case Label with \'->\' is a preview feature; use --enable-preview at source level 12 or above to enable\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
+				"	case 1 -> 2;\n" + 
+				"	^^^^^^\n" + 
+				"Switch Case Label with \'->\' is a preview feature; use --enable-preview at source level 12 or above to enable\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 6)\n" + 
+				"	default -> 3;\n" + 
+				"	^^^^^^^\n" + 
+				"Switch Case Label with \'->\' is a preview feature; use --enable-preview at source level 12 or above to enable\n" + 
+				"----------\n";
+
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				disablePreviewOptions);
+	}
+	public void testBug531714_009() {
+		Map<String, String> disablePreviewOptions = getCompilerOptions();
+		disablePreviewOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static int twice(int i) {\n" +
+				"		switch (i) {\n" +
+				"			case 0 -> i * 0;\n" +
+				"			case 1 -> 2;\n" +
+				"			default -> 3;\n" +
+				"		}\n" +
+				"		return 0;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.print(twice(3));\n" +
+				"	}\n" +
+				"}\n",
+		};
+
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	case 0 -> i * 0;\n" + 
+				"	^^^^^^\n" + 
+				"Switch Case Label with \'->\' is a preview feature; use --enable-preview at source level 12 or above to enable\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	case 1 -> 2;\n" + 
+				"	^^^^^^\n" + 
+				"Switch Case Label with \'->\' is a preview feature; use --enable-preview at source level 12 or above to enable\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	default -> 3;\n" + 
+				"	^^^^^^^\n" + 
+				"Switch Case Label with \'->\' is a preview feature; use --enable-preview at source level 12 or above to enable\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				disablePreviewOptions);
+	}
 }
-	
