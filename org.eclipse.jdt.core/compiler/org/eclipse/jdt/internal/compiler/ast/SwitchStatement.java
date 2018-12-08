@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -624,12 +628,12 @@ public class SwitchStatement extends Expression {
 		boolean isExpr = this.switchLabeledRules = this.cases[0].isExpr;
 		for (int i = 1, l = this.caseCount; i < l; ++i) {
 			if (this.cases[i].isExpr != isExpr) {
-				this.scope.problemReporter().mixedCase(this.cases[i]);
+				this.scope.problemReporter().switchExpressionMixedCase(this.cases[i]);
 				return;
 			}
 		}
 		if (this.defaultCase != null && this.defaultCase.isExpr != isExpr) {
-			this.scope.problemReporter().mixedCase(this.defaultCase);
+			this.scope.problemReporter().switchExpressionMixedCase(this.defaultCase);
 		}
 	}
 	private void reportDuplicateCase(final CaseStatement duplicate, final CaseStatement original, int length) {

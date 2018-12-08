@@ -7,7 +7,11 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - patch for readTable(String) as described in http://bugs.eclipse.org/bugs/show_bug.cgi?id=32196
@@ -941,6 +945,7 @@ protected int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
 protected boolean parsingJava8Plus;
 protected boolean parsingJava9Plus;
+protected boolean parsingJava12Plus;
 protected int unstackedAct = ERROR_ACTION;
 private boolean haltOnSyntaxError = false;
 private boolean tolerateDefaultClassMethods = false;
@@ -959,6 +964,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	initializeScanner();
 	this.parsingJava8Plus = this.options.sourceLevel >= ClassFileConstants.JDK1_8;
 	this.parsingJava9Plus = this.options.sourceLevel >= ClassFileConstants.JDK9;
+	this.parsingJava12Plus = this.options.sourceLevel >= ClassFileConstants.JDK12;
 	this.astLengthStack = new int[50];
 	this.expressionLengthStack = new int[30];
 	this.typeAnnotationLengthStack = new int[30];
@@ -9485,12 +9491,18 @@ protected void consumeCaseLabelExpr() {
 //	SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
 	consumeCaseLabel();
 	CaseStatement caseStatement = (CaseStatement) this.astStack[this.astPtr];
+	if (!this.parsingJava12Plus) {
+		problemReporter().caseStatementWithArrowNotBelow12(caseStatement);
+	}
 	caseStatement.isExpr = true;
 }
 protected void consumeDefaultLabelExpr() {
 //	SwitchLabelDefaultExpr ::= 'default' '->'
 	consumeDefaultLabel();
 	CaseStatement defaultStatement = (CaseStatement) this.astStack[this.astPtr];
+	if (!this.parsingJava12Plus) {
+		problemReporter().caseStatementWithArrowNotBelow12(defaultStatement);
+	}
 	defaultStatement.isExpr = true;
 }
 protected void consumeSwitchExpression() {
@@ -9498,6 +9510,11 @@ protected void consumeSwitchExpression() {
 	createSwitchStatementOrExpression(false);
 	if (this.astLengthStack[this.astLengthPtr--] != 0) {
 		SwitchExpression s = (SwitchExpression) this.astStack[this.astPtr--];
+
+		if (!this.parsingJava12Plus) {
+			problemReporter().switchExpressionsNotBelow12(s);
+		}
+
 		pushOnExpressionStack(s);
 	}
 }

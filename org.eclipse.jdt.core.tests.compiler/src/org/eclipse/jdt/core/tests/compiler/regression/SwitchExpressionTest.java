@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 GK Software SE and others.
+ * Copyright (c) 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,12 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
- *     Stephan Herrmann - initial API and implementation
+ *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -30,7 +33,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		return SwitchExpressionTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_12); // FIXME
+		return buildMinimalComplianceTestSuite(testClass(), F_12);
 	}
 	public SwitchExpressionTest(String testName){
 		super(testName);
@@ -70,30 +73,32 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		runConformTest(
 			new String[] {
 				"X.java",
-				"package se1;\n" +
-				"\n" +
-				"\n" +
-				"public class X {\n" +
-				"	static int twice(int i) throws java.io.IOException {\n" +
-				"		int tw = switch (i) {\n" +
-				"			case 0 -> 0;\n" +
-				"			case 1 -> { \n" +
-				"				System.out.println(\"do_not_print\");\n" +
-				"				break 1;\n" +
-				"			} \n" +
-				"			case 3 -> throw new java.io.IOException(\"hello\");\n" +
-				"			default -> throw new java.io.IOException(\"world\");\n" +
-				"		};\n" +
-				"		return tw;\n" +
-				"	}\n" +
-				"	public static void main(String[] args) {\n" +
-				"		try {\n" +
-				"		    System.out.print(twice(3));\n" +
-				"		} catch (java.io.IOException e) {\n" +
-				"		System.out.print(\"Got Exception\");\n" +
-				"		}\n" +
-				"	}\n" +
-				"}\n"
+				"public class X {\n"+
+						"	static int twice(int i) throws Exception {\n"+
+						"		int tw = switch (i) {\n"+
+						"			case 0 -> 0;\n"+
+						"			case 1 -> { \n"+
+						"				System.out.println(\"do_not_print\");\n"+
+						"				break 1;\n"+
+						"			} \n"+
+						"			case 3 -> throw new Exception();\n"+
+						"			default -> throw new Exception();\n"+
+						"		};\n"+
+						"		return tw;\n"+
+						"	}\n"+
+						"	public static void main(String[] args) {\n"+
+						"		try {\n"+
+						"		    try {\n"+
+						"				System.out.print(twice(3));\n"+
+						"			} catch (Exception e) {\n"+
+						"				// TODO Auto-generated catch block\n"+
+						"				e.printStackTrace();\n"+
+						"			}\n"+
+						"		} catch (Exception e) {\n"+
+						"		System.out.print(\"Got Exception\");\n"+
+						"		}\n"+
+						"	}\n"+
+						"}\n"
 			},
 			"Got Exception");
 	}

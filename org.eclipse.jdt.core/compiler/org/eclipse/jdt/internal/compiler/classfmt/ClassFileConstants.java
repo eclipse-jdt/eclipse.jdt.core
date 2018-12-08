@@ -157,6 +157,7 @@ public interface ClassFileConstants {
 	long JDK9 = ((long)ClassFileConstants.MAJOR_VERSION_9 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK10 = ((long)ClassFileConstants.MAJOR_VERSION_10 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK11 = ((long)ClassFileConstants.MAJOR_VERSION_11 << 16) + ClassFileConstants.MINOR_VERSION_0;
+	long JDK12 = ((long)ClassFileConstants.MAJOR_VERSION_12 << 16) + ClassFileConstants.MINOR_VERSION_0;
 
 	public static long getLatestJDKLevel() {
 		return ((long)ClassFileConstants.MAJOR_LATEST_VERSION << 16) + ClassFileConstants.MINOR_VERSION_0;
