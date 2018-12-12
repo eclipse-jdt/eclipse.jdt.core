@@ -12921,4 +12921,21 @@ public void testBug536552b() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/542625 - Formatter fails with OOM when parentheses for if statements are preserving positions
+ */
+public void testBug542625() {
+	this.formatterPrefs.parenthesis_positions_in_if_while_statement = DefaultCodeFormatterConstants.PRESERVE_POSITIONS;
+	String source =
+		"class C {\n" + 
+		"	void m() {\n" + 
+		"		//\n" + 
+		"		//\n" + 
+		"		if (\n" + 
+		"			true)\n" + 
+		"			;\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
 }
