@@ -1843,6 +1843,12 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 		    		new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		    expectedProblemAttributes.put("SwitchCaseLabelWithArrowPreviewDisabled",
 		    		new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		    expectedProblemAttributes.put("PreviewFeatureDisabled",
+		    		new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		    expectedProblemAttributes.put("PreviewFeatureUsed",
+		    		new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		    expectedProblemAttributes.put("PreviewFeatureNotSupported",
+		    		new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 			StringBuffer failures = new StringBuffer();
 			StringBuffer correctResult = new StringBuffer(70000);
 			Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -1861,7 +1867,6 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 					int maskedProblemId = problemId & IProblem.IgnoreCategoriesMask;
 					if (maskedProblemId != 0 && maskedProblemId != IProblem.IgnoreCategoriesMask) {
 						String name = field.getName();
-						System.out.println(i);
 						ProblemAttributes expectedAttributes = (ProblemAttributes) expectedProblemAttributes.get(name);
 						if (expectedAttributes == null) {
 							failures.append("missing expected problem attributes for problem " + name + "\n");
@@ -3050,6 +3055,9 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 		    expectedProblemAttributes.put("SwitchCaseLabelWithArrowNotBelow12", SKIP);
 		    expectedProblemAttributes.put("SwitchExpressionPreviewDisabled", SKIP);
 		    expectedProblemAttributes.put("SwitchCaseLabelWithArrowPreviewDisabled", SKIP);
+		    expectedProblemAttributes.put("PreviewFeatureDisabled", SKIP);
+		    expectedProblemAttributes.put("PreviewFeatureUsed", SKIP);
+		    expectedProblemAttributes.put("PreviewFeatureNotSupported", SKIP);
 			Map constantNamesIndex = new HashMap();
 			Field[] fields = JavaCore.class.getFields();
 			for (int i = 0, length = fields.length; i < length; i++) {

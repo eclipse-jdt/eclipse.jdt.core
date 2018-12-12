@@ -2047,6 +2047,12 @@ void setSourceStart(int sourceStart);
 	int LambdaShapeComputationError = 1101;
 	/** @since 3.13 */
 	int ProblemNotAnalysed = 1102;
+	/** @since 3.16 BETA_JAVA_12 */
+	int PreviewFeatureDisabled = Syntax + 1103;
+	/** @since 3.16 BETA_JAVA_12 */
+	int PreviewFeatureUsed = Syntax + 1104;
+	/** @since 3.16 BETA_JAVA_12 */
+	int PreviewFeatureNotSupported = Syntax + 1105;
 	
 	/** @since 3.13 */
 	int UnlikelyCollectionMethodArgumentType = 1200;
