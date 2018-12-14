@@ -125,8 +125,12 @@ public TypeBinding resolveExpressionType(BlockScope scope) {
 public StringBuffer printStatement(int tab, StringBuffer output) {
 	if (!this.isImplicit) // implicit for SwitchLabeledExpressions
 		printIndent(tab, output).append("break"); //$NON-NLS-1$
-	if (this.label != null) output.append(' ').append(this.label);
-	if (this.expression != null) output.append(' ').append(this.expression.printExpression(tab, output));
+	if (this.label != null) 
+		output.append(' ').append(this.label);
+	if (this.expression != null) {
+		output.append(' ');
+		this.expression.printExpression(tab, output);
+	}
 	return output.append(';');
 }
 

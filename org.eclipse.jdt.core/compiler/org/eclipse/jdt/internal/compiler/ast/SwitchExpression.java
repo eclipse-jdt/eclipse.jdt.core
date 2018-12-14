@@ -1,12 +1,18 @@
 /*******************************************************************************
- * Copyright (c) 2018 GK Software SE and others.
+ * Copyright (c) 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/epl-v10.html
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
- *     Stephan Herrmann - initial API and implementation
+ *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -268,9 +274,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	public TypeBinding resolveType(BlockScope upperScope) {
 		try {
 			// JLS12 15.29.1
-			CompilerOptions compilerOptions = upperScope.compilerOptions();
-			this.scope = new BlockScope(upperScope);
-			LookupEnvironment env = this.scope.environment();
 
 			// tag break statements and (alongwih in the same pass) collect the result expressions
 			collectResultExpressions();
@@ -290,7 +293,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				upperScope.problemReporter().switchExpressionNoResultExpressions(this);
 				return null;
 			}
-
 			//A switch expression is a poly expression if it appears in an assignment context or an invocation context (5.2, 5.3). 
 			//Otherwise, it is a standalone expression.
 			if (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) {
@@ -342,6 +344,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			for (TypeBinding t : this.originalValueResultExpressionTypes) {
 				typeBbolean &= t.id == T_boolean || t.id == T_JavaLangBoolean;
 			}
+			LookupEnvironment env = this.scope.environment();
 			/*
 			 * Otherwise, if the type of each result expression is boolean or Boolean,
 			 * an unboxing conversion (5.1.8) is applied to each result expression of type Boolean,
