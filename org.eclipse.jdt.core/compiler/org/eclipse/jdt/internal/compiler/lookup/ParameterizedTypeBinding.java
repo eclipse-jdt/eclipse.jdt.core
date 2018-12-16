@@ -1208,10 +1208,15 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		this.tagBits |= resolvedType.tagBits & TagBits.ContainsNestedTypeReferences;
 		if (this.arguments != null) {
 			int argLength = this.arguments.length;
+			if ((this.type.tagBits & TagBits.HasMissingType) == 0) {
+				this.tagBits &= ~TagBits.HasMissingType; // start from fresh and collect information anew
+				if (this.enclosingType != null)
+					this.tagBits |= this.enclosingType.tagBits & TagBits.HasMissingType;
+			}
 			for (int i = 0; i < argLength; i++) {
 				TypeBinding resolveType = BinaryTypeBinding.resolveType(this.arguments[i], this.environment, true /* raw conversion */);
 				this.arguments[i] = resolveType;
-				this.tagBits |= resolvedType.tagBits & TagBits.ContainsNestedTypeReferences;
+				this.tagBits |= resolvedType.tagBits & (TagBits.ContainsNestedTypeReferences | TagBits.HasMissingType);
 			}
 			/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=186565, Removed generic check
 			   and arity check since we are dealing with binary types here and the fact that
