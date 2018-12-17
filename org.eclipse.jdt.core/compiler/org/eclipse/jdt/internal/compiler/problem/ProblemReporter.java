@@ -667,6 +667,8 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.APILeak;
 		case IProblem.UnstableAutoModuleName:
 			return CompilerOptions.UnstableAutoModuleName;
+		case IProblem.PreviewFeatureUsed:
+			return CompilerOptions.PreviewFeatureUsed;
 }
 	return 0;
 }
@@ -9252,6 +9254,32 @@ public void problemNotAnalysed(Expression token, String optionKey) {
 		new String[] { token.constant.stringValue() },
 		token.sourceStart,
 		token.sourceEnd);
+}
+public void previewFeatureNotEnabled(int sourceStart, int sourceEnd, String featureName) {
+	String[] args = new String[] {featureName};
+	this.handle(
+			IProblem.PreviewFeatureDisabled,
+			args,
+			args,
+			sourceStart,
+			sourceEnd);
+}
+public void previewFeatureUsed(int sourceStart, int sourceEnd) {
+	this.handle(
+			IProblem.PreviewFeatureUsed,
+			NoArgument,
+			NoArgument,
+			sourceStart,
+			sourceEnd);
+}
+public void previewFeatureNotSupported(int sourceStart, int sourceEnd, String sourceLevel) {
+	String[] args = new String[] {sourceLevel};
+	this.handle(
+			IProblem.PreviewFeatureNotSupported,
+			args,
+			args,
+			sourceStart,
+			sourceEnd);
 }
 public void useAssertAsAnIdentifier(int sourceStart, int sourceEnd) {
 	this.handle(
