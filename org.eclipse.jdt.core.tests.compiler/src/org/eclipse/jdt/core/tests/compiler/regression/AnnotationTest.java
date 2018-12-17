@@ -25,6 +25,8 @@
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *     Ulrich Grave <ulrich.grave@gmx.de> - Contributions for
  *                              bug 386692 - Missing "unused" warning on "autowired" fields
+ *     Pierre-Yves B. <pyvesdev@gmail.com> - Contribution for
+ *                              bug 542520 - [JUnit 5] Warning The method xxx from the type X is never used locally is shown when using MethodSource
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -11977,5 +11979,121 @@ public void testBug537593_001() {
 			new Requestor(true, requestor, false, true),
 			JavacTestOptions.DEFAULT);
 	assertNull(requestor.problemArguments);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X 
+// is never used locally is shown when using MethodSource - common case
+public void testBug542520a() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		true,
+		new String[] {
+			JUNIT_METHODSOURCE_NAME,
+			JUNIT_METHODSOURCE_CONTENT,
+			"ExampleTest.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import org.junit.jupiter.params.provider.MethodSource;\n" +
+			"public class ExampleTest {\n" +
+			"\n" +
+			"	 @MethodSource(\"getIntegers\")\n" +
+			"	 void testIntegers(Integer integer) {}\n" +
+			"	 \n" +
+			"	 private static List<Integer> getIntegers() {\n" + 
+			"		return Arrays.asList(0, 5, 1);\n" + 
+			"	}\n" +
+			"}\n",
+		},
+		null, customOptions,
+		"",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X 
+// is never used locally is shown when using MethodSource - variation with fully qualified annotation
+public void testBug542520b() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		true,
+		new String[] {
+			JUNIT_METHODSOURCE_NAME,
+			JUNIT_METHODSOURCE_CONTENT,
+			"ExampleTest.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"public class ExampleTest {\n" +
+			"\n" +
+			"	 @org.junit.jupiter.params.provider.MethodSource(\"getIntegers\")\n" +
+			"	 void testIntegers(Integer integer) {}\n" +
+			"	 \n" +
+			"	 private static List<Integer> getIntegers() {\n" + 
+			"		return Arrays.asList(0, 5, 1);\n" + 
+			"	}\n" +
+			"}\n",
+		},
+		null, customOptions,
+		"",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X 
+// is never used locally is shown when using MethodSource - marker annotation
+public void testBug542520c() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		true,
+		new String[] {
+			JUNIT_METHODSOURCE_NAME,
+			JUNIT_METHODSOURCE_CONTENT,
+			"ExampleTest.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import org.junit.jupiter.params.provider.MethodSource;\n" +
+			"public class ExampleTest {\n" +
+			"\n" +
+			"	 @MethodSource\n" +
+			"	 void testIntegers(Integer integer) {}\n" +
+			"	 \n" +
+			"	 private static List<Integer> testIntegers() {\n" + 
+			"		return Arrays.asList(0, 5, 1);\n" + 
+			"	}\n" +
+			"}\n",
+		},
+		null, customOptions,
+		"",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=542520 - [JUnit 5] Warning The method xxx from the type X 
+// is never used locally is shown when using MethodSource - missing no-args method source
+public void testBug542520d() throws Exception {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		true,
+		new String[] {
+			JUNIT_METHODSOURCE_NAME,
+			JUNIT_METHODSOURCE_CONTENT,
+			"ExampleTest.java",
+			"import java.util.Arrays;\n" +
+			"import java.util.List;\n" +
+			"import org.junit.jupiter.params.provider.MethodSource;\n" +
+			"public class ExampleTest {\n" +
+			"\n" +
+			"	 @MethodSource(\"getIntegers\")\n" +
+			"	 void testIntegers(Integer integer) {}\n" +
+			"	 \n" +
+			"	 private static List<Integer> getIntegers(int i) {\n" +
+			"		return Arrays.asList(0, 5, 1);\n" + 
+			"	}\n" +
+			"}\n",
+		},
+		null, customOptions,
+		"----------\n" + 
+		"1. ERROR in ExampleTest.java (at line 9)\n" + 
+		"	private static List<Integer> getIntegers(int i) {\n" + 
+		"	                             ^^^^^^^^^^^^^^^^^^\n" + 
+		"The method getIntegers(int) from the type ExampleTest is never used locally\n" + 
+		"----------\n",
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 }
