@@ -2099,12 +2099,16 @@ void setSourceStart(int sourceStart);
 	/** @since 3.16 BETA_JAVA_12 */
 	int SwitchExpressionTrailingSwitchLabels = Internal + 1605;
 	/** @since 3.16 BETA_JAVA_12 */
-	int MixedCase = Syntax + 1606;
+	int switchMixedCase = Syntax + 1606;
 	/** @since 3.16 BETA_JAVA_12 */
 	int SwitchExpressionMissingDefaultCase = Internal + 1607;
 	/** @since 3.16 BETA_JAVA_12 */
     int SwitchExpressionNotBelow12 = Internal + Syntax + 1608;
 	/** @since 3.16 BETA_JAVA_12 */
     int SwitchCaseLabelWithArrowNotBelow12 = Internal + Syntax + 1609;
+	/** @since 3.16 BETA_JAVA_12 */
+    int SwitchExpressionPreviewDisabled = Internal + Syntax + 1610;
+	/** @since 3.16 BETA_JAVA_12 */
+    int SwitchCaseLabelWithArrowPreviewDisabled = Internal + Syntax + 1611;
 
 	}

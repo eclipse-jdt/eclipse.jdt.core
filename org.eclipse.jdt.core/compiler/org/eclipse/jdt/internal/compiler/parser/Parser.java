@@ -9493,6 +9493,8 @@ protected void consumeCaseLabelExpr() {
 	CaseStatement caseStatement = (CaseStatement) this.astStack[this.astPtr];
 	if (!this.parsingJava12Plus) {
 		problemReporter().caseStatementWithArrowNotBelow12(caseStatement);
+	} else if (!this.options.enablePreviewFeatures){
+		problemReporter().caseStatementWithArrowIsPreview(caseStatement);		
 	}
 	caseStatement.isExpr = true;
 }
@@ -9502,6 +9504,8 @@ protected void consumeDefaultLabelExpr() {
 	CaseStatement defaultStatement = (CaseStatement) this.astStack[this.astPtr];
 	if (!this.parsingJava12Plus) {
 		problemReporter().caseStatementWithArrowNotBelow12(defaultStatement);
+	} else if (!this.options.enablePreviewFeatures){
+		problemReporter().caseStatementWithArrowIsPreview(defaultStatement);		
 	}
 	defaultStatement.isExpr = true;
 }
@@ -9513,6 +9517,8 @@ protected void consumeSwitchExpression() {
 
 		if (!this.parsingJava12Plus) {
 			problemReporter().switchExpressionsNotBelow12(s);
+		} else if (!this.options.enablePreviewFeatures) {
+			problemReporter().switchExpressionIsPreview(s);
 		}
 
 		pushOnExpressionStack(s);

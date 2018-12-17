@@ -11072,7 +11072,7 @@ public void switchExpressionTrailingSwitchLabels(Statement stmt) {
 }
 public void switchExpressionMixedCase(ASTNode statement) {
 	this.handle(
-		IProblem.MixedCase,
+		IProblem.switchMixedCase,
 		NoArgument,
 		NoArgument,
 		statement.sourceStart,
@@ -11080,15 +11080,31 @@ public void switchExpressionMixedCase(ASTNode statement) {
 }
 public void switchExpressionsNotBelow12(SwitchExpression switchExpr) {
 	this.handle(
-			IProblem.SwitchExpressionNotBelow12,
-			NoArgument,
-			NoArgument,
-			switchExpr.sourceStart,
-			switchExpr.sourceEnd);
+		IProblem.SwitchExpressionNotBelow12,
+		NoArgument,
+		NoArgument,
+		switchExpr.sourceStart,
+		switchExpr.sourceEnd);
 }
 public void caseStatementWithArrowNotBelow12(CaseStatement caseStatement) {
 	this.handle(
 		IProblem.SwitchCaseLabelWithArrowNotBelow12,
+		NoArgument,
+		NoArgument,
+		caseStatement.sourceStart,
+		caseStatement.sourceEnd);
+}
+public void switchExpressionIsPreview(SwitchExpression switchExpr) {
+	this.handle(
+		IProblem.SwitchExpressionPreviewDisabled,
+		NoArgument,
+		NoArgument,
+		switchExpr.sourceStart,
+		switchExpr.sourceEnd);
+}
+public void caseStatementWithArrowIsPreview(CaseStatement caseStatement) {
+	this.handle(
+		IProblem.SwitchCaseLabelWithArrowPreviewDisabled,
 		NoArgument,
 		NoArgument,
 		caseStatement.sourceStart,
