@@ -11044,7 +11044,7 @@ public void switchExpressionTrailingSwitchLabels(Statement stmt) {
 }
 public void switchExpressionMixedCase(ASTNode statement) {
 	this.handle(
-		IProblem.MixedCase,
+		IProblem.SwitchMixedCase,
 		NoArgument,
 		NoArgument,
 		statement.sourceStart,

@@ -2093,7 +2093,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.16 BETA_JAVA_12 */
 	int SwitchExpressionTrailingSwitchLabels = Internal + 1605;
 	/** @since 3.16 BETA_JAVA_12 */
-	int MixedCase = Syntax + 1606;
+	int SwitchMixedCase = Syntax + 1606;
 	/** @since 3.16 BETA_JAVA_12 */
 	int SwitchExpressionMissingDefaultCase = Internal + 1607;
 	/** @since 3.16 BETA_JAVA_12 */

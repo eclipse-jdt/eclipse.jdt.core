@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -1187,6 +1191,30 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalArrayOfUnionType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalArrayTypeInIntersectionCast", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ProblemNotAnalysed", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
+		expectedProblemAttributes.put("SwitchExpressionsIncompatibleResultExpressionTypes",
+				new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("SwitchExpressionsEmptySwitchBlock",
+				new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("SwitchExpressionsNoResultExpression",
+				new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("SwitchExpressionSwitchLabeledBlockCompletesNormally",
+				new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("SwitchExpressionLastStatementCompletesNormally",
+				new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("SwitchExpressionTrailingSwitchLabels",
+				new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("SwitchMixedCase",
+				new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("SwitchExpressionMissingDefaultCase",
+				new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("SwitchExpressionNotBelow12",
+				new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("SwitchCaseLabelWithArrowNotBelow12",
+				new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("SwitchExpressionPreviewDisabled",
+				new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("SwitchCaseLabelWithArrowPreviewDisabled",
+				new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2106,6 +2134,18 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("VarLocalReferencesItself", SKIP);
 		expectedProblemAttributes.put("VarLocalTooManyBrackets", SKIP);
 		expectedProblemAttributes.put("VarLocalWithoutInitizalier", SKIP);
+		expectedProblemAttributes.put("SwitchExpressionsIncompatibleResultExpressionTypes",SKIP);
+		expectedProblemAttributes.put("SwitchExpressionsEmptySwitchBlock",SKIP);
+		expectedProblemAttributes.put("SwitchExpressionsNoResultExpression",SKIP);
+		expectedProblemAttributes.put("SwitchExpressionSwitchLabeledBlockCompletesNormally",SKIP);
+		expectedProblemAttributes.put("SwitchExpressionLastStatementCompletesNormally",SKIP);
+		expectedProblemAttributes.put("SwitchExpressionTrailingSwitchLabels",SKIP);
+		expectedProblemAttributes.put("SwitchMixedCase", SKIP);
+		expectedProblemAttributes.put("SwitchExpressionMissingDefaultCase",SKIP);
+		expectedProblemAttributes.put("SwitchExpressionNotBelow12", SKIP);
+		expectedProblemAttributes.put("SwitchCaseLabelWithArrowNotBelow12", SKIP);
+		expectedProblemAttributes.put("SwitchExpressionPreviewDisabled", SKIP);
+		expectedProblemAttributes.put("SwitchCaseLabelWithArrowPreviewDisabled", SKIP);
 		Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {
