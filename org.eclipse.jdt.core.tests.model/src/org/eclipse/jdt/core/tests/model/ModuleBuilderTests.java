@@ -61,7 +61,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-//		 TESTS_NAMES = new String[] { "testBug527569c" };
+//		 TESTS_NAMES = new String[] { "testBug536928_comment22" };
 	}
 	private String sourceWorkspacePath = null;
 	protected ProblemRequestor problemRequestor;
@@ -3428,8 +3428,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"The package org.astro conflicts with a package accessible from another module: org.astro",  markers);
+					"The package org.astro conflicts with a package accessible from another module: org.astro\n" +
+					"The package org.astro is accessible from more than one module: com.greetings, org.astro",
+					markers);
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("com.greetings");
@@ -3645,8 +3648,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep1 });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"The package org.astro conflicts with a package accessible from another module: org.astro",
+					"The package org.astro conflicts with a package accessible from another module: org.astro\n" +
+					"The package org.astro is accessible from more than one module: <unnamed>, org.astro",
 					markers);
 		} finally {
 			deleteProject("org.astro");
@@ -3758,9 +3763,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p3 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep1, dep2 });
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
 					"The package bundle.org conflicts with a package accessible from another module: other.mod\n" + 
-					"bundle.org.astro.World cannot be resolved to a type",
+					"The package bundle.org is accessible from more than one module: <unnamed>, other.mod",
 					markers);
 		} finally {
 			deleteProject("org.astro");
@@ -7282,7 +7288,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = unnamed.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
-					"The import org.p1.T1 cannot be resolved\n" + 
+					"The package org.p1 is accessible from more than one module: m1, m2, m3\n" + 
 					"T1 cannot be resolved to a type",
 					markers);
 			
@@ -7294,8 +7300,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"----------\n" + 
 					"1. ERROR in /unnamed/src/test/Test.java (at line 2)\n" + 
 					"	import org.p1.T1;\n" + 
-					"	       ^^^^^^^^^\n" + 
-					"The import org.p1.T1 cannot be resolved\n" + 
+					"	       ^^^^^^\n" + 
+					"The package org.p1 is accessible from more than one module: m1, m2, m3\n" + 
 					"----------\n" + 
 					"2. ERROR in /unnamed/src/test/Test.java (at line 4)\n" + 
 					"	T1 t1;\n" + 
@@ -7308,6 +7314,157 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("m2");
 			deleteProject("m3");
 			deleteProject("unnamed");
+		}
+	}
+	public void testBug536928_comment22() throws CoreException, IOException {
+		try {
+			IJavaProject project = createJava9Project("ztest", new String[] { "src" });
+			createFolder("/ztest/lib");
+			Util.createJar(new String[] {
+					"javax/xml/transform/Transformer.java",
+					"package javax.xml.transform;\n" +
+					"public class Transformer {}\n",
+					"javax/xml/transform/Result.java",
+					"package javax.xml.transform;\n" +
+					"public class Result {}\n"
+				},
+				project.getProject().getLocation().toString() + "/lib/xml-apis.jar",
+				"1.8");
+			project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+			IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(new Path("/ztest/lib/xml-apis.jar"), null, null);
+			addClasspathEntry(project, libraryEntry, 1); // right after src and before jrt-fs.jar
+			
+			String testSource =
+					"package com.ztest;\n" + 
+					"import javax.xml.transform.Transformer;\n" + 
+					"\n" + 
+					"public class TestApp {\n" +
+					"	Transformer ts;\n" +
+					"	javax.xml.transform.Result result;\n" + 
+					"}\n";
+			createFolder("/ztest/src/com/ztest");
+			createFile("/ztest/src/com/ztest/TestApp.java", testSource);
+			String test2Source =
+					"package com.ztest;\n" +
+					"import javax.xml.transform.*;\n" +
+					"public class Test2 {\n" +
+					"	Transformer ts;\n" +
+					"}\n";
+			createFile("/ztest/src/com/ztest/Test2.java", test2Source);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected Markers",
+					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
+					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
+					"Transformer cannot be resolved to a type\n" +
+					"Transformer cannot be resolved to a type\n" +
+					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml",
+					markers);
+			
+			char[] sourceChars = testSource.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			getCompilationUnit("/ztest/src/com/ztest/TestApp.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /ztest/src/com/ztest/TestApp.java (at line 2)\n" + 
+					"	import javax.xml.transform.Transformer;\n" + 
+					"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" + 
+					"----------\n" + 
+					"2. ERROR in /ztest/src/com/ztest/TestApp.java (at line 5)\n" + 
+					"	Transformer ts;\n" + 
+					"	^^^^^^^^^^^\n" + 
+					"Transformer cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"3. ERROR in /ztest/src/com/ztest/TestApp.java (at line 6)\n" + 
+					"	javax.xml.transform.Result result;\n" + 
+					"	^^^^^^^^^^^^^^^^^^^\n" + 
+					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			sourceChars = test2Source.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			getCompilationUnit("/ztest/src/com/ztest/Test2.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /ztest/src/com/ztest/Test2.java (at line 2)\n" + 
+					"	import javax.xml.transform.*;\n" + 
+					"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" + 
+					"----------\n" + 
+					"2. ERROR in /ztest/src/com/ztest/Test2.java (at line 4)\n" + 
+					"	Transformer ts;\n" + 
+					"	^^^^^^^^^^^\n" + 
+					"Transformer cannot be resolved to a type\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject("ztest");
+		}
+	}
+	public void testBug536928_comment22_limited() throws CoreException, IOException {
+		try {
+			IClasspathAttribute[] limitModules = {
+				JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES, "java.base")	
+			};
+			IJavaProject project = createJava9ProjectWithJREAttributes("ztest", new String[] { "src" }, limitModules);
+			createFolder("/ztest/lib");
+			Util.createJar(new String[] {
+					"javax/xml/transform/Transformer.java",
+					"package javax.xml.transform;\n" +
+					"public class Transformer {}\n",
+					"javax/xml/transform/Result.java",
+					"package javax.xml.transform;\n" +
+					"public class Result {}\n"
+				},
+				project.getProject().getLocation().toString() + "/lib/xml-apis.jar",
+				"1.8");
+			project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+			IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(new Path("/ztest/lib/xml-apis.jar"), null, null);
+			addClasspathEntry(project, libraryEntry, 1); // right after src and before jrt-fs.jar
+			
+			String testSource =
+					"package com.ztest;\n" + 
+					"import javax.xml.transform.Transformer;\n" + 
+					"\n" + 
+					"public class TestApp {\n" +
+					"	Transformer ts;\n" + 
+					"	javax.xml.transform.Result result;\n" + 
+					"}\n";
+			createFolder("/ztest/src/com/ztest");
+			createFile("/ztest/src/com/ztest/TestApp.java", testSource);
+			String test2Source =
+					"package com.ztest;\n" +
+					"import javax.xml.transform.*;\n" +
+					"public class Test2 {\n" +
+					"	Transformer ts;\n" +
+					"}\n";
+			createFile("/ztest/src/com/ztest/Test2.java", test2Source);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+			
+			char[] sourceChars = testSource.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			getCompilationUnit("/ztest/src/com/ztest/TestApp.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+			sourceChars = test2Source.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			getCompilationUnit("/ztest/src/com/ztest/Test2.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject("ztest");
 		}
 	}
 	protected void assertNoErrors() throws CoreException {

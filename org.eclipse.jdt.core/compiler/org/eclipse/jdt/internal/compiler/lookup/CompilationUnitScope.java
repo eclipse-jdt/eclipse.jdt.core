@@ -424,7 +424,7 @@ void faultInImports() {
 				continue nextImport;
 			}
 			if (importBinding instanceof PackageBinding) {
-				PackageBinding uniquePackage = ((PackageBinding)importBinding).getVisibleFor(module());
+				PackageBinding uniquePackage = ((PackageBinding)importBinding).getVisibleFor(module(), false);
 				if (uniquePackage instanceof SplitPackageBinding) {
 					SplitPackageBinding splitPackage = (SplitPackageBinding) uniquePackage;
 					problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, importReference.sourceEnd);
@@ -438,6 +438,12 @@ void faultInImports() {
 			recordImportBinding(new ImportBinding(compoundName, true, importBinding, importReference));
 		} else {
 			Binding importBinding = findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, importReference.isStatic());
+			if (importBinding instanceof SplitPackageBinding) {
+				SplitPackageBinding splitPackage = (SplitPackageBinding) importBinding;
+				int sourceEnd = (int)(importReference.sourcePositions[splitPackage.compoundName.length-1] & 0xFFFF);
+				problemReporter().conflictingPackagesFromModules((SplitPackageBinding) importBinding, importReference.sourceStart, sourceEnd);
+				continue nextImport;
+			}
 			if (!importBinding.isValidBinding()) {
 				if (importBinding.problemId() == ProblemReasons.Ambiguous) {
 					// keep it unless a duplicate can be found below
@@ -462,7 +468,7 @@ void faultInImports() {
 					// re-get to find a possible split package:
 					importedPackage = (PackageBinding) findImport(importedPackage.compoundName, false, true);
 					if (importedPackage != null)
-						importedPackage = importedPackage.getVisibleFor(module());
+						importedPackage = importedPackage.getVisibleFor(module(), true);
 					if (importedPackage instanceof SplitPackageBinding) {
 						SplitPackageBinding splitPackage = (SplitPackageBinding) importedPackage;
 						int sourceEnd = (int) importReference.sourcePositions[splitPackage.compoundName.length-1];
@@ -534,7 +540,11 @@ private Binding findImport(char[][] compoundName, int length) {
 			if (binding instanceof ReferenceBinding && binding.problemId() == ProblemReasons.NotAccessible) {
 				return this.environment.convertToRawType((TypeBinding) binding, false /*do not force conversion of enclosing types*/);
 			}
-			if (binding == null || !binding.isValidBinding()) {
+			if (binding == null) {
+				break foundNothingOrType;
+			} else if (!binding.isValidBinding()) {
+				if (binding.problemId() == ProblemReasons.Ambiguous && packageBinding instanceof SplitPackageBinding)
+					return packageBinding; // pass the split package to the caller so they can report conflictingPackagesFromModules()
 				binding = null;
 				break foundNothingOrType;
 			}

@@ -430,7 +430,7 @@ public boolean isExported() {
  * In case of multiple accessible foreign packages a SplitPackageBinding is returned
  * to indicate a conflict.
  */
-public PackageBinding getVisibleFor(ModuleBinding module) {
+public PackageBinding getVisibleFor(ModuleBinding module, boolean preferLocal) {
 	return this;
 }
 public boolean hasCompilationUnit(boolean checkCUs) {
