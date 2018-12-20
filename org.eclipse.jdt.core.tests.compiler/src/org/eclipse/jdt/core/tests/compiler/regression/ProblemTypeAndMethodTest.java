@@ -8705,7 +8705,7 @@ public void test406396a() {
 	runner.runNegativeTest();
 }
 public void testBug542829() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 	
 	// m.Issing is a type that comes and goes:
 	String nameMissing = "m/Issing.java";
