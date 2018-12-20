@@ -1095,7 +1095,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see #TRUE
 	 * @see #FALSE
 	 * @see #FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION
-	 * @since 3.16
+	 * @since 3.17
 	 */
 	public static final String FORMATTER_COMMENT_INDENT_TAG_DESCRIPTION = "org.eclipse.jdt.core.formatter.comment.indent_tag_description"; //$NON-NLS-1$
 
