@@ -548,8 +548,12 @@ private Binding findImport(char[][] compoundName, int length) {
 				binding = null;
 				break foundNothingOrType;
 			}
-			if (!(binding instanceof PackageBinding))
+			if (!(binding instanceof PackageBinding)) {
+				PackageBinding visibleFor = packageBinding.getVisibleFor(module, false); // filter out empty parent-packages
+				if (visibleFor instanceof SplitPackageBinding)
+					return visibleFor;
 				break foundNothingOrType;
+			}
 
 			packageBinding = (PackageBinding) binding;
 		}

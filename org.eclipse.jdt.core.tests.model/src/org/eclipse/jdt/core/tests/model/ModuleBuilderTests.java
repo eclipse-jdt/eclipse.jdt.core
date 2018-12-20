@@ -61,7 +61,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-//		 TESTS_NAMES = new String[] { "testBug536928_comment22" };
+//		 TESTS_NAMES = new String[] { "testBug522330" };
 	}
 	private String sourceWorkspacePath = null;
 	protected ProblemRequestor problemRequestor;
@@ -3378,7 +3378,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					// reported against both 'requires' directives & against the import:
 					"The package org.astro is accessible from more than one module: org.astro, some.mod\n" +
 					"The package org.astro is accessible from more than one module: org.astro, some.mod\n" +
-					"The package org.astro is accessible from more than one module: org.astro, some.mod",
+					"The package org.astro is accessible from more than one module: org.astro, some.mod\n" +
+					"World cannot be resolved to a type",
 					markers);
 		} finally {
 			deleteProject("org.astro");
@@ -3599,7 +3600,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"The package org.astro is accessible from more than one module: org.astro, some.mod",
+					"The package org.astro is accessible from more than one module: org.astro, some.mod\n" +
+					"World cannot be resolved to a type",
 					markers);
 		} finally {
 			deleteProject("org.astro");
@@ -5853,7 +5855,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			};
 			IJavaProject p2 = setupModuleProject("nonmodular2", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			assertNoErrors();
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("unexpected markers",
+					"The package javax.net is accessible from more than one module: <unnamed>, java.base\n" +
+					"ServerSocketFactory cannot be resolved",
+					markers);
 		} finally {
 			deleteProject("nonmodular1");
 			deleteProject("nonmodular2");
@@ -7333,6 +7340,96 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
 			IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(new Path("/ztest/lib/xml-apis.jar"), null, null);
 			addClasspathEntry(project, libraryEntry, 1); // right after src and before jrt-fs.jar
+			
+			String testSource =
+					"package com.ztest;\n" + 
+					"import javax.xml.transform.Transformer;\n" + 
+					"\n" + 
+					"public class TestApp {\n" +
+					"	Transformer ts;\n" +
+					"	javax.xml.transform.Result result;\n" + 
+					"}\n";
+			createFolder("/ztest/src/com/ztest");
+			createFile("/ztest/src/com/ztest/TestApp.java", testSource);
+			String test2Source =
+					"package com.ztest;\n" +
+					"import javax.xml.transform.*;\n" +
+					"public class Test2 {\n" +
+					"	Transformer ts;\n" +
+					"}\n";
+			createFile("/ztest/src/com/ztest/Test2.java", test2Source);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected Markers",
+					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
+					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" +
+					"Transformer cannot be resolved to a type\n" +
+					"Transformer cannot be resolved to a type\n" +
+					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml",
+					markers);
+			
+			char[] sourceChars = testSource.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			getCompilationUnit("/ztest/src/com/ztest/TestApp.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /ztest/src/com/ztest/TestApp.java (at line 2)\n" + 
+					"	import javax.xml.transform.Transformer;\n" + 
+					"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" + 
+					"----------\n" + 
+					"2. ERROR in /ztest/src/com/ztest/TestApp.java (at line 5)\n" + 
+					"	Transformer ts;\n" + 
+					"	^^^^^^^^^^^\n" + 
+					"Transformer cannot be resolved to a type\n" + 
+					"----------\n" + 
+					"3. ERROR in /ztest/src/com/ztest/TestApp.java (at line 6)\n" + 
+					"	javax.xml.transform.Result result;\n" + 
+					"	^^^^^^^^^^^^^^^^^^^\n" + 
+					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" + 
+					"----------\n",
+					this.problemRequestor);
+
+			sourceChars = test2Source.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			getCompilationUnit("/ztest/src/com/ztest/Test2.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /ztest/src/com/ztest/Test2.java (at line 2)\n" + 
+					"	import javax.xml.transform.*;\n" + 
+					"	       ^^^^^^^^^^^^^^^^^^^\n" + 
+					"The package javax.xml.transform is accessible from more than one module: <unnamed>, java.xml\n" + 
+					"----------\n" + 
+					"2. ERROR in /ztest/src/com/ztest/Test2.java (at line 4)\n" + 
+					"	Transformer ts;\n" + 
+					"	^^^^^^^^^^^\n" + 
+					"Transformer cannot be resolved to a type\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject("ztest");
+		}
+	}
+	public void testBug536928_comment22b() throws CoreException, IOException {
+		try {
+			IJavaProject project = createJava9Project("ztest", new String[] { "src" });
+			createFolder("/ztest/lib");
+			Util.createJar(new String[] {
+					"javax/xml/transform/Transformer.java",
+					"package javax.xml.transform;\n" +
+					"public class Transformer {}\n",
+					"javax/xml/transform/Result.java",
+					"package javax.xml.transform;\n" +
+					"public class Result {}\n"
+				},
+				project.getProject().getLocation().toString() + "/lib/xml-apis.jar",
+				"1.8");
+			project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+			IClasspathEntry libraryEntry = JavaCore.newLibraryEntry(new Path("/ztest/lib/xml-apis.jar"), null, null);
+			addClasspathEntry(project, libraryEntry, 2); // DIFFERENCE HERE: place xml-apis.jar AFTER jrt-fs.jar
 			
 			String testSource =
 					"package com.ztest;\n" + 
