@@ -43,10 +43,13 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamew
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamewith;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -87,6 +90,7 @@ import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
@@ -156,23 +160,60 @@ public class WrapPreparator extends ASTVisitor {
 		}
 	}
 
-	private final static Map<Operator, Integer> OPERATOR_PRECEDENCE;
+	private static final Map<Operator, Integer> OPERATOR_PRECEDENCE;
+	private static final Map<Operator, ToIntFunction<DefaultCodeFormatterOptions>> OPERATOR_WRAPPING_OPTION;
+	private static final Map<Operator, Predicate<DefaultCodeFormatterOptions>> OPERATOR_WRAP_BEFORE_OPTION;
 	static {
-		HashMap<Operator, Integer> precedence = new HashMap<Operator, Integer>();
-		precedence.put(Operator.TIMES, 1);
-		precedence.put(Operator.DIVIDE, 1);
-		precedence.put(Operator.REMAINDER, 1);
-		precedence.put(Operator.PLUS, 2);
-		precedence.put(Operator.MINUS, 2);
-		// shift and comparison operators left out intentionally for compatibility with
-		// the legacy formatter, which did not wrap these operators
+		HashMap<Operator, Integer> precedence = new HashMap<>();
+		HashMap<Operator, ToIntFunction<DefaultCodeFormatterOptions>> wrappingOption = new HashMap<>();
+		HashMap<Operator, Predicate<DefaultCodeFormatterOptions>> wrapBeforeOption = new HashMap<>();
+		for (Operator op : Arrays.asList(Operator.TIMES, Operator.DIVIDE, Operator.REMAINDER)) {
+			precedence.put(op, 1);
+			wrappingOption.put(op, o -> o.alignment_for_multiplicative_operator);
+			wrapBeforeOption.put(op, o -> o.wrap_before_multiplicative_operator);
+		}
+		for (Operator op : Arrays.asList(Operator.PLUS, Operator.MINUS)) {
+			precedence.put(op, 2);
+			wrappingOption.put(op, o -> o.alignment_for_additive_operator);
+			wrapBeforeOption.put(op, o -> o.wrap_before_additive_operator);
+		}
+		for (Operator op : Arrays.asList(Operator.LEFT_SHIFT, Operator.RIGHT_SHIFT_SIGNED,
+				Operator.RIGHT_SHIFT_UNSIGNED)) {
+			precedence.put(op, 3);
+			wrappingOption.put(op, o -> o.alignment_for_shift_operator);
+			wrapBeforeOption.put(op, o -> o.wrap_before_shift_operator);
+		}
+		for (Operator op : Arrays.asList(Operator.LESS, Operator.GREATER, Operator.LESS_EQUALS,
+				Operator.GREATER_EQUALS)) {
+			precedence.put(op, 4);
+			wrappingOption.put(op, o -> o.alignment_for_relational_operator);
+			wrapBeforeOption.put(op, o -> o.wrap_before_relational_operator);
+		}
+		for (Operator op : Arrays.asList(Operator.EQUALS, Operator.NOT_EQUALS)) {
+			precedence.put(op, 5);
+			wrappingOption.put(op, o -> o.alignment_for_relational_operator);
+			wrapBeforeOption.put(op, o -> o.wrap_before_relational_operator);
+		}
+
 		precedence.put(Operator.AND, 6);
 		precedence.put(Operator.XOR, 7);
 		precedence.put(Operator.OR, 8);
+		for (Operator op : Arrays.asList(Operator.AND, Operator.XOR, Operator.OR)) {
+			wrappingOption.put(op, o -> o.alignment_for_bitwise_operator);
+			wrapBeforeOption.put(op, o -> o.wrap_before_bitwise_operator);
+		}
+
 		precedence.put(Operator.CONDITIONAL_AND, 9);
 		precedence.put(Operator.CONDITIONAL_OR, 10);
+		for (Operator op : Arrays.asList(Operator.CONDITIONAL_AND, Operator.CONDITIONAL_OR)) {
+			wrappingOption.put(op, o -> o.alignment_for_logical_operator);
+			wrapBeforeOption.put(op, o -> o.wrap_before_logical_operator);
+		}
 		// ternary and assignment operators not relevant to infix expressions
+
 		OPERATOR_PRECEDENCE = Collections.unmodifiableMap(precedence);
+		OPERATOR_WRAPPING_OPTION = Collections.unmodifiableMap(wrappingOption);
+		OPERATOR_WRAP_BEFORE_OPTION = Collections.unmodifiableMap(wrapBeforeOption);
 	}
 
 	/** Penalty multiplier for wraps that are preferred */
@@ -573,11 +614,17 @@ public class WrapPreparator extends ASTVisitor {
 		if ((parent instanceof InfixExpression) && samePrecedence(node, (InfixExpression) parent))
 			return true; // this node has been handled higher in the AST
 
-		findTokensToWrap(node, 0);
+		int wrappingOption = OPERATOR_WRAPPING_OPTION.get(node.getOperator()).applyAsInt(this.options);
+		boolean wrapBeforeOperator = OPERATOR_WRAP_BEFORE_OPTION.get(node.getOperator()).test(this.options);
+		if (isStringConcatenation(node)) {
+			wrappingOption = this.options.alignment_for_string_concatenation;
+			wrapBeforeOperator = this.options.wrap_before_string_concatenation;
+		}
+
+		findTokensToWrap(node, wrapBeforeOperator, 0);
 		this.wrapParentIndex = this.wrapIndexes.remove(0);
 		this.wrapGroupEnd = this.tm.lastIndexIn(node, -1);
-		if ((this.options.alignment_for_binary_expression & Alignment.M_INDENT_ON_COLUMN) != 0
-				&& this.wrapParentIndex > 0)
+		if ((wrappingOption & Alignment.M_INDENT_ON_COLUMN) != 0 && this.wrapParentIndex > 0)
 			this.wrapParentIndex--;
 		for (int i = this.wrapParentIndex; i >= 0; i--) {
 			if (!this.tm.get(i).isComment()) {
@@ -585,16 +632,16 @@ public class WrapPreparator extends ASTVisitor {
 				break;
 			}
 		}
-		handleWrap(this.options.alignment_for_binary_expression, node);
+		handleWrap(wrappingOption, !wrapBeforeOperator, node);
 		return true;
 	}
 
-	private void findTokensToWrap(InfixExpression node, int depth) {
+	private void findTokensToWrap(InfixExpression node, boolean wrapBeforeOperator, int depth) {
 		Expression left = node.getLeftOperand();
 		if (left instanceof InfixExpression && samePrecedence(node, (InfixExpression) left)) {
-			findTokensToWrap((InfixExpression) left, depth + 1);
+			findTokensToWrap((InfixExpression) left, wrapBeforeOperator, depth + 1);
 		} else if (this.wrapIndexes.isEmpty() // always add first operand, it will be taken as wrap parent
-				|| !this.options.wrap_before_binary_operator) {
+				|| !wrapBeforeOperator) {
 			this.wrapIndexes.add(this.tm.firstIndexIn(left, -1));
 		}
 
@@ -603,19 +650,19 @@ public class WrapPreparator extends ASTVisitor {
 		for (int i = -1; i < extended.size(); i++) {
 			Expression operand = (i == -1) ? right : extended.get(i);
 			if (operand instanceof InfixExpression && samePrecedence(node, (InfixExpression) operand)) {
-				findTokensToWrap((InfixExpression) operand, depth + 1);
+				findTokensToWrap((InfixExpression) operand, wrapBeforeOperator, depth + 1);
 			}
 			int indexBefore = this.tm.firstIndexBefore(operand, -1);
 			while (this.tm.get(indexBefore).isComment())
 				indexBefore--;
 			assert node.getOperator().toString().equals(this.tm.toString(indexBefore));
 			int indexAfter = this.tm.firstIndexIn(operand, -1);
-			this.wrapIndexes.add(this.options.wrap_before_binary_operator ? indexBefore : indexAfter);
-			this.secondaryWrapIndexes.add(this.options.wrap_before_binary_operator ? indexAfter : indexBefore);
+			this.wrapIndexes.add(wrapBeforeOperator ? indexBefore : indexAfter);
+			this.secondaryWrapIndexes.add(wrapBeforeOperator ? indexAfter : indexBefore);
 
 			if (!this.options.join_wrapped_lines) {
 				// TODO there should be an option for never joining wraps on opposite side of the operator
-				if (this.options.wrap_before_binary_operator) {
+				if (wrapBeforeOperator) {
 					if (this.tm.countLineBreaksBetween(this.tm.get(indexAfter - 1), this.tm.get(indexAfter)) > 0)
 						this.wrapIndexes.add(indexAfter);
 				} else {
@@ -624,6 +671,21 @@ public class WrapPreparator extends ASTVisitor {
 				}
 			}
 		}
+	}
+
+	private boolean isStringConcatenation(InfixExpression node) {
+		if (!node.getOperator().equals(Operator.PLUS))
+			return false;
+		List<Expression> operands = new ArrayList<Expression>(node.extendedOperands());
+		operands.add(node.getLeftOperand());
+		operands.add(node.getRightOperand());
+		for (Expression o : operands) {
+			if (o instanceof StringLiteral)
+				return true;
+			if ((o instanceof InfixExpression) && isStringConcatenation((InfixExpression) o))
+				return true;
+		}
+		return false;
 	}
 
 	private boolean samePrecedence(InfixExpression expression1, InfixExpression expression2) {
@@ -1055,14 +1117,18 @@ public class WrapPreparator extends ASTVisitor {
 	}
 
 	private void handleWrap(int wrappingOption, ASTNode parentNode) {
-		doHandleWrap(wrappingOption, parentNode);
+		handleWrap(wrappingOption, true, parentNode);
+	}
+
+	private void handleWrap(int wrappingOption, boolean wrapPreceedingComments, ASTNode parentNode) {
+		doHandleWrap(wrappingOption, wrapPreceedingComments, parentNode);
 		this.wrapIndexes.clear();
 		this.secondaryWrapIndexes.clear();
 		this.wrapPenalties.clear();
 		this.wrapParentIndex = this.wrapGroupEnd = -1;
 	}
 
-	private void doHandleWrap(int wrappingOption, ASTNode parentNode) {
+	private void doHandleWrap(int wrappingOption, boolean wrapPreceedingComments, ASTNode parentNode) {
 		if (this.wrapIndexes.isEmpty())
 			return;
 		assert this.wrapParentIndex >= 0 && this.wrapParentIndex < this.wrapIndexes.get(0);
@@ -1085,8 +1151,6 @@ public class WrapPreparator extends ASTVisitor {
 
 		setTokenWrapPolicy(0, policy, true);
 
-		boolean wrapPreceedingComments = !(parentNode instanceof InfixExpression)
-				|| !this.options.wrap_before_binary_operator;
 		for (int i = 1; i < this.wrapIndexes.size(); i++) {
 			penalty = this.wrapPenalties.size() > i ? this.wrapPenalties.get(i) : 1;
 			if (penalty != policy.penaltyMultiplier || i == 1)

@@ -11216,7 +11216,7 @@ public void testBug472009() {
  * https://bugs.eclipse.org/474629 - [save actions][clean up] Exceptions thrown
  */
 public void testBug474629() {
-	this.formatterPrefs.alignment_for_binary_expression |= Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.alignment_for_additive_operator |= Alignment.M_INDENT_ON_COLUMN;
 	String source = "aaaaa + bbbb";
 	formatSource(source, source, CodeFormatter.K_EXPRESSION, 0, true);
 }
