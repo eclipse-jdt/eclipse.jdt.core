@@ -118,11 +118,20 @@ public void accept(IBinaryType binaryType, PackageBinding packageBinding, Access
 	if (progressMonitor != null && progressMonitor.isCanceled())
 		throw new OperationCanceledException();
 
+	sanitizeBinaryType(binaryType);
 	BinaryTypeBinding typeBinding = this.lookupEnvironment.createBinaryTypeFrom(binaryType, packageBinding, accessRestriction);
 	try {
 		this.remember(binaryType, typeBinding);
 	} catch (AbortCompilation e) {
 		// ignore
+	}
+}
+
+private void sanitizeBinaryType(IGenericType binaryType) {
+	if (binaryType instanceof HierarchyBinaryType) {
+		HierarchyBinaryType hierarchyBinaryType = (HierarchyBinaryType) binaryType;
+		if (hierarchyBinaryType.getSuperclassName() == null)
+			hierarchyBinaryType.recordSuperclass(CharOperation.concatWith(TypeConstants.JAVA_LANG_OBJECT, '/'));
 	}
 }
 
@@ -626,6 +635,7 @@ private void reset(){
 public void resolve(IGenericType suppliedType) {
 	try {
 		if (suppliedType.isBinaryType()) {
+			sanitizeBinaryType(suppliedType);
 			BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType((IBinaryType) suppliedType, false/*don't need field and method (bug 125067)*/, null /*no access restriction*/);
 			remember(suppliedType, binaryTypeBinding);
 			// We still need to add superclasses and superinterfaces bindings (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53095)
@@ -788,6 +798,7 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 				}
 				if (binaryType != null) {
 					try {
+						sanitizeBinaryType(binaryType);
 						BinaryTypeBinding binaryTypeBinding = this.lookupEnvironment.cacheBinaryType(binaryType, false/*don't need field and method (bug 125067)*/, null /*no access restriction*/);
 						remember(binaryType, binaryTypeBinding);
 						if (openable.equals(focusOpenable)) {
