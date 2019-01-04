@@ -9455,4 +9455,21 @@ public void testBug508834_comment0() {
 			};
 		runner.runConformTest();
 	}
+	public void testBug543128() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"Bug543128.java",
+			"public class Bug543128 {\n" +
+			"	static class A {}\n" + 
+			"	static class B<F, S extends A> extends A {}\n" + 
+			"	static class C<G extends A> {}\n" + 
+			"	\n" + 
+			"	public static <H extends A, T> void test(C<? super B<? super T, ? super H>> test)\n" + 
+			"	{\n" + 
+			"		test(test); // fails compilation (incorrect)\n" + 
+			"	}\n" +
+			"}\n"
+		};
+		runner.runConformTest();
+	}
 }
