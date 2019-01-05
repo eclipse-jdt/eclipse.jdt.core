@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -502,7 +502,7 @@ public Binding getBinding(char[][] compoundName, int mask, InvocationSite invoca
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (currentIndex < length) {
 			unitScope.recordReference(packageBinding.compoundName, compoundName[currentIndex]);
-			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module());
+			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module(), currentIndex<length);
 			invocationSite.setFieldIndex(currentIndex);
 			if (binding == null) {
 				if (currentIndex == length) {
@@ -648,7 +648,7 @@ public final Binding getBinding(char[][] compoundName, InvocationSite invocation
 	foundType : if (binding instanceof PackageBinding) {
 		while (currentIndex < length) {
 			PackageBinding packageBinding = (PackageBinding) binding;
-			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module());
+			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module(), currentIndex<length);
 			if (binding == null) {
 				if (currentIndex == length) {
 					// must be a type if its the last name, otherwise we have no idea if its a package or type

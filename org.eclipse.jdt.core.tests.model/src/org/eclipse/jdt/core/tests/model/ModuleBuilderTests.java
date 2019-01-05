@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 IBM Corporation and others.
+ * Copyright (c) 2016, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7467,6 +7467,96 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("ztest");
 		}
 	}
+	public void testBug542896() throws CoreException {
+		IJavaProject java10Project = createJava10Project("bug", new String[] { "src" });
+		try {
+			createFolder("/bug/src/test/platform");
+			createFile("/bug/src/test/platform/Context.java",
+					"package test.platform;\n" + 
+					"\n" + 
+					"import java.net.URI;\n" + 
+					"\n" + 
+					"public interface Context {\n" + 
+					"	public URI getURI();\n" + 
+					"}\n");
+			createFile("/bug/src/test/platform/AbstractContext.java",
+					"package test.platform;\n" + 
+					"\n" + 
+					"import java.net.URI;\n" + 
+					"import java.util.*;\n" + 
+					"import test.*;\n" + 
+					"\n" + 
+					"public abstract class AbstractContext implements Context {\n" + 
+					"	Iterable<URI> uris = new ArrayList<URI>();\n" + 
+					"	Application application;\n" + 
+					"}\n");
+			String testSource =
+					"package test;\n" + 
+					"\n" + 
+					"import java.io.*;\n" + 
+					"import java.net.*;\n" + 
+					"import java.util.*;\n" + 
+					"\n" + 
+					"import test.platform.*;\n" + 
+					"\n" + 
+					"public interface Application // extends Foo\n" + 
+					"{\n" + 
+					"}\n";
+			String testPath = "/bug/src/test/Application.java";
+			createFile(testPath, testSource);
+			// first compile: no error:
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+			char[] sourceChars = testSource.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			getCompilationUnit(testPath).getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. WARNING in /bug/src/test/Application.java (at line 3)\n" + 
+					"	import java.io.*;\n" + 
+					"	       ^^^^^^^\n" + 
+					"The import java.io is never used\n" + 
+					"----------\n" + 
+					"2. WARNING in /bug/src/test/Application.java (at line 4)\n" + 
+					"	import java.net.*;\n" + 
+					"	       ^^^^^^^^\n" + 
+					"The import java.net is never used\n" + 
+					"----------\n" + 
+					"3. WARNING in /bug/src/test/Application.java (at line 5)\n" + 
+					"	import java.util.*;\n" + 
+					"	       ^^^^^^^^^\n" + 
+					"The import java.util is never used\n" + 
+					"----------\n" + 
+					"4. WARNING in /bug/src/test/Application.java (at line 7)\n" + 
+					"	import test.platform.*;\n" + 
+					"	       ^^^^^^^^^^^^^\n" + 
+					"The import test.platform is never used\n" + 
+					"----------\n",
+					this.problemRequestor);
+			// introduce error:
+			String testSourceEdited =
+					"package test;\n" + 
+					"\n" + 
+					"import java.io.*;\n" + 
+					"import java.net.*;\n" + 
+					"import java.util.*;\n" + 
+					"\n" + 
+					"import test.platform.*;\n" + 
+					"\n" + 
+					"public interface Application extends Foo\n" + 
+					"{\n" + 
+					"}\n";
+			editFile(testPath, testSourceEdited);
+			java10Project.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			IMarker[] markers = java10Project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "Foo cannot be resolved to a type", markers);
+		} finally {
+			if (java10Project != null)
+				deleteProject(java10Project);
+		}
+	}
+
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

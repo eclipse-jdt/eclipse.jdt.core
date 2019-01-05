@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -536,7 +536,7 @@ private Binding findImport(char[][] compoundName, int length) {
 	foundNothingOrType: if (binding != null) {
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (i < length) {
-			binding = packageBinding.getTypeOrPackage(compoundName[i++], module);
+			binding = packageBinding.getTypeOrPackage(compoundName[i++], module, i<length);
 			if (binding instanceof ReferenceBinding && binding.problemId() == ProblemReasons.NotAccessible) {
 				return this.environment.convertToRawType((TypeBinding) binding, false /*do not force conversion of enclosing types*/);
 			}
@@ -607,7 +607,7 @@ private Binding findSingleStaticImport(char[][] compoundName, int mask) {
 
 	char[] name = compoundName[compoundName.length - 1];
 	if (binding instanceof PackageBinding) {
-		Binding temp = ((PackageBinding) binding).getTypeOrPackage(name, module());
+		Binding temp = ((PackageBinding) binding).getTypeOrPackage(name, module(), false);
 		if (temp != null && temp instanceof ReferenceBinding) // must resolve to a member type or field, not a top level type
 			return new ProblemReferenceBinding(compoundName, (ReferenceBinding) temp, ProblemReasons.InvalidTypeForStaticImport);
 		return binding; // cannot be a package, error is caught in sender
@@ -663,7 +663,7 @@ ImportBinding[] getDefaultImports() {
 
 	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA);
 	if (importBinding != null)
-		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1], module());
+		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1], module(), false);
 
 	if (importBinding == null || !importBinding.isValidBinding()) {
 		// create a proxy for the missing BinaryType
