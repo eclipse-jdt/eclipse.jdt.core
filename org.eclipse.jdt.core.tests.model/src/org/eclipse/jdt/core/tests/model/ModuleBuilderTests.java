@@ -66,8 +66,16 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	private String sourceWorkspacePath = null;
 	protected ProblemRequestor problemRequestor;
 	public static Test suite() {
+		if (!isJRE9) {
+			// almost empty suite, since we need JRE9+
+			Suite suite = new Suite(ModuleBuilderTests.class.getName());
+			suite.addTest(new ModuleBuilderTests("thisSuiteRunsOnJRE9plus"));
+			return suite;
+		}
 		return buildModelTestSuite(ModuleBuilderTests.class, BYTECODE_DECLARATION_ORDER);
 	}
+	public void thisSuiteRunsOnJRE9plus() {}
+
 	public String getSourceWorkspacePath() {
 		return this.sourceWorkspacePath == null ? super.getSourceWorkspacePath() : this.sourceWorkspacePath;
 	}
@@ -107,7 +115,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 	// Test that the java.base found as a module package fragment root in the project 
 	public void test001() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			IJavaProject project = createJava9Project("Test01", new String[]{"src"});
 			this.createFile("Test01/src/module-info.java", "");
@@ -133,7 +140,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// Test the project compiles without errors with a simple module-info.java
 	public void test002() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
 							"module M1 {\n" +
@@ -149,7 +155,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// Test that types from java.base module are seen by the compiler
 	// even without an explicit 'requires java.base' declaration.
 	public void test003() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
 					"module M1 {\n" +
@@ -171,7 +176,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// Test that a type that is present in the JDK, but not observable to the source module,
 	// is reported as a compilation error.
 	public void test004() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
 					"module M1 {\n" +
@@ -197,7 +201,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// Test that a type that is outside java.base module is available to the compiler
 	// when the module is specified as 'requires'.
 	public void test005() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
 					"module M1 {\n" +
@@ -218,7 +221,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// Test that a module that doesn't exist but specified as requires in module-info
 	// doesn't affect rest of the compilation.
 	public void _test006() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
 					"module M1 {\n" +
@@ -282,7 +284,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 *
 	 */
 	public void test007() throws Exception {
-		if (!isJRE9) return;
 		try {
 			IJavaProject project = setupP2();
 			this.editFile("P1/src/module-info.java",
@@ -314,7 +315,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 *
 	 */
 	public void test008() throws Exception {
-		if (!isJRE9) return;
 		try {
 			IJavaProject project = setupP2();
 			this.editFile("P1/src/module-info.java",
@@ -344,7 +344,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * are exported by M1. No errors expected. 
 	 */
 	public void test009() throws Exception {
-		if (!isJRE9) return;
 		try {
 			IJavaProject project = setupP2();
 			this.editFile("P1/src/module-info.java",
@@ -371,7 +370,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * Usage of types from M1 in M2 should be reported.
 	 */
 	public void _test010() throws Exception {
-		if (!isJRE9) return;
 		try {
 			IJavaProject project = setupP2();
 			this.editFile("P1/src/module-info.java",
@@ -428,7 +426,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * M1 in M3 should be reported as errors.
 	 */
 	public void test011() throws Exception {
-		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
 					"module M1 {\n" +
@@ -455,7 +452,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * M1 in M3 should not be allowed.
 	 */
 	public void test012() throws Exception {
-		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
 					"module M1 {\n" +
@@ -489,7 +485,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * M1 in M3 should be allowed.
 	 */
 	public void test013() throws Exception {
-		if (!isJRE9) return;
 		try {
 			IJavaProject p2 = setupP2();
 			IJavaProject p3 = setupP3();
@@ -513,7 +508,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * M1 in M3 should be allowed. And no errors reported on M2.
 	 */
 	public void test014() throws Exception {
-		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
 					"module M1 {\n" +
@@ -538,7 +532,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test015() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
 					"module M1 {\n" +
@@ -579,7 +572,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * report expected errors.
 	 */
 	public void test016() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			IJavaProject p2 = setupP2();
 			this.editFile("P2/src/module-info.java",
@@ -612,7 +604,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * report expected errors.
 	 */
 	public void test017() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			IJavaProject p2 = setupP2();
 			this.editFile("P2/src/module-info.java",
@@ -650,7 +641,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * report expected errors.
 	 */
 	public void test018() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			String wkspEncoding = System.getProperty("file.encoding");
 			final String encoding = "UTF-8".equals(wkspEncoding) ? "Cp1252" : "UTF-8";
@@ -685,7 +675,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * re-compilation of module.
 	 */
 	public void _test019() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
 					"module M1 {\n" +
@@ -716,7 +705,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testConvertToModule() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			IJavaProject project = setUpJavaProject("ConvertToModule", "9");
@@ -739,7 +727,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_abstractImpl() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] { 
 					"src/module-info.java",
@@ -780,7 +767,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_invalidImpl() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] { 
 					"src/module-info.java",
@@ -820,7 +806,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_NoDefaultConstructor() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -866,7 +851,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_DefaultConstructorNotVisible() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -912,7 +896,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_DuplicateEntries() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -958,7 +941,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_NestedClass() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1004,7 +986,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_NonStatic_NestedClass() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1051,7 +1032,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_ImplDefinedInAnotherModule() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1091,7 +1071,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_ProviderMethod() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1143,7 +1122,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_ProviderMethod_ReturnTypeFromAnotherModule() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1201,7 +1179,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_ProviderMethod_ReturnTypeInvisible() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1258,7 +1235,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_ProviderMethod_InvalidReturnType() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1309,7 +1285,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_DuplicateImplEntries() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1354,7 +1329,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_InvalidIntfType() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
@@ -1378,7 +1352,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_InvalidImplType() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1418,7 +1391,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_nonPublicImpl() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1463,7 +1435,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_Exports_Error() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
@@ -1481,7 +1452,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_DuplicateExports() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1505,7 +1475,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_TargetedExports_Duplicates() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1548,7 +1517,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// Types from source module should be resolved in target module
 	// when package is exported specifically to the target module
 	public void test_TargetedExports() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1594,7 +1562,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// source module exports packages to a specific module which is not
 	// the same as the target module
 	public void test_TargetedExports_Error() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1649,7 +1616,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// It is permitted for the to clause of an exports or opens statement to 
 	// specify a module which is not observable
 	public void test_TargetedExports_Unresolved() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1673,7 +1639,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// Target module of an exports statement should be resolved without having an explicit
 	// dependency to the project that defines the module
 	public void test_TargetedExports_Resolution() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1704,7 +1669,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// Make sure modules in the workspace are resolved via the module source path container
 	// without needing to add a dependency to the project explicitly
 	public void test_ModuleSourcePathContainer() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1745,7 +1709,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// Make sure module path container picks up changes to module-info
 	public void _test_ModuleSourcePath_update() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1800,7 +1763,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// Implicit module dependencies via the 'requires transitive' directive should be
 	// resolved via the module path container
 	public void test_ModuleSourcePath_implicitdeps() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1850,7 +1812,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// Changes to implicit dependencies should be reflected // FIXME: container JavaCore.MODULE_PATH_CONTAINER_ID is unreliable
 	public void _test_ModuleSourcePath_implicitdeps2() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1908,7 +1869,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// Changes to implicit dependencies should be reflected
 	//TODO enable once we know how to update project cache
 	public void _test_ModuleSourcePath_implicitdeps3() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -1961,7 +1921,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_Cycle_In_Module_Dependency() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -2007,7 +1966,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_Cycle_In_Implicit_Module_Dependency() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -2052,7 +2010,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_bug506479() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
@@ -2082,7 +2039,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_Multiple_SourceFolders() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -2138,7 +2094,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_Multiple_SourceFolders_WithModuleInfo() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -2202,7 +2157,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_Multiple_SourceFolders_addModuleInfo() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -2240,7 +2194,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_Multiple_SourceFolders_removeModuleInfo() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -2277,7 +2230,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_services_multipleImpl() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] { 
 					"src/module-info.java",
@@ -2331,7 +2283,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_imports_in_moduleinfo() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] { 
 					"src/module-info.java",
@@ -2377,7 +2328,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void test_Opens_Nonexistent_Package() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
@@ -2393,7 +2343,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_Opens_Alien_Package() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
@@ -2432,7 +2381,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_DuplicateOpens() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -2456,7 +2404,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_TargetedOpens_Duplicates() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -2499,7 +2446,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// It is permitted for the to clause of an exports or opens statement to 
 	// specify a module which is not observable
 	public void test_TargetedOpens_Unresolved() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -2522,7 +2468,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// It is a compile-time error if an opens statement appears in the declaration of an open module. 
 	public void test_OpensStatment_in_OpenModule() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -2545,7 +2490,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_uses_DuplicateEntries() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -2570,7 +2514,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_uses_InvalidIntfType() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
@@ -2593,7 +2536,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_ReconcilerModuleLookup1() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
@@ -2615,7 +2557,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_ReconcilerModuleLookup2() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
@@ -2641,7 +2582,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testSystemLibAsJMod() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			IJavaProject project = createJava9Project("Test01", new String[]{"src"});
 			IClasspathEntry[] rawClasspath = project.getRawClasspath();
@@ -2676,7 +2616,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testSystemLibAsJMod_2() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			IJavaProject project = createJava9Project("Test01", new String[]{"src"});
 			IClasspathEntry[] rawClasspath = project.getRawClasspath();
@@ -2729,7 +2668,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug510617() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] src = new String[] {
 				"src/module-info.java",
@@ -2795,7 +2733,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_annotations_in_moduleinfo() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] { 
 					"src/module-info.java",
@@ -2845,7 +2782,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_unresolved_annotations() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] { 
 					"src/module-info.java",
@@ -2896,7 +2832,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_illegal_modifiers() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] { 
 					"src/module-info.java",
@@ -2947,7 +2882,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_annotations_with_target() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] { 
 					"src/module-info.java",
@@ -3000,7 +2934,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void test_annotations_with_wrong_target() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] { 
 					"src/module-info.java",
@@ -3054,7 +2987,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug518334() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] { 
 					"src/module-info.java",
@@ -3079,7 +3011,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug518334a() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] { 
 					"src/module-info.java",
@@ -3120,7 +3051,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void test_api_leak_1() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources1 = {
 								"src/module-info.java", 
@@ -3182,7 +3112,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * Still a sub class of the inaccessible class can be accessed and used for a method argument.
 	 */
 	public void test_api_leak_2() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources1 = {
 						"src/module-info.java", 
@@ -3250,7 +3179,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	
 	public void testNonPublic1() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources1 = {
 					"src/module-info.java", 
@@ -3328,7 +3256,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// test that two packages with the same name result in conflict if they are both
 	// accessible to a module
 	public void test_conflicting_packages() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -3390,7 +3317,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// test that a package declared in a module conflicts with an accessible package
 	// of the same name declared in another required module
 	public void test_conflicting_packages_declaredvsaccessible() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
@@ -3444,7 +3370,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// Type bundle.org.astro.World should not be resolved, because type
 	// bundle.org.astro trumps package bundle.org.astro
 	public void test_conflict_packagevstype() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
@@ -3501,7 +3426,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// cannot be seen
 	// TODO - to be confirmed with spec
 	public void test_noconflict_concealedtype_accessiblepackage() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
@@ -3553,7 +3477,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// test that two packages of the same name exported by two named modules result in
 	// a conflict in the context of a non-modular project
 	public void test_conflicting_packages_unnamed() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/module-info.java",
@@ -3612,7 +3535,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// test that a package declared in a non-modular project conflicts with a package with the same name
 	// exported by a named module on it's build path
 	public void test_conflict_unnamed_declaredvsexported() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
@@ -3663,7 +3585,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// test that a type in an accessible package trumps an accessible package with the same name
 	// in the context of a non-modular project
 	public void test_conflict_packagevstype_unnamed() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
@@ -3718,7 +3639,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// test that a conflicting package does not cause an error when resolving a sub package name
 	// when the sub package is accessible in the context of a non-modular project
 	public void test_noconflict_subpkg_unnamed() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
@@ -3779,7 +3699,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// test that a type in a non-accessible package does not conflict with an accessible package
 	// in the context of a non-modular project
 	public void test_noconflict_concealedtype_accessiblepackage_unnamed() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
 			String[] sources = new String[] {
@@ -3830,7 +3749,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug512053() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		this.sourceWorkspacePath = super.getSourceWorkspacePath() + java.io.File.separator + "bug512053"; 
 		try {
@@ -3854,7 +3772,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// basic test for automatic modules - external jars
 	public void testBug518280() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			String libPath = "externalLib/test.jar";
 			Util.createJar(
@@ -3901,7 +3818,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// basic test for automatic modules - workspace jars
 	public void testBug518282() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			setUpJavaProject("test_automodules", "9");
@@ -3916,7 +3832,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// Only the project using a jar as an automatic module should be able to
 	// resolve one as such
 	public void testBug518282a() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			IJavaProject p1 = setUpJavaProject("test_automodules", "9");
@@ -3956,7 +3871,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// A modular jar on the module path of a project should behave as a regular module and not
 	// as an automatic module
 	public void testBug518282b() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		String libPath = "externalLib/test.jar";
 		try {
@@ -4010,7 +3924,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// A modular jar on the class path of a module project - shouldn't be
 	// treated as a module and shouldn't be readable
 	public void testBug518282c() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		String libPath = "externalLib/test.jar";
 		try {
@@ -4063,7 +3976,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// An automatic module grants implied readability to all other automatic modules
 	public void testBug518282d() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		String libPath = "externalLib/test.jar";
 		try {
@@ -4130,7 +4042,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	// Automatic module should not allow access to other explicit modules without
 	// requires
 	public void testBug518282e() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		String libPath = "externalLib/test.jar";
 		try {
@@ -4204,7 +4115,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// An automatic module shouldn't allow access to classpath
 	public void testBug518282f() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		String libPath = "externalLib/test.jar";
 		try {
@@ -4273,7 +4183,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testUnnamedModule_bug519674() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			IJavaProject p1 = createJava9Project("Project1");
 			createFolder("/Project1/src/pack1");
@@ -4304,7 +4213,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 	}
 	public void testBug520246() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] src = new String[] { 
 				"src/module-info.java",
@@ -4328,7 +4236,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 	}	
 	public void testBug520147() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			String[] src = new String[] { 
@@ -4395,7 +4302,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}	
 	public void testBug520147a() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			String[] src = new String[] { 
@@ -4462,7 +4368,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug520147b() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			String[] src = new String[] { 
@@ -4530,7 +4435,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testSourceFolders_Bug519673() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			// Setup project PSources1:
 			String[] src = new String[] { 
@@ -4606,7 +4510,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testPrivateMethod_Bug515985() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] src = new String[] {
 					"src/module-info.java", 
@@ -4653,7 +4556,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testAddExports() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
@@ -4697,7 +4599,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testAddExports2() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 					"src/module-info.java",
@@ -4747,7 +4648,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testAddReads() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			// org.astro defines the "real" org.astro.World:
 			String[] sources = new String[] {
@@ -4843,7 +4743,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug520147c() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			String[] src = new String[] { 
@@ -4905,7 +4804,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	@Deprecated
 	public void testBug519935() throws CoreException, IOException {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			String[] src = new String[] { 
@@ -4974,7 +4872,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	@Deprecated
 	public void testBug520310() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			String[] src = new String[] { 
 				"src/module-info.java",
@@ -5044,7 +4941,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug521346() throws CoreException, IOException {
-		if (!isJRE9) return;
 		IJavaProject javaProject = null;
 		try {
 			String src =
@@ -5071,7 +4967,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testAutoModule1() throws Exception {
-		if (!isJRE9) return;
 		IJavaProject javaProject = null;
 		try {
 			String[] sources = {
@@ -5128,7 +5023,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testAutoModule2() throws Exception {
-		if (!isJRE9) return;
 		IJavaProject javaProject = null;
 		try {
 			String[] sources = {
@@ -5186,7 +5080,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testAutoModule3() throws Exception {
-		if (!isJRE9) return;
 		IJavaProject javaProject = null, auto = null;
 		try {
 			auto = createJava9Project("auto", new String[] {"src"});
@@ -5243,7 +5136,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testAutoModule4() throws Exception {
-		if (!isJRE9) return;
 		IJavaProject javaProject = null;
 		IJavaProject javaProject2 = null;
 		try {
@@ -5338,7 +5230,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// like testAutoModule3 without name derived from project, not manifest - warning suppressed
 	public void testAutoModule5() throws Exception {
-		if (!isJRE9) return;
 		IJavaProject javaProject = null, auto = null;
 		try {
 			auto = createJava9Project("auto", new String[] {"src"});
@@ -5392,7 +5283,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// like testAutoModule5, warning configured as ERROR
 	public void testAutoModule6() throws Exception {
-		if (!isJRE9) return;
 		IJavaProject javaProject = null, auto = null;
 		try {
 			auto = createJava9Project("auto", new String[] {"src"});
@@ -5434,7 +5324,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 	// patch can see unexported type from host (and package accessible method), but not vice versa
 	public void testPatch1() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			IJavaProject mainProject = createJava9Project("org.astro");
 			String[] sources = { 
@@ -5510,7 +5399,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 	// patch can see unexported type from host - JRE patched from two source folders
 	public void testPatch2() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			IClasspathAttribute[] attributes = {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
@@ -5553,7 +5441,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 	// patch can share a package with its host - jar
 	public void testPatch3() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = {
 				"p/a/X.java",
@@ -5600,7 +5487,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testLimitModules1() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			IClasspathAttribute[] attributes = {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
@@ -5669,7 +5555,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testLimitModules2() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			IClasspathAttribute[] attributes = {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
@@ -5736,7 +5621,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testDefaultRootModules() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 
 			IJavaProject project = createJava9Project("org.astro", new String[]{"src"});
@@ -5778,7 +5662,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug522398() throws CoreException {
-		if (!isJRE9) return;
 		try {
 
 			String[] sources = new String[] {
@@ -5825,7 +5708,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug522330() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/javax/net/ServerSocketFactory1.java",
@@ -5868,7 +5750,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testBug522503() throws Exception {
-		if (!isJRE9) return;
 		try {
 			IJavaProject p1 = setupModuleProject("mod.one",
 				new String[] {
@@ -5912,7 +5793,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug522671() throws Exception {
-		if (!isJRE9) return;
 		try {
 		IJavaProject p1 = setupModuleProject("util",
 			new String[] {
@@ -6003,7 +5883,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug522671b() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] {
 				"src/nonmodular1/HasConstructorWithProperties.java",
@@ -6086,7 +5965,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testBug525522() throws Exception {
-		if (!isJRE9) return;
 		try {
 			// non-modular substitute for java.jnlp:
 			IClasspathAttribute[] jreAttribs = { JavaCore.newClasspathAttribute(IClasspathAttribute.LIMIT_MODULES, "java.base,java.desktop,java.rmi,java.sql") };
@@ -6143,7 +6021,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testBug525603() throws Exception {
-		if (!isJRE9) return;
 		IJavaProject javaProject = null;
 		try {
 			String[] sources = {
@@ -6201,7 +6078,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testBug522670() throws Exception {
-		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			Hashtable<String, String> newOptions=new Hashtable<>(javaCoreOptions);
@@ -6300,7 +6176,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testBug526054() throws Exception {
-		if (!isJRE9) return;
 		ClasspathJrt.resetCaches();
 		try {
 			// jdk.rmic is not be visible to code in an unnamed module, but using requires we can see the module.
@@ -6350,7 +6225,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testBug526054b() throws Exception {
-		if (!isJRE9) return;
 		ClasspathJrt.resetCaches();
 		try {
 			// one project can see jdk.rmic/sun.rmi.rmic
@@ -6436,7 +6310,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testBug525918() throws CoreException {
-		if (!isJRE9) return;
 		try {
 			String[] sources = new String[] { 
 				"src/module-info.java",
@@ -6486,7 +6359,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testBug527576() throws Exception {
-		if (!isJRE9) return;
 		IJavaProject javaProject = null;
 		try {
 			
@@ -6552,7 +6424,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug528467a() throws CoreException {
-		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("mod.one");
 		try {
 			IClasspathEntry[] rawClasspath = p1.getRawClasspath();
@@ -6599,7 +6470,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug528467b() throws CoreException {
-		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("mod.one");
 		try {
 			IClasspathEntry[] rawClasspath = p1.getRawClasspath();
@@ -6652,7 +6522,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug528467c() throws CoreException {
-		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("unnamed");
 		try {
 			IClasspathEntry[] rawClasspath = p1.getRawClasspath();
@@ -6695,7 +6564,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// Bug 520713: allow test code to access code on the classpath
 	public void testWithTestAttributeAndTestDependencyOnClassPath() throws CoreException, IOException {
-		if (!isJRE9) return;
 		String outputDirectory = Util.getOutputDirectory();
 		
 		String jarPath = outputDirectory + File.separator + "mytestlib.jar";
@@ -6835,7 +6703,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testBug531579() throws Exception {
-		if (!isJRE9) return;
 		String outputDirectory = Util.getOutputDirectory();
 
 		String jarPath = outputDirectory + File.separator + "jaxb-api.jar";
@@ -6890,7 +6757,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569a() throws CoreException {
-		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("Bug527569", "9");
 		try {
 			createFolder("/Bug527569/src/p1");
@@ -6912,7 +6778,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569b() throws CoreException {
-		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("Bug527569", "1.7");
 		try {
 			createFolder("/Bug527569/src/p1");
@@ -6934,7 +6799,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569c() throws CoreException {
-		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("Bug527569", "1.7");
 		Map<String, String> options = new HashMap<>();
 		// Make sure the new options map doesn't reset.
@@ -6963,7 +6827,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569d() throws CoreException {
-		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("Bug527569", "9");
 		try {
 			createFolder("/Bug527569/src/p1");
@@ -6985,7 +6848,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569e() throws CoreException {
-		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("Bug527569", "1.8");
 		Map<String, String> options = new HashMap<>();
 		// Make sure the new options map doesn't reset.
@@ -7014,7 +6876,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug522601() throws CoreException {
-		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("Bug522601", "9");
 		try {
 			IFile file = createFile("/Bug522601/test.txt", "not a jar");
@@ -7032,7 +6893,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// automatic modules export all their packages
 	public void testBug532724() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			String libPath = "externalLib/test.jar";
 			Util.createJar(
@@ -7079,7 +6939,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug534624a() throws CoreException, IOException {
-		if (!isJRE9) return;
 		IJavaProject project = null;
 		Hashtable<String, String> options = JavaCore.getOptions();
 		try {
@@ -7104,7 +6963,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug534624b() throws CoreException, IOException {
-		if (!isJRE9) return;
 		IJavaProject project = null;
 		Hashtable<String, String> options = JavaCore.getOptions();
 		try {
@@ -7137,7 +6995,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// missing linked jar must not cause NPE
 	public void testBug540904() throws CoreException, IOException {
-		if (!isJRE9) return;
 		try {
 			String[] src = new String[] { 
 					"src/test/Test.java",
@@ -7157,7 +7014,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug540788() throws Exception {
-		if (!isJRE9) return;
 		try {
 			// project common:
 			IJavaProject common = createJava9Project("Bug540788.common", new String[] { "src/main/java" });
