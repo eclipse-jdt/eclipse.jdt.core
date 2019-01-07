@@ -87,9 +87,10 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
 					"	public String id(String in) { return in; }\n" +
 					"}\n");
 
-			p2 =  createJavaProject("mod.two", new String[] {"src"}, new String[] {"JCL19_LIB", this.ANNOTATION_LIB}, "bin", "9");
+			p2 =  createJavaProject("mod.two", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			IClasspathAttribute[] attr = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
 			addClasspathEntry(p2, JavaCore.newProjectEntry(p.getPath(), null, false, attr, false));
+			addClasspathEntry(p2, JavaCore.newLibraryEntry(new Path(this.ANNOTATION_LIB), null, null, null, attr, false));
 			p2.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 
 			createFolder("/mod.two/src/client");

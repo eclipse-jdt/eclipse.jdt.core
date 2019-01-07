@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -449,5 +449,125 @@ public void testBug540541() throws CoreException, IOException {
 		JavaCore.setOptions(options);
 	}
 }
+public void testBug543092() throws Exception {
+	if (!isJRE9) {
+		System.err.println("Test "+getName()+" requires a JRE 9");
+		return;
+	}
+	IJavaProject p = null;
+	try {
+		// ---- module log:
+		//      - has log4j on the module path
+		p = createJava9ProjectWithJREAttributes("p", new String[] {"src"},
+				new IClasspathAttribute[] {JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true")});
+		String jarAbsPath = p.getProject().getLocation()+"/lib-modular.jar";
+		createJar(new String[] {
+				"module-info.java",
+				"module lib {\n" +
+				"	exports lib.lab;\n" +
+				"}\n",
+				"lib/lab/Lib.java",
+				"package lib.lab;\n" +
+				"public class Lib {}\n"
+			},
+			jarAbsPath,
+			null,
+			"9");
+		addLibraryEntry(p, new Path(jarAbsPath), false);
 
+		String jarAbsPath2 = p.getProject().getLocation()+"/lib-nonmodular.jar";
+		createJar(new String[] {
+				"lib/lab/Lib.java",
+				"package lib.lab;\n" +
+				"public class Lib {}\n",
+			},
+			jarAbsPath2);
+		addLibraryEntry(p, new Path(jarAbsPath2), false);
+
+		createFolder("p/src/test");
+		createFile("p/src/test/Test.java",
+				"package test;\n" +
+				"public class Test {\n" +
+				"	lib.lab.Lib lob;\n" +
+				"}\n");
+		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("markers in p",
+				"",
+				markers);
+
+		this.workingCopy = getCompilationUnit("p/src/test/Test.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
+		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		assertProblems("Expecting no problems",
+						"----------\n" + 
+						"----------\n",
+						this.problemRequestor);
+
+	} finally {
+		deleteProject(p);
+	}
+}
+public void testBug543092b() throws Exception {
+	if (!isJRE9) {
+		System.err.println("Test "+getName()+" requires a JRE 9");
+		return;
+	}
+	IJavaProject p = null;
+	try {
+		// ---- module log:
+		//      - has log4j on the module path
+		IClasspathAttribute[] moduleAttributes = new IClasspathAttribute[] {JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true")};
+		p = createJava9ProjectWithJREAttributes("p", new String[] {"src"}, moduleAttributes);
+		String jarAbsPath = p.getProject().getLocation()+"/lib-modular.jar";
+		createJar(new String[] {
+				"module-info.java",
+				"module lib {\n" +
+				"	exports lib.lab;\n" +
+				"}\n",
+				"lib/lab/Lib.java",
+				"package lib.lab;\n" +
+				"public class Lib {}\n"
+			},
+			jarAbsPath,
+			null,
+			"9");
+		addLibraryEntry(p, new Path(jarAbsPath), null, null, null, null, moduleAttributes, false);
+
+		String jarAbsPath2 = p.getProject().getLocation()+"/lib-nonmodular.jar";
+		createJar(new String[] {
+				"lib/lab/Lib.java",
+				"package lib.lab;\n" +
+				"public class Lib {}\n",
+			},
+			jarAbsPath2);
+		addLibraryEntry(p, new Path(jarAbsPath2), false);
+
+		createFolder("p/src/test");
+		createFile("p/src/test/Test.java",
+				"package test;\n" +
+				"public class Test {\n" +
+				"	lib.lab.Lib lob;\n" +
+				"}\n");
+		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("markers in p",
+				"The package lib.lab is accessible from more than one module: <unnamed>, lib",
+				markers);
+
+		this.workingCopy = getCompilationUnit("p/src/test/Test.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
+		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		assertProblems("Expecting no problems",
+						"----------\n" + 
+						"1. ERROR in /p/src/test/Test.java (at line 3)\n" + 
+						"	lib.lab.Lib lob;\n" + 
+						"	^^^^^^^\n" + 
+						"The package lib.lab is accessible from more than one module: <unnamed>, lib\n" + 
+						"----------\n",
+						this.problemRequestor);
+	} finally {
+		deleteProject(p);
+	}
+}
 }
