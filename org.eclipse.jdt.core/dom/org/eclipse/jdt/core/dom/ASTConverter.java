@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1289,6 +1289,10 @@ class ASTConverter {
 			retrieveIdentifierAndSetPositions(statement.sourceStart, statement.sourceEnd, name);
 			breakStatement.setLabel(name);
 		}
+		else if (statement.expression != null && this.ast.apiLevel >= AST.JLS12_INTERNAL) {
+			final Expression expression= convert(statement.expression);
+			breakStatement.setExpression(expression);
+		}
 		return breakStatement;
 	}
 
@@ -1301,6 +1305,7 @@ class ASTConverter {
 		} else {
 			switchCase.setExpression(convert(constantExpression));
 		}
+		switchCase.setIsExpr(statement.isExpr);
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		retrieveColonPosition(switchCase);
 		return switchCase;
@@ -2693,14 +2698,7 @@ class ASTConverter {
 		return result;
 	}
 
-	public Expression convert(org.eclipse.jdt.internal.compiler.ast.SwitchExpression expression) {
-		// TODO: Entry point for dom ast conversion.
-		// Replace the code below with actual implementation
-		NullLiteral nullLiteral = new NullLiteral(this.ast);
-		nullLiteral.setFlags(nullLiteral.getFlags() | ASTNode.MALFORMED);
-		nullLiteral.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
-		return nullLiteral;
-	}
+	
 	public ReturnStatement convert(org.eclipse.jdt.internal.compiler.ast.ReturnStatement statement) {
 		final ReturnStatement returnStatement = new ReturnStatement(this.ast);
 		returnStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
@@ -2842,6 +2840,33 @@ class ASTConverter {
 		return literal;
 	}
 
+	public Expression convert(org.eclipse.jdt.internal.compiler.ast.SwitchExpression expression) {
+		if (this.ast.apiLevel < AST.JLS12_INTERNAL) {
+			return createFakeNullLiteral(expression);		
+		}
+		SwitchExpression switchExpression = new SwitchExpression(this.ast);
+		if (this.resolveBindings) {
+			recordNodes(switchExpression, expression);
+		}
+		switchExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
+		switchExpression.setExpression(convert(expression.expression));
+		org.eclipse.jdt.internal.compiler.ast.Statement[] statements = expression.statements;
+		if (statements != null) {
+			int statementsLength = statements.length;
+			for (int i = 0; i < statementsLength; i++) {
+				if (statements[i] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
+					checkAndAddMultipleLocalDeclaration(statements, i, switchExpression.statements());
+				} else {
+					final Statement currentStatement = convert(statements[i]);
+					if (currentStatement != null) {
+						switchExpression.statements().add(currentStatement);
+					}
+				}
+			}
+		}
+		return switchExpression;
+	}
+	
 	public SwitchStatement convert(org.eclipse.jdt.internal.compiler.ast.SwitchStatement statement) {
 		SwitchStatement switchStatement = new SwitchStatement(this.ast);
 		switchStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
@@ -4241,7 +4266,7 @@ class ASTConverter {
 	 * Warning: Callers of this method must ensure that the fake literal node is not recorded in
 	 * {@link #recordNodes(ASTNode, org.eclipse.jdt.internal.compiler.ast.ASTNode)}, see bug 403444!
 	 */
-	protected Expression createFakeNullLiteral(org.eclipse.jdt.internal.compiler.ast.FunctionalExpression expression) {
+	protected Expression createFakeNullLiteral(org.eclipse.jdt.internal.compiler.ast.Expression expression) {
 		if (this.referenceContext != null) {
 			this.referenceContext.setFlags(this.referenceContext.getFlags() | ASTNode.MALFORMED);
 		}

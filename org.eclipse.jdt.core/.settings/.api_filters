@@ -22,6 +22,22 @@
             </message_arguments>
         </filter>
     </resource>
+        <resource path="dom/org/eclipse/jdt/core/dom/BreakStatement.java" type="org.eclipse.jdt.core.dom.BreakStatement">
+        <filter comment="For Java 12 support." id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.BreakStatement"/>
+                <message_argument value="EXPRESSION_PROPERTY"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/SwitchCase.java" type="org.eclipse.jdt.core.dom.SwitchCase">
+        <filter comment="For Java 12 Switch Expression support" id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.SwitchCase"/>
+                <message_argument value="EXPRESSION_2_PROPERTY"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
         <filter id="388194388">
             <message_arguments>

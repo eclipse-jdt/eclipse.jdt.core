@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -23,6 +27,9 @@ import java.util.List;
  * <pre>
  * BreakStatement:
  *    <b>break</b> [ Identifier ] <b>;</b>
+ *    
+ *    Break statement allows expression as part of Java 12 preview feature (JEP 325)
+ *		<b>break</b> <b>{ Identifier | Expression }</b>
  * </pre>
  *
  * @since 2.0
@@ -37,6 +44,13 @@ public class BreakStatement extends Statement {
 	 */
 	public static final ChildPropertyDescriptor LABEL_PROPERTY =
 		new ChildPropertyDescriptor(BreakStatement.class, "label", SimpleName.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "expression" structural property of this node type (child type: {@link Expression}). (added in JEP 325).
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
+			new ChildPropertyDescriptor(BreakStatement.class, "expression", Expression.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$);
 
 	/**
 	 * A list of property descriptors (element type:
@@ -44,12 +58,25 @@ public class BreakStatement extends Statement {
 	 * or null if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
+	
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS_12;
 
 	static {
 		List properyList = new ArrayList(2);
 		createPropertyList(BreakStatement.class, properyList);
 		addProperty(LABEL_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+		
+		List properyList_12 = new ArrayList(2);
+		createPropertyList(BreakStatement.class, properyList_12);
+		addProperty(LABEL_PROPERTY, properyList_12);
+		addProperty(EXPRESSION_PROPERTY, properyList_12);
+		PROPERTY_DESCRIPTORS_12 = reapPropertyList(properyList_12);
 	}
 
 	/**
@@ -64,6 +91,9 @@ public class BreakStatement extends Statement {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
+		if (apiLevel >= AST.JLS12_INTERNAL) {
+			return PROPERTY_DESCRIPTORS_12;
+		}
 		return PROPERTY_DESCRIPTORS;
 	}
 
@@ -71,6 +101,11 @@ public class BreakStatement extends Statement {
 	 * The label, or <code>null</code> if none; none by default.
 	 */
 	private SimpleName optionalLabel = null;
+	
+	/**
+	 * The expression; <code>null</code> for none
+	 */
+	private Expression optionalExpression = null;
 
 	/**
 	 * Creates a new unparented break statement node owned by the given
@@ -99,6 +134,14 @@ public class BreakStatement extends Statement {
 				setLabel((SimpleName) child);
 				return null;
 			}
+		} 
+		if (property == EXPRESSION_PROPERTY) {
+			if (get) {
+				return getExpression();
+			} else {
+				setExpression((Expression) child);
+				return null;
+			}
 		}
 		// allow default implementation to flag the error
 		return super.internalGetSetChildProperty(property, get, child);
@@ -115,6 +158,9 @@ public class BreakStatement extends Statement {
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
 		result.setLabel((SimpleName) ASTNode.copySubtree(target, getLabel()));
+		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
+			result.setExpression((Expression) ASTNode.copySubtree(target, getLabel()));
+		}
 		return result;
 	}
 
@@ -128,6 +174,9 @@ public class BreakStatement extends Statement {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
+			if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
+				acceptChild(visitor, getExpression());
+			} 
 			acceptChild(visitor, getLabel());
 		}
 		visitor.endVisit(this);
@@ -160,17 +209,48 @@ public class BreakStatement extends Statement {
 		this.optionalLabel = label;
 		postReplaceChild(oldChild, label, LABEL_PROPERTY);
 	}
+	
+	/**
+	 * Returns the expression of this break statement, or <code>null</code> if
+	 * there is none.
+	 *
+	 * @return the expression, or <code>null</code> if there is none
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public Expression getExpression() {
+		return this.optionalExpression;
+	}
+
+	/**
+	 * Sets or clears the expression of this break statement.
+	 *
+	 * @param expression the expression, or <code>null</code> if
+	 *    there is none
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the node belongs to a different AST</li>
+	 * <li>the node already has a parent</li>
+	 * </ul>
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public void setExpression(Expression expression) {
+		ASTNode oldChild = this.optionalExpression;
+		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
+		this.optionalExpression = expression;
+		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
+	}
 
 	@Override
 	int memSize() {
-		return super.memSize() + 1 * 4;
+		return super.memSize() + 2 * 4;
 	}
 
 	@Override
 	int treeSize() {
 		return
 			memSize()
-			+ (this.optionalLabel == null ? 0 : getLabel().treeSize());
+			+ (this.optionalLabel == null ? 0 : getLabel().treeSize())
+			+ (this.optionalExpression == null ? 0 : getExpression().treeSize());
 	}
 }
 

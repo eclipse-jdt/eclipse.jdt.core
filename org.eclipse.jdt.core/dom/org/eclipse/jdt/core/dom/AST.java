@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -270,6 +274,28 @@ public final class AST {
 	 * @since 3.14 
 	 */
 	/*package*/ static final int JLS11_INTERNAL = JLS11;
+	
+	/**
+	 * Constant for indicating the AST API that handles JLS12.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 12 Edition (JLS12).
+	 * JLS12 is a superset of all earlier versions of the
+	 * Java language, and the JLS12 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 12 (aka JDK 12).
+	 * </p>
+	 *
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public static final int JLS12 = 12;
+	/**
+	 * Internal synonym for {@link #JLS11}. Use to alleviate
+	 * deprecation warnings once JLS11 is deprecated
+	 * @since 3.16 
+	 */
+	static final int JLS12_INTERNAL = JLS12;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
@@ -850,7 +876,21 @@ public final class AST {
 						null/*taskTag*/,
 						null/*taskPriorities*/,
 						true/*taskCaseSensitive*/);
-				break;	
+				break;
+			case JLS12_INTERNAL :
+				this.apiLevel = level;
+				// initialize a scanner
+				compliance = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_12);
+				this.scanner = new Scanner(
+						true /*comment*/,
+						true /*whitespace*/,
+						false /*nls*/,
+						compliance /*sourceLevel*/,
+						compliance /*complianceLevel*/,
+						null/*taskTag*/,
+						null/*taskPriorities*/,
+						true/*taskCaseSensitive*/);
+				break;
 			default:
 				throw new IllegalArgumentException("Unsupported JLS level"); //$NON-NLS-1$
 		}
@@ -2539,6 +2579,19 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new unparented switch expression node
+	 * owned by this AST. By default, the expression is unspecified, but legal, 
+	 * and there are no statements or switch cases.
+	 *
+	 * @return a new unparented labeled switch expression node
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public SwitchExpression newSwitchExpression() {
+		SwitchExpression result = new SwitchExpression(this);
+		return result;
+	}
+	
+	/**
 	 * Creates a new unparented switch case statement node owned by
 	 * this AST. By default, the expression is unspecified, but legal.
 	 *
@@ -2547,7 +2600,6 @@ public final class AST {
 	public SwitchCase newSwitchCase() {
 		return new SwitchCase(this);
 	}
-
 
 	/**
 	 * Creates a new unparented switch statement node owned by this AST.

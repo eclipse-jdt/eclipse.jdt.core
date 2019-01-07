@@ -137,11 +137,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static final int AST_INTERNAL_JLS10 = AST.JLS10;
 
 	/**
+	 * Internal synonym for constant AST.JSL12
+	 * to alleviate deprecation warnings once AST.JLS12 is deprecated in future.
+	 */
+	protected static final int AST_INTERNAL_JLS12 = AST.JLS12;
+
+	/**
 	 * Internal synonym for constant AST.JSL11
 	 * to alleviate deprecation warnings once AST.JLS11 is deprecated in future.
 	 */
 	protected static final int AST_INTERNAL_JLS11 = AST.JLS11;
-
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}
 		public void beginReporting() {}
@@ -3111,6 +3116,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		javaProject.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
+//		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		return javaProject;
 	}
 	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {

@@ -52,6 +52,7 @@ public static Class[] getAllTestClasses() {
 		TypeAnnotationsConverterTest.class,
 		ASTConverter18Test.class,
 		ASTConverter9Test.class,
+		ASTConverter12Test.class,
 	};
 }
 public static Test suite() {

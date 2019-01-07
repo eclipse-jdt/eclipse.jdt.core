@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -484,7 +488,9 @@ public class ASTMatcher {
 			return false;
 		}
 		BreakStatement o = (BreakStatement) other;
-		return safeSubtreeMatch(node.getLabel(), o.getLabel());
+		return ( node.getAST().apiLevel >= AST.JLS12_INTERNAL && node.getExpression() != null
+				? safeSubtreeMatch(node.getExpression(), o.getExpression())
+						: safeSubtreeMatch(node.getLabel(), o.getLabel()));
 	}
 
 	/**
@@ -2267,7 +2273,33 @@ public class ASTMatcher {
 			return false;
 		}
 		SwitchCase o = (SwitchCase) other;
-		return safeSubtreeMatch(node.getExpression(), o.getExpression());
+		return ( node.getAST().apiLevel >= AST.JLS12_INTERNAL
+				? safeSubtreeListMatch(node.getExpression2(), o.getExpression2())
+						: safeSubtreeMatch(node.getExpression(), o.getExpression()));
+	}
+	
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 * 
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public boolean match(SwitchExpression node, Object other) {
+		if (!(other instanceof SwitchExpression)) {
+			return false;
+		}
+		SwitchExpression o = (SwitchExpression) other;
+		return	safeSubtreeMatch(node.getExpression(), o.getExpression())
+				&& safeSubtreeListMatch(node.statements(), o.statements());
 	}
 
 	/**

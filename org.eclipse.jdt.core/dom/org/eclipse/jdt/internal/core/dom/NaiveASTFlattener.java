@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -81,6 +85,14 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * @since 3.14
 	 */
 	private static final int JLS9 = AST.JLS9;
+	
+	/**
+	 * Internal synonym for {@link AST#JLS12}. Use to alleviate
+	 * deprecation warnings.
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	private static final int JLS12 = AST.JLS12;
+	
 
 	/**
 	 * The string buffer into which the serialized representation of the AST is
@@ -1487,32 +1499,84 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if (node.isDefault()) {
-			this.buffer.append("default :\n");//$NON-NLS-1$
-		} else {
-			this.buffer.append("case ");//$NON-NLS-1$
-			node.getExpression().accept(this);
-			this.buffer.append(":\n");//$NON-NLS-1$
+		if (node.getAST().apiLevel() >= JLS12) {
+			if (!node.getExpression2().isEmpty()) {
+				for (Iterator it = node.getExpression2().iterator(); it.hasNext(); ) {
+					Expression t = (Expression) it.next();
+					if (node.isDefault()) {
+						if (node.isExpr()) {
+							this.buffer.append("default ->\n");//$NON-NLS-1$
+						}
+						else {
+							this.buffer.append("default :\n");//$NON-NLS-1$
+						}
+					} else {
+						this.buffer.append("case ");//$NON-NLS-1$
+						t.accept(this);
+						if (it.hasNext()) {
+							this.buffer.append(", ");//$NON-NLS-1$
+						} else {
+							if (node.isExpr()) {
+								this.buffer.append("->\n");//$NON-NLS-1$
+							}
+							else {
+								this.buffer.append(":\n");//$NON-NLS-1$
+							}
+						}
+					}
+				}
+			}
+		}
+		else {
+			if (node.isDefault()) {
+				this.buffer.append("default :\n");//$NON-NLS-1$
+			} else {
+				this.buffer.append("case ");//$NON-NLS-1$
+				node.getExpression().accept(this);
+				this.buffer.append(":\n");//$NON-NLS-1$
+			}
 		}
 		this.indent++; //decremented in visit(SwitchStatement)
 		return false;
 	}
 
-	@Override
-	public boolean visit(SwitchStatement node) {
+	private void visitSwitchNode(ASTNode node) {
 		this.buffer.append("switch (");//$NON-NLS-1$
-		node.getExpression().accept(this);
+		if (node instanceof SwitchExpression) {
+			((SwitchExpression)node).getExpression().accept(this);
+		} else if (node instanceof SwitchStatement) {
+			((SwitchStatement)node).getExpression().accept(this);
+		}
 		this.buffer.append(") ");//$NON-NLS-1$
 		this.buffer.append("{\n");//$NON-NLS-1$
 		this.indent++;
-		for (Iterator it = node.statements().iterator(); it.hasNext(); ) {
-			Statement s = (Statement) it.next();
-			s.accept(this);
-			this.indent--; // incremented in visit(SwitchCase)
+		if (node instanceof SwitchExpression) {
+			for (Iterator it = ((SwitchExpression)node).statements().iterator(); it.hasNext(); ) {
+				Statement s = (Statement) it.next();
+				s.accept(this);
+				this.indent--; // incremented in visit(SwitchCase)
+			}
+		} else if (node instanceof SwitchStatement) {
+			for (Iterator it = ((SwitchStatement)node).statements().iterator(); it.hasNext(); ) {
+				Statement s = (Statement) it.next();
+				s.accept(this);
+				this.indent--; // incremented in visit(SwitchCase)
+			}
 		}
 		this.indent--;
 		printIndent();
 		this.buffer.append("}\n");//$NON-NLS-1$
+			
+	}
+	@Override
+	public boolean visit(SwitchExpression node) {
+		visitSwitchNode(node);
+		return false;
+	}
+	
+	@Override
+	public boolean visit(SwitchStatement node) {
+		visitSwitchNode(node);
 		return false;
 	}
 
