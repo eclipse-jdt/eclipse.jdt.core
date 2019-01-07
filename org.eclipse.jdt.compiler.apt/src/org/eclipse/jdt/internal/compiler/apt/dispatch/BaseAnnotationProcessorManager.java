@@ -47,7 +47,7 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 	protected PrintWriter _out;
 	protected PrintWriter _err;
 	protected BaseProcessingEnvImpl _processingEnv;
-	protected boolean _isFirstRound = true;
+	public boolean _isFirstRound = true;
 	
 	/**
 	 * The list of processors that have been loaded so far.  A processor on this
@@ -161,9 +161,6 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 			}
 		}
 		RoundEnvImpl roundEnv = new RoundEnvImpl(units, referenceBindings, isLastRound, _processingEnv);
-		if (_isFirstRound) {
-			_isFirstRound = false;
-		}
 		PrintWriter traceProcessorInfo = _printProcessorInfo ? _out : null;
 		PrintWriter traceRounds = _printRounds ? _out : null;
 		if (traceRounds != null) {
@@ -172,5 +169,8 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 		RoundDispatcher dispatcher = new RoundDispatcher(
 				this, roundEnv, roundEnv.getRootAnnotations(), traceProcessorInfo, traceRounds);
 		dispatcher.round();
+		if (_isFirstRound) {
+			_isFirstRound = false;
+		}
 	}
 }

@@ -404,7 +404,11 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 			test.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = test.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
-			assertMarkers("Unexpected markers", "The package p1.p2 conflicts with a package accessible from another module: mod", markers);
+			assertMarkers("Unexpected markers",
+					"The package p1.p2 conflicts with a package accessible from another module: mod\n" + 
+					"The package p1.p2 is accessible from more than one module: <unnamed>, mod\n" + 
+					"The package p1.p2 is accessible from more than one module: <unnamed>, mod",
+					markers);
 
 			ICompilationUnit unit = getCompilationUnit("Test/src/q/Main.java");
 

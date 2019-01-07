@@ -213,14 +213,14 @@ public class SplitPackageBinding extends PackageBinding {
 	@Override
 	ReferenceBinding getType0(char[] name) {
 		ReferenceBinding knownType = super.getType0(name);
-		if (knownType != null)
+		if (knownType != null && !(knownType instanceof UnresolvedReferenceBinding))
 			return knownType;
 
 		ReferenceBinding candidate = null;
 		for (PackageBinding incarnation : this.incarnations) {
 			ReferenceBinding next = incarnation.getType0(name);
 			if (next != null) {
-				if (next.isValidBinding()) {
+				if (next.isValidBinding() && !(knownType instanceof UnresolvedReferenceBinding)) {
 					if (candidate != null)
 						return null; // unable to disambiguate without a module context
 					candidate = next;
@@ -268,13 +268,13 @@ public class SplitPackageBinding extends PackageBinding {
 	}
 
 	@Override
-	public PackageBinding getVisibleFor(ModuleBinding clientModule) {
+	public PackageBinding getVisibleFor(ModuleBinding clientModule, boolean preferLocal) {
 		int visibleCount = 0;
 		PackageBinding unique = null;
 		for (PackageBinding incarnation : this.incarnations) {
 			if (incarnation.hasCompilationUnit(false)) {
-				if (incarnation.enclosingModule == clientModule) {
-					return incarnation; // prefer local package over foreign
+				if (preferLocal && incarnation.enclosingModule == clientModule) {
+					return incarnation;
 				} else {
 					if (clientModule.canAccess(incarnation)) {
 						if (++visibleCount > 1)

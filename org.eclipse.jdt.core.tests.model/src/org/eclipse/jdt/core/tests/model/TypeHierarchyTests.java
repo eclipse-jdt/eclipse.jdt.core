@@ -3076,4 +3076,190 @@ public void testBug533949() throws CoreException {
 		if (javaProject2 != null) deleteProject(javaProject2);
 	}
 }
+
+public void testBug541217() throws CoreException {
+    if (!isJRE9) return;
+    IJavaProject javaProject1 = null;
+    try {
+        javaProject1 = createJava9Project("mod1");
+        String packA = "/mod1/src/a/";
+        createFolder(packA);
+        createFile(packA + "A.java",
+                        "package a;\n" +
+                        "public interface A extends java.sql.Driver{\n"+
+                        "}\n");
+        createFile("/mod1/src/module-info.java",
+                        "module mod1 {\n" +
+                        "       requires java.sql;\n"+
+                        "       exports a;\n"+
+                        "}\n");
+
+        waitUntilIndexesReady();
+
+        IType focus = javaProject1.findType("java.sql.Driver");
+        ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
+        IType[] allSubTypes = hierarchy.getAllSubtypes(focus);
+        assertTypesEqual("Incorrect sub hierarchy",
+                        "a.A\n",
+                        allSubTypes,
+                        true);
+    } finally{
+        if (javaProject1 != null) deleteProject(javaProject1);
+    }
+}
+public void testBug425111() throws Exception {
+	IJavaProject javaProject1 = null;
+	try {
+		javaProject1 = createJavaProject("P1", new String[] {"src"}, new String[] {"JCL18_FULL", "/P1/lib.jar"},"bin", "1.8");
+
+		createLibrary(javaProject1, "lib.jar", "lib-src.zip", 
+				new String[] {
+						"javax/tools/JavaFileManager.java",
+						"package javax.tools;\n" +
+						"public interface JavaFileManager extends AutoCloseable {}\n",
+						"javax/tools/ForwardingJavaFileManager.java",
+						"package javax.tools;\n" +
+						"public class ForwardingJavaFileManager<M extends JavaFileManager> implements JavaFileManager {\n" +
+						"	public void close() {}\n" +
+						"}\n"
+				},
+				null,
+				"1.8");
+		createFolder("/P1/src/p1");
+		createFile("/P1/src/p1/T.java",
+				"package p1;\n" +
+				"import javax.tools.*;\n" +
+				"public class T {\n" +
+				"	Object test() {\n" +
+				"		return new ForwardingJavaFileManager<JavaFileManager>(null) {\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n");
+		waitUntilIndexesReady();
+        IType focus = javaProject1.findType("java.lang.AutoCloseable");
+        ITypeHierarchy hierarchy = focus.newTypeHierarchy(null);
+        IType[] allSubTypes = hierarchy.getAllSubtypes(focus);
+        assertTypesEqual("Incorrect sub hierarchy",
+        		"java.io.BufferedInputStream\n" + 
+        				"java.io.BufferedOutputStream\n" + 
+        				"java.io.BufferedReader\n" + 
+        				"java.io.BufferedWriter\n" + 
+        				"java.io.ByteArrayInputStream\n" + 
+        				"java.io.ByteArrayOutputStream\n" + 
+        				"java.io.CharArrayReader\n" + 
+        				"java.io.CharArrayWriter\n" + 
+        				"java.io.Closeable\n" + 
+        				"java.io.DataInputStream\n" + 
+        				"java.io.DataOutputStream\n" + 
+        				"java.io.FileInputStream\n" + 
+        				"java.io.FileOutputStream\n" + 
+        				"java.io.FileReader\n" + 
+        				"java.io.FileWriter\n" + 
+        				"java.io.FilterInputStream\n" + 
+        				"java.io.FilterOutputStream\n" + 
+        				"java.io.FilterReader\n" + 
+        				"java.io.FilterWriter\n" + 
+        				"java.io.InputStream\n" + 
+        				"java.io.InputStreamReader\n" + 
+        				"java.io.LineNumberInputStream\n" + 
+        				"java.io.LineNumberReader\n" + 
+        				"java.io.ObjectInput\n" + 
+        				"java.io.ObjectInputStream\n" + 
+        				"java.io.ObjectOutput\n" + 
+        				"java.io.ObjectOutputStream\n" + 
+        				"java.io.OutputStream\n" + 
+        				"java.io.OutputStreamWriter\n" + 
+        				"java.io.PipedInputStream\n" + 
+        				"java.io.PipedOutputStream\n" + 
+        				"java.io.PipedReader\n" + 
+        				"java.io.PipedWriter\n" + 
+        				"java.io.PrintStream\n" + 
+        				"java.io.PrintWriter\n" + 
+        				"java.io.PushbackInputStream\n" + 
+        				"java.io.PushbackReader\n" + 
+        				"java.io.RandomAccessFile\n" + 
+        				"java.io.Reader\n" + 
+        				"java.io.SequenceInputStream\n" + 
+        				"java.io.StringBufferInputStream\n" + 
+        				"java.io.StringReader\n" + 
+        				"java.io.StringWriter\n" + 
+        				"java.io.Writer\n" + 
+        				"java.net.DatagramSocket\n" + 
+        				"java.net.FactoryURLClassLoader\n" + 
+        				"java.net.MulticastSocket\n" + 
+        				"java.net.ServerSocket\n" + 
+        				"java.net.Socket\n" + 
+        				"java.net.SocketInputStream\n" + 
+        				"java.net.SocketOutputStream\n" + 
+        				"java.net.URLClassLoader\n" + 
+        				"java.nio.channels.AsynchronousByteChannel\n" + 
+        				"java.nio.channels.AsynchronousChannel\n" + 
+        				"java.nio.channels.AsynchronousFileChannel\n" + 
+        				"java.nio.channels.AsynchronousServerSocketChannel\n" + 
+        				"java.nio.channels.AsynchronousSocketChannel\n" + 
+        				"java.nio.channels.ByteChannel\n" + 
+        				"java.nio.channels.Channel\n" + 
+        				"java.nio.channels.DatagramChannel\n" + 
+        				"java.nio.channels.FileChannel\n" + 
+        				"java.nio.channels.FileLock\n" + 
+        				"java.nio.channels.GatheringByteChannel\n" + 
+        				"java.nio.channels.InterruptibleChannel\n" + 
+        				"java.nio.channels.MulticastChannel\n" + 
+        				"java.nio.channels.NetworkChannel\n" + 
+        				"java.nio.channels.Pipe$SinkChannel\n" + 
+        				"java.nio.channels.Pipe$SourceChannel\n" + 
+        				"java.nio.channels.ReadableByteChannel\n" + 
+        				"java.nio.channels.ScatteringByteChannel\n" + 
+        				"java.nio.channels.SeekableByteChannel\n" + 
+        				"java.nio.channels.SelectableChannel\n" + 
+        				"java.nio.channels.Selector\n" + 
+        				"java.nio.channels.ServerSocketChannel\n" + 
+        				"java.nio.channels.SocketChannel\n" + 
+        				"java.nio.channels.WritableByteChannel\n" + 
+        				"java.nio.channels.spi.AbstractInterruptibleChannel\n" + 
+        				"java.nio.channels.spi.AbstractSelectableChannel\n" + 
+        				"java.nio.channels.spi.AbstractSelector\n" + 
+        				"java.nio.file.WatchService\n" + 
+        				"java.security.DigestInputStream\n" + 
+        				"java.security.DigestOutputStream\n" + 
+        				"java.sql.CallableStatement\n" + 
+        				"java.sql.Connection\n" + 
+        				"java.sql.PreparedStatement\n" + 
+        				"java.sql.ResultSet\n" + 
+        				"java.sql.Statement\n" + 
+        				"java.util.Formatter\n" + 
+        				"java.util.Scanner\n" + 
+        				"java.util.jar.JarFile\n" + 
+        				"java.util.jar.JarInputStream\n" + 
+        				"java.util.jar.JarOutputStream\n" + 
+        				"java.util.stream.AbstractPipeline\n" + 
+        				"java.util.stream.BaseStream\n" + 
+        				"java.util.stream.DoublePipeline\n" + 
+        				"java.util.stream.DoubleStream\n" + 
+        				"java.util.stream.IntPipeline\n" + 
+        				"java.util.stream.IntStream\n" + 
+        				"java.util.stream.LongPipeline\n" + 
+        				"java.util.stream.LongStream\n" + 
+        				"java.util.stream.ReferencePipeline\n" + 
+        				"java.util.stream.Stream\n" + 
+        				"java.util.zip.CheckedInputStream\n" + 
+        				"java.util.zip.CheckedOutputStream\n" + 
+        				"java.util.zip.DeflaterInputStream\n" + 
+        				"java.util.zip.DeflaterOutputStream\n" + 
+        				"java.util.zip.GZIPInputStream\n" + 
+        				"java.util.zip.GZIPOutputStream\n" + 
+        				"java.util.zip.InflaterInputStream\n" + 
+        				"java.util.zip.InflaterOutputStream\n" + 
+        				"java.util.zip.ZipFile\n" + 
+        				"java.util.zip.ZipInputStream\n" + 
+        				"java.util.zip.ZipOutputStream\n" + 
+        				"javax.tools.ForwardingJavaFileManager\n" + 
+        				"javax.tools.JavaFileManager\n" + 
+        				"p1.T$1\n",
+                        allSubTypes,
+                        true);
+	} finally {
+		if (javaProject1 != null) deleteProject(javaProject1);
+	}
+}
 }

@@ -42,7 +42,6 @@ import org.eclipse.jdt.core.dom.LineComment;
 import org.eclipse.jdt.core.dom.MemberRef;
 import org.eclipse.jdt.core.dom.MethodRef;
 import org.eclipse.jdt.core.dom.QualifiedName;
-import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -587,18 +586,6 @@ public class CommentsPreparator extends ASTVisitor {
 		if (node.getParent() instanceof Javadoc) {
 			assert this.ctm.toString(startIndex).startsWith(tagName);
 
-			boolean isParamTag = PARAM_TAGS.contains(tagName);
-			if (isParamTag && this.options.comment_insert_new_line_for_parameter && startIndex < endIndex) {
-				Token token = this.ctm.get(startIndex + 2);
-				token.breakBefore();
-			}
-			if (isParamTag && this.options.comment_indent_parameter_description) {
-				for (int i = startIndex + 2; i <= endIndex; i++) {
-					Token token = this.ctm.get(i);
-					token.setIndent(token.getIndent() + this.options.indentation_size);
-				}
-			}
-
 			Token startTokeen = this.ctm.get(startIndex);
 			if (startIndex > 1)
 				startTokeen.breakBefore();
@@ -611,7 +598,7 @@ public class CommentsPreparator extends ASTVisitor {
 		}
 
 		if (node.isNested() && IMMUTABLE_TAGS.contains(tagName) && startIndex < endIndex) {
-			disableFormatting(startIndex, endIndex);
+			disableFormatting(startIndex, endIndex, false);
 		}
 		return true;
 	}
@@ -619,34 +606,16 @@ public class CommentsPreparator extends ASTVisitor {
 	@Override
 	public void endVisit(TagElement node) {
 		String tagName = node.getTagName();
-		if (tagName == null || tagName.length() <= 1)
+		if (tagName == null || tagName.length() <= 1) {
 			handleHtml(node);
-
-		if (TagElement.TAG_SEE.equals(tagName))
+		} else if (TagElement.TAG_SEE.equals(tagName)) {
 			handleStringLiterals(this.tm.toString(node), node.getStartPosition());
-
-		if (PARAM_TAGS.contains(tagName) && this.options.comment_indent_parameter_description) {
-			// tokens in the first line should not be indented
-			int startIndex = this.ctm.findIndex(node.getStartPosition(), -1, false);
-			if (this.ctm.get(startIndex).tokenType != TokenNameNotAToken) {
-				int endIndex = this.ctm.lastIndexIn(node, -1);
-				int range = this.options.indentation_size;
-				for (int i = startIndex + 2; i <= endIndex && range > 0; i++) {
-					Token token = this.ctm.get(i);
-					if (token.getLineBreaksBefore() > 0)
-						break;
-					assert token.getIndent() >= this.options.indentation_size;
-					token.setIndent(token.getIndent() - this.options.indentation_size);
-					if (token.getLineBreaksAfter() > 0)
-						break;
-					range -= this.ctm.getLength(token, 0) + (token.isSpaceBefore() ? 1 : 0);
-				}
-			}
 		}
 	}
 
 	private void handleJavadocTagAlignment(Javadoc node) {
-		// Lists of tag tokens: index 0 for tag name, index 1 for param name (may be null), the rest for description
+		// Lists of tag tokens: index 0 for tag name, index 1 for param name (or throws etc) (may be null),
+		// the rest for description
 		List<List<Token>> javadocRootTags = new ArrayList<>();
 		List<TagElement> tagElements = node.tags();
 		for (TagElement tagElement : tagElements) {
@@ -661,8 +630,7 @@ public class CommentsPreparator extends ASTVisitor {
 
 			List<Token> tagTokens = new ArrayList<>();
 			tagTokens.add(this.ctm.get(startIndex));
-			if (!PARAM_TAGS.contains(tagName) || tagElement.fragments().isEmpty()
-					|| !(tagElement.fragments().get(0) instanceof SimpleName)) {
+			if (!PARAM_TAGS.contains(tagName)) {
 				tagTokens.add(null);
 			}
 			for (int i = startIndex + 1; i <= endIndex; i++) {
@@ -671,8 +639,6 @@ public class CommentsPreparator extends ASTVisitor {
 			javadocRootTags.add(tagTokens);
 		}
 		
-		// indent is used temporarily, tokens that are actually first in line
-		// will have this changed to align (indent is reserved for code inside <pre> tags)
 		if (this.options.comment_align_tags_names_descriptions) {
 			int maxTagNameLength = 0;
 			int maxParamNameLength = 0;
@@ -688,10 +654,7 @@ public class CommentsPreparator extends ASTVisitor {
 			if (maxParamNameLength > 0)
 				descriptionAlign += maxParamNameLength + 1;
 			for (List<Token> tagTokens : javadocRootTags) {
-				if (tagTokens.get(1) != null)
-					tagTokens.get(1).setIndent(paramNameAlign);
-				for (int i = 2; i < tagTokens.size(); i++)
-					tagTokens.get(i).setIndent(descriptionAlign);
+				alignJavadocTag(tagTokens, paramNameAlign, descriptionAlign);
 			}
 		} else if (this.options.comment_align_tags_descriptions_grouped) {
 			int groupStart = 0;
@@ -702,9 +665,7 @@ public class CommentsPreparator extends ASTVisitor {
 				String tagName = this.ctm.toString(tagTokens.get(0));
 				if (!tagName.equals(groupTagName)) {
 					for (int j = groupStart; j < i; j++) {
-						List<Token> tokens = javadocRootTags.get(j);
-						for (int k = 2; k < tokens.size(); k++)
-							tokens.get(k).setIndent(descriptionAlign);
+						alignJavadocTag(javadocRootTags.get(j), 0, descriptionAlign);
 					}
 					groupStart = i;
 					groupTagName = tagName;
@@ -716,17 +677,32 @@ public class CommentsPreparator extends ASTVisitor {
 				descriptionAlign = Math.max(descriptionAlign, indent);
 			}
 			for (int j = groupStart; j < javadocRootTags.size(); j++) {
-				List<Token> tokens = javadocRootTags.get(j);
-				for (int k = 2; k < tokens.size(); k++)
-					tokens.get(k).setIndent(descriptionAlign);
+				alignJavadocTag(javadocRootTags.get(j), 0, descriptionAlign);
 			}
-		} else if (this.options.comment_indent_root_tags) {
+		} else {
 			for (List<Token> tagTokens : javadocRootTags) {
-				Token tagName = tagTokens.get(0);
-				int indent = this.ctm.getLength(tagName, 0) + 1;
-				for (int i = 2; i < tagTokens.size(); i++)
-					tagTokens.get(i).setIndent(indent);
+				int tagNameLength = this.ctm.getLength(tagTokens.get(0), 0);
+				int align = this.options.comment_indent_root_tags ? tagNameLength + 1 : 0;
+				alignJavadocTag(tagTokens, 0, align);
 			}
+		}
+	}
+
+	private void alignJavadocTag(List<Token> tagTokens, int paramNameAlign, int descriptionAlign) {
+		Token paramName = tagTokens.get(1);
+		if (paramName != null) {
+			paramName.setAlign(paramNameAlign);
+			if (this.options.comment_insert_new_line_for_parameter && tagTokens.size() > 2) {
+				tagTokens.get(2).breakBefore();
+			}
+		}
+
+		boolean extraIndent = (paramName != null && this.options.comment_indent_parameter_description)
+				|| (paramName == null && this.options.comment_indent_tag_description);
+		for (int i = 2; i < tagTokens.size(); i++) {
+			Token token = tagTokens.get(i);
+			token.setAlign(descriptionAlign);
+			token.setIndent(extraIndent ? this.options.indentation_size : 0);
 		}
 	}
 
@@ -831,7 +807,7 @@ public class CommentsPreparator extends ASTVisitor {
 			if (startIndex != endIndex) {
 				startIndex = tokenStartingAt(startPosition);
 				endIndex = tokenEndingAt(endPosition);
-				disableFormatting(startIndex, endIndex);
+				disableFormatting(startIndex, endIndex, false);
 			}
 			noSubstituteWrapping(startPosition, endPosition);
 		}
@@ -876,10 +852,8 @@ public class CommentsPreparator extends ASTVisitor {
 			int openingTagIndex = tokenStartingAt(this.noFormatTagOpenStart);
 			int closingTagIndex = tokenEndingAt(end);
 			if (openingTagIndex < closingTagIndex) {
-				disableFormatting(openingTagIndex, closingTagIndex);
-				closingTagIndex = tokenEndingAt(end);
+				disableFormatting(openingTagIndex, closingTagIndex, true);
 			}
-			cleanupHTMLElement(openingTagIndex, closingTagIndex, false);
 			this.noFormatTagOpenStart = -1;
 		}
 	}
@@ -910,49 +884,38 @@ public class CommentsPreparator extends ASTVisitor {
 		}
 	}
 
-	private void cleanupHTMLElement(int openingTagIndex, int closingTagIndex, boolean formattedCode) {
-		Token previous = this.ctm.get(openingTagIndex);
-		int indent = previous.getIndent();
-		for (int i = openingTagIndex + 1; i < closingTagIndex; i++) {
+	private void fixJavadocTagAlign(Token baseToken, int fixFirstIndex) {
+		for (int i = fixFirstIndex; i < this.ctm.size() - 1; i++) {
 			Token token = this.ctm.get(i);
-			token.setToEscape(true);
-			if (formattedCode && (token.getLineBreaksBefore() > 0 || previous.getLineBreaksAfter() > 0))
-				token.setAlign(indent);
-			previous = token;
-		}
-		for (int i = closingTagIndex; i < this.ctm.size(); i++) {
-			Token token = this.ctm.get(i);
-			if (token.getIndent() == 0)
+			if (token.getAlign() == 0 && token.getIndent() == 0)
 				break;
-			token.setIndent(indent);
-			previous = token;
+			token.setAlign(baseToken.getAlign());
+			token.setIndent(baseToken.getIndent());
 		}
 	}
 
-	private void disableFormatting(int startIndex, int endIndex) {
+	private void disableFormatting(int startIndex, int endIndex, boolean isHtml) {
 		Token startToken = this.ctm.get(startIndex), endToken = this.ctm.get(endIndex);
-		Token noFormatToken = new Token(startToken.originalStart, endToken.originalEnd, TokenNameCOMMENT_JAVADOC);
 
-		List<Token> tokensToReplace = this.commentStructure.subList(startIndex, endIndex + 1);
-		if (this.ctm.countLineBreaksBetween(startToken, endToken) == 0) {
-			tokensToReplace.clear();
-			tokensToReplace.add(noFormatToken);
-		} else {
-			int commentStart = findCommentLineIndent(startIndex);
-			tokensToReplace.clear();
-			tokensToReplace.addAll(commentToLines(noFormatToken, commentStart));
-		}
-		Token first = tokensToReplace.get(0), last = tokensToReplace.get(tokensToReplace.size() - 1);
+		Token noFormatToken = new Token(startToken.originalStart, endToken.originalEnd, TokenNameCOMMENT_JAVADOC);
+		List<Token> lines = commentToLines(noFormatToken, findCommentLineIndent(startIndex));
+		for (Token line : lines)
+			line.setToEscape(isHtml);
+		Token first = lines.get(0);
 		if (startToken.isSpaceBefore())
 			first.spaceBefore();
+		first.setAlign(startToken.getAlign());
+		first.setIndent(startToken.getIndent());
 		first.putLineBreaksBefore(startToken.getLineBreaksBefore());
 		first.setWrapPolicy(startToken.getWrapPolicy());
-		if (endToken.isSpaceAfter())
-			last.spaceAfter();
+		Token  last = lines.get(lines.size() - 1);
 		last.putLineBreaksAfter(endToken.getLineBreaksAfter());
-		for (Token token : tokensToReplace)
-			if (token.tokenType == TokenNameCOMMENT_JAVADOC)
-				token.setIndent(startToken.getIndent());
+
+		fixJavadocTagAlign(startToken, endIndex + 1);
+
+		List<Token> tokensToReplace = this.commentStructure.subList(startIndex, endIndex + 1);
+		tokensToReplace.clear();
+		tokensToReplace.addAll(lines);
 	}
 
 	private void disableFormattingExclusively(int openingTagIndex, int closingTagIndex) {
@@ -961,8 +924,10 @@ public class CommentsPreparator extends ASTVisitor {
 		int noFormatEnd = this.ctm.get(closingTagIndex - 1).originalEnd;
 		if (noFormatStart <= noFormatEnd) {
 			Token noFormatToken = new Token(noFormatStart, noFormatEnd, TokenNameCOMMENT_JAVADOC);
-			int commentStart = findCommentLineIndent(openingTagIndex);
-			List<Token> lines = commentToLines(noFormatToken, commentStart);
+			List<Token> lines = commentToLines(noFormatToken, findCommentLineIndent(openingTagIndex));
+			for (Token line : lines)
+				line.setToEscape(true);
+			fixJavadocTagAlign(openingTag, closingTagIndex);
 			List<Token> tokensToReplace = this.commentStructure.subList(openingTagIndex + 1, closingTagIndex);
 			tokensToReplace.clear();
 			tokensToReplace.addAll(lines);
@@ -1021,11 +986,11 @@ public class CommentsPreparator extends ASTVisitor {
 		if (token.isSpaceBefore())
 			part1.spaceBefore();
 		part1.putLineBreaksBefore(token.getLineBreaksBefore());
-		if (token.isSpaceAfter())
-			part2.spaceAfter();
 		part2.putLineBreaksAfter(token.getLineBreaksAfter());
 		part1.setIndent(token.getIndent());
 		part2.setIndent(token.getIndent());
+		part1.setAlign(token.getAlign());
+		part2.setAlign(token.getAlign());
 		part1.setWrapPolicy(token.getWrapPolicy());
 		this.commentStructure.set(tokenIndex, part1);
 		this.commentStructure.add(tokenIndex + 1, part2);
@@ -1173,12 +1138,16 @@ public class CommentsPreparator extends ASTVisitor {
 
 		if (formattedTokens == null) {
 			disableFormattingExclusively(openingTagLastIndex, closingTagFirstIndex);
-			closingTagFirstIndex = tokenStartingAt(javadocNoFormatCloseStart);
-			cleanupHTMLElement(openingTagLastIndex, closingTagFirstIndex, false);
 			return;
 		}
 
 		formattedTokens = translateFormattedTokens(codeStartPosition, formattedTokens, positionMapping, null);
+
+		Token openingToken = this.ctm.get(openingTagLastIndex);
+		for (Token token : formattedTokens)
+			token.setAlign(token.getAlign() + openingToken.getAlign() + openingToken.getIndent());
+		fixJavadocTagAlign(openingToken, closingTagFirstIndex);
+		
 		// there are too few linebreaks at the start and end
 		Token start = formattedTokens.get(0);
 		start.putLineBreaksBefore(start.getLineBreaksBefore() + 1);
@@ -1190,7 +1159,6 @@ public class CommentsPreparator extends ASTVisitor {
 		List<Token> tokensToReplace = this.commentStructure.subList(openingTagLastIndex + 1, closingTagFirstIndex);
 		tokensToReplace.clear();
 		tokensToReplace.addAll(formattedTokens);
-		cleanupHTMLElement(openingTagLastIndex, openingTagLastIndex + formattedTokens.size() + 1, true);
 	}
 
 	private DefaultCodeFormatter getCommentCodeFormatter() {
@@ -1336,6 +1304,7 @@ public class CommentsPreparator extends ASTVisitor {
 						translationMap));
 			}
 			translated.putLineBreaksBefore(lineBreaks);
+			translated.setToEscape(true);
 			result.add(translated);
 			previousLineBreaks = token.getLineBreaksAfter();
 		}

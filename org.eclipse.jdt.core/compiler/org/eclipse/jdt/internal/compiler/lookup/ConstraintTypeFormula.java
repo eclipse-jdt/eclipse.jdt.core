@@ -335,7 +335,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				}
 				if (superCandidate instanceof CaptureBinding) {
 					CaptureBinding capture = (CaptureBinding) superCandidate;
-					if (capture.lowerBound != null && (capture.firstBound == null || capture.firstBound.id == TypeIds.T_JavaLangObject))
+					if (capture.lowerBound != null)
 						return ConstraintTypeFormula.create(subCandidate, capture.lowerBound, SUBTYPE, this.isSoft);
 				}
 				return FALSE;

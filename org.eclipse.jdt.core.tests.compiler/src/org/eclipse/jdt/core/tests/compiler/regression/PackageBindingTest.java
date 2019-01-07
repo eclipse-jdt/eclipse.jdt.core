@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 Sven Strohschein and others.
+ * Copyright (c) 2016, 2019 Sven Strohschein and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -37,7 +37,7 @@ public class PackageBindingTest extends AbstractCompilerTest
 		NameEnvironmentDummy nameEnv = new NameEnvironmentDummy(true);
 
 		PackageBinding packageBinding = new PackageBinding(new LookupEnvironment(null, new CompilerOptions(), null, nameEnv));
-		Binding resultBinding = packageBinding.getTypeOrPackage("java.lang".toCharArray(), null);
+		Binding resultBinding = packageBinding.getTypeOrPackage("java.lang".toCharArray(), null, false);
 		assertNotNull(resultBinding);
 
 		assertTrue(nameEnv.isPackageSearchExecuted);
@@ -54,7 +54,7 @@ public class PackageBindingTest extends AbstractCompilerTest
 
 		LookupEnvironment environment = new LookupEnvironment(null, new CompilerOptions(), null, nameEnv);
 		PackageBinding packageBinding = new PackageBinding(environment);
-		Binding resultBinding = packageBinding.getTypeOrPackage("java.lang.String".toCharArray(), environment.module);
+		Binding resultBinding = packageBinding.getTypeOrPackage("java.lang.String".toCharArray(), environment.module, false);
 		assertNull(resultBinding); // (not implemented)
 
 		assertTrue(nameEnv.isPackageSearchExecuted);

@@ -192,7 +192,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_QUALIFIED_ALLOCATION_EXPRESSION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_arguments_in_qualified_allocation_expression";	 //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option for alignment of assignment
+	 * FORMATTER / Option for alignment of assignment (=, +=, -=, *=, /=, %=, &=, ^=, |=, <<=, >>=, >>>=)
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_assignment"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
 	 *     - default:           createAlignmentValue(false, WRAP_NO_SPLIT, INDENT_DEFAULT)
@@ -203,13 +203,94 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_ASSIGNMENT  = JavaCore.PLUGIN_ID + ".formatter.alignment_for_assignment";	 //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option for alignment of expressions with multiplicative operators (*, /, %)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_multiplicative_operator"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_MULTIPLICATIVE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.alignment_for_multiplicative_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of expressions with additive operators (+, -)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_additive_operator"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_ADDITIVE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.alignment_for_additive_operator";	 //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of string concatenation expressions
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_string_concatenation"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_STRING_CONCATENATION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_string_concatenation";	 //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of expressions with shift operators (<<, >>, >>>)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_shift_operator"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_SHIFT_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.alignment_for_shift_operator";	 //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of expressions with relational operators (<, >, <=, >=, ==, !=)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_relational_operator"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_RELATIONAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.alignment_for_relational_operator";	 //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of expressions with bitwise operators (&, ^, |)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_bitwise_operator"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_BITWISE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.alignment_for_bitwise_operator";	 //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of expressions with logical operators (&&, ||)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_logical_operator"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_LOGICAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.alignment_for_logical_operator";	 //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option for alignment of binary expression
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_binary_expression"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
 	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
 	 * </pre>
+	 * 
 	 * @see #createAlignmentValue(boolean, int, int)
 	 * @since 3.0
+	 * @deprecated Use new settings instead: {@link #FORMATTER_ALIGNMENT_FOR_MULTIPLICATIVE_OPERATOR},
+	 *             {@link #FORMATTER_ALIGNMENT_FOR_ADDITIVE_OPERATOR}, {@link #FORMATTER_ALIGNMENT_FOR_STRING_CONCATENATION},
+	 *             {@link #FORMATTER_ALIGNMENT_FOR_BITWISE_OPERATOR}, {@link #FORMATTER_ALIGNMENT_FOR_LOGICAL_OPERATOR}
 	 */
 	public static final String FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_binary_expression";	 //$NON-NLS-1$
 	/**
@@ -1080,9 +1161,24 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see #TRUE
 	 * @see #FALSE
+	 * @see #FORMATTER_COMMENT_INDENT_TAG_DESCRIPTION
 	 * @since 3.1
 	 */
-	public final static String FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION = "org.eclipse.jdt.core.formatter.comment.indent_parameter_description"; //$NON-NLS-1$
+	public static final String FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION = "org.eclipse.jdt.core.formatter.comment.indent_parameter_description"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control whether Javadoc tag descriptions are indented when wrapped,
+	 *     excluding tags controlled by #FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.indent_return_description"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @see #FORMATTER_COMMENT_INDENT_PARAMETER_DESCRIPTION
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_COMMENT_INDENT_TAG_DESCRIPTION = "org.eclipse.jdt.core.formatter.comment.indent_tag_description"; //$NON-NLS-1$
 
 	/**
 	 * <pre>
@@ -4365,6 +4461,98 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.1
 	 */
 	public static final String FORMATTER_USE_TABS_ONLY_FOR_LEADING_INDENTATIONS = JavaCore.PLUGIN_ID + ".formatter.use_tabs_only_for_leading_indentations"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to wrap before the multiplicative operator (*, /, %)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_multiplicative_operator"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_MULTIPLE_FIELDS} is set.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_MULTIPLICATIVE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_multiplicative_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to wrap before the additive operator (+, -)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_additive_operator"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_ADDITIVE_OPERATOR} is set.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_ADDITIVE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_additive_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to wrap before the string concatenation operator
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_string_concatenation"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_STRING_CONCATENATION} is set.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_STRING_CONCATENATION = JavaCore.PLUGIN_ID + ".formatter.wrap_before_string_concatenation"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to wrap before the shift operator (<<, >>, >>>)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_shift_operator"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_SHIFT_OPERATOR} is set.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_SHIFT_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_shift_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to wrap before the relational operator (<, >, <=, >=, ==, !=)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_RELATIONAL_OPERATOR} is set.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_RELATIONAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_relational_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to wrap before the bitwise operator (&, ^, |)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_bitwise_operator"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_BITWISE_OPERATOR} is set.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_BITWISE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_bitwise_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to wrap before the logical operator (&&, ||)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_logical_operator"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_LOGICAL_OPERATOR} is set.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_LOGICAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_logical_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to wrap before the binary operator
@@ -4376,6 +4564,9 @@ public class DefaultCodeFormatterConstants {
 	 * @see #TRUE
 	 * @see #FALSE
 	 * @since 3.3
+	 * @deprecated Use the new options instead: {@link #FORMATTER_WRAP_BEFORE_MULTIPLICATIVE_OPERATOR},
+	 * {@link #FORMATTER_WRAP_BEFORE_ADDITIVE_OPERATOR}, {@link #FORMATTER_WRAP_BEFORE_STRING_CONCATENATION},
+	 * {@link #FORMATTER_WRAP_BEFORE_BITWISE_OPERATOR}, {@link #FORMATTER_WRAP_BEFORE_LOGICAL_OPERATOR}
 	 */
 	public static final String FORMATTER_WRAP_BEFORE_BINARY_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_binary_operator"; //$NON-NLS-1$
 	/**

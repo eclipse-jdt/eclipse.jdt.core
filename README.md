@@ -8,7 +8,7 @@ This is the core part of Eclipse's Java development tools. It contains the non-U
 * a Java source code formatter
 * APIs for code assist, access to the AST and structured manipulation of Java source.
 
-For more information, refer to the [JDT wiki page] [1] or the [JDT project overview page] [2].
+For more information and important links, refer to the [JDT wiki page] [1] or the [JDT project overview page] [2].
 
 License
 -------
@@ -16,5 +16,5 @@ License
 [Eclipse Public License (EPL) v1.0][3]
 
 [1]: http://wiki.eclipse.org/JDT_Core
-[2]: http://www.eclipse.org/projects/project.php?id=eclipse.jdt.core
+[2]: http://www.eclipse.org/projects/project.php?id=eclipse.jdt
 [3]: http://wiki.eclipse.org/EPL

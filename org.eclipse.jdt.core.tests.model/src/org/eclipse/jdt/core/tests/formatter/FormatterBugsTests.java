@@ -7532,8 +7532,8 @@ public void testBug328240() {
 		"	 *            a <code>String</coe> value that will be the text of\n" +
 		"	\n" +
 		"	* the paragraph.\n" +
-		"	 * @return a <code>Paragraph</code> containing the the text passed as the\n" +
-		"	 *         reportHeader parameter.\n" +
+		"	 * &#64;return a <code>Paragraph</code> containing the the text passed as\n" +
+		"	 *            the reportHeader parameter.\n" +
 		"	 */\n" +
 		"\n" +
 		"	public static String createReportHeader(String reportHeader) {\n" +
@@ -11216,7 +11216,7 @@ public void testBug472009() {
  * https://bugs.eclipse.org/474629 - [save actions][clean up] Exceptions thrown
  */
 public void testBug474629() {
-	this.formatterPrefs.alignment_for_binary_expression |= Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.alignment_for_additive_operator |= Alignment.M_INDENT_ON_COLUMN;
 	String source = "aaaaa + bbbb";
 	formatSource(source, source, CodeFormatter.K_EXPRESSION, 0, true);
 }
@@ -12918,6 +12918,23 @@ public void testBug536552b() {
 	String source =
 		"/* comment */\n" + 
 		"class C {\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/542625 - Formatter fails with OOM when parentheses for if statements are preserving positions
+ */
+public void testBug542625() {
+	this.formatterPrefs.parenthesis_positions_in_if_while_statement = DefaultCodeFormatterConstants.PRESERVE_POSITIONS;
+	String source =
+		"class C {\n" + 
+		"	void m() {\n" + 
+		"		//\n" + 
+		"		//\n" + 
+		"		if (\n" + 
+		"			true)\n" + 
+		"			;\n" + 
+		"	}\n" + 
 		"}";
 	formatSource(source);
 }

@@ -8704,4 +8704,88 @@ public void test406396a() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
+public void testBug542829() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
+	
+	// m.Issing is a type that comes and goes:
+	String nameMissing = "m/Issing.java";
+	String contentMissing =
+		"package m;\n" +
+		"public class Issing {\n" +
+		"	g.Ood getGood() { return new g.Ood(); }\n" +
+		"}\n";
+
+	Runner runner = new Runner();
+	runner.generateOutput = true;
+	runner.testFiles = new String[] {
+		"g/Ood.java",
+		"package g;\n" +
+		"public class Ood {\n" +
+		"	@Override public String toString() {\n" +
+		"		return \"good\";\n" +
+		"	}\n" +
+		"}\n",
+		"g/Ontainer.java",
+		"package g;\n" +
+		"import java.util.*;\n" +
+		"import m.Issing;\n" +
+		"public class Ontainer {\n" +
+		"	public List<Issing> getElements() { return new ArrayList<>(); }\n" + // <= reference to m.Issing here (OK)
+		"}\n",
+		nameMissing,
+		contentMissing
+	};
+	runner.expectedCompilerLog = null;
+	runner.runConformTest();
+
+	// now we break it:
+	Util.delete(new File(OUTPUT_DIR + File.separator + "m" + File.separator + "Issing.class"));
+	runner.shouldFlushOutputDirectory = false;
+	
+	// in this class file a MissingTypes attribute ("m/Issing") is generated:
+	runner.testFiles = new String[] {
+		"b/Roken.java",
+		"package b;\n" +
+		"import g.Ood;" +
+		"public class Roken {\n" +
+		"	Ood getGood(m.Issing provider) {\n" + // <= argument type is missing (we still have the qualified name, though)
+		"		return provider.getGood();\n" +
+		"	}\n\n" +
+		"}\n"
+	};
+	runner.expectedCompilerLog =
+		"----------\n" + 
+		"1. ERROR in b\\Roken.java (at line 3)\n" + 
+		"	Ood getGood(m.Issing provider) {\n" + 
+		"	            ^^^^^^^^\n" + 
+		"m.Issing cannot be resolved to a type\n" + 
+		"----------\n";
+	runner.runNegativeTest();
+
+	// restore the class as binary:
+	runner.testFiles = new String[] {
+		nameMissing,
+		contentMissing
+	};
+	runner.expectedCompilerLog = null;
+	runner.runConformTest();
+
+	// next compilation has two references to m.Issing:
+	runner.testFiles = new String[] {
+		"t/Rigger.java",
+		"package t;\n" +
+		"import b.Roken;\n" + // <= Here we pull in the MissingTypes("m/Issing") attribute into an UnresolvedReferenceBinding
+		"public class Rigger {}\n",
+		"t/Est.java",
+		"package t;\n" +
+		"public class Est {\n" +
+		"	void foo(g.Ontainer container) {\n" +
+		"		for (m.Issing miss: container.getElements()) {\n" + // <= Here we resolve a qualified name from g/Ontainer.class but don't trust it!
+		"			System.out.print(miss);\n" +
+		"		}\n" +
+		"	}\n" +
+		"}\n"
+	};
+	runner.runConformTest();
+}
 }

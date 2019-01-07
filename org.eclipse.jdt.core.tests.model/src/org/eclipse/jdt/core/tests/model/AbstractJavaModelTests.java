@@ -471,6 +471,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		entries[length] = entry;
 		project.setRawClasspath(entries, null);
 	}
+	protected void addClasspathEntry(IJavaProject project, IClasspathEntry entry, int position) throws JavaModelException{
+		IClasspathEntry[] entries = project.getRawClasspath();
+		int length = entries.length;
+		IClasspathEntry[] newEntries = new IClasspathEntry[length + 1];
+		for (int srcIdx = 0, tgtIdx = 0; tgtIdx < length+1; tgtIdx++) {
+			newEntries[tgtIdx] = (tgtIdx == position) ? entry : entries[srcIdx++];
+		}
+		project.setRawClasspath(newEntries, null);
+	}
 	protected void addClassFolder(IJavaProject javaProject, String folderRelativePath, String[] pathAndContents, String compliance) throws CoreException, IOException {
 		IProject project = javaProject.getProject();
 		String projectLocation = project.getLocation().toOSString();

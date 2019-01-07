@@ -22,12 +22,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -61,6 +65,7 @@ import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
+import org.eclipse.osgi.service.environment.Constants;
 
 import junit.framework.Test;
 
@@ -801,6 +806,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		if ("macosx".equals(System.getProperty("osgi.os"))) {
 			return;
 		}
+		assertUTF8Encoding();
 		IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib376673.jar", "JCL17_LIB" }, "", "1.7");
 		IPath jarPath = p.getProject().getLocation().append("lib376673.jar");
 		
@@ -2872,5 +2878,30 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 
 		return buffer.toByteArray();
+	}
+
+	private void assertUTF8Encoding() {
+		String fileEncodingVMProperty = System.getProperty("file.encoding");
+		Charset defaultCharset = Charset.defaultCharset();
+		String langEnvVariable = System.getenv("LANG");
+		StringBuilder errorMessage = new StringBuilder();
+		errorMessage.append(System.lineSeparator());
+		errorMessage.append("Unexpected encoding during test, encoding parameters are:");
+		errorMessage.append(System.lineSeparator());
+		errorMessage.append("-Dfile.encoding=" + fileEncodingVMProperty);
+		errorMessage.append(System.lineSeparator());
+		errorMessage.append("Charset.defaultCharset()=" + defaultCharset);
+		errorMessage.append(System.lineSeparator());
+		errorMessage.append("LANG=" + langEnvVariable);
+
+		assertEquals("unexpected default charset " + errorMessage, StandardCharsets.UTF_8, defaultCharset);
+		if (Constants.OS_LINUX.equals(System.getProperty("osgi.os"))) {
+			assertNotNull("expected LANG environment variable to be set" + errorMessage, langEnvVariable);
+			String utf8LANGRegexp = ".*\\.(UTF-8|UTF8|utf-8|utf8)";
+			Pattern utf8LANGPattern = Pattern.compile(utf8LANGRegexp);
+			Matcher LANGMatcher = utf8LANGPattern.matcher(langEnvVariable);
+			assertTrue("expected encoding set with LANG environment variable to match regexp: " + utf8LANGRegexp + ", LANG=" + langEnvVariable + errorMessage,
+					LANGMatcher.matches());
+		}
 	}
 }

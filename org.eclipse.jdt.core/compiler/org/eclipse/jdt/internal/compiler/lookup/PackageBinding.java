@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -233,7 +233,7 @@ ReferenceBinding getType0(char[] name) {
 * THIS SHOULD ONLY BE USED BY SOURCE TYPES/SCOPES.
 */
 
-public Binding getTypeOrPackage(char[] name, ModuleBinding mod) {
+public Binding getTypeOrPackage(char[] name, ModuleBinding mod, boolean splitPackageAllowed) {
 	ReferenceBinding problemBinding = null;
 	ReferenceBinding referenceBinding = getType0(name);
 	lookForType0:
@@ -255,6 +255,9 @@ public Binding getTypeOrPackage(char[] name, ModuleBinding mod) {
 
 	PackageBinding packageBinding = getPackage0(name);
 	if (packageBinding != null && packageBinding != LookupEnvironment.TheNotFoundPackage) {
+		if (!splitPackageAllowed && packageBinding instanceof SplitPackageBinding) {
+			return ((SplitPackageBinding) packageBinding).getVisibleFor(mod, false);
+		}
 		return packageBinding;
 	}
 	lookForType:
@@ -278,6 +281,9 @@ public Binding getTypeOrPackage(char[] name, ModuleBinding mod) {
 
 	if (packageBinding == null) { // have not looked for it before
 		if ((packageBinding = findPackage(name, mod)) != null) {
+			if (!splitPackageAllowed && packageBinding instanceof SplitPackageBinding) {
+				return ((SplitPackageBinding) packageBinding).getVisibleFor(mod, false);
+			}
 			return packageBinding;
 		}
 		if (referenceBinding != null && referenceBinding != LookupEnvironment.TheNotFoundType) {
@@ -430,7 +436,7 @@ public boolean isExported() {
  * In case of multiple accessible foreign packages a SplitPackageBinding is returned
  * to indicate a conflict.
  */
-public PackageBinding getVisibleFor(ModuleBinding module) {
+public PackageBinding getVisibleFor(ModuleBinding module, boolean preferLocal) {
 	return this;
 }
 public boolean hasCompilationUnit(boolean checkCUs) {

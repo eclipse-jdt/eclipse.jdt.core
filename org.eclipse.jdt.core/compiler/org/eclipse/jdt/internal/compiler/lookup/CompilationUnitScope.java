@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -424,7 +424,7 @@ void faultInImports() {
 				continue nextImport;
 			}
 			if (importBinding instanceof PackageBinding) {
-				PackageBinding uniquePackage = ((PackageBinding)importBinding).getVisibleFor(module());
+				PackageBinding uniquePackage = ((PackageBinding)importBinding).getVisibleFor(module(), false);
 				if (uniquePackage instanceof SplitPackageBinding) {
 					SplitPackageBinding splitPackage = (SplitPackageBinding) uniquePackage;
 					problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, importReference.sourceEnd);
@@ -438,6 +438,12 @@ void faultInImports() {
 			recordImportBinding(new ImportBinding(compoundName, true, importBinding, importReference));
 		} else {
 			Binding importBinding = findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, importReference.isStatic());
+			if (importBinding instanceof SplitPackageBinding) {
+				SplitPackageBinding splitPackage = (SplitPackageBinding) importBinding;
+				int sourceEnd = (int)(importReference.sourcePositions[splitPackage.compoundName.length-1] & 0xFFFF);
+				problemReporter().conflictingPackagesFromModules((SplitPackageBinding) importBinding, importReference.sourceStart, sourceEnd);
+				continue nextImport;
+			}
 			if (!importBinding.isValidBinding()) {
 				if (importBinding.problemId() == ProblemReasons.Ambiguous) {
 					// keep it unless a duplicate can be found below
@@ -462,7 +468,7 @@ void faultInImports() {
 					// re-get to find a possible split package:
 					importedPackage = (PackageBinding) findImport(importedPackage.compoundName, false, true);
 					if (importedPackage != null)
-						importedPackage = importedPackage.getVisibleFor(module());
+						importedPackage = importedPackage.getVisibleFor(module(), true);
 					if (importedPackage instanceof SplitPackageBinding) {
 						SplitPackageBinding splitPackage = (SplitPackageBinding) importedPackage;
 						int sourceEnd = (int) importReference.sourcePositions[splitPackage.compoundName.length-1];
@@ -530,16 +536,24 @@ private Binding findImport(char[][] compoundName, int length) {
 	foundNothingOrType: if (binding != null) {
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (i < length) {
-			binding = packageBinding.getTypeOrPackage(compoundName[i++], module);
+			binding = packageBinding.getTypeOrPackage(compoundName[i++], module, i<length);
 			if (binding instanceof ReferenceBinding && binding.problemId() == ProblemReasons.NotAccessible) {
 				return this.environment.convertToRawType((TypeBinding) binding, false /*do not force conversion of enclosing types*/);
 			}
-			if (binding == null || !binding.isValidBinding()) {
+			if (binding == null) {
+				break foundNothingOrType;
+			} else if (!binding.isValidBinding()) {
+				if (binding.problemId() == ProblemReasons.Ambiguous && packageBinding instanceof SplitPackageBinding)
+					return packageBinding; // pass the split package to the caller so they can report conflictingPackagesFromModules()
 				binding = null;
 				break foundNothingOrType;
 			}
-			if (!(binding instanceof PackageBinding))
+			if (!(binding instanceof PackageBinding)) {
+				PackageBinding visibleFor = packageBinding.getVisibleFor(module, false); // filter out empty parent-packages
+				if (visibleFor instanceof SplitPackageBinding)
+					return visibleFor;
 				break foundNothingOrType;
+			}
 
 			packageBinding = (PackageBinding) binding;
 		}
@@ -597,7 +611,7 @@ private Binding findSingleStaticImport(char[][] compoundName, int mask) {
 
 	char[] name = compoundName[compoundName.length - 1];
 	if (binding instanceof PackageBinding) {
-		Binding temp = ((PackageBinding) binding).getTypeOrPackage(name, module());
+		Binding temp = ((PackageBinding) binding).getTypeOrPackage(name, module(), false);
 		if (temp != null && temp instanceof ReferenceBinding) // must resolve to a member type or field, not a top level type
 			return new ProblemReferenceBinding(compoundName, (ReferenceBinding) temp, ProblemReasons.InvalidTypeForStaticImport);
 		return binding; // cannot be a package, error is caught in sender
@@ -653,7 +667,7 @@ ImportBinding[] getDefaultImports() {
 
 	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA);
 	if (importBinding != null)
-		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1], module());
+		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1], module(), false);
 
 	if (importBinding == null || !importBinding.isValidBinding()) {
 		// create a proxy for the missing BinaryType

@@ -251,6 +251,32 @@ public class FilerTesterProc extends AbstractProcessor {
 				pw.close();
 		}
 	}
+	public void testBug542090a(Element e, String pkg, String relName) throws Exception {
+		if (++roundNo > 1) 
+			return;
+		JavaFileObject jfo = _filer.createSourceFile(pkg + "." + relName);
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(jfo.openWriter());
+			pw.println("package " + pkg + ";\npublic class " + relName + "{ }");
+		}
+		finally {
+			if (pw != null)
+				pw.close();
+		}
+	}
+	public void testBug542090b(Element e, String pkg, String relName) throws Exception {
+		JavaFileObject jfo = _filer.createSourceFile(pkg + "." + relName);
+		PrintWriter pw = null;
+		try {
+			pw = new PrintWriter(jfo.openWriter());
+			pw.println("package " + pkg + ";\npublic class " + relName + "{ }");
+		}
+		finally {
+			if (pw != null)
+				pw.close();
+		}
+	}
 	public void testBug534979InModule(Element e, String pkg, String relName) throws Exception {
 		JavaFileObject jfo = _filer.createSourceFile(pkg+"."+relName, e.getEnclosingElement());
 		PrintWriter pw = null;

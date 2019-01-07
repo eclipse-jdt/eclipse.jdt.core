@@ -148,7 +148,7 @@ public class SwitchStatement extends Expression {
 			final TypeBinding resolvedTypeBinding = this.expression.resolvedType;
 			if (resolvedTypeBinding.isEnum()) {
 				final SourceTypeBinding sourceTypeBinding = currentScope.classScope().referenceContext.binding;
-				this.synthetic = sourceTypeBinding.addSyntheticMethodForSwitchEnum(resolvedTypeBinding);
+				this.synthetic = sourceTypeBinding.addSyntheticMethodForSwitchEnum(resolvedTypeBinding, this);
 			}
 			// if no default case, then record it may jump over the block directly to the end
 			if (this.defaultCase == null) {

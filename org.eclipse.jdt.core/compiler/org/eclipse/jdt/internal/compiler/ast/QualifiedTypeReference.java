@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -120,7 +120,7 @@ public class QualifiedTypeReference extends TypeReference {
 	    int typeStart = packageBinding == null ? 0 : packageBinding.compoundName.length;
 	    
 	    if (packageBinding != null) {
-	    	PackageBinding uniquePackage = packageBinding.getVisibleFor(scope.module());
+	    	PackageBinding uniquePackage = packageBinding.getVisibleFor(scope.module(), false);
 	    	if (uniquePackage instanceof SplitPackageBinding) {
 	    		SplitPackageBinding splitPackage = (SplitPackageBinding) uniquePackage;
     			scope.problemReporter().conflictingPackagesFromModules(splitPackage, this.sourceStart, (int)this.sourcePositions[typeStart-1]);

@@ -126,13 +126,13 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			this.workingOptions = new DefaultCodeFormatterOptions(options);
 			this.oldCommentFormatOption = getOldCommentFormatOption(options);
 			String compilerSource = options.get(CompilerOptions.OPTION_Source);
-			this.sourceLevel = compilerSource != null ? compilerSource : CompilerOptions.VERSION_1_8;
+			this.sourceLevel = compilerSource != null ? compilerSource : CompilerOptions.VERSION_11;
 		} else {
 			Map<String, String> settings = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 			this.originalOptions = new DefaultCodeFormatterOptions(settings);
 			this.workingOptions = new DefaultCodeFormatterOptions(settings);
 			this.oldCommentFormatOption = DefaultCodeFormatterConstants.TRUE;
-			this.sourceLevel = CompilerOptions.VERSION_1_8;
+			this.sourceLevel = CompilerOptions.VERSION_11;
 		}
 		if (defaultCodeFormatterOptions != null) {
 			this.originalOptions.set(defaultCodeFormatterOptions.getMap());
@@ -332,8 +332,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private ASTParser createParser(int kind) {
-		@SuppressWarnings("deprecation")
-		ASTParser parser = ASTParser.newParser(AST.JLS9);
+		ASTParser parser = ASTParser.newParser(AST.JLS11);
 
 		if (kind == K_MODULE_INFO) {
 			parser.setSource(createDummyModuleInfoCompilationUnit());

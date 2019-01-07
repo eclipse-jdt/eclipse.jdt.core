@@ -1211,6 +1211,16 @@ public void boundMustBeAnInterface(ASTNode location, TypeBinding type) {
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void bytecodeExceeds64KLimit(SwitchStatement switchStatement) {
+	TypeBinding enumType = switchStatement.expression.resolvedType;
+	this.handle(
+		IProblem.BytecodeExceeds64KLimitForSwitchTable,
+		new String[] {new String(enumType.readableName())},
+		new String[] {new String(enumType.shortReadableName())},
+		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
+		switchStatement.sourceStart(),
+		switchStatement.sourceEnd());
+}
 public void bytecodeExceeds64KLimit(MethodBinding method, int start, int end) {
 	this.handle(
 		IProblem.BytecodeExceeds64KLimit,

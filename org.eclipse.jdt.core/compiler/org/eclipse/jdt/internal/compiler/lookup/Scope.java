@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2977,7 +2977,7 @@ public abstract class Scope {
 		int currentIndex = 1, length = compoundName.length;
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (currentIndex < length) {
-			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module());
+			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module(), currentIndex<length);
 			if (binding == null) {
 				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), null /* no closest match since search for pkg*/, ProblemReasons.NotFound);
 			}
@@ -3048,7 +3048,7 @@ public abstract class Scope {
 		if (packageBinding == null)
 			return getType(name);
 
-		Binding binding = packageBinding.getTypeOrPackage(name, module());
+		Binding binding = packageBinding.getTypeOrPackage(name, module(), false);
 		if (binding == null) {
 			return new ProblemReferenceBinding(
 				CharOperation.arrayConcat(packageBinding.compoundName, name),
@@ -3104,7 +3104,7 @@ public abstract class Scope {
 		if (binding instanceof PackageBinding) {
 			PackageBinding packageBinding = (PackageBinding) binding;
 			while (currentIndex < typeNameLength) {
-				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module()); // does not check visibility
+				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module(), currentIndex<typeNameLength); // does not check visibility
 				if (binding == null) {
 					char[][] qName = CharOperation.subarray(compoundName, 0, currentIndex);
 					return new ProblemReferenceBinding(
@@ -3325,7 +3325,7 @@ public abstract class Scope {
 			// check if the name is in the current package, skip it if its a sub-package
 			PackageBinding currentPackage = unitScope.fPackage;
 			unitScope.recordReference(currentPackage.compoundName, name);
-			Binding binding = currentPackage.getTypeOrPackage(name, module());
+			Binding binding = currentPackage.getTypeOrPackage(name, module(), false);
 			if (binding instanceof ReferenceBinding) {
 				ReferenceBinding referenceType = (ReferenceBinding) binding;
 				if ((referenceType.tagBits & TagBits.HasMissingType) == 0) {
@@ -3441,7 +3441,7 @@ public abstract class Scope {
 			PackageBinding packageBinding = (PackageBinding) binding;
 
 			while (currentIndex < nameLength) {
-				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module());
+				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module(), currentIndex<nameLength);
 				if (binding == null)
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),

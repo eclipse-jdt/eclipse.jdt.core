@@ -4706,7 +4706,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test356() {
 		Map options = DefaultCodeFormatterConstants.getEclipse21Settings();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.TAB);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION, DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_DEFAULT));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_MULTIPLICATIVE_OPERATOR, DefaultCodeFormatterConstants.createAlignmentValue(false, DefaultCodeFormatterConstants.WRAP_COMPACT, DefaultCodeFormatterConstants.INDENT_DEFAULT));
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test356", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
@@ -5561,31 +5561,6 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49162
-	 */
-	public void _test419() {
-		Map options = DefaultCodeFormatterConstants.getEclipse21Settings();
-		options.put(
-				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
-				DefaultCodeFormatterConstants.createAlignmentValue(true, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT));
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
-		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		runTest(codeFormatter, "test419", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49623
-	 */
-	public void _test420() {
-		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
-		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.align_type_members_on_columns = true;
-		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
-		runTest(codeFormatter, "test420", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=49298
 	 */
 	public void test421() {
@@ -6106,7 +6081,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 						DefaultCodeFormatterConstants.INDENT_BY_ONE
 				));
 		options.put(
-				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_STRING_CONCATENATION,
 				DefaultCodeFormatterConstants.createAlignmentValue(
 						false,
 						DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE,
@@ -6123,7 +6098,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test460() {
 		Map options = DefaultCodeFormatterConstants.getEclipse21Settings();
 		options.put(
-				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ADDITIVE_OPERATOR,
 				DefaultCodeFormatterConstants.createAlignmentValue(
 						false,
 						DefaultCodeFormatterConstants.WRAP_COMPACT,
@@ -8809,8 +8784,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	// Binary expression
 	public void test601() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
-		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
-				DefaultCodeFormatterConstants.createAlignmentValue(true, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT));
+		String alignment = DefaultCodeFormatterConstants.createAlignmentValue(true, DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE, DefaultCodeFormatterConstants.INDENT_DEFAULT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ADDITIVE_OPERATOR, alignment);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_MULTIPLICATIVE_OPERATOR, alignment);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_LOGICAL_OPERATOR, alignment);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.TAB);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_USE_TABS_ONLY_FOR_LEADING_INDENTATIONS, DefaultCodeFormatterConstants.TRUE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "60");
@@ -9032,7 +9009,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		String resourcePath = getResource("test617", "formatter.xml");
 		Map options = DecodeCodeFormatterPreferences.decodeCodeFormatterOptions(resourcePath, "JRK");
 		assertNotNull("No preferences", options);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_STRING_CONCATENATION,
 				DefaultCodeFormatterConstants.createAlignmentValue(
 					true,
 					DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE,
@@ -9171,7 +9148,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test625() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		options.put(
-				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_STRING_CONCATENATION,
 				DefaultCodeFormatterConstants.createAlignmentValue(
 						true,
 						DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE,
@@ -9591,13 +9568,13 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 						DefaultCodeFormatterConstants.INDENT_BY_ONE
 				));
 		options.put(
-				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_BINARY_EXPRESSION,
+				DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_STRING_CONCATENATION,
 				DefaultCodeFormatterConstants.createAlignmentValue(
 						false,
 						DefaultCodeFormatterConstants.WRAP_ONE_PER_LINE,
 						DefaultCodeFormatterConstants.INDENT_BY_ONE
 				));
-		options.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_BINARY_OPERATOR, DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_STRING_CONCATENATION, DefaultCodeFormatterConstants.FALSE);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test664", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
@@ -14556,5 +14533,179 @@ public void testBug205973j() throws JavaModelException {
 	this.formatterPrefs.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
 	String input = getCompilationUnit("Formatter", "", "test205973", "J_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test205973", "J_out.java").getSource());
+}
+
+/**
+ * https://bugs.eclipse.org/541133 - [formatter] javadoc: no indent of @return description
+ */
+public void testBug541133a() {
+	this.formatterPrefs.comment_align_tags_descriptions_grouped = false;
+	this.formatterPrefs.comment_indent_parameter_description = false;
+	this.formatterPrefs.comment_indent_tag_description = true;
+	String source =
+		"class C {\n" + 
+		"	/**\n" + 
+		"	 * @param bar param description should NOT get additional indentation when it's wrapped\n" + 
+		"	 * @return return description should get additional indentation when it's wrapped\n" + 
+		"	 */\n" + 
+		"	String foo(String bar) {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"class C {\n" + 
+		"	/**\n" + 
+		"	 * @param bar param description should NOT get additional indentation when it's\n" + 
+		"	 * wrapped\n" + 
+		"	 * @return return description should get additional indentation when it's\n" + 
+		"	 *     wrapped\n" + 
+		"	 */\n" + 
+		"	String foo(String bar) {\n" + 
+		"	}\n" + 
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/541133 - [formatter] javadoc: no indent of @return description
+ */
+public void testBug541133b() {
+	this.formatterPrefs.comment_indent_root_tags = true;
+	this.formatterPrefs.comment_indent_parameter_description = false;
+	this.formatterPrefs.comment_indent_tag_description = true;
+	String source =
+		"class C {\n" + 
+		"	/**\n" + 
+		"	 * @deprecated Do not use this class, it's only to test formatting on. One two three four five six seven eight nine ten\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"class C {\n" + 
+		"	/**\n" + 
+		"	 * @deprecated Do not use this class, it's only to test formatting on. One two\n" + 
+		"	 *                 three four five six seven eight nine ten\n" + 
+		"	 */\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/541133 - [formatter] javadoc: no indent of @return description
+ */
+public void testBug541133c() {
+	this.formatterPrefs.comment_indent_tag_description = true;
+	String source =
+		"/**\n" + 
+		" * Mensagens SMTP tem o seguinte formato:\n" + 
+		" * \n" + 
+		" * <pre>\n" + 
+		" * resposta de uma linha só:\n" + 
+		" * </pre>\n" + 
+		" * \n" + 
+		" * {@link java.lang.String </code>a simple string<code>}.\n" +
+		" * \n" + 
+		" * @deprecated Mensagens SMTP tem o seguinte formato:\n" + 
+		" * \n" + 
+		" *                 <pre>\n" + 
+		" *                 resposta de uma linha só:\n" + 
+		" *                 </pre>\n" + 
+		" */";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/541133 - [formatter] javadoc: no indent of @return description
+ */
+public void testBug541133d() {
+	String source =
+		"/**\n" + 
+		" * @return something <pre>\n" + 
+		" * class Runnable {\n" + 
+		" * 	// Hello really bad Ganymede formatter !!!\n" + 
+		" * 	// Shit happens when somebody tries to change a running system\n" + 
+		" * }</pre> something\n" + 
+		" */";
+	formatSource(source,
+		"/**\n" + 
+		" * @return something\n" + 
+		" * \n" + 
+		" *         <pre>\n" + 
+		" *         class Runnable {\n" + 
+		" *         	// Hello really bad Ganymede formatter !!!\n" + 
+		" *         	// Shit happens when somebody tries to change a running system\n" + 
+		" *         }\n" + 
+		" *         </pre>\n" + 
+		" * \n" + 
+		" *         something\n" + 
+		" */");
+}
+
+/**
+ * https://bugs.eclipse.org/543079 - [formatter] wrapping binary expressions: separate options for operator types
+ */
+public void testBug543079a() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_multiplicative_operator = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.wrap_before_multiplicative_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test543079", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543079", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543079 - [formatter] wrapping binary expressions: separate options for operator types
+ */
+public void testBug543079b() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_additive_operator = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.wrap_before_additive_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test543079", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543079", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543079 - [formatter] wrapping binary expressions: separate options for operator types
+ */
+public void testBug543079c() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_string_concatenation = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.wrap_before_string_concatenation = false;
+	String input = getCompilationUnit("Formatter", "", "test543079", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543079", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543079 - [formatter] wrapping binary expressions: separate options for operator types
+ */
+public void testBug543079d() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_shift_operator = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.wrap_before_shift_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test543079", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543079", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543079 - [formatter] wrapping binary expressions: separate options for operator types
+ */
+public void testBug543079e() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_relational_operator = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.wrap_before_relational_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test543079", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543079", "E_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543079 - [formatter] wrapping binary expressions: separate options for operator types
+ */
+public void testBug543079f() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_bitwise_operator = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.wrap_before_bitwise_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test543079", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543079", "F_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543079 - [formatter] wrapping binary expressions: separate options for operator types
+ */
+public void testBug543079g() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_logical_operator = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.wrap_before_logical_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test543079", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543079", "G_out.java").getSource());
 }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -276,9 +276,9 @@ public abstract class HierarchyBuilder {
 /**
  * Create an ICompilationUnit info from the given compilation unit on disk.
  */
-	protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file) {
+	protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file, char[] moduleName) {
 		final char[] elementName = handle.getElementName().toCharArray();
-		return new ResourceCompilationUnit(file, null) {
+		return new ResourceCompilationUnit(file, moduleName) {
 			@Override
 			public char[] getFileName() {
 				return elementName;
