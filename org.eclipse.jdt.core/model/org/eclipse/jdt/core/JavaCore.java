@@ -2582,14 +2582,14 @@ public final class JavaCore extends Plugin {
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"enabled"</code></dd>
+	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
-	 * @since 3.16 BETA_JAVA_12
+	 * @since 3.17 BETA_JAVA_12
 	 */
 	public static final String COMPILER_PB_ENABLE_PREVIEW_FEATURES = PLUGIN_ID + ".compiler.problem.enablePreviewFeatures"; //$NON-NLS-1$
 	/**
-	 * Compiler option ID: Reporting Unused Local.
+	 * Compiler option ID: Reporting Preview features.
 	 * <p>When enabled, the compiler will issue an error or a warning when a preview feature is used</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportPreviewFeatures"</code></dd>
@@ -2597,7 +2597,7 @@ public final class JavaCore extends Plugin {
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
-	 * @since 3.16 BETA_JAVA_12
+	 * @since 3.17 BETA_JAVA_12
 	 */
 	public static final String COMPILER_PB_REPORT_PREVIEW_FEATURES = PLUGIN_ID + ".compiler.problem.reportPreviewFeatures"; //$NON-NLS-1$
 	/**
@@ -3058,7 +3058,7 @@ public final class JavaCore extends Plugin {
 	public static final String VERSION_11 = "11"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
-	 * @since 3.16
+	 * @since 3.17
 	 * @category OptionValue
 	 */
 	public static final String VERSION_12 = "12"; //$NON-NLS-1$

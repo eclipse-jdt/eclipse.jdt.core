@@ -2049,11 +2049,11 @@ void setSourceStart(int sourceStart);
 	int LambdaShapeComputationError = 1101;
 	/** @since 3.13 */
 	int ProblemNotAnalysed = 1102;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
 	int PreviewFeatureDisabled = Syntax + 1103;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
 	int PreviewFeatureUsed = Syntax + 1104;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
 	int PreviewFeatureNotSupported = Syntax + 1105;
 	
 	/** @since 3.13 */
@@ -2088,29 +2088,29 @@ void setSourceStart(int sourceStart);
 	int VarIsNotAllowedHere = Syntax + 1511; // ''var'' is not allowed here
 	/** @since 3.16 */
 	int VarCannotBeMixedWithNonVarParams = Syntax + 1512; // ''var'' cannot be mixed with explicit or implicit parameters
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
 	int SwitchExpressionsIncompatibleResultExpressionTypes = TypeRelated + 1600;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
 	int SwitchExpressionsEmptySwitchBlock = Internal + 1601;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
 	int SwitchExpressionsNoResultExpression = TypeRelated + 1602;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
 	int SwitchExpressionSwitchLabeledBlockCompletesNormally = Internal + 1603;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
 	int SwitchExpressionLastStatementCompletesNormally = Internal + 1604;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
 	int SwitchExpressionTrailingSwitchLabels = Internal + 1605;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
 	int switchMixedCase = Syntax + 1606;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
 	int SwitchExpressionMissingDefaultCase = Internal + 1607;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
     int SwitchExpressionNotBelow12 = Internal + Syntax + 1608;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
     int SwitchCaseLabelWithArrowNotBelow12 = Internal + Syntax + 1609;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
     int SwitchExpressionPreviewDisabled = Internal + Syntax + 1610;
-	/** @since 3.16 BETA_JAVA_12 */
+	/** @since 3.17 BETA_JAVA_12 */
     int SwitchCaseLabelWithArrowPreviewDisabled = Internal + Syntax + 1611;
 
 	}
