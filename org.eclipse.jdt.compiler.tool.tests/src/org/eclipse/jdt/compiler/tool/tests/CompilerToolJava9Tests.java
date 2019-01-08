@@ -82,7 +82,7 @@ public class CompilerToolJava9Tests extends TestCase {
 			return;
 		this.compilers = new JavaCompiler[2];
 		this.compilerNames = new String[2];
-		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class);
+		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class, EclipseCompiler.class.getClassLoader());
 		int compilerCounter = 0;
 		for (JavaCompiler compiler : javaCompilerLoader) {
 			compilerCounter++;
