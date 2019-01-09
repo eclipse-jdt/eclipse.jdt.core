@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -6026,6 +6026,8 @@ public final class JavaCore extends Plugin {
 	 * <li>{@link #COMPILER_PB_ASSERT_IDENTIFIER}</li>
 	 * <li>{@link #COMPILER_PB_ENUM_IDENTIFIER}</li>
 	 * <li>{@link #COMPILER_CODEGEN_INLINE_JSR_BYTECODE} for compliance levels 1.5 and greater</li>
+	 * <li>{@link #COMPILER_PB_ENABLE_PREVIEW_FEATURES} for compliance levels 11 and greater</li>
+	 * <li>{@link #COMPILER_PB_REPORT_PREVIEW_FEATURES} for compliance levels 11 and greater</li>
 	 * </ul>
 	 *
 	 * <p>If the given compliance is unknown, the given map is unmodified.</p>
@@ -6112,6 +6114,8 @@ public final class JavaCore extends Plugin {
 					options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
 					options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
 					options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+					options.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
+					options.put(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.WARNING);
 				}
 				break;
 		}
