@@ -83,9 +83,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		this.compilers = new JavaCompiler[2];
 		this.compilerNames = new String[2];
 		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class, EclipseCompiler.class.getClassLoader());
-		int compilerCounter = 0;
 		for (JavaCompiler compiler : javaCompilerLoader) {
-			compilerCounter++;
 			if (compiler instanceof EclipseCompiler) {
 				this.compilers[1] = compiler;
 				this.compilerNames[1] = "Eclipse Compiler";
@@ -93,7 +91,6 @@ public class CompilerToolJava9Tests extends TestCase {
 		}
 		this.compilerNames[0] = "System compiler";
 		this.compilers[0] = ToolProvider.getSystemJavaCompiler();
-		assertEquals("Only one compiler available: " + Arrays.toString(compilers), 2, compilerCounter);
 		assertNotNull("System compiler unavailable", this.compilers[0]);
 		assertNotNull("Eclipse compiler unavailable", this.compilers[1]);
 		initializeLocations();
