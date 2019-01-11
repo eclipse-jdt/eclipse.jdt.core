@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1145,6 +1145,12 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 		ConditionalExpression ternary = (ConditionalExpression) this;
 		if (ternary.valueIfTrue.forcedToBeRaw(referenceContext) || ternary.valueIfFalse.forcedToBeRaw(referenceContext)) {
 			return true;
+		}
+	} else if (this instanceof SwitchExpression) {
+		SwitchExpression se = (SwitchExpression) this;
+		for (Expression e : se.resultExpressions) {
+			if (e.forcedToBeRaw(referenceContext))
+				return true;
 		}
 	}
 	return false;

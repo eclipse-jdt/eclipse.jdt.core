@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 IBM Corporation and others.
+ * Copyright (c) 2018, 2019 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,8 +22,13 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.VANILLA_CO
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -44,6 +49,14 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	private TypeBinding[] finalValueResultExpressionTypes;
 
 	public List<Expression> resultExpressions;
+	private static Map<TypeBinding, TypeBinding[]> type_map;
+
+	static {
+		type_map = new HashMap<TypeBinding, TypeBinding[]>();
+		type_map.put(TypeBinding.CHAR, new TypeBinding[] {TypeBinding.CHAR, TypeBinding.BYTE, TypeBinding.INT});
+		type_map.put(TypeBinding.SHORT, new TypeBinding[] {TypeBinding.SHORT, TypeBinding.BYTE, TypeBinding.INT});
+		type_map.put(TypeBinding.BYTE, new TypeBinding[] {TypeBinding.BYTE, TypeBinding.INT});
+	}
 
 	@Override
 	public void setExpressionContext(ExpressionContext context) {
@@ -54,7 +67,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	public void setExpectedType(TypeBinding expectedType) {
 		this.expectedType = expectedType;
 	}
-	
+
 	@Override
 	public ExpressionContext getExpressionContext() {
 		return this.expressionContext;
@@ -136,7 +149,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	@Override
 	public boolean isFunctionalType() {
 		for (Expression e : this.resultExpressions) {
-			if (e.isFunctionalType())
+			if (e.isFunctionalType()) // return true even for one functional type
 				return true;
 		}
 		return false;
@@ -273,7 +286,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	@Override
 	public TypeBinding resolveType(BlockScope upperScope) {
 		try {
-			// JLS12 15.29.1
+			this.constant = Constant.NotAConstant;
 
 			// tag break statements and (alongwih in the same pass) collect the result expressions
 			collectResultExpressions();
@@ -303,7 +316,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 					e.setExpectedType(this.expectedType);
 				}
 			}
-			
+
 			if (this.originalValueResultExpressionTypes == null) {
 				this.originalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
 				this.finalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
@@ -318,10 +331,10 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				}
 				return this.resolvedType = computeConversions(this.scope, this.expectedType) ? this.expectedType : null;
 			}
-			
+
 			if (resultExpressionsCount == 1)
 				return this.originalValueResultExpressionTypes[0];
-			
+
 			boolean typeUniformAcrossAllArms = true;
 			TypeBinding tmp = this.originalValueResultExpressionTypes[0];
 			for (int i = 1, l = this.originalValueResultExpressionTypes.length; i < l; ++i) {
@@ -358,14 +371,19 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				}
 				return this.resolvedType = TypeBinding.BOOLEAN;
 			}
-			
+
 			/*
-			 * Otherwise, if the type of each result expression is convertible to a numeric type (5.1.8),
-			 * the type of the switch expression is given by numeric promotion (5.6.3) applied to the result expressions.
+			 * Otherwise, if the type of each result expression is convertible to a numeric type (5.1.8), the type
+			 * of the switch expression is given by numeric promotion (5.6.3) applied to the result expressions.
 			 */
 			boolean typeNumeric = true;
-			TypeBinding resultNumeric = this.originalValueResultExpressionTypes[0];
-			HashSet<TypeBinding> typeSet = new HashSet<>(); // for inconclusive in first attempt
+			TypeBinding resultNumeric = null;
+			HashSet<TypeBinding> typeSet = new HashSet<>();
+			/*  JLS 12 5.6.3 Switch Numeric Promotion
+			 * When a switch expression applies numeric promotion to a set of result expressions, each of which
+			 * must denote a value that is convertible to a numeric type, the following rules apply, in order:
+			 *  If any result expression is of a reference type, it is subjected to unboxing conversion (5.1.8).
+			 */
 			for (int i = 0; i < resultExpressionsCount; ++i) {
 				tmp = this.originalValueResultExpressionTypes[i].isNumericType() ?
 						this.originalValueResultExpressionTypes[i] :
@@ -374,12 +392,34 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 					typeNumeric = false;
 					break;
 				}
-				resultNumeric = getFirstResults(tmp, this.resultExpressions.get(i), resultNumeric);
 				typeSet.add(TypeBinding.wellKnownType(this.scope, tmp.id));
 			}
 			if (typeNumeric) {
-				resultNumeric = resultNumeric != null ? resultNumeric :
-					getResultNumeric(typeSet, this.originalValueResultExpressionTypes);
+				 /* If any result expression is of type double, then other result expressions that are not of type double
+				 *  are widened to double.
+				 *  Otherwise, if any result expression is of type float, then other result expressions that are not of
+				 *  type float are widened to float.
+				 *  Otherwise, if any result expression is of type long, then other result expressions that are not of 
+				 *  type long are widened to long.
+				 */
+				TypeBinding[] dfl = new TypeBinding[]{// do not change the order JLS 12 5.6.3
+						TypeBinding.DOUBLE,
+						TypeBinding.FLOAT,
+						TypeBinding.LONG};
+				for (TypeBinding binding : dfl) {
+					if (typeSet.contains(binding)) {
+						resultNumeric = binding;
+						break;
+					}
+				}
+
+				 /*  Otherwise, if any result expression is of type int and is not a constant expression, the other 
+				 *  result expressions that are not of type int are widened to int.
+				 */
+				resultNumeric = resultNumeric != null ? resultNumeric : check_nonconstant_int();
+
+				resultNumeric = resultNumeric != null ? resultNumeric : // one among the first few rules applied.
+					getResultNumeric(typeSet, this.originalValueResultExpressionTypes); // check the rest
 				typeSet = null; // hey gc!
 				for (int i = 0; i < resultExpressionsCount; ++i) {
 					// auto-unboxing and/or widening/narrrowing JLS 12 5.6.3
@@ -388,14 +428,13 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 					this.finalValueResultExpressionTypes[i] = resultNumeric;
 				}
 				// After the conversion(s), if any, value set conversion (5.1.13) is then applied to each result expression.
-				// TODO: check whether 5.6.3 automatically done - check CE.resolveType() as well.
 				return this.resolvedType = resultNumeric;
 			}
-			
+
 			/* Otherwise, boxing conversion (5.1.7) is applied to each result expression that has a primitive type,
 			 * after which the type of the switch expression is the result of applying capture conversion (5.1.10)
 			 * to the least upper bound (4.10.4) of the types of the result expressions.
-			 */		
+			 */
 			for (int i = 0; i < resultExpressionsCount; ++i) {
 				if (this.finalValueResultExpressionTypes[i].isBaseType())
 					this.finalValueResultExpressionTypes[i] = env.computeBoxingType(this.finalValueResultExpressionTypes[i]);
@@ -412,27 +451,18 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			return null;
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
-
 		}
 	}
-	/*
-	 * pre-req: type.isNumeric() true
-	 */
-	private TypeBinding getFirstResults(TypeBinding type, Expression expr, TypeBinding resultNumeric) {
-		if (resultNumeric == null || TypeBinding.equalsEquals(type, resultNumeric))
-			return resultNumeric;
-		int[] typeId = new int[]{T_double, T_float, T_long};
-		for (int id : typeId) {
-			if (resultNumeric.id == id || type.id == id)
-				return TypeBinding.wellKnownType(this.scope, id);
+	private TypeBinding check_nonconstant_int() {
+		for (int i = 0, l = this.resultExpressions.size(); i < l; ++i) {
+			Expression e = this.resultExpressions.get(i);
+			TypeBinding type = this.originalValueResultExpressionTypes[i];
+			if (type.id == T_int && e.constant == Constant.NotAConstant)
+				return TypeBinding.INT;
 		}
-		if (type.id == T_int && expr.constant != Constant.NotAConstant)
-			return TypeBinding.INT;
 		return null;
 	}
-	private boolean isIntegerConvertible(TypeBinding targetType) {
-		if (TypeBinding.equalsEquals(targetType, TypeBinding.INT))
-			return true;
+	private boolean areAllIntegerResultExpressionsConvertibleToTargetType(TypeBinding targetType) {
 		for (int i = 0, l = this.resultExpressions.size(); i < l; ++i) {
 			Expression e = this.resultExpressions.get(i);
 			TypeBinding t = this.originalValueResultExpressionTypes[i];
@@ -442,24 +472,90 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		}
 		return true;
 	}
-	private TypeBinding getResultNumeric(HashSet<TypeBinding> typeSet, TypeBinding[] armTypes) {
-		if (typeSet.contains(TypeBinding.CHAR) && typeSet.contains(TypeBinding.SHORT)) {
-			return TypeBinding.INT;
+	private TypeBinding check_csb(Set<TypeBinding> typeSet, TypeBinding candidate) {
+		if (!typeSet.contains(candidate))
+			return null;
+
+		TypeBinding[] allowedTypes = SwitchExpression.type_map.get(candidate);
+		Set<TypeBinding> allowedSet = Arrays.stream(allowedTypes).collect(Collectors.toSet());
+
+		if (!allowedSet.containsAll(typeSet))
+			return null;
+
+		return areAllIntegerResultExpressionsConvertibleToTargetType(candidate) ?
+				candidate : null;
+	}
+	private TypeBinding getResultNumeric(Set<TypeBinding> typeSet, TypeBinding[] armTypes) {
+		// note: if an expression has a type integer, then it will be a constant 
+		// since non-constant integers are already processed before reaching here.
+
+		/*
+		 * Otherwise, if any result expression is of type char, and every other result expression is either of
+		 * type char, or of type byte, or a constant expression of type int with a value that is representable
+		 * in the type char, then the byte results are widened to char and the int results are narrowed to char.
+		 */
+
+		 /*  Otherwise, if any result expression is of type short, and every other result expression is either of
+		 *  type short, or of type byte, or a constant expression of type int with a value that is representable
+		 *  in the type short, then the byte results are widened to short and the int results are narrowed to
+		 *  short.
+		 */
+		 /*  Otherwise, if any result expression is of type byte, and every other result expression is either of
+		 *  type byte or a constant expression of type int with a value that is representable in the type byte,
+		 *  then the int results are narrowed to byte.
+		 */
+
+		// DO NOT Change the order below [as per JLS 12 5.6.3 item 2, sub-items 5,6 and 7].
+		TypeBinding[] csb = new TypeBinding[] {TypeBinding.CHAR, TypeBinding.SHORT, TypeBinding.BYTE};
+		for (TypeBinding c : csb) {
+			TypeBinding result = check_csb(typeSet, c);
+			if (result != null)
+				return result;
 		}
-		TypeBinding[] types = new TypeBinding[] { TypeBinding.CHAR, TypeBinding.SHORT, TypeBinding.BYTE };
-		for (TypeBinding t : types) {
-			if (typeSet.contains(t) && isIntegerConvertible(t))
-				return t;
-		}
+		 /*  Otherwise, all the result expressions that are not of type int are widened to int. */
 		return TypeBinding.INT;
 	}
 	@Override
-	public boolean isPolyExpression() throws UnsupportedOperationException {
-
+	public boolean isPolyExpression() {
 		if (this.isPolyExpression)
 			return true;
-
+		// JLS 12 15.29.1 A switch expression is a poly expression if it appears in an assignment context or
+		// an invocation context (5.2, 5.3). Otherwise, it is a standalone expression.
 		return this.isPolyExpression = this.expressionContext == ASSIGNMENT_CONTEXT || 
 				this.expressionContext == INVOCATION_CONTEXT;
+	}
+	@Override
+	public boolean isCompatibleWith(TypeBinding left, Scope skope) {
+		if (!isPolyExpression())
+			return super.isCompatibleWith(left, skope);
+
+		for (Expression e : this.resultExpressions) {
+			if (!e.isCompatibleWith(left, skope))
+				return false;
+		}
+		return true;
+	}
+	@Override
+	public boolean isBoxingCompatibleWith(TypeBinding targetType, Scope skope) {
+		if (!isPolyExpression())
+			return super.isBoxingCompatibleWith(targetType, skope);
+
+		for (Expression e : this.resultExpressions) {
+			if (!(e.isCompatibleWith(targetType, skope) || e.isBoxingCompatibleWith(targetType, skope)))
+				return false;
+		}
+		return true;
+	}
+	@Override
+	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope skope) {
+		if (super.sIsMoreSpecific(s, t, skope))
+			return true;
+		if (!isPolyExpression())
+			return false;
+		for (Expression e : this.resultExpressions) {
+			if (!e.sIsMoreSpecific(s, t, skope))
+				return false;
+		}
+		return true;
 	}
 }

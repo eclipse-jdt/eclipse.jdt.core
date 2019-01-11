@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -6068,7 +6068,8 @@ public boolean expressionNonNullComparison(Expression expr, boolean checkForNull
 			|| expr instanceof ThisReference) {
 		// fall through to bottom
 	} else if (expr instanceof Literal
-				|| expr instanceof ConditionalExpression) {
+				|| expr instanceof ConditionalExpression
+				|| expr instanceof SwitchExpression) {
 		if (expr instanceof NullLiteral) {
 			needImplementation(location); // reported as nonnull??
 			return false;
