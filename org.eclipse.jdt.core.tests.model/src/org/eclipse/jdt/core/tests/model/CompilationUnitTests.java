@@ -2428,6 +2428,63 @@ public void test120902() throws CoreException {
 	}
 }
 
+public void test543266() throws CoreException {
+	try {
+		String source = 
+				"/**\r\n" + 
+				"	 * enum A\r\n" + 
+				"	 */\r\n" + 
+				"	public /** V1 */ enum  /** V2 */ A  /** V3 */ {\r\n" + 
+				"		/** A */\r\n" + 
+				"		a /**/, /**/ //\r\n" + 
+				"		/** B */\r\n" + 
+				"		b,\r\n" + 
+				"		/** C */\r\n" + 
+				"		/*\r\n" + 
+				"		 * \r\n" + 
+				"		 */\r\n" + 
+				"		/** Real C */\r\n" + 
+				"		c\r\n" + 
+				"	}";
+		createFile("/P/src/X.java", source);
+		final ICompilationUnit compilationUnit = getCompilationUnit("/P/src/X.java");
+		
+		IType type = compilationUnit.getType("A");
+		final ISourceRange javadocRangeClass = type.getJavadocRange();
+		final int startClass = javadocRangeClass.getOffset();
+		final int endClass = javadocRangeClass.getLength() + startClass - 1;
+		String javadocSourceClass = source.substring(startClass, endClass);
+		assertTrue("Wrong javadoc", javadocSourceClass.indexOf("enum A") != -1);
+
+		IJavaElement[] children = type.getChildren();
+		for(IJavaElement child : children) {
+			final ISourceRange javadocRange = ((IMember) child).getJavadocRange();
+			final String elementName = child.getElementName();
+			
+			if("a".equals(elementName)) {
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("A") != -1);
+			}
+			else if("b".equals(elementName)) {
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("B") != -1);
+			}
+			else if("c".equals(elementName)) {
+				final int start = javadocRange.getOffset();
+				final int end = javadocRange.getLength() + start - 1;
+				String javadocSource = source.substring(start, end);
+				assertTrue("Wrong javadoc", javadocSource.indexOf("Real C") != -1);
+			}
+		}
+	} finally {
+		deleteFile("/P/src/X.java");
+	}
+}
+
 public void testApplyEdit() throws CoreException {
 	try {
 		String source =
