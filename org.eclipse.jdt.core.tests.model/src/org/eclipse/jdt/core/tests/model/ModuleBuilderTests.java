@@ -193,7 +193,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = this.currentProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"The import java.sql cannot be resolved\n" + 
+					"The type java.sql.Connection is not accessible\n" + 
 					"Connection cannot be resolved to a type", markers);
 		} finally {
 		}
@@ -300,7 +300,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"The import com.greetings cannot be resolved\n" + 
+					"The type com.greetings.Main is not accessible\n" + 
 					"Main cannot be resolved", 
 					markers);
 		} finally {
@@ -593,7 +593,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
-					"The import com.greetings cannot be resolved\n" + 
+					"The type com.greetings.Main is not accessible\n" + 
 					"Main cannot be resolved",  markers);
 		} finally {
 			deleteProject("P2");
@@ -4925,7 +4925,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers in mod.two", 
-					"The import org cannot be resolved\n" + // cannot use cyclic requires 
+					"The type org.astro.World is not accessible\n" + // cannot use cyclic requires 
 					"Cycle exists in module dependencies, Module mod.two requires itself via mod.one\n" + 
 					"World cannot be resolved to a type",
 					markers);
@@ -6401,8 +6401,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"----------\n" + 
 					"1. ERROR in /mod1/src/com/mod1/pack1/Dummy.java (at line 2)\n" + 
 					"	import org.junit.Assert;\n" + 
-					"	       ^^^\n" + 
-					"The import org cannot be resolved\n" + 
+					"	       ^^^^^^^^^^^^^^^^\n" + 
+					"The type org.junit.Assert is not accessible\n" + 
 					"----------\n" + 
 					"2. ERROR in /mod1/src/com/mod1/pack1/Dummy.java (at line 3)\n" + 
 					"	public class Dummy extends Assert {\n" + 
@@ -6415,7 +6415,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = javaProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"The import org cannot be resolved\n" + 
+					"The type org.junit.Assert is not accessible\n" + 
 					"Assert cannot be resolved to a type", 
 					markers);
 		} finally {
@@ -7507,6 +7507,82 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		} finally {
 			if (java10Project != null)
 				deleteProject(java10Project);
+		}
+	}
+	public void testBug543392a() throws Exception {
+		bug543392(null);
+	}
+	public void testBug543392b() throws Exception {
+		// put other on the *modulepath*:
+		IClasspathAttribute[] attrs = { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+		bug543392(attrs);
+	}
+	void bug543392(IClasspathAttribute[] dependencyAttrs) throws Exception {
+		IJavaProject other = createJava9Project("other");
+		IJavaProject current = createJava9Project("current");
+		try {
+			createFile("other/src/module-info.java",
+					"module other {\n" +
+					"	exports other.p;\n" +
+					"}\n");
+			createFolder("other/src/other/p");
+			createFile("other/src/other/p/C.java",
+					"package other.p;\n" +
+					"public class C {}\n");
+
+			addClasspathEntry(current,
+					JavaCore.newProjectEntry(other.getProject().getFullPath(), null, false, dependencyAttrs, false)); // dependency, but ..
+			createFile("current/src/module-info.java", "module current {}\n"); // ... no 'requires'!
+			createFolder("current/src/current");
+
+			String test1path = "current/src/current/Test1.java";
+			String test1source =
+					"package current;\n" +
+					"import other.p.C;\n" +
+					"public class Test1 {\n" +
+					"}\n";
+			createFile(test1path, test1source);
+			String test2path = "current/src/current/Test2.java";
+			String test2source =
+					"package current;\n" +
+					"public class Test2 {\n" +
+					"	other.p.C c;\n" +
+					"}\n";
+			createFile(test2path, test2source);
+
+			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			IMarker[] markers = current.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers",
+					"The type other.p.C is not accessible\n" +
+					"The type other.p.C is not accessible",
+					markers);
+
+			char[] sourceChars = test1source.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			getCompilationUnit(test1path).getWorkingCopy(this.wcOwner, null);
+			assertProblems("unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /current/src/current/Test1.java (at line 2)\n" + 
+					"	import other.p.C;\n" + 
+					"	       ^^^^^^^^^\n" + 
+					"The type other.p.C is not accessible\n" + 
+					"----------\n",
+					this.problemRequestor);
+			sourceChars = test2source.toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			getCompilationUnit(test2path).getWorkingCopy(this.wcOwner, null);
+			assertProblems("unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /current/src/current/Test2.java (at line 3)\n" + 
+					"	other.p.C c;\n" + 
+					"	^^^^^^^^^\n" + 
+					"The type other.p.C is not accessible\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject(other);
+			deleteProject(current);
 		}
 	}
 

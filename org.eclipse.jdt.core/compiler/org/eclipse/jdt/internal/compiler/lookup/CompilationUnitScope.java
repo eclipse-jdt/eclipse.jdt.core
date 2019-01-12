@@ -565,7 +565,7 @@ private Binding findImport(char[][] compoundName, int length) {
 	ReferenceBinding type;
 	if (binding == null) {
 		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
-			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), null, ProblemReasons.NotFound);
+			return problemType(compoundName, i, null);
 		type = findType(compoundName[0], this.environment.defaultPackage, this.environment.defaultPackage);
 		if (type == null || !type.isValidBinding())
 			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), null, ProblemReasons.NotFound);
