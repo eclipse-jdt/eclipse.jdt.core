@@ -379,7 +379,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * @return a test suite ({@link Test})
 	 */
 	public static Test buildModelTestSuite(int minCompliance, Class evaluationTestClass) {
-		if ((AbstractCompilerTest.getPossibleComplianceLevels() & minCompliance) != 0)
+		if (AbstractCompilerTest.getPossibleComplianceLevels() >= minCompliance)
 			return buildModelTestSuite(evaluationTestClass, ORDERING);
 		return new Suite(evaluationTestClass.getName());
 	}
@@ -510,6 +510,20 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String[] nonJavaResources, String compliance) throws CoreException, IOException {
 		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, nonJavaResources, null, null, compliance, null);
+	}
+	protected IClasspathAttribute[] moduleAttribute() {
+		return new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
+	}
+	protected IClasspathEntry newModularLibraryEntry(IPath path, IPath sourceAttachmentPath, IPath sourceAttachmentRootPath) {
+		return JavaCore.newLibraryEntry(path, sourceAttachmentPath, sourceAttachmentRootPath, null, moduleAttribute(), false);
+	}
+	protected void addModularLibraryEntry(IJavaProject project, IPath libraryPath, IPath sourceAttachmentPath) throws JavaModelException {
+		addClasspathEntry(project, newModularLibraryEntry(libraryPath, sourceAttachmentPath, null));
+	}
+	protected void addModularLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
+		createLibrary(javaProject, jarName, sourceZipName, pathAndContents, null, compliance);
+		IPath projectPath = javaProject.getPath();
+		addModularLibraryEntry(javaProject, projectPath.append(jarName), projectPath.append(sourceZipName));
 	}
 	protected void addLibrary(
 			IJavaProject javaProject,

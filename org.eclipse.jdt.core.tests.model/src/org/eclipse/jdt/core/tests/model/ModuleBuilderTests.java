@@ -103,16 +103,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		deleteProject("P1");
 	}
 	
-	IClasspathAttribute[] moduleAttribute() {
-		return new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
-	}
 	void addModularProjectEntry(IJavaProject project, IJavaProject depProject) throws JavaModelException {
 		addClasspathEntry(project, JavaCore.newProjectEntry(depProject.getPath(), null, false, moduleAttribute(), false));
 	}
-	void addModularLibraryEntry(IJavaProject project, String libraryPath) throws JavaModelException {
-		addLibraryEntry(project, new Path(libraryPath), null, null, null, null, moduleAttribute(), false);	
-	}
-
 	// Test that the java.base found as a module package fragment root in the project 
 	public void test001() throws CoreException {
 		try {
@@ -7026,7 +7019,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 						"}\n"
 					});
 			IFolder libs = createFolder("/Bug540788.common/libs");
-			String emfCommonPath = libs.getLocation()+"/org.eclipse.emf.common.jar";
+			String emfCommonLocation = libs.getLocation()+"/org.eclipse.emf.common.jar";
+			Path emfCommonPath = new Path(emfCommonLocation);
 			Util.createJar(
 					new String[] {
 							"src/org/eclipse/emf/common/Foo.java",
@@ -7037,9 +7031,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					null,
 					new HashMap<>(),
 					null,
-					emfCommonPath);
-			addModularLibraryEntry(common, emfCommonPath);
-			String ecorePath = libs.getLocation()+"/org.eclipse.emf.ecore.jar";
+					emfCommonLocation);
+			addModularLibraryEntry(common, emfCommonPath, null);
+
+			String ecoreLocation = libs.getLocation()+"/org.eclipse.emf.ecore.jar";
+			Path ecorePath = new Path(ecoreLocation);
 			Util.createJar(
 					new String[] {
 						"src/org/eclipse/emf/ecore/EObject.java",
@@ -7050,8 +7046,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					null,
 					new HashMap<>(),
 					null,
-					ecorePath);
-			addModularLibraryEntry(common, ecorePath);
+					ecoreLocation);
+			addModularLibraryEntry(common, ecorePath, null);
 			// project vulkan:
 			IJavaProject vulkan = createJava9Project("Bug540788.vulkan", new String[] { "src/main/java" });
 			createSourceFiles(vulkan,
@@ -7072,8 +7068,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 						"}\n",
 					});
 			addModularProjectEntry(vulkan, common);
-			addModularLibraryEntry(vulkan, emfCommonPath);
-			addModularLibraryEntry(vulkan, ecorePath);
+			addModularLibraryEntry(vulkan, emfCommonPath, null);
+			addModularLibraryEntry(vulkan, ecorePath, null);
 			// project vulkan.demo
 			IJavaProject vulkan_demo = createJava9Project("Bug540788.vulkan.demo", new String[] { "src/main/java" });
 			createSourceFiles(vulkan_demo,
@@ -7091,8 +7087,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					});
 			addModularProjectEntry(vulkan_demo, vulkan);
 			addModularProjectEntry(vulkan_demo, common);
-			addModularLibraryEntry(vulkan_demo, emfCommonPath);
-			addModularLibraryEntry(vulkan_demo, ecorePath);
+			addModularLibraryEntry(vulkan_demo, emfCommonPath, null);
+			addModularLibraryEntry(vulkan_demo, ecorePath, null);
 			
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = vulkan_demo.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
