@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 Mateusz Matela and others.
+ * Copyright (c) 2014, 2019 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -90,7 +90,6 @@ import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
@@ -616,7 +615,7 @@ public class WrapPreparator extends ASTVisitor {
 
 		int wrappingOption = OPERATOR_WRAPPING_OPTION.get(node.getOperator()).applyAsInt(this.options);
 		boolean wrapBeforeOperator = OPERATOR_WRAP_BEFORE_OPTION.get(node.getOperator()).test(this.options);
-		if (isStringConcatenation(node)) {
+		if (this.tm.isStringConcatenation(node)) {
 			wrappingOption = this.options.alignment_for_string_concatenation;
 			wrapBeforeOperator = this.options.wrap_before_string_concatenation;
 		}
@@ -671,21 +670,6 @@ public class WrapPreparator extends ASTVisitor {
 				}
 			}
 		}
-	}
-
-	private boolean isStringConcatenation(InfixExpression node) {
-		if (!node.getOperator().equals(Operator.PLUS))
-			return false;
-		List<Expression> operands = new ArrayList<Expression>(node.extendedOperands());
-		operands.add(node.getLeftOperand());
-		operands.add(node.getRightOperand());
-		for (Expression o : operands) {
-			if (o instanceof StringLiteral)
-				return true;
-			if ((o instanceof InfixExpression) && isStringConcatenation((InfixExpression) o))
-				return true;
-		}
-		return false;
 	}
 
 	private boolean samePrecedence(InfixExpression expression1, InfixExpression expression2) {
