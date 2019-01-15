@@ -171,7 +171,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	protected boolean computeConversions(BlockScope blockScope, TypeBinding targetType) {
 		boolean ok = true;
 		for (int i = 0, l = this.resultExpressions.size(); i < l; ++i) {
-			ok = computeConversionsResultExpressions(blockScope, targetType, ok, this.originalValueResultExpressionTypes[i], 
+			ok &= computeConversionsResultExpressions(blockScope, targetType, ok, this.originalValueResultExpressionTypes[i], 
 					this.resultExpressions.get(i));
 		}
 		return ok;
