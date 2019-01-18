@@ -2590,10 +2590,10 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_ENABLE_PREVIEW_FEATURES = PLUGIN_ID + ".compiler.problem.enablePreviewFeatures"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Preview features.
-	 * <p>When enabled, the compiler will issue an error or a warning when a preview feature is used</p>
+	 * <p>When enabled, the compiler will issue a warning when a preview feature is used.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportPreviewFeatures"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID

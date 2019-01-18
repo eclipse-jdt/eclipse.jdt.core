@@ -206,7 +206,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportAPILeak = "org.eclipse.jdt.core.compiler.problem.APILeak"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnstableAutoModuleName = "org.eclipse.jdt.core.compiler.problem.unstableAutoModuleName";   //$NON-NLS-1$
 
-	public static final String OPTION_EnablePreviews = "org.eclipse.jdt.core.compiler.problem.enablePreviews"; //$NON-NLS-1$
+	public static final String OPTION_EnablePreviews = "org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures"; //$NON-NLS-1$
 	public static final String OPTION_ReportPreviewFeatures = "org.eclipse.jdt.core.compiler.problem.reportPreviewFeatures"; //$NON-NLS-1$
 
 	/**
