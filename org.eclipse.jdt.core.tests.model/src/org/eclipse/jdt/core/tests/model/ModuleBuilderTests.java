@@ -7634,6 +7634,83 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject(test);
 		}
 	}
+	public void testBug543195() throws CoreException {
+		IJavaProject pj1 = createJava9Project("p1");
+		IJavaProject pj2 = createJava9Project("p2");
+		IJavaProject ptest = createJava9Project("ptest");
+		try {
+			addModularProjectEntry(pj2, pj1);
+			addModularProjectEntry(ptest, pj2);
+
+			createFolder("p1/src/p");
+			createFile("p1/src/p/Missing.java",
+					"package p;\n" +
+					"public class Missing {\n" +
+					"	public void miss() {}\n" +
+					"}\n");
+			createFile("p1/src/module-info.java",
+					"module p1 {\n" +
+					"	exports p;\n" +
+					"}\n");
+
+			createFolder("p2/src/q");
+			createFile("p2/src/q/API.java",
+					"package q;\n" +
+					"public class API extends p.Missing {}\n");
+			createFile("p2/src/q/API2.java",
+					"package q;\n" +
+					"public class API2 extends API {}\n");
+			createFile("p2/src/module-info.java",
+					"module p2 {\n" +
+					"	requires p1;\n" +
+					"	exports q;\n" +
+					"}\n");
+			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+
+			deleteFile("p1/bin/p/Missing.class");
+			pj1.getProject().close(null);
+
+			createFolder("ptest/src/p/r");
+			createFile("ptest/src/p/r/P.java", "package p.r;\n public class P {}\n");
+			createFolder("ptest/src/t");
+			createFile("ptest/src/t/Test1.java",
+					"package t;\n" +
+					"import q.API2;\n" +
+					"public class Test1 {\n" +
+					"	void m(API2 a) {\n" +
+					"		a.miss();\n" +
+					"	}\n" +
+					"}\n");
+			String test2Path = "ptest/src/t/Test2.java";
+			String test2Content =
+					"package t;\n" +
+					"import p.Missing;\n" +
+					"public class Test2 {}\n";
+			createFile(test2Path, test2Content);
+			ptest.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			IMarker[] markers = ptest.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("unexpected markers",
+					"The import p.Missing cannot be resolved\n" + 
+					"The method miss() is undefined for the type API2",
+					markers);
+
+			this.problemRequestor.initialize(test2Content.toCharArray());
+			getCompilationUnit(test2Path).getWorkingCopy(this.wcOwner, null);
+			assertProblems("unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /ptest/src/t/Test2.java (at line 2)\n" + 
+					"	import p.Missing;\n" + 
+					"	       ^^^^^^^^^\n" + 
+					"The import p.Missing cannot be resolved\n" +
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject(pj1);
+			deleteProject(pj2);
+			deleteProject(ptest);
+		}
+	}
 
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
