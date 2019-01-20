@@ -2345,14 +2345,14 @@ private boolean errorStringMatch(String expectedErrorStringStart, String actualE
 	 */
 	if (expectedErrorStringStart == null)
 		return true;
+	// special case: command-line java does not like missing main methods ...
+	if (actualError.indexOf("java.lang.NoSuchMethodError: main") != -1
+			|| actualError.indexOf("Error: Main method not found in class") != -1)
+		return true; // ... ignore this.
 	if (expectedErrorStringStart.length() == 0)
 		return expectedErrorStringStart.equals(actualError);
 	if (actualError.startsWith(expectedErrorStringStart))
 		return true;
-	 // special case: command-line java does not like missing main methods ...
-	if (actualError.indexOf("java.lang.NoSuchMethodError: main") != -1
-		|| actualError.indexOf("Error: Main method not found in class") != -1)
-		return true; // ... ignore this.
 	return false;
 }
 /** Hook for AbstractRegressionTest9 */
