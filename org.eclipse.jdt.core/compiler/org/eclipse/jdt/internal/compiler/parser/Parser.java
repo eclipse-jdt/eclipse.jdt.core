@@ -56,6 +56,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -9492,9 +9493,14 @@ protected void consumeCaseLabelExpr() {
 	consumeCaseLabel();
 	CaseStatement caseStatement = (CaseStatement) this.astStack[this.astPtr];
 	if (!this.parsingJava12Plus) {
-		problemReporter().caseStatementWithArrowNotBelow12(caseStatement);
+//		problemReporter().caseStatementWithArrowNotBelow12(caseStatement);
+		problemReporter().previewFeatureNotSupported(caseStatement.sourceStart, caseStatement.sourceEnd, "Case Labels with '->'", CompilerOptions.VERSION_12); //$NON-NLS-1$
 	} else if (!this.options.enablePreviewFeatures){
-		problemReporter().caseStatementWithArrowIsPreview(caseStatement);		
+		problemReporter().previewFeatureNotEnabled(caseStatement.sourceStart, caseStatement.sourceEnd, "Case Labels with '->'"); //$NON-NLS-1$
+	} else {
+		if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
+			problemReporter().previewFeatureUsed(caseStatement.sourceStart, caseStatement.sourceEnd);
+		}
 	}
 	caseStatement.isExpr = true;
 }
@@ -9503,9 +9509,14 @@ protected void consumeDefaultLabelExpr() {
 	consumeDefaultLabel();
 	CaseStatement defaultStatement = (CaseStatement) this.astStack[this.astPtr];
 	if (!this.parsingJava12Plus) {
-		problemReporter().caseStatementWithArrowNotBelow12(defaultStatement);
+//		problemReporter().caseStatementWithArrowNotBelow12(defaultStatement);
+		problemReporter().previewFeatureNotSupported(defaultStatement.sourceStart, defaultStatement.sourceEnd, "Case Labels with '->'", CompilerOptions.VERSION_12); //$NON-NLS-1$
 	} else if (!this.options.enablePreviewFeatures){
-		problemReporter().caseStatementWithArrowIsPreview(defaultStatement);		
+		problemReporter().previewFeatureNotEnabled(defaultStatement.sourceStart, defaultStatement.sourceEnd, "Case Labels with '->'"); //$NON-NLS-1$
+	} else {
+		if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
+			problemReporter().previewFeatureUsed(defaultStatement.sourceStart, defaultStatement.sourceEnd);
+		}
 	}
 	defaultStatement.isExpr = true;
 }
@@ -9516,9 +9527,15 @@ protected void consumeSwitchExpression() {
 		SwitchExpression s = (SwitchExpression) this.astStack[this.astPtr--];
 
 		if (!this.parsingJava12Plus) {
-			problemReporter().switchExpressionsNotBelow12(s);
+//			problemReporter().switchExpressionsNotBelow12(s);
+			problemReporter().previewFeatureNotSupported(s.sourceStart, s.sourceEnd, "Switch Expression", CompilerOptions.VERSION_12); //$NON-NLS-1$
 		} else if (!this.options.enablePreviewFeatures) {
-			problemReporter().switchExpressionIsPreview(s);
+			//problemReporter().switchExpressionIsPreview(s);
+			problemReporter().previewFeatureNotEnabled(s.sourceStart, s.sourceEnd, "Switch Expression"); //$NON-NLS-1$
+		} else {
+			if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
+				problemReporter().previewFeatureUsed(s.sourceStart, s.sourceEnd);
+			}
 		}
 
 		pushOnExpressionStack(s);

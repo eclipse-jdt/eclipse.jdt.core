@@ -9283,8 +9283,8 @@ public void previewFeatureUsed(int sourceStart, int sourceEnd) {
 			sourceStart,
 			sourceEnd);
 }
-public void previewFeatureNotSupported(int sourceStart, int sourceEnd, String sourceLevel) {
-	String[] args = new String[] {sourceLevel};
+public void previewFeatureNotSupported(int sourceStart, int sourceEnd, String featureName, String sourceLevel) {
+	String[] args = new String[] {featureName, sourceLevel};
 	this.handle(
 			IProblem.PreviewFeatureNotSupported,
 			args,
@@ -11088,37 +11088,5 @@ public void switchExpressionMixedCase(ASTNode statement) {
 		NoArgument,
 		statement.sourceStart,
 		statement.sourceEnd);
-}
-public void switchExpressionsNotBelow12(SwitchExpression switchExpr) {
-	this.handle(
-		IProblem.SwitchExpressionNotBelow12,
-		NoArgument,
-		NoArgument,
-		switchExpr.sourceStart,
-		switchExpr.sourceEnd);
-}
-public void caseStatementWithArrowNotBelow12(CaseStatement caseStatement) {
-	this.handle(
-		IProblem.SwitchCaseLabelWithArrowNotBelow12,
-		NoArgument,
-		NoArgument,
-		caseStatement.sourceStart,
-		caseStatement.sourceEnd);
-}
-public void switchExpressionIsPreview(SwitchExpression switchExpr) {
-	this.handle(
-		IProblem.SwitchExpressionPreviewDisabled,
-		NoArgument,
-		NoArgument,
-		switchExpr.sourceStart,
-		switchExpr.sourceEnd);
-}
-public void caseStatementWithArrowIsPreview(CaseStatement caseStatement) {
-	this.handle(
-		IProblem.SwitchCaseLabelWithArrowPreviewDisabled,
-		NoArgument,
-		NoArgument,
-		caseStatement.sourceStart,
-		caseStatement.sourceEnd);
 }
 }

@@ -1049,6 +1049,7 @@ protected static class JavacTestOptions {
 	protected INameEnvironment javaClassLib;
 	protected TestVerifier verifier;
 	protected boolean shouldSwallowCaptureId;
+	protected boolean enablePreview;
 	public AbstractRegressionTest(String name) {
 		super(name);
 	}
@@ -3111,6 +3112,16 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 					}
 					this.verifier = new TestVerifier(false);
 					this.createdVerifier = true;
+				}
+				if (this.enablePreview) {
+					if (vmArguments == null) {
+						vmArguments = new String[1];
+						vmArguments[0] = "--enable-preview";
+					} else {
+						int size = vmArguments.length;
+						System.arraycopy(vmArguments, 0, vmArguments = new String[size + 1], 0, size);
+						vmArguments[size] = "--enable-preview";
+					}
 				}
 				boolean passed =
 					this.verifier.verifyClassFiles(
