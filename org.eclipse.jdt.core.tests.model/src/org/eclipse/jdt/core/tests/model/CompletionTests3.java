@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 IBM Corporation and others.
+ * Copyright (c) 2017, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -185,7 +185,7 @@ public void testBug425035a() throws CoreException {
 		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
 				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" + 
-				"value[ANNOTATION_ATTRIBUTE_REF]{value, La.Annotation;, [La.Values;, value, null, 52}\n" + 
+				"value[ANNOTATION_ATTRIBUTE_REF]{value = , La.Annotation;, [La.Values;, value, null, 52}\n" + 
 				"Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}\n" + 
 				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" + 
 				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
@@ -431,7 +431,7 @@ public void testBug425035_method_a() throws CoreException {
 		assertResults(
 				"Test[TYPE_REF]{Test, b, Lb.Test;, null, null, 52}\n" + 
 				"i[FIELD_REF]{i, Lb.Test;, I, i, null, 52}\n" +
-				"value[ANNOTATION_ATTRIBUTE_REF]{value, La.Annotation;, [La.Values;, value, null, 52}\n" + 
+				"value[ANNOTATION_ATTRIBUTE_REF]{value = , La.Annotation;, [La.Values;, value, null, 52}\n" + 
 				"Values[TYPE_REF]{a.Values, a, La.Values;, null, null, 99}\n" + 
 				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" + 
 				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",

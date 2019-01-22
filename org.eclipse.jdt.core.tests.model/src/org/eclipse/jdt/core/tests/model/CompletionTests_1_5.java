@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2455,7 +2455,7 @@ public void test0088() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0088.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0088.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0089() throws JavaModelException {
@@ -2478,7 +2478,7 @@ public void test0089() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0089.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0089.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0090() throws JavaModelException {
@@ -2501,7 +2501,7 @@ public void test0090() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0090.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0090.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0091() throws JavaModelException {
@@ -2526,7 +2526,7 @@ public void test0091() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0091.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0091.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0092() throws JavaModelException {
@@ -2549,7 +2549,7 @@ public void test0092() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0092.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0092.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0093() throws JavaModelException {
@@ -2573,7 +2573,7 @@ public void test0093() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0093.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0093.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0094() throws JavaModelException {
@@ -2595,7 +2595,7 @@ public void test0094() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0094.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0094.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0095() throws JavaModelException {
@@ -2618,7 +2618,7 @@ public void test0095() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0095.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0095.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0096() throws JavaModelException {
@@ -2641,7 +2641,7 @@ public void test0096() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0096.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0096.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0097() throws JavaModelException {
@@ -2666,7 +2666,7 @@ public void test0097() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0097.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0097.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0098() throws JavaModelException {
@@ -2689,7 +2689,7 @@ public void test0098() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0098.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0098.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0099() throws JavaModelException {
@@ -2713,7 +2713,7 @@ public void test0099() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0099.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0099.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0100() throws JavaModelException {
@@ -2735,7 +2735,7 @@ public void test0100() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0100.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0100.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0101() throws JavaModelException {
@@ -2758,7 +2758,7 @@ public void test0101() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0101.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0101.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0102() throws JavaModelException {
@@ -2781,7 +2781,7 @@ public void test0102() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0102.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0102.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0103() throws JavaModelException {
@@ -2806,7 +2806,7 @@ public void test0103() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0103.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0103.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0104() throws JavaModelException {
@@ -2829,7 +2829,7 @@ public void test0104() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0104.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0104.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0105() throws JavaModelException {
@@ -2853,7 +2853,7 @@ public void test0105() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0105.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0105.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0106() throws JavaModelException {
@@ -2875,7 +2875,7 @@ public void test0106() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0106.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0106.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0107() throws JavaModelException {
@@ -2898,7 +2898,7 @@ public void test0107() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0107.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0107.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0108() throws JavaModelException {
@@ -2921,7 +2921,7 @@ public void test0108() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0108.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0108.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0109() throws JavaModelException {
@@ -2946,7 +2946,7 @@ public void test0109() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0109.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0109.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0110() throws JavaModelException {
@@ -2969,7 +2969,7 @@ public void test0110() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0110.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0110.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0111() throws JavaModelException {
@@ -2993,7 +2993,7 @@ public void test0111() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0111.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0111.TestAnnotation;, Ljava.lang.String;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0112() throws JavaModelException {
@@ -3016,7 +3016,7 @@ public void test0112() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0112.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0112.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0113() throws JavaModelException {
@@ -3040,7 +3040,7 @@ public void test0113() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0113.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0113.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0114() throws JavaModelException {
@@ -3064,7 +3064,7 @@ public void test0114() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0114.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0114.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0115() throws JavaModelException {
@@ -3090,7 +3090,7 @@ public void test0115() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0115.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0115.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0116() throws JavaModelException {
@@ -3114,7 +3114,7 @@ public void test0116() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0116.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0116.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0117() throws JavaModelException {
@@ -3139,7 +3139,7 @@ public void test0117() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0117.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0117.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0118() throws JavaModelException {
@@ -3162,7 +3162,7 @@ public void test0118() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0118.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0118.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0119() throws JavaModelException {
@@ -3186,7 +3186,7 @@ public void test0119() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0119.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0119.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0120() throws JavaModelException {
@@ -3210,7 +3210,7 @@ public void test0120() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0120.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0120.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0121() throws JavaModelException {
@@ -3236,7 +3236,7 @@ public void test0121() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0121.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0121.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0122() throws JavaModelException {
@@ -3260,7 +3260,7 @@ public void test0122() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0122.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0122.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0123() throws JavaModelException {
@@ -3285,7 +3285,7 @@ public void test0123() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0123.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0123.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0124() throws JavaModelException {
@@ -3308,7 +3308,7 @@ public void test0124() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0124.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0124.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0125() throws JavaModelException {
@@ -3332,7 +3332,7 @@ public void test0125() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0125.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0125.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0126() throws JavaModelException {
@@ -3356,7 +3356,7 @@ public void test0126() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0126.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0126.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0127() throws JavaModelException {
@@ -3382,7 +3382,7 @@ public void test0127() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0127.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0127.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0128() throws JavaModelException {
@@ -3406,7 +3406,7 @@ public void test0128() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0128.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0128.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0129() throws JavaModelException {
@@ -3431,7 +3431,7 @@ public void test0129() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0129.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0129.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0130() throws JavaModelException {
@@ -3454,7 +3454,7 @@ public void test0130() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0130.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0130.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0131() throws JavaModelException {
@@ -3478,7 +3478,7 @@ public void test0131() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0131.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0131.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0132() throws JavaModelException {
@@ -3502,7 +3502,7 @@ public void test0132() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0132.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0132.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0133() throws JavaModelException {
@@ -3528,7 +3528,7 @@ public void test0133() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0133.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0133.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0134() throws JavaModelException {
@@ -3552,7 +3552,7 @@ public void test0134() throws JavaModelException {
 	this.wc.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0134.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0134.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			requestor.getResults());
 }
 public void test0135() throws JavaModelException {
@@ -3571,7 +3571,7 @@ public void test0135() throws JavaModelException {
 			"foo");
 
 	assertResults(
-			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0135.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0135.TestAnnotation;, Ljava.lang.String;, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
 			result.proposals);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=84554
@@ -6219,8 +6219,8 @@ public void test0196b() throws JavaModelException {
             result.context);
 
     assertResults(
-    		"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0196.ZZAnnot;, I, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-            "foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0196.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+    		"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0196.ZZAnnot;, I, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+            "foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0196.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0197() throws JavaModelException {
@@ -6266,8 +6266,8 @@ public void test0197b() throws JavaModelException {
             result.context);
 
     assertResults(
-    		"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0197.ZZAnnot;, I, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-            "foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0197.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+    		"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0197.ZZAnnot;, I, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+            "foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0197.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0198() throws JavaModelException {
@@ -6313,8 +6313,8 @@ public void test0198b() throws JavaModelException {
             result.context);
 
     assertResults(
-    		"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1, Ltest0198.ZZAnnot;, I, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-            "foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0198.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+    		"foo1[ANNOTATION_ATTRIBUTE_REF]{foo1 = , Ltest0198.ZZAnnot;, I, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+            "foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0198.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0199() throws JavaModelException {
@@ -6358,7 +6358,7 @@ public void test0199b() throws JavaModelException {
             result.context);
 
     assertResults(
-    		"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0199.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+    		"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0199.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0200() throws JavaModelException {
@@ -6404,7 +6404,7 @@ public void test0200b() throws JavaModelException {
             result.context);
 
     assertResults(
-    		"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0200.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+    		"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0200.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0201() throws JavaModelException {
@@ -6450,7 +6450,7 @@ public void test0201b() throws JavaModelException {
             result.context);
 
     assertResults(
-    		"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2, Ltest0201.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+    		"foo2[ANNOTATION_ATTRIBUTE_REF]{foo2 = , Ltest0201.ZZAnnot;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 public void test0202() throws JavaModelException {
@@ -8080,8 +8080,8 @@ public void test0260() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 		assertResults(
-				"oneTwoThree[ANNOTATION_ATTRIBUTE_REF]{oneTwoThree, Lcamelcase.Annot;, Ljava.lang.String;, oneTwoThree, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-				"oTTAttribute[ANNOTATION_ATTRIBUTE_REF]{oTTAttribute, Lcamelcase.Annot;, Ljava.lang.String;, oTTAttribute, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"oneTwoThree[ANNOTATION_ATTRIBUTE_REF]{oneTwoThree = , Lcamelcase.Annot;, Ljava.lang.String;, oneTwoThree, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"oTTAttribute[ANNOTATION_ATTRIBUTE_REF]{oTTAttribute = , Lcamelcase.Annot;, Ljava.lang.String;, oTTAttribute, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(this.oldOptions);
@@ -13894,9 +13894,9 @@ public void testBug343865a() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-		"name[ANNOTATION_ATTRIBUTE_REF]{name, Ltestxxx.YAAnnot;, Ljava.lang.String;, name, null, " + 
+		"name[ANNOTATION_ATTRIBUTE_REF]{name = , Ltestxxx.YAAnnot;, Ljava.lang.String;, name, null, " + 
 						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-		"val[ANNOTATION_ATTRIBUTE_REF]{val, Ltestxxx.YAAnnot;, I, val, null, " + 
+		"val[ANNOTATION_ATTRIBUTE_REF]{val = , Ltestxxx.YAAnnot;, I, val, null, " + 
 						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 		requestor.getResults());
 }
@@ -14558,7 +14558,7 @@ public void testBug526590() throws JavaModelException {
 
 	assertResults(
 			"Bug526590[TYPE_REF]{Bug526590, testbug526590, Ltestbug526590.Bug526590;, null, null, 52}\n" + 
-			"value[ANNOTATION_ATTRIBUTE_REF]{value, Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}\n" +
+			"value[ANNOTATION_ATTRIBUTE_REF]{value = , Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}\n" +
 			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 82}",
 			requestor.getResults());
 }
@@ -14590,7 +14590,7 @@ public void testBug526590b() throws JavaModelException {
 
 	assertResults(
 			"Bug526590[TYPE_REF]{Bug526590, testbug526590, Ltestbug526590.Bug526590;, null, null, 52}\n" + 
-			"value[ANNOTATION_ATTRIBUTE_REF]{value, Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}\n" +
+			"value[ANNOTATION_ATTRIBUTE_REF]{value = , Ltestbug526590.QQAnnotation;, [Ljava.lang.String;, value, null, 52}\n" +
 			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, 82}",
 			requestor.getResults());
 }

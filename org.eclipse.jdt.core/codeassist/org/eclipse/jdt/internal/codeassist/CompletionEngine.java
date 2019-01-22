@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -50,6 +51,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -57,9 +59,9 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
+import org.eclipse.jdt.internal.codeassist.complete.AssistNodeParentAnnotationArrayInitializer;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeDetector;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeFound;
-import org.eclipse.jdt.internal.codeassist.complete.AssistNodeParentAnnotationArrayInitializer;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnAnnotationOfType;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnArgumentName;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnBranchStatementLabel;
@@ -5313,7 +5315,16 @@ public final class CompletionEngine
 				proposal.setDeclarationSignature(getSignature(method.declaringClass));
 				proposal.setSignature(getSignature(method.returnType));
 				proposal.setName(method.selector);
-				proposal.setCompletion(method.selector);
+				// add "=" to completion since it will always be needed
+				char[] completion= method.selector;
+				if (JavaCore.INSERT.equals(this.javaProject.getOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR, true))) {
+					completion= CharOperation.concat(completion, new char[] {' '});
+				}
+				completion= CharOperation.concat(completion, new char[] {'='});
+				if (JavaCore.INSERT.equals(this.javaProject.getOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR, true))) {
+					completion= CharOperation.concat(completion, new char[] {' '});
+				}
+				proposal.setCompletion(completion);
 				proposal.setFlags(method.modifiers);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);

@@ -1578,7 +1578,7 @@ public void testBug530911() throws Exception {
 		unit.codeComplete(cursorLocation, requestor);
 
 		String expected = "NonNull[TYPE_REF]{NonNull, p, Lp.NonNull;, null, 52}\n" + 
-				"value[ANNOTATION_ATTRIBUTE_REF]{value, Ljava.lang.annotation.Target;, [Ljava.lang.annotation.ElementType;, value, 52}\n" + 
+				"value[ANNOTATION_ATTRIBUTE_REF]{value = , Ljava.lang.annotation.Target;, [Ljava.lang.annotation.ElementType;, value, 52}\n" + 
 				"ElementType[TYPE_REF]{ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, 102}\n" + 
 				"ANNOTATION_TYPE[FIELD_REF]{ElementType.ANNOTATION_TYPE, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, ANNOTATION_TYPE, 104}\n" + 
 				"CONSTRUCTOR[FIELD_REF]{ElementType.CONSTRUCTOR, Ljava.lang.annotation.ElementType;, Ljava.lang.annotation.ElementType;, CONSTRUCTOR, 104}\n" + 
