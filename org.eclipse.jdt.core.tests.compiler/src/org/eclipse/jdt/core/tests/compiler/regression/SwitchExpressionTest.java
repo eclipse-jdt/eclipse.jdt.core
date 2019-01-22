@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 IBM Corporation and others.
+ * Copyright (c) 2018, 2019 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -329,6 +329,28 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				null,
 				true,
 				disablePreviewOptions);
+	}
+	public void testBug543667_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"\n" +
+				"	public static void bar(int  i) {\n" +
+				"		switch (i) {\n" +
+				"		case 1 -> System.out.println(\"hello\");\n" +
+				"		default -> System.out.println(\"DEFAULT\");\n" +
+				"		}\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		bar(1);\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"hello",
+			null,
+			false,
+			new String[] { "--enable-preview"});
 	}
 	public void testBug531714_009() {
 		Map<String, String> disablePreviewOptions = getCompilerOptions();

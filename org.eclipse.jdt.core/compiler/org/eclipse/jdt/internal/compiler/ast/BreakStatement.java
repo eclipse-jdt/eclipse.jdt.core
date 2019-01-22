@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -109,14 +109,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 @Override
 protected void generateExpressionResultCode(BlockScope currentScope, CodeStream codeStream) {
-	if (this.label == null && this.expression != null && this.switchExpression != null) {
+		if (this.label == null && this.expression != null && (this.switchExpression != null || this.isImplicit)) {
 		this.expression.generateCode(currentScope, codeStream, true /* valueRequired */);
 	}
 }
 @Override
 public void resolve(BlockScope scope) {
 	super.resolve(scope);
-	if (this.switchExpression != null && this.expression != null)
+	if  (this.expression != null && (this.switchExpression != null || this.isImplicit))
 		this.expression.resolve(scope);
 }
 
