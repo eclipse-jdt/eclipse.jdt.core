@@ -203,7 +203,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		}
 		return ok;
 	}
-	private void collectResultExpressions() {
+	/* package */ void collectResultExpressions() {
 		if (this.resultExpressions != null)
 			return; // already calculated.
 

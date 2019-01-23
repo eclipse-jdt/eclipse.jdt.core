@@ -501,4 +501,32 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			options.put(CompilerOptions.OPTION_Source, release);
 		}
 	}
+	public void testBug543673_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static int foo(Day day) {\n" +
+				"\n" +
+				"		var len= switch (day) {\n" +
+				"			case SUNDAY-> 6;\n" +
+				"			default -> 10;\n" +
+				"		};\n" +
+				"\n" +
+				"		return len;\n" +
+				"	}\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo(Day.SUNDAY));\n" +
+				"	}\n" +
+				"}\n" +
+				"enum Day {\n" +
+				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" +
+				"}\n"
+			},
+			"6",
+			null,
+			false,
+			new String[] { "--enable-preview"});
+	}
 }
