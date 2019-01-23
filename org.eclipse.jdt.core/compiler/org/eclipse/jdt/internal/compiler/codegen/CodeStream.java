@@ -6895,7 +6895,7 @@ public void swap() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_swap;
 }
 
-public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, int[] sortedIndexes, CaseLabel[] casesLabel) {
+public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, int[] sortedIndexes, int[] mapping, CaseLabel[] casesLabel) {
 	this.countLabels = 0;
 	this.stackDepth--;
 	int length = casesLabel.length;
@@ -6926,7 +6926,7 @@ public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, i
 		int index;
 		int key = keys[index = sortedIndexes[j - low]];
 		if (key == i) {
-			casesLabel[index].branch();
+			casesLabel[mapping[index]].branch();
 			j++;
 			if (i == high) break; // if high is maxint, then avoids wrapping to minint.
 		} else {

@@ -1049,7 +1049,6 @@ protected static class JavacTestOptions {
 	protected INameEnvironment javaClassLib;
 	protected TestVerifier verifier;
 	protected boolean shouldSwallowCaptureId;
-	protected boolean enablePreview;
 	public AbstractRegressionTest(String name) {
 		super(name);
 	}
@@ -1734,6 +1733,9 @@ protected static class JavacTestOptions {
 			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions) {
+		runConformTest(testFiles, expectedOutput, customOptions, null);
+	}
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions, String[] vmArguments) {
 		runTest(
 			// test directory preparation
 			true /* flush output directory */,
@@ -1748,7 +1750,7 @@ protected static class JavacTestOptions {
 			null /* do not check compiler log */,
 			// runtime options
 			false /* do not force execution */,
-			null /* no vm arguments */,
+			vmArguments /* no vm arguments */,
 			// runtime results
 			expectedOutput /* expected output string */,
 			null /* do not check error string */,
@@ -2549,10 +2551,19 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 						JavacTestOptions.DEFAULT /* javac test options */);
 		}
 	protected void runNegativeTest(
+			String[] testFiles,
+			String expectedCompilerLog,
+			String[] classLibraries,
+			boolean shouldFlushOutputDirectory,
+			Map customOptions) {
+		runNegativeTest(testFiles, expectedCompilerLog, classLibraries, shouldFlushOutputDirectory, null, customOptions);
+	}
+	protected void runNegativeTest(
 		String[] testFiles,
 		String expectedCompilerLog,
 		String[] classLibraries,
 		boolean shouldFlushOutputDirectory,
+		String[] vmArguments,
 		Map customOptions) {
 		runTest(
 	 		// test directory preparation
@@ -2573,7 +2584,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			expectedCompilerLog /* expected compiler log */,
 			// runtime options
 			false /* do not force execution */,
-			null /* no vm arguments */,
+			vmArguments /* no vm arguments */,
 			// runtime results
 			null /* do not check output string */,
 			null /* do not check error string */,
@@ -3112,16 +3123,6 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 					}
 					this.verifier = new TestVerifier(false);
 					this.createdVerifier = true;
-				}
-				if (this.enablePreview) {
-					if (vmArguments == null) {
-						vmArguments = new String[1];
-						vmArguments[0] = "--enable-preview";
-					} else {
-						int size = vmArguments.length;
-						System.arraycopy(vmArguments, 0, vmArguments = new String[size + 1], 0, size);
-						vmArguments[size] = "--enable-preview";
-					}
 				}
 				boolean passed =
 					this.verifier.verifyClassFiles(

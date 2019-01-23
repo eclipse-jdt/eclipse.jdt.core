@@ -17,6 +17,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
@@ -25,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IntConstant;
+//import org.eclipse.jdt.internal.compiler.impl.IntConstant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -49,13 +53,23 @@ public FlowInfo analyseCode(
 	BlockScope currentScope,
 	FlowContext flowContext,
 	FlowInfo flowInfo) {
-
-	if (this.constantExpression != null) {
-		if (this.constantExpression.constant == Constant.NotAConstant
-				&& !this.constantExpression.resolvedType.isEnum()) {
-			currentScope.problemReporter().caseExpressionMustBeConstant(this.constantExpression);
+	if (this.constantExpressions != null && this.constantExpressions.length > 1) {
+		for (Expression e : this.constantExpressions) {
+			if (e.constant == Constant.NotAConstant
+					&& !e.resolvedType.isEnum()) {
+				currentScope.problemReporter().caseExpressionMustBeConstant(e);
+			}
+			this.constantExpression.analyseCode(currentScope, flowContext, flowInfo);
 		}
-		this.constantExpression.analyseCode(currentScope, flowContext, flowInfo);
+		
+	} else {
+		if (this.constantExpression != null) {
+			if (this.constantExpression.constant == Constant.NotAConstant
+					&& !this.constantExpression.resolvedType.isEnum()) {
+				currentScope.problemReporter().caseExpressionMustBeConstant(this.constantExpression);
+			}
+			this.constantExpression.analyseCode(currentScope, flowContext, flowInfo);
+		}
 	}
 	return flowInfo;
 }
@@ -108,7 +122,7 @@ public void resolve(BlockScope scope) {
  * see org.eclipse.jdt.internal.compiler.ast.Statement#resolveCase(org.eclipse.jdt.internal.compiler.lookup.BlockScope, org.eclipse.jdt.internal.compiler.lookup.TypeBinding, org.eclipse.jdt.internal.compiler.ast.SwitchStatement)
  */
 @Override
-public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
+public Constant[] resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
 	// switchExpressionType maybe null in error case
 	scope.enclosingCase = this; // record entering in a switch case block
 
@@ -119,26 +133,55 @@ public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, 
 
 		// on error the last default will be the selected one ...
 		switchStatement.defaultCase = this;
-		return Constant.NotAConstant;
+		return Constant.NotAConstantList;
 	}
 	// add into the collection of cases of the associated switch statement
 	switchStatement.cases[switchStatement.caseCount++] = this;
-	// tag constant name with enum type for privileged access to its members
 	if (switchExpressionType != null && switchExpressionType.isEnum() && (this.constantExpression instanceof SingleNameReference)) {
 		((SingleNameReference) this.constantExpression).setActualReceiverType((ReferenceBinding)switchExpressionType);
 	}
 	TypeBinding caseType = this.constantExpression.resolveType(scope);
-	if (caseType == null || switchExpressionType == null) return Constant.NotAConstant;
-	if (this.constantExpression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionType)
+	if (caseType == null || switchExpressionType == null) return Constant.NotAConstantList;
+	// tag constant name with enum type for privileged access to its members
+
+	if (this.constantExpressions != null && this.constantExpressions.length > 1) {
+		List<Constant> cases = new ArrayList<>();
+		for (Expression e : this.constantExpressions) {
+			if (e != this.constantExpression) {
+				if (switchExpressionType.isEnum() && (this.constantExpression instanceof SingleNameReference)) {
+					((SingleNameReference) e).setActualReceiverType((ReferenceBinding)switchExpressionType);
+				}
+				e.resolveType(scope);
+			}
+			Constant con = resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, e);
+			if (con != Constant.NotAConstant) {
+				cases.add(con);
+			}
+		}
+		if (cases.size() > 0) {
+			return cases.toArray(new Constant[cases.size()]);
+		}
+	} else {
+		return new Constant[] { resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, this.constantExpression) };
+	}
+	return Constant.NotAConstantList;
+}
+public Constant resolveConstantExpression(BlockScope scope, 
+											TypeBinding caseType, 
+											TypeBinding switchExpressionType, 
+											SwitchStatement switchStatement, 
+											Expression expression) {
+	
+	if (expression.isConstantValueOfTypeAssignableToType(caseType, switchExpressionType)
 			|| caseType.isCompatibleWith(switchExpressionType)) {
 		if (caseType.isEnum()) {
-			if (((this.constantExpression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
-				scope.problemReporter().enumConstantsCannotBeSurroundedByParenthesis(this.constantExpression);
+			if (((expression.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT) != 0) {
+				scope.problemReporter().enumConstantsCannotBeSurroundedByParenthesis(expression);
 			}
 
-			if (this.constantExpression instanceof NameReference
-					&& (this.constantExpression.bits & ASTNode.RestrictiveFlagMASK) == Binding.FIELD) {
-				NameReference reference = (NameReference) this.constantExpression;
+			if (expression instanceof NameReference
+					&& (expression.bits & ASTNode.RestrictiveFlagMASK) == Binding.FIELD) {
+				NameReference reference = (NameReference) expression;
 				FieldBinding field = reference.fieldBinding();
 				if ((field.modifiers & ClassFileConstants.AccEnum) == 0) {
 					 scope.problemReporter().enumSwitchCannotTargetField(reference, field);
@@ -148,11 +191,11 @@ public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, 
 				return IntConstant.fromValue(field.original().id + 1); // (ordinal value + 1) zero should not be returned see bug 141810
 			}
 		} else {
-			return this.constantExpression.constant;
+			return expression.constant;
 		}
-	} else if (isBoxingCompatible(caseType, switchExpressionType, this.constantExpression, scope)) {
+	} else if (isBoxingCompatible(caseType, switchExpressionType, expression, scope)) {
 		// constantExpression.computeConversion(scope, caseType, switchExpressionType); - do not report boxing/unboxing conversion
-		return this.constantExpression.constant;
+		return expression.constant;
 	}
 	scope.problemReporter().typeMismatchError(caseType, switchExpressionType, this.constantExpression, switchStatement.expression);
 	return Constant.NotAConstant;
@@ -161,7 +204,14 @@ public Constant resolveCase(BlockScope scope, TypeBinding switchExpressionType, 
 @Override
 public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
-		if (this.constantExpression != null) this.constantExpression.traverse(visitor, blockScope);
+		if (this.constantExpressions != null && this.constantExpressions.length > 1) {
+			for (Expression e : this.constantExpressions) {
+				e.traverse(visitor, blockScope);
+			}
+		} else {
+			if (this.constantExpression != null) this.constantExpression.traverse(visitor, blockScope);
+		}
+		
 	}
 	visitor.endVisit(this, blockScope);
 }

@@ -26,7 +26,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
-//		TESTS_NAMES = new String[] { "testBug531714_010" };
+//		TESTS_NAMES = new String[] { "testBug543240_1" };
 	}
 	
 	public static Class<?> testClass() {
@@ -51,37 +51,30 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	
 
 	public void testSimpleExpressions() {
-		boolean old = this.enablePreview;
-		try {
-			this.enablePreview = true;
-			runConformTest(
-					new String[] {
+		runConformTest(
+				new String[] {
 						"X.java",
 						"public class X {\n" +
-						"	static int twice(int i) {\n" +
-						"		int tw = switch (i) {\n" +
-						"			case 0 -> i * 0;\n" +
-						"			case 1 -> 2;\n" +
-						"			default -> 3;\n" +
-						"		};\n" +
-						"		return tw;\n" +
-						"	}\n" +
-						"	public static void main(String... args) {\n" +
-						"		System.out.print(twice(3));\n" +
-						"	}\n" +
-						"}\n"
-					},
-					"3");
-		} finally {
-			this.enablePreview = old;
-		}
+								"	static int twice(int i) {\n" +
+								"		int tw = switch (i) {\n" +
+								"			case 0 -> i * 0;\n" +
+								"			case 1 -> 2;\n" +
+								"			default -> 3;\n" +
+								"		};\n" +
+								"		return tw;\n" +
+								"	}\n" +
+								"	public static void main(String... args) {\n" +
+								"		System.out.print(twice(3));\n" +
+								"	}\n" +
+								"}\n"
+				},
+				"3",
+				null,
+				new String[] {"--enable-preview"});
 	}
 	public void testSwitchExpression_531714_002() {
-		boolean old = this.enablePreview;
-		try {
-			this.enablePreview = true;
-			runConformTest(
-					new String[] {
+		runConformTest(
+				new String[] {
 						"X.java",
 						"public class X {\n"+
 								"	static int twice(int i) throws Exception {\n"+
@@ -109,11 +102,10 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 								"		}\n"+
 								"	}\n"+
 								"}\n"
-					},
-					"Got Exception");
-		} finally {
-			this.enablePreview = old;
-		}
+				},
+				"Got Exception",
+				null,
+				new String[] {"--enable-preview"});
 	}
 	public void testBug531714_error_003() {
 		this.runNegativeTest(
@@ -245,36 +237,32 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	 * dev note: ref consumeToken().case Switch 
 	 */
 	public void testBug531714_error_007() {
-		boolean old = this.enablePreview;
-		try {
-			this.enablePreview = true;
-			runConformTest(
-					new String[] {
+		runConformTest(
+				new String[] {
 						"X.java",
 						"public class X {\n"+
-						"	static int foo(int i) {\n"+
-						"		int tw = \n"+
-						"		switch (i) {\n"+
-						"			case 1 -> \n"+
-						"			 {\n"+
-						" 				int z = 100;\n"+
-						" 				break z;\n"+
-						"			}\n"+
-						"			default -> {\n"+
-						"				break 12;\n"+
-						"			}\n"+
-						"		};\n"+
-						"		return tw;\n"+
-						"	}\n"+
-						"	public static void main(String[] args) {\n"+
-						"		System.out.print(foo(1));\n"+
-						"	}\n"+
-						"}\n"
-					},
-					"100");
-		} finally {
-			this.enablePreview = old;
-		}
+								"	static int foo(int i) {\n"+
+								"		int tw = \n"+
+								"		switch (i) {\n"+
+								"			case 1 -> \n"+
+								"			 {\n"+
+								" 				int z = 100;\n"+
+								" 				break z;\n"+
+								"			}\n"+
+								"			default -> {\n"+
+								"				break 12;\n"+
+								"			}\n"+
+								"		};\n"+
+								"		return tw;\n"+
+								"	}\n"+
+								"	public static void main(String[] args) {\n"+
+								"		System.out.print(foo(1));\n"+
+								"	}\n"+
+								"}\n"
+				},
+				"100",
+				null,
+				new String[] {"--enable-preview"});
 	}
 	public void testBug531714_008() {
 		Map<String, String> disablePreviewOptions = getCompilerOptions();
@@ -430,37 +418,32 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				options);
 	}
 	public void testBug531714_011() {
-		boolean old = this.enablePreview;
-		try {
-			Map<String, String> options = getCompilerOptions();
-			options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-			options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
-			this.enablePreview = true;
-			String[] testFiles = new String[] {
-					"X.java",
-					"public class X {\n" +
-							"   @SuppressWarnings(\"preview\")\n" +
-							"	static int twice(int i) {\n" +
-							"		switch (i) {\n" +
-							"			default -> 3;\n" +
-							"		}\n" +
-							"		return 0;\n" +
-							"	}\n" +
-							"	public static void main(String[] args) {\n" +
-							"		System.out.print(twice(3));\n" +
-							"	}\n" +
-							"}\n",
-			};
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+						"   @SuppressWarnings(\"preview\")\n" +
+						"	static int twice(int i) {\n" +
+						"		switch (i) {\n" +
+						"			default -> 3;\n" +
+						"		}\n" +
+						"		return 0;\n" +
+						"	}\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.print(twice(3));\n" +
+						"	}\n" +
+						"}\n",
+		};
 
-			String expectedProblemLog =
-					"0";
-			this.runConformTest(
-					testFiles,
-					expectedProblemLog,
-					options);
-		} finally {
-			this.enablePreview = old;
-		}
+		String expectedProblemLog =
+				"0";
+		this.runConformTest(
+				testFiles,
+				expectedProblemLog,
+				options,
+				new String[] {"--enable-preview"});
 	}
 	public void testBug531714_012() {
 		Map<String, String> options = getCompilerOptions();
@@ -528,5 +511,619 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			null,
 			false,
 			new String[] { "--enable-preview"});
+	}
+	/*
+	 * A simple multi constant case statement, compiled and run as expected
+	 */
+	public void testBug543240_1() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+						"public static void bar(Day day) {\n" + 
+						"		switch (day) {\n" + 
+						"		case SATURDAY, SUNDAY: \n" + 
+						"			System.out.println(Day.SUNDAY);\n" + 
+						"			break;\n" + 
+						"		case MONDAY : System.out.println(Day.MONDAY);\n" + 
+						"					break;\n" + 
+						"		}\n" + 
+						"	}" +
+						"	public static void main(String[] args) {\n" +
+						"		bar(Day.SATURDAY);\n" +
+						"	}\n" +
+						"}\n" +
+						"enum Day { SATURDAY, SUNDAY, MONDAY;}",
+		};
+
+		String expectedProblemLog =
+				"SUNDAY";
+		this.runConformTest(
+				testFiles,
+				expectedProblemLog,
+				options,
+				new String[] { "--enable-preview"});
+	}
+	/*
+	 * A simple multi constant case statement, compiler reports missing enum constants
+	 */
+	public void testBug543240_1a() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+						"	public static void main(String[] args) {\n" + 
+						"	}\n" + 
+						"public static void bar(Day day) {\n" + 
+						"		switch (day) {\n" + 
+						"		case SATURDAY, SUNDAY: \n" + 
+						"			System.out.println(Day.SUNDAY);\n" + 
+						"			break;\n" + 
+						"		case MONDAY : System.out.println(Day.MONDAY);\n" + 
+						"					break;\n" + 
+						"		}\n" + 
+						"	}" +
+						"}\n" +
+						"enum Day { SATURDAY, SUNDAY, MONDAY, TUESDAY;}",
+		};
+
+		String expectedProblemLog =
+						"----------\n" + 
+						"1. WARNING in X.java (at line 5)\n" + 
+						"	switch (day) {\n" + 
+						"	        ^^^\n" + 
+						"The enum constant TUESDAY needs a corresponding case label in this enum switch on Day\n" + 
+						"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] { "--enable-preview"},
+				options);
+	}
+	/*
+	 * A simple multi constant case statement with duplicate enums
+	 */
+	public void testBug543240_2() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+						"public static void bar(Day day) {\n" + 
+						"		switch (day) {\n" + 
+						"		case SATURDAY, SUNDAY: \n" + 
+						"			System.out.println(Day.SUNDAY);\n" + 
+						"			break;\n" + 
+						"		case SUNDAY : System.out.println(Day.SUNDAY);\n" + 
+						"					break;\n" + 
+						"		}\n" + 
+						"	}" +
+						"	public static void main(String[] args) {\n" +
+						"		bar(Day.SATURDAY);\n" +
+						"	}\n" +
+						"}\n" +
+						"enum Day { SATURDAY, SUNDAY, MONDAY;}",
+		};
+
+		String expectedProblemLog =
+						"----------\n" + 
+						"1. ERROR in X.java (at line 7)\n" + 
+						"	case SUNDAY : System.out.println(Day.SUNDAY);\n" + 
+						"	^^^^^^^^^^^\n" + 
+						"Duplicate case\n" + 
+						"----------\n" + 
+						"2. ERROR in X.java (at line 7)\n" + 
+						"	case SUNDAY : System.out.println(Day.SUNDAY);\n" + 
+						"	^^^^^^^^^^^\n" + 
+						"Duplicate case\n" + 
+						"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				options);
+	}
+	/*
+	 * A simple multi constant case statement with duplicate enums
+	 */
+	public void testBug543240_2a() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+						"public static void bar(Day day) {\n" + 
+						"		switch (day) {\n" + 
+						"		case SATURDAY, SUNDAY: \n" + 
+						"			System.out.println(Day.SUNDAY);\n" + 
+						"			break;\n" + 
+						"		case SUNDAY, SATURDAY : \n" +
+						"			System.out.println(Day.SUNDAY);\n" + 
+						"			break;\n" + 
+						"		}\n" + 
+						"	}" +
+						"}\n" +
+						"enum Day { SATURDAY, SUNDAY, MONDAY;}",
+		};
+
+		String expectedProblemLog =
+						"----------\n" + 
+						"1. WARNING in X.java (at line 3)\n" + 
+						"	switch (day) {\n" + 
+						"	        ^^^\n" + 
+						"The enum constant MONDAY needs a corresponding case label in this enum switch on Day\n" + 
+						"----------\n" + 
+						"2. ERROR in X.java (at line 7)\n" + 
+						"	case SUNDAY, SATURDAY : \n" + 
+						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+						"Duplicate case\n" + 
+						"----------\n" + 
+						"3. ERROR in X.java (at line 7)\n" + 
+						"	case SUNDAY, SATURDAY : \n" + 
+						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+						"Duplicate case\n" + 
+						"----------\n" + 
+						"4. ERROR in X.java (at line 7)\n" + 
+						"	case SUNDAY, SATURDAY : \n" + 
+						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+						"Duplicate case\n" + 
+						"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				options);
+	}
+	/*
+	 * 
+	 */
+	public void testBug543240_3() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+						"public static void bar(Day day) {\n" + 
+						"		switch (day) {\n" + 
+						"		case SATURDAY, SUNDAY: \n" + 
+						"			System.out.println(Day.SUNDAY);\n" + 
+						"			break;\n" + 
+						"		case TUESDAY : System.out.println(Day.SUNDAY);\n" + 
+						"					break;\n" + 
+						"		}\n" + 
+						"	}" +
+						"	public static void main(String[] args) {\n" +
+						"		bar(Day.SATURDAY);\n" +
+						"	}\n" +
+						"}\n" +
+						"enum Day { SATURDAY, SUNDAY, MONDAY, TUESDAY;}",
+		};
+
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. WARNING in X.java (at line 3)\n" + 
+				"	switch (day) {\n" + 
+				"	        ^^^\n" + 
+				"The enum constant MONDAY needs a corresponding case label in this enum switch on Day\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] {"--enable-preview"},
+				options);
+	}
+	public void testBug543240_4() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+						"public static void bar(Day day) {\n" + 
+						"		switch (day) {\n" + 
+						"		case SATURDAY, SUNDAY: \n" + 
+						"			System.out.println(day);\n" + 
+						"			break;\n" + 
+						"		case MONDAY : System.out.println(0);\n" + 
+						"					break;\n" + 
+						"		}\n" + 
+						"	}" +
+						"	public static void main(String[] args) {\n" +
+						"		bar(Day.SATURDAY);\n" +
+						"		bar(Day.MONDAY);\n" +
+						"		bar(Day.SUNDAY);\n" +
+						"	}\n" +
+						"}\n" +
+						"enum Day { SATURDAY, SUNDAY, MONDAY;}",
+		};
+
+		String expectedProblemLog =
+				"SATURDAY\n" + 
+				"0\n" + 
+				"SUNDAY";
+		this.runConformTest(
+				testFiles,
+				expectedProblemLog,
+				options,
+				new String[] {"--enable-preview"});
+	}
+	/*
+	 * Simple switch case with string literals
+	 */
+	public void testBug543240_5() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+						"	public static void main(String[] args) {\n" + 
+						"		bar(\"a\");\n" + 
+						"		bar(\"b\");\n" + 
+						"		bar(\"c\");\n" + 
+						"		bar(\"d\");\n" + 
+						"	}\n" + 
+						"	public static void bar(String s) {\n" + 
+						"		switch(s) {\n" + 
+						"		case \"a\":\n" + 
+						"		case \"b\":\n" + 
+						"			System.out.println(\"A/B\");\n" + 
+						"			break;\n" + 
+						"		case \"c\":\n" + 
+						"			System.out.println(\"C\");\n" + 
+						"			break;\n" + 
+						"		default:\n" + 
+						"			System.out.println(\"NA\");\n" + 
+						"		}\n" + 
+						"	}\n" + 
+						"}",
+		};
+		String expectedProblemLog =
+				"A/B\n" + 
+				"A/B\n" + 
+				"C\n" + 
+				"NA";
+		this.runConformTest(
+				testFiles,
+				expectedProblemLog,
+				options,
+				new String[] {"--enable-preview"});
+	}
+	public void testBug543240_6() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+						"	public static void main(String[] args) {\n" + 
+						"		bar(\"a\");\n" + 
+						"		bar(\"b\");\n" + 
+						"		bar(\"c\");\n" + 
+						"		bar(\"d\");\n" + 
+						"	}\n" + 
+						"	public static void bar(String s) {\n" + 
+						"		switch(s) {\n" + 
+						"		case \"a\", \"b\":\n" + 
+						"			System.out.println(\"A/B\");\n" + 
+						"			break;\n" + 
+						"		case \"c\":\n" + 
+						"			System.out.println(\"C\");\n" + 
+						"			break;\n" + 
+						"		default:\n" + 
+						"			System.out.println(\"NA\");\n" + 
+						"		}\n" + 
+						"	}\n" + 
+						"}",
+		};
+		String expectedProblemLog =
+				"A/B\n" + 
+				"A/B\n" + 
+				"C\n" + 
+				"NA";
+		this.runConformTest(
+				testFiles,
+				expectedProblemLog,
+				options,
+				new String[] {"--enable-preview"});
+	}
+	/*
+	 * Switch with multi constant case statements with string literals
+	 * two string literals with same hashcode
+	 */
+	public void testBug543240_7() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+						"	public static void main(String[] args) {\n" + 
+						"		bar(\"FB\");\n" + 
+						"		bar(\"Ea\");\n" + 
+						"		bar(\"c\");\n" + 
+						"		bar(\"D\");\n" + 
+						"	}\n" + 
+						"	public static void bar(String s) {\n" + 
+						"		switch(s) {\n" + 
+						"		case \"FB\", \"c\":\n" + 
+						"			System.out.println(\"A\");\n" + 
+						"			break;\n" + 
+						"		case \"Ea\":\n" + 
+						"			System.out.println(\"B\");\n" + 
+						"			break;\n" + 
+						"		default:\n" + 
+						"			System.out.println(\"NA\");\n" + 
+						"		}\n" + 
+						"	}\n" + 
+						"}",
+		};
+		String expectedProblemLog =
+				"A\n" + 
+				"B\n" + 
+				"A\n" + 
+				"NA";
+		this.runConformTest(
+				testFiles,
+				expectedProblemLog,
+				options,
+				new String[] {"--enable-preview"});
+	}
+	/*
+	 * Switch with multi constant case statements with integer constants
+	 */
+	public void testBug543240_8() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+						"	public static void main(String[] args) {\n" + 
+						"		bar(1);\n" + 
+						"		bar(2);\n" + 
+						"		bar(3);\n" + 
+						"		bar(4);\n" + 
+						"		bar(5);\n" + 
+						"	}\n" + 
+						"	public static void bar(int i) {\n" + 
+						"		switch (i) {\n" + 
+						"		case 1, 3: \n" + 
+						"			System.out.println(\"Odd\");\n" + 
+						"			break;\n" + 
+						"		case 2, 4: \n" + 
+						"			System.out.println(\"Even\");\n" + 
+						"			break;\n" + 
+						"			default:\n" + 
+						"				System.out.println(\"Out of range\");\n" + 
+						"		}\n" + 
+						"	}\n" + 
+						"}",
+		};
+		String expectedProblemLog =
+				"Odd\n" + 
+				"Even\n" + 
+				"Odd\n" + 
+				"Even\n" + 
+				"Out of range";
+		this.runConformTest(
+				testFiles,
+				expectedProblemLog,
+				options,
+				new String[] {"--enable-preview"});
+	}
+	/*
+	 * Switch multi-constant with mixed constant types, reported
+	 */
+	public void testBug543240_9() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+						"	public static void main(String[] args) {\n" + 
+						"	}\n" + 
+						"	public static void bar(int i) {\n" + 
+						"		switch (i) {\n" + 
+						"		case 1, 3: \n" + 
+						"			System.out.println(\"Odd\");\n" + 
+						"			break;\n" + 
+						"		case \"2\": \n" + 
+						"			System.out.println(\"Even\");\n" + 
+						"			break;\n" + 
+						"		default:\n" + 
+						"				System.out.println(\"Out of range\");\n" + 
+						"		}\n" + 
+						"	}\n" + 
+						"}",
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 9)\n" + 
+				"	case \"2\": \n" + 
+				"	     ^^^\n" + 
+				"Type mismatch: cannot convert from String to int\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				options);
+	}
+	/*
+	 * Switch multi-constant without break statement, reported
+	 */
+	public void testBug543240_10() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.WARNING);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+						"	public static void main(String[] args) {\n" + 
+						"	}\n" + 
+						"	public static void bar(int i) {\n" + 
+						"		switch (i) {\n" + 
+						"		case 1, 3: \n" + 
+						"			System.out.println(\"Odd\");\n" + 
+						"		case 2, 4: \n" + 
+						"			System.out.println(\"Even\");\n" + 
+						"			break;\n" +
+						"		default:\n" + 
+						"				System.out.println(\"Out of range\");\n" + 
+						"		}\n" + 
+						"	}\n" + 
+						"}",
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. WARNING in X.java (at line 8)\n" + 
+				"	case 2, 4: \n" + 
+				"	^^^^^^^^^\n" + 
+				"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] { "--enable-preview"},
+				options);
+	}
+	/*
+	 * Switch multi-constant without break statement, reported
+	 */
+	public void testBug543240_11() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+						"	public static void main(String[] args) {\n" + 
+						"	}\n" + 
+						"	public static void bar(int i) {\n" + 
+						"		switch (i) {\n" + 
+						"		case 1, 3: \n" + 
+						"			System.out.println(\"Odd\");\n" + 
+						"		case 2, 4: \n" + 
+						"			System.out.println(\"Even\");\n" + 
+						"		}\n" + 
+						"	}\n" + 
+						"}",
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	switch (i) {\n" + 
+				"	        ^\n" + 
+				"The switch statement should have a default case\n" + 
+						"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] { "--enable-preview"},
+				options);
+	}
+	/*
+	 * Switch multi-constant with duplicate int constants
+	 */
+	public void testBug543240_12() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+						"	public static void main(String[] args) {\n" + 
+						"	}\n" + 
+						"	public static void bar(int i) {\n" + 
+						"		switch (i) {\n" + 
+						"		case 1, 3: \n" + 
+						"			System.out.println(\"Odd\");\n" + 
+						"		case 3, 4: \n" + 
+						"			System.out.println(\"Odd\");\n" + 
+						"		}\n" + 
+						"	}\n" + 
+						"}",
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	case 3, 4: \n" + 
+				"	^^^^^^^^^\n" + 
+				"Duplicate case\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	case 3, 4: \n" + 
+				"	^^^^^^^^^\n" + 
+				"Duplicate case\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				options);
+	}
+	/*
+	 * Switch multi-constant with duplicate String literals
+	 */
+	public void testBug543240_13() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+						"	public static void main(String[] args) {\n" + 
+						"	}\n" + 
+						"	public static void bar(String s) {\n" + 
+						"		switch (s) {\n" + 
+						"		case \"a\", \"b\": \n" + 
+						"			System.out.println(\"Odd\");\n" + 
+						"		case \"b\", \"c\": \n" + 
+						"			System.out.println(\"Odd\");\n" + 
+						"		}\n" + 
+						"	}\n" + 
+						"}",
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	case \"b\", \"c\": \n" + 
+				"	^^^^^^^^^^^^^\n" + 
+				"Duplicate case\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	case \"b\", \"c\": \n" + 
+				"	^^^^^^^^^^^^^\n" + 
+				"Duplicate case\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				options);
 	}
 }

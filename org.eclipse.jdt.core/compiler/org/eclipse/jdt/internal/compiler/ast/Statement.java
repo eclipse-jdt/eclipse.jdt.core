@@ -447,10 +447,10 @@ public abstract void resolve(BlockScope scope);
  * Returns case constant associated to this statement (NotAConstant if none)
  * parameter statement has to be either a SwitchStatement or a SwitchExpression
  */
-public Constant resolveCase(BlockScope scope, TypeBinding testType, SwitchStatement switchStatement) {
+public Constant[] resolveCase(BlockScope scope, TypeBinding testType, SwitchStatement switchStatement) {
 	// statement within a switch that are not case are treated as normal statement....
 	resolve(scope);
-	return Constant.NotAConstant;
+	return new Constant[] {Constant.NotAConstant};
 }
 /**
  * Returns the resolved expression if any associated to this statement - used
