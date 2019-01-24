@@ -49,6 +49,10 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		return defaultOptions;
 	}
 	
+	@Override
+	protected void runConformTest(String[] testFiles, Map customOptions) {
+		super.runConformTest(testFiles, "", null, true, new String[] {"--enable-preview"}, customOptions, null);
+	}
 
 	public void testSimpleExpressions() {
 		runConformTest(
@@ -1156,5 +1160,115 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				null,
 				true,
 				options);
+	}
+	public void testBug543799_1() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+			"X.java",
+			"public class X {\n" +
+			"		void test(int i) {\n" + 
+			"		need(switch (i) {\n" + 
+			"			case 1 -> \"\";\n" + 
+			"			default -> i == 3 ? null : \"\";\n" + 
+			"		}); \n" + 
+			"	}\n" + 
+			"	void need(String s) {\n" + 
+			"		System.out.println(s.toLowerCase());\n" + 
+			"	}\n" + 
+			"" +
+			"}\n"
+		};
+		runConformTest(testFiles, options);
+	}
+	public void testBug543799_2() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	void test(int i) {\n" + 
+			"		need(switch (i) {\n" + 
+			"			case 1: break \"\";\n" + 
+			"			default: break i == 3 ? null : \"\";\n" + 
+			"		}); \n" + 
+			"	}\n" + 
+			"	void need(String s) {\n" + 
+			"		System.out.println(s.toLowerCase());\n" + 
+			"	}\n" +
+			"}\n"
+		};
+		runConformTest(testFiles, options);
+	}
+	public void testBug543799_3() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+			"X.java",
+			"interface I0 { void i(); }\n" + 
+			"interface I1 extends I0 {}\n" + 
+			"interface I2 extends I0 {}\n" +
+			"public class X {\n" +
+			"	I1 n1() { return null; }\n" + 
+			"	<I extends I2> I n2() { return null; }\n" + 
+			"	<M> M m(M m) { return m; }\n" + 
+			"	void test(int i, boolean b) {\n" + 
+			"		m(switch (i) {\n" + 
+			"			case 1 -> n1();\n" + 
+			"			default -> b ? n1() : n2();\n" + 
+			"		}).i(); \n" + 
+			"	}\n" + 
+			"}\n"
+		};
+		runConformTest(testFiles, options);
+	}
+	public void testBug543799_4() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+			"X.java",
+			"import java.util.function.Supplier;\n" +
+			"interface I0 { void i(); }\n" + 
+			"interface I1 extends I0 {}\n" + 
+			"interface I2 extends I0 {}\n" +
+			"public class X {\n" +
+			"	I1 n1() { return null; }\n" + 
+			"	<I extends I2> I n2() { return null; }\n" + 
+			"	<M> M m(Supplier<M> m) { return m.get(); }\n" + 
+			"	void test(int i, boolean b) {\n" + 
+			"		m(switch (i) {\n" + 
+			"			case 1 -> this::n1;\n" + 
+			"			default -> this::n2;\n" + 
+			"		}).i(); \n" + 
+			"	}\n" + 
+			"}\n"
+		};
+		runConformTest(testFiles, options);
+	}
+	public void testBug543799_5() {
+		// require resolving/inferring of poly-switch-expression during ASTNode.resolvePolyExpressionArguments()
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+			"X.java",
+			"public class X {\n" +
+			"		void test(int i) {\n" + 
+			"		need(switch (i) {\n" + 
+			"			case 1 -> 1.0f;\n" + 
+			"			default -> i == 3 ? 3 : 5.0d;\n" + 
+			"		}); \n" + 
+			"	}\n" + 
+			"	<N extends Number> void need(N s) {\n" + 
+			"		System.out.println(s.toString());\n" + 
+			"	}\n" + 
+			"" +
+			"}\n"
+		};
+		runConformTest(testFiles, options);
 	}
 }

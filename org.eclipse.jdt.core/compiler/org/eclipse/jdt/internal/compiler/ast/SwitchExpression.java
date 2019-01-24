@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -286,50 +287,69 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	@Override
 	public TypeBinding resolveType(BlockScope upperScope) {
 		try {
-			this.constant = Constant.NotAConstant;
-
-			// tag break statements and (alongwih in the same pass) collect the result expressions
-			collectResultExpressions();
-
-			resolve(upperScope);
-
-			if (this.statements == null || this.statements.length == 0) {
-				//	Report Error JLS 12 15.29.1  The switch block must not be empty.
-				upperScope.problemReporter().switchExpressionEmptySwitchBlock(this);
-				return null;
-			}
-			
-			int resultExpressionsCount = this.resultExpressions != null ? this.resultExpressions.size() : 0;
-			if (resultExpressionsCount == 0) {
-				//  Report Error JLS 12 15.29.1 
-				// It is a compile-time error if a switch expression has no result expressions.
-				upperScope.problemReporter().switchExpressionNoResultExpressions(this);
-				return null;
-			}
-			//A switch expression is a poly expression if it appears in an assignment context or an invocation context (5.2, 5.3). 
-			//Otherwise, it is a standalone expression.
-			if (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) {
-				for (Expression e : this.resultExpressions) {
-					//Where a poly switch expression appears in a context of a particular kind with target type T,
-					//its result expressions similarly appear in a context of the same kind with target type T.
-					e.setExpressionContext(this.expressionContext);
-					e.setExpectedType(this.expectedType);
+			int resultExpressionsCount;
+			if (this.constant != Constant.NotAConstant) {
+				this.constant = Constant.NotAConstant;
+	
+				// tag break statements and (alongwih in the same pass) collect the result expressions
+				collectResultExpressions();
+	
+				// A switch expression is a poly expression if it appears in an assignment context or an invocation context (5.2, 5.3). 
+				// Otherwise, it is a standalone expression.
+				if (this.expressionContext == ASSIGNMENT_CONTEXT || this.expressionContext == INVOCATION_CONTEXT) {
+					for (Expression e : this.resultExpressions) {
+						//Where a poly switch expression appears in a context of a particular kind with target type T,
+						//its result expressions similarly appear in a context of the same kind with target type T.
+						e.setExpressionContext(this.expressionContext);
+						e.setExpectedType(this.expectedType);
+					}
 				}
-			}
-
-			if (this.originalValueResultExpressionTypes == null) {
-				this.originalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
-				this.finalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
-				for (int i = 0; i < resultExpressionsCount; ++i) {
-					this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i] =
-							this.resultExpressions.get(i).resolvedType;
+	
+				resolve(upperScope);
+	
+				if (this.statements == null || this.statements.length == 0) {
+					//	Report Error JLS 12 15.29.1  The switch block must not be empty.
+					upperScope.problemReporter().switchExpressionEmptySwitchBlock(this);
+					return null;
 				}
-			}
-			if (isPolyExpression()) { //The type of a poly switch expression is the same as its target type.
-				if (this.expectedType == null || !this.expectedType.isProperType(true)) {
-					return new PolyTypeBinding(this);
+				
+				resultExpressionsCount = this.resultExpressions != null ? this.resultExpressions.size() : 0;
+				if (resultExpressionsCount == 0) {
+					//  Report Error JLS 12 15.29.1 
+					// It is a compile-time error if a switch expression has no result expressions.
+					upperScope.problemReporter().switchExpressionNoResultExpressions(this);
+					return null;
 				}
-				return this.resolvedType = computeConversions(this.scope, this.expectedType) ? this.expectedType : null;
+	
+				if (this.originalValueResultExpressionTypes == null) {
+					this.originalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
+					this.finalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];
+					for (int i = 0; i < resultExpressionsCount; ++i) {
+						this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i] =
+								this.resultExpressions.get(i).resolvedType;
+					}
+				}
+				if (isPolyExpression()) { //The type of a poly switch expression is the same as its target type.
+					if (this.expectedType == null || !this.expectedType.isProperType(true)) {
+						return new PolyTypeBinding(this);
+					}
+					return this.resolvedType = computeConversions(this.scope, this.expectedType) ? this.expectedType : null;
+				}
+				// fall through
+			} else {
+				// re-resolving of poly expression:
+				resultExpressionsCount = this.resultExpressions != null ? this.resultExpressions.size() : 0;
+				for (int i = 0; i < resultExpressionsCount; i++) {
+					Expression resultExpr = this.resultExpressions.get(i);
+					if (resultExpr.resolvedType == null || resultExpr.resolvedType.kind() == Binding.POLY_TYPE) {
+						this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i] = 
+							resultExpr.resolveTypeExpecting(upperScope, this.expectedType);
+					}
+					if (resultExpr.resolvedType == null || !resultExpr.resolvedType.isValidBinding())
+						return this.resolvedType = null;
+				}
+				this.resolvedType = computeConversions(this.scope, this.expectedType) ? this.expectedType : null;
+				// fall through
 			}
 
 			if (resultExpressionsCount == 1)
