@@ -1126,4 +1126,35 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	public void testBug543691() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@SuppressWarnings(\"preview\")\n" + 
+				"	public static void bar(int  i) {\n" + 
+				"		i = switch (i+0) {\n" + 
+				"			default: System.out.println(0);\n" + 
+				"		}; " + 
+				"	}\n" + 
+				"}",
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	i = switch (i+0) {\n" + 
+				"			default: System.out.println(0);\n" + 
+				"		}; 	}\n" + 
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"A switch expression should have at least one result expression\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				options);
+	}
 }
