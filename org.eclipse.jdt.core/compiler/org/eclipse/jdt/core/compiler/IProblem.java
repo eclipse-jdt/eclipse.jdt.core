@@ -377,11 +377,13 @@ void setSourceStart(int sourceStart);
 	int Javadoc = 0x80000000;
 	/** @since 3.14 */
 	int ModuleRelated = 0x00800000;
+	/** @since 3.17 BETA_JAVA_12 */
+	int Compliance = 0x00400000;
 
 	/**
 	 * Mask to use in order to filter out the category portion of the problem ID.
 	 */
-	int IgnoreCategoriesMask = 0x7FFFFF;
+	int IgnoreCategoriesMask = 0x3FFFFF;
 
 	/*
 	 * Below are listed all available problem IDs. Note that this list could be augmented in the future,
@@ -2050,11 +2052,11 @@ void setSourceStart(int sourceStart);
 	/** @since 3.13 */
 	int ProblemNotAnalysed = 1102;
 	/** @since 3.17 BETA_JAVA_12 */
-	int PreviewFeatureDisabled = Syntax + 1103;
+	int PreviewFeatureDisabled = Compliance + 1103;
 	/** @since 3.17 BETA_JAVA_12 */
-	int PreviewFeatureUsed = Syntax + 1104;
+	int PreviewFeatureUsed = Compliance + 1104;
 	/** @since 3.17 BETA_JAVA_12 */
-	int PreviewFeatureNotSupported = Syntax + 1105;
+	int PreviewFeatureNotSupported = Compliance + 1105;
 	
 	/** @since 3.13 */
 	int UnlikelyCollectionMethodArgumentType = 1200;

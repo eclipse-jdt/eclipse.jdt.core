@@ -763,6 +763,8 @@ public class CompilerOptions {
 				return OPTION_ReportAPILeak;
 			case UnstableAutoModuleName:
 				return OPTION_ReportUnstableAutoModuleName;
+			case PreviewFeatureUsed:
+				return OPTION_ReportPreviewFeatures;
 		}
 		return null;
 	}
