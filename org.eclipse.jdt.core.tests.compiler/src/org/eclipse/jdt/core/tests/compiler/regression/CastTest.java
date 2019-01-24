@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2017 IBM Corporation and others.
+ * Copyright (c) 2003, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3297,6 +3297,54 @@ public void testAnonymous_bug520727() {
 		runConformTest(source,"");
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=543727 False positive "Unnecessary cast"
+public void test543727() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"Bug.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"public class Bug {\n" +
+			"   public static int main(String[] args) {\n" +
+	 		"       List<Comparable<?>> vector = new ArrayList<>();\n" +
+			"       vector.add(0);\n" +
+	 		"       if (vector.get(0) == (Integer)0) {\n" +
+			"           System.out.print(\"SUCCESS\");\n" +
+	 		"       }\n" +
+			"       return 0;\n" +
+	 		"   }" +
+			"}\n",
+		},
+		"SUCCESS");
+}
+public void test543727_notequals() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"Bug.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"public class Bug {\n" +
+			"   public static int main(String[] args) {\n" +
+	 		"       List<Comparable<?>> vector = new ArrayList<>();\n" +
+			"       vector.add(0);\n" +
+	 		"       if (vector.get(0) != (Integer)1) {\n" +
+			"           System.out.print(\"SUCCESS\");\n" +
+	 		"       }\n" +
+			"       return 0;\n" +
+	 		"   }" +
+			"}\n",
+		},
+		"SUCCESS");
+}
+
 public static Class testClass() {
 	return CastTest.class;
 }
