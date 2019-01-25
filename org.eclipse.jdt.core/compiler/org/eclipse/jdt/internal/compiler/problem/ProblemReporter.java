@@ -813,6 +813,8 @@ public static int getProblemCategory(int severity, int problemID) {
 				return CategorizedProblem.CAT_MEMBER;
 			if ((problemID & IProblem.ModuleRelated) != 0)
 				return CategorizedProblem.CAT_MODULE;
+			if ((problemID & IProblem.Compliance) != 0)
+				return CategorizedProblem.CAT_COMPLIANCE;
 	}
 	return CategorizedProblem.CAT_INTERNAL;
 }

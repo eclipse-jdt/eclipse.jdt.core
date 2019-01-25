@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2018 IBM Corporation and others.
+ * Copyright (c) 2006, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -303,7 +303,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 // templates, which can occur downstream in the localization process (assuming
 // that we always release the English version right)
 	public void test009_missing_message_templates() {
-		assertEquals("Unable to retrieve the error message for problem id: 8388607. Check compiler resources.",
+		assertEquals("Unable to retrieve the error message for problem id: 4194303. Check compiler resources.",
 				new DefaultProblemFactory().getLocalizedMessage(Integer.MAX_VALUE, new String[] {}));
 	}
 
@@ -1174,9 +1174,9 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("SwitchCaseLabelWithArrowNotBelow12", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 	    expectedProblemAttributes.put("SwitchExpressionPreviewDisabled", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 	    expectedProblemAttributes.put("SwitchCaseLabelWithArrowPreviewDisabled", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
-	    expectedProblemAttributes.put("PreviewFeatureDisabled", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
-	    expectedProblemAttributes.put("PreviewFeatureUsed", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
-	    expectedProblemAttributes.put("PreviewFeatureNotSupported", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("PreviewFeatureDisabled", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
+	    expectedProblemAttributes.put("PreviewFeatureUsed", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
+	    expectedProblemAttributes.put("PreviewFeatureNotSupported", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 		StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
