@@ -488,6 +488,68 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			options.put(CompilerOptions.OPTION_Source, release);
 		}
 	}
+	public void testBug531714_013() {
+			String[] testFiles = new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	public static int foo(int i) {\n" +
+					"		int v;\n" +
+					"		int t = switch (i) {\n" +
+					"		case 0 : {\n" +
+					"			break 0;\n" +
+					"		}\n" +
+					"		default :v = 2;\n" +
+					"		};\n" +
+					"		return t;\n" +
+					"	}\n" +
+					"	\n" +
+					"	public boolean bar() {\n" +
+					"		return true;\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		System.out.println(foo(3));\n" +
+					"	}\n" +
+					"}\n",
+			};
+
+			String expectedProblemLog =
+					"----------\n" + 
+					"1. ERROR in X.java (at line 8)\n" + 
+					"	default :v = 2;\n" + 
+					"	         ^^^^^\n" + 
+					"A switch labeled block in a switch expression should not complete normally\n" + 
+					"----------\n";
+			this.runNegativeTest(
+					testFiles,
+					expectedProblemLog,
+					null,
+					true,
+					getCompilerOptions());
+	}
+	public void testBug531714_014() {
+		// switch expression is not a Primary
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.testFiles = new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	void test(int i) {\n" +
+			"		System.out.println(switch (i) {\n" +
+			"			case 1 -> \"one\";\n" +
+			"			default -> null;\n" +
+			"		}.toLowerCase());\n" +
+			"	}\n" +
+			"}\n"
+		};
+		runner.expectedCompilerLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	}.toLowerCase());\n" + 
+				"	 ^\n" + 
+				"Syntax error on token \".\", , expected\n" + 
+				"----------\n";
+		runner.runNegativeTest();
+	}
 	public void testBug543673_001() {
 		runConformTest(
 			new String[] {

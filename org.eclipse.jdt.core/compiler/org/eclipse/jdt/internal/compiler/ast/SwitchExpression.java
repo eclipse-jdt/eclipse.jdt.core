@@ -31,6 +31,8 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -40,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class SwitchExpression extends SwitchStatement implements IPolyExpression {
 
@@ -49,7 +52,9 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	private TypeBinding[] originalValueResultExpressionTypes;
 	private TypeBinding[] finalValueResultExpressionTypes;
 
+	private int nullStatus = FlowInfo.UNKNOWN;
 	public List<Expression> resultExpressions;
+	/* package */ List<Integer> resultExpressionNullStatus;
 	private static Map<TypeBinding, TypeBinding[]> type_map;
 
 	static {
@@ -93,6 +98,37 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		}
 		return FALLTHROUGH;
 	}
+	@Override
+	public boolean checkNPE(BlockScope skope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
+		if ((this.nullStatus & FlowInfo.NULL) != 0)
+			skope.problemReporter().expressionNullReference(this);
+		else if ((this.nullStatus & FlowInfo.POTENTIALLY_NULL) != 0)
+			skope.problemReporter().expressionPotentialNullReference(this);
+		return true; // all checking done
+	}
+
+	private void computeNullStatus(FlowInfo flowInfo, FlowContext flowContext) {
+		 boolean precomputed = this.resultExpressionNullStatus.size() > 0;
+		 if (!precomputed)
+		         this.resultExpressionNullStatus.add(this.resultExpressions.get(0).nullStatus(flowInfo, flowContext));	int status =  this.resultExpressions.get(0).nullStatus(flowInfo, flowContext);
+		int combinedStatus = status;
+		boolean identicalStatus = true;
+		for (int i = 1, l = this.resultExpressions.size(); i < l; ++i) {
+		    if (!precomputed)
+	             this.resultExpressionNullStatus.add(this.resultExpressions.get(i).nullStatus(flowInfo, flowContext));
+		    int tmp = this.resultExpressions.get(i).nullStatus(flowInfo, flowContext);
+			identicalStatus &= status == tmp;
+			combinedStatus |= tmp;
+		}
+		if (identicalStatus) {
+			this.nullStatus = status;
+			return;
+		}
+		status = Expression.computeNullStatus(0, combinedStatus);
+		if (status > 0)
+			this.nullStatus = status;
+	}
+
 	@Override
 	protected void completeNormallyCheck(BlockScope blockScope) {
 		if (this.switchLabeledRules) return; // already taken care in getFallThroughState()
@@ -154,6 +190,12 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				return true;
 		}
 		return false;
+	}
+	@Override
+	public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
+		if ((this.implicitConversion & TypeIds.BOXING) != 0)
+			return FlowInfo.NON_NULL;
+		return this.nullStatus;
 	}
 	@Override
 	protected void statementGenerateCode(BlockScope currentScope, CodeStream codeStream, Statement statement) {
@@ -494,6 +536,21 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				return false;
 		}
 		return true;
+	}
+	@Override
+	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+		flowInfo = super.analyseCode(currentScope, flowContext, flowInfo);
+		this.resultExpressionNullStatus = new ArrayList<>(0);
+		final CompilerOptions compilerOptions = currentScope.compilerOptions();
+		if (compilerOptions.enableSyntacticNullAnalysisForFields) {
+			for (Expression re : this.resultExpressions) {
+				this.resultExpressionNullStatus.add(re.nullStatus(flowInfo, flowContext));
+				// wipe information that was meant only for this result expression:
+				flowContext.expireNullCheckedFieldInfo();			
+			}
+		}
+		computeNullStatus(flowInfo, flowContext);
+		return flowInfo;
 	}
 	private TypeBinding check_csb(Set<TypeBinding> typeSet, TypeBinding candidate) {
 		if (!typeSet.contains(candidate))

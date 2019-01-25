@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 GK Software AG and others.
+ * Copyright (c) 2011, 2019 GK Software AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
@@ -53,7 +57,7 @@ private static final String APACHE_DBUTILS_CONTENT = "package org.apache.commons
 	"}\n";
 
 static {
-//	TESTS_NAMES = new String[] { "testBug462371_shouldWarn" };
+//	TESTS_NAMES = new String[] { "testBug542707" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -5495,5 +5499,174 @@ public void testBug541705b() {
 		"}\n"
 	};
 	runner.runConformTest();
+}
+public void testBug542707_001() {
+	if (this.complianceLevel < ClassFileConstants.JDK12) return; // uses switch expression
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"import java.io.Closeable;\n"+
+			"import java.io.IOException;\n"+
+			"\n"+
+			"public class X implements Closeable{\n"+
+			"	public static int foo(int i) throws IOException {\n"+
+			"		int k = 0;\n"+
+			"		X x = null;\n"+
+			"		try {\n"+
+			"			x = new X();\n"+
+			"			x  = switch (i) { \n"+
+			"			  case 1  ->   {\n"+
+			"				 break x;\n"+
+			"			  }\n"+
+			"			  default -> x;\n"+
+			"			};\n"+
+			"		} finally {\n"+
+			"			x.close();\n"+
+			"		}\n"+
+			"		return k ;\n"+
+			"	}\n"+
+			"\n"+
+			"	public static void main(String[] args) {\n"+
+			"		try {\n"+
+			"			System.out.println(foo(3));\n"+
+			"		} catch (IOException e) {\n"+
+			"			// do nothing\n"+
+			"		}\n"+
+			"	}\n"+
+			"	@Override\n"+
+			"	public void close() throws IOException {\n"+
+			"		Zork();\n"+
+			"	}\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 31)\n" + 
+		"	Zork();\n" + 
+		"	^^^^\n" + 
+		"The method Zork() is undefined for the type X\n" + 
+		"----------\n",
+		options);
+}
+public void testBug542707_002() {
+	if (this.complianceLevel < ClassFileConstants.JDK12) return; // uses switch expression
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"import java.io.Closeable;\n"+
+			"import java.io.IOException;\n"+
+			"\n"+
+			"public class X implements Closeable{\n"+
+			"	public static int foo(int i) throws IOException {\n"+
+			"		int k = 0;\n"+
+			"		X x = null;\n"+
+			"		try {\n"+
+			"			x = new X();\n"+
+			"			x  = switch (i) { \n"+
+			"			  case 1  ->   {\n"+
+			"				 x = new X();\n"+
+			"				 break x;\n"+
+			"			  }\n"+
+			"			  default -> x;\n"+
+			"			};\n"+
+			"		} finally {\n"+
+			"			x.close();\n"+
+			"		}\n"+
+			"		return k ;\n"+
+			"	}\n"+
+			"\n"+
+			"	public static void main(String[] args) {\n"+
+			"		try {\n"+
+			"			System.out.println(foo(3));\n"+
+			"		} catch (IOException e) {\n"+
+			"			// do nothing\n"+
+			"		}\n"+
+			"	}\n"+
+			"	@Override\n"+
+			"	public void close() throws IOException {\n"+
+			"		Zork();\n"+
+			"	}\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	x = new X();\n" + 
+		"	^^^^^^^^^^^\n" + 
+		"Resource leak: \'x\' is not closed at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 32)\n" + 
+		"	Zork();\n" + 
+		"	^^^^\n" + 
+		"The method Zork() is undefined for the type X\n" + 
+		"----------\n",
+		options);
+}
+public void testBug542707_003() {
+	if (this.complianceLevel < ClassFileConstants.JDK12) return; // uses switch expression
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"import java.io.Closeable;\n"+
+			"import java.io.IOException;\n"+
+			"\n"+
+			"public class X implements Closeable{\n"+
+			"	public static int foo(int i) throws IOException {\n"+
+			"		int k = 0;\n"+
+			"		X x = null;\n"+
+			"		try {\n"+
+			"			x = new X();\n"+
+			"			x  = switch (i) { \n"+
+			"			  case 1  ->   {\n"+
+			"				 break new X();\n"+
+			"			  }\n"+
+			"			  default -> x;\n"+
+			"			};\n"+
+			"		} finally {\n"+
+			"			x.close();\n"+
+			"		}\n"+
+			"		return k ;\n"+
+			"	}\n"+
+			"\n"+
+			"	public static void main(String[] args) {\n"+
+			"		try {\n"+
+			"			System.out.println(foo(3));\n"+
+			"		} catch (IOException e) {\n"+
+			"			// do nothing\n"+
+			"		}\n"+
+			"	}\n"+
+			"	@Override\n"+
+			"	public void close() throws IOException {\n"+
+			"		Zork();\n"+
+			"	}\n"+
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	x  = switch (i) { \n" + 
+		"			  case 1  ->   {\n" + 
+		"				 break new X();\n" + 
+		"			  }\n" + 
+		"			  default -> x;\n" + 
+		"			};\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'x\' is not closed at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 31)\n" + 
+		"	Zork();\n" + 
+		"	^^^^\n" + 
+		"The method Zork() is undefined for the type X\n" + 
+		"----------\n",
+		options);
 }
 }

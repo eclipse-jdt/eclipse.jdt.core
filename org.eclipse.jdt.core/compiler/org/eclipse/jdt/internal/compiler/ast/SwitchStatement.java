@@ -135,7 +135,6 @@ public class SwitchStatement extends Expression {
 					} else {
 						fallThroughState = getFallThroughState(statement, currentScope); // reset below if needed
 					}
-					completeNormallyCheck(currentScope);
 					if ((complaintLevel = statement.complainIfUnreachable(caseInits, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 						caseInits = statement.analyseCode(this.scope, switchContext, caseInits);
 						if (caseInits == FlowInfo.DEAD_END) {
@@ -144,6 +143,7 @@ public class SwitchStatement extends Expression {
 						switchContext.expireNullCheckedFieldInfo();
 					}
 				}
+				completeNormallyCheck(currentScope);
 			}
 
 			final TypeBinding resolvedTypeBinding = this.expression.resolvedType;

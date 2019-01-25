@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -176,7 +180,16 @@ void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, Flow
 		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfTrue, flowInfo, ce.ifTrueNullStatus, expectedNonNullness, originalExpected);
 		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfFalse, flowInfo, ce.ifFalseNullStatus, expectedNonNullness, originalExpected);
 		return;
+	} else 	if (argument instanceof SwitchExpression && argument.isPolyExpression()) {
+		SwitchExpression se = (SwitchExpression) argument;
+		for (int i = 0; i < se.resultExpressions.size(); i++) {
+			se.internalAnalyseOneArgument18(currentScope, flowContext, expectedType,
+					se.resultExpressions.get(i), flowInfo,
+					se.resultExpressionNullStatus.get(i), expectedNonNullness, originalExpected);
+		}
+		return;
 	}
+
 	int nullStatus = argument.nullStatus(flowInfo, flowContext);
 	internalAnalyseOneArgument18(currentScope, flowContext, expectedType, argument, flowInfo,
 									nullStatus, expectedNonNullness, originalExpected);
@@ -233,6 +246,14 @@ protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requ
 		ConditionalExpression ce = (ConditionalExpression) expression;
 		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfTrue, ce.ifTrueNullStatus, flowContext, flowInfo);
 		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfFalse, ce.ifFalseNullStatus, flowContext, flowInfo);
+		return;
+	} else 	if (expression instanceof SwitchExpression && expression.isPolyExpression()) {
+		SwitchExpression se = (SwitchExpression) expression;
+		for (int i = 0; i < se.resultExpressions.size(); i++) {
+			internalCheckAgainstNullTypeAnnotation(scope, requiredType, 
+					se.resultExpressions.get(i), 
+					se.resultExpressionNullStatus.get(i), flowContext, flowInfo);
+		}
 		return;
 	}
 	int nullStatus = expression.nullStatus(flowInfo, flowContext);

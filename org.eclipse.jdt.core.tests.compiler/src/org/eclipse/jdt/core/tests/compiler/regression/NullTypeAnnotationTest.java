@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2018 GK Software AG and others.
+ * Copyright (c) 2012, 2019 GK Software AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
@@ -17748,5 +17752,52 @@ public void testBug540264() {
 		"x cannot be resolved to a variable\n" + 
 		"----------\n"
 	);
+}
+public void testBug542707_1() {
+	if (this.complianceLevel < ClassFileConstants.JDK12) return; // switch expression
+	// switch expression has a functional type with interesting type inference and various null issues:
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	runner.classLibraries = this.LIBS;
+	runner.testFiles = new String[] {
+		"X.java",
+		"import org.eclipse.jdt.annotation.*;\n" +
+		"import java.util.function.*;\n" +
+		"interface IN0 {}\n" + 
+		"interface IN1 extends IN0 {}\n" + 
+		"interface IN2 extends IN0 {}\n" +
+		"public class X {\n" +
+		"	@NonNull IN1 n1() { return new IN1() {}; }\n" + 
+		"	IN2 n2() { return null; }\n" + 
+		"	<M> void m(@NonNull Supplier<@NonNull M> m2) { }\n" + 
+		"	void testSw(int i) {\n" + 
+		"		m(switch(i) {\n" + 
+		"			case 1 -> this::n1;\n" + 
+		"			case 2 -> () -> n1();\n" + 
+		"			case 3 -> null;\n" + 
+		"			case 4 -> () -> n2();\n" + 
+		"			default -> this::n2; });\n" + 
+		"	}\n" +
+		"}\n"
+	};
+	runner.expectedCompilerLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 14)\n" + 
+			"	case 3 -> null;\n" + 
+			"	          ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull Supplier<@NonNull IN0>\' but the provided value is null\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 15)\n" + 
+			"	case 4 -> () -> n2();\n" + 
+			"	                ^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'IN2\' needs unchecked conversion to conform to \'@NonNull IN0\'\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 16)\n" + 
+			"	default -> this::n2; });\n" + 
+			"	           ^^^^^^^^\n" + 
+			"Null type safety at method return type: Method descriptor Supplier<IN0>.get() promises \'@NonNull IN0\' but referenced method provides \'IN2\'\n" + 
+			"----------\n";
+	runner.runNegativeTest();
 }
 }

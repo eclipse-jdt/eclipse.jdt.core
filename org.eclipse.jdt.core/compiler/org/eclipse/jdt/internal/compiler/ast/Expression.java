@@ -713,6 +713,15 @@ public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding 
 	}
 }
 
+public static int computeNullStatus(int status, int combinedStatus) {
+	if ((combinedStatus & (FlowInfo.NULL|FlowInfo.POTENTIALLY_NULL)) != 0)
+		status |= FlowInfo.POTENTIALLY_NULL;
+	if ((combinedStatus & (FlowInfo.NON_NULL|FlowInfo.POTENTIALLY_NON_NULL)) != 0)
+		status |= FlowInfo.POTENTIALLY_NON_NULL;
+	if ((combinedStatus & (FlowInfo.UNKNOWN|FlowInfo.POTENTIALLY_UNKNOWN)) != 0)
+		status |= FlowInfo.POTENTIALLY_UNKNOWN;
+	return status;
+}
 /**
  * Expression statements are plain expressions, however they generate like
  * normal expressions with no value required.
