@@ -337,8 +337,8 @@ public void testBug541532_01() throws IOException {
 			"		String[] greetings = {\"hello\", \"world\"};\n" +
 			"		X.foo(Arrays.asList(greetings));\n" +
 			"	}\n" +
-			"}\n",
-			"hello\nworld"
-	});
+			"}\n"
+		},
+		"hello\nworld");
 }
 }
