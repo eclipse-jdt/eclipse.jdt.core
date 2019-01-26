@@ -214,13 +214,12 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	protected boolean computeConversions(BlockScope blockScope, TypeBinding targetType) {
 		boolean ok = true;
 		for (int i = 0, l = this.resultExpressions.size(); i < l; ++i) {
-			ok &= computeConversionsResultExpressions(blockScope, targetType, ok, this.originalValueResultExpressionTypes[i], 
-					this.resultExpressions.get(i));
+			ok &= computeConversionsResultExpressions(blockScope, targetType, this.originalValueResultExpressionTypes[i], this.resultExpressions.get(i));
 		}
 		return ok;
 	}
-	private boolean computeConversionsResultExpressions(BlockScope blockScope, TypeBinding targetType, boolean ok,
-			TypeBinding resultExpressionType, Expression resultExpression) {
+	private boolean computeConversionsResultExpressions(BlockScope blockScope, TypeBinding targetType, TypeBinding resultExpressionType,
+			Expression resultExpression) {
 		if (resultExpressionType != null && resultExpressionType.isValidBinding()) {
 			if (resultExpression.isConstantValueOfTypeAssignableToType(resultExpressionType, targetType)
 					|| resultExpressionType.isCompatibleWith(targetType)) {
@@ -241,10 +240,10 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				}
 			} else {
 				blockScope.problemReporter().typeMismatchError(resultExpressionType, targetType, resultExpression, null);
-				ok = false;
+				return false;
 			}
 		}
-		return ok;
+		return true;
 	}
 	/* package */ void collectResultExpressions() {
 		if (this.resultExpressions != null)
