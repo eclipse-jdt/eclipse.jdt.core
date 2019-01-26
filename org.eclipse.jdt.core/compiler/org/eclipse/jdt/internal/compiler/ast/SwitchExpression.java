@@ -403,7 +403,8 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			boolean typeUniformAcrossAllArms = true;
 			TypeBinding tmp = this.originalValueResultExpressionTypes[0];
 			for (int i = 1, l = this.originalValueResultExpressionTypes.length; i < l; ++i) {
-				if (TypeBinding.notEquals(tmp, this.originalValueResultExpressionTypes[i])) {
+				TypeBinding originalType = this.originalValueResultExpressionTypes[i];
+				if (originalType != null && TypeBinding.notEquals(tmp, originalType)) {
 					typeUniformAcrossAllArms = false;
 					break;
 				}
@@ -412,15 +413,17 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			// then that is the type of the switch expression.
 			if (typeUniformAcrossAllArms) {
 				tmp = this.originalValueResultExpressionTypes[0];
-				for (int i = 0; i < resultExpressionsCount; ++i) {
-					tmp = NullAnnotationMatching.moreDangerousType(tmp, this.originalValueResultExpressionTypes[i]);
+				for (int i = 1; i < resultExpressionsCount; ++i) {
+					if (this.originalValueResultExpressionTypes[i] != null)
+						tmp = NullAnnotationMatching.moreDangerousType(tmp, this.originalValueResultExpressionTypes[i]);
 				}
 				return this.resolvedType = tmp;
 			}
 			
 			boolean typeBbolean = true;
 			for (TypeBinding t : this.originalValueResultExpressionTypes) {
-				typeBbolean &= t.id == T_boolean || t.id == T_JavaLangBoolean;
+				if (t != null)
+					typeBbolean &= t.id == T_boolean || t.id == T_JavaLangBoolean;
 			}
 			LookupEnvironment env = this.scope.environment();
 			/*
@@ -450,9 +453,9 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			 *  If any result expression is of a reference type, it is subjected to unboxing conversion (5.1.8).
 			 */
 			for (int i = 0; i < resultExpressionsCount; ++i) {
-				tmp = this.originalValueResultExpressionTypes[i].isNumericType() ?
-						this.originalValueResultExpressionTypes[i] :
-							env.computeBoxingType(this.originalValueResultExpressionTypes[i]);
+				TypeBinding originalType = this.originalValueResultExpressionTypes[i];
+				if (originalType == null) continue;
+				tmp = originalType.isNumericType() ? originalType : env.computeBoxingType(originalType);
 				if (!tmp.isNumericType()) {
 					typeNumeric = false;
 					break;
@@ -501,12 +504,14 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			 * to the least upper bound (4.10.4) of the types of the result expressions.
 			 */
 			for (int i = 0; i < resultExpressionsCount; ++i) {
-				if (this.finalValueResultExpressionTypes[i].isBaseType())
-					this.finalValueResultExpressionTypes[i] = env.computeBoxingType(this.finalValueResultExpressionTypes[i]);
+				TypeBinding finalType = this.finalValueResultExpressionTypes[i];
+				if (finalType != null && finalType.isBaseType())
+					this.finalValueResultExpressionTypes[i] = env.computeBoxingType(finalType);
 			}
 			TypeBinding commonType = this.scope.lowerUpperBound(this.finalValueResultExpressionTypes);
 			if (commonType != null) {
 				for (int i = 0, l = this.resultExpressions.size(); i < l; ++i) {
+					if (this.originalValueResultExpressionTypes[i] == null) continue;
 					this.resultExpressions.get(i).computeConversion(this.scope, commonType, this.originalValueResultExpressionTypes[i]);
 					this.finalValueResultExpressionTypes[i] = commonType;
 				}
