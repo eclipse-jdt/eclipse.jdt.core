@@ -1174,6 +1174,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("SwitchCaseLabelWithArrowNotBelow12", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 	    expectedProblemAttributes.put("SwitchExpressionPreviewDisabled", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 	    expectedProblemAttributes.put("SwitchCaseLabelWithArrowPreviewDisabled", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionBreakMissingValue", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("PreviewFeatureDisabled", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("PreviewFeatureUsed", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("PreviewFeatureNotSupported", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
@@ -2117,6 +2118,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("SwitchCaseLabelWithArrowNotBelow12", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionPreviewDisabled", SKIP);
 	    expectedProblemAttributes.put("SwitchCaseLabelWithArrowPreviewDisabled", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionBreakMissingValue", SKIP);
 	    expectedProblemAttributes.put("PreviewFeatureDisabled", SKIP);
 	    expectedProblemAttributes.put("PreviewFeatureUsed", SKIP);
 	    expectedProblemAttributes.put("PreviewFeatureNotSupported", SKIP);

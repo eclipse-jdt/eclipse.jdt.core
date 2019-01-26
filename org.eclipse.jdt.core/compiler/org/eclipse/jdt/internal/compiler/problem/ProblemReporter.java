@@ -11091,4 +11091,12 @@ public void switchExpressionMixedCase(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
+public void switchExpressionBreakMissingValue(ASTNode statement) {
+	this.handle(
+		IProblem.SwitchExpressionBreakMissingValue,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
 }

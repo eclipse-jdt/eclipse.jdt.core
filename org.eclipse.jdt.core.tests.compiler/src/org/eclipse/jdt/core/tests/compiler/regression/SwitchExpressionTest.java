@@ -1130,6 +1130,46 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	public void testBug543795_01() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.io.IOException;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static int foo(int i) throws IOException {\n" +
+				"		int t = switch (i) {\n" +
+				"		case 0 : {\n" +
+				"			break 0;\n" +
+				"		}\n" +
+				"		case 2 : {\n" +
+				"			break;\n" +
+				"		}\n" +
+				"		default : break 10;\n" +
+				"		};\n" +
+				"		return t;\n" +
+				"	}\n" +
+				"	\n" +
+				"	public boolean bar() {\n" +
+				"		return true;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		try {\n" +
+				"			System.out.println(foo(3));\n" +
+				"		} catch (IOException e) {\n" +
+				"			// TODO Auto-generated catch block\n" +
+				"			e.printStackTrace();\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	break;\n" + 
+			"	^^^^^^\n" + 
+			"Break of a switch expression should have a value\n" + 
+			"----------\n");
+	}
 	public void testBug543691() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);

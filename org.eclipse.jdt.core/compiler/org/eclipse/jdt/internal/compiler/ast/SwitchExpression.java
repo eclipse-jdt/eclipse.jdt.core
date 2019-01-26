@@ -223,6 +223,9 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 					this.targetSwitchExpression.resultExpressions.add(breakStatement.expression);
 					breakStatement.switchExpression = this.targetSwitchExpression;
 					breakStatement.label = null; // not a label, but an expression
+				} else {
+					// flag an error while resolving
+					breakStatement.switchExpression = this.targetSwitchExpression;
 				}
 				return false;
 			}

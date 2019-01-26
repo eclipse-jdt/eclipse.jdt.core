@@ -118,6 +118,9 @@ public void resolve(BlockScope scope) {
 	super.resolve(scope);
 	if  (this.expression != null && (this.switchExpression != null || this.isImplicit))
 		this.expression.resolve(scope);
+	else if (this.expression == null && this.switchExpression != null) {
+		scope.problemReporter().switchExpressionBreakMissingValue(this);
+	}
 }
 
 @Override
