@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2018 GK Software AG, and others.
+ * Copyright (c) 2013, 2019 GK Software AG, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -9468,6 +9468,19 @@ public void testBug508834_comment0() {
 			"	{\n" + 
 			"		test(test); // fails compilation (incorrect)\n" + 
 			"	}\n" +
+			"}\n"
+		};
+		runner.runConformTest();
+	}
+	public void testBug543820() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"A.java",
+			"import java.util.concurrent.atomic.AtomicReference;\n" + 
+			"import java.util.Optional;\n" +
+			"public class A {\n" +
+			"	private final ThreadLocal<AtomicReference<Optional<Long>>> var =\n" + 
+			"		ThreadLocal.withInitial(() -> new AtomicReference<>(Optional.empty()));" +
 			"}\n"
 		};
 		runner.runConformTest();
