@@ -7767,6 +7767,54 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
+	public void testBug543441() throws Exception {
+		// unsuccessful attempt at triggering NPE on null required module
+		IJavaProject p = createJava9Project("p");
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String jar1Path = outputDirectory + File.separator + "lib1.jar";
+			Util.createJar(new String[] {
+						"module-info.java",
+						"module lib1 {}\n"
+					}, jar1Path, "9");
+
+			String jar2Path = outputDirectory + File.separator + "lib2.jar";
+			Util.createJar(new String[] {
+						"module-info.java",
+						"module lib2 {\n" +
+						"	requires lib1;\n" + // will be messing when seen from project 'p'
+						"	exports p2;\n" +
+						"}\n",
+						"p2/C2.java",
+						"package p2;\n" +
+						"public class C2 {}\n"
+					},
+					null, jar2Path, new String[] { jar1Path }, "9");
+
+			File jar1File = new File(jar1Path);
+			jar1File.delete();
+
+			addModularLibraryEntry(p, new Path(jar2Path), null);
+			createFile("p/src/module-info.java",
+					"module p {\n" +
+					"	requires transitive lib2;\n" + // not lib1
+					"}\n");
+			createFolder("p/src/pkg");
+			createFile("p/src/pkg/Test.java",
+					"package pkg;\n" +
+					"import p2.C2;\n" +
+					"public class Test {\n" +
+					"	void test(C2 c) {}\n" +
+					"}\n");
+
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			assertNoErrors();
+
+		} finally {
+			deleteProject(p);
+		}
+	}
+
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
