@@ -7712,6 +7712,61 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
+	public void testBug543701() throws Exception {
+		IJavaProject p = createJava9Project("p");
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String jar1Path = outputDirectory + File.separator + "lib1.jar";
+			Util.createJar(new String[] {
+						"javax/xml/transform/Result.java",
+						"package javax.xml.transform;\n" +
+						"public class Result {}\n"
+					}, new HashMap<>(), jar1Path);
+
+			String jar2Path = outputDirectory + File.separator + "lib2.jar";
+			Util.createJar(new String[] {
+						"p2/C2.java",
+						"package p2;\n" +
+						"import javax.xml.transform.Result;\n" +
+						"public class C2 {\n" +
+						"	public void m(Number n) {}\n" +
+						"	public void m(Result r) {}\n" + // Result will be ambiguous looking from project 'p', but should not break compilation 
+						"}\n"
+					}, new HashMap<>(), jar2Path);
+
+			addLibraryEntry(p, jar1Path, false);
+			addLibraryEntry(p, jar2Path, false);
+
+			createFolder("p/src/pp");
+			String testPath = "p/src/pp/Test.java";
+			String testSource =
+					"package pp;\n" +
+					"import p2.C2;\n" +
+					"public class Test {\n" +
+					"	void test(C2 c2) {\n" +
+					"		c2.m(Integer.valueOf(1));\n" +
+					"	}\n" +
+					"}\n";
+			createFile(testPath, testSource);
+
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			assertNoErrors();
+
+			this.problemRequestor.initialize(testSource.toCharArray());
+			getCompilationUnit(testPath).getWorkingCopy(this.wcOwner, null);
+			assertProblems("unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject(p);
+			// clean up output dir
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
