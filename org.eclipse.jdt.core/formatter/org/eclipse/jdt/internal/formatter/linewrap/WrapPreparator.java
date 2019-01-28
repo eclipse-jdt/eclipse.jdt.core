@@ -763,10 +763,14 @@ public class WrapPreparator extends ASTVisitor {
 		int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
 		handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_if_while_statement);
 
+		Statement elseStatement = node.getElseStatement();
 		boolean keepThenOnSameLine = this.options.keep_then_statement_on_same_line
-				|| (this.options.keep_simple_if_on_one_line && node.getElseStatement() == null);
+				|| (this.options.keep_simple_if_on_one_line && elseStatement == null);
 		if (keepThenOnSameLine)
 			handleSimpleLoop(node.getThenStatement(), this.options.alignment_for_compact_if);
+
+		if (this.options.keep_else_statement_on_same_line && elseStatement != null)
+			handleSimpleLoop(elseStatement, this.options.alignment_for_compact_if);
 		return true;
 	}
 

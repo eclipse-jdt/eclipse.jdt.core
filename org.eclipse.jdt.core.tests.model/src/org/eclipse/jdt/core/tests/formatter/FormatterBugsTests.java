@@ -12938,4 +12938,25 @@ public void testBug542625() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/543780 - [formatter] Compact 'if else': can't wrap before else statement
+ */
+public void testBug543780() {
+	this.formatterPrefs.keep_then_statement_on_same_line = true;
+	this.formatterPrefs.keep_else_statement_on_same_line = true;
+	this.formatterPrefs.alignment_for_compact_if = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source =
+		"class Example {\n" + 
+		"	int foo(int argument) {\n" + 
+		"		if (argument == 0)\n" + 
+		"		    return 0;\n" + 
+		"		if (argument == 1)\n" + 
+		"		    return 42;\n" + 
+		"		else\n" + 
+		"		    return 43;\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
 }
