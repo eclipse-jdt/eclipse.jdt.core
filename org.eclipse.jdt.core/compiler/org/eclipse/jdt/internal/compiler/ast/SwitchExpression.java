@@ -54,6 +54,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 
 	private int nullStatus = FlowInfo.UNKNOWN;
 	public List<Expression> resultExpressions;
+	public boolean resolveAll;
 	/* package */ List<Integer> resultExpressionNullStatus;
 	private static Map<TypeBinding, TypeBinding[]> type_map;
 
@@ -389,6 +390,10 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 						this.finalValueResultExpressionTypes[i] = this.originalValueResultExpressionTypes[i] = 
 							resultExpr.resolveTypeExpecting(upperScope, this.expectedType);
 					}
+					// This is a kludge and only way completion can tell this node to resolve all
+					// resultExpressions. Ideal solution is to remove all other expressions except
+					// the one that contain the completion node.
+					if (this.resolveAll) continue;
 					if (resultExpr.resolvedType == null || !resultExpr.resolvedType.isValidBinding())
 						return this.resolvedType = null;
 				}

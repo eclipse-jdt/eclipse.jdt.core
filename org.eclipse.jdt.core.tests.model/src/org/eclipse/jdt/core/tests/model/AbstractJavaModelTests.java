@@ -3112,7 +3112,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			newJclLibString = "JCL18_FULL";
 			newJclSrcString = "JCL18_SRC"; // Use the same source
 		} else {
-			if (compliance.equals("11")) {
+			if (compliance.equals("12")) {
+				newJclLibString = "JCL12_LIB";
+				newJclSrcString = "JCL12_SRC";
+			} else if (compliance.equals("11")) {
 				newJclLibString = "JCL11_LIB";
 				newJclSrcString = "JCL11_SRC";
 			} else if (compliance.equals("10")) {
@@ -3169,10 +3172,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IPath jcl9Lib = new Path("JCL19_LIB");
 		IPath jcl10Lib = new Path("JCL10_LIB");
 		IPath jcl11Lib = new Path("JCL11_LIB");
+		IPath jcl12Lib = new Path("JCL12_LIB");
 		IPath jclFull = new Path("JCL18_FULL");
 
 		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jcl9Lib)
-				|| path.equals(jcl10Lib) ||  path.equals(jcl11Lib) || path.equals(jclFull);
+				|| path.equals(jcl10Lib) ||  path.equals(jcl11Lib) || path.equals(jcl12Lib) || path.equals(jclFull);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		setUpJCLClasspathVariables(compliance, false);
@@ -3233,6 +3237,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL11_LIB", "JCL11_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath("11"), getExternalJCLSourcePath("11"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("12".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL12_LIB") == null) {
+				setupExternalJCL("jclMin12");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL12_LIB", "JCL12_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("12"), getExternalJCLSourcePath("12"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {

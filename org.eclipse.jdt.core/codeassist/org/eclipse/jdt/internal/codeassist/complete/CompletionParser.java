@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  * 
  * Contributors:
@@ -2512,6 +2516,14 @@ protected void consumeCompilationUnit() {
 	super.consumeCompilationUnit();
 }
 @Override
+protected void consumeSwitchExpression() {
+	super.consumeSwitchExpression();
+	if (this.assistNode != null) {
+		SwitchExpression expr = (SwitchExpression) this.astStack[0];
+		expr.resolveAll = true;
+	}
+}
+@Override
 protected void consumeConditionalExpression(int op) {
 	popElement(K_CONDITIONAL_OPERATOR);
 	super.consumeConditionalExpression(op);
@@ -4268,6 +4280,16 @@ protected void consumeToken(int token) {
 					pushOnElementStack(K_CONDITIONAL_OPERATOR, QUESTION);
 				}
 				break;
+			case TokenNameARROW:
+				switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
+					case K_BETWEEN_CASE_AND_COLON:
+						popElement(K_BETWEEN_CASE_AND_COLON);
+						break;
+					case K_BETWEEN_DEFAULT_AND_COLON:
+						popElement(K_BETWEEN_DEFAULT_AND_COLON);
+						break;
+				}
+				break;
 			case TokenNameCOLON:
 				switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
 					case K_CONDITIONAL_OPERATOR:
@@ -4313,6 +4335,16 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNamecase :
 				pushOnElementStack(K_BETWEEN_CASE_AND_COLON);
+				break;
+			case TokenNameCOMMA :
+				switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
+					// for multi constant case stmt
+					// case MONDAY, FRI
+					// if there's a comma, ignore the previous expression (constant)
+					// Which doesn't matter for completing the next constant
+					case K_BETWEEN_CASE_AND_COLON:
+						this.expressionPtr--;
+				}
 				break;
 			case TokenNamedefault :
 				pushOnElementStack(K_BETWEEN_DEFAULT_AND_COLON);
@@ -4884,6 +4916,9 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 			} else if(kind != K_BETWEEN_CASE_AND_COLON && kind != K_BETWEEN_DEFAULT_AND_COLON) {
 				if (kind == K_LOCAL_INITIALIZER_DELIMITER && this.options.complianceLevel >= ClassFileConstants.JDK11) {
 					keywords[count++]= Keywords.VAR;
+				}
+				if (kind == K_SELECTOR_QUALIFIER && this.options.complianceLevel >= ClassFileConstants.JDK12) {
+					keywords[count++] = Keywords.SWITCH;
 				}
 				keywords[count++]= Keywords.TRUE;
 				keywords[count++]= Keywords.FALSE;
