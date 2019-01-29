@@ -427,7 +427,7 @@ void faultInImports() {
 				PackageBinding uniquePackage = ((PackageBinding)importBinding).getVisibleFor(module(), false);
 				if (uniquePackage instanceof SplitPackageBinding) {
 					SplitPackageBinding splitPackage = (SplitPackageBinding) uniquePackage;
-					problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, importReference.sourceEnd);
+					problemReporter().conflictingPackagesFromModules(splitPackage, module(), importReference.sourceStart, importReference.sourceEnd);
 					continue nextImport;
 				}
 			}
@@ -441,7 +441,7 @@ void faultInImports() {
 			if (importBinding instanceof SplitPackageBinding) {
 				SplitPackageBinding splitPackage = (SplitPackageBinding) importBinding;
 				int sourceEnd = (int)(importReference.sourcePositions[splitPackage.compoundName.length-1] & 0xFFFF);
-				problemReporter().conflictingPackagesFromModules((SplitPackageBinding) importBinding, importReference.sourceStart, sourceEnd);
+				problemReporter().conflictingPackagesFromModules((SplitPackageBinding) importBinding, module(), importReference.sourceStart, sourceEnd);
 				continue nextImport;
 			}
 			if (!importBinding.isValidBinding()) {
@@ -472,7 +472,7 @@ void faultInImports() {
 					if (importedPackage instanceof SplitPackageBinding) {
 						SplitPackageBinding splitPackage = (SplitPackageBinding) importedPackage;
 						int sourceEnd = (int) importReference.sourcePositions[splitPackage.compoundName.length-1];
-						problemReporter().conflictingPackagesFromModules(splitPackage, importReference.sourceStart, sourceEnd);
+						problemReporter().conflictingPackagesFromModules(splitPackage, module(), importReference.sourceStart, sourceEnd);
 						continue nextImport;
 					}
 				}

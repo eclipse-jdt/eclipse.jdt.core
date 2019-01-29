@@ -571,7 +571,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 								if (declaredPackage != null) {
 									// don't add foreign package to 'parent' (below), but to its own parent:
 									if (declaredPackage.parent != null)
-										declaredPackage.parent.addPackage(declaredPackage, declaringModule, true);
+										declaredPackage.parent.addPackage(declaredPackage, declaringModule);
 									parent = null;
 									//
 									binding = SplitPackageBinding.combine(declaredPackage, binding, this);
@@ -591,15 +591,19 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			binding = combineWithPackagesFromOtherRelevantModules(binding, subPkgCompoundName, declaringModuleNames);
 		}
 		if (binding == null || !binding.isValidBinding()) {
-			if (parent != null && !packageMayBeIncomplete) // don't remember package that may still lack some siblings
+			if (parent != null
+					&& !packageMayBeIncomplete  // don't remember package that may still lack some siblings
+					&& !(parent instanceof SplitPackageBinding)) // don't store problem into SPB, because from different focus things may look differently
+			{
 				parent.knownPackages.put(name, binding == null ? LookupEnvironment.TheNotFoundPackage : binding);
+			}
 			return null;
 		}
 		// remember
 		if (parentName.length == 0)
 			binding.environment.knownPackages.put(name, binding);
 		else if (parent != null)
-			binding = parent.addPackage(binding, this, false);
+			binding = parent.addPackage(binding, this);
 		return addPackage(binding, false);
 	}
 

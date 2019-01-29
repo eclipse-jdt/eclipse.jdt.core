@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2018 GK Software SE, and others.
+ * Copyright (c) 2017, 2019 GK Software SE, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -211,7 +211,7 @@ public class BinaryModuleBinding extends ModuleBinding {
 		if (compoundName.length > 1) {
 			PackageBinding parent = forcedGetExportedPackage(CharOperation.subarray(compoundName, 0, compoundName.length-1));
 			binding = new PackageBinding(compoundName, parent, this.environment, this);
-			parent.addPackage(binding, this, true);
+			parent.addPackage(binding, this);
 			return binding;
 		}
 		binding = new PackageBinding(compoundName[0], this.environment, this);
