@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -173,10 +177,15 @@ protected void verifyAllTagsCompletion() {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
-	} else if(this.complianceLevel > ClassFileConstants.JDK1_4) {
+	} else if(this.complianceLevel > ClassFileConstants.JDK1_4 && this.complianceLevel < ClassFileConstants.JDK12) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
+		};
+	} else if(this.complianceLevel >= ClassFileConstants.JDK12) {
+		additionalTags = new char[][] {
+			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
+			TAG_CODE, TAG_LITERAL, TAG_SYSTEM_PROPERTY
 		};
 	}
 	if (additionalTags != null) {
@@ -268,10 +277,15 @@ public void test006() {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
-	} else if (this.complianceLevel > ClassFileConstants.JDK1_4) {
+	} else if(this.complianceLevel > ClassFileConstants.JDK1_4 && this.complianceLevel < ClassFileConstants.JDK12) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
+		};
+	} else if(this.complianceLevel >= ClassFileConstants.JDK12) {
+		additionalTags = new char[][] {
+			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
+			TAG_CODE, TAG_LITERAL, TAG_SYSTEM_PROPERTY
 		};
 	}
 	if (additionalTags != null) {
@@ -411,7 +425,9 @@ public void test020() {
 		" */\n" +
 		"public class Test {}\n";
 	verifyCompletionInJavadoc(source, "@s");
-	verifyCompletionOnJavadocTag("s".toCharArray(), new char[][] { TAG_SEE, TAG_SINCE, TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD }, false);
+	char[][] expectedTags = {TAG_SEE, TAG_SINCE, TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD};
+	char[][] expectedTags12Plus = {TAG_SEE, TAG_SINCE, TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD,TAG_SYSTEM_PROPERTY};		
+	verifyCompletionOnJavadocTag("s".toCharArray(),this.complianceLevel >= ClassFileConstants.JDK12 ? expectedTags12Plus : expectedTags, false);
 	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
 	assertEquals("Invalid tag start position", 24, completionTag.tagSourceStart);
 	assertEquals("Invalid tag end position", 28, completionTag.tagSourceEnd+1);
@@ -489,11 +505,15 @@ public void test025() {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
-	}
-	else if (this.complianceLevel > ClassFileConstants.JDK1_4) {
+	}else if (this.complianceLevel > ClassFileConstants.JDK1_4 && this.complianceLevel < ClassFileConstants.JDK12) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
+		};
+	}else if (this.complianceLevel >= ClassFileConstants.JDK12) {
+		additionalTags = new char[][] {
+			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
+			TAG_CODE, TAG_LITERAL, TAG_SYSTEM_PROPERTY
 		};
 	}
 	if (additionalTags != null) {
@@ -564,12 +584,18 @@ public void test028() {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE
 		};
 	}
-	else if (this.complianceLevel > ClassFileConstants.JDK1_4) {
+	else if(this.complianceLevel > ClassFileConstants.JDK1_4 && this.complianceLevel < ClassFileConstants.JDK12) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL
 		};
+	} else if(this.complianceLevel >= ClassFileConstants.JDK12) {
+		additionalTags = new char[][] {
+			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
+			TAG_CODE, TAG_LITERAL, TAG_SYSTEM_PROPERTY
+		};
 	}
+
 	if (additionalTags != null) {
 		int length = allTags.length;
 		int add = additionalTags.length;
