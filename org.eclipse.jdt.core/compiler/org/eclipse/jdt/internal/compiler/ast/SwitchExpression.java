@@ -555,7 +555,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			for (Expression re : this.resultExpressions) {
 				this.resultExpressionNullStatus.add(re.nullStatus(flowInfo, flowContext));
 				// wipe information that was meant only for this result expression:
-				flowContext.expireNullCheckedFieldInfo();			
+				flowContext.expireNullCheckedFieldInfo();
 			}
 		}
 		computeNullStatus(flowInfo, flowContext);
@@ -646,5 +646,9 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				return false;
 		}
 		return true;
+	}
+	@Override
+	public TypeBinding expectedType() {
+		return this.expectedType;
 	}
 }

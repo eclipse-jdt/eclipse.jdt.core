@@ -63,18 +63,18 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				new String[] {
 						"X.java",
 						"public class X {\n" +
-								"	static int twice(int i) {\n" +
-								"		int tw = switch (i) {\n" +
-								"			case 0 -> i * 0;\n" +
-								"			case 1 -> 2;\n" +
-								"			default -> 3;\n" +
-								"		};\n" +
-								"		return tw;\n" +
-								"	}\n" +
-								"	public static void main(String... args) {\n" +
-								"		System.out.print(twice(3));\n" +
-								"	}\n" +
-								"}\n"
+						"	static int twice(int i) {\n" +
+						"		int tw = switch (i) {\n" +
+						"			case 0 -> i * 0;\n" +
+						"			case 1 -> 2;\n" +
+						"			default -> 3;\n" +
+						"		};\n" +
+						"		return tw;\n" +
+						"	}\n" +
+						"	public static void main(String... args) {\n" +
+						"		System.out.print(twice(3));\n" +
+						"	}\n" +
+						"}\n"
 				},
 				"3",
 				null,
@@ -248,24 +248,24 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				new String[] {
 						"X.java",
 						"public class X {\n"+
-								"	static int foo(int i) {\n"+
-								"		int tw = \n"+
-								"		switch (i) {\n"+
-								"			case 1 -> \n"+
-								"			 {\n"+
-								" 				int z = 100;\n"+
-								" 				break z;\n"+
-								"			}\n"+
-								"			default -> {\n"+
-								"				break 12;\n"+
-								"			}\n"+
-								"		};\n"+
-								"		return tw;\n"+
-								"	}\n"+
-								"	public static void main(String[] args) {\n"+
-								"		System.out.print(foo(1));\n"+
-								"	}\n"+
-								"}\n"
+						"	static int foo(int i) {\n"+
+						"		int tw = \n"+
+						"		switch (i) {\n"+
+						"			case 1 -> \n"+
+						"			 {\n"+
+						" 				int z = 100;\n"+
+						" 				break z;\n"+
+						"			}\n"+
+						"			default -> {\n"+
+						"				break 12;\n"+
+						"			}\n"+
+						"		};\n"+
+						"		return tw;\n"+
+						"	}\n"+
+						"	public static void main(String[] args) {\n"+
+						"		System.out.print(foo(1));\n"+
+						"	}\n"+
+						"}\n"
 				},
 				"100",
 				null,
@@ -431,26 +431,32 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
-						"   @SuppressWarnings(\"preview\")\n" +
-						"	static int twice(int i) {\n" +
-						"		switch (i) {\n" +
-						"			default -> 3;\n" +
-						"		}\n" +
-						"		return 0;\n" +
-						"	}\n" +
-						"	public static void main(String[] args) {\n" +
-						"		System.out.print(twice(3));\n" +
-						"	}\n" +
-						"}\n",
+				"	@SuppressWarnings(\"preview\")\n" +
+				"	static int twice(int i) {\n" +
+				"		switch (i) {\n" +
+				"			default -> 3;\n" +
+				"		}\n" +
+				"		return 0;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.print(twice(3));\n" +
+				"	}\n" +
+				"}\n",
 		};
 
 		String expectedProblemLog =
-				"0";
-		this.runConformTest(
+				"----------\n" + 
+				"1. ERROR in X.java (at line 8)\n" + 
+				"	default :v = 2;\n" + 
+				"	         ^^^^^\n" + 
+				"A switch labeled block in a switch expression should not complete normally\n" + 
+				"----------\n";
+		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
-				options,
-				new String[] {"--enable-preview"});
+				null,
+				true,
+				getCompilerOptions());
 	}
 	public void testBug531714_012() {
 		Map<String, String> options = getCompilerOptions();
@@ -541,6 +547,9 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"			case 1 -> \"one\";\n" +
 			"			default -> null;\n" +
 			"		}.toLowerCase());\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().test(1);\n" +
 			"	}\n" +
 			"}\n"
 		};
@@ -976,8 +985,8 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 						"		case 2, 4: \n" + 
 						"			System.out.println(\"Even\");\n" + 
 						"			break;\n" + 
-						"			default:\n" + 
-						"				System.out.println(\"Out of range\");\n" + 
+						"		default:\n" + 
+						"			System.out.println(\"Out of range\");\n" + 
 						"		}\n" + 
 						"	}\n" + 
 						"}",
@@ -1045,20 +1054,20 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" + 
-						"	public static void main(String[] args) {\n" + 
-						"	}\n" + 
-						"	public static void bar(int i) {\n" + 
-						"		switch (i) {\n" + 
-						"		case 1, 3: \n" + 
-						"			System.out.println(\"Odd\");\n" + 
-						"		case 2, 4: \n" + 
-						"			System.out.println(\"Even\");\n" + 
-						"			break;\n" +
-						"		default:\n" + 
-						"				System.out.println(\"Out of range\");\n" + 
-						"		}\n" + 
-						"	}\n" + 
-						"}",
+				"	public static void main(String[] args) {\n" + 
+				"	}\n" + 
+				"	public static void bar(int i) {\n" + 
+				"		switch (i) {\n" + 
+				"		case 1, 3: \n" + 
+				"			System.out.println(\"Odd\");\n" + 
+				"		case 2, 4: \n" + 
+				"			System.out.println(\"Even\");\n" + 
+				"			break;\n" +
+				"		default:\n" + 
+				"				System.out.println(\"Out of range\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
 		};
 		String expectedProblemLog =
 				"----------\n" + 
@@ -1086,17 +1095,17 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" + 
-						"	public static void main(String[] args) {\n" + 
-						"	}\n" + 
-						"	public static void bar(int i) {\n" + 
-						"		switch (i) {\n" + 
-						"		case 1, 3: \n" + 
-						"			System.out.println(\"Odd\");\n" + 
-						"		case 2, 4: \n" + 
-						"			System.out.println(\"Even\");\n" + 
-						"		}\n" + 
-						"	}\n" + 
-						"}",
+				"	public static void main(String[] args) {\n" + 
+				"	}\n" + 
+				"	public static void bar(int i) {\n" + 
+				"		switch (i) {\n" + 
+				"		case 1, 3: \n" + 
+				"			System.out.println(\"Odd\");\n" + 
+				"		case 2, 4: \n" + 
+				"			System.out.println(\"Even\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}",
 		};
 		String expectedProblemLog =
 				"----------\n" + 
@@ -1104,7 +1113,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"	switch (i) {\n" + 
 				"	        ^\n" + 
 				"The switch statement should have a default case\n" + 
-						"----------\n";
+				"----------\n";
 		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
@@ -1273,7 +1282,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		String[] testFiles = new String[] {
 			"X.java",
 			"public class X {\n" +
-			"		void test(int i) {\n" + 
+			"	void test(int i) {\n" + 
 			"		need(switch (i) {\n" + 
 			"			case 1 -> \"\";\n" + 
 			"			default -> i == 3 ? null : \"\";\n" + 
@@ -1401,5 +1410,66 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		};
 		String expectedOutput = "3";
 		runConformTest(testFiles, expectedOutput, options);
+	}
+	public void testSwitchStatementWithBreakExpression() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	static int twice(int i) throws Exception {\n" + 
+					"		switch (i) {\n" + 
+					"			case 0 -> System.out.println(\"hellow\");\n" + 
+					"			case 1 -> foo();\n" + 
+					"			default -> throw new Exception();\n" + 
+					"		};\n" + 
+					"		return 0;\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	static int foo() {\n" + 
+					"		System.out.println(\"inside foo\");\n" + 
+					"		return 1;\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		try {\n" + 
+					"			System.out.print(twice(1));\n" + 
+					"		} catch (Exception e) {\n" + 
+					"			System.out.print(\"Got Exception\");\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}"
+			},
+			"inside foo\n"
+			+ "0",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testSwitchStatementWithEnumValues() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"enum SomeDays {\n" + 
+					"	Mon, Wed, Fri\n" + 
+					"}\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"	int testEnum(boolean b) {\n" + 
+					"		SomeDays day = b ? SomeDays.Mon : null;\n" + 
+					"		return switch(day) {\n" + 
+					"			case Mon -> 1;\n" + 
+					"			case Wed -> 2;\n" + 
+					"			case Fri -> 3;\n" + 
+					"		};\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		System.out.println(new X().testEnum(true));\n" + 
+					"	}\n" + 
+					"}\n" + 
+					""
+			},
+			"1",
+			null,
+			new String[] {"--enable-preview"});
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -406,6 +406,7 @@ public class SwitchStatement extends Expression {
 					// we can get rid of the generated ordinal value
 					codeStream.pop();
 				}
+				valueRequired = hasCases;
 			} else {
 				valueRequired = this.expression.constant == Constant.NotAConstant || hasCases;
 				// generate expression
@@ -471,6 +472,26 @@ public class SwitchStatement extends Expression {
 					statementGenerateCode(currentScope, codeStream, statement);
 				}
 			}
+			boolean enumInSwitchExpression =  resolvedType1.isEnum() && this instanceof SwitchExpression;
+			if (this.defaultCase == null && enumInSwitchExpression) {
+				// we want to force an line number entry to get an end position after the switch statement
+				if (this.preSwitchInitStateIndex != -1) {
+					codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSwitchInitStateIndex);
+				}
+				defaultLabel.place();
+				/* a default case is not needed for enum if all enum values are used in the switch expression
+				 * we need to handle the default case to throw an error (IncompatibleClassChangeError) in order
+				 * to make the stack map consistent. All cases will return a value on the stack except the missing default
+				 * case.
+				 * There is no returned value for the default case so we handle it with an exception thrown. An
+				 * IllegalClassChangeError seems legitimate as this would mean the enum type has been recompiled with more 
+				 * enum constants and the class that is using the switch on the enum has not been recompiled
+				 */
+				codeStream.newJavaLangIncompatibleClassChangeError();
+				codeStream.dup();
+				codeStream.invokeJavaLangIncompatibleClassChangeErrorDefaultConstructor();
+				codeStream.athrow();
+			}
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (this.mergedInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.mergedInitStateIndex);
@@ -481,10 +502,18 @@ public class SwitchStatement extends Expression {
 			}
 			// place the trailing labels (for break and default case)
 			this.breakLabel.place();
-			if (this.defaultCase == null) {
+			if (this.defaultCase == null && !enumInSwitchExpression) {
 				// we want to force an line number entry to get an end position after the switch statement
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd, true);
 				defaultLabel.place();
+			}
+			if (valueRequired && this.expectedType() != null) {
+				TypeBinding expectedType = this.expectedType().erasure();
+				/*
+				 * is the last goto was optimized the lastAbruptCompletion is equal to -1 which means there is already some value on the
+				 * stack so we don't need to add one.
+				 */
+				codeStream.recordExpressionType(expectedType, codeStream.lastAbruptCompletion != -1 ? 1 : 0);
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {

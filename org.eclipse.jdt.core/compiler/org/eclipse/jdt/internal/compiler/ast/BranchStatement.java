@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -39,6 +39,9 @@ public BranchStatement(char[] label, int sourceStart,int sourceEnd) {
 protected void generateExpressionResultCode(BlockScope currentScope, CodeStream codeStream) {
 	// do nothing here
 }
+protected void adjustStackSize(BlockScope currentScope, CodeStream codeStream) {
+	// do nothing here
+}
 /**
  * Branch code generation
  *
@@ -70,6 +73,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		}
 	}
 	codeStream.goto_(this.targetLabel);
+	adjustStackSize(currentScope, codeStream);
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 	SubRoutineStatement.reenterAllExceptionHandlers(this.subroutines, -1, codeStream);
 	if (this.initStateIndex != -1) {

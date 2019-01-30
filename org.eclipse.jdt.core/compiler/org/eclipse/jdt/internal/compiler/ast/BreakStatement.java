@@ -105,12 +105,27 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	return FlowInfo.DEAD_END;
 }
-
-
 @Override
 protected void generateExpressionResultCode(BlockScope currentScope, CodeStream codeStream) {
-		if (this.label == null && this.expression != null && (this.switchExpression != null || this.isImplicit)) {
-		this.expression.generateCode(currentScope, codeStream, true /* valueRequired */);
+	if (this.label == null && this.expression != null) {
+		this.expression.generateCode(currentScope, codeStream, this.switchExpression != null);
+	}
+}
+@Override
+protected void adjustStackSize(BlockScope currentScope, CodeStream codeStream) {
+	if (this.label == null && this.expression != null && this.switchExpression != null) {
+		TypeBinding postConversionType = this.expression.postConversionType(currentScope);
+		switch(postConversionType.id) {
+			case TypeIds.T_long :
+			case TypeIds.T_double :
+				codeStream.decrStackSize(2);
+				break;
+			case TypeIds.T_void :
+				break;
+			default :
+				codeStream.decrStackSize(1);
+				break;
+		}
 	}
 }
 @Override

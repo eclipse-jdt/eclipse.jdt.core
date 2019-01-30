@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2016 IBM Corporation and others.
+ * Copyright (c) 2006, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -91,10 +91,17 @@ public class StackMapFrameCodeStream extends CodeStream {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append('(').append(this.pc).append(',').append(this.delta);
 			if (this.typeBinding != null) {
-				buffer
-					.append(',')
-					.append(this.typeBinding.qualifiedPackageName())
-					.append(this.typeBinding.qualifiedSourceName());
+				if (this.typeBinding.isBaseType()) {
+					buffer
+						.append(',')
+						.append(this.typeBinding.qualifiedSourceName());
+				} else {
+					buffer
+						.append(',')
+						.append(this.typeBinding.qualifiedPackageName())
+						.append('.')
+						.append(this.typeBinding.qualifiedSourceName());
+				}
 			}
 			buffer.append(')');
 			return String.valueOf(buffer);
@@ -226,6 +233,7 @@ public void addFramePosition(int pc) {
 public void optimizeBranch(int oldPosition, BranchLabel lbl) {
 	super.optimizeBranch(oldPosition, lbl);
 	removeFramePosition(oldPosition);
+	removeStackMapMarkers(oldPosition);
 }
 public void removeFramePosition(int pc) {
 	Integer entry = Integer.valueOf(pc);
@@ -234,6 +242,16 @@ public void removeFramePosition(int pc) {
 		value.counter--;
 		if (value.counter <= 0) {
 			this.framePositions.remove(entry);
+		}
+	}
+}
+public void removeStackMapMarkers(int markerOldPosition) {
+	if (this.stackDepthMarkers != null) {
+		for (int i = this.stackDepthMarkers.size() - 1; i >= 0; i--) {
+			StackDepthMarker marker = (StackDepthMarker) this.stackDepthMarkers.get(i);
+			if (marker.pc == markerOldPosition) {
+				this.stackDepthMarkers.remove(i);
+			}
 		}
 	}
 }
@@ -283,6 +301,10 @@ public void decrStackSize(int offset) {
 @Override
 public void recordExpressionType(TypeBinding typeBinding) {
 	addStackDepthMarker(this.position, 0, typeBinding);
+}
+@Override
+public void recordExpressionType(TypeBinding typeBinding, int delta) {
+	addStackDepthMarker(this.position, delta, typeBinding);
 }
 /**
  * Macro for building a class descriptor object
