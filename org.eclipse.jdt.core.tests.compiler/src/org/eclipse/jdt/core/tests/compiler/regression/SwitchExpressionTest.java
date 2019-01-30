@@ -54,6 +54,10 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		super.runConformTest(testFiles, "", null, true, new String[] {"--enable-preview"}, customOptions, null);
 	}
 
+	@Override
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions) {
+		super.runConformTest(testFiles, expectedOutput, null, true, new String[] {"--enable-preview"}, customOptions, null);
+	}
 	public void testSimpleExpressions() {
 		runConformTest(
 				new String[] {
@@ -98,8 +102,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 								"		    try {\n"+
 								"				System.out.print(twice(3));\n"+
 								"			} catch (Exception e) {\n"+
-								"				// TODO Auto-generated catch block\n"+
-								"				e.printStackTrace();\n"+
+								"				System.out.print(\"Got Exception - expected\");\n"+
 								"			}\n"+
 								"		} catch (Exception e) {\n"+
 								"		System.out.print(\"Got Exception\");\n"+
@@ -107,7 +110,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 								"	}\n"+
 								"}\n"
 				},
-				"Got Exception",
+				"Got Exception - expected",
 				null,
 				new String[] {"--enable-preview"});
 	}
@@ -1279,10 +1282,13 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"	void need(String s) {\n" + 
 			"		System.out.println(s.toLowerCase());\n" + 
 			"	}\n" + 
-			"" +
+			"	public static void main(String[] args) {\n" + 
+			"		new X().need(\"Hello World\");\n" + 
+			"	}\n" + 
 			"}\n"
 		};
-		runConformTest(testFiles, options);
+		String expectedOutput = "hello world";
+		runConformTest(testFiles, expectedOutput, options);
 	}
 	public void testBug543799_2() {
 		Map<String, String> options = getCompilerOptions();
@@ -1300,9 +1306,13 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"	void need(String s) {\n" + 
 			"		System.out.println(s.toLowerCase());\n" + 
 			"	}\n" +
+			"	public static void main(String[] args) {\n" + 
+			"		new X().need(\"Hello World\");\n" + 
+			"	}\n" + 
 			"}\n"
 		};
-		runConformTest(testFiles, options);
+		String expectedOutput = "hello world";
+		runConformTest(testFiles, expectedOutput, options);
 	}
 	public void testBug543799_3() {
 		Map<String, String> options = getCompilerOptions();
@@ -1323,9 +1333,17 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"			default -> b ? n1() : n2();\n" + 
 			"		}).i(); \n" + 
 			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" +
+			"			new X().test(1, true);\n" +
+			"		} catch (NullPointerException e) {\n" +
+			"			System.out.println(\"NPE as expected\");\n" +
+			"		}\n" +
+			"	}\n" + 
 			"}\n"
 		};
-		runConformTest(testFiles, options);
+		String expectedOutput = "NPE as expected";
+		runConformTest(testFiles, expectedOutput, options);
 	}
 	public void testBug543799_4() {
 		Map<String, String> options = getCompilerOptions();
@@ -1347,9 +1365,17 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"			default -> this::n2;\n" + 
 			"		}).i(); \n" + 
 			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		try {\n" +
+			"			new X().test(1, true);\n" +
+			"		} catch (NullPointerException e) {\n" +
+			"			System.out.println(\"NPE as expected\");\n" +
+			"		}\n" +
+			"	}\n" + 
 			"}\n"
 		};
-		runConformTest(testFiles, options);
+		String expectedOutput = "NPE as expected";
+		runConformTest(testFiles, expectedOutput, options);
 	}
 	public void testBug543799_5() {
 		// require resolving/inferring of poly-switch-expression during ASTNode.resolvePolyExpressionArguments()
@@ -1368,9 +1394,12 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"	<N extends Number> void need(N s) {\n" + 
 			"		System.out.println(s.toString());\n" + 
 			"	}\n" + 
-			"" +
+			"	public static void main(String[] args) {\n" + 
+			"		new X().need(3);\n" +
+			"	}\n" + 
 			"}\n"
 		};
-		runConformTest(testFiles, options);
+		String expectedOutput = "3";
+		runConformTest(testFiles, expectedOutput, options);
 	}
 }
