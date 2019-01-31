@@ -191,6 +191,38 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 								RelevanceConstants.R_UNQUALIFIED + RelevanceConstants.R_NON_RESTRICTED)+ "}",
 						requestor.getResults());
 	}
+	public void test005a() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Switch.java",
+				"public class Switch {\n" + 
+						"	public static void bar(MyDay day) {\n" + 
+						"		switch (day) {\n" + 
+						"		case SATURDAY, SUNDAY -> \n" + 
+						"			System.out.println(day.toString());\n" + 
+						"		case MON -> \n" + 
+						"			System.out.println(day.toString());\n" + 
+						"		}\n" + 
+						"	}\n" + 
+						"	public static void main(String[] args) {\n" + 
+						"		bar(MyDay.SUNDAY);\n" + 
+						"	}\n" + 
+						"}\n" + 
+				"enum MyDay { SATURDAY, SUNDAY, MONDAY}");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "case MON";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"MONDAY[FIELD_REF]{MONDAY, LMyDay;, LMyDay;, MONDAY, null, "+ 
+						(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + RelevanceConstants.R_INTERESTING+
+								RelevanceConstants.R_CASE + RelevanceConstants.R_EXACT_EXPECTED_TYPE +
+								RelevanceConstants.R_ENUM + RelevanceConstants.R_ENUM_CONSTANT +
+								RelevanceConstants.R_UNQUALIFIED + RelevanceConstants.R_NON_RESTRICTED)+ "}",
+						requestor.getResults());
+	}
 	public void test006() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -711,6 +743,90 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
 				"switch[KEYWORD]{switch, null, null, switch, null, 49}",
+						requestor.getResults());
+	}
+	public void test020() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"public class X {\n" + 
+				"	static final String MONDAY = \"MONDAY\";\n" + 
+				"	static final String TUESDAY = \"TUESDAY\";\n" + 
+				"	static final String WEDNESDAY = \"WEDNESDAY\";\n" + 
+				"	static final String THURSDAY = \"THURSDAY\";\n" + 
+				"	static final String FRIDAY = \"FRIDAY\";\n" + 
+				"	static final String SATURDAY = \"SATURDAY\";\n" + 
+				"	static final String SUNDAY = \"SUNDAY\"; \n" + 
+				"	@SuppressWarnings(\"preview\")\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String day = \"MONDAY\";\n" + 
+				"		switch (day) {\n" + 
+				"		    case MONDAY, FRIDAY, SUNDAY  -> System.out.println(6);\n" + 
+				"		    case TUESDAY           		 -> System.out.println(7);\n" + 
+				"		    case THURSDAY, SATURDAY     -> System.out.println(8);\n" + 
+				"		    case WEDNESDAY              -> System.out.println(9);\n" + 
+				"		}\n" + 
+				"		int k = switch (day) {\n" + 
+				"	    case MONDAY  -> throw new NullPointerException();\n" + 
+				"	    case TUESDAY -> 1;\n" + 
+				"	    case WEDNESDAY -> {break 10;}\n" + 
+				"	    default      -> {\n" + 
+				"	        int g = day.h();\n" + 
+				"	        int result = f(g);\n" + 
+				"	        break result;\n" + 
+				"	    }};\n" + 
+				"	}\n" + 
+				"	static int f(int k) {\n" + 
+				"		return k*k;\n" + 
+				"	}\n" + 
+				"}");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "day.h";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"hashCode[METHOD_REF]{hashCode, Ljava.lang.Object;, ()I, hashCode, null, 90}",
+						requestor.getResults());
+	}
+	public void test021() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"public class X {\n" + 
+				"	static final String MONDAY = \"MONDAY\";\n" + 
+				"	static final String TUESDAY = \"TUESDAY\";\n" + 
+				"	static final String WEDNESDAY = \"WEDNESDAY\";\n" + 
+				"	static final String THURSDAY = \"THURSDAY\";\n" + 
+				"	static final String FRIDAY = \"FRIDAY\";\n" + 
+				"	static final String SATURDAY = \"SATURDAY\";\n" + 
+				"	static final String SUNDAY = \"SUNDAY\"; \n" + 
+				"	@SuppressWarnings(\"preview\")\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String day = \"MONDAY\";\n" + 
+				"		int k = switch (day) {\n" + 
+				"	    case MONDAY  -> throw new NullPointerException();\n" + 
+				"	    case TUESDAY -> 1;\n" + 
+				"	    case WEDNESDAY -> {break 10;}\n" + 
+				"	    default      -> {\n" + 
+				"	        int g = day.h();\n" + 
+				"	        int result = f(g);\n" + 
+				"	        break result;\n" + 
+				"	    }};\n" + 
+				"	}\n" + 
+				"	static int f(int k) {\n" + 
+				"		return k*k;\n" + 
+				"	}\n" + 
+				"}");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "day.h";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"hashCode[METHOD_REF]{hashCode, Ljava.lang.Object;, ()I, hashCode, null, 90}",
 						requestor.getResults());
 	}
 }

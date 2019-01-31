@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2519,7 +2519,7 @@ protected void consumeCompilationUnit() {
 protected void consumeSwitchExpression() {
 	super.consumeSwitchExpression();
 	if (this.assistNode != null) {
-		SwitchExpression expr = (SwitchExpression) this.astStack[0];
+		SwitchExpression expr = (SwitchExpression) this.expressionStack[this.expressionPtr];
 		expr.resolveAll = true;
 	}
 }
@@ -4344,6 +4344,7 @@ protected void consumeToken(int token) {
 					// Which doesn't matter for completing the next constant
 					case K_BETWEEN_CASE_AND_COLON:
 						this.expressionPtr--;
+						this.expressionLengthStack[this.expressionLengthPtr]--;
 				}
 				break;
 			case TokenNamedefault :
