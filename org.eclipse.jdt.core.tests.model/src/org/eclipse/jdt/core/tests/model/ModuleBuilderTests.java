@@ -104,7 +104,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	
 	void addModularProjectEntry(IJavaProject project, IJavaProject depProject) throws JavaModelException {
-		addClasspathEntry(project, JavaCore.newProjectEntry(depProject.getPath(), null, false, moduleAttribute(), false));
+		addClasspathEntry(project, newModularProjectEntry(depProject));
+	}
+	IClasspathEntry newModularProjectEntry(IJavaProject depProject) {
+		return JavaCore.newProjectEntry(depProject.getPath(), null, false, moduleAttribute(), false);
 	}
 	// Test that the java.base found as a module package fragment root in the project 
 	public void test001() throws CoreException {
@@ -7812,6 +7815,127 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 		} finally {
 			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	
+	public void testBug543765() throws CoreException, IOException {
+		// failure never seen in this test
+		IJavaProject m = createJava9Project("M");
+		IJavaProject n = createJava9Project("N");
+		IJavaProject x = createJava9Project("X");
+		IJavaProject y = createJava9Project("Y");
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			// ------ W ------
+			String wJarLocation = outputDirectory + File.separator + "w-0.0.1-SNAPSHOT.jar";
+			IPath wJarPath = new Path(wJarLocation);
+			Util.createJar(new String[] {
+						"external/W.java",
+						"public class W {\n" +
+						"	public static void main(String... args) {}\n" +
+						"}\n"
+					}, wJarLocation, "9");
+			
+			// ------ X ------
+			addModularLibraryEntry(x, wJarPath, null);
+			createFolder("X/src/com/example/x");
+			createFile("X/src/com/example/x/X.java",
+					"package com.example.x;\n" + 
+					"public class X {\n" + 
+					"    public static void main(String[] args) { \n" + 
+					"        System.out.println(\"X\");\n" + 
+					"    }\n" + 
+					"}\n");
+			createFile("X/src/module-info.java",
+					"open module com.example.x {\n" + 
+					"    exports com.example.x;\n" + 
+					"    requires w;\n" + 
+					"}\n");
+			
+			// ------ Y ------
+			addModularLibraryEntry(y, wJarPath, null);
+			addModularProjectEntry(y, x);
+			createFolder("Y/src/com/example/y");
+			createFile("Y/src/com/example/y/Y.java",
+					"package com.example.y;\n" + 
+					"public class Y {\n" + 
+					"    public static void main(String[] args) { \n" + 
+					"        System.out.println(\"Y\");\n" + 
+					"    }\n" + 
+					"}\n");
+			createFile("Y/src/module-info.java",
+					"open module com.example.y {\n" + 
+					"    exports com.example.y;\n" + 
+					"    requires com.example.x;\n" + 
+					"}\n");
+
+			// ------ N ------
+			createFolder("N/src/com/example/n");
+			createFile("N/src/com/example/n/N.java",
+					"package com.example.n;\n" + 
+					"public class N {\n" + 
+					"    public static void main(String[] args) { \n" + 
+					"        System.out.println(\"N\");\n" + 
+					"    } \n" + 
+					"}\n");
+			createFile("N/src/module-info.java",
+					"open module n {\n" + 
+					"    exports com.example.n;\n" + 
+					"}\n");
+
+			// ------ M ------
+			// insert new entries before JRE:
+			IClasspathEntry[] entries = m.getRawClasspath();
+			int length = entries.length;
+			System.arraycopy(entries, 0, entries = new IClasspathEntry[length + 4], 4, length);
+			entries[0] = entries[4];
+			entries[1] = newModularLibraryEntry(wJarPath, null, null);
+			entries[2] = newModularProjectEntry(n);
+			entries[3] = newModularProjectEntry(x);
+			entries[4] = newModularProjectEntry(y);
+			m.setRawClasspath(entries, null);
+
+			createFolder("M/src/m");
+			String mSource =
+					"package m;\n" + 
+					"import com.example.n.N;\n" + 
+					"public class M {\n" + 
+					"    public static void main(String[] args) {\n" + 
+					"        System.out.println(\"M\");\n" + 
+					"        N.main(null);\n" + 
+					"    }\n" + 
+					"}\n";
+			String mPath = "M/src/m/M.java";
+			createFile(mPath, mSource);
+			createFile("M/src/module-info.java",
+					"open module m {\n" + 
+					"    requires n;\n" + 
+					"    requires w;\n" + 
+					"}\n");
+			
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+			
+			m.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+
+			this.problemRequestor.initialize(mSource.toCharArray());
+			getCompilationUnit(mPath).getWorkingCopy(this.wcOwner, null);
+			assertProblems("unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject(m);
+			deleteProject(n);
+			deleteProject(x);
+			deleteProject(y);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
 		}
 	}
 
