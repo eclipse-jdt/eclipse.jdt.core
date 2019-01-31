@@ -131,9 +131,18 @@ protected void adjustStackSize(BlockScope currentScope, CodeStream codeStream) {
 @Override
 public void resolve(BlockScope scope) {
 	super.resolve(scope);
-	if  (this.expression != null && (this.switchExpression != null || this.isImplicit))
+	if  (this.expression != null && (this.switchExpression != null || this.isImplicit)) {
+		if (this.switchExpression == null && this.isImplicit && !this.expression.statementExpression()) {
+			if (scope.compilerOptions().enablePreviewFeatures) {
+				// JLS 12 14.11.2
+				// If the switch block consists of switch labeled rules, then any switch labeled expression
+				// must be a statement expression (14.8)
+				scope.problemReporter().invalidExpressionAsStatement(this.expression);
+				return;
+			}
+		}
 		this.expression.resolve(scope);
-	else if (this.expression == null && this.switchExpression != null) {
+	} else if (this.expression == null && this.switchExpression != null) {
 		scope.problemReporter().switchExpressionBreakMissingValue(this);
 	}
 }

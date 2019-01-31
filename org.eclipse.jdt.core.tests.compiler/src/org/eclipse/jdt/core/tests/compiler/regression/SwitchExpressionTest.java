@@ -372,17 +372,17 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	case 0 -> i * 0;\n" + 
 				"	^^^^^^\n" + 
-				"Case Labels with '->' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"Case Labels with \'->\' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
 				"	case 1 -> 2;\n" + 
 				"	^^^^^^\n" + 
-				"Case Labels with '->' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"Case Labels with \'->\' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 6)\n" + 
 				"	default -> 3;\n" + 
 				"	^^^^^^^\n" + 
-				"Case Labels with '->' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"Case Labels with \'->\' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -416,6 +416,11 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"	default -> 3;\n" + 
 				"	^^^^^^^\n" + 
 				"You are using a preview language feature that may or may not be supported in a future release\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	default -> 3;\n" + 
+				"	           ^\n" + 
+				"Invalid expression as statement\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -446,10 +451,10 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 
 		String expectedProblemLog =
 				"----------\n" + 
-				"1. ERROR in X.java (at line 8)\n" + 
-				"	default :v = 2;\n" + 
-				"	         ^^^^^\n" + 
-				"A switch labeled block in a switch expression should not complete normally\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	default -> 3;\n" + 
+				"	           ^\n" + 
+				"Invalid expression as statement\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -486,6 +491,11 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"	default -> 3;\n" + 
 					"	^^^^^^^\n" + 
 					"The preview feature Case Labels with \'->\' is only available with source level 12 and above\n" + 
+					"----------\n" + 
+					"2. ERROR in X.java (at line 4)\n" + 
+					"	default -> 3;\n" + 
+					"	           ^\n" + 
+					"Invalid expression as statement\n" + 
 					"----------\n";
 			this.runNegativeTest(
 					testFiles,
@@ -1471,5 +1481,38 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"1",
 			null,
 			new String[] {"--enable-preview"});
+	}
+	public void testBug543967_01() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static int foo(int i) {\n" +
+				"		switch (i) {\n" +
+				"			default -> 3; // should flag an error\n" +
+				"			\n" +
+				"		};\n" +
+				"		return 0;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		foo(1);\n" +
+				"	}\n" +
+				"}\n",
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	default -> 3; // should flag an error\n" + 
+				"	           ^\n" + 
+				"Invalid expression as statement\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] { "--enable-preview"},
+				options);
 	}
 }
