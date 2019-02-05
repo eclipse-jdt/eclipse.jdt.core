@@ -9485,4 +9485,31 @@ public void testBug508834_comment0() {
 		};
 		runner.runConformTest();
 	}
+	public void testBug540846() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import java.util.stream.*;\n" + 
+			"import java.math.*;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"    private List<Object> getRowValues(Map<String, BigDecimal> record, Stream<String> factors) {\n" + 
+			"        return Stream.concat(\n" + 
+			"            factors.map(f -> {\n" + 
+			"                if (f.equals(\"x\")) {\n" + 
+			"                    return record.get(f);\n" + 
+			"                } else {\n" + 
+			"                    return \"NM\";\n" + 
+			"                }\n" + 
+			"            }),\n" + 
+			"            Stream.of(BigDecimal.ONE)\n" + 
+			"        )\n" + 
+			"        .map(v -> (v instanceof BigDecimal) ? ((BigDecimal) v).setScale(10, BigDecimal.ROUND_HALF_UP) : v)\n" + 
+			"        .collect(Collectors.toList());\n" + 
+			"    }\n" + 
+			"}\n"
+		};
+		runner.runConformTest();
+	}
 }

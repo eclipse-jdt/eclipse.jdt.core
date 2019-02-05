@@ -4401,6 +4401,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] {dep});
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("markers on com.greetings", 
+					"The package bundle.org conflicts with a package accessible from another module: org.astro",
+					markers);
+
 			src = new String[] { 
 				"src/module-info.java",
 				"module test {\n" +
@@ -4420,8 +4426,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			};
 			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
 			IJavaProject p3 = setupModuleProject("test", src, new IClasspathEntry[] {dep, dep2});
-			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			p3.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", "", markers);
 		} finally {
 			this.deleteProject("test");
