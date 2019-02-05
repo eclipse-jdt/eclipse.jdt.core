@@ -16,7 +16,6 @@ package org.eclipse.jdt.compiler.tool.tests;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,6 +23,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -54,9 +54,12 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
 import junit.framework.TestCase;
 
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class CompilerToolJava9Tests extends TestCase {
 	private static final boolean DEBUG = false;
 	private static final String RESOURCES_DIR = "resources";
@@ -82,10 +85,8 @@ public class CompilerToolJava9Tests extends TestCase {
 			return;
 		this.compilers = new JavaCompiler[2];
 		this.compilerNames = new String[2];
-		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class);
-		int compilerCounter = 0;
+		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class, EclipseCompiler.class.getClassLoader());
 		for (JavaCompiler compiler : javaCompilerLoader) {
-			compilerCounter++;
 			if (compiler instanceof EclipseCompiler) {
 				this.compilers[1] = compiler;
 				this.compilerNames[1] = "Eclipse Compiler";
@@ -93,37 +94,45 @@ public class CompilerToolJava9Tests extends TestCase {
 		}
 		this.compilerNames[0] = "System compiler";
 		this.compilers[0] = ToolProvider.getSystemJavaCompiler();
-		assertEquals("Only one compiler available: " + Arrays.toString(compilers), 2, compilerCounter);
 		assertNotNull("System compiler unavailable", this.compilers[0]);
 		assertNotNull("Eclipse compiler unavailable", this.compilers[1]);
 		initializeLocations();
 	}
-	protected void initializeLocations() {
-		_tmpFolder = System.getProperty("java.io.tmpdir");
-		if (_tmpFolder.endsWith(File.separator)) {
-			_tmpFolder += "eclipse-temp";
-		} else {
-			_tmpFolder += (File.separator + "eclipse-temp");
+	@Override
+	protected void tearDown() throws Exception {
+		if (isJREBelow9) {
+			return;
 		}
+		deleteTree(new File(_tmpFolder));
+		super.tearDown();
+	}
+	protected void initializeLocations() throws IOException {
+		Path tempDirectory = Files.createTempDirectory("eclipse-temp");
+		_tmpFolder = tempDirectory.toString();
 		_tmpBinFolderName = _tmpFolder + File.separator + "bin";
 		_tmpBinDir = new File(_tmpBinFolderName);
 		deleteTree(_tmpBinDir); // remove existing contents
-		_tmpBinDir.mkdirs();
-		assert _tmpBinDir.exists() : "couldn't mkdirs " + _tmpBinFolderName;
+		Files.createDirectories(_tmpBinDir.toPath());
+		assertTrue("couldn't mkdirs " + _tmpBinFolderName, _tmpBinDir.exists());
 
 		_tmpGenFolderName = _tmpFolder + File.separator + "gen-src";
 		_tmpGenDir = new File(_tmpGenFolderName);
 		deleteTree(_tmpGenDir); // remove existing contents
-		_tmpGenDir.mkdirs();
-		assert _tmpGenDir.exists() : "couldn't mkdirs " + _tmpGenFolderName;
+		Files.createDirectories(_tmpGenDir.toPath());
+		assertTrue("couldn't mkdirs " + _tmpGenFolderName, _tmpGenDir.exists());
 
 		_tmpSrcFolderName = _tmpFolder + File.separator + "src";
 		_tmpSrcDir = new File(_tmpSrcFolderName);
 		deleteTree(_tmpSrcDir); // remove existing contents
-		_tmpSrcDir.mkdirs();
-		assert _tmpSrcDir.exists() : "couldn't mkdirs " + _tmpSrcFolderName;
+		Files.createDirectories(_tmpSrcDir.toPath());
+		assertTrue("couldn't mkdirs " + _tmpSrcFolderName, _tmpSrcDir.exists());
 
 		modules_directory = getPluginDirectoryPath() + File.separator + "resources" + File.separator + "module_locations";
+		
+		Path moduleInfo = Paths.get(modules_directory, "source", "SimpleModules", "module.one", "module-info.java");
+		assertTrue("File should exist: " + moduleInfo, Files.isReadable(moduleInfo));
+		moduleInfo = Paths.get(modules_directory, "source", "SimpleModules", "module.two", "module-info.java");
+		assertTrue("File should exist: " + moduleInfo, Files.isReadable(moduleInfo));
 	}
 	public void testGetLocationForModule1() {
 		if (this.isJREBelow9) return;
@@ -177,7 +186,9 @@ public class CompilerToolJava9Tests extends TestCase {
 			manager.setLocationFromPaths(StandardLocation.MODULE_SOURCE_PATH, Arrays.asList(path));
 			try {
 				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.MODULE_SOURCE_PATH, "module.two");
-				assertNotNull(cName + ":module path location should not be null", location);
+				Path moduleInfo = path.resolve("module.two" + File.separator + "module-info.java");
+				assertTrue("File should exist: " + moduleInfo, Files.isReadable(moduleInfo));
+				assertNotNull(cName + ": module path location should not be null for path " + path, location);
 			} catch (UnsupportedOperationException ex) {
 				fail(cName + ":Should support getLocationForModule()");
 			}
@@ -196,35 +207,23 @@ public class CompilerToolJava9Tests extends TestCase {
 			manager.setLocationFromPaths(StandardLocation.MODULE_SOURCE_PATH, Arrays.asList(path));
 			try {
 				JavaFileManager.Location location = manager.getLocationForModule(StandardLocation.MODULE_SOURCE_PATH, "module.one");
-				assertNotNull(cName + ":module path location should not be null", location);
+				Path moduleInfo = path.resolve("module.one" + File.separator + "module-info.java");
+				assertTrue("File should exist: " + moduleInfo, Files.isReadable(moduleInfo));
+				assertNotNull(cName + ": module path location should not be null for path " + path, location);
 			} catch (UnsupportedOperationException ex) {
 				fail(cName + ":Should support getLocationForModule()");
 			}
 		}
 	}
-	public void testOptionRelease1() {
+	public void testOptionRelease1() throws IOException {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
-		String tmpFolder = System.getProperty("java.io.tmpdir");
+		String tmpFolder = _tmpFolder;
 		File inputFile = new File(tmpFolder, "X.java");
-		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter(new FileWriter(inputFile));
+		try (Writer writer = new BufferedWriter(new FileWriter(inputFile))) {
 			writer.write(
 				"package p;\n" +
 				"public class X {}");
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {
-			// ignore
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
 		}
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
@@ -307,29 +306,15 @@ public class CompilerToolJava9Tests extends TestCase {
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
 	}
-	public void testOptionRelease2() {
+	public void testOptionRelease2() throws IOException {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
-		String tmpFolder = System.getProperty("java.io.tmpdir");
+		String tmpFolder = _tmpFolder;
 		File inputFile = new File(tmpFolder, "X.java");
-		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter(new FileWriter(inputFile));
+		try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
 			writer.write(
 				"package p;\n" +
 				"public class X {}");
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {
-			// ignore
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
 		}
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
@@ -412,29 +397,15 @@ public class CompilerToolJava9Tests extends TestCase {
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
 	}
-	public void testOptionRelease3() {
+	public void testOptionRelease3() throws IOException {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
-		String tmpFolder = System.getProperty("java.io.tmpdir");
+		String tmpFolder = _tmpFolder;
 		File inputFile = new File(tmpFolder, "X.java");
-		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter(new FileWriter(inputFile));
+		try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
 			writer.write(
 				"package p;\n" +
 				"public class X {}");
-			writer.flush();
-			writer.close();
-		} catch (IOException e) {
-			// ignore
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
 		}
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
@@ -598,7 +569,7 @@ public class CompilerToolJava9Tests extends TestCase {
 	
 	/*-- Code for testing bug 533830 --*/
 	
-	public void testBug533830_1() {
+	public void testBug533830_1() throws IOException {
 		if (this.isJREBelow9) return;
 		
 		File src = createClassSource(
@@ -641,7 +612,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		}
 
 		public void compile() {
-			String tmpFolder = System.getProperty("java.io.tmpdir");
+			String tmpFolder = _tmpFolder;
 			StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 			Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
@@ -735,25 +706,12 @@ public class CompilerToolJava9Tests extends TestCase {
 		}
 	}
 	
-	private File createClassSource(String source) {
-		String tmpFolder = System.getProperty("java.io.tmpdir");
+	private File createClassSource(String source) throws IOException {
+		String tmpFolder = _tmpFolder;
 		File inputFile = new File(tmpFolder, "X.java");
-		Writer writer = null;
-		try {
-			writer = new FileWriter(inputFile);
+		try (Writer writer = new FileWriter(inputFile)){
 			writer.write(source);
-			writer.close();
 			return inputFile;
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		} finally {
-			if (writer != null) {
-				try {
-					writer.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
 		}
 	}
 	
@@ -764,8 +722,9 @@ public class CompilerToolJava9Tests extends TestCase {
 	 * This is not optimized to handle very large or deep directory trees efficiently.
 	 * @param f is either a normal file (which will be deleted) or a directory
 	 * (which will be emptied and then deleted).
+	 * @throws IOException 
 	 */
-	public static void deleteTree(File f)
+	public static void deleteTree(File f) throws IOException
 	{
 		if (null == f) {
 			return;
@@ -778,7 +737,7 @@ public class CompilerToolJava9Tests extends TestCase {
 			}
 		}
 		// At this point f is either a normal file or an empty directory
-		f.delete();
+		Files.deleteIfExists(f.toPath());
 	}
 	/**
 	 * Copy a file from one location to another, unless the destination file already exists and has
@@ -812,24 +771,10 @@ public class CompilerToolJava9Tests extends TestCase {
 	}
 
 	public static void writeFile(File dest, byte[] srcBytes) throws IOException {
-
 		File destFolder = dest.getParentFile();
-		if (!destFolder.exists()) {
-			if (!destFolder.mkdirs()) {
-				throw new IOException("Unable to create directory " + destFolder);
-			}
-		}
+		Files.createDirectories(destFolder.toPath());
 		// write bytes to dest
-		FileOutputStream out = null;
-		try {
-			out = new FileOutputStream(dest);
-			out.write(srcBytes);
-			out.flush();
-		} finally {
-			if (out != null) {
-				out.close();
-			}
-		}
+		Files.write(dest.toPath(), srcBytes);
 	}
 
 	/**
@@ -896,17 +841,12 @@ public class CompilerToolJava9Tests extends TestCase {
 			}
 		}
 	}
-	protected static String getPluginDirectoryPath() {
-		try {
-			if (Platform.isRunning()) {
-				URL platformURL = Platform.getBundle("org.eclipse.jdt.compiler.tool.tests").getEntry("/");
-				return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
-			}
-			return new File(System.getProperty("user.dir")).getAbsolutePath();
-		} catch (IOException e) {
-			e.printStackTrace();
+	protected static String getPluginDirectoryPath() throws IOException {
+		if (Platform.isRunning()) {
+			URL platformURL = Platform.getBundle("org.eclipse.jdt.compiler.tool.tests").getEntry("/");
+			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
 		}
-		return null;
+		return new File(System.getProperty("user.dir")).getAbsolutePath();
 	}
 	/**
 	 * @return true if this file's end-of-line delimiters should be replaced with
@@ -916,23 +856,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		return file.getName().endsWith(".java");
 	}
 	public static byte[] read(java.io.File file) throws java.io.IOException {
-		int fileLength;
-		byte[] fileBytes = new byte[fileLength = (int) file.length()];
-		java.io.FileInputStream stream = null;
-		try {
-			stream = new java.io.FileInputStream(file);
-			int bytesRead = 0;
-			int lastReadSize = 0;
-			while ((lastReadSize != -1) && (bytesRead != fileLength)) {
-				lastReadSize = stream.read(fileBytes, bytesRead, fileLength - bytesRead);
-				bytesRead += lastReadSize;
-			}
-		} finally {
-			if (stream != null) {
-				stream.close();
-			}
-		}
-		return fileBytes;
+		return Files.readAllBytes(file.toPath());
 	}
 
 	public static String convertToIndependentLineDelimiter(String source) {

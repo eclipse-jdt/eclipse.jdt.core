@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 IBM Corporation and others.
+ * Copyright (c) 2016, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -830,6 +830,122 @@ public void test522613_001() throws Exception {
 		deleteProject(project1);
 	}
 }
+public void test540591() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		createTypePlus("/Completion9_1/src/", "pack11", "IService", "", false /* isClass */, true /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "CCC", "implements pack11.IService", true /* isClass */, false /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "AbstractService", "implements pack11.IService", true /* isClass */, false /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "CCC2", "extends pack11.AbstractService", true /* isClass */, false /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "CCC3", "extends pack11.AbstractService", true /* isClass */, false /* createFolder */);
+		
+		String filePath1 = "/Completion9_1/src/module-info.java";
+		String completeBehind = "CC";
+		String fileContent1 =  "module first {\n"
+				+ "provides pack11.IService with " + completeBehind
+				+ "}\n";
+		createFile(filePath1, fileContent1);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project1.close(); // sync
+		project1.open(null);
+
+		int cursorLocation = fileContent1.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath1);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "CCC[TYPE_REF]{pack11.CCC, pack11, Lpack11.CCC;, null, 49}\n" + 
+				"CCC2[TYPE_REF]{pack11.CCC2, pack11, Lpack11.CCC2;, null, 49}\n" + 
+				"CCC3[TYPE_REF]{pack11.CCC3, pack11, Lpack11.CCC3;, null, 49}"
+			;
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+	}
+}
+
+
+public void test540591_mismatchedCase() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		createTypePlus("/Completion9_1/src/", "pack11", "IService", "", false /* isClass */, true /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "CCC", "implements pack11.IService", true /* isClass */, false /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "AbstractService", "implements pack11.IService", true /* isClass */, false /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "CCC2", "extends pack11.AbstractService", true /* isClass */, false /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "CCC3", "extends pack11.AbstractService", true /* isClass */, false /* createFolder */);
+		
+		String filePath1 = "/Completion9_1/src/module-info.java";
+		String completeBehind = "cc";
+		String fileContent1 =  "module first {\n"
+				+ "provides pack11.IService with " + completeBehind
+				+ "}\n";
+		createFile(filePath1, fileContent1);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project1.close(); // sync
+		project1.open(null);
+
+		int cursorLocation = fileContent1.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath1);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "CCC[TYPE_REF]{pack11.CCC, pack11, Lpack11.CCC;, null, 39}\n" + 
+				"CCC2[TYPE_REF]{pack11.CCC2, pack11, Lpack11.CCC2;, null, 39}\n" + 
+				"CCC3[TYPE_REF]{pack11.CCC3, pack11, Lpack11.CCC3;, null, 39}"
+			;
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+	}
+}
+
+public void test540591_withoutPrefix() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		createTypePlus("/Completion9_1/src/", "pack11", "IService", "", false /* isClass */, true /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "CCC", "implements pack11.IService", true /* isClass */, false /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "AbstractService", "implements pack11.IService", true /* isClass */, false /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "CCC2", "extends pack11.AbstractService", true /* isClass */, false /* createFolder */);
+		createTypePlus("/Completion9_1/src/", "pack11", "CCC3", "extends pack11.AbstractService", true /* isClass */, false /* createFolder */);
+		
+		String filePath1 = "/Completion9_1/src/module-info.java";
+		String completeBehind = "with ";
+		String fileContent1 =  "module first {\n"
+				+ "provides pack11.IService " + completeBehind
+				+ "}\n";
+		createFile(filePath1, fileContent1);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project1.close(); // sync
+		project1.open(null);
+
+		int cursorLocation = fileContent1.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath1);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "AbstractService[TYPE_REF]{pack11.AbstractService, pack11, Lpack11.AbstractService;, null, 39}\n" +
+				"CCC[TYPE_REF]{pack11.CCC, pack11, Lpack11.CCC;, null, 39}\n" + 
+				"CCC2[TYPE_REF]{pack11.CCC2, pack11, Lpack11.CCC2;, null, 39}\n" + 
+				"CCC3[TYPE_REF]{pack11.CCC3, pack11, Lpack11.CCC3;, null, 39}\n"+
+				"pack11[PACKAGE_REF]{pack11, pack11, null, null, 39}"
+			;
+		 
+
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+	}
+}
+
 public void test527099_001() throws Exception {
 	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
 	IJavaProject project2 = createJavaProject("Completion9_2", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");

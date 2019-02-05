@@ -40,6 +40,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -806,7 +807,11 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		if ("macosx".equals(System.getProperty("osgi.os"))) {
 			return;
 		}
-		assertUTF8Encoding();
+		String os = Platform.getOS();
+		if (!Platform.OS_WIN32.equals(os)) {
+			// on Windows we have Windows-1252 as default, *nix should use UTF-8
+			assertUTF8Encoding();
+		}
 		IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib376673.jar", "JCL17_LIB" }, "", "1.7");
 		IPath jarPath = p.getProject().getLocation().append("lib376673.jar");
 		

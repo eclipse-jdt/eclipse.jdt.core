@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -12018,7 +12019,33 @@ public final class CompletionEngine
 		if (answer != null ) {
 			if (answer.isSourceType()) {
 				IType typeHandle = ((SourceTypeElementInfo) answer.getSourceTypes()[0]).getHandle();
-				pattern = SearchPattern.createPattern(typeHandle, IJavaSearchConstants.IMPLEMENTORS, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+				try {
+					ArrayList<IType> allTypes = new ArrayList<IType>();
+					ITypeHierarchy newTypeHierarchy = typeHandle.newTypeHierarchy(this.javaProject, null);
+					IType[] implementingClasses = newTypeHierarchy.getImplementingClasses(typeHandle);
+					for (IType iClass : implementingClasses) {
+						getAllTypesInHierarchy(newTypeHierarchy,iClass,allTypes);
+					}
+					for (IType iType : allTypes) {
+						String pkg = iType.getPackageFragment().getElementName();
+						String name = iType.getElementName();
+						if ( CharOperation.ALL_PREFIX != this.completionToken) {
+							if(!CharOperation.prefixEquals(this.completionToken, name.toCharArray(), false))
+								if(!CharOperation.prefixEquals(this.completionToken, pkg.toCharArray(), false))
+									continue;
+						}
+						this.acceptType(pkg.toCharArray(), name.toCharArray(), CharOperation.NO_CHAR_CHAR, iType.getFlags(), null);
+						acceptTypes(scope);
+					}
+					if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+						checkCancel();
+						findPackagesInCurrentModule();
+					}
+					return;
+					
+				} catch (JavaModelException e) {
+					//
+				}
 			} else if (answer.isBinaryType()) {
 				String typeName = new String(CharOperation.replaceOnCopy(answer.getBinaryType().getName(), '/', '.'));
 				pattern = SearchPattern.createPattern(typeName,
@@ -12095,6 +12122,16 @@ public final class CompletionEngine
 			checkCancel();
 			findPackagesInCurrentModule();
 		}
+	}
+
+	private void getAllTypesInHierarchy(ITypeHierarchy newTypeHierarchy, IType iClass, ArrayList<IType> allTypes) {
+			allTypes.add(iClass);
+			IType[] subclasses = newTypeHierarchy.getSubclasses(iClass);
+			for (IType iType2 : subclasses) {
+				getAllTypesInHierarchy(newTypeHierarchy,iType2,allTypes);
+											
+			}
+		
 	}
 
 	private char[][] findVariableFromUnresolvedReference(LocalDeclaration variable, BlockScope scope, final char[][] discouragedNames) {

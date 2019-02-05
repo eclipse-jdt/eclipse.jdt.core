@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2152,8 +2152,96 @@ public class DefaultCodeFormatterConstants {
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
 	 * @since 3.0
+	 * @deprecated Use the new settings instead: {@link #FORMATTER_INSERT_SPACE_AFTER_MULTIPLICATIVE_OPERATOR},
+	 * {@link #FORMATTER_INSERT_SPACE_AFTER_ADDITIVE_OPERATOR}, {@link #FORMATTER_INSERT_SPACE_AFTER_STRING_CONCATENATION},
+	 * {@link #FORMATTER_INSERT_SPACE_AFTER_SHIFT_OPERATOR}, {@link #FORMATTER_INSERT_SPACE_AFTER_RELATIONAL_OPERATOR},
+	 * {@link #FORMATTER_INSERT_SPACE_AFTER_BITWISE_OPERATOR}, {@link #FORMATTER_INSERT_SPACE_AFTER_LOGICAL_OPERATOR}
 	 */
 	public static final String FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_binary_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space after a multiplicative operator (*, /, %)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_multiplicative_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_MULTIPLICATIVE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_multiplicative_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space after an additive operator (+, -)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_additive_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_ADDITIVE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_additive_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space after a string concatenation operator
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_string_concatenation"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_STRING_CONCATENATION = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_string_concatenation"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space after a shift operator (<<, >>, >>>)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_shift_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_SHIFT_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_shift_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space after a relational operator (<, >, <=, >=, ==, !=)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_relational_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_RELATIONAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_relational_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space after a bitwise operator (&, ^, |)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_bitwise_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_BITWISE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_bitwise_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space after a logical operator (&&, ||)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_logical_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_LOGICAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_logical_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space after the closing angle bracket in explicit type arguments on method/constructor invocations
@@ -2885,8 +2973,96 @@ public class DefaultCodeFormatterConstants {
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
 	 * @since 3.0
+	 * @deprecated Use the new settings instead: {@link #FORMATTER_INSERT_SPACE_BEFORE_MULTIPLICATIVE_OPERATOR},
+	 * {@link #FORMATTER_INSERT_SPACE_BEFORE_ADDITIVE_OPERATOR}, {@link #FORMATTER_INSERT_SPACE_BEFORE_STRING_CONCATENATION},
+	 * {@link #FORMATTER_INSERT_SPACE_BEFORE_SHIFT_OPERATOR}, {@link #FORMATTER_INSERT_SPACE_BEFORE_RELATIONAL_OPERATOR},
+	 * {@link #FORMATTER_INSERT_SPACE_BEFORE_BITWISE_OPERATOR}, {@link #FORMATTER_INSERT_SPACE_BEFORE_LOGICAL_OPERATOR}
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_binary_operator";	//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before a multiplicative operator (*, /, %)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_multiplicative_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_MULTIPLICATIVE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_multiplicative_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before an additive operator (+, -)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_additive_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_ADDITIVE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_additive_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before a string concatenation operator
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_string_concatenation"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_STRING_CONCATENATION = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_string_concatenation"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before a shift operator (<<, >>, >>>)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_shift_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_SHIFT_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_shift_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before a relational operator (<, >, <=, >=, ==, !=)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_relational_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_RELATIONAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_relational_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before a bitwise operator (&, ^, |)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_bitwise_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_BITWISE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_bitwise_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before a logical operator (&&, ||)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_logical_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_LOGICAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_logical_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space before the closing angle bracket in parameterized type reference

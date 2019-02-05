@@ -714,7 +714,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test050() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_space_after_binary_operator = false;
+		preferences.insert_space_after_additive_operator = false;
 		preferences.insert_space_before_unary_operator = false;
 		preferences.insert_space_after_unary_operator = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -1083,8 +1083,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.brace_position_for_block = DefaultCodeFormatterConstants.NEXT_LINE;
 		preferences.brace_position_for_type_declaration = DefaultCodeFormatterConstants.NEXT_LINE;
 		preferences.brace_position_for_method_declaration = DefaultCodeFormatterConstants.NEXT_LINE;
-		preferences.insert_space_before_binary_operator = false;
-		preferences.insert_space_after_binary_operator = false;
+		preferences.insert_space_before_relational_operator = false;
+		preferences.insert_space_after_relational_operator = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test086", "A.java");//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -1143,8 +1143,8 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test092() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_space_after_binary_operator = false;
-		preferences.insert_space_before_binary_operator = false;
+		preferences.insert_space_after_relational_operator = false;
+		preferences.insert_space_before_relational_operator = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test092", "A.java", CodeFormatter.K_STATEMENTS);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -1484,7 +1484,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test125() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
-		preferences.insert_space_after_binary_operator = false;
+		preferences.insert_space_after_additive_operator = false;
 		preferences.insert_space_before_unary_operator = false;
 		preferences.insert_space_after_unary_operator = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -4542,7 +4542,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
 		preferences.insert_space_before_unary_operator = false;
 		preferences.insert_space_after_assignment_operator = false;
-		preferences.insert_space_after_binary_operator = false;
+		preferences.insert_space_after_additive_operator = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test341", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -6392,8 +6392,10 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_FOR, JavaCore.INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR, JavaCore.INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR, JavaCore.INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.INSERT);
-		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_MULTIPLICATIVE_OPERATOR, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_MULTIPLICATIVE_OPERATOR, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_RELATIONAL_OPERATOR, JavaCore.INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_RELATIONAL_OPERATOR, JavaCore.INSERT);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(options);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test476", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
@@ -12122,8 +12124,8 @@ public void test767b() throws Exception {
 	this.formatterOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 	this.formatterOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.INSERT);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BITWISE_OPERATOR, JavaCore.INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BITWISE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	setFormatterOptions80();
 	String source =
 		"package test;\n" +
@@ -12958,8 +12960,8 @@ public void testBug379793() throws Exception {
 //To verify that the whitespace options for resources in try statement work correctly
 public void testBug405038() throws Exception {
 	this.formatterPrefs = null;
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	String source =
 		"public class FormatterError {\n" +
 		"  int foo(int a, int b, int c) {\n" + 
@@ -12978,8 +12980,8 @@ public void testBug405038() throws Exception {
 //To verify that the whitespace options for resources in try statement work correctly
 public void testBug405038_2() throws Exception {
 	this.formatterPrefs = null;
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	String source =
 		"public class FormatterError {\n" +
 		"  int foo(int a, int b, int c) {\n" + 
@@ -12998,8 +13000,8 @@ public void testBug405038_2() throws Exception {
 //To verify that the whitespace options for resources in try statement work correctly
 public void testBug405038_3() throws Exception {
 	this.formatterPrefs = null;
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	String source =
 		"public class FormatterError {\n" +
 		"  int foo(int a, int b, int c) {\n" + 
@@ -13018,8 +13020,8 @@ public void testBug405038_3() throws Exception {
 //To verify that the whitespace options for resources in try statement work correctly
 public void testBug405038_4() throws Exception {
 	this.formatterPrefs = null;
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	String source =
 		"public class FormatterError {\n" +
 		"  int foo(int a, int b, int c) {\n" + 
@@ -13038,8 +13040,8 @@ public void testBug405038_4() throws Exception {
 //To verify that the whitespace options for resources in try statement work correctly
 public void testBug405038_5() throws Exception {
 	this.formatterPrefs = null;
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
+	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ADDITIVE_OPERATOR, JavaCore.DO_NOT_INSERT);
 	String source =
 		"public class FormatterError {\n" +
 		"  int foo(int a, int b, int c) {\n" + 
@@ -14707,5 +14709,68 @@ public void testBug543079g() throws JavaModelException {
 	this.formatterPrefs.wrap_before_logical_operator = false;
 	String input = getCompilationUnit("Formatter", "", "test543079", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test543079", "G_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/159565 - [formatter] Separate white space preferences for separate operators 
+ */
+public void testBug159565a() throws JavaModelException {
+	this.formatterPrefs.insert_space_before_multiplicative_operator = false;
+	this.formatterPrefs.insert_space_before_bitwise_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test159565", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test159565", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/159565 - [formatter] Separate white space preferences for separate operators 
+ */
+public void testBug159565b() throws JavaModelException {
+	this.formatterPrefs.insert_space_after_multiplicative_operator = false;
+	this.formatterPrefs.insert_space_after_additive_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test159565", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test159565", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/159565 - [formatter] Separate white space preferences for separate operators 
+ */
+public void testBug159565c() throws JavaModelException {
+	this.formatterPrefs.insert_space_before_additive_operator = false;
+	this.formatterPrefs.insert_space_before_logical_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test159565", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test159565", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/159565 - [formatter] Separate white space preferences for separate operators 
+ */
+public void testBug159565d() throws JavaModelException {
+	this.formatterPrefs.insert_space_before_string_concatenation = false;
+	this.formatterPrefs.insert_space_after_bitwise_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test159565", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test159565", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/159565 - [formatter] Separate white space preferences for separate operators 
+ */
+public void testBug159565e() throws JavaModelException {
+	this.formatterPrefs.insert_space_after_string_concatenation = false;
+	this.formatterPrefs.insert_space_before_shift_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test159565", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test159565", "E_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/159565 - [formatter] Separate white space preferences for separate operators 
+ */
+public void testBug159565f() throws JavaModelException {
+	this.formatterPrefs.insert_space_after_shift_operator = false;
+	this.formatterPrefs.insert_space_after_relational_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test159565", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test159565", "F_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/159565 - [formatter] Separate white space preferences for separate operators 
+ */
+public void testBug159565g() throws JavaModelException {
+	this.formatterPrefs.insert_space_before_relational_operator = false;
+	this.formatterPrefs.insert_space_after_logical_operator = false;
+	String input = getCompilationUnit("Formatter", "", "test159565", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test159565", "G_out.java").getSource());
 }
 }

@@ -138,7 +138,7 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	}
 
 	public IPath addPackageFragmentRoot(IPath projectPath, String sourceFolderName) throws JavaModelException {
-		return addPackageFragmentRoot(projectPath, sourceFolderName, null, null); //$NON-NLS-1$
+		return addPackageFragmentRoot(projectPath, sourceFolderName, null, null); 
 	}
 
 	public IPath addTestPackageFragmentRoot(IPath projectPath, String sourceFolderName) throws JavaModelException {
@@ -213,6 +213,14 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 		else if ("9".equals(compliance)) {
 			requiredComplianceFlag = AbstractCompilerTest.F_9;
 			compilerVersion = CompilerOptions.VERSION_9;
+		}
+		else if ("10".equals(compliance)) {
+			requiredComplianceFlag = AbstractCompilerTest.F_10;
+			compilerVersion = CompilerOptions.VERSION_10;
+		}
+		else if ("11".equals(compliance)) {
+			requiredComplianceFlag = AbstractCompilerTest.F_11;
+			compilerVersion = CompilerOptions.VERSION_11;
 		}
 		else if (!"1.4".equals(compliance) && !"1.3".equals(compliance)) {
 			throw new UnsupportedOperationException("Test framework doesn't support compliance level: " + compliance);
@@ -501,7 +509,7 @@ public void cleanBuild(String projectName) {
 		}
 		return project;
 	}
-	
+
 	/**
 	 * Safely delete the given resource.
 	 */

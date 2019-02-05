@@ -86,10 +86,10 @@ private void addNotFoundType(char[] simpleName) {
 }
 /**
  * Remembers a sub-package.
- * For a split parent package this will include enriching with siblings, if checkForSplitSiblings is true
+ * For a split parent package this will include potentially enriching with siblings,
  * in which case the enriched (split) binding will be returned.
  */
-PackageBinding addPackage(PackageBinding element, ModuleBinding module, boolean checkForSplitSiblings) {
+PackageBinding addPackage(PackageBinding element, ModuleBinding module) {
 	if ((element.tagBits & TagBits.HasMissingType) == 0) clearMissingTagBit();
 	this.knownPackages.put(element.compoundName[element.compoundName.length - 1], element);
 	return element;

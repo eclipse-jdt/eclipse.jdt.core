@@ -415,7 +415,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.EXPORTS);
-		assertEquals("incorrect no of exports", this.isJre11 ? 108 : (this.isJre10 ? 102 : 108) , filterDirective.size());
+		assertEquals("incorrect no of exports", this.isJre11 ? 107 : (this.isJre10 ? 102 : 108) , filterDirective.size());
 		ExportsDirective pack = null;
 		for (Directive directive : filterDirective) {
 			ModuleElement.ExportsDirective exports = (ExportsDirective) directive;
@@ -476,7 +476,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.USES);
-		assertEquals("incorrect no of uses", 34 , filterDirective.size());
+		assertEquals("incorrect no of uses", this.isJre11? 33 : 34, filterDirective.size());
 	}
 	/*
 	 * Test java.base module can be loaded and verify its 'provides' attributes

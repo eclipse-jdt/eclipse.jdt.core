@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2018 IBM Corporation and others.
+ * Copyright (c) 2006, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -934,8 +934,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		for (Iterator<? extends File> iterator = iterable2.iterator(); iterator.hasNext(); ) {
 			list.add(iterator.next());
 		}
-		for (Iterator<? extends File> iterator = iterable.iterator(); iterator.hasNext(); ) {
-			list.add(iterator.next());
+		if (iterable != null) {
+			for (Iterator<? extends File> iterator = iterable.iterator(); iterator.hasNext(); ) {
+				list.add(iterator.next());
+			}
 		}
 		return list;
 	}

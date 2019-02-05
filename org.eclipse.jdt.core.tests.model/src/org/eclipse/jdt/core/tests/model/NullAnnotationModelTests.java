@@ -963,4 +963,44 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 				deleteProject(project);
 		}
 	}
+	public void testBug543304() throws Exception {
+		IJavaProject annotations = createJavaProject("Annotations", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+		IJavaProject client = createJavaProject("Client", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "1.7");
+		try {
+			createFolder("Annotations/src/p");
+			createFile("Annotations/src/p/NonNull.java",
+					"package p;\n" +
+					"import java.lang.annotation.*;\n" +
+					"import static java.lang.annotation.ElementType.*;\n" +
+					"@Target({METHOD, PARAMETER, FIELD, TYPE_USE})\n" +
+					"public @interface NonNull {}\n");
+			createFile("Annotations/src/p/Nullable.java",
+					"package p;\n" +
+					"import java.lang.annotation.*;\n" +
+					"import static java.lang.annotation.ElementType.*;\n" +
+					"@Target({METHOD, PARAMETER, FIELD, TYPE_USE})\n" +
+					"public @interface Nullable {}\n");
+
+			addClasspathEntry(client, JavaCore.newProjectEntry(annotations.getPath()));
+			client.setOption(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "p.NonNull");
+			client.setOption(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "p.Nullable");
+			client.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+
+			createFile("Client/src/Test.java",
+					"import p.*;\n" +
+					"public class Test {\n" +
+					"  @Nullable int[] ints = null;\n" +
+					"  public @NonNull Object foo(@NonNull byte[] data) {\n" + 
+					"    return data;\n" + 
+					"  }\n" +
+					"}\n");
+
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = client.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			deleteProject(annotations);
+			deleteProject(client);
+		}
+	}
 }

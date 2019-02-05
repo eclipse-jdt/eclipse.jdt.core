@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 IBM Corporation and others.
+ * Copyright (c) 2016, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -325,25 +325,37 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 
 	protected void recordExportRestrictions(PackageBinding exportedPackage, char[][] targetModules) {
 		if (targetModules != null && targetModules.length > 0) {
-			SimpleSetOfCharArray targetModuleSet = new SimpleSetOfCharArray(targetModules.length);
+			SimpleSetOfCharArray targetModuleSet = null;
+			if (this.exportRestrictions != null) {
+				targetModuleSet = this.exportRestrictions.get(exportedPackage);
+			} else {
+				this.exportRestrictions = new HashMap<>();
+			}
+			if (targetModuleSet == null) {
+				targetModuleSet = new SimpleSetOfCharArray(targetModules.length);
+				this.exportRestrictions.put(exportedPackage, targetModuleSet);
+			}
 			for (int i = 0; i < targetModules.length; i++) {
 				targetModuleSet.add(targetModules[i]);
 			}
-			if (this.exportRestrictions == null)
-				this.exportRestrictions = new HashMap<>();
-			this.exportRestrictions.put(exportedPackage, targetModuleSet);
 		}
 	}
 
 	protected void recordOpensRestrictions(PackageBinding openedPackage, char[][] targetModules) {
 		if (targetModules != null && targetModules.length > 0) {
-			SimpleSetOfCharArray targetModuleSet = new SimpleSetOfCharArray(targetModules.length);
+			SimpleSetOfCharArray targetModuleSet = null;
+			if (this.openRestrictions != null) {
+				targetModuleSet = this.openRestrictions.get(openedPackage);
+			} else {
+				this.openRestrictions = new HashMap<>();
+			}
+			if (targetModuleSet == null) {
+				targetModuleSet = new SimpleSetOfCharArray(targetModules.length);
+				this.openRestrictions.put(openedPackage, targetModuleSet);
+			}
 			for (int i = 0; i < targetModules.length; i++) {
 				targetModuleSet.add(targetModules[i]);
 			}
-			if (this.openRestrictions == null)
-				this.openRestrictions = new HashMap<>();
-			this.openRestrictions.put(openedPackage, targetModuleSet);
 		}
 	}
 
@@ -559,7 +571,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 								if (declaredPackage != null) {
 									// don't add foreign package to 'parent' (below), but to its own parent:
 									if (declaredPackage.parent != null)
-										declaredPackage.parent.addPackage(declaredPackage, declaringModule, true);
+										declaredPackage.parent.addPackage(declaredPackage, declaringModule);
 									parent = null;
 									//
 									binding = SplitPackageBinding.combine(declaredPackage, binding, this);
@@ -579,15 +591,19 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			binding = combineWithPackagesFromOtherRelevantModules(binding, subPkgCompoundName, declaringModuleNames);
 		}
 		if (binding == null || !binding.isValidBinding()) {
-			if (parent != null && !packageMayBeIncomplete) // don't remember package that may still lack some siblings
+			if (parent != null
+					&& !packageMayBeIncomplete  // don't remember package that may still lack some siblings
+					&& !(parent instanceof SplitPackageBinding)) // don't store problem into SPB, because from different focus things may look differently
+			{
 				parent.knownPackages.put(name, binding == null ? LookupEnvironment.TheNotFoundPackage : binding);
+			}
 			return null;
 		}
 		// remember
 		if (parentName.length == 0)
 			binding.environment.knownPackages.put(name, binding);
 		else if (parent != null)
-			binding = parent.addPackage(binding, this, false);
+			binding = parent.addPackage(binding, this);
 		return addPackage(binding, false);
 	}
 

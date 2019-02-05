@@ -3353,10 +3353,9 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 	}
 	invalidType(importRef, (TypeBinding)expectedImport);
 }
-public void conflictingPackagesFromModules(SplitPackageBinding splitPackage, int sourceStart, int sourceEnd) {
-	ModuleBinding enclosingModule = splitPackage.enclosingModule;
+public void conflictingPackagesFromModules(SplitPackageBinding splitPackage, ModuleBinding focusModule, int sourceStart, int sourceEnd) {
 	String modules = splitPackage.incarnations.stream()
-						.filter(enclosingModule::canAccess)
+						.filter(focusModule::canAccess)
 						.map(p -> String.valueOf(p.enclosingModule.readableName()))
 						.sorted()
 						.collect(Collectors.joining(", ")); //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2018 IBM Corporation and others.
+ * Copyright (c) 2017, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -794,7 +794,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				IPath path = rawClasspath[i].getPath();
 				if (path.lastSegment().equals("jrt-fs.jar")) {
 					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
-					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
+					IClasspathEntry newEntry = newModularLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
 				}
 			}
@@ -849,7 +849,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				IPath path = rawClasspath[i].getPath();
 				if (path.lastSegment().equals("jrt-fs.jar")) {
 					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
-					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
+					IClasspathEntry newEntry = newModularLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
 				}
 			}
@@ -976,7 +976,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				"public class C {\n" +
 				"}"
 			};
-			addLibrary(javaProject, "mod.one.jar", "mod.onesrc.zip", pathAndContents, JavaCore.VERSION_9);
+			addModularLibrary(javaProject, "mod.one.jar", "/Test/mod.onesrc.zip", pathAndContents, JavaCore.VERSION_9);
 
 			// search self module:
 			IModuleDescription modTest = javaProject.findModule("test", null);
@@ -1585,7 +1585,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				if (path.lastSegment().equals("jrt-fs.jar")) {
 					jdkRootPath = path.removeLastSegments(2);
 					path = jdkRootPath.append("jmods").append("java.base.jmod");
-					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
+					IClasspathEntry newEntry = newModularLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
 				}
 			}
@@ -1636,33 +1636,31 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void testBug530402b() throws CoreException, IOException {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements",
-					new String[] {"src"},
-					new String[] {"JCL19_LIB", "/Java9Elements/lib530402.jar"},
-					"bin",
-					"9");
+			IJavaProject project = createJava9Project("Java9Elements");
+			IPath libPath = project.getProject().getLocation().append("lib530402.jar");
 			createJar(new String[] {
 					"module-info.java",
 					"@Deprecated module M {}\n"
 				},
-				project.getProject().getLocation().append("lib530402.jar").toOSString(),
+				libPath.toOSString(),
 				new String[] {},
 				"9");
+			addModularLibraryEntry(project, libPath, null);
 			project.getProject().refreshLocal(2, null);
 			project.open(null);
-				String fileContent =
-						"module my.mod {\n" +
-						"	requires M;\n" +
-						"}";
-				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
+			String fileContent =
+					"module my.mod {\n" +
+					"	requires M;\n" +
+					"}";
+			createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
-				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
-				int offsetToSql = fileContent.indexOf("M");
-				IJavaElement[] selectedElements = unit.codeSelect(offsetToSql, "M".length());
-				IModuleDescription module = (IModuleDescription) selectedElements[0];
-				IAnnotation[] annotations = module.getAnnotations();
-				assertEquals("should have one annotation", 1, annotations.length);
-				assertEquals("annotation name", "java.lang.Deprecated", annotations[0].getElementName());
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+			int offsetToSql = fileContent.indexOf("M");
+			IJavaElement[] selectedElements = unit.codeSelect(offsetToSql, "M".length());
+			IModuleDescription module = (IModuleDescription) selectedElements[0];
+			IAnnotation[] annotations = module.getAnnotations();
+			assertEquals("should have one annotation", 1, annotations.length);
+			assertEquals("annotation name", "java.lang.Deprecated", annotations[0].getElementName());
 		}
 		finally {
 			deleteProject("Java9Elements");
@@ -1671,7 +1669,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	public void test530653() throws CoreException, IOException {
 		try {
 			IJavaProject project = createJava9Project("Java9Elements");
-			addLibrary(project, "lib530653.jar", "lib530653src.zip", new String[] {
+			addModularLibrary(project, "lib530653.jar", "lib530653src.zip", new String[] {
 					"module-info.java",
 					"/** @category library */\n" +
 					"module M {}\n"
