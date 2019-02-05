@@ -108,7 +108,7 @@ public class BinaryModuleBinding extends ModuleBinding {
 			}
 			// TODO(SHMOD): handle null case
 		}
-		if (count < this.requiresTransitive.length)
+		if (count < this.requires.length)
 			System.arraycopy(this.requires, 0, this.requires = new ModuleBinding[count], 0, count);
 		if (transitiveCount < this.requiresTransitive.length)
 			System.arraycopy(this.requiresTransitive, 0, this.requiresTransitive = new ModuleBinding[transitiveCount], 0, transitiveCount);

@@ -213,7 +213,6 @@ void checkAndSetImports() {
 
 	if (this.referenceContext.moduleDeclaration != null) {
 		this.referenceContext.moduleDeclaration.resolveModuleDirectives(this);
-		this.referenceContext.moduleDeclaration.resolvePackageDirectives(this);
 	}
 
 	if (this.referenceContext.imports == null) {
@@ -512,6 +511,7 @@ void faultInImports() {
 public void faultInTypes() {
 	faultInImports();
 	if (this.referenceContext.moduleDeclaration != null) {
+		this.referenceContext.moduleDeclaration.resolvePackageDirectives(this);
 		this.referenceContext.moduleDeclaration.resolveTypeDirectives(this);
 	} else if (this.referenceContext.currentPackage != null) {
 		this.referenceContext.currentPackage.checkPackageConflict(this);
