@@ -442,13 +442,13 @@ public PackageBinding getVisibleFor(ModuleBinding module, boolean preferLocal) {
 public boolean hasCompilationUnit(boolean checkCUs) {
 	if (this.knownTypes != null) {
 		for (ReferenceBinding knownType : this.knownTypes.valueTable) {
-			if (knownType != null && knownType != LookupEnvironment.TheNotFoundType)
+			if (knownType != null && knownType != LookupEnvironment.TheNotFoundType && !knownType.isUnresolvedType())
 				return true;
 		}
 	}
 	if (this.environment.useModuleSystem) {
 		IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
-		return moduleEnv.hasCompilationUnit(this.compoundName, this.enclosingModule.nameForLookup(), checkCUs);
+		return moduleEnv.hasCompilationUnit(this.compoundName, this.enclosingModule.nameForCUCheck(), checkCUs);
 	}
 	return false;
 }

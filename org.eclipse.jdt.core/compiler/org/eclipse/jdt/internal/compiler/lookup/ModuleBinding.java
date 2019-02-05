@@ -443,6 +443,13 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 
 	/**
+	 * Answer the name of this module as it should be used for hasCompilationUnit() checks.
+	 */
+	public char[] nameForCUCheck() {
+		return nameForLookup();
+	}
+
+	/**
 	 * Check if the specified package is owned by the current module and exported to the client module.
 	 * True if the package appears in the list of exported packages and when the export is targeted,
 	 * the module appears in the targets of the exports statement.

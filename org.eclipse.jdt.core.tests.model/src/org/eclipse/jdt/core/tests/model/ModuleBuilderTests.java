@@ -7939,6 +7939,61 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
+	public void testBug544126() throws CoreException, IOException {
+		String outputDirectory = Util.getOutputDirectory();
+		IJavaProject p = createJava9Project("p");
+		try {
+			String jar1Path = outputDirectory + File.separator + "auto1Lib.jar";
+			createJar(
+					new String[] {
+						"org/test/Root.java",
+						"package org.test;\n" +
+						"public class Root {}\n"
+					},
+					jar1Path);
+			String jar2Path = outputDirectory + File.separator + "auto2Lib.jar";
+			createJar(
+					new String[] {
+						"org/test/ext/Ext.java",
+						"package org.test.ext;\n" +
+						"public class Ext {}\n"
+					},
+					jar2Path);
+			addModularLibraryEntry(p, new Path(jar1Path), null);
+			addModularLibraryEntry(p, new Path(jar2Path), null);
+			createFolder("p/src/test");
+			String testPath = "p/src/test/Test.java";
+			String testSource =
+					"package test;\n" +
+					"import org.test.Root;\n" + 
+					"public class Test {\n" + 
+					"    public static void main(String[] args) { \n" + 
+					"        System.out.println(new Root());\n" + 
+					"    }\n" + 
+					"}\n";
+			createFile(testPath, testSource);
+			createFile("p/src/module-info.java",
+					"module test {\n" + 
+					"    requires auto1Lib;\n" + 
+					"    requires auto2Lib;\n" + 
+					"}\n");
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+
+			this.problemRequestor.initialize(testSource.toCharArray());
+			getCompilationUnit(testPath).getWorkingCopy(this.wcOwner, null);
+			assertProblems("unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);

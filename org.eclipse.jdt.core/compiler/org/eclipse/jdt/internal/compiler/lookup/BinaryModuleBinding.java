@@ -61,6 +61,11 @@ public class BinaryModuleBinding extends ModuleBinding {
 		public char[] nameForLookup() {
 			return ANY_NAMED;
 		}
+
+		@Override
+		public char[] nameForCUCheck() {
+			return this.moduleName;
+		}
 	}
 	
 	private IPackageExport[] unresolvedExports;
