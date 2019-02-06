@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -58,6 +58,7 @@ public class AbstractCompilerTest extends TestCase {
 	protected boolean enableAPT = false;
 	protected static boolean isJRE9Plus = false; // Stop gap, so tests need not be run at 9, but some tests can be adjusted for JRE 9
 	protected static boolean isJRE11Plus = false;
+	protected static boolean isJRE12Plus = false;
 	protected static boolean reflectNestedClassUseDollar;
 
 	/**
@@ -158,6 +159,7 @@ public class AbstractCompilerTest extends TestCase {
          int lessthan9 = F_1_3 | F_1_4 | F_1_5 | F_1_6 | F_1_7 | F_1_8;
          isJRE9Plus = !isJRELevel(lessthan9);
          isJRE11Plus = isJRELevel(F_11);
+         isJRE12Plus = isJRELevel(F_12);
 	 }
 
 	/**
@@ -422,8 +424,8 @@ public class AbstractCompilerTest extends TestCase {
 	public static int getPossibleComplianceLevels() {
 		if (possibleComplianceLevels == UNINITIALIZED) {
 			String specVersion = System.getProperty("java.specification.version");
-			isJRE11Plus = CompilerOptions.VERSION_11.equals(specVersion) ||
-							CompilerOptions.VERSION_12.equals(specVersion);
+			isJRE12Plus = CompilerOptions.VERSION_12.equals(specVersion);
+			isJRE11Plus = isJRE12Plus || CompilerOptions.VERSION_11.equals(specVersion);
 			isJRE9Plus = isJRE11Plus || CompilerOptions.VERSION_9.equals(specVersion)
 					||	CompilerOptions.VERSION_10.equals(specVersion);
 			initReflectionVersion();

@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2018 Jesper Steen Møller and others.
+ * Copyright (c) 2018, 2019 Jesper Steen Møller and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * SPDX-License-Identifier: EPL-2.0
  * 
@@ -69,7 +73,11 @@ static {
 	simpleTypeNames.put("ComparableAny", "Comparable<?>");
 	simpleTypeNames.put("CollectionExt_ComparableAny", "Collection<? extends Comparable<?>>");
 	simpleTypeNames.put("CollectionSuperComparableAny", "Collection<? super Comparable<?>>");
-	simpleTypeNames.put("IntLongFloat", "java.lang.Number & Comparable<?>");
+	isJRE12Plus = isJRELevel(F_12);
+	if (isJRE12Plus)
+		simpleTypeNames.put("IntLongFloat", "java.lang.Number & Comparable<?> & java.lang.constant.Constable & java.lang.constant.ConstantDesc");
+	else 
+		simpleTypeNames.put("IntLongFloat", "java.lang.Number & Comparable<?>");
 	simpleTypeNames.put("ListTestAndSerializable", "List<? extends Z & java.io.Serializable>");
 	simpleTypeNames.put("TestAndSerializable", "Z & java.io.Serializable");
 }

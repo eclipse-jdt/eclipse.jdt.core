@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15337,7 +15337,9 @@ public void test0499(){
 			"1. ERROR in X.java (at line 6)\n" +
 			"	Integer[] var = cond ? tab1 : tab2;\n" +
 			"	                ^^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from Object&Serializable&Comparable<? extends Object&Serializable&Comparable<?>>[] to Integer[]\n" +
+			"Type mismatch: cannot convert from Object&Serializable&" +
+			"" + intersection("Comparable<? extends Object&Serializable&" + intersection("Comparable<?>") + ">") +
+			"[] to Integer[]\n" +
 			"----------\n": 
 				"----------\n" + 
 				"1. ERROR in X.java (at line 6)\n" + 
@@ -19815,7 +19817,7 @@ public void test0617() {
 	    			"1. ERROR in X.java (at line 10)\n" + 
 	    			"	String s = l1 != null ? foo(l1, l2) : l3;\n" + 
 		    		"	                        ^^^^^^^^^^^\n" +
-		    		"Type mismatch: cannot convert from List<capture#2-of ? extends Number & Comparable<?>> to String\n" +
+		    		"Type mismatch: cannot convert from List<capture#2-of ? extends Number & "+intersection("Comparable<?>")+"> to String\n" +
 	    			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=92556
@@ -25439,7 +25441,7 @@ public void test0790() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	if (isGreater(i, d)) \n" +
 		"	    ^^^^^^^^^\n" +
-		"Bound mismatch: The generic method isGreater(T, T) of type X is not applicable for the arguments (Integer, Double). The inferred type Number&Comparable<?> is not a valid substitute for the bounded parameter <T extends Comparable<T>>\n" +
+		"Bound mismatch: The generic method isGreater(T, T) of type X is not applicable for the arguments (Integer, Double). The inferred type "+ intersection("Number", "Comparable<?>") +" is not a valid substitute for the bounded parameter <T extends Comparable<T>>\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 15)\n" +
 		"	isGreater(c1, c2);\n" +
@@ -26064,7 +26066,9 @@ public void test0805() {
 		"2. ERROR in X.java (at line 14)\n" +
 		"	String s2 = foo(integers, floats);\n" +
 		"	            ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from "+intersection("Number","Comparable<? extends "+intersection("Number","Comparable<?>")+">[]")+" to String\n" +
+		"Type mismatch: cannot convert from "+intersection("Number",
+				intersection("Comparable<? extends "+intersection("Number","Comparable<?>")+">")
+				)+"[] to String\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=107079
@@ -33564,12 +33568,12 @@ public void test1000() {
 		"4. WARNING in X.java (at line 14)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type safety: A generic array of Iterator<? extends Number&Comparable<?>> is created for a varargs parameter\n" + 
+		"Type safety: A generic array of Iterator<? extends "+ intersection("Number", "Comparable<?>") +"> is created for a varargs parameter\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 14)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Iterator<Number&Comparable<?>> to Iterator<Number>\n" + 
+		"Type mismatch: cannot convert from Iterator<"+ intersection("Number", "Comparable<?>") +"> to Iterator<Number>\n" + 
 		"----------\n" + 
 		"6. WARNING in X.java (at line 18)\n" + 
 		"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
@@ -33606,12 +33610,12 @@ public void test1000() {
 			"5. WARNING in X.java (at line 14)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
 			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: A generic array of Iterator<? extends Number&Comparable<?>> is created for a varargs parameter\n" + 
+			"Type safety: A generic array of Iterator<? extends Number&"+ intersection("Comparable<?>") +"> is created for a varargs parameter\n" + 
 			"----------\n" + 
 			"6. ERROR in X.java (at line 14)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
 			"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Iterator<Number&Comparable<?>> to Iterator<Number>\n" + 
+			"Type mismatch: cannot convert from Iterator<Number&"+ intersection("Comparable<?>") +"> to Iterator<Number>\n" + 
 			"----------\n" + 
 			"7. WARNING in X.java (at line 18)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l1.iterator());\n" + 
@@ -34746,7 +34750,7 @@ public void test1029() {
 			"1. ERROR in X.java (at line 10)\n" +
 			"	List<Number> name = makeNumberList(5, 5D);\n" +
 			"	                    ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from List<Number&Comparable<?>> to List<Number>\n" +
+			"Type mismatch: cannot convert from List<"+ intersection("Number", "Comparable<?>") +"> to List<Number>\n" +
 			"----------\n",
 			null,
 			true,
@@ -39658,7 +39662,7 @@ public void test1136() {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	List<Object>  l1 = Arrays.asList(1, \"X\");\n" +
 			"	                   ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type mismatch: cannot convert from List<Object&Comparable<?>&Serializable> to List<Object>\n" +
+			"Type mismatch: cannot convert from List<Object&"+ intersection("Comparable<?>") +"&Serializable> to List<Object>\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 8)\n" +
 			"	List<Object>  l2 = Arrays.asList(b, c);\n" +
@@ -43202,7 +43206,7 @@ public void test1227() {
 		"1. WARNING in X.java (at line 4)\n" +
 		"	Arrays.asList(String.class, Integer.class);\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: A generic array of Class<? extends Object&Serializable&Comparable<?>> is created for a varargs parameter\n" +
+		"Type safety: A generic array of Class<? extends Object&Serializable&"+ intersection("Comparable<?>") +"> is created for a varargs parameter\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 6)\n" +
 		"	Zork z;\n" +

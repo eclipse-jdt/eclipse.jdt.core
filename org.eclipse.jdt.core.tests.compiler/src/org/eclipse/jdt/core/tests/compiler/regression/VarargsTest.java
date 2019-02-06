@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2016 IBM Corporation and others.
+ * Copyright (c) 2005, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -50,7 +50,11 @@ public class VarargsTest extends AbstractComparableTest {
 	public static Class testClass() {
 		return VarargsTest.class;
 	}
-
+	protected String intersection(String... types) {
+		if (this.complianceLevel >= ClassFileConstants.JDK1_8)
+			return String.join(" & ", types);
+		return String.join("&", types);
+	}
 	public void test001() {
 		this.runConformTest(
 			new String[] {
