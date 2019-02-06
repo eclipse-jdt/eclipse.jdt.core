@@ -358,7 +358,7 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Switch.java",
 				"public class Switch {\n" + 
-						"	public static void bar(int arg0 day) {\n" + 
+						"	public static void bar(int arg0) {\n" + 
 						"		foo(\n" + 
 						"		switch (arg) {\n" + 
 						"		case 1 -> 1;\n" + 
@@ -384,7 +384,7 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Switch.java",
 				"public class Switch {\n" + 
-						"	public static void bar(int arg0 day) {\n" + 
+						"	public static void bar(int arg0) {\n" + 
 						"		foo(\n" + 
 						"		switch (arg0) {\n" + 
 						"		case 1 -> arg;\n" + 
@@ -410,7 +410,7 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Switch.java",
 				"public class Switch {\n" + 
-						"	public static void bar(int arg0 day) {\n" + 
+						"	public static void bar(int arg0) {\n" + 
 						"		foo(\n" + 
 						"		switch (0 + arg) {\n" + 
 						"		case 1 -> 1;\n" + 
@@ -436,7 +436,7 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
 				"public class X {\n" + 
-						"	public static void bar(int arg0 day) {\n" + 
+						"	public static void bar(int arg0) {\n" + 
 						"		foo(\n" + 
 						"		swi);\n" + 
 						"	public static void foo(int arg0) {\n" + 
@@ -458,7 +458,7 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
 				"public class Switch {\n" + 
-						"	public static void bar(int arg0 day) {\n" + 
+						"	public static void bar(int arg0) {\n" + 
 						"		foo(\n" + 
 						"		switch (0 + arg0) {\n" + 
 						"		case 1 -> {break ar;}\n" + 
@@ -484,7 +484,7 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
 				"public class Switch {\n" + 
-						"	public static void bar(int arg0 day) {\n" + 
+						"	public static void bar(int arg0) {\n" + 
 						"		foo(\n" + 
 						"		switch (0 + arg0) {\n" + 
 						"		case 1 -> {break 1;}\n" + 
@@ -510,7 +510,8 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
 				"public class Switch {\n" + 
-						"	public static void bar(int arg0 day) {\n" + 
+						"	public static void bar(int arg0) {\n" + 
+						"		int arg1 = 0;\n" + 
 						"		foo(\n" + 
 						"		switch (0 + arg0) {\n" + 
 						"		case 1 -> 1;\n" + 
@@ -529,6 +530,33 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
 				"arg0[LOCAL_VARIABLE_REF]{arg0, null, I, arg0, null, 52}",
+						requestor.getResults());
+	}
+	public void test017a() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"public class Switch {\n" + 
+						"	public static void bar(int arg0) {\n" + 
+						"		foo(\n" + 
+						"		argLabel: switch (0 + arg0) {\n" + 
+						"		case 1 -> 1;\n" + 
+						"		default -> {break ar;}\n" +
+						"		}\n" + 
+						"	});\n" + 
+						"	public static void foo(int arg0) {\n" + 
+						"		bar(MyDay.SUNDAY);\n" + 
+						"	}\n" + 
+						"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "break ar";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"arg0[LOCAL_VARIABLE_REF]{arg0, null, I, arg0, null, 52}\n" +
+				"argLabel[LABEL_REF]{argLabel, null, null, argLabel, null, 49}",
 						requestor.getResults());
 	}
 	public void test018a() throws JavaModelException {

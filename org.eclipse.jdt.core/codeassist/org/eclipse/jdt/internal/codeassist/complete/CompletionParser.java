@@ -5126,6 +5126,15 @@ protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 	return nameReference;
 }
 @Override
+protected void consumePostfixExpression() {
+	// PostfixExpression ::= Name
+	if(this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_INSIDE_BREAK_STATEMENT) {
+		// Do nothing, just let checkLabelStatement() do the job
+	} else {
+		super.consumePostfixExpression();
+	}
+}
+@Override
 protected NameReference getUnspecifiedReferenceOptimized() {
 	if (this.identifierLengthStack[this.identifierLengthPtr] > 1) { // reducing a qualified name
 		// potential receiver is being poped, so reset potential receiver
