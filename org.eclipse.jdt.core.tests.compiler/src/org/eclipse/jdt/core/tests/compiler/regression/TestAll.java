@@ -176,6 +176,7 @@ public static Test suite() {
 	// add 10 specific test here (check duplicates)
 	ArrayList since_10 = new ArrayList();
 	since_10.add(JEP286Test.class);
+	since_10.add(Unicode10Test.class);
 	
 	// add 11 specific test here (check duplicates)
 	ArrayList since_11 = new ArrayList();
@@ -185,6 +186,7 @@ public static Test suite() {
 	// add 12 specific test here (check duplicates)
 	 ArrayList since_12 = new ArrayList();
 	 since_12.add(SwitchExpressionTest.class);
+	 since_12.add(Unicode11Test.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
