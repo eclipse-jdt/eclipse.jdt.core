@@ -1299,11 +1299,23 @@ class ASTConverter {
 
 	public SwitchCase convert(org.eclipse.jdt.internal.compiler.ast.CaseStatement statement) {
 		SwitchCase switchCase = new SwitchCase(this.ast);
-		org.eclipse.jdt.internal.compiler.ast.Expression constantExpression = statement.constantExpression;
-		if (constantExpression == null) {
-			switchCase.setExpression(null);
-		} else {
-			switchCase.setExpression(convert(constantExpression));
+		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
+			org.eclipse.jdt.internal.compiler.ast.Expression[] expressions = statement.constantExpressions;
+			if (expressions == null || expressions.length == 0) {
+				switchCase.getExpressions().clear();
+			} else {
+				for (org.eclipse.jdt.internal.compiler.ast.Expression expression : expressions) {
+					switchCase.getExpressions().add(convert(expression));
+				}
+			}
+		}
+		else {
+			org.eclipse.jdt.internal.compiler.ast.Expression constantExpression = statement.constantExpression;
+			if (constantExpression == null) {
+				switchCase.setExpression(null);
+			} else {
+				switchCase.setExpression(convert(constantExpression));
+			}
 		}
 		switchCase.setIsExpr(statement.isExpr);
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);

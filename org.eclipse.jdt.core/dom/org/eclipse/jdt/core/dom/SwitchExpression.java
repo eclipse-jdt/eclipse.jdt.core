@@ -33,7 +33,7 @@ import java.util.List;
  *		<b>default</b> <b>{ : | ->}</b>
  * </pre>
  * <code>SwitchCase</code> nodes are treated as a kind of
- * <code>Expression</code>.
+ * <code>Statement</code>.
  * </p>
  *
  * @since 3.17 BETA_JAVA_12

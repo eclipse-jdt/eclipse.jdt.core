@@ -108,9 +108,7 @@ public class SwitchCase extends Statement {
 	private Expression optionalExpression = null;
 	
 	/**
-	 * The expression; <code>null</code> for none; lazily initialized (but
-	 * does <b>not</b> default to none).
-	 * @see #expressionInitialized
+	 * <code>true</code> indicates "->" and <code>false</code> indicates ":".
 	 */
 	private boolean isExpr = false;
 
@@ -118,7 +116,7 @@ public class SwitchCase extends Statement {
 	/**
 	 * The expression; <code>empty</code> for none; 
 	 */
-	private ASTNode.NodeList expression = null;
+	private ASTNode.NodeList expressions = null;
 
 	/**
 	 * Indicates whether <code>optionalExpression</code> has been initialized.
@@ -134,7 +132,7 @@ public class SwitchCase extends Statement {
 	SwitchCase(AST ast) {
 		super(ast);
 		if (ast.apiLevel >= AST.JLS12_INTERNAL) {
-			this.expression = new ASTNode.NodeList(EXPRESSION_2_PROPERTY);
+			this.expressions = new ASTNode.NodeList(EXPRESSION_2_PROPERTY);
 		}
 	}
 
@@ -160,7 +158,7 @@ public class SwitchCase extends Statement {
 	@Override
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == EXPRESSION_2_PROPERTY) {
-			return getExpression2();
+			return getExpressions();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
@@ -178,8 +176,8 @@ public class SwitchCase extends Statement {
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
 		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
-			result.getExpression2().addAll(
-				ASTNode.copySubtrees(target, getExpression2()));
+			result.getExpressions().addAll(
+				ASTNode.copySubtrees(target, getExpressions()));
 		} else {
 			result.setExpression(
 					(Expression) ASTNode.copySubtree(target, getExpression()));
@@ -198,7 +196,7 @@ public class SwitchCase extends Statement {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
-				acceptChildren(visitor, this.expression);
+				acceptChildren(visitor, this.expressions);
 			} else {
 				acceptChild(visitor, getExpression());
 			}
@@ -228,17 +226,17 @@ public class SwitchCase extends Statement {
 	}
 	
 	/**
-	 * Returns the expression of this switch case, or
+	 * Returns the list of expressions of this switch case, or
 	 * <code>empty</code> if there is none (the "default:" case).
 	 *
 	 * @return the expression node, or <code>expression</code> if there is none
 	 * @since 3.17 BETA_JAVA_12
 	 */
-	public List getExpression2() {
-		if (this.expression == null) {
+	public List getExpressions() {
+		if (this.expressions == null) {
 			unsupportedBelow12();
 		}
-		return this.expression;
+		return this.expressions;
 	}
 
 	/**
@@ -263,8 +261,9 @@ public class SwitchCase extends Statement {
 	}
 	
 	/**
-	 * Sets the isExpr of this switch case as <code>true</code> or </false>.
-	 *
+	 * Sets the isExpr of this switch case as <code>true</code> or <code>false</code>.
+	 * <code>true</code> indicates "->" and <code>false</code> indicates ":".
+
 	 * @param isExpr <code>true</code> or </false>
 	 * @since 3.17 BETA_JAVA_12
 	 */
@@ -273,7 +272,8 @@ public class SwitchCase extends Statement {
 	}
 	
 	/**
-	 * Gets the isExpr of this switch case as <code>true</code> or </false>.
+	 * Gets the isExpr of this switch case as <code>true</code> or <code>false</code>.
+	 *<code>true</code> indicates "->" and <code>false</code> indicates ":".
 	 *
 	 * @return isExpr <code>true</code> or </false>
 	 * @since 3.17 BETA_JAVA_12
@@ -294,7 +294,7 @@ public class SwitchCase extends Statement {
 	 */
 	public boolean isDefault()  {
 		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
-			return getExpression2().isEmpty();
+			return getExpressions().isEmpty();
 		}
 		return getExpression() == null;
 	}
