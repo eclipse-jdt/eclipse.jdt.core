@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1255,6 +1255,17 @@ protected void consumeToken(int token) {
 		switch (token) {
 			case TokenNamecase :
 				pushOnElementStack(K_BETWEEN_CASE_AND_COLONORARROW);
+				break;
+			case TokenNameCOMMA :
+				switch (topKnownElementKind(SELECTION_OR_ASSIST_PARSER)) {
+					// for multi constant case stmt
+					// case MONDAY, FRIDAY
+					// if there's a comma, ignore the previous expression (constant)
+					// Which doesn't matter for the next constant
+					case K_BETWEEN_CASE_AND_COLONORARROW:
+						this.expressionPtr--;
+						this.expressionLengthStack[this.expressionLengthPtr]--;
+				}
 				break;
 			case TokenNameARROW:
 				// TODO: Uncomment the line below

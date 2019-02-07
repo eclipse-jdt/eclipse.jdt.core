@@ -1214,6 +1214,96 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	/*
+	 * Switch multi-constant with illegal qualified enum constant
+	 */
+	public void testBug543240_14() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+						"	public static void main(String[] args) {\n" + 
+						"	}\n" + 
+						"	public static void bar(Num s) {\n" + 
+						"		switch (s) {\n" + 
+						"		case ONE, Num.TWO: \n" + 
+						"			System.out.println(\"Odd\");\n" + 
+						"		}\n" + 
+						"	}\n" + 
+						"}\n" +
+						"enum Num { ONE, TWO}\n",
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	case ONE, Num.TWO: \n" + 
+				"	          ^^^^^^^\n" + 
+				"The qualified case label Num.TWO must be replaced with the unqualified enum constant TWO\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				options);
+	}
+	public void testBug543240_15() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public void bar(int s) {\n" + 
+				"		int j = switch (s) {\n" + 
+				"			case 1, 2, 3 -> (s+1);\n" +
+				"			default -> j;\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"}\n",
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	default -> j;\n" + 
+				"	           ^\n" + 
+				"The local variable j may not have been initialized\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				options);
+	}
+	public void testBug543240_16() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"	}\n" + 
+				"	public void bar(int s) {\n" +
+				"		int j = 0;" + 
+				"		j = switch (s) {\n" + 
+				"			case 1, 2, 3 -> (s+1);\n" +
+				"			default -> j;\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"}\n",
+		};
+		this.runNegativeTest(
+				testFiles,
+				"",
+				null,
+				true,
+				new String[] { "--enable-preview"},
+				options);
+	}
 	public void testBug543795_01() {
 		this.runNegativeTest(
 			new String[] {

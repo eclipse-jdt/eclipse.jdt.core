@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -153,6 +153,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		tests_10.add(CompletionParserTest18.class);
 		tests_10.add(SelectionParserTest18.class);
 		tests_10.add(SelectionParserTest9.class);
+		tests_10.add(SelectionParserTest10.class);
 		tests_10.add(ModuleDeclarationSyntaxTest.class);
 		tests_10.add(JEP286ReservedWordTest.class);
 		// Reset forgotten subsets tests
@@ -173,6 +174,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		tests_11.add(CompletionParserTest18.class);
 		tests_11.add(SelectionParserTest18.class);
 		tests_11.add(SelectionParserTest9.class);
+		tests_11.add(SelectionParserTest10.class);
 		tests_11.add(ModuleDeclarationSyntaxTest.class);
 		tests_11.add(JEP286ReservedWordTest.class);
 		// Reset forgotten subsets tests
@@ -193,6 +195,8 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		tests_12.add(CompletionParserTest18.class);
 		tests_12.add(SelectionParserTest18.class);
 		tests_12.add(SelectionParserTest9.class);
+		tests_12.add(SelectionParserTest10.class);
+		tests_12.add(SelectionParserTest12.class);
 		tests_12.add(ModuleDeclarationSyntaxTest.class);
 		tests_12.add(JEP286ReservedWordTest.class);
 		// Reset forgotten subsets tests
