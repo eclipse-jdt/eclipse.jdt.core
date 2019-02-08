@@ -45,6 +45,7 @@ public class SwitchCase extends Statement {
 	/**
 	 * The "expression" structural property of this node type (child type: {@link Expression}).
 	 * @since 3.0
+	 * @deprecated In the JLS 12 15.28.1 API, this property is replaced by {@link #EXPRESSION_2_PROPERTY}.
 	 */
 	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
 		new ChildPropertyDescriptor(SwitchCase.class, "expression", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
