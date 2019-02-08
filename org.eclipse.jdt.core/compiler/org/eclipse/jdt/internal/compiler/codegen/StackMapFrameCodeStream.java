@@ -251,6 +251,7 @@ public void removeStackMapMarkers(int markerOldPosition) {
 			StackDepthMarker marker = (StackDepthMarker) this.stackDepthMarkers.get(i);
 			if (marker.pc == markerOldPosition) {
 				this.stackDepthMarkers.remove(i);
+				break;
 			}
 		}
 	}
@@ -305,6 +306,22 @@ public void recordExpressionType(TypeBinding typeBinding) {
 @Override
 public void recordExpressionType(TypeBinding typeBinding, int delta) {
 	addStackDepthMarker(this.position, delta, typeBinding);
+	if (delta == 0) {
+		// optimized goto
+		// the break label already adjusted the stack depth (-1 or -2 depending on the return type)
+		// we need to adjust back to what it was
+		switch(typeBinding.id) {
+			case TypeIds.T_long :
+			case TypeIds.T_double :
+				this.stackDepth+=2;
+				break;
+			case TypeIds.T_void :
+				break;
+			default :
+				this.stackDepth++;
+				break;
+		}
+	}
 }
 /**
  * Macro for building a class descriptor object

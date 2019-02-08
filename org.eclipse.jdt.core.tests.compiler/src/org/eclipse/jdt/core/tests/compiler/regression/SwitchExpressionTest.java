@@ -1605,4 +1605,74 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				new String[] { "--enable-preview"},
 				options);
 	}
+	public void testBug544204() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public void foo(int i) {\n" + 
+					"		int j = switch (i) {\n" + 
+					"			case 1 -> i;\n" + 
+					"			default -> i;\n" + 
+					"		};\n" + 
+					"		System.out.println(j);\n" + 
+					"	}\n" + 
+					"	\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		new X().foo(1);\n" + 
+					"	}\n" + 
+					"}"
+			},
+			"1",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug544204_2() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public void foo(int i) {\n" + 
+					"		long j = switch (i) {\n" + 
+					"			case 1 -> 10L;\n" + 
+					"			default -> 20L;\n" + 
+					"		};\n" + 
+					"		System.out.println(j);\n" + 
+					"	}\n" + 
+					"	\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		new X().foo(1);\n" + 
+					"	}\n" + 
+					"}"
+			},
+			"10",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug544223() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public int foo(String s) throws Exception {\n" + 
+					"		int i = switch (s) {\n" + 
+					"			case \"hello\" -> 1;\n" + 
+					"			default -> throw new Exception();\n" + 
+					"		};\n" + 
+					"		return i;\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	public static void main(String[] argv) {\n" + 
+					"		try {\n" + 
+					"			System.out.print(new X().foo(\"hello\"));\n" + 
+					"		} catch (Exception e) {\n" + 
+					"			//\n" + 
+					"		}\n" + 
+					"	}\n" + 
+					"}"
+			},
+			"1",
+			null,
+			new String[] {"--enable-preview"});
+	}
 }

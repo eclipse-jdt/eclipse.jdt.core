@@ -353,6 +353,14 @@ public class SwitchStatement extends Expression {
 				defaultCaseLabel.place();
 				defaultBranchLabel.place();
 			}
+			if (this.expectedType() != null) {
+				TypeBinding expectedType = this.expectedType().erasure();
+				/*
+				 * is the last goto was optimized the lastAbruptCompletion is equal to -1 which means there is already some value on the
+				 * stack so we don't need to add one.
+				 */
+				codeStream.recordExpressionType(expectedType, codeStream.lastAbruptCompletion != -1 ? 1 : 0);
+			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
@@ -507,7 +515,7 @@ public class SwitchStatement extends Expression {
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd, true);
 				defaultLabel.place();
 			}
-			if (valueRequired && this.expectedType() != null) {
+			if (this.expectedType() != null) {
 				TypeBinding expectedType = this.expectedType().erasure();
 				/*
 				 * is the last goto was optimized the lastAbruptCompletion is equal to -1 which means there is already some value on the
