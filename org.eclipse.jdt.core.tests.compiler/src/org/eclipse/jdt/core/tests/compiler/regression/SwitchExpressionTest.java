@@ -1810,4 +1810,27 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			customOptions,
 			new String[] {"--enable-preview"});
 	}
+	public void testBug544224_1() {
+		Map<String, String> customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public int foo(int i)  {\n" +
+					"        int j = (switch (i) {\n" +
+					"            case 1 -> 1;\n" +
+					"            default -> 2;\n" +
+					"        });\n" +
+					"        return j;\n" +
+					"    }\n" +
+					"    public static void main(String[] argv) {\n" +
+					"    	new X().foo(1);\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"",
+			customOptions,
+			new String[] {"--enable-preview"});
+	}
 }

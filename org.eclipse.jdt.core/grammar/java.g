@@ -1288,6 +1288,7 @@ SwitchLabel ::= 'default' ':'
 -- BEGIN SwitchExpression (JEP 325) --
 
 UnaryExpressionNotPlusMinus -> SwitchExpression
+UnaryExpressionNotPlusMinus_NotName -> SwitchExpression
 
 SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchBlock
 /.$putCase consumeSwitchExpression() ; $break ./
