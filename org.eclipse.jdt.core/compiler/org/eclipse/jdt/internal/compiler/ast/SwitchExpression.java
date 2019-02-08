@@ -215,7 +215,20 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		super.generateCode(currentScope, codeStream);
-		// TODO
+		if (!valueRequired) {
+			// switch expression is saved to a variable that is not used. We need to pop the generated value from the stack
+			switch(postConversionType(currentScope).id) {
+				case TypeIds.T_long :
+				case TypeIds.T_double :
+					codeStream.pop2();
+					break;
+				case TypeIds.T_void :
+					break;
+				default :
+					codeStream.pop();
+					break;
+			}
+		}
 	}
 	protected boolean computeConversions(BlockScope blockScope, TypeBinding targetType) {
 		boolean ok = true;

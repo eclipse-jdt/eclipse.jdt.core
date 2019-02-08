@@ -1713,4 +1713,101 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"missing enum constant(s) in switch expression as all enum constants are required in case statements if there is no default case.\n" + 
 			"----------\n");
 	}
+	public void testBug544253() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"    public void foo(int i ) {\n" + 
+					"        boolean b = switch (i) {\n" + 
+					"            case 0 -> i == 1;\n" + 
+					"            default -> true;\n" + 
+					"        };\n" + 
+					"        System.out.println( b ? \" true\" : \"false\");\n" + 
+					"    }\n" + 
+					"    public static void main(String[] argv) {\n" + 
+					"    	new X().foo(0);\n" + 
+					"    }\n" + 
+					"}"
+			},
+			"false",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug544254() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"    public void foo(String s) {\n" + 
+					"        try {\n" + 
+					"            int i = switch (s) {\n" + 
+					"                case \"hello\" -> 0;\n" + 
+					"                default -> 2;\n" + 
+					"            };\n" + 
+					"        } finally {\n" + 
+					"        	System.out.println(s);\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"    public static void main(String argv[]) {\n" + 
+					"    	new X().foo(\"hello\");\n" + 
+					"    }\n" + 
+					"}"
+			},
+			"hello",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug544254_2() {
+		Map<String, String> customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"    public void foo(String s) {\n" + 
+					"        try {\n" + 
+					"            int i = switch (s) {\n" + 
+					"                case \"hello\" -> 0;\n" + 
+					"                default -> 2;\n" + 
+					"            };\n" + 
+					"        } finally {\n" + 
+					"        	System.out.println(s);\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"    public static void main(String argv[]) {\n" + 
+					"    	new X().foo(\"hello\");\n" + 
+					"    }\n" + 
+					"}"
+			},
+			"hello",
+			customOptions,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug544254_3() {
+		Map<String, String> customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"    public void foo(String s) {\n" + 
+					"        try {\n" + 
+					"            long l = switch (s) {\n" + 
+					"                case \"hello\" -> 0;\n" + 
+					"                default -> 2;\n" + 
+					"            };\n" + 
+					"        } finally {\n" + 
+					"        	System.out.println(s);\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"    public static void main(String argv[]) {\n" + 
+					"    	new X().foo(\"hello\");\n" + 
+					"    }\n" + 
+					"}"
+			},
+			"hello",
+			customOptions,
+			new String[] {"--enable-preview"});
+	}
 }
