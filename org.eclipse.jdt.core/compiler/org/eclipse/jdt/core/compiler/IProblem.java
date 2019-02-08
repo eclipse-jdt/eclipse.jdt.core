@@ -2108,4 +2108,6 @@ void setSourceStart(int sourceStart);
 	int SwitchExpressionMissingDefaultCase = Internal + 1607;
 	/** @since 3.17 BETA_JAVA_12 */
 	int SwitchExpressionBreakMissingValue = Internal + 1610;
+	/** @since 3.17 BETA_JAVA_12 */
+	int SwitchExpressionMissingEnumConstantCase = Internal + 1611;
 	}

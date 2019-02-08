@@ -1675,4 +1675,42 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			null,
 			new String[] {"--enable-preview"});
 	}
+	public void testBug544258_01() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public void foo(Day day) {\n" +
+				"    	var today = 1;\n" +
+				"    	today =  switch (day) {\n" +
+				"    		      case SATURDAY,SUNDAY :\n" +
+				"    		         today=1;\n" +
+				"    		         break today;\n" +
+				"    		      case MONDAY,TUESDAY,WEDNESDAY,THURSDAY :\n" +
+				"    			 today=2;\n" +
+				"    			 break today;\n" +
+				"    		};\n" +
+				"    }\n" +
+				"    public static void main(String argv[]) {\n" +
+				"    	new X().foo(Day.FRIDAY);\n" +
+				"    }\n" +
+				"}\n" +
+				"\n" +
+				"enum Day {\n" +
+				"	SUNDAY,\n" +
+				"	MONDAY,\n" +
+				"	TUESDAY,\n" +
+				"	WEDNESDAY,\n" +
+				"	THURSDAY,\n" +
+				"	FRIDAY,\n" +
+				"	SATURDAY\n" +
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	today =  switch (day) {\n" + 
+			"	                 ^^^\n" + 
+			"missing enum constant(s) in switch expression as all enum constants are required in case statements if there is no default case.\n" + 
+			"----------\n");
+	}
 }

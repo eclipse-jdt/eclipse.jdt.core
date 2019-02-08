@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
@@ -82,6 +83,10 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	@Override
 	protected boolean ignoreMissingDefaultCase(CompilerOptions compilerOptions, boolean isEnumSwitch) {
 		return isEnumSwitch; // mandatory error if not enum in switch expressions
+	}
+	@Override
+	protected void reportMissingEnumConstantCase(BlockScope upperScope, FieldBinding enumConstant) {
+		upperScope.problemReporter().missingEnumConstantCase(this, enumConstant);
 	}
 	@Override
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {

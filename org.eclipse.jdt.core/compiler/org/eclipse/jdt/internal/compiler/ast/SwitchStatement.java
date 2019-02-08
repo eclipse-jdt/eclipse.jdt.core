@@ -693,7 +693,7 @@ public class SwitchStatement extends Expression {
 								// enum constant did not get referenced from switch
 								boolean suppress = (this.defaultCase != null && (this.defaultCase.bits & DocumentedCasesOmitted) != 0);
 								if (!suppress) {
-									upperScope.problemReporter().missingEnumConstantCase(this, enumConstant);
+									reportMissingEnumConstantCase(upperScope, enumConstant);
 								}
 							}
 						}
@@ -703,6 +703,9 @@ public class SwitchStatement extends Expression {
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
+	}
+	protected void reportMissingEnumConstantCase(BlockScope upperScope, FieldBinding enumConstant) {
+		upperScope.problemReporter().missingEnumConstantCase(this, enumConstant);
 	}
 	protected boolean ignoreMissingDefaultCase(CompilerOptions compilerOptions, boolean isEnumSwitch) {
 		return compilerOptions.getSeverity(CompilerOptions.MissingDefaultCase) == ProblemSeverities.Ignore;

@@ -6494,7 +6494,15 @@ public void missingEnumConstantCase(SwitchStatement switchStatement, FieldBindin
 	missingEnumConstantCase(switchStatement.defaultCase, enumConstant, switchStatement.expression);
 }
 public void missingEnumConstantCase(SwitchExpression switchExpression, FieldBinding enumConstant) {
-	missingEnumConstantCase(switchExpression.defaultCase, enumConstant, switchExpression.expression);
+	missingSwitchExpressionEnumConstantCase(switchExpression.defaultCase, enumConstant, switchExpression.expression);
+}
+private void missingSwitchExpressionEnumConstantCase(CaseStatement defaultCase, FieldBinding enumConstant, ASTNode expression) {
+	this.handle(
+			IProblem.SwitchExpressionMissingEnumConstantCase,
+			new String[] {new String(enumConstant.declaringClass.readableName()), new String(enumConstant.name) },
+			new String[] {new String(enumConstant.declaringClass.shortReadableName()), new String(enumConstant.name) },
+			expression.sourceStart,
+			expression.sourceEnd);
 }
 private void missingEnumConstantCase(CaseStatement defaultCase, FieldBinding enumConstant, ASTNode expression) {
 	this.handle(
