@@ -40,7 +40,7 @@ import junit.framework.Test;
 public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 
 	static {
-//		 TESTS_NAMES = new String[] { "testBug540067e" };
+//		 TESTS_NAMES = new String[] { "test001" };
 		// TESTS_NUMBERS = new int[] { 1 };
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -3824,24 +3824,14 @@ public void testBug521362_emptyFile() {
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)\n" + 
 				"	module mod.one { \n" + 
 				"	^^^^^^\n" + 
-				"Syntax error on token \"module\", package expected\n" + 
+				"Syntax error on token \"module\", module expected\n" + 
 				"----------\n" + 
-				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)\n" + 
-				"	module mod.one { \n" + 
-				"	^^^^^^^^^^^^^^\n" + 
-				"Syntax error on token(s), misplaced construct(s)\n" + 
-				"----------\n" + 
-				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n" + 
 				"	requires java.sql;\n" + 
-				"	             ^\n" + 
-				"Syntax error on token \".\", , expected\n" + 
+				"	^^^^^^^^\n" + 
+				"Syntax error on token \"requires\", requires expected\n" + 
 				"----------\n" + 
-				"4. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 3)\n" + 
-				"	}\n" + 
-				"	^\n" + 
-				"Syntax error on token \"}\", delete this token\n" + 
-				"----------\n" + 
-				"4 problems (4 errors)\n",
+				"2 problems (2 errors)\n",
 				false,
 				"modules are not supported");
 	}
@@ -3975,11 +3965,11 @@ public void testBug521362_emptyFile() {
 					"}",
 				},
 		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		     + " --release 6 -d \"" + OUTPUT_DIR + "\"",
+		     + " --release 7 -d \"" + OUTPUT_DIR + "\"",
 		     "",
 		     "",
 		     true);
-		String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
+		String expectedOutput = "// Compiled from X.java (version 1.7 : 51.0, super bit)";
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	public void testReleaseOption4() throws Exception {
@@ -4094,6 +4084,7 @@ public void testBug521362_emptyFile() {
 		     true);
 	}
 	public void testReleaseOption10() throws Exception {
+		if (isJRE12Plus) return;
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -4213,15 +4204,9 @@ public void testBug521362_emptyFile() {
     		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)\n" + 
     		"	module mod.one { \n" + 
     		"	^^^^^^\n" + 
-    		"Syntax error on token \"module\", package expected\n" + 
+    		"Syntax error on token \"module\", module expected\n" + 
     		"----------\n" + 
-    		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)\n" + 
-    		"	module mod.one { \n" + 
-    		"}\n" + 
-    		"	               ^^^^\n" + 
-    		"Syntax error on tokens, delete these tokens\n" + 
-    		"----------\n" + 
-    		"2 problems (2 errors)\n",
+    		"1 problem (1 error)\n",
 	        true,
 	        /*not tested with javac*/"");
 	}
@@ -4323,6 +4308,121 @@ public void testBug521362_emptyFile() {
     		"option 9 is not supported when --release is used\n",
 	        true,
 	        /*not tested with javac*/"");
+	}
+	public void testReleaseOption20() throws Exception {
+		if (!isJRE12Plus) return;
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.io.*;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		String str = Integer.toUnsignedString(1, 1);\n" + 
+					"	}\n" + 
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 7 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "----------\n" + 
+    		 "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+    		 "	String str = Integer.toUnsignedString(1, 1);\n" + 
+    		 "	                     ^^^^^^^^^^^^^^^^\n" + 
+    		 "The method toUnsignedString(int, int) is undefined for the type Integer\n" + 
+    		 "----------\n" + 
+    		 "1 problem (1 error)\n",
+		     true);
+	}
+	public void testReleaseOption21() throws Exception {
+		if (!isJRE12Plus) return;
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Integer.toUnsignedString(1, 1);\n" + 
+					"	}\n" + 
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 8 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+    		 "",
+		     true);
+	}
+	public void testReleaseOption22() {
+		if (!isJRE11Plus) return;
+		runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"	}\n" +
+				"}",
+				"module-info.java",
+				"module mod.one { \n" +
+				"	requires java.base;\n" +
+				"	requires java.xml.ws.annotation;\n" +
+				"}"
+	        },
+			" --limit-modules java.base,java.xml.ws.annotation " +
+			" --release 10 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
+	        "",
+	        "----------\n" + 
+    		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 3)\n" + 
+    		"	requires java.xml.ws.annotation;\n" + 
+    		"	         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"The module java.xml.ws.annotation has been deprecated since version 9 and marked for removal\n" + 
+    		"----------\n" + 
+    		"1 problem (1 warning)\n",
+	        true);
+	}
+	public void testReleaseOption23() {
+		if (!isJRE11Plus) return;
+		runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"	}\n" +
+				"}",
+				"module-info.java",
+				"module mod.one { \n" +
+				"	requires java.xml.ws.annotation;\n" +
+				"}"
+	        },
+			" --limit-modules java.base,java.xml.ws.annotation " +
+			" --release 11 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
+	        "",
+	        "invalid module name: java.xml.ws.annotation\n",
+	        true);
+	}
+	public void testReleaseOption24() {
+		if (!isJRE11Plus) return;
+		runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"	}\n" +
+				"}",
+				"module-info.java",
+				"module mod.one { \n" +
+				"	requires java.xml.ws.annotation;\n" +
+				"}"
+	        },
+			" --limit-modules java.base,java.xml.ws.annotation " +
+			" --release 12 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
+	        "",
+	        "invalid module name: java.xml.ws.annotation\n",
+	        true);
 	}
 	public void testLimitModules1() {
 		File outputDirectory = new File(OUTPUT_DIR);
