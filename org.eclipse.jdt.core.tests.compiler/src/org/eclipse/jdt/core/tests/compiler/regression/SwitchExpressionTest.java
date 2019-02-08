@@ -300,7 +300,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"			default -> 3;\n" + 
 				"		};\n" + 
 				"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Switch Expression is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"Switch Expressions is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	case 0 -> i * 0;\n" + 

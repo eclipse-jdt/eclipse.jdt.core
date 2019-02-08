@@ -3543,7 +3543,7 @@ public void testBug531714_001() {
 			"			default -> 3;\n" + 
 			"		};\n" + 
 			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The preview feature Switch Expression is only available with source level 12 and above\n" + 
+			"The preview feature Switch Expressions is only available with source level 12 and above\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	case 0 -> i * 0;\n" + 

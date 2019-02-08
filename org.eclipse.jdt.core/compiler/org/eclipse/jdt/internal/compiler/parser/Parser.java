@@ -9555,9 +9555,9 @@ protected void consumeSwitchExpression() {
 		SwitchExpression s = (SwitchExpression) this.astStack[this.astPtr--];
 
 		if (!this.parsingJava12Plus) {
-			problemReporter().previewFeatureNotSupported(s.sourceStart, s.sourceEnd, "Switch Expression", CompilerOptions.VERSION_12); //$NON-NLS-1$
+			problemReporter().previewFeatureNotSupported(s.sourceStart, s.sourceEnd, "Switch Expressions", CompilerOptions.VERSION_12); //$NON-NLS-1$
 		} else if (!this.options.enablePreviewFeatures) {
-			problemReporter().previewFeatureNotEnabled(s.sourceStart, s.sourceEnd, "Switch Expression"); //$NON-NLS-1$
+			problemReporter().previewFeatureNotEnabled(s.sourceStart, s.sourceEnd, "Switch Expressions"); //$NON-NLS-1$
 		} else {
 			if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
 				problemReporter().previewFeatureUsed(s.sourceStart, s.sourceEnd);
