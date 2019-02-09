@@ -4352,7 +4352,7 @@ public void testBug521362_emptyFile() {
 		     true);
 	}
 	public void testReleaseOption22() {
-		if (!isJRE11Plus) return;
+		if (isJRE11Plus || isJRE12Plus) return;
 		runConformTest(
 			new String[] {
 				"p/X.java",
