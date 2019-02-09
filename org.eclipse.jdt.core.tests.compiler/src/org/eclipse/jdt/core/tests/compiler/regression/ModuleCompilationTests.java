@@ -3824,14 +3824,24 @@ public void testBug521362_emptyFile() {
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)\n" + 
 				"	module mod.one { \n" + 
 				"	^^^^^^\n" + 
-				"Syntax error on token \"module\", module expected\n" + 
+				"Syntax error on token \"module\", package expected\n" + 
 				"----------\n" + 
-				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)\n" + 
+				"	module mod.one { \n" + 
+				"	^^^^^^^^^^^^^^\n" + 
+				"Syntax error on token(s), misplaced construct(s)\n" + 
+				"----------\n" + 
+				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n" + 
 				"	requires java.sql;\n" + 
-				"	^^^^^^^^\n" + 
-				"Syntax error on token \"requires\", requires expected\n" + 
+				"	             ^\n" + 
+				"Syntax error on token \".\", , expected\n" + 
 				"----------\n" + 
-				"2 problems (2 errors)\n",
+				"4. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 3)\n" + 
+				"	}\n" + 
+				"	^\n" + 
+				"Syntax error on token \"}\", delete this token\n" + 
+				"----------\n" + 
+				"4 problems (4 errors)\n",
 				false,
 				"modules are not supported");
 	}
@@ -4204,9 +4214,15 @@ public void testBug521362_emptyFile() {
     		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)\n" + 
     		"	module mod.one { \n" + 
     		"	^^^^^^\n" + 
-    		"Syntax error on token \"module\", module expected\n" + 
+    		"Syntax error on token \"module\", package expected\n" + 
     		"----------\n" + 
-    		"1 problem (1 error)\n",
+    		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)\n" + 
+    		"	module mod.one { \n" + 
+    		"}\n" + 
+    		"	               ^^^^\n" + 
+    		"Syntax error on tokens, delete these tokens\n" + 
+    		"----------\n" + 
+    		"2 problems (2 errors)\n",
 	        true,
 	        /*not tested with javac*/"");
 	}
