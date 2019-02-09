@@ -199,7 +199,7 @@ public void test0003() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public enum X {\n" +
 		"	       ^^^^\n" +
-		"Syntax error on token \"enum\", interface expected\n" +
+		"Syntax error on token \"enum\", module expected\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -1241,7 +1241,7 @@ public void test0026() {
 		expected15ProblemLog
 	);
 }
-public void test0027() {
+public void _test0027() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +
