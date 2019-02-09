@@ -1005,6 +1005,7 @@ public class CompilerOptions {
 			OPTION_ReportUnlikelyCollectionMethodArgumentType,
 			OPTION_ReportUnlikelyEqualsArgumentType,
 			OPTION_ReportAPILeak,
+			OPTION_ReportPreviewFeatures
 		};
 		return result;
 	}

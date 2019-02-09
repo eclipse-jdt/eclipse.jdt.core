@@ -17759,6 +17759,7 @@ public void testBug542707_1() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	runner.customOptions.put(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 	runner.classLibraries = this.LIBS;
 	runner.testFiles = new String[] {
 		"X.java",

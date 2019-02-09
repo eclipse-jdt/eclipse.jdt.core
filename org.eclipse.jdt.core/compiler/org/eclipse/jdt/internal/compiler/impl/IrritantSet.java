@@ -135,7 +135,8 @@ public class IrritantSet {
 				|CompilerOptions.UnlikelyCollectionMethodArgumentType
 				|CompilerOptions.UsingTerminallyDeprecatedAPI
 				|CompilerOptions.APILeak
-				|CompilerOptions.UnstableAutoModuleName);
+				|CompilerOptions.UnstableAutoModuleName
+				|CompilerOptions.PreviewFeatureUsed);
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation

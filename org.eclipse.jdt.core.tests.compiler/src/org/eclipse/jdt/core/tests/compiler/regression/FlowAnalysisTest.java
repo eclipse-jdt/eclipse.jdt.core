@@ -2916,6 +2916,7 @@ public void testBug542707_001() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
@@ -2970,6 +2971,7 @@ public void testBug542707_002() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 5)\n" + 
@@ -3026,6 +3028,7 @@ public void testBug542707_003() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 23)\n" + 
@@ -3080,6 +3083,7 @@ public void testBug542707_004() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
@@ -3149,6 +3153,7 @@ public void testBug542707_005() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
@@ -3220,6 +3225,7 @@ public void testBug542707_006() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 22)\n" + 
@@ -3283,6 +3289,7 @@ public void testBug542707_007() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 18)\n" + 
@@ -3346,6 +3353,7 @@ public void testBug542707_008() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 22)\n" + 
@@ -3404,6 +3412,7 @@ public void testBug542707_009() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
@@ -3468,6 +3477,7 @@ public void testBug542707_010() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 22)\n" + 
@@ -3527,6 +3537,7 @@ public void testBug542707_011() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
@@ -3593,6 +3604,7 @@ public void testBug542707_012() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 22)\n" + 
@@ -3654,6 +3666,7 @@ public void testBug542707_013() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 9)\n" + 
@@ -3728,6 +3741,7 @@ public void testBug542707_014() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 23)\n" + 
@@ -3804,6 +3818,7 @@ public void testBug542707_015() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 17)\n" + 
@@ -3871,6 +3886,7 @@ public void testBug542707_016() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 14)\n" + 
@@ -3927,6 +3943,7 @@ public void testBug542707_017() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
@@ -3995,6 +4012,7 @@ public void testBug542707_018() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 20)\n" + 
@@ -4055,6 +4073,7 @@ public void testBug542707_019() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 15)\n" + 
@@ -4117,6 +4136,7 @@ public void testBug542707_020() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 19)\n" + 
@@ -4174,6 +4194,7 @@ public void testBug542707_021() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
@@ -4237,6 +4258,7 @@ public void testBug542707_022() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 19)\n" + 
@@ -4295,6 +4317,7 @@ public void testBug542707_023() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
@@ -4358,6 +4381,7 @@ public void testBug542707_024() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 9)\n" + 
@@ -4424,6 +4448,7 @@ public void testBug542707_025() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 20)\n" + 
@@ -4491,6 +4516,7 @@ public void testBug542707_026() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 16)\n" + 
@@ -4559,6 +4585,7 @@ public void testBug542707_027() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 20)\n" + 
@@ -4622,6 +4649,7 @@ public void testBug542707_028() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
@@ -4691,6 +4719,7 @@ public void testBug542707_029() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"2. ERROR in X.java (at line 24)\n" + 
@@ -4759,6 +4788,7 @@ public void testBug542707_030() {
 	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 20)\n" + 

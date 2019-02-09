@@ -90,6 +90,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
     		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+    		javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 			ASTNode node = buildAST(
 				contents,
 				this.workingCopy);

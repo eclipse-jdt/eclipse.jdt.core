@@ -18247,6 +18247,7 @@ public void testBug542707_1() {
 	Runner runner = new Runner();
 	runner.customOptions = new HashMap<>();
 	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	runner.customOptions.put(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 	runner.testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +

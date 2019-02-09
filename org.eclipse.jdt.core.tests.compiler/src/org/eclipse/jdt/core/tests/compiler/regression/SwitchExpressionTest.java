@@ -46,6 +46,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
 	

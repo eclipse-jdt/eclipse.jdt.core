@@ -10372,6 +10372,7 @@ public void testBug542707_001() {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10430,6 +10431,7 @@ public void testBug542707_002() {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10464,6 +10466,7 @@ public void testBug542707_003() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runner.classLibraries = this.LIBS;
 	runner.testFiles = new String[] {
 		"X.java",
@@ -10495,6 +10498,7 @@ public void _testBug542707_004() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runner.classLibraries = this.LIBS;
 	runner.testFiles = new String[] {
 		"X.java",
@@ -10527,6 +10531,7 @@ public void testBug542707_005() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runner.classLibraries = this.LIBS;
 	runner.testFiles = new String[] {
 		"X.java",
@@ -10557,6 +10562,7 @@ public void testBug542707_006() {
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();
 	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	runner.classLibraries = this.LIBS;
 	runner.testFiles = new String[] {
 		"X.java",
