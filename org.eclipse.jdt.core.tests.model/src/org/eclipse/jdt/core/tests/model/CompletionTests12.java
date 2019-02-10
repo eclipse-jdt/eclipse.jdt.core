@@ -453,7 +453,7 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 				"switch[KEYWORD]{switch, null, null, switch, null, 49}",
 						requestor.getResults());
 	}
-	public void test015() throws JavaModelException {
+	public void _test015() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
@@ -505,7 +505,7 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 				"arg0[LOCAL_VARIABLE_REF]{arg0, null, I, arg0, null, 52}",
 						requestor.getResults());
 	}
-	public void test017() throws JavaModelException {
+	public void _test017() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
@@ -532,7 +532,7 @@ public class CompletionTests12 extends AbstractJavaModelCompletionTests {
 				"arg0[LOCAL_VARIABLE_REF]{arg0, null, I, arg0, null, 52}",
 						requestor.getResults());
 	}
-	public void test017a() throws JavaModelException {
+	public void _test017a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",

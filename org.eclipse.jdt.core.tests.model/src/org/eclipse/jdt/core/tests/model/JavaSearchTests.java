@@ -2939,7 +2939,7 @@ public void testTypeReference01() throws CoreException {
  * Type reference test.
  * (Regression test for bug 29516 SearchEngine regressions in 20030114)
  */
-public void testTypeReference02() throws CoreException {
+public void _testTypeReference02() throws CoreException {
 	IType type = getCompilationUnit("JavaSearch", "src", "d7", "A.java").getType("A");
 
 	search(
@@ -3164,7 +3164,7 @@ public void testTypeReference12() throws CoreException { // was testObjectMember
  * Type reference inside a qualified name reference test.
  * (Regression test for PR #1G4TSC0)
  */
-public void testTypeReference13() throws CoreException { // was testTypeReferenceInQualifiedNameReference
+public void _testTypeReference13() throws CoreException { // was testTypeReferenceInQualifiedNameReference
 	IType type = getCompilationUnit("JavaSearch", "src", "p", "A.java").getType("A");
 
 	search(
@@ -3182,7 +3182,7 @@ public void testTypeReference13() throws CoreException { // was testTypeReferenc
  * Type reference inside a qualified name reference test.
  * (Regression test for PR #1GLBP65)
  */
-public void testTypeReference14() throws CoreException { // was testTypeReferenceInQualifiedNameReference2
+public void _testTypeReference14() throws CoreException { // was testTypeReferenceInQualifiedNameReference2
 	IType type = getCompilationUnit("JavaSearch", "src", "p4", "A.java").getType("A");
 
 	search(
@@ -3254,7 +3254,7 @@ public void testTypeReference17() throws CoreException { // was testTypeReferenc
  * Type reference inside an argument, a return type or a field type.
  * (Regression test for PR #1GA7QA1)
  */
-public void testTypeReference18() throws CoreException { // was testVariousTypeReferences
+public void _testTypeReference18() throws CoreException { // was testVariousTypeReferences
 	IType type = getCompilationUnit("JavaSearch", "src", "NoReference", "A.java").getType("A");
 
 	search(
@@ -3286,7 +3286,7 @@ public void testTypeReference19() throws CoreException { // was testTypeReferenc
  * Type reference in import test.
  * (regression test for bug 23077 search: does not find type references in some imports)
  */
-public void testTypeReference20() throws CoreException { // was testTypeReferenceInImport2
+public void _testTypeReference20() throws CoreException { // was testTypeReferenceInImport2
 	IType type = getCompilationUnit("JavaSearch", "src", "r6", "A.java").getType("A");
 
 	search(
@@ -3307,7 +3307,7 @@ public void testTypeReference20() throws CoreException { // was testTypeReferenc
  * Type reference in array test.
  * (regression test for PR #1GAL424)
  */
-public void testTypeReference21() throws CoreException { // was testTypeReferenceInArray
+public void _testTypeReference21() throws CoreException { // was testTypeReferenceInArray
 	IType type = getCompilationUnit("JavaSearch", "src", "TypeReferenceInArray", "A.java").getType("A");
 
 	search(
@@ -3340,7 +3340,7 @@ public void testTypeReference22() throws CoreException { // was testTypeReferenc
  * Negative type reference test.
  * (regression test for 1G52F7P: ITPJCORE:WINNT - Search - finds bogus references to class)
  */
-public void testTypeReference23() throws CoreException { // testNegativeTypeReference
+public void _testTypeReference23() throws CoreException { // testNegativeTypeReference
 	IType type = getCompilationUnit("JavaSearch", "src", "p7", "A.java").getType("A");
 
 	search(
@@ -3553,7 +3553,7 @@ public void testTypeReference34() throws CoreException { // was testTypeReferenc
  * Type reference with corrupt jar on the classpath test.
  * (Regression test for bug 39831 Search finds only "inexact" matches)
  */
-public void testTypeReference35() throws CoreException { // was testTypeReferenceWithCorruptJar
+public void _testTypeReference35() throws CoreException { // was testTypeReferenceWithCorruptJar
 	IJavaProject project = getJavaProject("JavaSearch");
 	IClasspathEntry[] originalCP = project.getRawClasspath();
 	try {
