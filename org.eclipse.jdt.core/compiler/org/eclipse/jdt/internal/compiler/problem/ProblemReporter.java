@@ -2453,7 +2453,7 @@ public void forbiddenReference(FieldBinding field, ASTNode location,
 }
 /** @param classpathEntryType one of {@link AccessRestriction#COMMAND_LINE},
  * {@link AccessRestriction#LIBRARY}, {@link AccessRestriction#PROJECT} */
-public void forbiddenReference(MethodBinding method, ASTNode location,
+public void forbiddenReference(MethodBinding method, InvocationSite location,
 		byte classpathEntryType, String classpathEntryName, int problemId) {
 	int severity = computeSeverity(problemId);
 	if (severity == ProblemSeverities.Ignore) return;
@@ -2466,8 +2466,8 @@ public void forbiddenReference(MethodBinding method, ASTNode location,
 				classpathEntryName,
 				new String(method.shortReadableName())},
 			severity,
-			location.sourceStart,
-			location.sourceEnd);
+			location.nameSourceStart(),
+			location.nameSourceEnd());
 	else
 		this.handle(
 			problemId,
@@ -2478,8 +2478,8 @@ public void forbiddenReference(MethodBinding method, ASTNode location,
 				new String(method.shortReadableName()),
 		        new String(method.declaringClass.shortReadableName())},
 		    severity,
-			location.sourceStart,
-			location.sourceEnd);
+		    location.nameSourceStart(),
+			location.nameSourceEnd());
 }
 /** @param classpathEntryType one of {@link AccessRestriction#COMMAND_LINE},
  * {@link AccessRestriction#LIBRARY}, {@link AccessRestriction#PROJECT} */
