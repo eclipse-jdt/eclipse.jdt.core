@@ -109,7 +109,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						"jdk.packager,jdk.packager.services,jdk.plugin.dom," +												// not present in OpenJDK
 						"jdk.scripting.nashorn,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom," +
 						"oracle.desktop,oracle.net";																		// not present in OpenJDK
-			} else if (vmName.contains("OpenJDK")) {
+			} else if (vmName.contains("OpenJDK") || vmName.contains("OpenJ9")) {
 				DEFAULT_MODULES = "java.se," +
 						"jdk.accessibility,jdk.attach,jdk.compiler,jdk.dynalink,jdk.httpserver," +
 						"jdk.incubator.httpclient,jdk.jartool,jdk.javadoc,jdk.jconsole,jdk.jdi," +

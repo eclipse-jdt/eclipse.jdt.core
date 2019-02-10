@@ -199,7 +199,7 @@ public void test0003() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public enum X {\n" +
 		"	       ^^^^\n" +
-		"Syntax error on token \"enum\", module expected\n" +
+		"Syntax error on token \"enum\", interface expected\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
@@ -1241,7 +1241,7 @@ public void test0026() {
 		expected15ProblemLog
 	);
 }
-public void _test0027() {
+public void test0027() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -1254,12 +1254,22 @@ public void _test0027() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	for(Object o : switch){\n" +
-		"	           ^\n" +
-		"Syntax error, insert \"; ; ) Statement\" to complete BlockStatements\n" +
-		"----------\n";
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	for(Object o : switch){\n" + 
+			"	             ^\n" + 
+			"Syntax error on token \":\", delete this token\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	for(Object o : switch){\n" + 
+			"	             ^\n" + 
+			"Syntax error, insert \": Expression )\" to complete EnhancedForStatementHeader\n" +  // FIXME: bogus suggestion, this rule is compliance 1.5
+			"----------\n" + 
+			"3. ERROR in X.java (at line 3)\n" + 
+			"	for(Object o : switch){\n" + 
+			"	             ^\n" + 
+			"Syntax error, insert \"Statement\" to complete BlockStatements\n" + 
+			"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
