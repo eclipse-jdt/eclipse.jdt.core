@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -63,6 +67,7 @@ public class SingleNameReference extends NameReference implements OperatorIds {
 	public char[] token;
 	public MethodBinding[] syntheticAccessors; // [0]=read accessor [1]=write accessor
 	public TypeBinding genericCast;
+	public boolean isLabel;// flagging for break expression when expression is SwitchExpression - java 12 preview-feature
 
 public SingleNameReference(char[] source, long pos) {
 	super();

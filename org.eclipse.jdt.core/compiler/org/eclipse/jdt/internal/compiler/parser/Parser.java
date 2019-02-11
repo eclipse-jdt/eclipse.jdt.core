@@ -9093,6 +9093,9 @@ protected void consumeStatementBreakWithLabel() {
 					this.endStatementPosition);
 			pushOnAstStack(breakStatement);
 			breakStatement.expression = expr; // need to figure out later whether this is a label or an expression.
+			if (expr instanceof SingleNameReference) {
+				((SingleNameReference) expr).isLabel = true;
+			}
 		}
 }
 protected void consumeStatementCatch() {
