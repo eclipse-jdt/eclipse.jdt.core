@@ -1365,10 +1365,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			// FIXME: same for module source path?
 			Map<String, String> options = new HashMap<>();
 			// FIXME: Find a way to get the options from the EclipseCompiler and pass it to the parser.
-			// FIXME: need to be the latest and not hardcoded value
-			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+			String latest = CompilerOptions.getLatestVersion();
+			options.put(CompilerOptions.OPTION_Compliance, latest);
+			options.put(CompilerOptions.OPTION_Source, latest);
+			options.put(CompilerOptions.OPTION_TargetPlatform, latest);
 			CompilerOptions compilerOptions = new CompilerOptions(options);
 			ProblemReporter problemReporter = 
 					new ProblemReporter(
