@@ -60,6 +60,7 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.internal.codeassist.complete.AssistNodeParentAnnotationArrayInitializer;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionJavadoc;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeDetector;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeFound;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnAnnotationOfType;
@@ -2236,7 +2237,8 @@ public final class CompletionEngine
 						}
 					}
 				}
-
+				// javadoc tag completion in module-info file
+				contextAccepted = completeJavadocTagInModuleInfo(parsedUnit);
 				if (parsedUnit.types != null) {
 					try {
 						this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
@@ -2337,6 +2339,43 @@ public final class CompletionEngine
 			if (this.monitor != null) this.monitor.done();
 			reset();
 		}
+	}
+
+	private boolean completeJavadocTagInModuleInfo(CompilationUnitDeclaration parsedUnit) {
+		boolean contextAccepted = false;
+		if (this.parser.assistNodeParent instanceof CompletionJavadoc && parsedUnit.isModuleInfo() ) {
+			try {
+				this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+				if(this.parser.assistNode instanceof CompletionOnJavadocTag) {
+					((CompletionOnJavadocTag)this.parser.assistNode).filterPossibleTags(parsedUnit.scope);
+				}
+				throw new CompletionNodeFound(this.parser.assistNode, null, parsedUnit.scope);
+			}
+			catch (CompletionNodeFound e) {
+				if (e.astNode != null) {
+					// if null then we found a problem in the completion node
+					if(DEBUG) {
+						System.out.print("COMPLETION - Completion node : "); //$NON-NLS-1$
+						System.out.println(e.astNode.toString());
+						if(this.parser.assistNodeParent != null) {
+							System.out.print("COMPLETION - Parent Node : ");  //$NON-NLS-1$
+							System.out.println(this.parser.assistNodeParent);
+						}
+					}
+					this.lookupEnvironment.unitBeingCompleted = parsedUnit; // better resilient to further error reporting
+					contextAccepted =
+						complete(
+							e.astNode,
+							this.parser.assistNodeParent,
+							this.parser.enclosingNode,
+							parsedUnit,
+							e.qualifiedBinding,
+							e.scope,
+							e.insideTypeAnnotation);
+				}
+			}
+		}
+		return contextAccepted;
 	}
 
 	private boolean checkForCNF(TypeReference ref, CompilationUnitDeclaration parsedUnit, boolean showAll) {
