@@ -1834,4 +1834,55 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			customOptions,
 			new String[] {"--enable-preview"});
 	}
+	public void testBug544298() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	enum MyEnum {\n" + 
+					"		FIRST;\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	public void foo(MyEnum myEnum) {\n" + 
+					"		int i = switch (myEnum) {\n" + 
+					"			case FIRST ->  1;\n" + 
+					"		};\n" + 
+					"			System.out.println( \"i:\" + i);\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	public static void main(String argv[]) {\n" + 
+					"		new X().foo(MyEnum.FIRST);\n" + 
+					"	}\n" + 
+					"}"
+			},
+			"i:1",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug544298_2() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	enum MyEnum {\n" + 
+					"		FIRST;\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	public void foo(MyEnum myEnum) {\n" + 
+					"		int i = switch (myEnum) {\n" + 
+					"			case FIRST ->  1;\n" + 
+					"			default ->  0;\n" + 
+					"		};\n" + 
+					"			System.out.println( \"i:\" + i);\n" + 
+					"	}\n" + 
+					"\n" + 
+					"	public static void main(String argv[]) {\n" + 
+					"		new X().foo(MyEnum.FIRST);\n" + 
+					"	}\n" + 
+					"}"
+			},
+			"i:1",
+			null,
+			new String[] {"--enable-preview"});
+	}
 }

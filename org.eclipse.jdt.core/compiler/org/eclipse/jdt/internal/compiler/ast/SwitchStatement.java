@@ -355,11 +355,10 @@ public class SwitchStatement extends Expression {
 			}
 			if (this.expectedType() != null) {
 				TypeBinding expectedType = this.expectedType().erasure();
-				/*
-				 * is the last goto was optimized the lastAbruptCompletion is equal to -1 which means there is already some value on the
-				 * stack so we don't need to add one.
-				 */
-				codeStream.recordExpressionType(expectedType, codeStream.lastAbruptCompletion != -1 ? 1 : 0);
+				boolean optimizedGoto = codeStream.lastAbruptCompletion == -1;
+				// if the last bytecode was an optimized goto (value is already on the stack) or an enum switch without default case, then we need to adjust the 
+				// stack depth to reflect the fact that there is an value on the stack (return type of the switch expression)
+				codeStream.recordExpressionType(expectedType, optimizedGoto ? 0 : 1, optimizedGoto);
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
@@ -481,7 +480,8 @@ public class SwitchStatement extends Expression {
 				}
 			}
 			boolean enumInSwitchExpression =  resolvedType1.isEnum() && this instanceof SwitchExpression;
-			if (this.defaultCase == null && enumInSwitchExpression) {
+			boolean isEnumSwitchWithoutDefaultCase = this.defaultCase == null && enumInSwitchExpression;
+			if (isEnumSwitchWithoutDefaultCase) {
 				// we want to force an line number entry to get an end position after the switch statement
 				if (this.preSwitchInitStateIndex != -1) {
 					codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSwitchInitStateIndex);
@@ -517,11 +517,10 @@ public class SwitchStatement extends Expression {
 			}
 			if (this.expectedType() != null) {
 				TypeBinding expectedType = this.expectedType().erasure();
-				/*
-				 * is the last goto was optimized the lastAbruptCompletion is equal to -1 which means there is already some value on the
-				 * stack so we don't need to add one.
-				 */
-				codeStream.recordExpressionType(expectedType, codeStream.lastAbruptCompletion != -1 ? 1 : 0);
+				boolean optimizedGoto = codeStream.lastAbruptCompletion == -1;
+				// if the last bytecode was an optimized goto (value is already on the stack) or an enum switch without default case, then we need to adjust the 
+				// stack depth to reflect the fact that there is an value on the stack (return type of the switch expression)
+				codeStream.recordExpressionType(expectedType, optimizedGoto ? 0 : 1, optimizedGoto || isEnumSwitchWithoutDefaultCase);
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {

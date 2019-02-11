@@ -304,9 +304,9 @@ public void recordExpressionType(TypeBinding typeBinding) {
 	addStackDepthMarker(this.position, 0, typeBinding);
 }
 @Override
-public void recordExpressionType(TypeBinding typeBinding, int delta) {
+public void recordExpressionType(TypeBinding typeBinding, int delta, boolean adjustStackDepth) {
 	addStackDepthMarker(this.position, delta, typeBinding);
-	if (delta == 0) {
+	if (adjustStackDepth) {
 		// optimized goto
 		// the break label already adjusted the stack depth (-1 or -2 depending on the return type)
 		// we need to adjust back to what it was

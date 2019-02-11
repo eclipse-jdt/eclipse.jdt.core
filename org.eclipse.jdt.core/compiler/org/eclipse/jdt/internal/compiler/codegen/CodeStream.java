@@ -6318,7 +6318,7 @@ public void record(LocalVariableBinding local) {
 public void recordExpressionType(TypeBinding typeBinding) {
 	// nothing to do
 }
-public void recordExpressionType(TypeBinding typeBinding, int delta) {
+public void recordExpressionType(TypeBinding typeBinding, int delta, boolean adjustStackDepth) {
 	// nothing to do
 }
 public void recordPositionsFrom(int startPC, int sourcePos) {
