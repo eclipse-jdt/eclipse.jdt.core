@@ -45,7 +45,7 @@ public class SwitchCase extends Statement {
 	/**
 	 * The "expression" structural property of this node type (child type: {@link Expression}).
 	 * @since 3.0
-	 * @deprecated In the JLS 12 15.28.1 API, this property is replaced by {@link #EXPRESSION_2_PROPERTY}.
+	 * @deprecated In the JLS 12 15.28.1 API, this property is replaced by {@link #EXPRESSIONS2_PROPERTY }.
 	 */
 	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
 		new ChildPropertyDescriptor(SwitchCase.class, "expression", Expression.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
@@ -54,7 +54,7 @@ public class SwitchCase extends Statement {
 	 * The "expression" structural property of this node type (child type: {@link Expression}). (added in JEP 325).
 	 * @since 3.17 BETA_JAVA_12
 	 */
-	public static final ChildListPropertyDescriptor EXPRESSION_2_PROPERTY =
+	public static final ChildListPropertyDescriptor EXPRESSIONS2_PROPERTY  =
 			new ChildListPropertyDescriptor(SwitchCase.class, "expression", Expression.class, CYCLE_RISK); //$NON-NLS-1$);
 	
 	
@@ -80,7 +80,7 @@ public class SwitchCase extends Statement {
 		
 		propertyList = new ArrayList(2);
 		createPropertyList(SwitchCase.class, propertyList);
-		addProperty(EXPRESSION_2_PROPERTY, propertyList);
+		addProperty(EXPRESSIONS2_PROPERTY , propertyList);
 		PROPERTY_DESCRIPTORS_12 = reapPropertyList(propertyList);
 	}
 
@@ -111,7 +111,7 @@ public class SwitchCase extends Statement {
 	/**
 	 * <code>true</code> indicates "->" and <code>false</code> indicates ":".
 	 */
-	private boolean isExpr = false;
+	private boolean switchLabeledRule = false;
 
 	
 	/**
@@ -133,7 +133,7 @@ public class SwitchCase extends Statement {
 	SwitchCase(AST ast) {
 		super(ast);
 		if (ast.apiLevel >= AST.JLS12_INTERNAL) {
-			this.expressions = new ASTNode.NodeList(EXPRESSION_2_PROPERTY);
+			this.expressions = new ASTNode.NodeList(EXPRESSIONS2_PROPERTY );
 		}
 	}
 
@@ -158,7 +158,7 @@ public class SwitchCase extends Statement {
 
 	@Override
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
-		if (property == EXPRESSION_2_PROPERTY) {
+		if (property == EXPRESSIONS2_PROPERTY ) {
 			return getExpressions();
 		}
 		// allow default implementation to flag the error
@@ -210,6 +210,7 @@ public class SwitchCase extends Statement {
 	 * <code>null</code> if there is none (the "default:" case).
 	 *
 	 * @return the expression node, or <code>null</code> if there is none
+	 * @deprecated use getExpressions() (see JLS 12)
 	 */
 	public Expression getExpression() {
 		if (!this.expressionInitialized) {
@@ -252,6 +253,7 @@ public class SwitchCase extends Statement {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
+	 * @deprecated see JLS 12
 	 */
 	public void setExpression(Expression expression) {
 		ASTNode oldChild = this.optionalExpression;
@@ -262,32 +264,32 @@ public class SwitchCase extends Statement {
 	}
 	
 	/**
-	 * Sets the isExpr of this switch case as <code>true</code> or <code>false</code>.
+	 * Sets the switchLabeledRule of this switch case as <code>true</code> or <code>false</code>.
 	 * <code>true</code> indicates "->" and <code>false</code> indicates ":".
 
-	 * @param isExpr <code>true</code> or </false>
+	 * @param switchLabeledRule <code>true</code> or </false>
 	 * @since 3.17 BETA_JAVA_12
 	 */
-	public void setIsExpr(boolean isExpr) {
-		this.isExpr = isExpr;
+	public void setSwitchLabeledRule(boolean switchLabeledRule) {
+		this.switchLabeledRule = switchLabeledRule;
 	}
 	
 	/**
-	 * Gets the isExpr of this switch case as <code>true</code> or <code>false</code>.
+	 * Gets the switchLabeledRule of this switch case as <code>true</code> or <code>false</code>.
 	 *<code>true</code> indicates "->" and <code>false</code> indicates ":".
 	 *
-	 * @return isExpr <code>true</code> or </false>
+	 * @return switchLabeledRule <code>true</code> or </false>
 	 * @since 3.17 BETA_JAVA_12
 	 */
-	public boolean isExpr() {
-		return this.isExpr;
+	public boolean isSwitchLabeledRule() {
+		return this.switchLabeledRule;
 	}
 
 	/**
 	 * Returns whether this switch case represents the "default:" case.
 	 * <p>
 	 * This convenience method is equivalent to
-	 * <code>getExpression() == null</code> or <code>getExpression2().isEmpty()</code>.
+	 * <code>getExpression() == null</code> or <code>getExpressions().isEmpty()</code>.
 	 * </p>
 	 *
 	 * @return <code>true</code> if this is the default switch case, and

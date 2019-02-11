@@ -1504,7 +1504,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 				for (Iterator it = node.getExpressions().iterator(); it.hasNext(); ) {
 					Expression t = (Expression) it.next();
 					if (node.isDefault()) {
-						if (node.isExpr()) {
+						if (node.isSwitchLabeledRule()) {
 							this.buffer.append("default ->\n");//$NON-NLS-1$
 						}
 						else {
@@ -1516,7 +1516,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 						if (it.hasNext()) {
 							this.buffer.append(", ");//$NON-NLS-1$
 						} else {
-							if (node.isExpr()) {
+							if (node.isSwitchLabeledRule()) {
 								this.buffer.append("->\n");//$NON-NLS-1$
 							}
 							else {

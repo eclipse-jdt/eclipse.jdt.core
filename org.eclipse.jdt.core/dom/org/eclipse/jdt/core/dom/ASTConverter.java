@@ -1317,7 +1317,7 @@ class ASTConverter {
 				switchCase.setExpression(convert(constantExpression));
 			}
 		}
-		switchCase.setIsExpr(statement.isExpr);
+		switchCase.setSwitchLabeledRule(statement.isExpr);
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		retrieveColonPosition(switchCase);
 		return switchCase;
