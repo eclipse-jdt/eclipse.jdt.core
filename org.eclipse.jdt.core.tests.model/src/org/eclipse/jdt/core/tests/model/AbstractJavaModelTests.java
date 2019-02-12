@@ -620,6 +620,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			exported);
 		addClasspathEntry(project, entry);
 	}
+
+	protected void addModularProjectEntry(IJavaProject project, IJavaProject depProject) throws JavaModelException {
+		addClasspathEntry(project, newModularProjectEntry(depProject));
+	}
+
+	protected IClasspathEntry newModularProjectEntry(IJavaProject depProject) {
+		return JavaCore.newProjectEntry(depProject.getPath(), null, false, moduleAttribute(), false);
+	}
+
 	protected void assertSortedElementsEqual(String message, String expected, IJavaElement[] elements) {
 		sortElements(elements);
 		assertElementsEqual(message, expected, elements);

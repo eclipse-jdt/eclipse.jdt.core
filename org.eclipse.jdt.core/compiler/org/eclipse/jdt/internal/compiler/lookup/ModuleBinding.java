@@ -513,7 +513,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		// remember:
 		if (binding != null) {
 			this.environment.knownPackages.put(name, binding);
-			binding = addPackage(binding, false);
+			binding = addPackage(binding, false); // no further lookup needed, binding is already complete (split?)
 		} else {
 			this.environment.knownPackages.put(name, LookupEnvironment.TheNotFoundPackage);
 		}
@@ -595,6 +595,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 
 		// enrich with split-siblings from visible modules:
 		if (considerRequiredModules) {
+			if (parent != null && binding != null)
+				parent.addPackage(binding, this); // preliminarily add to avoid creating duplicates, will be updated below
 			binding = combineWithPackagesFromOtherRelevantModules(binding, subPkgCompoundName, declaringModuleNames);
 		}
 		if (binding == null || !binding.isValidBinding()) {
@@ -607,10 +609,13 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			return null;
 		}
 		// remember
-		if (parentName.length == 0)
+		if (parentName.length == 0) {
 			binding.environment.knownPackages.put(name, binding);
-		else if (parent != null)
+		} else if (parent != null) {
 			binding = parent.addPackage(binding, this);
+		}
+		if (packageMayBeIncomplete)
+			return binding;
 		return addPackage(binding, false);
 	}
 

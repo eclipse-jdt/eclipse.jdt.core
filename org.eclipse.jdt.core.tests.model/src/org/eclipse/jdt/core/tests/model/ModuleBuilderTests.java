@@ -41,7 +41,6 @@ import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -103,12 +102,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		deleteProject("P1");
 	}
 	
-	void addModularProjectEntry(IJavaProject project, IJavaProject depProject) throws JavaModelException {
-		addClasspathEntry(project, newModularProjectEntry(depProject));
-	}
-	IClasspathEntry newModularProjectEntry(IJavaProject depProject) {
-		return JavaCore.newProjectEntry(depProject.getPath(), null, false, moduleAttribute(), false);
-	}
 	// Test that the java.base found as a module package fragment root in the project 
 	public void test001() throws CoreException {
 		try {
