@@ -1711,7 +1711,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	today =  switch (day) {\n" + 
 			"	                 ^^^\n" + 
-			"missing enum constant(s) in switch expression as all enum constants are required in case statements if there is no default case.\n" + 
+			"A Switch expression should cover all possible values\n" + 
 			"----------\n");
 	}
 	public void testBug544253() {
