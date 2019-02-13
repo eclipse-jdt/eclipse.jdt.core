@@ -61,8 +61,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-//		 TESTS_NAMES = new String[] { "testBug522330" };
-	}
+//		 TESTS_NAMES = new String[] { "testReleaseOption8" };
+	} 
 	private String sourceWorkspacePath = null;
 	protected ProblemRequestor problemRequestor;
 	public static Test suite() {
@@ -701,10 +701,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testConvertToModule() throws CoreException, IOException {
+		if (!isJRE11) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
-			IJavaProject project = setUpJavaProject("ConvertToModule", "9");
-			assertEquals(project.getOption("org.eclipse.jdt.core.compiler.compliance", true), "9");
+			IJavaProject project = setUpJavaProject("ConvertToModule", JavaCore.VERSION_9);
+			assertEquals("9", project.getOption("org.eclipse.jdt.core.compiler.compliance", true));
 			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
 			IPackageFragmentRoot theRoot = null;
@@ -716,7 +717,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			}
 			assertNotNull("should not be null", theRoot);
 			String[] modules = JavaCore.getReferencedModules(project);
-			assertStringsEqual("incorrect result", new String[]{"java.desktop", "java.rmi", "java.sql"}, modules);
+			if (isJRE12)
+				assertStringsEqual("incorrect result", new String[]{"java.desktop", "java.rmi", "java.sql"}, modules);
+			else
+				assertStringsEqual("incorrect result", new String[]{"java.datatransfer", "java.desktop", "java.net.http", "java.rmi", "java.sql"}, modules);
 		} finally {
 			this.deleteProject("ConvertToModule");
 			 JavaCore.setOptions(javaCoreOptions);
@@ -6796,7 +6800,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569c() throws CoreException {
-		if (!isJRE9 || isJRE12) return;
+		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("Bug527569", "1.7");
 		Map<String, String> options = new HashMap<>();
 		// Make sure the new options map doesn't reset.
@@ -7641,39 +7645,39 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug543195() throws CoreException {
-		IJavaProject pj1 = createJava9Project("p1");
-		IJavaProject pj2 = createJava9Project("p2");
+		IJavaProject pj1 = createJava9Project("pj1");
+		IJavaProject pj2 = createJava9Project("pj2");
 		IJavaProject ptest = createJava9Project("ptest");
 		try {
 			addModularProjectEntry(pj2, pj1);
 			addModularProjectEntry(ptest, pj2);
 
-			createFolder("p1/src/p");
-			createFile("p1/src/p/Missing.java",
+			createFolder("pj1/src/p");
+			createFile("pj1/src/p/Missing.java",
 					"package p;\n" +
 					"public class Missing {\n" +
 					"	public void miss() {}\n" +
 					"}\n");
-			createFile("p1/src/module-info.java",
-					"module p1 {\n" +
+			createFile("pj1/src/module-info.java",
+					"module pj1 {\n" +
 					"	exports p;\n" +
 					"}\n");
 
-			createFolder("p2/src/q");
-			createFile("p2/src/q/API.java",
+			createFolder("pj2/src/q");
+			createFile("pj2/src/q/API.java",
 					"package q;\n" +
 					"public class API extends p.Missing {}\n");
-			createFile("p2/src/q/API2.java",
+			createFile("pj2/src/q/API2.java",
 					"package q;\n" +
 					"public class API2 extends API {}\n");
-			createFile("p2/src/module-info.java",
-					"module p2 {\n" +
-					"	requires p1;\n" +
+			createFile("pj2/src/module-info.java",
+					"module pj2 {\n" +
+					"	requires pj1;\n" +
 					"	exports q;\n" +
 					"}\n");
 			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 
-			deleteFile("p1/bin/p/Missing.class");
+			deleteFile("pj1/bin/p/Missing.class");
 			pj1.getProject().close(null);
 
 			createFolder("ptest/src/p/r");
@@ -7942,6 +7946,441 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 
+	public void testReleaseOption1() throws Exception {
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String testSource = "public class X {\n" +
+								"}";
+			String mPath = "p/src/X.java";
+			createFile(mPath,
+					testSource);
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"",  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testReleaseOption2() throws Exception {
+		if (!isJRE12)
+			return;
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_6);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_6);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String testSource = "public class X {\n" +
+								"	public java.util.stream.Stream<String> emptyStream() {\n" +
+								"		return null;\n" +
+								"	}\n" +
+								"}";
+			String mPath = "p/src/X.java";
+			createFile(mPath,
+					testSource);
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"The project was not built due to \"release 6 is not found in the system\". "
+					+ "Fix the problem, then try refreshing this project and building it since it may be inconsistent",  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testReleaseOption3() throws Exception {
+		if (isJRE12)
+			return;
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String testSource = "public class X {\n" +
+								"	public java.util.stream.Stream<String> emptyStream() {\n" +
+								"		return null;\n" +
+								"	}\n" +
+								"}";
+			String mPath = "p/src/X.java";
+			createFile(mPath,
+					testSource);
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"java.util.stream.Stream cannot be resolved to a type",  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testReleaseOption4() throws Exception {
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String testSource = "public class X {\n" +
+								"	public java.util.stream.Stream<String> emptyStream() {\n" +
+								"		return null;\n" +
+								"	}\n" +
+								"}";
+			String mPath = "p/src/X.java";
+			createFile(mPath,
+					testSource);
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"",  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testReleaseOption5() throws Exception {
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String testSource = "public class X {\n" +
+								"	public java.util.stream.Stream<String> emptyStream() {\n" +
+								"		return null;\n" +
+								"	}\n" +
+								"}";
+			String mPath = "p/src/X.java";
+			createFile(mPath,
+					testSource);
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"java.util.stream.Stream cannot be resolved to a type",  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testReleaseOption6() throws Exception {
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String testSource = "interface I {\n" +
+								"  int add(int x, int y);\n" +
+								"}\n" +
+								"public class X {\n" +
+								"  public static void main(String[] args) {\n" +
+								"    I i = (x, y) -> {\n" +
+								"      return x + y;\n" +
+								"    };\n" +
+								"  }\n" +
+								"}\n";
+			String mPath = "p/src/X.java";
+			createFile(mPath,
+					testSource);
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"Lambda expressions are allowed only at source level 1.8 or above",  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testReleaseOption7() throws Exception {
+		if (isJRE12)
+			return;
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_6);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_6);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String testSource = "import java.io.*;\n" +
+								"public class X {\n" + 
+								"	public static void main(String[] args) {\n" + 
+								"		try {\n" + 
+								"			System.out.println();\n" + 
+								"			Reader r = new FileReader(args[0]);\n" + 
+								"			r.read();\n" + 
+								"		} catch(IOException | FileNotFoundException e) {\n" +
+								"			e.printStackTrace();\n" + 
+								"		}\n" + 
+								"	}\n" + 
+								"}";
+			String mPath = "p/src/X.java";
+			createFile(mPath,
+					testSource);
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+							"Multi-catch parameters are not allowed for source level below 1.7\n" + 
+							"The exception FileNotFoundException is already caught by the alternative IOException",  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testReleaseOption8() throws Exception {
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String testSource = "module mod.one { \n" +
+								"	requires java.base;\n" +
+								"}";
+			String mPath = "p/src/module-info.java";
+			createFile(mPath,
+					testSource);
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"",  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testReleaseOption9() throws Exception {
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_10);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_10);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_10);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String testSource = "module mod.one { \n" +
+								"	requires java.base;\n" +
+								"}";
+			String mPath = "p/src/module-info.java";
+			createFile(mPath,
+					testSource);
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"",  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testReleaseOption10() throws Exception {
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String testSource = "module mod.one { \n" +
+					"	requires java.base;\n" +
+					"}";
+			String mPath = "p/src/module-info.java";
+			createFile(mPath,
+					testSource);
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			String expected = isJRE12 ?
+					"Syntax error on token \"module\", package expected\n" + 
+					"Syntax error on token(s), misplaced construct(s)\n" + 
+					"Syntax error on token \".\", , expected\n" + 
+					"Syntax error on token \"}\", delete this token" :
+						"Syntax error on token \"module\", package expected\n" + 
+						"Syntax error on token(s), misplaced construct(s)\n" + 
+						"Syntax error on token \".\", , expected\n" + 
+						"Syntax error on token \"}\", delete this token";
+			assertMarkers("Unexpected markers",
+							expected,  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testReleaseOption11() throws Exception {
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			createFolder("p/src/foo");
+			createFile(
+					"p/src/foo/Module.java",
+					"package foo;\n" +
+					"public class Module {}\n");
+			createFile(
+					"p/src/foo/X.java",
+					"package foo;\n" +
+					"public class X { \n" +
+					"	public Module getModule(String name) {\n" + 
+					"		return null;\n" +
+					"	}\n" + 
+					"}");
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"",  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testReleaseOption12() throws Exception {
+		if (!isJRE12)
+			return;
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String testSource = "import java.io.*;\n" + 
+								"\n" + 
+								"public class X {\n" + 
+								"	public static void main(String[] args) {\n" + 
+								"		String str = Integer.toUnsignedString(1, 1);\n" + 
+								"	}\n" + 
+								"}";
+			String mPath = "p/src/X.java";
+			createFile(mPath,
+					testSource);
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"The method toUnsignedString(int, int) is undefined for the type Integer",  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testReleaseOption13() throws Exception {
+		if (!isJRE12)
+			return;
+		Hashtable<String, String> options = JavaCore.getOptions();
+		IJavaProject p = createJava9Project("p");
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		String outputDirectory = Util.getOutputDirectory();
+		try {
+			String testSource = "\n" + 
+								"public class X {\n" + 
+								"	public static void main(String[] args) {\n" + 
+								"		Integer.toUnsignedString(1, 1);\n" + 
+								"	}\n" + 
+								"}";
+			String mPath = "p/src/X.java";
+			createFile(mPath,
+					testSource);
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"",  markers);
+
+		} finally {
+			JavaCore.setOptions(options);
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
