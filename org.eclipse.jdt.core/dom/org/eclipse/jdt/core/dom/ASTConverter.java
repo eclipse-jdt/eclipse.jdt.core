@@ -1308,8 +1308,7 @@ class ASTConverter {
 					switchCase.getExpressions().add(convert(expression));
 				}
 			}
-		}
-		else {
+		} else {
 			org.eclipse.jdt.internal.compiler.ast.Expression constantExpression = statement.constantExpression;
 			if (constantExpression == null) {
 				switchCase.setExpression(null);
@@ -1321,7 +1320,11 @@ class ASTConverter {
 			switchCase.setSwitchLabeledRule(statement.isExpr);
 		}
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
-		retrieveColonPosition(switchCase);
+		if (statement.isExpr) {
+			retrieveArrowPosition(switchCase);
+		} else {
+			retrieveColonPosition(switchCase);
+		}
 		return switchCase;
 	}
 
@@ -4849,6 +4852,17 @@ class ASTConverter {
 	 * This method fixes the length of the corresponding node.
 	 */
 	protected void retrieveColonPosition(ASTNode node) {
+		setNodeSourceEndPosition(node, TerminalTokens.TokenNameCOLON);
+	}
+	/**
+	 * This method is used to set the right end position for switch labeled rules ie with '->'
+	 * The actual AST nodes don't include the trailing semicolon.
+	 * This method fixes the length of the corresponding node.
+	 */
+	private void retrieveArrowPosition(ASTNode node) {
+		setNodeSourceEndPosition(node, TerminalTokens.TokenNameARROW);
+	}
+	private void setNodeSourceEndPosition(ASTNode node, int expectedToken) {
 		int start = node.getStartPosition();
 		int length = node.getLength();
 		int end = start + length;
@@ -4856,8 +4870,7 @@ class ASTConverter {
 		try {
 			int token;
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
-				switch(token) {
-					case TerminalTokens.TokenNameCOLON:
+				if (token == expectedToken) {
 						node.setSourceRange(start, this.scanner.currentPosition - start);
 						return;
 				}

@@ -25,6 +25,8 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
@@ -89,8 +91,8 @@ public class ASTConverter12Test extends ConverterTestSetup {
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-    		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-    		javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 			ASTNode node = buildAST(
 				contents,
 				this.workingCopy);
@@ -104,10 +106,60 @@ public class ASTConverter12Test extends ConverterTestSetup {
 			IBinding binding = type.resolveBinding();
 			assertTrue("null binding", binding != null);
 			assertTrue("binding incorrect", binding.getName().equals("int"));
-			 
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}	
-		
+		}
+	}
+	public void test0002() throws JavaModelException {
+		String contents =
+			"public class X {\n" + 
+			"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" + 
+			"	String aa(Day day) throws Exception {\n" + 
+			"		var today = \"\";\n" + 
+			"		switch (day) {\n" + 
+			"			case SATURDAY,SUNDAY ->\n" + 
+			"				today=\"Weekend\";\n" + 
+			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY ->\n" + 
+			"				today=\"Working\";\n" + 
+			"			default ->\n" + 
+			"				throw new Exception(\"Invalid day: \" + day.name());\n" + 
+			"		}\n" + 
+			"		return today;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	String bb(Day day) throws Exception {\n" + 
+			"		var today = \"\";\n" + 
+			"		switch (day) {\n" + 
+			"			case SATURDAY,SUNDAY:\n" + 
+			"				today = \"Weekend day\";\n" + 
+			"				break;\n" + 
+			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY:\n" + 
+			"				today = \"Working day\";\n" + 
+			"				break;\n" + 
+			"			default:\n" + 
+			"				throw new Exception(\"Invalid day: \" + day.name());\n" + 
+			"		}\n" + 
+			"		return today;\n" + 
+			"	}\n" + 
+			"}" ;
+		this.workingCopy = getWorkingCopy("/Converter12/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = getASTNode(compilationUnit, 0, 1, 1);
+			assertEquals("Switch statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
+			SwitchStatement switchStatement = (SwitchStatement) node;
+			checkSourceRange((Statement) switchStatement.statements().get(0), "case SATURDAY,SUNDAY ->", contents);
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
 	}
 }
