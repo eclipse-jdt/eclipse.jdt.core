@@ -564,8 +564,16 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			declaringModuleNames = moduleEnv.getUniqueModulesDeclaringPackage(parentName, name, nameForLookup());
 			if (declaringModuleNames != null) {
 				if (CharOperation.containsEqual(declaringModuleNames, this.moduleName)) {
-					// declared here, not yet known, so create it now:
-					binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
+					if (parent instanceof SplitPackageBinding) {
+						// parent.getPackage0() may have been too shy, so drill into the split:
+						PackageBinding singleParent = ((SplitPackageBinding) parent).getIncarnation(this);
+						if (singleParent != null)
+							binding = singleParent.getPackage0(name);
+					}
+					if (binding == null) {
+						// declared here, not yet known, so create it now:
+						binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
+					}
 				} else if (considerRequiredModules) {
 					// visible but foreign (when current is unnamed or auto):
 					for (char[] declaringModuleName : declaringModuleNames) {

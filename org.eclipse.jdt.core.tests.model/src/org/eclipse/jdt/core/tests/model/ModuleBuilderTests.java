@@ -7992,6 +7992,53 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				Util.flushDirectoryContent(outputDir);
 		}
 	}
+	
+	public void testBug544432() throws CoreException {
+		IJavaProject prjA = createJava9Project("A");
+		IJavaProject prjB = createJava9Project("B");
+		try {
+			createFolder("A/src/com/a");
+			createFile("A/src/com/a/A.java",
+				"package com.a;\n" + 
+				"\n" + 
+				"public class A {}\n");
+			createFile("A/src/module-info.java",
+				"open module com.a {\n" + 
+				"	exports com.a;\n" + 
+				"}\n");
+
+			addModularProjectEntry(prjB, prjA);
+			createFolder("B/src/com/a/b");
+			String bPath = "B/src/com/a/b/B.java";
+			String bSource =
+				"package com.a.b;\n" + 
+				"import com.a.A;\n" + 
+				"public class B {\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		A a = new A();\n" + 
+				"		System.out.println(a);\n" + 
+				"	}\n" + 
+				"}\n";
+			createFile(bPath, bSource);
+			createFile("B/src/module-info.java",
+				"open module com.a.b {\n" + 
+				"	requires com.a;\n" + 
+				"}\n");
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+
+			this.problemRequestor.initialize(bSource.toCharArray());
+			getCompilationUnit(bPath).getWorkingCopy(this.wcOwner, null);
+			assertProblems("unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject(prjA);
+			deleteProject(prjB);
+		}
+	}
 
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
