@@ -271,6 +271,7 @@ public class SwitchCase extends Statement {
 	 * @since 3.17 BETA_JAVA_12
 	 */
 	public void setSwitchLabeledRule(boolean switchLabeledRule) {
+		unsupportedBelow12();
 		this.switchLabeledRule = switchLabeledRule;
 	}
 	
@@ -282,6 +283,7 @@ public class SwitchCase extends Statement {
 	 * @since 3.17 BETA_JAVA_12
 	 */
 	public boolean isSwitchLabeledRule() {
+		unsupportedBelow12();
 		return this.switchLabeledRule;
 	}
 
