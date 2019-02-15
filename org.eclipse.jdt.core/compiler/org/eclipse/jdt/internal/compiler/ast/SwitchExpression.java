@@ -552,7 +552,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		for (int i = 0, l = this.resultExpressions.size(); i < l; ++i) {
 			Expression e = this.resultExpressions.get(i);
 			TypeBinding type = this.originalValueResultExpressionTypes[i];
-			if (type.id == T_int && e.constant == Constant.NotAConstant)
+			if (type != null && type.id == T_int && e.constant == Constant.NotAConstant)
 				return TypeBinding.INT;
 		}
 		return null;

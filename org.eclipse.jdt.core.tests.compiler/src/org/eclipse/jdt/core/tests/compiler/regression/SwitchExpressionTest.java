@@ -1885,4 +1885,38 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			null,
 			new String[] {"--enable-preview"});
 	}
+	public void testBug544428_01() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+				"    public int foo(int i) {\n" +
+				"    	var v = switch(i) {\n" +
+				"    	case 0 -> x;\n" +
+				"    	default -> 1;\n" +
+				"    	};\n" +
+				"    	return v;\n" +
+				"    }\n" +
+				"    public static void main(String[] argv) {\n" +
+				"       System.out.println(new X().foo(0));\n" +
+				"    }\n" +
+				"}",
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	case 0 -> x;\n" + 
+				"	          ^\n" + 
+				"x cannot be resolved to a variable\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] { "--enable-preview"},
+				options);
+	}
 }
