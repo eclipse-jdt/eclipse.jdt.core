@@ -14773,4 +14773,68 @@ public void testBug159565g() throws JavaModelException {
 	String input = getCompilationUnit("Formatter", "", "test159565", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test159565", "G_out.java").getSource());
 }
+/**
+ * https://bugs.eclipse.org/541011 - [formatter] Option to wrap chained conditionals as one group
+ */
+public void testBug541011a() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	String input = getCompilationUnit("Formatter", "", "test541011", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test541011", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/541011 - [formatter] Option to wrap chained conditionals as one group
+ */
+public void testBug541011b() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_conditional_expression_chain = Alignment.M_COMPACT_SPLIT;
+	String input = getCompilationUnit("Formatter", "", "test541011", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test541011", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/541011 - [formatter] Option to wrap chained conditionals as one group
+ */
+public void testBug541011c() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_conditional_expression_chain = Alignment.M_ONE_PER_LINE_SPLIT;
+	String input = getCompilationUnit("Formatter", "", "test541011", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test541011", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/541011 - [formatter] Option to wrap chained conditionals as one group
+ */
+public void testBug541011d() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_conditional_expression_chain = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String input = getCompilationUnit("Formatter", "", "test541011", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test541011", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/541011 - [formatter] Option to wrap chained conditionals as one group
+ */
+public void testBug541011e() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_conditional_expression_chain = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	this.formatterPrefs.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String input = getCompilationUnit("Formatter", "", "test541011", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test541011", "E_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/541011 - [formatter] Option to wrap chained conditionals as one group
+ */
+public void testBug541011f() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_conditional_expression_chain = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	String input = getCompilationUnit("Formatter", "", "test541011", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test541011", "F_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/541011 - [formatter] Option to wrap chained conditionals as one group
+ */
+public void testBug541011g() throws JavaModelException {
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	String input = getCompilationUnit("Formatter", "", "test541011", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test541011", "G_out.java").getSource());
+}
 }

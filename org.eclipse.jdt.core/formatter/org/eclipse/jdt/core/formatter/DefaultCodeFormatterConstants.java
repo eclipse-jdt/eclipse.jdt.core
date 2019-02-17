@@ -323,9 +323,23 @@ public class DefaultCodeFormatterConstants {
 	 *     - default:           createAlignmentValue(false, WRAP_ONE_PER_LINE, INDENT_DEFAULT)
 	 * </pre>
 	 * @see #createAlignmentValue(boolean, int, int)
+	 * @see #FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION_CHAIN
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_conditional_expression";	 //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of conditional expression chains. If disabled, chains are not recognized
+	 *             and only {@link #FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION} policy is used instead.
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_conditional_expression_chain"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_NO_SPLIT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @see #FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION
+	 * @since 3.17
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION_CHAIN = JavaCore.PLUGIN_ID + ".formatter.alignment_for_conditional_expression_chain";	 //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option for alignment of enum constants

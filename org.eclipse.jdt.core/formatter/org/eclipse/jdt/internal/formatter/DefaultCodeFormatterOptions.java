@@ -134,6 +134,7 @@ public class DefaultCodeFormatterOptions {
 	public int alignment_for_compact_if;
 	public int alignment_for_compact_loop;
 	public int alignment_for_conditional_expression;
+	public int alignment_for_conditional_expression_chain;
 	public int alignment_for_enum_constants;
 	public int alignment_for_expressions_in_array_initializer;
 	public int alignment_for_expressions_in_for_loop_header;
@@ -518,6 +519,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_COMPACT_IF, getAlignment(this.alignment_for_compact_if));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_COMPACT_LOOP, getAlignment(this.alignment_for_compact_loop));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION, getAlignment(this.alignment_for_conditional_expression));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION_CHAIN, getAlignment(this.alignment_for_conditional_expression_chain));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ENUM_CONSTANTS, getAlignment(this.alignment_for_enum_constants));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER, getAlignment(this.alignment_for_expressions_in_array_initializer));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_FOR_LOOP_HEADER, getAlignment(this.alignment_for_expressions_in_for_loop_header));
@@ -965,6 +967,8 @@ public class DefaultCodeFormatterOptions {
 				this.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT;
 			}
 		}
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION_CHAIN,
+				v -> this.alignment_for_conditional_expression_chain = v);
 		final Object alignmentForEnumConstantsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ENUM_CONSTANTS);
 		if (alignmentForEnumConstantsOption != null) {
 			try {
@@ -2778,6 +2782,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_compact_if = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
 		this.alignment_for_compact_loop = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_INDENT_BY_ONE;
 		this.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT;
+		this.alignment_for_conditional_expression_chain = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_enum_constants = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_expressions_in_for_loop_header = Alignment.M_NO_ALIGNMENT;
@@ -3127,6 +3132,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_compact_if = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_compact_loop = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_conditional_expression = Alignment.M_NEXT_PER_LINE_SPLIT;
+		this.alignment_for_conditional_expression_chain = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_enum_constants = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_expressions_in_for_loop_header = Alignment.M_NO_ALIGNMENT;

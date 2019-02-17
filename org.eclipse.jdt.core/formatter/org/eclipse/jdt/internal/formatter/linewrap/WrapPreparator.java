@@ -682,16 +682,50 @@ public class WrapPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(ConditionalExpression node) {
+		boolean chainsMatter = (this.options.alignment_for_conditional_expression_chain
+				& Alignment.SPLIT_MASK) != Alignment.M_NO_ALIGNMENT;
+		boolean isNextInChain = node.getParent() instanceof ConditionalExpression
+				&& node == ((ConditionalExpression) node.getParent()).getElseExpression();
+		boolean isFirstInChain = node.getElseExpression() instanceof ConditionalExpression && !isNextInChain;
 		boolean wrapBefore = this.options.wrap_before_conditional_operator;
 		List<Integer> before = wrapBefore ? this.wrapIndexes : this.secondaryWrapIndexes;
 		List<Integer> after = wrapBefore ? this.secondaryWrapIndexes : this.wrapIndexes;
-		before.add(this.tm.firstIndexAfter(node.getExpression(), TokenNameQUESTION));
-		before.add(this.tm.firstIndexAfter(node.getThenExpression(), TokenNameCOLON));
-		after.add(this.tm.firstIndexIn(node.getThenExpression(), -1));
-		after.add(this.tm.firstIndexIn(node.getElseExpression(), -1));
-		this.wrapParentIndex = this.tm.lastIndexIn(node.getExpression(), -1);
-		this.wrapGroupEnd = this.tm.lastIndexIn(node, -1);
-		handleWrap(this.options.alignment_for_conditional_expression);
+		if (!chainsMatter || (!isFirstInChain && !isNextInChain)) {
+			before.add(this.tm.firstIndexAfter(node.getExpression(), TokenNameQUESTION));
+			before.add(this.tm.firstIndexAfter(node.getThenExpression(), TokenNameCOLON));
+			after.add(this.tm.firstIndexIn(node.getThenExpression(), -1));
+			after.add(this.tm.firstIndexIn(node.getElseExpression(), -1));
+			this.wrapParentIndex = this.tm.lastIndexIn(node.getExpression(), -1);
+			this.wrapGroupEnd = this.tm.lastIndexIn(node, -1);
+			handleWrap(this.options.alignment_for_conditional_expression);
+
+		} else if (isFirstInChain) {
+			List<ConditionalExpression> chain = new ArrayList<>();
+			chain.add(node);
+			ConditionalExpression next = node;
+			while (next.getElseExpression() instanceof ConditionalExpression) {
+				next = (ConditionalExpression) next.getElseExpression();
+				chain.add(next);
+			}
+
+			for (ConditionalExpression conditional : chain) {
+				before.add(this.tm.firstIndexAfter(conditional.getThenExpression(), TokenNameCOLON));
+				after.add(this.tm.firstIndexIn(conditional.getElseExpression(), -1));
+			}
+			this.wrapParentIndex = this.tm.firstIndexIn(node.getExpression(), -1);
+			this.wrapGroupEnd = this.tm.lastIndexIn(node, -1);
+			handleWrap(this.options.alignment_for_conditional_expression_chain);
+
+			this.currentDepth++;
+			for (ConditionalExpression conditional : chain) {
+				before.add(this.tm.firstIndexAfter(conditional.getExpression(), TokenNameQUESTION));
+				after.add(this.tm.firstIndexIn(conditional.getThenExpression(), -1));
+				this.wrapParentIndex = this.tm.firstIndexIn(conditional.getExpression(), -1);
+				this.wrapGroupEnd = this.tm.lastIndexIn(conditional.getThenExpression(), -1);
+				handleWrap(this.options.alignment_for_conditional_expression);
+			}
+			this.currentDepth--;
+		}
 		return true;
 	}
 
