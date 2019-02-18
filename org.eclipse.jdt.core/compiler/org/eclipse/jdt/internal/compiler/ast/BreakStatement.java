@@ -141,7 +141,7 @@ public void resolve(BlockScope scope) {
 				return;
 			}
 		}
-		this.expression.resolve(scope);
+		this.expression.resolveType(scope);
 	} else if (this.expression == null && this.switchExpression != null) {
 		scope.problemReporter().switchExpressionBreakMissingValue(this);
 	}
@@ -167,9 +167,10 @@ public StringBuffer printStatement(int tab, StringBuffer output) {
 
 @Override
 public void traverse(ASTVisitor visitor, BlockScope blockscope) {
-	visitor.visit(this, blockscope);
-	if (this.expression != null)
-		this.expression.traverse(visitor, blockscope);
+	if (visitor.visit(this, blockscope)) {
+		if (this.expression != null)
+			this.expression.traverse(visitor, blockscope);
+	}
 	visitor.endVisit(this, blockscope);
 }
 @Override

@@ -1919,4 +1919,29 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				new String[] { "--enable-preview"},
 				options);
 	}
+	public void testBug544523_01() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    @SuppressWarnings(\"preview\")\n" +
+					"	public int foo(int i) {\n" +
+					"    	int v = switch(i) {\n" +
+					"    	case 0 -> switch(i) {\n" +
+					"    			case 0 -> 0;\n" +
+					"    			default -> 1;\n" +
+					"    		};\n" +
+					"    	default -> 1;\n" +
+					"    	};\n" +
+					"    	return v;\n" +
+					"    }\n" +
+					"    public static void main(String[] argv) {\n" +
+					"       System.out.println(new X().foo(0));\n" +
+					"    }\n" +
+					"}"
+			},
+			"0",
+			null,
+			new String[] {"--enable-preview"});
+	}
 }

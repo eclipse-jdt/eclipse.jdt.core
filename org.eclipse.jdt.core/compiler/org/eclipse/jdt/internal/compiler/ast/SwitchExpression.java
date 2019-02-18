@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -269,28 +270,38 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			return; // already calculated.
 
 		class ResultExpressionsCollector extends ASTVisitor {
-			SwitchExpression targetSwitchExpression;
+			Stack<SwitchExpression> targetSwitchExpressions;
 			public ResultExpressionsCollector(SwitchExpression se) {
-				this.targetSwitchExpression = se;
+				if (this.targetSwitchExpressions == null)
+					this.targetSwitchExpressions = new Stack<>();
+				this.targetSwitchExpressions.push(se);
 			}
 			@Override
 			public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
-				return false;
+				if (switchExpression.resultExpressions == null)
+					switchExpression.resultExpressions = new ArrayList<>(0);
+				this.targetSwitchExpressions.push(switchExpression);
+				return true;
+			}
+			@Override
+			public void endVisit(SwitchExpression switchExpression,	BlockScope blockScope) {
+				this.targetSwitchExpressions.pop();
 			}
 			@Override
 			public boolean visit(BreakStatement breakStatement, BlockScope blockScope) {
+				SwitchExpression targetSwitchExpression = this.targetSwitchExpressions.peek();
 				if (breakStatement.expression != null) {
-					this.targetSwitchExpression.resultExpressions.add(breakStatement.expression);
-					breakStatement.switchExpression = this.targetSwitchExpression;
+					targetSwitchExpression.resultExpressions.add(breakStatement.expression);
+					breakStatement.switchExpression = this.targetSwitchExpressions.peek();
 					breakStatement.label = null; // not a label, but an expression
 					if (breakStatement.expression instanceof SingleNameReference) {
 						((SingleNameReference) breakStatement.expression).isLabel = false;
 					}
 				} else {
 					// flag an error while resolving
-					breakStatement.switchExpression = this.targetSwitchExpression;
+					breakStatement.switchExpression = targetSwitchExpression;
 				}
-				return false;
+				return true;
 			}
 			@Override
 			public boolean visit(DoStatement stmt, BlockScope blockScope) {
@@ -671,5 +682,20 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	@Override
 	public TypeBinding expectedType() {
 		return this.expectedType;
+	}
+	@Override
+	public void traverse(
+			ASTVisitor visitor,
+			BlockScope blockScope) {
+
+		if (visitor.visit(this, blockScope)) {
+			this.expression.traverse(visitor, blockScope);
+			if (this.statements != null) {
+				int statementsLength = this.statements.length;
+				for (int i = 0; i < statementsLength; i++)
+					this.statements[i].traverse(visitor, this.scope);
+			}
+		}
+		visitor.endVisit(this, blockScope);
 	}
 }
