@@ -206,7 +206,10 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	}
 	@Override
 	protected void statementGenerateCode(BlockScope currentScope, CodeStream codeStream, Statement statement) {
-		if (!(statement instanceof Expression)) {
+		if (!(statement instanceof Expression)
+				|| statement instanceof Assignment
+				|| statement instanceof MessageSend
+				|| (statement instanceof SwitchStatement && !(statement instanceof SwitchExpression))) {
 			super.statementGenerateCode(currentScope, codeStream, statement);
 			return;
 		}

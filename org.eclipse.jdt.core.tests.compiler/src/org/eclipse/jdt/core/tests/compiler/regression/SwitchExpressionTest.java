@@ -1968,4 +1968,109 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			null,
 			new String[] {"--enable-preview"});
 	}
+	public void testBug544458() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static int foo(int i) {\n" + 
+					"		boolean v = switch (i) {\n" + 
+					"			case 1: i = 10; break true;\n" + 
+					"			default: break false;\n" + 
+					"		};\n" + 
+					"		return v ? 0 : 1;\n" + 
+					"	}\n" + 
+					"	public static void main(String[] argv) {\n" + 
+					"		System.out.println(X.foo(0));\n" + 
+					"	}\n" + 
+					"}"
+			},
+			"1",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug544458_2() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static int foo(int i) {\n" + 
+					"		boolean v = switch (i) {\n" + 
+					"			case 1: i++; break true;\n" + 
+					"			default: break false;\n" + 
+					"		};\n" + 
+					"		return v ? 0 : 1;\n" + 
+					"	}\n" + 
+					"	public static void main(String[] argv) {\n" + 
+					"		System.out.println(X.foo(1));\n" + 
+					"	}\n" + 
+					"}"
+			},
+			"0",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug544458_3() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static int foo(int i) {\n" + 
+					"		boolean v = switch (i) {\n" + 
+					"			case 1: i+= 10; break true;\n" + 
+					"			default: break false;\n" + 
+					"		};\n" + 
+					"		return v ? 0 : 1;\n" + 
+					"	}\n" + 
+					"	public static void main(String[] argv) {\n" + 
+					"		System.out.println(X.foo(1));\n" + 
+					"	}\n" + 
+					"}"
+			},
+			"0",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug544458_4() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static int foo(int i) {\n" + 
+					"		boolean v = switch (i) {\n" + 
+					"			case 1: switch(i) {case 4: break;}; break true;\n" + 
+					"			default: break false;\n" + 
+					"		};\n" + 
+					"		return v ? 0 : 1;\n" + 
+					"	}\n" + 
+					"	public static void main(String[] argv) {\n" + 
+					"		System.out.println(X.foo(1));\n" + 
+					"	}\n" + 
+					"}"
+			},
+			"0",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug544458_5() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static int foo(int i) {\n" + 
+					"		boolean v = switch (i) {\n" + 
+					"			case 1: foo(5); break true;\n" + 
+					"			default: break false;\n" + 
+					"		};\n" + 
+					"		return v ? 0 : 1;\n" + 
+					"	}\n" + 
+					"	public static void main(String[] argv) {\n" + 
+					"		System.out.println(X.foo(1));\n" + 
+					"	}\n" + 
+					"}"
+			},
+			"0",
+			null,
+			new String[] {"--enable-preview"});
+	}
 }
