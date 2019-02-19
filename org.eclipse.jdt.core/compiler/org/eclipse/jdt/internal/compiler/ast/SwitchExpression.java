@@ -434,7 +434,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			}
 
 			if (resultExpressionsCount == 1)
-				return this.originalValueResultExpressionTypes[0];
+				return this.resolvedType = this.originalValueResultExpressionTypes[0];
 
 			boolean typeUniformAcrossAllArms = true;
 			TypeBinding tmp = this.originalValueResultExpressionTypes[0];
