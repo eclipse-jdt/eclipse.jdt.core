@@ -532,6 +532,10 @@ public class SwitchStatement extends Expression {
 	}
 
 	@Override
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		generateCode(currentScope, codeStream); // redirecting to statement part
+	}
+	@Override
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 
 		printIndent(indent, output).append("switch ("); //$NON-NLS-1$
