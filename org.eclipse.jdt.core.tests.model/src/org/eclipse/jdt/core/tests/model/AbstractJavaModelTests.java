@@ -78,6 +78,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected String endChar = ",";
 
 	protected static boolean isJRE9 = false;
+	protected static boolean isJRE10 = false;
 	protected static boolean isJRE11 = false;
 	protected static boolean isJRE12 = false;
 	protected static String DEFAULT_MODULES = null;
@@ -98,6 +99,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		if (jdkLevel >= ClassFileConstants.JDK11) {
 			isJRE11 = true;
+		}
+		if (jdkLevel >= ClassFileConstants.JDK10) {
+			isJRE10 = true;
 		}
 		if (jdkLevel >= ClassFileConstants.JDK9) {
 			isJRE9 = true;

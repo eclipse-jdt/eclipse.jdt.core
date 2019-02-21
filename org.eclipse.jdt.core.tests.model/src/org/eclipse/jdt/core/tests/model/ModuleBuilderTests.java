@@ -701,7 +701,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testConvertToModule() throws CoreException, IOException {
-		if (!isJRE11) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
 			IJavaProject project = setUpJavaProject("ConvertToModule", JavaCore.VERSION_9);
@@ -719,8 +718,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			String[] modules = JavaCore.getReferencedModules(project);
 			if (isJRE12)
 				assertStringsEqual("incorrect result", new String[]{"java.desktop", "java.rmi", "java.sql"}, modules);
-			else
+			else if (isJRE11)
 				assertStringsEqual("incorrect result", new String[]{"java.datatransfer", "java.desktop", "java.net.http", "java.rmi", "java.sql"}, modules);
+			else if (isJRE10)
+				assertStringsEqual("incorrect result", new String[]{"java.datatransfer", "java.desktop", "java.rmi", "java.sql"}, modules);
+			else // 9
+				assertStringsEqual("incorrect result", new String[]{"java.desktop", "java.rmi", "java.sql"}, modules);
 		} finally {
 			this.deleteProject("ConvertToModule");
 			 JavaCore.setOptions(javaCoreOptions);
@@ -6176,7 +6179,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testBug526054() throws Exception {
-		if (!isJRE9 || isJRE12) return;
+		if (!isJRE9) return;
 		ClasspathJrt.resetCaches();
 		try {
 			// jdk.rmic is not be visible to code in an unnamed module, but using requires we can see the module.
@@ -8168,6 +8171,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 			waitForAutoBuild();
 			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
 							"Multi-catch parameters are not allowed for source level below 1.7\n" + 
 							"The exception FileNotFoundException is already caught by the alternative IOException",  markers);
@@ -8210,6 +8214,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption9() throws Exception {
+		if (!isJRE10) return;
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_10);
@@ -8256,15 +8261,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 			waitForAutoBuild();
 			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			String expected = isJRE12 ?
+			sortMarkers(markers);
+			String expected =
 					"Syntax error on token \"module\", package expected\n" + 
 					"Syntax error on token(s), misplaced construct(s)\n" + 
 					"Syntax error on token \".\", , expected\n" + 
-					"Syntax error on token \"}\", delete this token" :
-						"Syntax error on token \"module\", package expected\n" + 
-						"Syntax error on token(s), misplaced construct(s)\n" + 
-						"Syntax error on token \".\", , expected\n" + 
-						"Syntax error on token \"}\", delete this token";
+					"Syntax error on token \"}\", delete this token";
 			assertMarkers("Unexpected markers",
 							expected,  markers);
 
