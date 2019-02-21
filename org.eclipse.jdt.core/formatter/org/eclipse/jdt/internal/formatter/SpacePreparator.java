@@ -386,10 +386,21 @@ public class SpacePreparator extends ASTVisitor {
 			handleToken(node, TokenNameCOLON, this.options.insert_space_before_colon_in_default, false);
 		} else {
 			handleToken(node, TokenNamecase, false, true);
-			handleToken(node.getExpression(), TokenNameCOLON, this.options.insert_space_before_colon_in_case, false);
+			handleToken(getSwitchExpression(node), TokenNameCOLON, this.options.insert_space_before_colon_in_case, false);
 		}
 		return true;
 	}
+
+	/**
+	 * 
+	 * @param node
+	 * @return expression
+	 * @deprecated
+	 */
+	private Expression getSwitchExpression(SwitchCase node) {
+		return node.getExpression();
+	}
+	 
 
 	@Override
 	public boolean visit(DoStatement node) {

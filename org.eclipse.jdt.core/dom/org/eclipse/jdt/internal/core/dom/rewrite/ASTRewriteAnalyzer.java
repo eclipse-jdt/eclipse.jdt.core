@@ -117,6 +117,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 	/** @deprecated using deprecated code */
 	private static final ChildListPropertyDescriptor INTERNAL_TRY_STATEMENT_RESOURCES_PROPERTY = TryStatement.RESOURCES_PROPERTY;
+	
+	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_SWITCH_EXPRESSION_PROPERTY = SwitchCase.EXPRESSION_PROPERTY;
 
 	/** @deprecated using deprecated code */
 	private static final int JLS2_INTERNAL = AST.JLS2;
@@ -3409,7 +3412,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		// dont allow switching from case to default or back. New statements should be created.
-		rewriteRequiredNode(node, SwitchCase.EXPRESSION_PROPERTY);
+		rewriteRequiredNode(node, INTERNAL_SWITCH_EXPRESSION_PROPERTY);
 		return false;
 	}
 

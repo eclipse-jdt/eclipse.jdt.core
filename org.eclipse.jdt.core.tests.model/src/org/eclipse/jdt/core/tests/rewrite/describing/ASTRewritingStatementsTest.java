@@ -3562,6 +3562,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	}
 
 
+	@SuppressWarnings("deprecation")
 	public void testSwitchStatement() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
@@ -3691,6 +3692,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	}
 	
+	@SuppressWarnings("deprecation")
 	public void testSwitchStatement2() throws Exception {
 		String previousValue = null;
 		try {
@@ -4050,6 +4052,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=246627
 	 * Replace a statement preceded by an unchanged statement)
 	 */
+	@SuppressWarnings("deprecation")
 	public void testSwitchStatement7() throws Exception {
 		String previousValue = null;
 		try {
@@ -4192,6 +4195,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=246627
 	 * Remove a statement followed by an inserted statement)
 	 */
+	@SuppressWarnings("deprecation")
 	public void testSwitchStatement9() throws Exception {
 		String previousValue = null;
 		try {

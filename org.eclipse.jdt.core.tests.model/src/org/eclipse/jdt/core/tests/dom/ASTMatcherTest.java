@@ -1206,6 +1206,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		x1.setName(this.N2);
 		basicMatch(x1);
 	}
+	@SuppressWarnings("deprecation")
 	public void testSwitchCase() {
 		SwitchCase x1 = this.ast.newSwitchCase();
 		x1.setExpression(this.E1);

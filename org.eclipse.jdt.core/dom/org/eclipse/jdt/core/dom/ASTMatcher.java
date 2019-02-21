@@ -2275,9 +2275,19 @@ public class ASTMatcher {
 		SwitchCase o = (SwitchCase) other;
 		return ( node.getAST().apiLevel >= AST.JLS12_INTERNAL
 				? safeSubtreeListMatch(node.getExpressions(), o.getExpressions())
-						: safeSubtreeMatch(node.getExpression(), o.getExpression()));
+						: compareDeprecatedSwitchExpression(node, o));
 	}
 	
+	/**
+	 * Return whether the deprecated comment strings of the given java doc are equals.
+	 * <p>
+	 * Note the only purpose of this method is to hide deprecated warnings.
+	 * @deprecated mark deprecated to hide deprecated usage
+	 */
+	private boolean compareDeprecatedSwitchExpression(SwitchCase first, SwitchCase second) {
+		return safeSubtreeMatch(first.getExpression(), second.getExpression());
+	}
+
 	/**
 	 * Returns whether the given node and the other object match.
 	 * <p>

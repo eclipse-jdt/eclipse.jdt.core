@@ -364,7 +364,15 @@ class ASTConverter {
 			spanningNode.setFlags(spanningNode.getFlags() | ASTNode.MALFORMED);
 		}
 	}
-
+	/**
+	 * Internal access method to SwitchCase#setExpression() for avoiding deprecated warnings
+	 * @param switchCase
+	 * @param exp
+	 * @deprecated
+	 */
+	private static void internalSetExpression(SwitchCase switchCase, Expression exp) {
+		switchCase.setExpression(exp);
+	}
 	/** 
 	 * Internal access method to SingleVariableDeclaration#setExtraDimensions() for avoiding deprecated warnings
 	 *
@@ -1311,9 +1319,9 @@ class ASTConverter {
 		} else {
 			org.eclipse.jdt.internal.compiler.ast.Expression constantExpression = statement.constantExpression;
 			if (constantExpression == null) {
-				switchCase.setExpression(null);
+				internalSetExpression(switchCase, null);
 			} else {
-				switchCase.setExpression(convert(constantExpression));
+				internalSetExpression(switchCase, convert(constantExpression));
 			}
 		}
 		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {

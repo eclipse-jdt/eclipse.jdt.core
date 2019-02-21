@@ -1532,12 +1532,18 @@ public class NaiveASTFlattener extends ASTVisitor {
 				this.buffer.append("default :\n");//$NON-NLS-1$
 			} else {
 				this.buffer.append("case ");//$NON-NLS-1$
-				node.getExpression().accept(this);
+				getSwitchExpression(node).accept(this);
 				this.buffer.append(":\n");//$NON-NLS-1$
 			}
 		}
 		this.indent++; //decremented in visit(SwitchStatement)
 		return false;
+	}
+	/**
+	 * @deprecated
+	 */
+	private Expression getSwitchExpression(SwitchCase node) {
+		return node.getExpression();
 	}
 
 	private void visitSwitchNode(ASTNode node) {

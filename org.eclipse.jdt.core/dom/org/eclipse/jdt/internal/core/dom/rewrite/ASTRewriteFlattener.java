@@ -76,6 +76,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	private static final ChildListPropertyDescriptor INTERNAL_TRY_STATEMENT_RESOURCES_PROPERTY = TryStatement.RESOURCES_PROPERTY;
 
 	/** @deprecated using deprecated code */
+	private static final ChildPropertyDescriptor INTERNAL_SWITCH_EXPRESSION_PROPERTY = SwitchCase.EXPRESSION_PROPERTY;
+
+	/** @deprecated using deprecated code */
 	private static final int JLS2_INTERNAL = AST.JLS2;
 
 	/** @deprecated using deprecated code */
@@ -959,7 +962,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		ASTNode expression= getChildNode(node, SwitchCase.EXPRESSION_PROPERTY);
+		ASTNode expression= getChildNode(node, INTERNAL_SWITCH_EXPRESSION_PROPERTY);
 		if (expression == null) {
 			this.result.append("default"); //$NON-NLS-1$
 		} else {

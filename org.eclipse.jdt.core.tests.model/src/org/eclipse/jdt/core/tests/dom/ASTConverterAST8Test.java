@@ -2072,6 +2072,7 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 	/**
 	 * SwitchStatement ==> SwitchStatement
 	 */
+	@SuppressWarnings("deprecation")
 	public void test0097() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0097", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
