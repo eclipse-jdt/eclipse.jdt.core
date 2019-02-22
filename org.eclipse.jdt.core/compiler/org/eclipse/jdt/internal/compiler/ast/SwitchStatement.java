@@ -515,12 +515,15 @@ public class SwitchStatement extends Expression {
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd, true);
 				defaultLabel.place();
 			}
-			if (this.expectedType() != null) {
-				TypeBinding expectedType = this.expectedType().erasure();
+			if (this instanceof SwitchExpression) {
+				TypeBinding switchResolveType = this.resolvedType;
+				if (this.expectedType() != null) {
+					switchResolveType = this.expectedType().erasure();
+				}
 				boolean optimizedGoto = codeStream.lastAbruptCompletion == -1;
 				// if the last bytecode was an optimized goto (value is already on the stack) or an enum switch without default case, then we need to adjust the 
 				// stack depth to reflect the fact that there is an value on the stack (return type of the switch expression)
-				codeStream.recordExpressionType(expectedType, optimizedGoto ? 0 : 1, optimizedGoto || isEnumSwitchWithoutDefaultCase);
+				codeStream.recordExpressionType(switchResolveType, optimizedGoto ? 0 : 1, optimizedGoto || isEnumSwitchWithoutDefaultCase);
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
