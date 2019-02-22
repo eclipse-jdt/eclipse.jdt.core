@@ -84,6 +84,31 @@ public class SwitchStatement extends Expression {
 	private LocalVariableBinding dispatchStringCopy = null;
 
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
+		if (this.switchLabeledRules) {
+			if (stmt instanceof Expression || stmt instanceof ThrowStatement)
+				return BREAKING;
+			
+			if (stmt instanceof Block) {
+				Block block = (Block) stmt;
+				if (block.doesNotCompleteNormally()) {
+					return BREAKING;
+				}
+				// else add an implicit break
+				BreakStatement breakStatement = new BreakStatement(null, block.sourceEnd -1, block.sourceEnd);
+				breakStatement.isImplicit = true;
+
+				int l = block.statements == null ? 0 : block.statements.length;
+				if (l == 0) {
+					block.statements = new Statement[] {breakStatement};
+				} else {
+					Statement[] newArray = new Statement[l + 1];
+					System.arraycopy(block.statements, 0, newArray, 0, l);
+					newArray[l] = breakStatement;
+					block.statements = newArray;
+				}
+				return BREAKING;
+			}
+		}
 		return FALLTHROUGH;
 	}
 	protected void completeNormallyCheck(BlockScope blockScope) {
