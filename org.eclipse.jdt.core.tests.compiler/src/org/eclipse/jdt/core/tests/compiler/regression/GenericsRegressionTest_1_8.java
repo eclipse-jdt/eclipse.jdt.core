@@ -9585,4 +9585,47 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug545082a() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"Test.java",
+			"import java.util.stream.Collectors;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args)\n" + 
+			"	{\n" + 
+			"	  println(Stream.of(42).collect(Collectors.summingDouble(d -> d))); \n" + 
+			"	}\n" + 
+			"	public static void println(double x) {}\n" + 
+			"	public static void println(char[] x) {}\n" + 
+			"	public static void println(String x) {}\n" + 
+			"	public static void println(Object x) {} \n" + 
+			"}\n"
+		};
+		runner.runConformTest();
+	}
+	public void testBug545082b() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"Test.java",
+			"import java.util.stream.Collectors;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"public class Test {\n" +
+			"	char[] f;" + 
+			"	public void test() {\n" + 
+			"	  f = Stream.of(42).collect(Collectors.summingDouble(d -> d)); \n" + 
+			"	}\n" + 
+			"}\n"
+		};
+		runner.expectedCompilerLog =
+				"----------\n" + 
+				"1. ERROR in Test.java (at line 6)\n" + 
+				"	f = Stream.of(42).collect(Collectors.summingDouble(d -> d)); \n" + 
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Type mismatch: cannot convert from Double to char[]\n" + 
+				"----------\n";
+		runner.runNegativeTest();
+	}
 }

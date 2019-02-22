@@ -81,7 +81,7 @@ public class InferenceSubstitution extends Scope.Substitutor implements Substitu
 	public TypeBinding substitute(Substitution substitution, TypeBinding originalType) {
 		for (int i = 0; i < this.variables.length; i++) {
 			InferenceVariable variable = this.variables[i];
-			if (isInSites(variable.site) && isSameParameter(getP(i), originalType)) {
+			if (variable.isFromInitialSubstitution && isInSites(variable.site) && isSameParameter(getP(i), originalType)) {
 				if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled && originalType.hasNullTypeAnnotations())
 					return this.environment.createAnnotatedType(variable.withoutToplevelNullAnnotation(), originalType.getTypeAnnotations());
 				return variable;

@@ -102,6 +102,8 @@ public class CaptureBinding18 extends CaptureBinding {
 				return erasures[0];
 			return this.environment.createIntersectionType18(erasures);
 		}
+		if (this.superclass == null)
+			return this.environment.getType(TypeConstants.JAVA_LANG_OBJECT);
 		return super.erasure();
 	}
 
