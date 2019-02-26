@@ -218,6 +218,8 @@ public class BreakStatement extends Statement {
 	 * @since 3.17 BETA_JAVA_12
 	 */
 	public Expression getExpression() {
+		// optionalExpression can be null
+		unsupportedBelow12();
 		return this.optionalExpression;
 	}
 
@@ -234,6 +236,7 @@ public class BreakStatement extends Statement {
 	 * @since 3.17 BETA_JAVA_12
 	 */
 	public void setExpression(Expression expression) {
+		unsupportedBelow12();
 		ASTNode oldChild = this.optionalExpression;
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.optionalExpression = expression;
