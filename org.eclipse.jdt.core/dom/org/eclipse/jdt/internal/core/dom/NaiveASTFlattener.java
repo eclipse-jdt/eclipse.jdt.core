@@ -1500,30 +1500,16 @@ public class NaiveASTFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(SwitchCase node) {
 		if (node.getAST().apiLevel() >= JLS12) {
-			if (!node.expressions().isEmpty()) {
+			if (node.isDefault()) {
+				this.buffer.append("default");//$NON-NLS-1$
+				this.buffer.append(node.isSwitchLabeledRule() ? "->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				this.buffer.append("case ");//$NON-NLS-1$
 				for (Iterator it = node.expressions().iterator(); it.hasNext(); ) {
 					Expression t = (Expression) it.next();
-					if (node.isDefault()) {
-						if (node.isSwitchLabeledRule()) {
-							this.buffer.append("default ->\n");//$NON-NLS-1$
-						}
-						else {
-							this.buffer.append("default :\n");//$NON-NLS-1$
-						}
-					} else {
-						this.buffer.append("case ");//$NON-NLS-1$
 						t.accept(this);
-						if (it.hasNext()) {
-							this.buffer.append(", ");//$NON-NLS-1$
-						} else {
-							if (node.isSwitchLabeledRule()) {
-								this.buffer.append("->\n");//$NON-NLS-1$
-							}
-							else {
-								this.buffer.append(":\n");//$NON-NLS-1$
-							}
-						}
-					}
+						this.buffer.append(it.hasNext() ? ", " : //$NON-NLS-1$
+							node.isSwitchLabeledRule() ? "->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}

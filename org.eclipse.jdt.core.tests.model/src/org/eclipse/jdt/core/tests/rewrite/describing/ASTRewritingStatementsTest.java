@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -3607,12 +3611,19 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			assertTrue("Number of statements not 0", statements.size() == 0);
 
 			SwitchCase caseStatement1= ast.newSwitchCase();
-			caseStatement1.setExpression(ast.newNumberLiteral("1"));
+			if (this.apiLevel < AST.JLS12) {
+				caseStatement1.setExpression(ast.newNumberLiteral("1"));
+			}
+			else {
+				caseStatement1.expressions().add(ast.newNumberLiteral("1"));
+			}
 
 			Statement statement1= ast.newReturnStatement();
 
 			SwitchCase caseStatement2= ast.newSwitchCase(); // default
-			caseStatement2.setExpression(null);
+			if (this.apiLevel < AST.JLS12) {
+				caseStatement2.setExpression(null);
+			}
 
 			ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
 			listRewrite.insertLast(caseStatement1, null);
@@ -3635,14 +3646,25 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			// change case statement
 			SwitchCase caseStatement= (SwitchCase) statements.get(3);
 			Expression newCaseExpression= ast.newNumberLiteral("10");
-			rewrite.replace(caseStatement.getExpression(), newCaseExpression, null);
+			if (this.apiLevel < AST.JLS12) {
+				rewrite.replace(caseStatement.getExpression(), newCaseExpression, null);
+			} else {
+				List expressions = caseStatement.expressions();
+				ListRewrite listRewrite= rewrite.getListRewrite(caseStatement, SwitchCase.EXPRESSIONS2_PROPERTY);
+				listRewrite.replace((Expression)expressions.get(0), newCaseExpression, null);
+			}
 
 			ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
 
 			{
 				// insert case statement
 				SwitchCase caseStatement2= ast.newSwitchCase();
-				caseStatement2.setExpression(ast.newNumberLiteral("11"));
+				if (this.apiLevel < AST.JLS12) {
+					caseStatement2.setExpression(ast.newNumberLiteral("11"));
+				}
+				else {
+					caseStatement2.expressions().add(ast.newNumberLiteral("11"));
+				}
 				listRewrite.insertFirst(caseStatement2, null);
 
 				// insert statement
@@ -3653,7 +3675,12 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			{
 				// insert case statement
 				SwitchCase caseStatement2= ast.newSwitchCase();
-				caseStatement2.setExpression(ast.newNumberLiteral("12"));
+				if (this.apiLevel < AST.JLS12) {
+					caseStatement2.setExpression(ast.newNumberLiteral("12"));
+				}
+				else {
+					caseStatement2.expressions().add(ast.newNumberLiteral("12"));
+				}
 				listRewrite.insertLast(caseStatement2, null);
 
 				// insert statement
@@ -3743,12 +3770,19 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				assertTrue("Number of statements not 0", statements.size() == 0);
 	
 				SwitchCase caseStatement1= ast.newSwitchCase();
-				caseStatement1.setExpression(ast.newNumberLiteral("1"));
+				if (this.apiLevel < AST.JLS12) {
+					caseStatement1.setExpression(ast.newNumberLiteral("1"));
+				}
+				else {
+					caseStatement1.expressions().add(ast.newNumberLiteral("1"));
+				}
 	
 				Statement statement1= ast.newReturnStatement();
 	
 				SwitchCase caseStatement2= ast.newSwitchCase(); // default
-				caseStatement2.setExpression(null);
+				if (this.apiLevel < AST.JLS12) {
+					caseStatement2.setExpression(null);
+				}
 	
 				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
 				listRewrite.insertLast(caseStatement1, null);
@@ -3771,14 +3805,26 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				// change case statement
 				SwitchCase caseStatement= (SwitchCase) statements.get(3);
 				Expression newCaseExpression= ast.newNumberLiteral("10");
-				rewrite.replace(caseStatement.getExpression(), newCaseExpression, null);
+				if (this.apiLevel < AST.JLS12) {
+					rewrite.replace(caseStatement.getExpression(), newCaseExpression, null);
+				} else {
+					List expressions = caseStatement.expressions();
+					ListRewrite listRewrite2= rewrite.getListRewrite(caseStatement, SwitchCase.EXPRESSIONS2_PROPERTY);
+					listRewrite2.replace((Expression)expressions.get(0), newCaseExpression, null);
+				}
 	
 				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
 	
 				{
 					// insert case statement
 					SwitchCase caseStatement2= ast.newSwitchCase();
-					caseStatement2.setExpression(ast.newNumberLiteral("11"));
+					if (this.apiLevel < AST.JLS12) {
+						caseStatement2.setExpression(ast.newNumberLiteral("11"));
+					}
+					else {
+						caseStatement2.expressions().add(ast.newNumberLiteral("11"));
+						
+					}
 					listRewrite.insertFirst(caseStatement2, null);
 	
 					// insert statement
@@ -3789,7 +3835,12 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				{
 					// insert case statement
 					SwitchCase caseStatement2= ast.newSwitchCase();
-					caseStatement2.setExpression(ast.newNumberLiteral("12"));
+					if (this.apiLevel < AST.JLS12) {
+						caseStatement2.setExpression(ast.newNumberLiteral("12"));
+					}
+					else {
+						caseStatement2.expressions().add(ast.newNumberLiteral("12"));
+					}
 					listRewrite.insertLast(caseStatement2, null);
 	
 					// insert statement
@@ -4095,7 +4146,12 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				ExpressionStatement assignment = (ExpressionStatement)statements.get(1); // i= 1;:
 				
 				SwitchCase switchCase = ast.newSwitchCase();
-				switchCase.setExpression(ast.newNumberLiteral("2"));
+				if (this.apiLevel < AST.JLS12) {
+					switchCase.setExpression(ast.newNumberLiteral("2"));
+				}
+				else {
+					switchCase.expressions().add(ast.newNumberLiteral("2"));
+				}
 				
 				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
 				listRewrite.replace(assignment, switchCase, null);
@@ -4238,7 +4294,12 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				ExpressionStatement assignment = (ExpressionStatement)statements.get(1); // i= 1;
 				
 				SwitchCase switchCase = ast.newSwitchCase();
-				switchCase.setExpression(ast.newNumberLiteral("2"));
+				if (this.apiLevel < AST.JLS12) {
+					switchCase.setExpression(ast.newNumberLiteral("2"));
+				}
+				else {
+					switchCase.expressions().add(ast.newNumberLiteral("2"));
+				}
 				
 				ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
 				listRewrite.remove(assignment, null);

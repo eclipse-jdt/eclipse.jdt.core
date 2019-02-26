@@ -135,6 +135,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 	/** @deprecated using deprecated code */
 	private static final int JLS9_INTERNAL = AST.JLS9;
+	
+	private static final int JLS12_INTERNAL = AST.JLS12;
 
 
 	TextEdit currentEdit;
@@ -1039,6 +1041,60 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		return pos;
 	}
+	
+	private int rewriteExpressionOptionalQualifier(SwitchCase parent, StructuralPropertyDescriptor property, int startPos) {
+		RewriteEvent event= getEvent(parent, property);
+		if (event != null) {
+			switch (event.getChangeKind()) {
+				case RewriteEvent.INSERTED: {
+					ASTNode node= (ASTNode) event.getNewValue();
+					TextEditGroup editGroup= getEditGroup(event);
+					doTextInsert(startPos, node, getIndent(startPos), true, editGroup);
+					doTextInsert(startPos, ".", editGroup); //$NON-NLS-1$
+					return startPos;
+				}
+				case RewriteEvent.REMOVED: {
+					try {
+						ASTNode node= (ASTNode) event.getOriginalValue();
+						TextEditGroup editGroup= getEditGroup(event);
+						int dotEnd= getScanner().getTokenEndOffset(TerminalTokens.TokenNameCOLON, node.getStartPosition() + node.getLength());
+						doTextRemoveAndVisit(startPos, dotEnd - startPos, node, editGroup);
+						return dotEnd;
+					} catch (CoreException e) {
+						handleException(e);
+					}
+					break;
+				}
+				case RewriteEvent.REPLACED: {
+					ASTNode node= (ASTNode) event.getOriginalValue();
+					TextEditGroup editGroup= getEditGroup(event);
+					SourceRange range= getExtendedRange(node);
+					int offset= range.getStartPosition();
+					int length= range.getLength();
+
+					doTextRemoveAndVisit(offset, length, node, editGroup);
+					doTextInsert(offset, (ASTNode) event.getNewValue(), getIndent(startPos), true, editGroup);
+					try {
+						return getScanner().getTokenEndOffset(TerminalTokens.TokenNameCOLON, offset + length);
+					} catch (CoreException e) {
+						handleException(e);
+					}
+					break;
+				}
+			}
+		}
+		Object node= getOriginalValue(parent, property);
+		if (node == null) {
+			return startPos;
+		}
+		int pos= doVisit((ASTNode) node);
+		try {
+			return getScanner().getTokenEndOffset(TerminalTokens.TokenNameCOLON, pos);
+		} catch (CoreException e) {
+			handleException(e);
+		}
+		return pos;
+	}
 
 	class ParagraphListRewriter extends ListRewriter {
 
@@ -1546,7 +1602,48 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 	}
 
+	private int rewriteExpression2(ASTNode node, ChildListPropertyDescriptor property, int pos) {
+		RewriteEvent event= getEvent(node, property);
+		if (event == null || event.getChangeKind() == RewriteEvent.UNCHANGED) {
+			return doVisit(node, property, pos);
+		}
+		RewriteEvent[] children= event.getChildren();
+		boolean isAllInsert= isAllOfKind(children, RewriteEvent.INSERTED);
+		boolean isAllRemove= isAllOfKind(children, RewriteEvent.REMOVED);
+		String keyword= Util.EMPTY_STRING;
+		if (((SwitchCase)node).isSwitchLabeledRule()) {
+			keyword = "->"; //$NON-NLS-1$
+		} else {
+			keyword = ":"; //$NON-NLS-1$
+		}
 
+		Prefix formatterPrefix = this.formatter.CASE_SEPARATION;
+
+		int endPos= new ModifierRewriter(formatterPrefix).rewriteList(node, property, pos, keyword, " "); //$NON-NLS-1$ 
+
+		try {
+			int nextPos= getScanner().getNextStartOffset(endPos, false);
+			RewriteEvent lastChild = children[children.length - 1];
+			boolean lastUnchanged= lastChild.getChangeKind() != RewriteEvent.UNCHANGED;
+
+			if (isAllRemove) {
+				doTextRemove(endPos, nextPos - endPos, getEditGroup(lastChild));
+				return nextPos;
+			} else if (isAllInsert || (nextPos == endPos && lastUnchanged)){
+				String separator;
+				if (lastChild.getNewValue() instanceof Annotation) {
+					separator= formatterPrefix.getPrefix(getIndent(pos));
+				} else {
+					separator= String.valueOf(' '); //$NON-NLS-1$
+				}
+				doTextInsert(endPos, separator, getEditGroup(lastChild));
+			}
+		} catch (CoreException e) {
+			handleException(e);
+		}
+		return endPos;
+	}
+	
 	private int rewriteModifiers2(ASTNode node, ChildListPropertyDescriptor property, int pos) {
 		RewriteEvent event= getEvent(node, property);
 		if (event == null || event.getChangeKind() == RewriteEvent.UNCHANGED) {
@@ -3416,7 +3513,19 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		// dont allow switching from case to default or back. New statements should be created.
-		rewriteRequiredNode(node, INTERNAL_SWITCH_EXPRESSION_PROPERTY);
+		if (node.getAST().apiLevel() >= JLS12_INTERNAL) {
+		//	rewriteExpression2(node, SwitchCase.EXPRESSIONS2_PROPERTY, node.getStartPosition()); 
+			String keyword = Util.EMPTY_STRING;
+			if (node.isSwitchLabeledRule()) {
+				keyword = "->"; //$NON-NLS-1$
+			} else {
+				keyword = ":"; //$NON-NLS-1$
+			}
+			rewriteNodeList(node, SwitchCase.EXPRESSIONS2_PROPERTY, node.getStartPosition(), keyword, ", "); //$NON-NLS-1$
+		} else {
+			rewriteExpressionOptionalQualifier(node, SwitchCase.EXPRESSION_PROPERTY, node.getStartPosition());
+		}		
+		
 		return false;
 	}
 
@@ -3514,6 +3623,37 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 	}
 
+	@Override
+	public boolean visit(SwitchExpression node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+
+		int pos= rewriteRequiredNode(node, SwitchExpression.EXPRESSION_PROPERTY);
+
+		ChildListPropertyDescriptor property= SwitchExpression.STATEMENTS_PROPERTY;
+		if (getChangeKind(node, property) != RewriteEvent.UNCHANGED) {
+			try {
+				pos= getScanner().getTokenEndOffset(TerminalTokens.TokenNameLBRACE, pos);
+				int insertIndent= getIndent(node.getStartPosition());
+				if (DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_SWITCHSTATEMENTS_COMPARE_TO_SWITCH))) {
+					insertIndent++;
+				}
+				
+				ParagraphListRewriter listRewriter= new SwitchListRewriter(insertIndent);
+				StringBuffer leadString= new StringBuffer();
+				leadString.append(getLineDelimiter());
+				leadString.append(createIndentString(insertIndent));
+				listRewriter.rewriteList(node, property, pos, leadString.toString());
+			} catch (CoreException e) {
+				handleException(e);
+			}
+		} else {
+			voidVisit(node, SwitchExpression.STATEMENTS_PROPERTY);
+		}
+		return false;
+	}
+	
 	@Override
 	public boolean visit(SwitchStatement node) {
 		if (!hasChildrenChanges(node)) {

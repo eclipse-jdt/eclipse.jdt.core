@@ -127,7 +127,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				System.out.println(System.getProperties());
 				fail("Unexpected java vm "+javaVersion+" "+vmName);
 			}
-			System.out.println("Recognized Java 9 version '"+javaVersion+"' with vm.name '"+vmName+"'");
+			System.out.println("Recognized Java version '"+javaVersion+"' with vm.name '"+vmName+"'");
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,11 +8,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.dom.rewrite;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.*;
@@ -92,6 +97,13 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	/** @deprecated using deprecated code */
 	private static final int JLS9_INTERNAL = AST.JLS9;
+	
+	/**
+	 * Internal synonym for {@link AST#JLS12}. Use to alleviate
+	 * deprecation warnings.
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	private static final int JLS12 = AST.JLS12;
 
 
 	public static String asString(ASTNode node, RewriteEventStore store) {
@@ -962,25 +974,61 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		ASTNode expression= getChildNode(node, INTERNAL_SWITCH_EXPRESSION_PROPERTY);
-		if (expression == null) {
-			this.result.append("default"); //$NON-NLS-1$
+		if (node.getAST().apiLevel() >= JLS12) {
+			if (node.isDefault()) {
+				this.result.append("default");//$NON-NLS-1$
+				this.result.append(node.isSwitchLabeledRule() ? "->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				this.result.append("case ");//$NON-NLS-1$
+				for (Iterator it = node.expressions().iterator(); it.hasNext(); ) {
+					Expression t = (Expression) it.next();
+						t.accept(this);
+						this.result.append(it.hasNext() ? ", " : //$NON-NLS-1$
+							node.isSwitchLabeledRule() ? "->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
 		} else {
-			this.result.append("case "); //$NON-NLS-1$
-			expression.accept(this);
+			ASTNode expression= getChildNode(node, SwitchCase.EXPRESSION_PROPERTY);
+			if (expression == null) {
+				this.result.append("default"); //$NON-NLS-1$
+			} else {
+				this.result.append("case "); //$NON-NLS-1$
+				expression.accept(this);
+			}
+			this.result.append(':');
 		}
-		this.result.append(':');
 		return false;
 	}
 
 	@Override
-	public boolean visit(SwitchStatement node) {
+	public boolean visit(SwitchExpression node) {
+		visitSwitchNode(node);
+		return false;
+	}
+	
+	private void visitSwitchNode(ASTNode node) {
 		this.result.append("switch ("); //$NON-NLS-1$
-		getChildNode(node, SwitchStatement.EXPRESSION_PROPERTY).accept(this);
+		if (node instanceof SwitchExpression) {
+			getChildNode(node, SwitchExpression.EXPRESSION_PROPERTY).accept(this);
+		}
+		else if (node instanceof SwitchStatement) {
+			getChildNode(node, SwitchStatement.EXPRESSION_PROPERTY).accept(this);
+		}
 		this.result.append(')');
 		this.result.append('{');
-		visitList(node, SwitchStatement.STATEMENTS_PROPERTY, null);
+		if (node instanceof SwitchExpression) {
+			visitList(node, SwitchExpression.STATEMENTS_PROPERTY, null);
+		}
+		else if (node instanceof SwitchStatement) {
+			visitList(node, SwitchStatement.STATEMENTS_PROPERTY, null);
+		}
+		
 		this.result.append('}');
+	}
+	
+	@Override
+	public boolean visit(SwitchStatement node) {
+		visitSwitchNode(node);
 		return false;
 	}
 
