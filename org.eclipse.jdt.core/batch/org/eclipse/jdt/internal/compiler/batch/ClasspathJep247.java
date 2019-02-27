@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2019 IBM Corporation.
+ * Copyright (c) 2018 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -42,15 +42,15 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClasspathJep247 extends ClasspathJrt {
 
-	protected java.nio.file.FileSystem fs = null;
-	protected String compliance = null;
-	protected long jdklevel;
-	protected String releaseInHex = null;
-	protected String[] subReleases = null;
-	protected Path releasePath = null;
-	protected Set<String> packageCache;
-	protected File jdkHome;
-	protected String modulePath = null;
+	private java.nio.file.FileSystem fs = null;
+	private String compliance = null;
+	private long jdklevel;
+	private String releaseInHex = null;
+	private String[] subReleases = null;
+	private Path releasePath = null;
+	private Set<String> packageCache;
+	File jdkHome;
+	String modulePath = null;
 
 	public ClasspathJep247(File jdkHome, String release, AccessRuleSet accessRuleSet) {
 		super(jdkHome, false, accessRuleSet, null);
