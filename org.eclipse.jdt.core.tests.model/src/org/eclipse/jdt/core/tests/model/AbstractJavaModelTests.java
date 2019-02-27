@@ -74,6 +74,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected String endChar = ",";
 
 	protected static boolean isJRE9 = false;
+	protected static boolean isJRE10 = false;
+	protected static boolean isJRE11 = false;
+	protected static boolean isJRE12 = false;
 	protected static String DEFAULT_MODULES = null;
 	static {
 		String javaVersion = System.getProperty("java.version");
@@ -87,6 +90,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK11) {
+			if (CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion, false) == 0) {
+				// version was capped to 11 during versionToJdkLevel(version, true)
+				isJRE12 = true;
+			}
+			isJRE11 = true;
+		}
+		if (jdkLevel >= ClassFileConstants.JDK10) {
+			isJRE10 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK9) {
 			isJRE9 = true;
 			if (vmName.contains("HotSpot")) {

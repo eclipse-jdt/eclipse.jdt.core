@@ -152,7 +152,7 @@ public static void removeProblemsAndTasksFor(IResource resource) {
 	}
 }
 
-public static State readState(IProject project, DataInputStream in) throws IOException {
+public static State readState(IProject project, DataInputStream in) throws IOException, CoreException {
 	return State.read(project, in);
 }
 
