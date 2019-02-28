@@ -159,7 +159,7 @@ public class SwitchCase extends Statement {
 	@Override
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == EXPRESSIONS2_PROPERTY ) {
-			return getExpressions();
+			return expressions();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
@@ -177,8 +177,8 @@ public class SwitchCase extends Statement {
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
 		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
-			result.getExpressions().addAll(
-				ASTNode.copySubtrees(target, getExpressions()));
+			result.expressions().addAll(
+				ASTNode.copySubtrees(target, expressions()));
 		} else {
 			result.setExpression(
 					(Expression) ASTNode.copySubtree(target, getExpression()));
@@ -232,9 +232,10 @@ public class SwitchCase extends Statement {
 	 * <code>empty</code> if there is none (the "default:" case).
 	 *
 	 * @return the expression node, or <code>expression</code> if there is none
+	 * @exception UnsupportedOperationException if this operation is used below JLS12
 	 * @since 3.17 BETA_JAVA_12
 	 */
-	public List getExpressions() {
+	public List expressions() {
 		if (this.expressions == null) {
 			unsupportedBelow12();
 		}
@@ -268,6 +269,7 @@ public class SwitchCase extends Statement {
 	 * <code>true</code> indicates "->" and <code>false</code> indicates ":".
 
 	 * @param switchLabeledRule <code>true</code> or </false>
+	 * @exception UnsupportedOperationException if this operation is used below JLS12
 	 * @since 3.17 BETA_JAVA_12
 	 */
 	public void setSwitchLabeledRule(boolean switchLabeledRule) {
@@ -280,6 +282,7 @@ public class SwitchCase extends Statement {
 	 *<code>true</code> indicates "->" and <code>false</code> indicates ":".
 	 *
 	 * @return switchLabeledRule <code>true</code> or </false>
+	 * @exception UnsupportedOperationException if this operation is used below JLS12
 	 * @since 3.17 BETA_JAVA_12
 	 */
 	public boolean isSwitchLabeledRule() {
@@ -299,7 +302,7 @@ public class SwitchCase extends Statement {
 	 */
 	public boolean isDefault()  {
 		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
-			return getExpressions().isEmpty();
+			return expressions().isEmpty();
 		}
 		return getExpression() == null;
 	}

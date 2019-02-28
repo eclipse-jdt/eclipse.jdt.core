@@ -1500,8 +1500,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(SwitchCase node) {
 		if (node.getAST().apiLevel() >= JLS12) {
-			if (!node.getExpressions().isEmpty()) {
-				for (Iterator it = node.getExpressions().iterator(); it.hasNext(); ) {
+			if (!node.expressions().isEmpty()) {
+				for (Iterator it = node.expressions().iterator(); it.hasNext(); ) {
 					Expression t = (Expression) it.next();
 					if (node.isDefault()) {
 						if (node.isSwitchLabeledRule()) {

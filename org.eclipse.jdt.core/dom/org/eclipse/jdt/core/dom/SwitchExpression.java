@@ -108,6 +108,7 @@ public class SwitchExpression extends Expression {
 	 * </p>
 	 *
 	 * @param ast the AST that is to own this node
+	 * @exception UnsupportedOperationException if this operation is used below JLS12
 	 */
 	SwitchExpression(AST ast) {
 		super(ast);

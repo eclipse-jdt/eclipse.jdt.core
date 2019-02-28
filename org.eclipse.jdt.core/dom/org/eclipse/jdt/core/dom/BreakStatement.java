@@ -215,6 +215,7 @@ public class BreakStatement extends Statement {
 	 * there is none.
 	 *
 	 * @return the expression, or <code>null</code> if there is none
+	 * @exception UnsupportedOperationException if this operation is used below JLS12
 	 * @since 3.17 BETA_JAVA_12
 	 */
 	public Expression getExpression() {
@@ -233,6 +234,7 @@ public class BreakStatement extends Statement {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used below JLS12
 	 * @since 3.17 BETA_JAVA_12
 	 */
 	public void setExpression(Expression expression) {

@@ -1310,10 +1310,10 @@ class ASTConverter {
 		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
 			org.eclipse.jdt.internal.compiler.ast.Expression[] expressions = statement.constantExpressions;
 			if (expressions == null || expressions.length == 0) {
-				switchCase.getExpressions().clear();
+				switchCase.expressions().clear();
 			} else {
 				for (org.eclipse.jdt.internal.compiler.ast.Expression expression : expressions) {
-					switchCase.getExpressions().add(convert(expression));
+					switchCase.expressions().add(convert(expression));
 				}
 			}
 		} else {
