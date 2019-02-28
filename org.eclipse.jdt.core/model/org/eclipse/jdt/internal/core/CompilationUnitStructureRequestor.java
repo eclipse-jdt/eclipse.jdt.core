@@ -48,7 +48,6 @@ import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
-import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 import org.eclipse.jdt.internal.core.util.Util;
 /**
@@ -84,13 +83,13 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	/*
 	 * A table from a handle (with occurenceCount == 1) to the current occurence count for this handle
 	 */
-	private HashtableOfObjectToInt occurenceCounts;
+	private HashMap<Object, Integer> occurenceCounts;
 
 	/*
 	 * A table to store the occurrence count of anonymous types. The key will be the handle to the
 	 * enclosing type of the anonymous.
 	 */
-	private HashtableOfObjectToInt localOccurrenceCounts;
+	private HashMap<Object, Integer> localOccurrenceCounts;
 
 	/**
 	 * Stack of parent scope info objects. The info on the
@@ -138,8 +137,8 @@ protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUn
 	this.unit = unit;
 	this.unitInfo = unitInfo;
 	this.newElements = newElements;
-	this.occurenceCounts = new HashtableOfObjectToInt();
-	this.localOccurrenceCounts = new HashtableOfObjectToInt(5);
+	this.occurenceCounts = new HashMap<>();
+	this.localOccurrenceCounts = new HashMap<>(5);
 }
 /**
  * @see ISourceElementRequestor
@@ -794,12 +793,12 @@ public void exitType(int declarationEnd) {
  * of the handle being created.
  */
 protected void resolveDuplicates(SourceRefElement handle) {
-	int occurenceCount = this.occurenceCounts.get(handle);
-	if (occurenceCount == -1)
-		this.occurenceCounts.put(handle, 1);
+	Integer occurenceCount = this.occurenceCounts.get(handle);
+	if (occurenceCount == null)
+		this.occurenceCounts.put(handle, Integer.valueOf(1));
 	else {
-		this.occurenceCounts.put(handle, ++occurenceCount);
-		handle.occurrenceCount = occurenceCount;
+		this.occurenceCounts.put(handle, Integer.valueOf(occurenceCount.intValue() + 1));
+		handle.occurrenceCount = occurenceCount.intValue() + 1;
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=342393
@@ -808,11 +807,11 @@ protected void resolveDuplicates(SourceRefElement handle) {
 	if (handle instanceof SourceType && ((SourceType) handle).isAnonymous()) {
 		Object key = handle.getParent().getAncestor(IJavaElement.TYPE);
 		occurenceCount = this.localOccurrenceCounts.get(key);
-		if (occurenceCount == -1)
-			this.localOccurrenceCounts.put(key, 1);
+		if (occurenceCount == null)
+			this.localOccurrenceCounts.put(key, Integer.valueOf(1));
 		else {
-			this.localOccurrenceCounts.put(key, ++occurenceCount);
-			((SourceType)handle).localOccurrenceCount = occurenceCount;
+			this.localOccurrenceCounts.put(key, Integer.valueOf(occurenceCount.intValue() + 1));
+			((SourceType)handle).localOccurrenceCount = occurenceCount.intValue() + 1;
 		}
 	}
 }
