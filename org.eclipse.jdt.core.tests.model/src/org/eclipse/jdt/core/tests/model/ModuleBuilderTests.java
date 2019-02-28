@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -41,7 +45,6 @@ import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -103,12 +106,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		deleteProject("P1");
 	}
 	
-	void addModularProjectEntry(IJavaProject project, IJavaProject depProject) throws JavaModelException {
-		addClasspathEntry(project, newModularProjectEntry(depProject));
-	}
-	IClasspathEntry newModularProjectEntry(IJavaProject depProject) {
-		return JavaCore.newProjectEntry(depProject.getPath(), null, false, moduleAttribute(), false);
-	}
 	// Test that the java.base found as a module package fragment root in the project 
 	public void test001() throws CoreException {
 		try {
@@ -703,8 +700,14 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void testConvertToModule() throws CoreException, IOException {
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
-			IJavaProject project = setUpJavaProject("ConvertToModule", JavaCore.VERSION_9);
-			assertEquals("9", project.getOption("org.eclipse.jdt.core.compiler.compliance", true));
+			IJavaProject project = setUpJavaProject("ConvertToModule");
+			Map<String, String> options = new HashMap<>();
+			// Make sure the new options map doesn't reset.
+			options.put(CompilerOptions.OPTION_Compliance, "9");
+			options.put(CompilerOptions.OPTION_Source, "9");
+			options.put(CompilerOptions.OPTION_TargetPlatform, "9");
+			options.put(CompilerOptions.OPTION_Release, "enabled");
+			project.setOptions(options);
 			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
 			IPackageFragmentRoot theRoot = null;
@@ -4408,6 +4411,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] {dep});
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("markers on com.greetings", 
+					"The package bundle.org conflicts with a package accessible from another module: org.astro",
+					markers);
+
 			src = new String[] { 
 				"src/module-info.java",
 				"module test {\n" +
@@ -4427,8 +4436,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			};
 			IClasspathEntry dep2 = JavaCore.newProjectEntry(p2.getPath(), null, false, new IClasspathAttribute[] {modAttr}, false);
 			IJavaProject p3 = setupModuleProject("test", src, new IClasspathEntry[] {dep, dep2});
-			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			p3.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", "", markers);
 		} finally {
 			this.deleteProject("test");
@@ -7946,6 +7955,108 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			File outputDir = new File(outputDirectory);
 			if (outputDir.exists())
 				Util.flushDirectoryContent(outputDir);
+		}
+	}
+
+	public void testBug544126() throws CoreException, IOException {
+		String outputDirectory = Util.getOutputDirectory();
+		IJavaProject p = createJava9Project("p");
+		try {
+			String jar1Path = outputDirectory + File.separator + "auto1Lib.jar";
+			createJar(
+					new String[] {
+						"org/test/Root.java",
+						"package org.test;\n" +
+						"public class Root {}\n"
+					},
+					jar1Path);
+			String jar2Path = outputDirectory + File.separator + "auto2Lib.jar";
+			createJar(
+					new String[] {
+						"org/test/ext/Ext.java",
+						"package org.test.ext;\n" +
+						"public class Ext {}\n"
+					},
+					jar2Path);
+			addModularLibraryEntry(p, new Path(jar1Path), null);
+			addModularLibraryEntry(p, new Path(jar2Path), null);
+			createFolder("p/src/test");
+			String testPath = "p/src/test/Test.java";
+			String testSource =
+					"package test;\n" +
+					"import org.test.Root;\n" + 
+					"public class Test {\n" + 
+					"    public static void main(String[] args) { \n" + 
+					"        System.out.println(new Root());\n" + 
+					"    }\n" + 
+					"}\n";
+			createFile(testPath, testSource);
+			createFile("p/src/module-info.java",
+					"module test {\n" + 
+					"    requires auto1Lib;\n" + 
+					"    requires auto2Lib;\n" + 
+					"}\n");
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+
+			this.problemRequestor.initialize(testSource.toCharArray());
+			getCompilationUnit(testPath).getWorkingCopy(this.wcOwner, null);
+			assertProblems("unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject(p);
+			File outputDir = new File(outputDirectory);
+			if (outputDir.exists())
+				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	
+	public void testBug544432() throws CoreException {
+		IJavaProject prjA = createJava9Project("A");
+		IJavaProject prjB = createJava9Project("B");
+		try {
+			createFolder("A/src/com/a");
+			createFile("A/src/com/a/A.java",
+				"package com.a;\n" + 
+				"\n" + 
+				"public class A {}\n");
+			createFile("A/src/module-info.java",
+				"open module com.a {\n" + 
+				"	exports com.a;\n" + 
+				"}\n");
+
+			addModularProjectEntry(prjB, prjA);
+			createFolder("B/src/com/a/b");
+			String bPath = "B/src/com/a/b/B.java";
+			String bSource =
+				"package com.a.b;\n" + 
+				"import com.a.A;\n" + 
+				"public class B {\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		A a = new A();\n" + 
+				"		System.out.println(a);\n" + 
+				"	}\n" + 
+				"}\n";
+			createFile(bPath, bSource);
+			createFile("B/src/module-info.java",
+				"open module com.a.b {\n" + 
+				"	requires com.a;\n" + 
+				"}\n");
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+
+			this.problemRequestor.initialize(bSource.toCharArray());
+			getCompilationUnit(bPath).getWorkingCopy(this.wcOwner, null);
+			assertProblems("unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject(prjA);
+			deleteProject(prjB);
 		}
 	}
 

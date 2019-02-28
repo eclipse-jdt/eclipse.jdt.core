@@ -936,7 +936,9 @@ protected static class JavacTestOptions {
 			JavacBug8044196 = RUN_JAVAC ? // likely https://bugs.openjdk.java.net/browse/JDK-8044196, intermittently masked by https://bugs.openjdk.java.net/browse/JDK-8029161
 				new JavacHasABug(MismatchType.EclipseErrorsJavacNone, ClassFileConstants.JDK9, 0000, true) : null,
 			JavacBug6337964 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=112433
-					new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK1_6, 1045/*guessed*/, true) : null;
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK1_6, 1045/*guessed*/, true) : null,
+			JavacBug8144832 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8144832
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0000) : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -958,9 +960,6 @@ protected static class JavacTestOptions {
 					ClassFileConstants.JDK9, 0100 /* 9.0.1 or better */) : null;
 		// bugs that have neither been fixed nor formally identified but which outcomes are obvious enough to clear any doubts
 		public static JavacHasABug
-			JavacGeneratesByteCodeUponWhichJavaThrowsAnException = RUN_JAVAC ?
-				new JavacHasABug(
-					MismatchType.StandardOutputMismatch) : null,
 			JavacThrowsAnException = RUN_JAVAC ? // some of these are transient - that is, depend on the system on which the test is run, aka stack overflow
 				new JavacHasABug(
 					MismatchType.JavacErrorsEclipseNone) : null,

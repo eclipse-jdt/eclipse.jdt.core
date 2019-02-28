@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 IBM Corporation and others.
+ * Copyright (c) 2017, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -364,4 +364,37 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 		}
 	}
 
+	public void testBug542106_since_9() throws Exception {
+		IJavaProject javaProject = null;
+		try {
+			javaProject = createProject("P_9", JavaCore.VERSION_9);
+			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
+			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
+			String content =
+					"import java.util.*;\n" +
+					"import java.util.function.Consumer;\n" +
+					"module first {\n" +
+					"}";
+			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", content, false, null);
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+			AST ast= astRoot.getAST();
+			ListRewrite listRewrite = rewrite.getListRewrite(astRoot, CompilationUnit.IMPORTS_PROPERTY);
+			{
+				listRewrite.remove((ImportDeclaration) astRoot.imports().get(0), null);
+				ImportDeclaration newImport = ast.newImportDeclaration();
+				newImport.setName(ast.newName("java.io.Serializable"));
+				listRewrite.insertFirst(newImport, null);
+			}
+			String preview= evaluateRewrite(cu, rewrite);
+			content =
+					"import java.io.Serializable;\n" +
+					"import java.util.function.Consumer;\n" +
+					"module first {\n" +
+					"}";
+			assertEqualString(preview, content);
+		} finally {
+			if (javaProject != null) deleteProject(javaProject);
+		}
+	}
 }

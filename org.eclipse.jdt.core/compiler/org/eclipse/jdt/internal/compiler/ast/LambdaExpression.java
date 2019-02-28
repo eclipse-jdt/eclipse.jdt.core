@@ -481,6 +481,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (expected.isParameterizedType() && argument.isParameterizedType()) {
 			TypeBinding[] expectedArgs = ((ParameterizedTypeBinding)expected).typeArguments();
 			TypeBinding[] args = ((ParameterizedTypeBinding)argument).typeArguments();
+			if (args.length != expectedArgs.length)
+				return false;
 			for (int j = 0; j < args.length; j++) {
 				if (TypeBinding.notEquals(expectedArgs[j], args[j])) {
 					if (expectedArgs[j].isWildcard() && args[j].isUnboundWildcard()) {

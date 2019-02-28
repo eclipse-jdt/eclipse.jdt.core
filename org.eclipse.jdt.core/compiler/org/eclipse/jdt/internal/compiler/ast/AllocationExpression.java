@@ -503,7 +503,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 		scope.problemReporter().missingTypeInConstructor(this, this.binding);
 	}
-	if (isMethodUseDeprecated(this.binding, scope, true)) {
+	if (isMethodUseDeprecated(this.binding, scope, true, this)) {
 		scope.problemReporter().deprecatedMethod(this.binding, this);
 	}
 	if (checkInvocationArguments(scope, null, this.resolvedType, this.binding, this.arguments, this.argumentTypes, this.argsContainCast, this)) {
@@ -808,5 +808,13 @@ public ExpressionContext getExpressionContext() {
 @Override
 public InferenceContext18 freshInferenceContext(Scope scope) {
 	return new InferenceContext18(scope, this.arguments, this, this.outerInferenceContext);
+}
+@Override
+public int nameSourceStart() {
+	return this.type.sourceStart;
+}
+@Override
+public int nameSourceEnd() {
+	return this.type.sourceEnd;
 }
 }

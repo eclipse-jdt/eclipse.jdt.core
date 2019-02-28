@@ -443,6 +443,13 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 
 	/**
+	 * Answer the name of this module as it should be used for hasCompilationUnit() checks.
+	 */
+	public char[] nameForCUCheck() {
+		return nameForLookup();
+	}
+
+	/**
 	 * Check if the specified package is owned by the current module and exported to the client module.
 	 * True if the package appears in the list of exported packages and when the export is targeted,
 	 * the module appears in the targets of the exports statement.
@@ -506,7 +513,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		// remember:
 		if (binding != null) {
 			this.environment.knownPackages.put(name, binding);
-			binding = addPackage(binding, false);
+			binding = addPackage(binding, false); // no further lookup needed, binding is already complete (split?)
 		} else {
 			this.environment.knownPackages.put(name, LookupEnvironment.TheNotFoundPackage);
 		}
@@ -557,8 +564,16 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			declaringModuleNames = moduleEnv.getUniqueModulesDeclaringPackage(parentName, name, nameForLookup());
 			if (declaringModuleNames != null) {
 				if (CharOperation.containsEqual(declaringModuleNames, this.moduleName)) {
-					// declared here, not yet known, so create it now:
-					binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
+					if (parent instanceof SplitPackageBinding) {
+						// parent.getPackage0() may have been too shy, so drill into the split:
+						PackageBinding singleParent = ((SplitPackageBinding) parent).getIncarnation(this);
+						if (singleParent != null)
+							binding = singleParent.getPackage0(name);
+					}
+					if (binding == null) {
+						// declared here, not yet known, so create it now:
+						binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
+					}
 				} else if (considerRequiredModules) {
 					// visible but foreign (when current is unnamed or auto):
 					for (char[] declaringModuleName : declaringModuleNames) {
@@ -588,6 +603,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 
 		// enrich with split-siblings from visible modules:
 		if (considerRequiredModules) {
+			if (parent != null && binding != null)
+				parent.addPackage(binding, this); // preliminarily add to avoid creating duplicates, will be updated below
 			binding = combineWithPackagesFromOtherRelevantModules(binding, subPkgCompoundName, declaringModuleNames);
 		}
 		if (binding == null || !binding.isValidBinding()) {
@@ -600,10 +617,13 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			return null;
 		}
 		// remember
-		if (parentName.length == 0)
+		if (parentName.length == 0) {
 			binding.environment.knownPackages.put(name, binding);
-		else if (parent != null)
+		} else if (parent != null) {
 			binding = parent.addPackage(binding, this);
+		}
+		if (packageMayBeIncomplete)
+			return binding;
 		return addPackage(binding, false);
 	}
 

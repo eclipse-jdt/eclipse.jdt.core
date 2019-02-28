@@ -160,7 +160,6 @@ import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.core.runtime.jobs.MultiRule;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -4603,11 +4602,7 @@ public final class JavaCore extends Plugin {
 			};
 			mainMonitor.subTask(Messages.javamodel_building_after_upgrade);
 			try {
-				ResourcesPlugin.getWorkspace().run(
-					runnable,
-					new MultiRule(Arrays.stream(projects).map(IJavaProject::getResource).toArray(ISchedulingRule[]::new)),
-					IWorkspace.AVOID_UPDATE,
-					mainMonitor.split(1));
+				ResourcesPlugin.getWorkspace().run(runnable, mainMonitor.split(1));
 			} catch (CoreException e) {
 				// could not touch all projects
 			}

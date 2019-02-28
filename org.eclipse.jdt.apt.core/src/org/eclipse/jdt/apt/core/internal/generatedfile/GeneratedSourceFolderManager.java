@@ -488,7 +488,7 @@ public class GeneratedSourceFolderManager {
 	    };
 	    IWorkspace ws = ResourcesPlugin.getWorkspace();
 	    try{
-	    	ws.run(runnable, srcFolder.getProject(), IWorkspace.AVOID_UPDATE, null);
+	    	ws.run(runnable, ws.getRoot(), IWorkspace.AVOID_UPDATE, null);
 	    }catch(CoreException e){
 			AptPlugin.log(e, "Runnable for deleting old generated source folder " + srcFolder.getName() + " failed."); //$NON-NLS-1$ //$NON-NLS-2$
 		}

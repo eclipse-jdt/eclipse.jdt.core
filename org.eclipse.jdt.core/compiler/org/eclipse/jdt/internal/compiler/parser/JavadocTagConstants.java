@@ -49,6 +49,8 @@ public interface JavadocTagConstants {
 	public static final char[] TAG_VERSION = "version".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_CATEGORY = "category".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_SYSTEM_PROPERTY = "systemProperty".toCharArray(); //$NON-NLS-1$
+	public static final char[] TAG_USES = "uses".toCharArray(); //$NON-NLS-1$
+	public static final char[] TAG_PROVIDES = "provides".toCharArray(); //$NON-NLS-1$
 
 	// tags lengthes
 	public static final int TAG_DEPRECATED_LENGTH = TAG_DEPRECATED.length;
@@ -72,6 +74,8 @@ public interface JavadocTagConstants {
 	public static final int TAG_LITERAL_LENGTH = TAG_LITERAL.length;
 	public static final int TAG_DOC_ROOT_LENGTH = TAG_DOC_ROOT.length;
 	public static final int TAG_SYSTEM_PROPERTY_LENGTH = TAG_SYSTEM_PROPERTY.length;
+	public static final int TAG_USES_LENGTH = TAG_USES.length;
+	public static final int TAG_PROVIDES_LENGTH = TAG_PROVIDES.length;
 
 	// tags value
 	public static final int NO_TAG_VALUE = 0;
@@ -96,6 +100,8 @@ public interface JavadocTagConstants {
 	public static final int TAG_LITERAL_VALUE = 19;
 	public static final int TAG_DOC_ROOT_VALUE = 20;
 	public static final int TAG_SYSTEM_PROPERTY_VALUE=21;
+	public static final int TAG_USES_VALUE=21;
+	public static final int TAG_PROVIDES_VALUE=22;
 	public static final int TAG_OTHERS_VALUE = 100;
 	// Tag names array
 	public static final char[][] TAG_NAMES = {
@@ -160,7 +166,7 @@ public interface JavadocTagConstants {
 		// since 1.8
 		{},
 		// since 9
-		{},
+		{TAG_USES, TAG_PROVIDES},
 		// since 10
 		{},
 		// since 11
@@ -295,4 +301,21 @@ public interface JavadocTagConstants {
 		TAG_LITERAL,
 		TAG_SYSTEM_PROPERTY
 	};
+	public static final char[][] MODULE_TAGS = {
+			TAG_SEE,
+			TAG_SINCE,
+			TAG_DEPRECATED,
+			TAG_SERIAL,
+			TAG_AUTHOR,
+			TAG_VERSION,
+			TAG_CATEGORY,
+			TAG_LINK,
+			TAG_LINKPLAIN,
+			TAG_DOC_ROOT,
+			TAG_VALUE,
+			TAG_CODE,
+			TAG_LITERAL,
+			TAG_USES,
+			TAG_PROVIDES
+		};
 }

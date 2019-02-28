@@ -570,4 +570,83 @@ public void testBug543092b() throws Exception {
 		deleteProject(p);
 	}
 }
+public void testBug544017() throws CoreException {
+	if (!isJRE9) {
+		System.err.println("Test "+getName()+" requires a JRE 9");
+		return;
+	}
+	IJavaProject testa = createJava9Project("testa");
+	IJavaProject testb = createJava9Project("testb");
+	IJavaProject testmain = createJava9Project("testmain");
+	try {
+		createFolder("testb/src/com/example/sub/b");
+		createFile("testb/src/com/example/sub/b/B.java",
+				"package com.example.sub.b;\n" + 
+				"public class B {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"B\");\n" + 
+				"	}\n" + 
+				"}\n");
+		createFile("testb/src/module-info.java",
+				"open module com.example.sub.b {\n" + 
+				"	exports com.example.sub.b;\n" + 
+				"}\n");
+
+		addModularProjectEntry(testa, testb);
+		createFolder("testa/src/com/example/sub/a");
+		createFile("testa/src/com/example/sub/a/A.java",
+				"package com.example.sub.a;\n" + 
+				"public class A {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(\"A\");\n" + 
+				"	}\n" + 
+				"}\n");
+		createFile("testa/src/module-info.java",
+				"open module com.example.sub.a {\n" + 
+				"	exports com.example.sub.a;\n" + 
+				"	requires com.example.sub.b;\n" + 
+				"}\n");
+
+		addModularProjectEntry(testmain, testa);
+		addModularProjectEntry(testmain, testb);
+		createFolder("testmain/src/com/example");
+		createFile("testmain/src/module-info.java",
+				"open module com.example {\n" + 
+				"    requires com.example.sub.a;\n" + 
+				"    requires com.example.sub.b;\n" + 
+				"}\n");
+		String pathExample = "testmain/src/com/example/Example.java";
+		String sourceExample =
+				"package com.example;\n" + 
+				"import com.example.sub.a.A;\n" + 
+				"import com.example.sub.b.B;\n" + 
+				"\n" + 
+				"public class Example {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"    	A.main(null);\n" + 
+				"    	B.main(null);\n" + 
+				"    }\n" + 
+				"}\n";
+		createFile(pathExample, sourceExample);
+
+		getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = testmain.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("markers in testmain",
+				"",
+				markers);
+
+		ICompilationUnit wc = getCompilationUnit(pathExample).getWorkingCopy(this.wcOwner, null);
+		wc.getBuffer().append(" ");
+		this.problemRequestor.initialize((sourceExample+" ").toCharArray());
+		wc.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		assertProblems("Expecting no problems",
+						"----------\n" + 
+						"----------\n",
+						this.problemRequestor);
+	} finally {
+		deleteProject(testa);
+		deleteProject(testb);
+		deleteProject(testmain);
+	}
+}
 }

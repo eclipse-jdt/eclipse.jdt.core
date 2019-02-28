@@ -77,11 +77,14 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 		initialize();
 		loadModules(this);
 	}
-
+	/*
+	 * JDK 11 doesn't contain release 5. Hence
+	 * if the compliance is below 6, we simply return the lowest supported
+	 * release, which is 6.
+	 */
 	private String getReleaseOptionFromCompliance(String comp) {
 		if (JavaCore.compareJavaVersions(comp, JavaCore.VERSION_1_5) <= 0) {
-			// For a JDK 9 and above, the minimum release we support is "6"
-			return this.isJRE12Plus ? "7" : "6"; //$NON-NLS-1$ //$NON-NLS-2$
+			return "6"; //$NON-NLS-1$
 		}
 		int index = comp.indexOf("1."); //$NON-NLS-1$
 		if (index != -1) {

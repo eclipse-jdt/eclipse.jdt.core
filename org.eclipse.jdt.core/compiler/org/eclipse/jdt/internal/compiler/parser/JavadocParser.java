@@ -613,6 +613,10 @@ public class JavadocParser extends AbstractCommentParser {
 						valid = parseParam();
 					}
 				}
+				if (length == TAG_PROVIDES_LENGTH && CharOperation.equals(TAG_PROVIDES, tagName, 0, length)) {
+					this.tagValue = TAG_PROVIDES_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				}
 				break;
 			case 'r':
 				if (length == TAG_RETURN_LENGTH && CharOperation.equals(TAG_RETURN, tagName, 0, length)) {
@@ -651,6 +655,12 @@ public class JavadocParser extends AbstractCommentParser {
 					if (!this.inlineTagStarted) {
 						valid = parseThrows();
 					}
+				}
+				break;
+			case 'u':
+				if (length == TAG_USES_LENGTH && CharOperation.equals(TAG_USES, tagName, 0, length)) {
+					this.tagValue = TAG_USES_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
 				}
 				break;
 			case 'v':

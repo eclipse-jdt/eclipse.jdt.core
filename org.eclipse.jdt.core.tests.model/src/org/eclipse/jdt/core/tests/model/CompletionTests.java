@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
+import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
@@ -25885,6 +25886,41 @@ public void testBug533740d() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
 			"super[KEYWORD]{super, null, null, super, null, 51}",
+			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=496354
+public void testBug496354() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Foo.java",
+			"package test;\n" +
+			"import java.io.IOException;\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"import java.util.ArrayList;\n" +
+			"@Target(ElementType.METHOD)\n" +
+			"@interface T {\n" +
+			"   int val1() default 1;\n" +
+			"   int val2() default -1;\n" +
+			"}\n" +
+			"public class Foo {\n" +
+			"   @T()\n" +
+			"   public int add(int x, int y) {\n" +
+			"      return x + y;\n" +
+			"   };\n" +
+			"}\n");
+
+	COMPLETION_PROJECT.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR, "");
+	COMPLETION_PROJECT.setOption(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR, "");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "@T(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"val1[ANNOTATION_ATTRIBUTE_REF]{val1=, LT;, I, val1, null, 52}\n" +
+	        "val2[ANNOTATION_ATTRIBUTE_REF]{val2=, LT;, I, val2, null, 52}",
 			requestor.getResults());
 }
 }

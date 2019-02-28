@@ -9485,4 +9485,91 @@ public void testBug508834_comment0() {
 		};
 		runner.runConformTest();
 	}
+	public void testBug540846() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import java.util.stream.*;\n" + 
+			"import java.math.*;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"    private List<Object> getRowValues(Map<String, BigDecimal> record, Stream<String> factors) {\n" + 
+			"        return Stream.concat(\n" + 
+			"            factors.map(f -> {\n" + 
+			"                if (f.equals(\"x\")) {\n" + 
+			"                    return record.get(f);\n" + 
+			"                } else {\n" + 
+			"                    return \"NM\";\n" + 
+			"                }\n" + 
+			"            }),\n" + 
+			"            Stream.of(BigDecimal.ONE)\n" + 
+			"        )\n" + 
+			"        .map(v -> (v instanceof BigDecimal) ? ((BigDecimal) v).setScale(10, BigDecimal.ROUND_HALF_UP) : v)\n" + 
+			"        .collect(Collectors.toList());\n" + 
+			"    }\n" + 
+			"}\n"
+		};
+		runner.runConformTest();
+	}
+	public void testBug538192() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.Function;\n" +
+			"interface ListFunc<T> extends Function<List<String>, T> {}\n" + 
+			"interface MapFunc<T> extends Function<Map<String,String>, T> {}\n" + 
+			"class DTT {\n" + 
+			"	public <T> DTT(Class<T> c, ListFunc<T> f) {}\n" + 
+			"	public <T> DTT(Class<T> c, MapFunc<T> f) {} \n" + 
+			"}\n" +
+			"public class Test {\n" +
+			"	void test() {\n" +
+			"		new DTT(Integer.class, (Map<String, String> row) -> Integer.valueOf(0));\n" +
+			"	}\n" +
+			"}\n"
+		};
+		runner.runConformTest();
+	}
+	public void testBug536860() {
+		runConformTest(
+			new String[] {
+				"Snippet.java",
+				"import java.io.IOException;\n" + 
+				"import java.io.InputStream;\n" + 
+				"import java.nio.file.Path;\n" + 
+				"import java.util.Map;\n" + 
+				"import java.util.concurrent.Callable;\n" + 
+				"import java.util.function.Function;\n" + 
+				"\n" + 
+				"interface EntityReader<T, S> { }\n" + 
+				"class ExtraIOUtils {\n" + 
+				"	public static Callable<InputStream> getInputStreamProvider() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class Snippet {\n" + 
+				"	public <T> EntityReader<T, Path> createEntityReader(\n" + 
+				"	    Function<? super String, ? extends String> colNameMapper,\n" + 
+				"	    Function<? super String[], ? extends T> instantiator,\n" + 
+				"	    Map<String, ?> runtimeValues)\n" + 
+				"	         throws IOException {\n" + 
+				"	        EntityReader<T, ?> streamReader =\n" + 
+				"	            createEntityStreamReader(\n" + 
+				"	            		ExtraIOUtils.getInputStreamProvider(),\n" + 
+				"	                colNameMapper, instantiator, runtimeValues);\n" +
+				"			return null;\n" + 
+				"	}\n" + 
+				"	public <T> EntityReader<T, Callable<InputStream>> createEntityStreamReader(\n" + 
+				"	        Callable<InputStream> streamProvider,\n" + 
+				"	        Function<? super String, ? extends String> colNameMapper, Function<? super String[], ? extends T> instantiator,\n" + 
+				"	        Map<String, ?> runtimeValues)\n" + 
+				"	            throws IOException {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
 }
