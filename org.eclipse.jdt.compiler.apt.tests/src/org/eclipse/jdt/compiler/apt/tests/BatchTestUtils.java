@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ServiceLoader;
@@ -122,11 +123,11 @@ public class BatchTestUtils {
 	}
 
 	public static void compileInModuleMode(JavaCompiler compiler, List<String> options, String processor,
-			File targetFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule) {
+			File targetFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule) throws IOException {
 		compileInModuleMode(compiler, options, processor, targetFolder, listener, multiModule, true);
 	}
 	public static void compileInModuleMode(JavaCompiler compiler, List<String> options, String processor,
-			File targetFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule, boolean processBinariesAgain) {
+			File targetFolder, DiagnosticListener<? super JavaFileObject> listener, boolean multiModule, boolean processBinariesAgain) throws IOException {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 		Iterable<? extends File> location = manager.getLocation(StandardLocation.CLASS_PATH);
 		// create new list containing inputfile
@@ -145,7 +146,7 @@ public class BatchTestUtils {
 		copyOptions.add(_tmpBinFolderName);
 		copyOptions.add("-s");
 		copyOptions.add(_tmpGenFolderName);
-		addModuleProcessorPath(copyOptions, getSrcFolderName(), multiModule);
+		addModuleProcessorPath(copyOptions, targetFolder.getAbsolutePath(), multiModule);
 		copyOptions.add("-XprintRounds");
 		CompilationTask task = compiler.getTask(printWriter, manager, listener, copyOptions, null, units);
 		Boolean result = task.call();
@@ -154,6 +155,8 @@ public class BatchTestUtils {
 			String errorOutput = stringWriter.getBuffer().toString();
 			System.err.println("Compilation failed: " + errorOutput);
 	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
+		} else {
+			junit.framework.TestCase.assertEquals("succeeded", System.getProperty(processor));
 		}
 		if (!processBinariesAgain) {
 			return;
@@ -164,6 +167,7 @@ public class BatchTestUtils {
 			System.clearProperty(processor);
 			copyOptions = new ArrayList<>();
 			copyOptions.addAll(options);
+			copyOptions.add("-Abinary");
 			copyOptions.add("-cp");
 			copyOptions.add(_jls8ProcessorJarPath + File.pathSeparator + _tmpGenFolderName);
 			copyOptions.add("--processor-module-path");
@@ -257,6 +261,7 @@ public class BatchTestUtils {
 			System.clearProperty(processor);
 			copyOptions = new ArrayList<>();
 			copyOptions.addAll(options);
+			copyOptions.add("-Abinary");
 			copyOptions.add("-cp");
 			copyOptions.add(_tmpBinFolderName + File.pathSeparator + _jls8ProcessorJarPath + File.pathSeparator + _tmpGenFolderName);
 			copyOptions.add("-processorpath");
