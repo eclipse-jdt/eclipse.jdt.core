@@ -327,4 +327,11 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	public ReferenceBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
 		return this;
 	}
+	
+	@Override
+	public ReferenceBinding enclosingType() {
+		// ParameterizedTypeBinding earlier always had a resolved enclosed type, but now it does on-demand resolving.
+		// Behaviour for RawTypeBinding should be unchanged. 
+	    return this.enclosingType;
+	}
 }

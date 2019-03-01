@@ -97,7 +97,7 @@ public class TypeSystem {
 					this.type = resolvedType; // cannot be raw since being parameterized below
 					ReferenceBinding enclosing = resolvedType.enclosingType();
 					if (enclosing != null) {
-						this.enclosingType = (ReferenceBinding) env.convertUnresolvedBinaryToRawType(enclosing); // needed when binding unresolved member type
+						this.enclosingType = resolvedType.isStatic() ? enclosing : (ReferenceBinding) env.convertUnresolvedBinaryToRawType(enclosing); // needed when binding unresolved member type
 					}
 				}
 				if (this.arguments != null) {
@@ -122,7 +122,7 @@ public class TypeSystem {
 			@Override
 			public int hashCode() {
 				final int prime=31;
-				int hashCode = 1 + hash(this.type) + (this.enclosingType != null ? hash(this.enclosingType) : 0);
+				int hashCode = 1 + hash(this.type);
 				for (int i = 0, length = this.arguments == null ? 0 : this.arguments.length; i < length; i++) {
 					hashCode = hashCode * prime + hash(this.arguments[i]);
 				}
@@ -156,7 +156,7 @@ public class TypeSystem {
 				if (parameterizedType.actualType() != genericTypeToMatch) { //$IDENTITY-COMPARISON$
 					continue;
 				}
-				if (parameterizedType.enclosingType() != enclosingTypeToMatch //$IDENTITY-COMPARISON$
+				if (parameterizedType.enclosingType != enclosingTypeToMatch //$IDENTITY-COMPARISON$
 						|| !Util.effectivelyEqual(parameterizedType.typeArguments(), typeArgumentsToMatch)) 
 					continue;
 				if (Util.effectivelyEqual(annotations, parameterizedType.getTypeAnnotations()))
@@ -311,6 +311,11 @@ public class TypeSystem {
 	*/ 
 	public ParameterizedTypeBinding getParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType) {
 		ReferenceBinding unannotatedGenericType = (ReferenceBinding) getUnannotatedType(genericType);
+		// getUnannotatedType may have replaced URB by resolvedType
+		if (enclosingType == null && genericType instanceof UnresolvedReferenceBinding
+				&& !(unannotatedGenericType instanceof UnresolvedReferenceBinding)) {
+			enclosingType = unannotatedGenericType.enclosingType();
+		}
 		int typeArgumentsLength = typeArguments == null ? 0: typeArguments.length;
 		TypeBinding [] unannotatedTypeArguments = typeArguments == null ? null : new TypeBinding[typeArgumentsLength];
 		for (int i = 0; i < typeArgumentsLength; i++) {
