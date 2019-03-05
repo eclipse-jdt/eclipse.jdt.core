@@ -99,7 +99,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			if (block.doesNotCompleteNormally()) {
 				return BREAKING;
 			}
-			//JLS 12 15.29.1 Given a switch expression, if the switch block consists of switch labeled rules,
+			//JLS 12 15.28.1 Given a switch expression, if the switch block consists of switch labeled rules,
 			//then it is a compile-time error if any switch labeled block can complete normally.
 			blockScope.problemReporter().switchExpressionSwitchLabeledBlockCompletesNormally(block);
 		}
@@ -141,7 +141,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		if (this.switchLabeledRules) return; // already taken care in getFallThroughState()
 		int sz = this.statements != null ? this.statements.length : 0;
 		if (sz == 0) return;
-		/* JLS 12 15.29.1
+		/* JLS 12 15.28.1
 		 * If, on the other hand, the switch block consists of switch labeled statement groups, then it is a
 		 * compile-time error if either the last statement in the switch block can complete normally, or the
 		 * switch block includes one or more switch labels at the end.
@@ -354,14 +354,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			// break statement and block statement of SwitchLabelRule or block statement of ':'
 			ResultExpressionsCollector reCollector = new ResultExpressionsCollector(this);
 			stmt.traverse(reCollector, this.scope);
-
-			/*TODO: Do the following error check in analyseCode() rather than here - JLS 12 15.29
-			 * Given a switch expression, if the switch block consists of switch labeled rules, then
-			 * it is a compile-time error if any switch labeled block can complete normally. If, on  the
-			 * other hand, the switch block consists of switch labeled statement groups, then it is a
-			 * compile-time error if either the last statement in the switch block can complete
-			 * normally, or the switch block includes one or more switch labels at the end.
-			 */
 		}
 	}
 	@Override
@@ -371,7 +363,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			if (this.constant != Constant.NotAConstant) {
 				this.constant = Constant.NotAConstant;
 	
-				// tag break statements and (alongwih in the same pass) collect the result expressions
+				// tag break statements and (alongwith in the same pass) collect the result expressions
 				collectResultExpressions();
 	
 				// A switch expression is a poly expression if it appears in an assignment context or an invocation context (5.2, 5.3). 
@@ -388,14 +380,14 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				resolve(upperScope);
 	
 				if (this.statements == null || this.statements.length == 0) {
-					//	Report Error JLS 12 15.29.1  The switch block must not be empty.
+					//	Report Error JLS 12 15.28.1  The switch block must not be empty.
 					upperScope.problemReporter().switchExpressionEmptySwitchBlock(this);
 					return null;
 				}
 				
 				resultExpressionsCount = this.resultExpressions != null ? this.resultExpressions.size() : 0;
 				if (resultExpressionsCount == 0) {
-					//  Report Error JLS 12 15.29.1 
+					//  Report Error JLS 12 15.28.1 
 					// It is a compile-time error if a switch expression has no result expressions.
 					upperScope.problemReporter().switchExpressionNoResultExpressions(this);
 					return null;
@@ -643,7 +635,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	public boolean isPolyExpression() {
 		if (this.isPolyExpression)
 			return true;
-		// JLS 12 15.29.1 A switch expression is a poly expression if it appears in an assignment context or
+		// JLS 12 15.28.1 A switch expression is a poly expression if it appears in an assignment context or
 		// an invocation context (5.2, 5.3). Otherwise, it is a standalone expression.
 		return this.isPolyExpression = this.expressionContext == ASSIGNMENT_CONTEXT || 
 				this.expressionContext == INVOCATION_CONTEXT;

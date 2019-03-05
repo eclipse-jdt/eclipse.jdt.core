@@ -134,9 +134,9 @@ public void resolve(BlockScope scope) {
 	if  (this.expression != null && (this.switchExpression != null || this.isImplicit)) {
 		if (this.switchExpression == null && this.isImplicit && !this.expression.statementExpression()) {
 			if (scope.compilerOptions().enablePreviewFeatures) {
-				// JLS 12 14.11.2
-				// If the switch block consists of switch labeled rules, then any switch labeled expression
-				// must be a statement expression (14.8)
+				/* JLS 12 14.11.2
+				Switch labeled rules in switch statements differ from those in switch expressions (15.28).
+				In switch statements they must be switch labeled statement expressions, ... */
 				scope.problemReporter().invalidExpressionAsStatement(this.expression);
 				return;
 			}
