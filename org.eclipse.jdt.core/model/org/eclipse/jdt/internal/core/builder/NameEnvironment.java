@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -305,7 +305,7 @@ private void computeClasspathLocations(
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-					String release = JavaCore.DISABLED.equals(javaProject.getOption(JavaCore.COMPILER_RELEASE, true)) ? null : compliance;
+					String release = JavaCore.ENABLED.equals(javaProject.getOption(JavaCore.COMPILER_RELEASE, false)) ? compliance : null;
 					ClasspathLocation bLocation = null;
 					String libPath = path.toOSString();
 					if (Util.isJrt(libPath)) {
