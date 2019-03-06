@@ -156,10 +156,10 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 				}
 
 				@Override
-				public FileVisitResult visitModule(java.nio.file.Path modPath) throws IOException {
+				public FileVisitResult visitModule(Path p, String name) throws IOException {
 					if (moduleName == null)
 						return FileVisitResult.CONTINUE;
-					if (!moduleName.equals(modPath.toString())) {
+					if (!moduleName.equals(name)) {
 						return FileVisitResult.SKIP_SUBTREE;
 					}
 					return FileVisitResult.CONTINUE;
@@ -219,10 +219,10 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 					}
 
 					@Override
-					public FileVisitResult visitModule(Path mod) throws IOException {
+					public FileVisitResult visitModule(Path p, String name) throws IOException {
 						try {
-							ClasspathJrt.this.acceptModule(JRTUtil.getClassfileContent(ClasspathJrt.this.file, IModule.MODULE_INFO_CLASS, mod.toString()));
-							ClasspathJrt.this.moduleNamesCache.add(mod.getFileName().toString());
+							ClasspathJrt.this.acceptModule(JRTUtil.getClassfileContent(ClasspathJrt.this.file, IModule.MODULE_INFO_CLASS, name));
+							ClasspathJrt.this.moduleNamesCache.add(name);
 						} catch (ClassFormatException e) {
 							e.printStackTrace();
 						}

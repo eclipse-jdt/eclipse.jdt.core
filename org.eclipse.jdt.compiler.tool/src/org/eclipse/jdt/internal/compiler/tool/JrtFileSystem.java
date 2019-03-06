@@ -92,8 +92,8 @@ public class JrtFileSystem extends Archive {
 			}
 
 			@Override
-			public FileVisitResult visitModule(Path mod) throws IOException {
-				JrtFileSystem.this.modulePathMap.put(mod.getFileName().toString(), mod);
+			public FileVisitResult visitModule(Path path, String name) throws IOException {
+				JrtFileSystem.this.modulePathMap.put(name, path);
 				return FileVisitResult.CONTINUE;
 			}
 		}, JRTUtil.NOTIFY_MODULES);

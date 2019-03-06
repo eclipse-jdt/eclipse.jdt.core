@@ -101,8 +101,7 @@ static HashMap<String, SimpleSet> findPackagesInModules(final ClasspathJrt jrt) 
 			}
 
 			@Override
-			public FileVisitResult visitModule(Path mod) throws IOException {
-				String name = mod.toString();
+			public FileVisitResult visitModule(Path path, String name) throws IOException {
 				try {
 					jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModule.MODULE_INFO_CLASS, name));
 				} catch (ClassFormatException e) {
@@ -144,9 +143,9 @@ public static void loadModules(final ClasspathJrt jrt) {
 				}
 
 				@Override
-				public FileVisitResult visitModule(Path mod) throws IOException {
+				public FileVisitResult visitModule(Path path, String name) throws IOException {
 					try {
-						jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModule.MODULE_INFO_CLASS, mod.toString()));
+						jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModule.MODULE_INFO_CLASS, name));
 					} catch (ClassFormatException e) {
 						e.printStackTrace();
 					}

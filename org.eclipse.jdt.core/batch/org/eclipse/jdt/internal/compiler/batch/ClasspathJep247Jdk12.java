@@ -74,7 +74,7 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 						Path p = this.fs.getPath(rel);
 						try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(p)) {
 							for (final java.nio.file.Path subdir: stream) {
-								Path f = this.fs.getPath(rel, subdir.getFileName().toString(), qualifiedBinaryFileName);
+								Path f = this.fs.getPath(rel, JRTUtil.sanitizedFileName(subdir), qualifiedBinaryFileName);
 								if (Files.exists(f)) {
 									content = JRTUtil.safeReadBytes(f);
 									if (content != null)
@@ -138,7 +138,7 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 		List<String> sub = new ArrayList<>();
 		try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(this.releasePath)) {
 			for (final java.nio.file.Path subdir: stream) {
-				String rel = subdir.getFileName().toString();
+				String rel = JRTUtil.sanitizedFileName(subdir);
 				if (rel.contains(this.releaseInHex))
 					sub.add(rel);
 			}
@@ -161,7 +161,7 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 		if (this.modules == null) {
 			try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(this.releasePath)) {
 				for (final java.nio.file.Path subdir: stream) {
-					String rel = subdir.getFileName().toString();
+					String rel = JRTUtil.sanitizedFileName(subdir);
 					if (!rel.contains(this.releaseInHex)) {
 						continue;
 					}
@@ -183,8 +183,9 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 								if (content == null)
 									return FileVisitResult.CONTINUE;
 								Path m = f.subpath(1, f.getNameCount() - 1);
-								ClasspathJep247Jdk12.this.acceptModule(m.getFileName().toString(), content);
-								ClasspathJep247Jdk12.this.moduleNamesCache.add(m.getFileName().toString());
+								String name = JRTUtil.sanitizedFileName(m);
+								ClasspathJep247Jdk12.this.acceptModule(name, content);
+								ClasspathJep247Jdk12.this.moduleNamesCache.add(name);
 							}
 							return FileVisitResult.SKIP_SIBLINGS;
 						}
@@ -264,7 +265,7 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 		this.packageCache.add(Util.EMPTY_STRING);
 		try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(this.releasePath)) {
 			for (final java.nio.file.Path subdir: stream) {
-				String rel = subdir.getFileName().toString();
+				String rel = JRTUtil.sanitizedFileName(subdir);
 				if (!rel.contains(this.releaseInHex)) {
 					continue;
 				}

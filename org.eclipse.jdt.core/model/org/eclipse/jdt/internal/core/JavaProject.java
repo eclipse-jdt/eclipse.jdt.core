@@ -935,8 +935,8 @@ public class JavaProject
 				}
 
 				@Override
-				public FileVisitResult visitModule(java.nio.file.Path mod) throws IOException {
-					JrtPackageFragmentRoot root = new JrtPackageFragmentRoot(imagePath, mod.toString(), JavaProject.this);
+				public FileVisitResult visitModule(java.nio.file.Path path, String name) throws IOException {
+					JrtPackageFragmentRoot root = new JrtPackageFragmentRoot(imagePath, name, JavaProject.this);
 					roots.add(root);
 					if (rootToResolvedEntries != null) 
 						rootToResolvedEntries.put(root, ((ClasspathEntry)resolvedEntry).combineWith((ClasspathEntry) referringEntry));
