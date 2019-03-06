@@ -28,9 +28,9 @@ public class InnerClassInfo extends ClassFileStruct implements IBinaryNestedType
 	private char[] outerClassName;
 	private char[] innerName;
 	private int accessFlags = -1;
-	private boolean readInnerClassName = false;
-	private boolean readOuterClassName = false;
-	private boolean readInnerName = false;
+	private boolean readInnerClassName;
+	private boolean readOuterClassName;
+	private boolean readInnerName;
 
 public InnerClassInfo(byte classFileBytes[], int offsets[], int offset) {
 	super(classFileBytes, offsets, offset);
@@ -43,7 +43,6 @@ public InnerClassInfo(byte classFileBytes[], int offsets[], int offset) {
 public char[] getEnclosingTypeName() {
 	if (!this.readOuterClassName) {
 		// read outer class name
-		this.readOuterClassName = true;
 		if (this.outerClassNameIndex != 0) {
 			int utf8Offset =
 				this.constantPoolOffsets[u2At(
@@ -51,6 +50,7 @@ public char[] getEnclosingTypeName() {
 					- this.structOffset;
 			this.outerClassName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 		}
+		this.readOuterClassName = true;
 
 	}
 	return this.outerClassName;
@@ -69,12 +69,12 @@ public int getModifiers() {
 public char[] getName() {
 	if (!this.readInnerClassName) {
 		// read the inner class name
-		this.readInnerClassName = true;
 		if (this.innerClassNameIndex != 0) {
 			int  classOffset = this.constantPoolOffsets[this.innerClassNameIndex] - this.structOffset;
 			int utf8Offset = this.constantPoolOffsets[u2At(classOffset + 1)] - this.structOffset;
 			this.innerClassName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 		}
+		this.readInnerClassName = true;
 	}
 	return this.innerClassName;
 }
@@ -86,11 +86,11 @@ public char[] getName() {
  */
 public char[] getSourceName() {
 	if (!this.readInnerName) {
-		this.readInnerName = true;
 		if (this.innerNameIndex != 0) {
 			int utf8Offset = this.constantPoolOffsets[this.innerNameIndex] - this.structOffset;
 			this.innerName = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 		}
+		this.readInnerName = true;
 	}
 	return this.innerName;
 }
