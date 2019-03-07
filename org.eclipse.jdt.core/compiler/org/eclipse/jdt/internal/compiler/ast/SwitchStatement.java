@@ -100,6 +100,7 @@ public class SwitchStatement extends Expression {
 				int l = block.statements == null ? 0 : block.statements.length;
 				if (l == 0) {
 					block.statements = new Statement[] {breakStatement};
+					block.scope = this.scope; // (upper scope) see Block.resolve() for similar
 				} else {
 					Statement[] newArray = new Statement[l + 1];
 					System.arraycopy(block.statements, 0, newArray, 0, l);

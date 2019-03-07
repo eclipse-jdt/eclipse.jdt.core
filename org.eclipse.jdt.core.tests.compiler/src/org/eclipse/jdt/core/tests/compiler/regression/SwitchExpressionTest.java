@@ -2154,4 +2154,32 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		null,
 		new String[] {"--enable-preview"});
 	}
+	public void testBug545168_01() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	@SuppressWarnings(\"preview\")\n" +
+				"	public static void foo(Day day) {\n" +
+				"		switch (day) {\n" +
+				"		case MONDAY, FRIDAY -> System.out.println(Day.SUNDAY);\n" +
+				"		case TUESDAY                -> System.out.println(7);\n" +
+				"		case THURSDAY, SATURDAY     -> System.out.println(8);\n" +
+				"		case WEDNESDAY              -> System.out.println(9);\n" +
+				"		default -> {}\n" +
+				"		}     \n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		X.foo(Day.WEDNESDAY);\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"enum Day {\n" +
+				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" +
+				"}\n"
+		},
+		"9",
+		null,
+		new String[] {"--enable-preview"});
+	}
 }
