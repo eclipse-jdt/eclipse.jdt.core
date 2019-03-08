@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2018 IBM Corporation.
+ * Copyright (c) 2017, 2019 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -36,6 +36,24 @@ public interface IModuleDescription extends IMember, IAnnotatable {
 	 * @since 3.14
 	 */
 	String[] getRequiredModuleNames() throws JavaModelException;
+	
+	/**
+	 * Get provided service names for this module.
+	 *
+	 * @return a non-null array of provided service names
+	 * @throws JavaModelException
+	 * @since 3.18
+	 */
+	String[] getProvidedServiceNames() throws JavaModelException;
+	
+	/**
+	 * Get used service names for this module.
+	 *
+	 * @return a non-null array of used service names
+	 * @throws JavaModelException
+	 * @since 3.18
+	 */
+	String[] getUsedServiceNames() throws JavaModelException;
 	
 	/**
 	 * 
