@@ -115,7 +115,7 @@ public class SwitchCase extends Statement {
 
 	
 	/**
-	 * The expression; <code>empty</code> for none; 
+	 * The expression list; <code>empty</code> for none; 
 	 */
 	private ASTNode.NodeList expressions = null;
 
@@ -126,7 +126,8 @@ public class SwitchCase extends Statement {
 
 	/**
 	 * Creates a new AST node for a switch case pseudo-statement owned by the
-	 * given AST. By default, there is an unspecified, but legal, expression.
+	 * given AST. By default, there is no expression, but legal, and switchLabeledRule
+	 * is false which indicates ":".
 	 *
 	 * @param ast the AST that is to own this node
 	 */
@@ -210,7 +211,7 @@ public class SwitchCase extends Statement {
 	 * <code>null</code> if there is none (the "default:" case).
 	 *
 	 * @return the expression node, or <code>null</code> if there is none
-	 * @deprecated use getExpressions() (see JLS 12)
+	 * @deprecated use expressions() (see JLS 12)
 	 */
 	public Expression getExpression() {
 		if (!this.expressionInitialized) {
@@ -231,7 +232,8 @@ public class SwitchCase extends Statement {
 	 * Returns the list of expressions of this switch case, or
 	 * <code>empty</code> if there is none (the "default:" case).
 	 *
-	 * @return the expression node, or <code>expression</code> if there is none
+	 *  @return the list of expression nodes
+	 *    (element type: {@link Expression})
 	 * @exception UnsupportedOperationException if this operation is used below JLS12
 	 * @since 3.17 BETA_JAVA_12
 	 */
@@ -281,7 +283,7 @@ public class SwitchCase extends Statement {
 	 * Gets the switchLabeledRule of this switch case as <code>true</code> or <code>false</code>.
 	 *<code>true</code> indicates "->" and <code>false</code> indicates ":".
 	 *
-	 * @return switchLabeledRule <code>true</code> or </false>
+	 * @return switchLabeledRule <code>true</code> or <code>false</code>
 	 * @exception UnsupportedOperationException if this operation is used below JLS12
 	 * @since 3.17 BETA_JAVA_12
 	 */
@@ -294,7 +296,7 @@ public class SwitchCase extends Statement {
 	 * Returns whether this switch case represents the "default:" case.
 	 * <p>
 	 * This convenience method is equivalent to
-	 * <code>getExpression() == null</code> or <code>getExpressions().isEmpty()</code>.
+	 * <code>getExpression() == null</code> or <code>expressions().isEmpty()</code>.
 	 * </p>
 	 *
 	 * @return <code>true</code> if this is the default switch case, and

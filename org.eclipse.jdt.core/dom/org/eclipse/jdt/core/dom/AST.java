@@ -2593,7 +2593,8 @@ public final class AST {
 	
 	/**
 	 * Creates a new unparented switch case statement node owned by
-	 * this AST. By default, the expression is unspecified, but legal.
+	 * this AST. By default, the node has no expression, but legal, and 
+	 * switchLabeledRule is false which indicates ":". 
 	 *
 	 * @return a new unparented switch case node
 	 */
