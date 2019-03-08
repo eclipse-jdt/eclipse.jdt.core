@@ -742,7 +742,10 @@ public class SwitchStatement extends Expression {
 	protected boolean ignoreMissingDefaultCase(CompilerOptions compilerOptions, boolean isEnumSwitch) {
 		return compilerOptions.getSeverity(CompilerOptions.MissingDefaultCase) == ProblemSeverities.Ignore;
 	}
-
+	@Override
+	public boolean isTrulyExpression() {
+		return false;
+	}
 	private void reportMixingCaseTypes() {
 		if (this.caseCount == 0) {
 			this.switchLabeledRules = this.defaultCase != null ? this.defaultCase.isExpr : this.switchLabeledRules;

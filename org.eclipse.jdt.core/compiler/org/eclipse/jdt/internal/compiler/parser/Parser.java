@@ -898,7 +898,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	protected int[] nestedMethod; //the ptr is nestedType
 	protected int forStartPosition = 0;
 
-	protected int nestedType, dimensions;
+	protected int nestedType, dimensions, switchNestingLevel;
 	ASTNode [] noAstNodes = new ASTNode[AstStackIncrement];
 
 	Expression [] noExpressions = new Expression[ExpressionStackIncrement];
@@ -9280,6 +9280,7 @@ private void createSwitchStatementOrExpression(boolean isStmt) {
 	//the block is inlined but a scope need to be created
 	//if some declaration occurs.
 	this.nestedType--;
+	this.switchNestingLevel--;
 
 	int length;
 	SwitchStatement switchStatement = isStmt ? new SwitchStatement() : new SwitchExpression();
@@ -9879,6 +9880,7 @@ protected void consumeToken(int type) {
 			break;
 		case TokenNameswitch :
 			consumeNestedType();
+			++this.switchNestingLevel;
 			this.nestedMethod[this.nestedType] ++;
 			pushOnIntStack(this.scanner.startPosition);
 			break;
@@ -11385,6 +11387,7 @@ public void initialize(boolean parsingCompilationUnit) {
 	this.identifierLengthPtr	= -1;
 	this.intPtr = -1;
 	this.nestedMethod[this.nestedType = 0] = 0; // need to reset for further reuse
+	this.switchNestingLevel = 0;
 	this.variablesCounter[this.nestedType] = 0;
 	this.dimensions = 0 ;
 	this.realBlockPtr = -1;
@@ -12557,6 +12560,7 @@ protected void prepareForBlockStatements() {
 	this.nestedMethod[this.nestedType = 0] = 1;
 	this.variablesCounter[this.nestedType] = 0;
 	this.realBlockStack[this.realBlockPtr = 1] = 0;
+	this.switchNestingLevel = 0;
 }
 /**
  * Returns this parser's problem reporter initialized with its reference context.
@@ -13139,6 +13143,7 @@ protected void resetStacks() {
 	
 	this.nestedMethod[this.nestedType = 0] = 0; // need to reset for further reuse
 	this.variablesCounter[this.nestedType] = 0;
+	this.switchNestingLevel = 0;
 	
 	this.dimensions = 0 ;
 	this.realBlockStack[this.realBlockPtr = 0] = 0;
@@ -13365,6 +13370,7 @@ public void copyState(Parser from) {
 	this.typeAnnotationLengthPtr = parser.typeAnnotationLengthPtr;
 	this.intPtr = parser.intPtr;
 	this.nestedType = parser.nestedType;
+	this.switchNestingLevel = parser.switchNestingLevel;
 	this.realBlockPtr = parser.realBlockPtr;
 	this.valueLambdaNestDepth = parser.valueLambdaNestDepth;
 	

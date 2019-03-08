@@ -641,6 +641,10 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				this.expressionContext == INVOCATION_CONTEXT;
 	}
 	@Override
+	public boolean isTrulyExpression() {
+		return true;
+	}
+	@Override
 	public boolean isCompatibleWith(TypeBinding left, Scope skope) {
 		if (!isPolyExpression())
 			return super.isCompatibleWith(left, skope);

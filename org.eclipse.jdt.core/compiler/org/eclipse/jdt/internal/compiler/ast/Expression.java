@@ -1293,6 +1293,10 @@ public void traverse(ASTVisitor visitor, ClassScope scope) {
 public boolean statementExpression() {
 	return false;
 }
+// for switch statement
+public boolean isTrulyExpression() {
+	return true;
+}
 
 /**
  * Used on the lhs of an assignment for detecting null spec violation.
