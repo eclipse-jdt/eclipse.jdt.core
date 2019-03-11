@@ -62,6 +62,7 @@ public class SwitchStatement extends Expression {
 	int[] constMapping;
 	String[] stringConstants;
 	public boolean switchLabeledRules = false; // true if case ->, false if case :
+	public int nConstants;
 
 	// fallthrough
 	public final static int CASE = 0;
@@ -268,10 +269,27 @@ public class SwitchStatement extends Expression {
 			 */
 			final boolean hasCases = this.caseCount != 0;
 			int constSize = hasCases ? this.stringConstants.length : 0;
-			BranchLabel[] sourceCaseLabels = new BranchLabel[this.caseCount];
-			for (int i = 0, max = this.caseCount; i < max; i++) {
-				this.cases[i].targetLabel = (sourceCaseLabels[i] = new BranchLabel(codeStream));  // A branch label, not a case label.
-				sourceCaseLabels[i].tagBits |= BranchLabel.USED;
+			BranchLabel[] sourceCaseLabels;
+			if (currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK12) {
+				for (int i = 0, max = this.caseCount; i < max; i++) {
+					int l = this.cases[i].constantExpressions.length;
+					this.cases[i].targetLabels = new BranchLabel[l]; 
+				}
+				sourceCaseLabels = new BranchLabel[this.nConstants];
+				int j = 0;
+				for (int i = 0, max = this.caseCount; i < max; i++) {
+					CaseStatement stmt = this.cases[i];
+					for (int k = 0, l = stmt.constantExpressions.length; k < l; ++k) {
+						stmt.targetLabels[k] = (sourceCaseLabels[j] = new BranchLabel(codeStream));
+						sourceCaseLabels[j++].tagBits |= BranchLabel.USED;
+					}
+				}
+			} else {
+				sourceCaseLabels = new BranchLabel[this.caseCount];
+				for (int i = 0, max = this.caseCount; i < max; i++) {
+					this.cases[i].targetLabel = (sourceCaseLabels[i] = new BranchLabel(codeStream));  // A branch label, not a case label.
+					sourceCaseLabels[i].tagBits |= BranchLabel.USED;
+				}
 			}
 			StringSwitchCase [] stringCases = new StringSwitchCase[constSize]; // may have to shrink later if multiple strings hash to same code.
 			CaseLabel [] hashCodeCaseLabels = new CaseLabel[constSize];
@@ -414,11 +432,31 @@ public class SwitchStatement extends Expression {
 			// prepare the labels and constants
 			this.breakLabel.initialize(codeStream);
 			int constantCount = this.constants == null ? 0 : this.constants.length;
-			CaseLabel[] caseLabels = new CaseLabel[this.caseCount];
-			for (int i = 0, max = this.caseCount; i < max; i++) {
-				this.cases[i].targetLabel = (caseLabels[i] = new CaseLabel(codeStream));
-				caseLabels[i].tagBits |= BranchLabel.USED;
+			int nCaseLabels = 0;
+			CaseLabel[] caseLabels;
+			if (currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK12) {
+				for (int i = 0, max = this.caseCount; i < max; i++) {
+					int l = this.cases[i].constantExpressions.length;
+					nCaseLabels += l;
+					this.cases[i].targetLabels = new BranchLabel[l]; 
+				}
+				caseLabels = new CaseLabel[nCaseLabels];
+				int j = 0;
+				for (int i = 0, max = this.caseCount; i < max; i++) {
+					CaseStatement stmt = this.cases[i];
+					for (int k = 0, l = stmt.constantExpressions.length; k < l; ++k) {
+						stmt.targetLabels[k] = (caseLabels[j] = new CaseLabel(codeStream));
+						caseLabels[j++].tagBits |= BranchLabel.USED;
+					}
+				}
+			} else {
+				caseLabels = new CaseLabel[this.caseCount];
+				for (int i = 0, max = this.caseCount; i < max; i++) {
+					this.cases[i].targetLabel = (caseLabels[i] = new CaseLabel(codeStream));
+					caseLabels[i].tagBits |= BranchLabel.USED;
+				}
 			}
+
 			CaseLabel defaultLabel = new CaseLabel(codeStream);
 			final boolean hasCases = this.caseCount != 0;
 			if (hasCases) defaultLabel.tagBits |= BranchLabel.USED;
@@ -583,6 +621,19 @@ public class SwitchStatement extends Expression {
 		return printIndent(indent, output).append('}');
 	}
 
+	private int getNConstants() {
+		int n = 0;
+		for (int i = 0, l = this.statements.length; i < l; ++i) {
+			final Statement statement = this.statements[i];
+			if (!(statement instanceof CaseStatement))  {
+				continue;
+			}
+			CaseStatement caseStmt = (CaseStatement) statement;
+			n += caseStmt.constantExpressions != null ? caseStmt.constantExpressions.length :
+				caseStmt.constantExpression != null ? 1 : 0;
+		}
+		return n;
+	}
 	@Override
 	public void resolve(BlockScope upperScope) {
 		try {
@@ -632,12 +683,13 @@ public class SwitchStatement extends Expression {
 				int length;
 				// collection of cases is too big but we will only iterate until caseCount
 				this.cases = new CaseStatement[length = this.statements.length];
+				this.nConstants = getNConstants();
 				if (!isStringSwitch) {
-					this.constants = new int[length];
-					this.constMapping = new int[length];
+					this.constants = new int[this.nConstants];
+					this.constMapping = new int[this.nConstants];
 				} else {
-					this.stringConstants = new String[length];
-					this.constMapping = new int[length];
+					this.stringConstants = new String[this.nConstants];
+					this.constMapping = new int[this.nConstants];
 				}
 				int counter = 0;
 				for (int i = 0; i < length; i++) {
@@ -659,12 +711,9 @@ public class SwitchStatement extends Expression {
 										reportDuplicateCase((CaseStatement) statement, this.cases[j], length);
 									}
 								}
-								if (this.constants.length == counter) {
-									System.arraycopy(this.constants, 0, this.constants = new int[counter+1], 0, counter);
-									System.arraycopy(this.constMapping, 0, this.constMapping = new int[counter+1], 0, counter);
-								}
 								this.constants[counter] = key;
-								this.constMapping[counter++] = this.caseCount - 1;
+								this.constMapping[counter] = counter;
+								counter++;
 							} else {
 								String key = con.stringValue();
 								//----check for duplicate case statement------------
@@ -673,12 +722,9 @@ public class SwitchStatement extends Expression {
 										reportDuplicateCase((CaseStatement) statement, this.cases[j], length);
 									}
 								}
-								if (this.stringConstants.length == counter) {
-									System.arraycopy(this.stringConstants, 0, this.stringConstants = new String[counter+1], 0, counter);
-									System.arraycopy(this.constMapping, 0, this.constMapping = new int[counter+1], 0, counter);
-								}
 								this.stringConstants[counter] = key;
-								this.constMapping[counter++] = this.caseCount - 1;
+								this.constMapping[counter] = counter;
+								counter++;
 							}
 						}
 					}

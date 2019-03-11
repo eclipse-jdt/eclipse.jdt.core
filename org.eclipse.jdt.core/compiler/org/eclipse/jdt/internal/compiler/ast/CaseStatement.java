@@ -40,6 +40,7 @@ public class CaseStatement extends Statement {
 	public Expression constantExpression;
 	public BranchLabel targetLabel;
 	public Expression[] constantExpressions; // case with multiple expressions
+	public BranchLabel[] targetLabels; // for multiple expressions
 	public boolean isExpr = false;
 
 public CaseStatement(Expression constantExpression, int sourceEnd, int sourceStart) {
@@ -105,7 +106,13 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		return;
 	}
 	int pc = codeStream.position;
-	this.targetLabel.place();
+	if (this.targetLabels != null) {
+		for (int i = 0, l = this.targetLabels.length; i < l; ++i) {
+			this.targetLabels[i].place();
+		}
+	} else {
+		this.targetLabel.place();
+	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }
 

@@ -2182,4 +2182,28 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		null,
 		new String[] {"--enable-preview"});
 	}
+	public void testBug545255_01() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void foo (int i) {\n"+
+				"		int v = switch (i) {\n"+
+				"			case 60, 600: break 6;\n"+
+				"			case 70: break 7;\n"+
+				"			case 80: break 8;\n"+
+				"			case 90, 900: break 9;\n"+
+				"			default: break 0;\n"+
+				"		};\n"+
+				"		System.out.println(v);\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		X.foo(10);\n"+
+				"	}\n"+
+				"}\n"
+		},
+		"0",
+		null,
+		new String[] {"--enable-preview"});
+	}
 }
