@@ -270,7 +270,7 @@ public class SwitchCase extends Statement {
 	 * Sets the switchLabeledRule of this switch case as <code>true</code> or <code>false</code>.
 	 * <code>true</code> indicates "->" and <code>false</code> indicates ":".
 
-	 * @param switchLabeledRule <code>true</code> or </false>
+	 * @param switchLabeledRule <code>true</code> or <code>false</code>
 	 * @exception UnsupportedOperationException if this operation is used below JLS12
 	 * @since 3.17 BETA_JAVA_12
 	 */
