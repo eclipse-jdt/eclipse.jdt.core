@@ -54,6 +54,7 @@ public class Java12ElementProcessor extends BaseProcessor {
 	Messager _messager = null;
 	Filer _filer = null;
 	boolean isBinaryMode = false;
+	String mode;
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
@@ -78,6 +79,9 @@ public class Java12ElementProcessor extends BaseProcessor {
 			try {
 				if (options.containsKey("binary")) {
 					this.isBinaryMode = true;
+					this.mode = "binary";
+				} else {
+					this.mode = "source";
 				}
 				if (!invokeTestMethods(options)) {
 					testAll();
@@ -157,14 +161,14 @@ public class Java12ElementProcessor extends BaseProcessor {
 		}
 		Collections.sort(types, (x, y) -> x.compareTo(y)); //unused as of now
 		Collections.sort(modules, (x, y) -> x.compareTo(y));
-		assertEquals("incorrect no of modules in root elements", 3, modules.size());
-		assertEquals("incorrect modules among root elements", "[module.main, module.readable.one, module.readable.two]", modules.toString());
-		assertNotNull("module should not be null", mod1);
-		assertNotNull("module should not be null", mod2);
-		assertNotNull("module should not be null", mod3);
-		assertEquals("Incorrect enclosed packages", "[lang.MOD.same, ]", getElementsAsString(mod3.getEnclosedElements()));
-		assertEquals("Incorrect enclosed packages", "[lang.MOD.same, ]", getElementsAsString(mod2.getEnclosedElements()));
-		assertEquals("Incorrect enclosed packages", "[lang.MOD, ]", getElementsAsString(mod1.getEnclosedElements()));
+		assertEquals("incorrect no of modules in root elements in in "+ this.mode + " mode", 3, modules.size());
+		assertEquals("incorrect modules among root elements in "+ this.mode + " mode", "[module.main, module.readable.one, module.readable.two]", modules.toString());
+		assertNotNull("module should not be null in "+ this.mode + " mode", mod1);
+		assertNotNull("module should not be null in "+ this.mode + " mode", mod2);
+		assertNotNull("module should not be null in "+ this.mode + " mode", mod3);
+		assertEquals("Incorrect enclosed packages in "+ this.mode + " mode", "[lang.MOD.same, ]", getElementsAsString(mod3.getEnclosedElements()));
+		assertEquals("Incorrect enclosed packages in "+ this.mode + " mode", "[lang.MOD.same, ]", getElementsAsString(mod2.getEnclosedElements()));
+		assertEquals("Incorrect enclosed packages in "+ this.mode + " mode", "[lang.MOD, ]", getElementsAsString(mod1.getEnclosedElements()));
 	}
 
 	public void testRootElements2() throws IOException {
@@ -204,17 +208,63 @@ public class Java12ElementProcessor extends BaseProcessor {
 		}
 		Collections.sort(types, (x, y) -> x.compareTo(y)); //unused as of now
 		Collections.sort(modules, (x, y) -> x.compareTo(y));
-		assertEquals("incorrect no of modules in root elements", this.isBinaryMode ? 2 : 3, modules.size());
-		assertEquals("incorrect modules among root elements", "[module.main, module.readable.one" + 
+		assertEquals("incorrect no of modules in root elements in "+ this.mode + " mode", this.isBinaryMode ? 2 : 3, modules.size());
+		assertEquals("incorrect modules among root elements in "+ this.mode + " mode", "[module.main, module.readable.one" + 
 							(this.isBinaryMode ? "" : ", module.readable.two") + "]", modules.toString());
-		assertNotNull("module should not be null", mod1);
-		assertEquals("Incorrect enclosed packages", "[my.mod, ]", getElementsAsString(mod1.getEnclosedElements()));
-		assertEquals("Incorrect enclosed packages", "[my.mod.same, ]", getElementsAsString(mod2.getEnclosedElements()));
-		assertNotNull("module should not be null", mod2);
+		assertNotNull("module should not be null in "+ this.mode + " mode", mod1);
+		assertEquals("Incorrect enclosed packages in "+ this.mode + " mode", "[my.mod, ]", getElementsAsString(mod1.getEnclosedElements()));
+		assertEquals("Incorrect enclosed packages in "+ this.mode + " mode", "[my.mod.same, ]", getElementsAsString(mod2.getEnclosedElements()));
+		assertNotNull("module should not be null in "+ this.mode + " mode", mod2);
 		if (!this.isBinaryMode) {
-			assertNotNull("module should not be null", mod3);
-			assertEquals("Incorrect enclosed packages", "[]", getElementsAsString(mod3.getEnclosedElements()));
+			assertNotNull("module should not be null ", mod3);
+			assertEquals("Incorrect enclosed packages ", "[]", getElementsAsString(mod3.getEnclosedElements()));
 		}
+	}
+	public void testRootElements3() throws IOException {
+		Set<? extends Element> rootElements = this.roundEnv.getRootElements();
+		List<String> types = new ArrayList<>();
+		List<String> modules = new ArrayList<>();
+		ModuleElement mod1 = null, mod2 = null, mod3 = null;
+		for (Element element : rootElements) {
+			Element root = getRoot(element);
+			String modName = null;
+			ModuleElement mod = null;
+			if (element instanceof ModuleElement) {
+				mod = (ModuleElement) element;
+				modName = mod.getQualifiedName().toString();
+				if (!modules.contains(modName) && !modName.equals("java.base"))
+					modules.add(modName);
+				assertNull("module should not have an enclosing element", root);
+			} else {
+				if (element instanceof TypeElement) {
+					types.add(((TypeElement) element).getQualifiedName().toString());
+				}
+				assertTrue("Should be a module element", (root instanceof ModuleElement));
+				mod = (ModuleElement) root;
+				modName = mod.getQualifiedName().toString();
+				assertFalse("should be a named module", mod.isUnnamed());
+				String string = mod.getQualifiedName().toString();
+				if (!modules.contains(string) && !modName.equals("java.base"))
+					modules.add(string);
+			}
+			if (modName.equals("module.main")) {
+				mod1 = mod;
+			} else if (modName.equals("module.readable.one")) {
+				mod2 = mod;
+			} else if (modName.equals("module.readable.two")) {
+				mod3 = mod;
+			} 
+		}
+		Collections.sort(types, (x, y) -> x.compareTo(y)); //unused as of now
+		Collections.sort(modules, (x, y) -> x.compareTo(y));
+		assertEquals("incorrect no of modules in root elements in "+ this.mode + " mode", 3, modules.size());
+		assertEquals("incorrect modules among root elements in "+ this.mode + " mode", "[module.main, module.readable.one, module.readable.two]", modules.toString());
+		assertNotNull("module should not be null in "+ this.mode + " mode", mod1);
+		assertEquals("Incorrect enclosed packages in "+ this.mode + " mode", "[my1.mod, ]", getElementsAsString(mod1.getEnclosedElements()));
+		assertEquals("Incorrect enclosed packages in "+ this.mode + " mode", "[my1.mod.samePackage, ]", getElementsAsString(mod2.getEnclosedElements()));
+		assertNotNull("module should not be null in "+ this.mode + " mode", mod2);
+			assertNotNull("module should not be null in "+ this.mode + " mode", mod3);
+			assertEquals("Incorrect enclosed packages in "+ this.mode + " mode", "[my1.mod.samePackage, ]", getElementsAsString(mod3.getEnclosedElements()));
 	}
 	private Element getRoot(Element elem) {
 		Element enclosingElement = elem.getEnclosingElement();

@@ -4805,12 +4805,6 @@ private ReferenceBinding[] processClassNames(LookupEnvironment environment) {
 			}
 			typeNames[i] = currentName;
 		}
-		for (ModuleBinding mod : modSet) {
-			mod.getExports();
-			mod.getRequires();
-			mod.getOpens();
-			mod.getServices();
-		}
 	}
 
 	for (int i = 0; i < length; i++) {

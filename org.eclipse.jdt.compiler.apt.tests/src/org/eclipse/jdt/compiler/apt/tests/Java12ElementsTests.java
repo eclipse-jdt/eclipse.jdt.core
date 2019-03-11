@@ -50,6 +50,14 @@ public class Java12ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements2", null, "modules3");
 	}
+	public void testRootElements3Javac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements3", null, "modules4");
+	}
+	public void testRootElements3() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements3", null, "modules4");
+	}
 
 	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea) throws IOException {
 		if (!canRunJava12()) {
