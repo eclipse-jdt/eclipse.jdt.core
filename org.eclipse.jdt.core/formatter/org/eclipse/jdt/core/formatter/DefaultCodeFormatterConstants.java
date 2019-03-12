@@ -1,4 +1,3 @@
-
 /*******************************************************************************
  * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
@@ -8,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation  - initial API and implementation
@@ -2122,6 +2125,28 @@ public class DefaultCodeFormatterConstants {
 	 */
 	public static final String FORMATTER_INSERT_SPACE_AFTER_AND_IN_TYPE_PARAMETER = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_and_in_type_parameter"; //$NON-NLS-1$
 	/**
+	 * FORMATTER / Option to insert a space after arrow in switch case
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_arrow_in_switch_case"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_ARROW_IN_SWITCH_CASE = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_arrow_in_switch_case"; //$NON-NLS-1$
+	/**
+	 * FORMATTER / Option to insert a space after arrow in switch default
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_arrow_in_switch_default"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_ARROW_IN_SWITCH_DEFAULT = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_arrow_in_switch_default"; //$NON-NLS-1$
+	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space after an assignment operator
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_assignment_operator"
@@ -2571,6 +2596,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_superinterfaces"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a space after the comma in switch case expressions list
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_comma_in_switch_case_expressions"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SWITCH_CASE_EXPRESSIONS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_switch_case_expressions"; //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space after the comma in explicit type arguments on method/constructor invocations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_comma_in_type_arguments"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -2954,6 +2991,28 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.1
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_AND_IN_TYPE_PARAMETER = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_and_in_type_parameter";	//$NON-NLS-1$
+	/**
+	 * FORMATTER / Option to insert a space before arrow in switch case
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_arrow_in_switch_case"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_ARROW_IN_SWITCH_CASE = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_arrow_in_switch_case"; //$NON-NLS-1$
+	/**
+	 * FORMATTER / Option to insert a space before arrow in switch default
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_arrow_in_switch_default"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_ARROW_IN_SWITCH_DEFAULT = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_arrow_in_switch_default"; //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space before an assignment operator
@@ -3594,6 +3653,18 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_superinterfaces";	//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before the comma in switch case expressions list
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_comma_in_switch_case_expressions"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           DO_NOT_INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SWITCH_CASE_EXPRESSIONS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_switch_case_expressions"; //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space before comma in explicit type arguments on method/constructor invocations

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
@@ -94,6 +98,7 @@ import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodReference;
+import org.eclipse.jdt.core.dom.SwitchExpression;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.TryStatement;
@@ -1052,6 +1057,14 @@ public class WrapPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchStatement node) {
+		int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
+		int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
+		handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_switch_statement);
+		return true;
+	}
+
+	@Override
+	public boolean visit(SwitchExpression node) {
 		int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
 		int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
 		handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_switch_statement);
