@@ -4967,10 +4967,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getWorkingCopy("/Test/src/X.java", src, true);
 			assertProblems("should have not problems",
 					"----------\n" + 
-					"1. WARNING in /Test/src/X.java (at line 1)\n" + 
+					"1. ERROR in /Test/src/X.java (at line 1)\n" + 
 					"	import java.*;\n" + 
 					"	       ^^^^\n" + 
-					"The import java is never used\n" + 
+					"The package java is not accessible\n" + 
 					"----------\n",
 					this.problemRequestor);
 		} finally {

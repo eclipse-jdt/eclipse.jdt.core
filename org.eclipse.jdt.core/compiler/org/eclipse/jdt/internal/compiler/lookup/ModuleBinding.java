@@ -73,9 +73,18 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 		@Override
 		public boolean canAccess(PackageBinding pkg) {
-			ModuleBinding mod = pkg.enclosingModule;
-			if (mod != null && mod != this)
-				return mod.isPackageExportedTo(pkg, this);
+			if (pkg instanceof SplitPackageBinding) {
+				for (PackageBinding p : ((SplitPackageBinding) pkg).incarnations) {
+					if (canAccess(p)) {
+						return true;
+					}
+				}
+				return false;
+			} else {
+				ModuleBinding mod = pkg.enclosingModule;
+				if (mod != null && mod != this)
+					return mod.isPackageExportedTo(pkg, this);
+			}
 			return true;
 		}
 		@Override
