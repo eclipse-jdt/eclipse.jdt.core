@@ -353,12 +353,12 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 
 	@Override
 	public boolean hasModule() {
-		return this.modPathString != null;
+		return this.fs == null ? super.hasModule() : this.modPathString != null;
 	}
 
 	@Override
 	protected String getKey() {
-		return this.modPathString;
+		return this.fs == null ? super.getKey() : this.modPathString;
 	}
 
 	@Override
