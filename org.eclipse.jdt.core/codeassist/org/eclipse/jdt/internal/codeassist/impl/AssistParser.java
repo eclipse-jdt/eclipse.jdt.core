@@ -341,7 +341,7 @@ public RecoveredElement buildInitialRecoveryState(){
 		}
 		if (this.assistNode != null && node instanceof Statement) {
 			Statement stmt = (Statement) node;
-			if (!(stmt instanceof Expression) || ((Expression) stmt).statementExpression()) {
+			if (!(stmt instanceof Expression && ((Expression) stmt).isTrulyExpression()) || ((Expression) stmt).statementExpression()) {
 				if (this.assistNode.sourceStart >= stmt.sourceStart && this.assistNode.sourceEnd <= stmt.sourceEnd) {
 					element.add(stmt, 0);
 					this.lastCheckPoint = stmt.sourceEnd + 1;
@@ -562,7 +562,8 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 						if ((parseTree.sourceStart == 0 || parseTree.sourceEnd == 0) || (parseTree.sourceStart >= statementStart && parseTree.sourceEnd <= statementEnd)) {
 							recoveredBlock.statements[recoveredBlock.statementCount - 1] = new RecoveredStatement(statement, recoveredBlock, 0);
 							statement = null;
-						} else if (recoveredStatement instanceof RecoveredLocalVariable && statement instanceof Expression) {
+						} else if (recoveredStatement instanceof RecoveredLocalVariable && statement instanceof Expression &&
+								((Expression) statement).isTrulyExpression()) {
 							RecoveredLocalVariable local = (RecoveredLocalVariable) recoveredStatement;
 							if (local.localDeclaration != null && local.localDeclaration.initialization != null) {
 								if ((local.localDeclaration.initialization.sourceStart == 0 || local.localDeclaration.initialization.sourceEnd == 0) || 
@@ -2492,6 +2493,7 @@ protected Object topKnownElementObjectInfo(int owner) {
 protected ASTNode wrapWithExplicitConstructorCallIfNeeded(ASTNode ast) {
 	int selector;
 	if (ast != null && topKnownElementKind(ASSIST_PARSER) == K_SELECTOR && ast instanceof Expression &&
+			((Expression) ast).isTrulyExpression() && 
 			(((selector = topKnownElementInfo(ASSIST_PARSER)) == THIS_CONSTRUCTOR) ||
 			(selector == SUPER_CONSTRUCTOR))) {
 		ExplicitConstructorCall call = new ExplicitConstructorCall(

@@ -91,7 +91,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	}
 	@Override
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
-		if (stmt instanceof Expression || stmt instanceof ThrowStatement)
+		if ((stmt instanceof Expression && ((Expression) stmt).isTrulyExpression())|| stmt instanceof ThrowStatement)
 			return BREAKING;
 		if (this.switchLabeledRules // do this check for every block if '->' (Switch Labeled Rules) 
 				&& stmt instanceof Block) {
@@ -206,7 +206,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	}
 	@Override
 	protected void statementGenerateCode(BlockScope currentScope, CodeStream codeStream, Statement statement) {
-		if (!(statement instanceof Expression)
+		if (!(statement instanceof Expression && ((Expression) statement).isTrulyExpression())
 				|| statement instanceof Assignment
 				|| statement instanceof MessageSend
 				|| (statement instanceof SwitchStatement && !(statement instanceof SwitchExpression))) {
@@ -343,7 +343,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				CaseStatement caseStatement = (CaseStatement) stmt;
 				if (!caseStatement.isExpr) continue;
 				stmt = this.statements[++i];
-				if (stmt instanceof Expression) {
+				if (stmt instanceof Expression && ((Expression) stmt).isTrulyExpression()) {
 					this.resultExpressions.add((Expression) stmt);
 					continue;
 				} else if (stmt instanceof ThrowStatement) {

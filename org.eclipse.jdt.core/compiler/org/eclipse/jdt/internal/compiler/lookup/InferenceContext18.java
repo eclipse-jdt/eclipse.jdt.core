@@ -407,7 +407,7 @@ public class InferenceContext18 {
 			// bullets 1&2: definitions only.
 			if (expectedType != null
 					&& expectedType != TypeBinding.VOID
-					&& invocationSite instanceof Expression
+					&& invocationSite instanceof Expression && ((Expression) invocationSite).isTrulyExpression()
 					&& ((Expression)invocationSite).isPolyExpression(method)) 
 			{
 				// 3. bullet: special treatment for poly expressions

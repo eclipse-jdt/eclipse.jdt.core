@@ -86,7 +86,7 @@ public class SwitchStatement extends Expression {
 
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
 		if (this.switchLabeledRules) {
-			if (stmt instanceof Expression || stmt instanceof ThrowStatement)
+			if ((stmt instanceof Expression && ((Expression) stmt).isTrulyExpression()) || stmt instanceof ThrowStatement)
 				return BREAKING;
 			
 			if (stmt instanceof Block) {

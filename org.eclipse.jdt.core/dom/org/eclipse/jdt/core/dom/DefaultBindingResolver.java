@@ -618,7 +618,8 @@ class DefaultBindingResolver extends BindingResolver {
 	@Override
 	boolean resolveBoxing(Expression expression) {
 		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
+		if (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression &&
+				((org.eclipse.jdt.internal.compiler.ast.Expression) node).isTrulyExpression()) {
 			org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) node;
 			return (compilerExpression.implicitConversion & TypeIds.BOXING) != 0;
 		}
@@ -638,7 +639,8 @@ class DefaultBindingResolver extends BindingResolver {
 	@Override
 	Object resolveConstantExpressionValue(Expression expression) {
 		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
+		if (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression &&
+				((org.eclipse.jdt.internal.compiler.ast.Expression) node).isTrulyExpression()) {
 			org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) node;
 			Constant constant = compilerExpression.constant;
 			if (constant != null && constant != Constant.NotAConstant) {

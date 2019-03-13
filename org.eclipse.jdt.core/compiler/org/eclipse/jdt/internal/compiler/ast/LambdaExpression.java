@@ -448,7 +448,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 		this.binding.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 		
-		if (this.body instanceof Expression) {
+		if (this.body instanceof Expression && ((Expression) this.body).isTrulyExpression()) {
 			Expression expression = (Expression) this.body;
 			new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd, true).resolve(this.scope); // :-) ;-)
 			if (expression.resolvedType == TypeBinding.VOID && !expression.statementExpression())
@@ -697,7 +697,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (!super.isPertinentToApplicability(targetType, method))
 			return false;
 		
-		if (this.body instanceof Expression) {
+		if (this.body instanceof Expression && ((Expression) this.body).isTrulyExpression()) {
 			if (!((Expression) this.body).isPertinentToApplicability(targetType, method))
 				return false;
 		} else {
@@ -823,7 +823,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		    	return false;
 		    }
 		}
-		if (this.body instanceof Expression) {
+		if (this.body instanceof Expression && ((Expression) this.body).isTrulyExpression()) {
 			// When completion is still in progress, it is not possible to ask if the expression constitutes a statement expression. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219
 			this.voidCompatible = this.assistNode ? true : ((Expression) this.body).statementExpression();
 			this.valueCompatible = true; // expression could be of type void - we can't determine that as we are working with unresolved expressions, for potential compatibility it is OK.
@@ -1095,7 +1095,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	public void returnsExpression(Expression expression, TypeBinding resultType) {
 		if (this.original == this) // Not in overload resolution context. result expressions not relevant.
 			return;
-		if (this.body instanceof Expression) {
+		if (this.body instanceof Expression && ((Expression) this.body).isTrulyExpression()) {
 			this.valueCompatible = resultType != null && resultType.id == TypeIds.T_void ? false : true;
 			this.voidCompatible = this.assistNode ? true : ((Expression) this.body).statementExpression(); // while code is still being written and completed, we can't ask if it is a statement
 			this.resultExpressions = new Expression[] { expression };

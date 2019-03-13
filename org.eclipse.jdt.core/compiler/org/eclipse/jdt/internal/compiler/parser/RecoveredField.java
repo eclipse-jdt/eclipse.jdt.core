@@ -90,7 +90,7 @@ public RecoveredElement add(FieldDeclaration addedfieldDeclaration, int bracketB
 @Override
 public RecoveredElement add(Statement statement, int bracketBalanceValue) {
 
-	if (this.alreadyCompletedFieldInitialization || !(statement instanceof Expression)) {
+	if (this.alreadyCompletedFieldInitialization || !(statement instanceof Expression &&  ((Expression) statement).isTrulyExpression())) {
 		return super.add(statement, bracketBalanceValue);
 	} else {
 		if (statement.sourceEnd > 0)

@@ -6166,7 +6166,8 @@ public void localVariableNullInstanceof(LocalVariableBinding local, ASTNode loca
 }
 
 public void localVariableNullReference(LocalVariableBinding local, ASTNode location) {
-	if (location instanceof Expression && (((Expression)location).implicitConversion & TypeIds.UNBOXING) != 0) {
+	if (location instanceof Expression &&  ((Expression) location).isTrulyExpression() &&
+			(((Expression)location).implicitConversion & TypeIds.UNBOXING) != 0) {
 		nullUnboxing(location, local.type);
 		return;
 	}
@@ -6230,11 +6231,13 @@ public void localVariablePotentialNullReference(LocalVariableBinding local, ASTN
 		localVariableFreeTypeVariableReference(local, location);
 		return;
 	}
-	if (location instanceof Expression && (((Expression)location).implicitConversion & TypeIds.UNBOXING) != 0) {
+	if (location instanceof Expression &&  ((Expression) location).isTrulyExpression()
+			&& (((Expression)location).implicitConversion & TypeIds.UNBOXING) != 0) {
 		potentialNullUnboxing(location, local.type);
 		return;
 	}
-	if ((local.type.tagBits & TagBits.AnnotationNullable) != 0 && location instanceof Expression) {
+	if ((local.type.tagBits & TagBits.AnnotationNullable) != 0 && location instanceof Expression
+			&&  ((Expression) location).isTrulyExpression()) {
 		dereferencingNullableExpression((Expression) location);
 		return;
 	}
@@ -8701,7 +8704,7 @@ public void unreachableCode(Statement statement) {
 		LocalDeclaration declaration = (LocalDeclaration) statement;
 		sourceStart = declaration.declarationSourceStart;
 		sourceEnd = declaration.declarationSourceEnd;
-	} else if (statement instanceof Expression) {
+	} else if (statement instanceof Expression &&  ((Expression) statement).isTrulyExpression()) {
 		int statemendEnd = ((Expression) statement).statementEnd;
 		if (statemendEnd != -1) sourceEnd = statemendEnd;
 	}

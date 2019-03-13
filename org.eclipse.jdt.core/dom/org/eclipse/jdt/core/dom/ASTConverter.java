@@ -2343,7 +2343,8 @@ class ASTConverter {
 			}
 		}
 		final org.eclipse.jdt.internal.compiler.ast.Statement body = lambda.body();
-		if (body instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
+		if (body instanceof org.eclipse.jdt.internal.compiler.ast.Expression &&
+				((org.eclipse.jdt.internal.compiler.ast.Expression) body).isTrulyExpression()) {
 			lambdaExpression.setBody(convert((org.eclipse.jdt.internal.compiler.ast.Expression) body));
 		} else {
 			lambdaExpression.setBody(convert((org.eclipse.jdt.internal.compiler.ast.Block) body));
@@ -2853,7 +2854,8 @@ class ASTConverter {
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.WhileStatement) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.WhileStatement) statement);
 		}
-		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
+		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.Expression &&
+				((org.eclipse.jdt.internal.compiler.ast.Expression) statement).isTrulyExpression()) {
 			org.eclipse.jdt.internal.compiler.ast.Expression statement2 = (org.eclipse.jdt.internal.compiler.ast.Expression) statement;
 			final Expression expr = convert(statement2);
 			final ExpressionStatement stmt = new ExpressionStatement(this.ast);
@@ -3361,7 +3363,8 @@ class ASTConverter {
 		return enumDeclaration2;
 	}
 	public Expression convertToExpression(org.eclipse.jdt.internal.compiler.ast.Statement statement) {
-		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
+		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.Expression &&
+				((org.eclipse.jdt.internal.compiler.ast.Expression) statement).isTrulyExpression()) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.Expression) statement);
 		} else {
 			return null;

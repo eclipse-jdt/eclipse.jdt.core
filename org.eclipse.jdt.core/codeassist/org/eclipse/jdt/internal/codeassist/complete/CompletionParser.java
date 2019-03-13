@@ -1184,7 +1184,7 @@ private Statement buildMoreCompletionEnclosingContext(Statement statement) {
 					this.currentElement.parent instanceof RecoveredBlock) {
 				RecoveredLocalVariable recoveredLocalVariable = (RecoveredLocalVariable) this.currentElement;
 				if (recoveredLocalVariable.localDeclaration.initialization == null &&
-						statement instanceof Expression &&
+						statement instanceof Expression && ((Expression) statement).isTrulyExpression() &&
 						condition.sourceStart < recoveredLocalVariable.localDeclaration.sourceStart) {
 					this.currentElement.add(statement, 0);
 	

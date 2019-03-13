@@ -129,7 +129,7 @@ protected void attachOrphanCompletionNode(){
 			}
 		}
 
-		if (orphan instanceof Expression) {
+		if (orphan instanceof Expression && ((Expression) orphan).isTrulyExpression()) {
 			buildMoreCompletionContext((Expression)orphan);
 		} else {
 			if (lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) < 0) { // lambdas are recovered up to the containing expression statement and will carry along the assist node anyways.

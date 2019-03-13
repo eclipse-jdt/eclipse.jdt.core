@@ -1138,7 +1138,7 @@ public RecoveredElement buildInitialRecoveryState(){
 				LocalDeclaration statement = (LocalDeclaration) node;
 				element = element.add(statement, 0);
 				this.lastCheckPoint = statement.sourceEnd + 1;
-			} else if(node instanceof Expression) {
+			} else if(node instanceof Expression &&  ((Expression) node).isTrulyExpression()) {
 				if(node instanceof Assignment ||
 						node instanceof PrefixExpression ||
 						node instanceof PostfixExpression ||
@@ -8668,7 +8668,7 @@ protected void consumeLambdaExpression() {
 	lexp.setBody(body);
 	lexp.sourceEnd = body.sourceEnd;
 	
-	if (body instanceof Expression) {
+	if (body instanceof Expression &&  ((Expression) body).isTrulyExpression()) {
 		Expression expression = (Expression) body;
 		expression.statementEnd = body.sourceEnd;
 	}

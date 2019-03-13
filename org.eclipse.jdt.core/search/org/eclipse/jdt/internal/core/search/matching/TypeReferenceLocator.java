@@ -359,7 +359,9 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 	else if (reference instanceof ArrayTypeReference)
 		matchReportReference((ArrayTypeReference) reference, element, elementBinding, accuracy, locator);
 	else {
-		TypeBinding typeBinding = reference instanceof Expression ? ((Expression)reference).resolvedType : null;
+		TypeBinding typeBinding = reference instanceof Expression  &&
+				((org.eclipse.jdt.internal.compiler.ast.Expression) reference).isTrulyExpression() ?
+						((Expression)reference).resolvedType : null;
 		if (typeBinding != null) {
 			matchReportReference((Expression)reference, -1, typeBinding, locator);
 			return;

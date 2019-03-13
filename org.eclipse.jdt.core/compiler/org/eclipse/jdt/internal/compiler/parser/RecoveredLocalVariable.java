@@ -48,7 +48,7 @@ public RecoveredLocalVariable(LocalDeclaration localDeclaration, RecoveredElemen
 @Override
 public RecoveredElement add(Statement stmt, int bracketBalanceValue) {
 
-	if (this.alreadyCompletedLocalInitialization || !(stmt instanceof Expression)) {
+	if (this.alreadyCompletedLocalInitialization || !(stmt instanceof Expression &&  ((Expression) stmt).isTrulyExpression())) {
 		return super.add(stmt, bracketBalanceValue);
 	} else {
 		this.alreadyCompletedLocalInitialization = true;
