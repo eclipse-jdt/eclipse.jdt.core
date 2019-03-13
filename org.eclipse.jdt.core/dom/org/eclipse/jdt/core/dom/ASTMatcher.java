@@ -489,7 +489,7 @@ public class ASTMatcher {
 		}
 		BreakStatement o = (BreakStatement) other;
 		return ( node.getAST().apiLevel >= AST.JLS12_INTERNAL && node.getExpression() != null
-				? safeSubtreeMatch(node.getExpression(), o.getExpression())
+				? safeSubtreeMatch(node.getExpression(), o.getExpression()) && node.isImplicit() == o.isImplicit()
 						: safeSubtreeMatch(node.getLabel(), o.getLabel()));
 	}
 

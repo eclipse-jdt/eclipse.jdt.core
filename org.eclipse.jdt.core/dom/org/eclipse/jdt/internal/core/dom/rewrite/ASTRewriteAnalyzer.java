@@ -2573,6 +2573,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		try {
 			int offset= getScanner().getTokenEndOffset(TerminalTokens.TokenNamebreak, node.getStartPosition());
 			rewriteNode(node, BreakStatement.LABEL_PROPERTY, offset, ASTRewriteFormatter.SPACE); // space between break and label
+			if (node.getAST().apiLevel() >= JLS12_INTERNAL) {
+				rewriteNode(node, BreakStatement.EXPRESSION_PROPERTY, offset, ASTRewriteFormatter.SPACE); // space between break and label
+			}
 		} catch (CoreException e) {
 			handleException(e);
 		}

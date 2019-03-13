@@ -366,11 +366,21 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(BreakStatement node) {
+		if (node.getAST().apiLevel() >= JLS12 && node.isImplicit()) {
+			return false;
+		}
 		this.result.append("break"); //$NON-NLS-1$
 		ASTNode label= getChildNode(node, BreakStatement.LABEL_PROPERTY);
 		if (label != null) {
 			this.result.append(' ');
 			label.accept(this);
+		}
+		if (node.getAST().apiLevel() >= JLS12) {
+			ASTNode expression = getChildNode(node, BreakStatement.EXPRESSION_PROPERTY);
+			if (expression != null ) {
+				this.result.append(' ');
+				expression.accept(this);
+			}
 		}
 		this.result.append(';');
 		return false;

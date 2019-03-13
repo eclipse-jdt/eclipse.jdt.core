@@ -110,6 +110,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
+	
 	public void test0002() throws JavaModelException {
 		String contents =
 			"public class X {\n" + 
@@ -158,6 +159,60 @@ public class ASTConverter12Test extends ConverterTestSetup {
 			assertEquals("Switch statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
 			SwitchStatement switchStatement = (SwitchStatement) node;
 			checkSourceRange((Statement) switchStatement.statements().get(0), "case SATURDAY,SUNDAY ->", contents);
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	
+	/* test implicit break statement */
+
+	public void test0003() throws JavaModelException {
+		String contents =
+			"public class X {\n" +
+			"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" +
+			"	String aa(Day day) throws Exception {\n" +
+			"		var today = \"\";\n" +
+			"		switch (day) {\n" +
+			"			case SATURDAY,SUNDAY ->\n" +
+			"				today=\"Weekend\";\n" +
+			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY ->\n" +
+			"				today=\"Working\";\n" +
+			"			default ->\n" +
+			"				throw new Exception(\"Invalid day: \" + day.name());\n" +
+			"		}\n" +
+			"		return today;\n" +
+			"	}\n" +
+			"	\n" +
+			"	String bb(Day day) throws Exception {\n" +
+			"		String today = \"\";\n" +
+			"		today = switch (day) {\n" +
+			"			case SATURDAY,SUNDAY:\n" +
+			"				break \"Weekend day\";\n" +
+			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY:\n" +
+			"				break \"Week day\";\n" +
+			"			default:\n" +
+			"				break \"Any day\";\n" +
+			"		};\n" +
+			"		return today;\n" +
+			"	}\n" +
+			"}" ;
+		this.workingCopy = getWorkingCopy("/Converter12/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+					contents,
+					this.workingCopy);
+				assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+				CompilationUnit compilationUnit = (CompilationUnit) node;
+				assertProblemsSize(compilationUnit, 0);
+				node = getASTNode(compilationUnit, 0, 1, 1);
+				assertEquals("Switch statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
+				SwitchStatement switchStatement = (SwitchStatement) node;
+				checkSourceRange((Statement) switchStatement.statements().get(0), "case SATURDAY,SUNDAY ->", contents);
+			
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}

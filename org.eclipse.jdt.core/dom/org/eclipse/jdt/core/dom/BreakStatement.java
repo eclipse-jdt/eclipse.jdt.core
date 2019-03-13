@@ -65,6 +65,11 @@ public class BreakStatement extends Statement {
 	 * or null if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS_12;
+	
+	/**
+	 * <code>true</code> indicates implicit and <code>false</code> indicates not implicit.
+	 */
+	private boolean isImplicit = false;
 
 	static {
 		List properyList = new ArrayList(2);
@@ -109,7 +114,7 @@ public class BreakStatement extends Statement {
 
 	/**
 	 * Creates a new unparented break statement node owned by the given
-	 * AST. By default, the break statement has no label.
+	 * AST. By default, the break statement has no label/identifier/expression and is not implicit.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
@@ -243,6 +248,32 @@ public class BreakStatement extends Statement {
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.optionalExpression = expression;
 		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
+	}
+
+	/**
+	 * Gets the isImplicit of this break statement as <code>true</code> or <code>false</code>.
+	 *<code>true</code> indicates implicit and <code>false</code> indicates not implicit.
+	 *
+	 * @return isImplicit <code>true</code> or <code>false</code>
+	 * @exception UnsupportedOperationException if this operation is used below JLS12
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public boolean isImplicit() {
+		unsupportedBelow12();
+		return this.isImplicit;
+	}
+
+	/**
+	 * Sets the isImplicit of this break statement as <code>true</code> or <code>false</code>.
+	 * <code>true</code> indicates implicit and <code>false</code> indicates not implicit.
+
+	 * @param isImplicit <code>true</code> or <code>false</code>
+	 * @exception UnsupportedOperationException if this operation is used below JLS12
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public void setImplicit(boolean isImplicit) {
+		unsupportedBelow12();
+		this.isImplicit = isImplicit;
 	}
 
 	@Override

@@ -1451,7 +1451,7 @@ public final class AST {
 
 	/**
 	 * Creates an unparented break statement node owned by this AST.
-	 * The break statement has no label.
+	 * The break statement has no label/identifier/expression and is not implicit.
 	 *
 	 * @return a new unparented break statement node
 	 */
