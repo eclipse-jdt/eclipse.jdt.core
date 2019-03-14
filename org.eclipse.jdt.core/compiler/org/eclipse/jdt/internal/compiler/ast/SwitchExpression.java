@@ -27,7 +27,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -268,103 +267,12 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		}
 		return true;
 	}
-	/* package */ void collectResultExpressions() {
-		if (this.resultExpressions != null)
-			return; // already calculated.
-
-		class ResultExpressionsCollector extends ASTVisitor {
-			Stack<SwitchExpression> targetSwitchExpressions;
-			public ResultExpressionsCollector(SwitchExpression se) {
-				if (this.targetSwitchExpressions == null)
-					this.targetSwitchExpressions = new Stack<>();
-				this.targetSwitchExpressions.push(se);
-			}
-			@Override
-			public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
-				if (switchExpression.resultExpressions == null)
-					switchExpression.resultExpressions = new ArrayList<>(0);
-				this.targetSwitchExpressions.push(switchExpression);
-				return true;
-			}
-			@Override
-			public void endVisit(SwitchExpression switchExpression,	BlockScope blockScope) {
-				this.targetSwitchExpressions.pop();
-			}
-			@Override
-			public boolean visit(BreakStatement breakStatement, BlockScope blockScope) {
-				SwitchExpression targetSwitchExpression = this.targetSwitchExpressions.peek();
-				if (breakStatement.expression != null) {
-					targetSwitchExpression.resultExpressions.add(breakStatement.expression);
-					breakStatement.switchExpression = this.targetSwitchExpressions.peek();
-					breakStatement.label = null; // not a label, but an expression
-					if (breakStatement.expression instanceof SingleNameReference) {
-						((SingleNameReference) breakStatement.expression).isLabel = false;
-					}
-				} else {
-					// flag an error while resolving
-					breakStatement.switchExpression = targetSwitchExpression;
-				}
-				return true;
-			}
-			@Override
-			public boolean visit(DoStatement stmt, BlockScope blockScope) {
-				return false;
-			}
-			@Override
-			public boolean visit(ForStatement stmt, BlockScope blockScope) {
-				return false;
-			}
-			@Override
-			public boolean visit(ForeachStatement stmt, BlockScope blockScope) {
-				return false;
-			}
-			@Override
-			public boolean visit(SwitchStatement stmt, BlockScope blockScope) {
-				return false;
-			}
-			@Override
-			public boolean visit(TypeDeclaration stmt, BlockScope blockScope) {
-				return false;
-			}
-			@Override
-			public boolean visit(WhileStatement stmt, BlockScope blockScope) {
-				return false;
-			}
-			@Override
-			public boolean visit(CaseStatement caseStatement, BlockScope blockScope) {
-				return true; // do nothing by default, keep traversing
-			}
-		}
-		this.resultExpressions = new ArrayList<>(0); // indicates processed
-		int l = this.statements == null ? 0 : this.statements.length;
-		for (int i = 0; i < l; ++i) {
-			Statement stmt = this.statements[i];
-			if (stmt instanceof CaseStatement) {
-				CaseStatement caseStatement = (CaseStatement) stmt;
-				if (!caseStatement.isExpr) continue;
-				stmt = this.statements[++i];
-				if (stmt instanceof Expression && ((Expression) stmt).isTrulyExpression()) {
-					this.resultExpressions.add((Expression) stmt);
-					continue;
-				} else if (stmt instanceof ThrowStatement) {
-					// TODO: Throw Expression Processing. Anything to be done here for resolve?
-					continue;
-				}
-			}
-			// break statement and block statement of SwitchLabelRule or block statement of ':'
-			ResultExpressionsCollector reCollector = new ResultExpressionsCollector(this);
-			stmt.traverse(reCollector, this.scope);
-		}
-	}
 	@Override
 	public TypeBinding resolveType(BlockScope upperScope) {
 		try {
 			int resultExpressionsCount;
 			if (this.constant != Constant.NotAConstant) {
 				this.constant = Constant.NotAConstant;
-	
-				// tag break statements and (alongwith in the same pass) collect the result expressions
-				collectResultExpressions();
 	
 				// A switch expression is a poly expression if it appears in an assignment context or an invocation context (5.2, 5.3). 
 				// Otherwise, it is a standalone expression.

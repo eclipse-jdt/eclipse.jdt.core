@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Stack;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -9552,6 +9553,94 @@ protected void consumeDefaultLabelExpr() {
 	}
 	defaultStatement.isExpr = true;
 }
+/* package */ void collectResultExpressions(SwitchExpression s) {
+	if (s.resultExpressions != null)
+		return; // already calculated.
+
+	class ResultExpressionsCollector extends ASTVisitor {
+		Stack<SwitchExpression> targetSwitchExpressions;
+		public ResultExpressionsCollector(SwitchExpression se) {
+			if (this.targetSwitchExpressions == null)
+				this.targetSwitchExpressions = new Stack<>();
+			this.targetSwitchExpressions.push(se);
+		}
+		@Override
+		public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
+			if (switchExpression.resultExpressions == null)
+				switchExpression.resultExpressions = new ArrayList<>(0);
+			this.targetSwitchExpressions.push(switchExpression);
+			return false;
+		}
+		@Override
+		public void endVisit(SwitchExpression switchExpression,	BlockScope blockScope) {
+			this.targetSwitchExpressions.pop();
+		}
+		@Override
+		public boolean visit(BreakStatement breakStatement, BlockScope blockScope) {
+			SwitchExpression targetSwitchExpression = this.targetSwitchExpressions.peek();
+			if (breakStatement.expression != null) {
+				targetSwitchExpression.resultExpressions.add(breakStatement.expression);
+				breakStatement.switchExpression = this.targetSwitchExpressions.peek();
+				breakStatement.label = null; // not a label, but an expression
+				if (breakStatement.expression instanceof SingleNameReference) {
+					((SingleNameReference) breakStatement.expression).isLabel = false;
+				}
+			} else {
+				// flag an error while resolving
+				breakStatement.switchExpression = targetSwitchExpression;
+			}
+			return true;
+		}
+		@Override
+		public boolean visit(DoStatement stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
+		public boolean visit(ForStatement stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
+		public boolean visit(ForeachStatement stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
+		public boolean visit(SwitchStatement stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
+		public boolean visit(TypeDeclaration stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
+		public boolean visit(WhileStatement stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
+		public boolean visit(CaseStatement caseStatement, BlockScope blockScope) {
+			return true; // do nothing by default, keep traversing
+		}
+	}
+	s.resultExpressions = new ArrayList<>(0); // indicates processed
+	int l = s.statements == null ? 0 : s.statements.length;
+	for (int i = 0; i < l; ++i) {
+		Statement stmt = s.statements[i];
+		if (stmt instanceof CaseStatement) {
+			CaseStatement caseStatement = (CaseStatement) stmt;
+			if (!caseStatement.isExpr) continue;
+			stmt = s.statements[++i];
+			if (stmt instanceof Expression && ((Expression) stmt).isTrulyExpression()) {
+				s.resultExpressions.add((Expression) stmt);
+				continue;
+			} else if (stmt instanceof ThrowStatement) {
+				// TODO: Throw Expression Processing. Anything to be done here for resolve?
+				continue;
+			}
+		}
+		// break statement and block statement of SwitchLabelRule or block statement of ':'
+		ResultExpressionsCollector reCollector = new ResultExpressionsCollector(s);
+		stmt.traverse(reCollector, null);
+	}
+}
 protected void consumeSwitchExpression() {
 // SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchExpressionBlock
 	createSwitchStatementOrExpression(false);
@@ -9567,7 +9656,7 @@ protected void consumeSwitchExpression() {
 				problemReporter().previewFeatureUsed(s.sourceStart, s.sourceEnd);
 			}
 		}
-
+		collectResultExpressions(s);
 		pushOnExpressionStack(s);
 	}
 }

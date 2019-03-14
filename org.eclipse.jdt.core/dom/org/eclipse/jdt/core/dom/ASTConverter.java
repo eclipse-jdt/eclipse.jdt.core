@@ -1320,7 +1320,6 @@ class ASTConverter {
 		return breakStatement;
 	}
 
-
 	public SwitchCase convert(org.eclipse.jdt.internal.compiler.ast.CaseStatement statement) {
 		SwitchCase switchCase = new SwitchCase(this.ast);
 		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
