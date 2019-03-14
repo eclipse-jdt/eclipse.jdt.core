@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1602,47 +1606,47 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 	}
 
-	private int rewriteExpression2(ASTNode node, ChildListPropertyDescriptor property, int pos) {
-		RewriteEvent event= getEvent(node, property);
-		if (event == null || event.getChangeKind() == RewriteEvent.UNCHANGED) {
-			return doVisit(node, property, pos);
-		}
-		RewriteEvent[] children= event.getChildren();
-		boolean isAllInsert= isAllOfKind(children, RewriteEvent.INSERTED);
-		boolean isAllRemove= isAllOfKind(children, RewriteEvent.REMOVED);
-		String keyword= Util.EMPTY_STRING;
-		if (((SwitchCase)node).isSwitchLabeledRule()) {
-			keyword = "->"; //$NON-NLS-1$
-		} else {
-			keyword = ":"; //$NON-NLS-1$
-		}
-
-		Prefix formatterPrefix = this.formatter.CASE_SEPARATION;
-
-		int endPos= new ModifierRewriter(formatterPrefix).rewriteList(node, property, pos, keyword, " "); //$NON-NLS-1$ 
-
-		try {
-			int nextPos= getScanner().getNextStartOffset(endPos, false);
-			RewriteEvent lastChild = children[children.length - 1];
-			boolean lastUnchanged= lastChild.getChangeKind() != RewriteEvent.UNCHANGED;
-
-			if (isAllRemove) {
-				doTextRemove(endPos, nextPos - endPos, getEditGroup(lastChild));
-				return nextPos;
-			} else if (isAllInsert || (nextPos == endPos && lastUnchanged)){
-				String separator;
-				if (lastChild.getNewValue() instanceof Annotation) {
-					separator= formatterPrefix.getPrefix(getIndent(pos));
-				} else {
-					separator= String.valueOf(' '); //$NON-NLS-1$
-				}
-				doTextInsert(endPos, separator, getEditGroup(lastChild));
-			}
-		} catch (CoreException e) {
-			handleException(e);
-		}
-		return endPos;
-	}
+//	private int rewriteExpression2(ASTNode node, ChildListPropertyDescriptor property, int pos) {
+//		RewriteEvent event= getEvent(node, property);
+//		if (event == null || event.getChangeKind() == RewriteEvent.UNCHANGED) {
+//			return doVisit(node, property, pos);
+//		}
+//		RewriteEvent[] children= event.getChildren();
+//		boolean isAllInsert= isAllOfKind(children, RewriteEvent.INSERTED);
+//		boolean isAllRemove= isAllOfKind(children, RewriteEvent.REMOVED);
+//		String keyword= Util.EMPTY_STRING;
+//		if (((SwitchCase)node).isSwitchLabeledRule()) {
+//			keyword = "->"; //$NON-NLS-1$
+//		} else {
+//			keyword = ":"; //$NON-NLS-1$
+//		}
+//
+//		Prefix formatterPrefix = this.formatter.CASE_SEPARATION;
+//
+//		int endPos= new ModifierRewriter(formatterPrefix).rewriteList(node, property, pos, keyword, " "); //$NON-NLS-1$ 
+//
+//		try {
+//			int nextPos= getScanner().getNextStartOffset(endPos, false);
+//			RewriteEvent lastChild = children[children.length - 1];
+//			boolean lastUnchanged= lastChild.getChangeKind() != RewriteEvent.UNCHANGED;
+//
+//			if (isAllRemove) {
+//				doTextRemove(endPos, nextPos - endPos, getEditGroup(lastChild));
+//				return nextPos;
+//			} else if (isAllInsert || (nextPos == endPos && lastUnchanged)){
+//				String separator;
+//				if (lastChild.getNewValue() instanceof Annotation) {
+//					separator= formatterPrefix.getPrefix(getIndent(pos));
+//				} else {
+//					separator= String.valueOf(' ');
+//				}
+//				doTextInsert(endPos, separator, getEditGroup(lastChild));
+//			}
+//		} catch (CoreException e) {
+//			handleException(e);
+//		}
+//		return endPos;
+//	}
 	
 	private int rewriteModifiers2(ASTNode node, ChildListPropertyDescriptor property, int pos) {
 		RewriteEvent event= getEvent(node, property);
@@ -3526,7 +3530,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			}
 			rewriteNodeList(node, SwitchCase.EXPRESSIONS2_PROPERTY, node.getStartPosition(), keyword, ", "); //$NON-NLS-1$
 		} else {
-			rewriteExpressionOptionalQualifier(node, SwitchCase.EXPRESSION_PROPERTY, node.getStartPosition());
+			rewriteExpressionOptionalQualifier(node, INTERNAL_SWITCH_EXPRESSION_PROPERTY, node.getStartPosition());
 		}		
 		
 		return false;

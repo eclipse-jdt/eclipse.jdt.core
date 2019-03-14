@@ -998,7 +998,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 				}
 			}
 		} else {
-			ASTNode expression= getChildNode(node, SwitchCase.EXPRESSION_PROPERTY);
+			ASTNode expression= getChildNode(node, INTERNAL_SWITCH_EXPRESSION_PROPERTY);
 			if (expression == null) {
 				this.result.append("default"); //$NON-NLS-1$
 			} else {
