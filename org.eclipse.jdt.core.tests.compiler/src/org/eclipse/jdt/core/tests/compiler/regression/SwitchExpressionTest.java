@@ -2206,4 +2206,32 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		null,
 		new String[] {"--enable-preview"});
 	}
+	// see comment 12 in the bug 
+	public void testBug513766_01() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    @SuppressWarnings(\"preview\")\n"+
+				"    public void foo(int i) {\n"+
+				"    	if (switch(i) { default -> magic(); })\n"+
+				"            System.out.println(\"true\");\n"+
+				"        if (magic())\n"+
+				"            System.out.println(\"true, too\");\n"+
+				"    }\n"+
+				"    <T> T magic() { return null; }\n"+
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	if (switch(i) { default -> magic(); })\n" + 
+			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to boolean\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	if (magic())\n" + 
+			"	    ^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Object to boolean\n" + 
+			"----------\n");
+	}
 }
