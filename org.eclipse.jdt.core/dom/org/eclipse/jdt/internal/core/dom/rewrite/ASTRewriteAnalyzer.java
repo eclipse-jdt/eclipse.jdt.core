@@ -3521,23 +3521,37 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		// dont allow switching from case to default or back. New statements should be created.
 		if (node.getAST().apiLevel() >= JLS12_INTERNAL) {
-		//	rewriteExpression2(node, SwitchCase.EXPRESSIONS2_PROPERTY, node.getStartPosition()); 
-			String keyword = Util.EMPTY_STRING;
-			if (node.isSwitchLabeledRule()) {
-				keyword = "->"; //$NON-NLS-1$
-			} else {
-				keyword = ":"; //$NON-NLS-1$
+			int pos = node.expressions().size() == 0 ? node.getStartPosition() :
+					rewriteNodeList(node, SwitchCase.EXPRESSIONS2_PROPERTY, node.getStartPosition(), Util.EMPTY_STRING, ", "); //$NON-NLS-1$
+			if (isChanged(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY)) {
+				TextEditGroup editGroup = getEditGroup(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY);
+				try {
+					int tokenEnd, oldToken;
+					String newVal;
+					if (getNewValue(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY).equals(Boolean.TRUE)) {
+						oldToken = TerminalTokens.TokenNameCOLON;
+						newVal = "->"; //$NON-NLS-1$
+					} else {
+						oldToken = TerminalTokens.TokenNameARROW;
+						newVal = ":"; //$NON-NLS-1$
+					}
+					pos = getScanner().getTokenStartOffset(oldToken, pos);
+					tokenEnd = getScanner().getTokenEndOffset(oldToken, pos);
+					doTextRemove(pos, tokenEnd - pos, editGroup);
+					doTextInsert(pos, newVal, editGroup);
+					pos = tokenEnd;
+				} catch (CoreException e) {
+					handleException(e);
+				}
 			}
-			rewriteNodeList(node, SwitchCase.EXPRESSIONS2_PROPERTY, node.getStartPosition(), keyword, ", "); //$NON-NLS-1$
 		} else {
 			rewriteExpressionOptionalQualifier(node, INTERNAL_SWITCH_EXPRESSION_PROPERTY, node.getStartPosition());
-		}		
-		
+		}
 		return false;
 	}
 
 	class SwitchListRewriter extends ParagraphListRewriter {
-		
+
 		private boolean indentSwitchStatementsCompareToCases;
 
 		public SwitchListRewriter(int initialIndent) {

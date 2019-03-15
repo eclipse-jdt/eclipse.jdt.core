@@ -37,7 +37,6 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
-
 import junit.framework.Test;
 
 public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
@@ -466,4 +465,317 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	//Note: complete removal of statements under switch statements now added in ASTRSTest and hence not repeated here.
+
+	// replacing colon by ->
+	@SuppressWarnings("rawtypes")
+	public void testSwitchStatement_Bug543720_05_since_12() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String s	=
+				"package test1;\n"+
+				"public class X {\n"+
+				"	static int foo(int i) {\n"+
+				"		int tw = 0;\n"+
+				"		switch (i) {\n"+
+				"			case 1 : {\n"+
+				" 				int z = 100;\n"+
+				" 				break;\n"+
+				"			}\n"+
+				"			case 2 : {\n"+
+				" 				break;\n"+
+				"			}\n"+
+				"			default : {\n"+
+				"				break;\n"+
+				"			}\n"+
+				"		}\n"+
+				"		return tw;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.print(foo(1));\n"+
+				"	}\n"+
+				"}\n";
+		StringBuffer buf = new StringBuffer(s);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements= block.statements();
+		{ // set switch labeled rule
+			SwitchStatement switchStmt = (SwitchStatement) blockStatements.get(1);
+			for (int i = 0, l = switchStmt.statements().size(); i < l; ++i) {
+				Statement stmt = (Statement) switchStmt.statements().get(i);
+				if (stmt instanceof SwitchCase) {
+					SwitchCase switchCase = (SwitchCase) stmt;
+					assertTrue("Switch case has arrow", switchCase.isSwitchLabeledRule() == false);
+					rewrite.set(switchCase, SwitchCase.SWITCH_LABELED_RULE_PROPERTY, Boolean.TRUE, null);
+				}
+			}
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("	static int foo(int i) {\n");
+		buf.append("		int tw = 0;\n");
+		buf.append("		switch (i) {\n");
+		buf.append("			case 1 -> {\n");
+		buf.append(" 				int z = 100;\n");
+		buf.append(" 				break;\n");
+		buf.append("			}\n");
+		buf.append("			case 2 -> {\n");
+		buf.append(" 				break;\n");
+		buf.append("			}\n");
+		buf.append("			default -> {\n");
+		buf.append("				break;\n");
+		buf.append("			}\n");
+		buf.append("		}\n");
+		buf.append("		return tw;\n");
+		buf.append("	}\n");
+		buf.append("	public static void main(String[] args) {\n");
+		buf.append("		System.out.print(foo(1));\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	// replacing colon by ->
+	@SuppressWarnings("rawtypes")
+	public void testSwitchStatement_Bug543720_06_since_12() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String s	=
+				"package test1;\n"+
+				"public class X {\n"+
+				"	static int foo(int i) {\n"+
+				"		int tw = 0;\n"+
+				"		switch (i) {\n"+
+				"			case 1 -> {\n"+
+				" 				int z = 100;\n"+
+				" 				break;\n"+
+				"			}\n"+
+				"			case 2 -> {\n"+
+				" 				break;\n"+
+				"			}\n"+
+				"			default -> {\n"+
+				"				break;\n"+
+				"			}\n"+
+				"		}\n"+
+				"		return tw;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.print(foo(1));\n"+
+				"	}\n"+
+				"}\n";
+		StringBuffer buf = new StringBuffer(s);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements= block.statements();
+		{ // set switch labeled rule
+			SwitchStatement switchStmt = (SwitchStatement) blockStatements.get(1);
+			for (int i = 0, l = switchStmt.statements().size(); i < l; ++i) {
+				Statement stmt = (Statement) switchStmt.statements().get(i);
+				if (stmt instanceof SwitchCase) {
+					SwitchCase switchCase = (SwitchCase) stmt;
+					assertTrue("Switch case has colon", switchCase.isSwitchLabeledRule() == true);
+					rewrite.set(switchCase, SwitchCase.SWITCH_LABELED_RULE_PROPERTY, Boolean.FALSE, null);
+				}
+			}
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("	static int foo(int i) {\n");
+		buf.append("		int tw = 0;\n");
+		buf.append("		switch (i) {\n");
+		buf.append("			case 1 : {\n");
+		buf.append(" 				int z = 100;\n");
+		buf.append(" 				break;\n");
+		buf.append("			}\n");
+		buf.append("			case 2 : {\n");
+		buf.append(" 				break;\n");
+		buf.append("			}\n");
+		buf.append("			default : {\n");
+		buf.append("				break;\n");
+		buf.append("			}\n");
+		buf.append("		}\n");
+		buf.append("		return tw;\n");
+		buf.append("	}\n");
+		buf.append("	public static void main(String[] args) {\n");
+		buf.append("		System.out.print(foo(1));\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+	// replacing colon by ->
+	@SuppressWarnings("rawtypes")
+	public void testSwitchExpression_Bug543720_07_since_12() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String s	=
+				"package test1;\n"+
+				"public class X {\n"+
+				"	static int foo(int i) {\n"+
+				"		int tw =\n"+
+				"		switch (i) {\n"+
+				"			case 1 : {\n"+
+				" 				int z = 100;\n"+
+				" 				break;\n"+
+				"			}\n"+
+				"			case 2 : {\n"+
+				" 				break;\n"+
+				"			}\n"+
+				"			default : {\n"+
+				"				break;\n"+
+				"			}\n"+
+				"		};\n"+
+				"		return tw;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.print(foo(1));\n"+
+				"	}\n"+
+				"}\n";
+		StringBuffer buf = new StringBuffer(s);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements= block.statements();
+		{
+			VariableDeclarationStatement stmt = (VariableDeclarationStatement) blockStatements.get(0);
+			SwitchExpression switchExpression= (SwitchExpression) ((VariableDeclarationFragment) stmt.fragments().get(0)).getInitializer();
+			for (int i = 0, l = switchExpression.statements().size(); i < l; ++i) {
+				Statement stmt1 = (Statement) switchExpression.statements().get(i);
+				if (stmt1 instanceof SwitchCase) {
+					SwitchCase switchCase = (SwitchCase) stmt1;
+					assertTrue("Switch case has arrow", switchCase.isSwitchLabeledRule() == false);
+					rewrite.set(switchCase, SwitchCase.SWITCH_LABELED_RULE_PROPERTY, Boolean.TRUE, null);
+				}
+			}
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("	static int foo(int i) {\n");
+		buf.append("		int tw =\n");
+		buf.append("		switch (i) {\n");
+		buf.append("			case 1 -> {\n");
+		buf.append(" 				int z = 100;\n");
+		buf.append(" 				break;\n");
+		buf.append("			}\n");
+		buf.append("			case 2 -> {\n");
+		buf.append(" 				break;\n");
+		buf.append("			}\n");
+		buf.append("			default -> {\n");
+		buf.append("				break;\n");
+		buf.append("			}\n");
+		buf.append("		};\n");
+		buf.append("		return tw;\n");
+		buf.append("	}\n");
+		buf.append("	public static void main(String[] args) {\n");
+		buf.append("		System.out.print(foo(1));\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	// replacing colon by ->
+	@SuppressWarnings("rawtypes")
+	public void testSwitchExpression_Bug543720_08_since_12() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		String s	=
+				"package test1;\n"+
+				"public class X {\n"+
+				"	static int foo(int i) {\n"+
+				"		int tw =\n"+
+				"		switch (i) {\n"+
+				"			case 1 -> {\n"+
+				" 				int z = 100;\n"+
+				" 				break;\n"+
+				"			}\n"+
+				"			case 2 -> {\n"+
+				" 				break;\n"+
+				"			}\n"+
+				"			default -> {\n"+
+				"				break;\n"+
+				"			}\n"+
+				"		};\n"+
+				"		return tw;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.print(foo(1));\n"+
+				"	}\n"+
+				"}\n";
+		StringBuffer buf = new StringBuffer(s);
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements= block.statements();
+		{
+			VariableDeclarationStatement stmt = (VariableDeclarationStatement) blockStatements.get(0);
+			SwitchExpression switchExpression= (SwitchExpression) ((VariableDeclarationFragment) stmt.fragments().get(0)).getInitializer();
+			for (int i = 0, l = switchExpression.statements().size(); i < l; ++i) {
+				Statement stmt1 = (Statement) switchExpression.statements().get(i);
+				if (stmt1 instanceof SwitchCase) {
+					SwitchCase switchCase = (SwitchCase) stmt1;
+					assertTrue("Switch case has colon", switchCase.isSwitchLabeledRule() == true);
+					rewrite.set(switchCase, SwitchCase.SWITCH_LABELED_RULE_PROPERTY, Boolean.FALSE, null);
+				}
+			}
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuffer();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("	static int foo(int i) {\n");
+		buf.append("		int tw =\n");
+		buf.append("		switch (i) {\n");
+		buf.append("			case 1 : {\n");
+		buf.append(" 				int z = 100;\n");
+		buf.append(" 				break;\n");
+		buf.append("			}\n");
+		buf.append("			case 2 : {\n");
+		buf.append(" 				break;\n");
+		buf.append("			}\n");
+		buf.append("			default : {\n");
+		buf.append("				break;\n");
+		buf.append("			}\n");
+		buf.append("		};\n");
+		buf.append("		return tw;\n");
+		buf.append("	}\n");
+		buf.append("	public static void main(String[] args) {\n");
+		buf.append("		System.out.print(foo(1));\n");
+		buf.append("	}\n");
+		buf.append("}\n");
+		assertEqualString(preview, buf.toString());
+	}
 }

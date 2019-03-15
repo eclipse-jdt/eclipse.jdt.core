@@ -987,15 +987,15 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() >= JLS12) {
 			if (node.isDefault()) {
 				this.result.append("default");//$NON-NLS-1$
-				this.result.append(node.isSwitchLabeledRule() ? "->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
+				this.result.append(getBooleanAttribute(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY) ? "->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
 			} else {
 				this.result.append("case ");//$NON-NLS-1$
 				for (Iterator it = node.expressions().iterator(); it.hasNext(); ) {
 					Expression t = (Expression) it.next();
 						t.accept(this);
-						this.result.append(it.hasNext() ? ", " : //$NON-NLS-1$
-							node.isSwitchLabeledRule() ? "->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
+						this.result.append(it.hasNext() ? ", " : ""); //$NON-NLS-1$ //$NON-NLS-2$
 				}
+				this.result.append(getBooleanAttribute(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY) ? "->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
 			}
 		} else {
 			ASTNode expression= getChildNode(node, INTERNAL_SWITCH_EXPRESSION_PROPERTY);
