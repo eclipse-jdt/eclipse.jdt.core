@@ -57,6 +57,12 @@ public class SwitchCase extends Statement {
 	public static final ChildListPropertyDescriptor EXPRESSIONS2_PROPERTY  =
 			new ChildListPropertyDescriptor(SwitchCase.class, "expression", Expression.class, CYCLE_RISK); //$NON-NLS-1$);
 	
+	/**
+	 * The "switchLabeledRule" structural property of this node type (type: {@link Boolean}).
+	 * @since 3.17 BETA_JAVA_12
+	 */
+	public static final SimplePropertyDescriptor SWITCH_LABELED_RULE_PROPERTY =
+		new SimplePropertyDescriptor(SwitchCase.class, "switchLabeledRule", boolean.class, MANDATORY); //$NON-NLS-1$
 	
 	/**
 	 * A list of property descriptors (element type:
@@ -81,6 +87,7 @@ public class SwitchCase extends Statement {
 		propertyList = new ArrayList(2);
 		createPropertyList(SwitchCase.class, propertyList);
 		addProperty(EXPRESSIONS2_PROPERTY , propertyList);
+		addProperty(SWITCH_LABELED_RULE_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_12 = reapPropertyList(propertyList);
 	}
 
@@ -141,6 +148,20 @@ public class SwitchCase extends Statement {
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
+	}
+
+	@Override
+	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean value) {
+		if (property == SWITCH_LABELED_RULE_PROPERTY) {
+			if (get) {
+				return isSwitchLabeledRule();
+			} else {
+				setSwitchLabeledRule(value);
+				return false;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetBooleanProperty(property, get, value);
 	}
 
 	@Override
@@ -276,7 +297,9 @@ public class SwitchCase extends Statement {
 	 */
 	public void setSwitchLabeledRule(boolean switchLabeledRule) {
 		unsupportedBelow12();
+		preValueChange(SWITCH_LABELED_RULE_PROPERTY);
 		this.switchLabeledRule = switchLabeledRule;
+		postValueChange(SWITCH_LABELED_RULE_PROPERTY);
 	}
 	
 	/**

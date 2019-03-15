@@ -46,6 +46,12 @@
                 <message_argument value="EXPRESSIONS2_PROPERTY"/>
             </message_arguments>
         </filter>
+        <filter comment="For Java 12 Support - case -&gt;" id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.SwitchCase"/>
+                <message_argument value="SWITCH_LABELED_RULE_PROPERTY"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="model/org/eclipse/jdt/core/util/IClassFileReader.java" type="org.eclipse.jdt.core.util.IClassFileReader">
         <filter comment="default method added for getting nest members" id="404000815">
