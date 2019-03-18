@@ -2234,4 +2234,37 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"Type mismatch: cannot convert from Object to boolean\n" + 
 			"----------\n");
 	}
+	public void testBug545333() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    @SuppressWarnings(\"preview\")\n"+
+				"	public static int foo(int i) throws MyException {\n"+
+				"    	int v = switch (i) {\n"+
+				"    		default -> throw new MyException();\n"+
+				"    	};\n"+
+				"        return v;\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"    	try {\n"+
+				"			System.out.println(X.foo(1));\n"+
+				"		} catch (MyException e) {\n"+
+				"			System.out.println(\"Exception thrown as expected\");\n"+
+				"		}\n"+
+				"	}\n"+
+				"}\n"+
+				"class MyException extends Exception {\n"+
+				"	private static final long serialVersionUID = 3461899582505930473L;	\n"+
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	int v = switch (i) {\n" + 
+			"    		default -> throw new MyException();\n" + 
+			"    	};\n" + 
+			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"A switch expression should have at least one result expression\n" + 
+			"----------\n");
+	}
 }
