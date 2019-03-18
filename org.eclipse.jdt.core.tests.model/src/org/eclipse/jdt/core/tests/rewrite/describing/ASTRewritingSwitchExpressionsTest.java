@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchExpression;
 import org.eclipse.jdt.core.dom.SwitchStatement;
@@ -37,6 +38,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+
 import junit.framework.Test;
 
 public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
@@ -109,7 +111,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 
 			ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
-			listRewrite.insertLast(caseStatement1, null);
+			listRewrite.insertAt(caseStatement1, 0, null);
 			listRewrite.insertLast(statement1, null);
 			listRewrite.insertLast(caseStatement2, null);
 		}
@@ -777,5 +779,73 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		buf.append("	}\n");
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
+	}
+	@SuppressWarnings("rawtypes")
+	public void _testSwitchExpressions_05_since_12() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder builder= new StringBuilder();
+		builder.append("package test1;\n");
+		builder.append("public class X {\n");
+		builder.append("    public String foo(int i) {\n" +
+				"		String ret = switch(i%2) {\n" + 
+				"		case 0 -> \"even\";\n" + 
+				"		default -> \"\";\n" + 
+				"		};\n" + 
+				"		return ret;");
+		builder.append("    }\n");
+		builder.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", builder.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements= block.statements();
+		AST ast= astRoot.getAST();
+		assertEquals("incorrect no of statements", 2, blockStatements.size());
+		{ // insert a case
+			VariableDeclarationStatement varStatement= (VariableDeclarationStatement) blockStatements.get(0);
+			List fragments = varStatement.fragments();
+			assertEquals("Incorrect no of fragments", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			SwitchExpression initializer = (SwitchExpression) fragment.getInitializer();
+			List statements= initializer.statements();
+			assertEquals("incorrect Number of statements", 4, statements.size());
+
+			SwitchCase cse1 = (SwitchCase) statements.get(0);
+			rewrite.set(cse1, SwitchCase.SWITCH_LABELED_RULE_PROPERTY, Boolean.FALSE, null);
+			SwitchCase cse2 = (SwitchCase) statements.get(2);
+			rewrite.set(cse2, SwitchCase.SWITCH_LABELED_RULE_PROPERTY, Boolean.FALSE, null);
+			
+			ListRewrite listRewrite= rewrite.getListRewrite(initializer, SwitchExpression.STATEMENTS_PROPERTY);
+			SwitchCase caseStatement1= ast.newSwitchCase();
+			caseStatement1.setSwitchLabeledRule(false);
+			caseStatement1.expressions().add(ast.newNumberLiteral("1"));
+			BreakStatement statement1= ast.newBreakStatement();
+			StringLiteral literal1 = ast.newStringLiteral();
+			literal1.setLiteralValue("odd");
+			statement1.setExpression(literal1);
+			statement1.setImplicit(true);
+			listRewrite.insertAt(caseStatement1, 2, null);
+			listRewrite.insertAt(statement1, 3, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+		builder= new StringBuilder();
+		builder.append("package test1;\n");
+		builder.append("public class X {\n");
+		builder.append("    public String foo(int i) {\n" +
+				"		String ret = switch(i%2) {\n" + 
+				"		case 0 : \"even\";\n" + 
+				"		case 1 : \"odd\";\n" + 
+				"		default : \"\";\n" + 
+				"		};\n" + 
+				"		return ret;");
+		builder.append("    }\n");
+		builder.append("}\n");
+		assertEqualString(preview, builder.toString());
 	}
 }
