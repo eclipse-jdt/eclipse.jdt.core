@@ -2304,4 +2304,66 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			new String[] { "--enable-preview"},
 			options);
 	}
+	public void testBug545518a() {
+		if (this.complianceLevel < ClassFileConstants.JDK12)
+			return;
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String message = 
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
+				"	                     ^^^^^^^^^^^^\n" + 
+				"Dead code\n" + 
+				"----------\n";
+		
+		this.runNegativeTest(new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void main(String [] args) {\n" +
+				"  	 String arg = \"ABD\";\n" +
+				"    switch(arg) {\n" + 
+				"      case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
+				"	 }\n" +
+				"  }\n" +
+				"}\n"
+			},
+			message,
+			null,
+			true,
+			new String[] { "--enable-preview"},
+			options);
+	}
+	public void testBug545518b() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
+		String message = 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Multi constant case is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"----------\n";
+		
+		this.runNegativeTest(new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void main(String [] args) {\n" +
+				"  	 String arg = \"ABD\";\n" +
+				"    switch(arg) {\n" + 
+				"      case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
+				"	 }\n" +
+				"  }\n" +
+				"}\n"
+			},
+			message,
+			null,
+			true,
+			new String[] { "--enable-preview"},
+			options);
+	}
 }

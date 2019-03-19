@@ -2229,14 +2229,25 @@ protected void consumeCaseLabel() {
 		// TODO : ERROR
 	}
 	CaseStatement caseStatement = new CaseStatement(constantExpressions[0], constantExpressions[length - 1].sourceEnd, this.intStack[this.intPtr--]);
+	if (constantExpressions.length > 1) {
+		if (this.parsingJava12Plus) {
+			if (this.options.enablePreviewFeatures) {
+				if (this.options.isAnyEnabled(IrritantSet.PREVIEW) && constantExpressions.length > 1) {
+					problemReporter().previewFeatureUsed(caseStatement.sourceStart, caseStatement.sourceEnd);
+				}
+			} else {
+				problemReporter().previewFeatureNotEnabled(caseStatement.sourceStart, caseStatement.sourceEnd, "Multi constant case"); //$NON-NLS-1$
+			}
+		} else {
+			problemReporter().previewFeatureNotSupported(caseStatement.sourceStart, caseStatement.sourceEnd, "Multi constant case", CompilerOptions.VERSION_12); //$NON-NLS-1$
+		}
+	}
 	caseStatement.constantExpressions = constantExpressions;
 	// Look for $fall-through$ tag in leading comment for case statement
 	if (hasLeadingTagComment(FALL_THROUGH_TAG, caseStatement.sourceStart)) {
 		caseStatement.bits |= ASTNode.DocumentedFallthrough;
 	}
-	if (this.options.sourceLevel <= ClassFileConstants.JDK12 && constantExpressions.length > 1) {
-		problemReporter().previewFeatureUsed(caseStatement.sourceStart, caseStatement.sourceEnd);
-	}
+
 	pushOnAstStack(caseStatement);
 }
 protected void consumeCastExpressionLL1() {
@@ -9529,7 +9540,6 @@ protected void consumeCaseLabelExpr() {
 	consumeCaseLabel();
 	CaseStatement caseStatement = (CaseStatement) this.astStack[this.astPtr];
 	if (!this.parsingJava12Plus) {
-//		problemReporter().caseStatementWithArrowNotBelow12(caseStatement);
 		problemReporter().previewFeatureNotSupported(caseStatement.sourceStart, caseStatement.sourceEnd, "Case Labels with '->'", CompilerOptions.VERSION_12); //$NON-NLS-1$
 	} else if (!this.options.enablePreviewFeatures){
 		problemReporter().previewFeatureNotEnabled(caseStatement.sourceStart, caseStatement.sourceEnd, "Case Labels with '->'"); //$NON-NLS-1$
@@ -9545,7 +9555,6 @@ protected void consumeDefaultLabelExpr() {
 	consumeDefaultLabel();
 	CaseStatement defaultStatement = (CaseStatement) this.astStack[this.astPtr];
 	if (!this.parsingJava12Plus) {
-//		problemReporter().caseStatementWithArrowNotBelow12(defaultStatement);
 		problemReporter().previewFeatureNotSupported(defaultStatement.sourceStart, defaultStatement.sourceEnd, "Case Labels with '->'", CompilerOptions.VERSION_12); //$NON-NLS-1$
 	} else if (!this.options.enablePreviewFeatures){
 		problemReporter().previewFeatureNotEnabled(defaultStatement.sourceStart, defaultStatement.sourceEnd, "Case Labels with '->'"); //$NON-NLS-1$
