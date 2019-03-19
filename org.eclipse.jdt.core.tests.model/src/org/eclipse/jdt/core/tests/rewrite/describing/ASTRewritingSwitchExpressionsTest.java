@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
@@ -824,11 +825,9 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 			SwitchCase caseStatement1= ast.newSwitchCase();
 			caseStatement1.setSwitchLabeledRule(false);
 			caseStatement1.expressions().add(ast.newNumberLiteral("1"));
-			BreakStatement statement1= ast.newBreakStatement();
 			StringLiteral literal1 = ast.newStringLiteral();
 			literal1.setLiteralValue("odd");
-			statement1.setExpression(literal1);
-			statement1.setImplicit(true);
+			ExpressionStatement statement1 = ast.newExpressionStatement(literal1);
 			listRewrite.insertAt(caseStatement1, 2, null);
 			listRewrite.insertAt(statement1, 3, null);
 		}
