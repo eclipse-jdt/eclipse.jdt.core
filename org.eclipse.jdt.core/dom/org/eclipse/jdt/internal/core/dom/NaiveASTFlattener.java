@@ -464,11 +464,13 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(BreakStatement node) {
-		if (node.getAST().apiLevel() >= JLS12 && node.isImplicit()) {
+		if (node.getAST().apiLevel() >= JLS12 && node.isImplicit()  && node.getExpression() == null) {
 			return false;
 		}
 		printIndent();
-		this.buffer.append("break");//$NON-NLS-1$
+		if (node.getAST().apiLevel() < JLS12 || (node.getAST().apiLevel() >= JLS12 && !node.isImplicit())) {
+			this.buffer.append("break"); //$NON-NLS-1$
+		}
 		if (node.getLabel() != null) {
 			this.buffer.append(" ");//$NON-NLS-1$
 			node.getLabel().accept(this);

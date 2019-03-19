@@ -781,7 +781,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	@SuppressWarnings("rawtypes")
-	public void _testSwitchExpressions_05_since_12() throws Exception {
+	public void testSwitchExpressions_05_since_12() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder builder= new StringBuilder();
 		builder.append("package test1;\n");
@@ -833,6 +833,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 			listRewrite.insertAt(statement1, 3, null);
 		}
 
+		// Expected output is not ideal due to formatting issue Bug 545439
 		String preview= evaluateRewrite(cu, rewrite);
 		builder= new StringBuilder();
 		builder.append("package test1;\n");
@@ -840,7 +841,8 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		builder.append("    public String foo(int i) {\n" +
 				"		String ret = switch(i%2) {\n" + 
 				"		case 0 : \"even\";\n" + 
-				"		case 1 : \"odd\";\n" + 
+				"            case 1:\n" +
+				"                \"odd\";\n" + 
 				"		default : \"\";\n" + 
 				"		};\n" + 
 				"		return ret;");
