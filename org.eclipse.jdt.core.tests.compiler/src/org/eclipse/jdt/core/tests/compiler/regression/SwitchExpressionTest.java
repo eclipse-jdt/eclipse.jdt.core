@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -2266,5 +2267,41 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"A switch expression should have at least one result expression\n" + 
 			"----------\n");
+	}
+	public void testBug545518() {
+		if (this.complianceLevel < ClassFileConstants.JDK12)
+			return;
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
+		String message = 
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"You are using a preview language feature that may or may not be supported in a future release\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 5)\n" + 
+				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
+				"	                     ^^^^^^^^^^^^\n" + 
+				"Dead code\n" + 
+				"----------\n";
+		
+		this.runNegativeTest(new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void main(String [] args) {\n" +
+				"  	 String arg = \"ABD\";\n" +
+				"    switch(arg) {\n" + 
+				"      case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
+				"	 }\n" +
+				"  }\n" +
+				"}\n"
+			},
+			message,
+			null,
+			true,
+			new String[] { "--enable-preview"},
+			options);
 	}
 }

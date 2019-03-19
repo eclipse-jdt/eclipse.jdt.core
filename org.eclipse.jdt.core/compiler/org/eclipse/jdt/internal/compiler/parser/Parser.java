@@ -2234,6 +2234,9 @@ protected void consumeCaseLabel() {
 	if (hasLeadingTagComment(FALL_THROUGH_TAG, caseStatement.sourceStart)) {
 		caseStatement.bits |= ASTNode.DocumentedFallthrough;
 	}
+	if (this.options.sourceLevel <= ClassFileConstants.JDK12 && constantExpressions.length > 1) {
+		problemReporter().previewFeatureUsed(caseStatement.sourceStart, caseStatement.sourceEnd);
+	}
 	pushOnAstStack(caseStatement);
 }
 protected void consumeCastExpressionLL1() {

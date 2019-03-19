@@ -56,23 +56,25 @@ public FlowInfo analyseCode(
 	FlowInfo flowInfo) {
 	if (this.constantExpressions != null && this.constantExpressions.length > 1) {
 		for (Expression e : this.constantExpressions) {
-			if (e.constant == Constant.NotAConstant
-					&& !e.resolvedType.isEnum()) {
-				currentScope.problemReporter().caseExpressionMustBeConstant(e);
-			}
-			this.constantExpression.analyseCode(currentScope, flowContext, flowInfo);
+			analyseConstantExpression(currentScope, flowContext, flowInfo, e);
 		}
-		
 	} else {
 		if (this.constantExpression != null) {
-			if (this.constantExpression.constant == Constant.NotAConstant
-					&& !this.constantExpression.resolvedType.isEnum()) {
-				currentScope.problemReporter().caseExpressionMustBeConstant(this.constantExpression);
-			}
-			this.constantExpression.analyseCode(currentScope, flowContext, flowInfo);
+			analyseConstantExpression(currentScope, flowContext, flowInfo, this.constantExpression);
 		}
 	}
 	return flowInfo;
+}
+private void analyseConstantExpression(
+		BlockScope currentScope,
+		FlowContext flowContext,
+		FlowInfo flowInfo, 
+		Expression e) {
+	if (e.constant == Constant.NotAConstant
+			&& !e.resolvedType.isEnum()) {
+		currentScope.problemReporter().caseExpressionMustBeConstant(e);
+	}
+	e.analyseCode(currentScope, flowContext, flowInfo);
 }
 
 @Override
