@@ -43,7 +43,7 @@ public class BreakStatement extends Statement {
 	
 	/**
 	 * The "expression" structural property of this node type (child type: {@link Expression}). (added in JEP 325).
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
 			new ChildPropertyDescriptor(BreakStatement.class, "expression", Expression.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$);
@@ -217,7 +217,7 @@ public class BreakStatement extends Statement {
 	 *
 	 * @return the expression, or <code>null</code> if there is none
 	 * @exception UnsupportedOperationException if this operation is used below JLS12
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	public Expression getExpression() {
 		// optionalExpression can be null
@@ -236,7 +236,7 @@ public class BreakStatement extends Statement {
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used below JLS12
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	public void setExpression(Expression expression) {
 		unsupportedBelow12();
@@ -252,7 +252,7 @@ public class BreakStatement extends Statement {
 	 *
 	 * @return isImplicit <code>true</code> or <code>false</code>
 	 * @exception UnsupportedOperationException if this operation is used below JLS12
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	public boolean isImplicit() {
 		unsupportedBelow12();
@@ -266,7 +266,7 @@ public class BreakStatement extends Statement {
 
 	 * @param isImplicit <code>true</code> or <code>false</code>
 	 * @exception UnsupportedOperationException if this operation is used below JLS12
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	void setImplicit(boolean isImplicit) {
 		unsupportedBelow12();

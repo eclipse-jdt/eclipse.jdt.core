@@ -48,14 +48,14 @@ public class SwitchCase extends Statement {
 
 	/**
 	 * The "expression" structural property of this node type (child type: {@link Expression}). (added in JEP 325).
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	public static final ChildListPropertyDescriptor EXPRESSIONS2_PROPERTY  =
 			new ChildListPropertyDescriptor(SwitchCase.class, "expression", Expression.class, CYCLE_RISK); //$NON-NLS-1$);
 	
 	/**
 	 * The "switchLabeledRule" structural property of this node type (type: {@link Boolean}).
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	public static final SimplePropertyDescriptor SWITCH_LABELED_RULE_PROPERTY =
 		new SimplePropertyDescriptor(SwitchCase.class, "switchLabeledRule", boolean.class, MANDATORY); //$NON-NLS-1$
@@ -252,7 +252,7 @@ public class SwitchCase extends Statement {
 	 *  @return the list of expression nodes
 	 *    (element type: {@link Expression})
 	 * @exception UnsupportedOperationException if this operation is used below JLS12
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	public List expressions() {
 		if (this.expressions == null) {
@@ -289,7 +289,7 @@ public class SwitchCase extends Statement {
 
 	 * @param switchLabeledRule <code>true</code> or <code>false</code>
 	 * @exception UnsupportedOperationException if this operation is used below JLS12
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	public void setSwitchLabeledRule(boolean switchLabeledRule) {
 		unsupportedBelow12();
@@ -304,7 +304,7 @@ public class SwitchCase extends Statement {
 	 *
 	 * @return switchLabeledRule <code>true</code> or <code>false</code>
 	 * @exception UnsupportedOperationException if this operation is used below JLS12
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	public boolean isSwitchLabeledRule() {
 		unsupportedBelow12();

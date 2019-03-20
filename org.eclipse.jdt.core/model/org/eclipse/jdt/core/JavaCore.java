@@ -2580,7 +2580,7 @@ public final class JavaCore extends Plugin {
 	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	public static final String COMPILER_PB_ENABLE_PREVIEW_FEATURES = PLUGIN_ID + ".compiler.problem.enablePreviewFeatures"; //$NON-NLS-1$
 	/**
@@ -2592,7 +2592,7 @@ public final class JavaCore extends Plugin {
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	public static final String COMPILER_PB_REPORT_PREVIEW_FEATURES = PLUGIN_ID + ".compiler.problem.reportPreviewFeatures"; //$NON-NLS-1$
 	/**
@@ -3053,7 +3053,7 @@ public final class JavaCore extends Plugin {
 	public static final String VERSION_11 = "11"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 * @category OptionValue
 	 */
 	public static final String VERSION_12 = "12"; //$NON-NLS-1$

@@ -7,7 +7,7 @@
                 <message_argument value="3.16.0"/>
             </message_arguments>
         </filter>
-        <filter comment="Address this while merging BETA_JAVA_12" id="924844039">
+        <filter comment="Address this while merging 12" id="924844039">
             <message_arguments>
                 <message_argument value="3.17.0"/>
                 <message_argument value="3.17.0"/>
@@ -15,7 +15,7 @@
         </filter>
     </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
-        <filter comment="To be addressed while merging BETA_JAVA_12" id="336658481">
+        <filter comment="To be addressed while merging 12" id="336658481">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.compiler.CategorizedProblem"/>
                 <message_argument value="CAT_COMPLIANCE"/>

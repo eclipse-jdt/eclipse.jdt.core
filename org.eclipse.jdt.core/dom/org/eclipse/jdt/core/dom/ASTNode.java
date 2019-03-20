@@ -959,7 +959,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>SwitchExpression</code>.
 	 * @see SwitchExpression
-	 * @since 3.17 BETA_JAVA_12
+	 * @since 3.17
 	 */
 	public static final int SWITCH_EXPRESSION = 100;
 
