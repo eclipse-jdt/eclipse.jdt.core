@@ -2297,7 +2297,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.17
+	 * @since 3.18
 	 */
 	public boolean match(SwitchExpression node, Object other) {
 		if (!(other instanceof SwitchExpression)) {

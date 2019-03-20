@@ -283,7 +283,7 @@ public final class AST {
 	 * up to and including Java SE 12 (aka JDK 12).
 	 * </p>
 	 *
-	 * @since 3.17
+	 * @since 3.18
 	 */
 	public static final int JLS12 = 12;
 	/**
@@ -2580,7 +2580,7 @@ public final class AST {
 	 * and there are no statements or switch cases.
 	 *
 	 * @return a new unparented labeled switch expression node
-	 * @since 3.17
+	 * @since 3.18
 	 */
 	public SwitchExpression newSwitchExpression() {
 		SwitchExpression result = new SwitchExpression(this);

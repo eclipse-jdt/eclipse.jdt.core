@@ -2047,11 +2047,11 @@ void setSourceStart(int sourceStart);
 	int LambdaShapeComputationError = 1101;
 	/** @since 3.13 */
 	int ProblemNotAnalysed = 1102;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int PreviewFeatureDisabled = Compliance + 1103;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int PreviewFeatureUsed = Compliance + 1104;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int PreviewFeatureNotSupported = Compliance + 1105;
 	
 	/** @since 3.13 */
@@ -2086,24 +2086,24 @@ void setSourceStart(int sourceStart);
 	int VarIsNotAllowedHere = Syntax + 1511; // ''var'' is not allowed here
 	/** @since 3.16 */
 	int VarCannotBeMixedWithNonVarParams = Syntax + 1512; // ''var'' cannot be mixed with explicit or implicit parameters
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int SwitchExpressionsIncompatibleResultExpressionTypes = TypeRelated + 1600;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int SwitchExpressionsEmptySwitchBlock = Internal + 1601;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int SwitchExpressionsNoResultExpression = TypeRelated + 1602;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int SwitchExpressionSwitchLabeledBlockCompletesNormally = Internal + 1603;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int SwitchExpressionLastStatementCompletesNormally = Internal + 1604;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int SwitchExpressionTrailingSwitchLabels = Internal + 1605;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int switchMixedCase = Syntax + 1606;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int SwitchExpressionMissingDefaultCase = Internal + 1607;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int SwitchExpressionBreakMissingValue = Internal + 1610;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int SwitchExpressionMissingEnumConstantCase = Internal + 1611;
 	}

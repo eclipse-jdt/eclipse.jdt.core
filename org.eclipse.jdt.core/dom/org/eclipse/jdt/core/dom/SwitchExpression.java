@@ -32,7 +32,7 @@ import java.util.List;
  * <code>Statement</code>.
  * </p>
  *
- * @since 3.17
+ * @since 3.18
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})

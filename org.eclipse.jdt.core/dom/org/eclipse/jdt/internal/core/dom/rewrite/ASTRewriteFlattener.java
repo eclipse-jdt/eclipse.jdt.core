@@ -97,7 +97,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	/**
 	 * Internal synonym for {@link AST#JLS12}. Use to alleviate
 	 * deprecation warnings.
-	 * @since 3.17
+	 * @since 3.18
 	 */
 	private static final int JLS12 = AST.JLS12;
 

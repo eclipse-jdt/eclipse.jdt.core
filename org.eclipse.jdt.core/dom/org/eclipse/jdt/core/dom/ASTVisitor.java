@@ -1533,7 +1533,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.17
+	 * @since 3.18
 	 */
 	public boolean visit(SwitchExpression node) {
 		return true;
@@ -2847,7 +2847,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.17
+	 * @since 3.18
 	 */
 	public void endVisit(SwitchExpression node) {
 		// default implementation: do nothing

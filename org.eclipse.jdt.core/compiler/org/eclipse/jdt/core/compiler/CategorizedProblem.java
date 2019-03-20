@@ -104,7 +104,7 @@ public abstract class CategorizedProblem implements IProblem {
 	 */
 	public static final int CAT_MODULE = 160;
 	/**
-	 * @since 3.17
+	 * @since 3.18
 	 */
 	public static final int CAT_COMPLIANCE = 170;
 
