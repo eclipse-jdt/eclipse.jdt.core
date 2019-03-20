@@ -160,7 +160,7 @@ public class ClasspathJep247 extends ClasspathJrt {
 									if (content == null)
 										return FileVisitResult.CONTINUE;
 									ClasspathJep247.this.acceptModule(content);
-									ClasspathJep247.this.moduleNamesCache.add(f.getFileName().toString());
+									ClasspathJep247.this.moduleNamesCache.add(JRTUtil.sanitizedFileName(f));
 								}
 								return FileVisitResult.CONTINUE;
 							}
@@ -217,7 +217,7 @@ public class ClasspathJep247 extends ClasspathJrt {
 		List<String> sub = new ArrayList<>();
 		try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(this.releasePath)) {
 			for (final java.nio.file.Path subdir: stream) {
-				String rel = subdir.getFileName().toString();
+				String rel = JRTUtil.sanitizedFileName(subdir);
 				if (rel.contains(this.releaseInHex)) {
 					sub.add(rel);
 				} else {

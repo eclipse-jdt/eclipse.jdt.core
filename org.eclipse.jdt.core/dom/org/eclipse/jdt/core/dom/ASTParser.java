@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2018 IBM Corporation and others.
+ * Copyright (c) 2004, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -234,6 +234,7 @@ public class ASTParser {
 			case AST.JLS9_INTERNAL:
 			case AST.JLS10_INTERNAL:
 			case AST.JLS11_INTERNAL:
+			case AST.JLS12_INTERNAL:
 				break;
 			default:
 				throw new IllegalArgumentException();

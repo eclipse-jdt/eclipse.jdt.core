@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephen Herrmann <stephan@cs.tu-berlin.de> -  Contributions for
@@ -223,14 +223,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 		// is there a chance of null (or non-null)? -> potentially null etc.
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=133125
-		int status = 0;
 		int combinedStatus = this.ifTrueNullStatus|this.ifFalseNullStatus;
-		if ((combinedStatus & (FlowInfo.NULL|FlowInfo.POTENTIALLY_NULL)) != 0)
-			status |= FlowInfo.POTENTIALLY_NULL;
-		if ((combinedStatus & (FlowInfo.NON_NULL|FlowInfo.POTENTIALLY_NON_NULL)) != 0)
-			status |= FlowInfo.POTENTIALLY_NON_NULL;
-		if ((combinedStatus & (FlowInfo.UNKNOWN|FlowInfo.POTENTIALLY_UNKNOWN)) != 0)
-			status |= FlowInfo.POTENTIALLY_UNKNOWN;
+		int status = Expression.computeNullStatus(0, combinedStatus);
 		if (status > 0)
 			this.nullStatus = status;
 	}

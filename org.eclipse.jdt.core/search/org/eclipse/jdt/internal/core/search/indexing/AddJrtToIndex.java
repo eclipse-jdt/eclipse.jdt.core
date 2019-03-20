@@ -98,7 +98,7 @@ public class AddJrtToIndex extends BinaryContainer {
 		@Override
 		public FileVisitResult visitFile(java.nio.file.Path path, java.nio.file.Path mod, BasicFileAttributes attrs)
 				throws IOException {
-			String name = path.getFileName().toString();
+			String name = JRTUtil.sanitizedFileName(path);
 			if (Util.isClassFileName(name) && 
 					isValidPackageNameForClassOrisModule(name)) {
 				this.indexedFileNames.put(name, FILE_INDEX_STATE.EXISTS);
@@ -106,7 +106,7 @@ public class AddJrtToIndex extends BinaryContainer {
 			return FileVisitResult.CONTINUE;
 		}
 		@Override
-		public FileVisitResult visitModule(java.nio.file.Path mod) throws IOException {
+		public FileVisitResult visitModule(java.nio.file.Path path, String name) throws IOException {
 			return FileVisitResult.CONTINUE;
 		}
 	}
@@ -132,7 +132,7 @@ public class AddJrtToIndex extends BinaryContainer {
 		@Override
 		public FileVisitResult visitFile(java.nio.file.Path path, java.nio.file.Path mod, BasicFileAttributes attrs)
 				throws IOException {
-			String name = path.getFileName().toString();
+			String name = JRTUtil.sanitizedFileName(path);
 			if (Util.isClassFileName(name) && 
 					isValidPackageNameForClassOrisModule(name)) {
 				try {

@@ -106,6 +106,7 @@ public class Scanner implements TerminalTokens {
 	public boolean wasAcr = false;
 
 	public boolean fakeInModule = false;
+	boolean inCase = false;
 	/**
 	 * The current context of the scanner w.r.t restricted keywords
 	 *
@@ -1158,7 +1159,12 @@ public void ungetToken(int unambiguousToken) {
 	}
 	this.nextToken = unambiguousToken;
 }
-
+private void updateCase(int token) {
+	if (token == TokenNamecase) 
+		this.inCase = true;
+	if (token == TokenNameCOLON || token == TokenNameARROW) 
+		this.inCase = false;
+}
 public int getNextToken() throws InvalidInputException {
 	
 	int token;
@@ -1179,13 +1185,14 @@ public int getNextToken() throws InvalidInputException {
 	if (this.activeParser == null) { // anybody interested in the grammatical structure of the program should have registered.
 		return token;
 	}
-	if (token == TokenNameLPAREN || token == TokenNameLESS || token == TokenNameAT) {
+	if (token == TokenNameLPAREN || token == TokenNameLESS || token == TokenNameAT || token == TokenNameARROW) {
 		token = disambiguatedToken(token);
 	} else if (token == TokenNameELLIPSIS) {
 		this.consumingEllipsisAnnotations = false;
 	}
 	this.lookBack[0] = this.lookBack[1];
 	this.lookBack[1] = token;
+	updateCase(token);
 	return token;
 }
 protected int getNextToken0() throws InvalidInputException {
@@ -4824,7 +4831,11 @@ int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 }
 int disambiguatedToken(int token) {
 	final VanguardParser parser = getVanguardParser();
-	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
+	if (token == TokenNameARROW  && this.inCase) {
+		this.nextToken = TokenNameARROW;
+		this.inCase = false;
+		return TokenNameBeginCaseExpr;
+	} else	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
 		if (parser.parse(Goal.LambdaParameterListGoal) == VanguardParser.SUCCESS) {
 			this.nextToken = TokenNameLPAREN;
 			return TokenNameBeginLambda;

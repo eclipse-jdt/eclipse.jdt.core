@@ -272,6 +272,8 @@ public class DefaultCodeFormatterOptions {
 	public boolean keep_simple_getter_setter_on_one_line;
 
 	public boolean insert_space_after_and_in_type_parameter;
+	public boolean insert_space_after_arrow_in_switch_case;
+	public boolean insert_space_after_arrow_in_switch_default;
 	public boolean insert_space_after_assignment_operator;
 	public boolean insert_space_after_at_in_annotation;
 	public boolean insert_space_after_at_in_annotation_type_declaration;
@@ -309,6 +311,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_after_comma_in_multiple_local_declarations;
 	public boolean insert_space_after_comma_in_parameterized_type_reference;
 	public boolean insert_space_after_comma_in_superinterfaces;
+	public boolean insert_space_after_comma_in_switch_case_expressions;
 	public boolean insert_space_after_comma_in_type_arguments;
 	public boolean insert_space_after_comma_in_type_parameters;
 	public boolean insert_space_after_ellipsis;
@@ -341,6 +344,8 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_after_semicolon_in_try_resources;
 	public boolean insert_space_after_unary_operator;
 	public boolean insert_space_before_and_in_type_parameter;
+	public boolean insert_space_before_arrow_in_switch_case;
+	public boolean insert_space_before_arrow_in_switch_default;
 	public boolean insert_space_before_at_in_annotation_type_declaration;
 	public boolean insert_space_before_assignment_operator;
 	public boolean insert_space_before_multiplicative_operator;
@@ -393,6 +398,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_before_comma_in_multiple_local_declarations;
 	public boolean insert_space_before_comma_in_parameterized_type_reference;
 	public boolean insert_space_before_comma_in_superinterfaces;
+	public boolean insert_space_before_comma_in_switch_case_expressions;
 	public boolean insert_space_before_comma_in_type_arguments;
 	public boolean insert_space_before_comma_in_type_parameters;
 	public boolean insert_space_before_ellipsis;
@@ -640,6 +646,8 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_GETTER_SETTER_ON_ONE_LINE, this.keep_simple_getter_setter_on_one_line? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_LABEL, this.insert_new_line_after_label? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_AND_IN_TYPE_PARAMETER, this.insert_space_after_and_in_type_parameter? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ARROW_IN_SWITCH_CASE, this.insert_space_after_arrow_in_switch_case? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ARROW_IN_SWITCH_DEFAULT, this.insert_space_after_arrow_in_switch_default? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR, this.insert_space_after_assignment_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_AT_IN_ANNOTATION, this.insert_space_after_at_in_annotation? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_AT_IN_ANNOTATION_TYPE_DECLARATION, this.insert_space_after_at_in_annotation_type_declaration ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -676,6 +684,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS, this.insert_space_after_comma_in_multiple_local_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_PARAMETERIZED_TYPE_REFERENCE, this.insert_space_after_comma_in_parameterized_type_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES, this.insert_space_after_comma_in_superinterfaces? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SWITCH_CASE_EXPRESSIONS, this.insert_space_after_comma_in_switch_case_expressions ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_TYPE_ARGUMENTS, this.insert_space_after_comma_in_type_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_TYPE_PARAMETERS, this.insert_space_after_comma_in_type_parameters ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_BRACKET_IN_ARRAY_ALLOCATION_EXPRESSION, this.insert_space_after_opening_bracket_in_array_allocation_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -708,6 +717,8 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_SEMICOLON_IN_TRY_RESOURCES, this.insert_space_after_semicolon_in_try_resources? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_UNARY_OPERATOR, this.insert_space_after_unary_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_AND_IN_TYPE_PARAMETER, this.insert_space_before_and_in_type_parameter ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ARROW_IN_SWITCH_CASE, this.insert_space_before_arrow_in_switch_case ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ARROW_IN_SWITCH_DEFAULT, this.insert_space_before_arrow_in_switch_default ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_AT_IN_ANNOTATION_TYPE_DECLARATION, this.insert_space_before_at_in_annotation_type_declaration ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ASSIGNMENT_OPERATOR, this.insert_space_before_assignment_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_MULTIPLICATIVE_OPERATOR, this.insert_space_before_multiplicative_operator ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -759,6 +770,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS, this.insert_space_before_comma_in_multiple_field_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS, this.insert_space_before_comma_in_multiple_local_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES, this.insert_space_before_comma_in_superinterfaces? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SWITCH_CASE_EXPRESSIONS, this.insert_space_before_comma_in_switch_case_expressions? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_TYPE_ARGUMENTS, this.insert_space_before_comma_in_type_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_TYPE_PARAMETERS, this.insert_space_before_comma_in_type_parameters? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_PARAMETERIZED_TYPE_REFERENCE, this.insert_space_before_comma_in_parameterized_type_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -1635,6 +1647,10 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceAfterAndInWildcardOption != null) {
 			this.insert_space_after_and_in_type_parameter = JavaCore.INSERT.equals(insertSpaceAfterAndInWildcardOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ARROW_IN_SWITCH_CASE, JavaCore.INSERT,
+				v -> this.insert_space_after_arrow_in_switch_case = v);
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ARROW_IN_SWITCH_DEFAULT, JavaCore.INSERT,
+				v -> this.insert_space_after_arrow_in_switch_default = v);
 		final Object insertSpaceAfterAssignmentOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ASSIGNMENT_OPERATOR);
 		if (insertSpaceAfterAssignmentOperatorOption != null) {
 			this.insert_space_after_assignment_operator = JavaCore.INSERT.equals(insertSpaceAfterAssignmentOperatorOption);
@@ -1765,6 +1781,8 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceAfterCommaInSuperinterfacesOption != null) {
 			this.insert_space_after_comma_in_superinterfaces = JavaCore.INSERT.equals(insertSpaceAfterCommaInSuperinterfacesOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SWITCH_CASE_EXPRESSIONS, JavaCore.INSERT,
+				v -> this.insert_space_after_comma_in_switch_case_expressions = v);
 		final Object insertSpaceAfterCommaInTypeArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_TYPE_ARGUMENTS);
 		if (insertSpaceAfterCommaInTypeArgumentsOption != null) {
 			this.insert_space_after_comma_in_type_arguments = JavaCore.INSERT.equals(insertSpaceAfterCommaInTypeArgumentsOption);
@@ -1893,6 +1911,10 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeAndInWildcardOption != null) {
 			this.insert_space_before_and_in_type_parameter = JavaCore.INSERT.equals(insertSpaceBeforeAndInWildcardOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ARROW_IN_SWITCH_CASE, JavaCore.INSERT,
+				v -> this.insert_space_before_arrow_in_switch_case = v);
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_ARROW_IN_SWITCH_DEFAULT, JavaCore.INSERT,
+				v -> this.insert_space_before_arrow_in_switch_default = v);
 		final Object insertSpaceBeforeAtInAnnotationTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_AT_IN_ANNOTATION_TYPE_DECLARATION);
 		if (insertSpaceBeforeAtInAnnotationTypeDeclarationOption != null) {
 			this.insert_space_before_at_in_annotation_type_declaration = JavaCore.INSERT.equals(insertSpaceBeforeAtInAnnotationTypeDeclarationOption);
@@ -2087,6 +2109,8 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeCommaInSuperinterfacesOption != null) {
 			this.insert_space_before_comma_in_superinterfaces = JavaCore.INSERT.equals(insertSpaceBeforeCommaInSuperinterfacesOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SWITCH_CASE_EXPRESSIONS, JavaCore.INSERT,
+				v -> this.insert_space_before_comma_in_switch_case_expressions = v);
 		final Object insertSpaceBeforeCommaInTypeArgumentsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_TYPE_ARGUMENTS);
 		if (insertSpaceBeforeCommaInTypeArgumentsOption != null) {
 			this.insert_space_before_comma_in_type_arguments = JavaCore.INSERT.equals(insertSpaceBeforeCommaInTypeArgumentsOption);
@@ -2908,6 +2932,8 @@ public class DefaultCodeFormatterOptions {
 		this.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_simple_getter_setter_on_one_line = false;
 		this.insert_space_after_and_in_type_parameter = true;
+		this.insert_space_after_arrow_in_switch_case = true;
+		this.insert_space_after_arrow_in_switch_default = true;
 		this.insert_space_after_assignment_operator = true;
 		this.insert_space_after_at_in_annotation = false;
 		this.insert_space_after_at_in_annotation_type_declaration = false;
@@ -2944,6 +2970,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_comma_in_multiple_local_declarations = true;
 		this.insert_space_after_comma_in_parameterized_type_reference = true;
 		this.insert_space_after_comma_in_superinterfaces = true;
+		this.insert_space_after_comma_in_switch_case_expressions = true;
 		this.insert_space_after_comma_in_type_arguments = true;
 		this.insert_space_after_comma_in_type_parameters = true;
 		this.insert_space_after_ellipsis = true;
@@ -2976,6 +3003,8 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_semicolon_in_try_resources = true;
 		this.insert_space_after_unary_operator = false;
 		this.insert_space_before_and_in_type_parameter = true;
+		this.insert_space_before_arrow_in_switch_case = true;
+		this.insert_space_before_arrow_in_switch_default = true;
 		this.insert_space_before_at_in_annotation_type_declaration = true;
 		this.insert_space_before_assignment_operator = true;
 		this.insert_space_before_multiplicative_operator = true;
@@ -3027,6 +3056,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_multiple_local_declarations = false;
 		this.insert_space_before_comma_in_parameterized_type_reference = false;
 		this.insert_space_before_comma_in_superinterfaces = false;
+		this.insert_space_before_comma_in_switch_case_expressions = false;
 		this.insert_space_before_comma_in_type_arguments = false;
 		this.insert_space_before_comma_in_type_parameters = false;
 		this.insert_space_before_ellipsis = false;
@@ -3257,6 +3287,8 @@ public class DefaultCodeFormatterOptions {
 		this.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.insert_space_after_and_in_type_parameter = true;
+		this.insert_space_after_arrow_in_switch_case = true;
+		this.insert_space_after_arrow_in_switch_default = true;
 		this.insert_space_after_assignment_operator = true;
 		this.insert_space_after_at_in_annotation = false;
 		this.insert_space_after_at_in_annotation_type_declaration = false;
@@ -3293,6 +3325,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_comma_in_multiple_local_declarations = true;
 		this.insert_space_after_comma_in_parameterized_type_reference = true;
 		this.insert_space_after_comma_in_superinterfaces = true;
+		this.insert_space_after_comma_in_switch_case_expressions = true;
 		this.insert_space_after_comma_in_type_arguments = true;
 		this.insert_space_after_comma_in_type_parameters = true;
 		this.insert_space_after_ellipsis = true;
@@ -3325,6 +3358,8 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_semicolon_in_try_resources = true;
 		this.insert_space_after_unary_operator = false;
 		this.insert_space_before_and_in_type_parameter = true;
+		this.insert_space_before_arrow_in_switch_case = true;
+		this.insert_space_before_arrow_in_switch_default = true;
 		this.insert_space_before_at_in_annotation_type_declaration = true;
 		this.insert_space_before_assignment_operator = true;
 		this.insert_space_before_multiplicative_operator = true;
@@ -3376,6 +3411,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_multiple_local_declarations = false;
 		this.insert_space_before_comma_in_parameterized_type_reference = false;
 		this.insert_space_before_comma_in_superinterfaces = false;
+		this.insert_space_before_comma_in_switch_case_expressions = false;
 		this.insert_space_before_comma_in_type_arguments = false;
 		this.insert_space_before_comma_in_type_parameters = false;
 		this.insert_space_before_ellipsis = false;

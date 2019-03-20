@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2016 GK Software AG and others.
+ * Copyright (c) 2013, 2019 GK Software AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -159,6 +159,19 @@ public class NullAnnotationMatching {
 				if (status1 == status2)
 					return status1;
 				return nullStatus; // if both branches disagree use the precomputed & merged nullStatus
+			} else if (expression instanceof SwitchExpression && expression.isPolyExpression()) {
+				// drill into all the branches:
+				SwitchExpression se = ((SwitchExpression) expression);
+				Expression[] resExprs = se.resultExpressions.toArray(new Expression[0]);
+				Expression re = resExprs[0];
+				int status0 = NullAnnotationMatching.checkAssignment(currentScope, flowContext, var, flowInfo, re.nullStatus(flowInfo, flowContext), re, re.resolvedType);
+				boolean identicalStatus = true;
+				for (int i = 1, l = resExprs.length; i < l; ++i) {
+					re = resExprs[i];
+					int otherStatus = NullAnnotationMatching.checkAssignment(currentScope, flowContext, var, flowInfo,  re.nullStatus(flowInfo, flowContext), re, re.resolvedType);
+					identicalStatus &= status0 == otherStatus;		
+				}
+				return identicalStatus ? status0 : nullStatus; // if not all branches agree use the precomputed & merged nullStatus
 			}
 			lhsTagBits = var.type.tagBits & TagBits.AnnotationNullMASK;
 			NullAnnotationMatching annotationStatus = analyse(var.type, providedType, null, null, nullStatus, expression, CheckMode.COMPATIBLE);

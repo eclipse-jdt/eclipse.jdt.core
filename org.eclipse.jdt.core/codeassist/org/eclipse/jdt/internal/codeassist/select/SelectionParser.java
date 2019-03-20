@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper Steen Møller <jesper@selskabet.org> - contributions for:	
@@ -77,7 +77,7 @@ public class SelectionParser extends AssistParser {
 	protected static final int SELECTION_OR_ASSIST_PARSER = ASSIST_PARSER + SELECTION_PARSER;
 
 	// KIND : all values known by SelectionParser are between 1025 and 1549
-	protected static final int K_BETWEEN_CASE_AND_COLON = SELECTION_PARSER + 1; // whether we are inside a block
+	protected static final int K_BETWEEN_CASE_AND_COLONORARROW = SELECTION_PARSER + 1; // whether we are inside a block
 	protected static final int K_INSIDE_RETURN_STATEMENT = SELECTION_PARSER + 2; // whether we are between the keyword 'return' and the end of a return statement
 	protected static final int K_CAST_STATEMENT = SELECTION_PARSER + 3; // whether we are between ')' and the end of a cast statement
 
@@ -125,7 +125,7 @@ protected void attachOrphanCompletionNode(){
 			}
 		}
 
-		if (orphan instanceof Expression) {
+		if (orphan instanceof Expression && ((Expression) orphan).isTrulyExpression()) {
 			buildMoreCompletionContext((Expression)orphan);
 		} else {
 			if (lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) < 0) { // lambdas are recovered up to the containing expression statement and will carry along the assist node anyways.
@@ -150,7 +150,7 @@ private void buildMoreCompletionContext(Expression expression) {
 	if(kind != 0) {
 		int info = topKnownElementInfo(SELECTION_OR_ASSIST_PARSER);
 		nextElement : switch (kind) {
-			case K_BETWEEN_CASE_AND_COLON :
+			case K_BETWEEN_CASE_AND_COLONORARROW :
 				if(this.expressionPtr > 0) {
 					SwitchStatement switchStatement = new SwitchStatement();
 					switchStatement.expression = this.expressionStack[this.expressionPtr - 1];
@@ -1250,11 +1250,26 @@ protected void consumeToken(int token) {
 	if (isInsideMethod() || isInsideFieldInitialization()) {
 		switch (token) {
 			case TokenNamecase :
-				pushOnElementStack(K_BETWEEN_CASE_AND_COLON);
+				pushOnElementStack(K_BETWEEN_CASE_AND_COLONORARROW);
 				break;
+			case TokenNameCOMMA :
+				switch (topKnownElementKind(SELECTION_OR_ASSIST_PARSER)) {
+					// for multi constant case stmt
+					// case MONDAY, FRIDAY
+					// if there's a comma, ignore the previous expression (constant)
+					// Which doesn't matter for the next constant
+					case K_BETWEEN_CASE_AND_COLONORARROW:
+						this.expressionPtr--;
+						this.expressionLengthStack[this.expressionLengthPtr]--;
+				}
+				break;
+			case TokenNameARROW:
+				// TODO: Uncomment the line below
+				//if (this.options.sourceLevel < ClassFileConstants.JDK13) break;
+				// else FALL-THROUGH
 			case TokenNameCOLON:
-				if(topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLON) {
-					popElement(K_BETWEEN_CASE_AND_COLON);
+				if(topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLONORARROW) {
+					popElement(K_BETWEEN_CASE_AND_COLONORARROW);
 				}
 				break;
 			case TokenNamereturn:

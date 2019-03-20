@@ -92,12 +92,8 @@ public class JrtFileSystem extends Archive {
 			}
 
 			@Override
-			public FileVisitResult visitModule(Path mod) throws IOException {
-				String name = mod.getFileName().toString();
-				if (name.endsWith("/")) { //$NON-NLS-1$
-					name = name.substring(0, name.length() - 1);
-				}
-				JrtFileSystem.this.modulePathMap.put(name, mod);
+			public FileVisitResult visitModule(Path path, String name) throws IOException {
+				JrtFileSystem.this.modulePathMap.put(name, path);
 				return FileVisitResult.CONTINUE;
 			}
 		}, JRTUtil.NOTIFY_MODULES);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2018 GK Software AG, and others.
+ * Copyright (c) 2013, 2019 GK Software AG, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
+import org.eclipse.jdt.internal.compiler.ast.SwitchExpression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.BoundCheckStatus;
 import org.eclipse.jdt.internal.compiler.util.Sorting;
@@ -402,7 +403,7 @@ public class InferenceContext18 {
 			// bullets 1&2: definitions only.
 			if (expectedType != null
 					&& expectedType != TypeBinding.VOID
-					&& invocationSite instanceof Expression
+					&& invocationSite instanceof Expression && ((Expression) invocationSite).isTrulyExpression()
 					&& ((Expression)invocationSite).isPolyExpression(method)) 
 			{
 				// 3. bullet: special treatment for poly expressions
@@ -573,6 +574,15 @@ public class InferenceContext18 {
 			if (addJDK_8153748ConstraintsFromExpression(ce.valueIfTrue, parameter, method, substitution) == ReductionResult.FALSE)
 				return ReductionResult.FALSE;
 			return addJDK_8153748ConstraintsFromExpression(ce.valueIfFalse, parameter, method, substitution);
+		} else if (argument instanceof SwitchExpression) {
+			SwitchExpression se = (SwitchExpression) argument;
+			ReductionResult result = ReductionResult.FALSE;
+			for (Expression re : se.resultExpressions) {
+				result = addJDK_8153748ConstraintsFromExpression(re, parameter, method, substitution);
+				if (result == ReductionResult.FALSE)
+					break;
+			}
+			return result;
 		}
 		return null;
 	}
@@ -709,6 +719,13 @@ public class InferenceContext18 {
 			ConditionalExpression ce = (ConditionalExpression) expri;
 			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method)
 					&& addConstraintsToC_OneExpr(ce.valueIfFalse, c, fsi, substF, method);
+		} else if (expri instanceof SwitchExpression) {
+			SwitchExpression se = (SwitchExpression) expri;
+			for (Expression re : se.resultExpressions) {
+				if (!addConstraintsToC_OneExpr(re, c, fsi, substF, method))
+					return false;
+			}
+			return true;
 		}
 		return true;
 	}
@@ -950,6 +967,13 @@ public class InferenceContext18 {
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression cond = (ConditionalExpression) expri;
 			return  checkExpression(cond.valueIfTrue, u, r1, v, r2) && checkExpression(cond.valueIfFalse, u, r1, v, r2);
+		} else if (expri instanceof SwitchExpression) {
+			SwitchExpression se = (SwitchExpression) expri;
+			for (Expression re : se.resultExpressions) {
+				if (!checkExpression(re, u, r1, v, r2))
+					return false;
+			}
+			return true;
 		} else {
 			return false;
 		}

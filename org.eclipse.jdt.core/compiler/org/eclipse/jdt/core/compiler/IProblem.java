@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -373,11 +373,13 @@ void setSourceStart(int sourceStart);
 	int Javadoc = 0x80000000;
 	/** @since 3.14 */
 	int ModuleRelated = 0x00800000;
+	/** @since 3.17 */
+	int Compliance = 0x00400000;
 
 	/**
 	 * Mask to use in order to filter out the category portion of the problem ID.
 	 */
-	int IgnoreCategoriesMask = 0x7FFFFF;
+	int IgnoreCategoriesMask = 0x3FFFFF;
 
 	/*
 	 * Below are listed all available problem IDs. Note that this list could be augmented in the future,
@@ -2045,6 +2047,12 @@ void setSourceStart(int sourceStart);
 	int LambdaShapeComputationError = 1101;
 	/** @since 3.13 */
 	int ProblemNotAnalysed = 1102;
+	/** @since 3.17 */
+	int PreviewFeatureDisabled = Compliance + 1103;
+	/** @since 3.17 */
+	int PreviewFeatureUsed = Compliance + 1104;
+	/** @since 3.17 */
+	int PreviewFeatureNotSupported = Compliance + 1105;
 	
 	/** @since 3.13 */
 	int UnlikelyCollectionMethodArgumentType = 1200;
@@ -2078,5 +2086,24 @@ void setSourceStart(int sourceStart);
 	int VarIsNotAllowedHere = Syntax + 1511; // ''var'' is not allowed here
 	/** @since 3.16 */
 	int VarCannotBeMixedWithNonVarParams = Syntax + 1512; // ''var'' cannot be mixed with explicit or implicit parameters
-	
-}
+	/** @since 3.17 */
+	int SwitchExpressionsIncompatibleResultExpressionTypes = TypeRelated + 1600;
+	/** @since 3.17 */
+	int SwitchExpressionsEmptySwitchBlock = Internal + 1601;
+	/** @since 3.17 */
+	int SwitchExpressionsNoResultExpression = TypeRelated + 1602;
+	/** @since 3.17 */
+	int SwitchExpressionSwitchLabeledBlockCompletesNormally = Internal + 1603;
+	/** @since 3.17 */
+	int SwitchExpressionLastStatementCompletesNormally = Internal + 1604;
+	/** @since 3.17 */
+	int SwitchExpressionTrailingSwitchLabels = Internal + 1605;
+	/** @since 3.17 */
+	int switchMixedCase = Syntax + 1606;
+	/** @since 3.17 */
+	int SwitchExpressionMissingDefaultCase = Internal + 1607;
+	/** @since 3.17 */
+	int SwitchExpressionBreakMissingValue = Internal + 1610;
+	/** @since 3.17 */
+	int SwitchExpressionMissingEnumConstantCase = Internal + 1611;
+	}

@@ -75,7 +75,7 @@ public class JRTUtil {
 		 * how the JRT needs to be processed, for e.g., clients can skip a particular module
 		 * by returning FileVisitResult.SKIP_SUBTREE
 		 */
-		public FileVisitResult visitModule(T mod) throws IOException;
+		public FileVisitResult visitModule(T path, String name) throws IOException;
 	}
 
 	static abstract class AbstractFileVisitor<T> implements FileVisitor<T> {
@@ -180,6 +180,16 @@ public class JRTUtil {
 	public static boolean hasCompilationUnit(File jrt, String qualifiedPackageName, String moduleName) {
 		return getJrtSystem(jrt).hasClassFile(qualifiedPackageName, moduleName);
 	}
+	/*
+	 * Returns only the file name after removing trailing '/' if any for folders
+	 */
+	public static String sanitizedFileName(Path path) {
+		String p = path.getFileName().toString();
+		if (p.length() > 1 && p.charAt(p.length() - 1) == '/') {
+			return p.substring(0, p.length() - 1);
+		}
+		return p;
+	}
 	/**
 	 * Tries to read all bytes of the file denoted by path,
 	 * returns null if the file could not be found or if the read was interrupted.
@@ -253,10 +263,7 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 			List<String> sub = new ArrayList<>();
 			try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(releasePath)) {
 				for (final java.nio.file.Path subdir: stream) {
-					String r = subdir.getFileName().toString();
-					if (r.endsWith("/")) { //$NON-NLS-1$
-						r = r.substring(0, r.length() - 1);
-					}
+					String r = JRTUtil.sanitizedFileName(subdir);
 					if (r.contains(this.releaseInHex)) {
 						sub.add(r);
 					} else {
@@ -292,7 +299,7 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 								return FileVisitResult.SKIP_SUBTREE;
 							}
 							return ((notify & JRTUtil.NOTIFY_MODULES) == 0) ? FileVisitResult.CONTINUE
-									: visitor.visitModule(dir);
+									: visitor.visitModule(dir, JRTUtil.sanitizedFileName(mod));
 						}
 						if ((notify & JRTUtil.NOTIFY_PACKAGES) == 0) {
 							// client is not interested in packages
@@ -466,7 +473,7 @@ class JrtFileSystem {
 	byte[] getClassfileContent(String fileName, String module) throws IOException, ClassFormatException {
 		byte[] content = null;
 		if (module != null) {
-			content = getClassfileBytes(fileName, new String(module.toCharArray()));
+			content = getClassfileBytes(fileName, module);
 		} else {
 			String[] modules = getModules(fileName);
 			for (String mod : modules) {
@@ -543,7 +550,7 @@ class JrtFileSystem {
 						return FileVisitResult.SKIP_SUBTREE;
 					}
 					return ((notify & JRTUtil.NOTIFY_MODULES) == 0) ? 
-							FileVisitResult.CONTINUE : visitor.visitModule(mod);
+							FileVisitResult.CONTINUE : visitor.visitModule(dir, JRTUtil.sanitizedFileName(mod));
 				}
 				if ((notify & JRTUtil.NOTIFY_PACKAGES) == 0) {
 					// We are dealing with a module or not client is not interested in packages

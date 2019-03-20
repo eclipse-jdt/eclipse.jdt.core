@@ -90,11 +90,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.getLatestJDKLevel()) {
+			isJRE12 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK11) {
-			if (CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion, false) == 0) {
-				// version was capped to 11 during versionToJdkLevel(version, true)
-				isJRE12 = true;
-			}
 			isJRE11 = true;
 		}
 		if (jdkLevel >= ClassFileConstants.JDK10) {
@@ -114,7 +113,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 						"jdk.packager,jdk.packager.services,jdk.plugin.dom," +												// not present in OpenJDK
 						"jdk.scripting.nashorn,jdk.sctp,jdk.security.auth,jdk.security.jgss,jdk.unsupported,jdk.xml.dom," +
 						"oracle.desktop,oracle.net";																		// not present in OpenJDK
-			} else if (vmName.contains("OpenJDK")) {
+			} else if (vmName.contains("OpenJDK") || vmName.contains("OpenJ9")) {
 				DEFAULT_MODULES = "java.se," +
 						"jdk.accessibility,jdk.attach,jdk.compiler,jdk.dynalink,jdk.httpserver," +
 						"jdk.incubator.httpclient,jdk.jartool,jdk.javadoc,jdk.jconsole,jdk.jdi," +
@@ -124,7 +123,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				System.out.println(System.getProperties());
 				fail("Unexpected java vm "+javaVersion+" "+vmName);
 			}
-			System.out.println("Recognized Java 9 version '"+javaVersion+"' with vm.name '"+vmName+"'");
+			System.out.println("Recognized Java version '"+javaVersion+"' with vm.name '"+vmName+"'");
 		}
 	}
 
@@ -142,11 +141,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static final int AST_INTERNAL_JLS10 = AST.JLS10;
 
 	/**
+	 * Internal synonym for constant AST.JSL12
+	 * to alleviate deprecation warnings once AST.JLS12 is deprecated in future.
+	 */
+	protected static final int AST_INTERNAL_JLS12 = AST.JLS12;
+
+	/**
 	 * Internal synonym for constant AST.JSL11
 	 * to alleviate deprecation warnings once AST.JLS11 is deprecated in future.
 	 */
 	protected static final int AST_INTERNAL_JLS11 = AST.JLS11;
-
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}
 		public void beginReporting() {}
@@ -2044,6 +2048,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
 					javaProject.setOptions(options);
+				} else if ("12".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+					javaProject.setOptions(options);
 				}
 				result[0] = javaProject;
 			}
@@ -3119,6 +3129,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		javaProject.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
+//		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		return javaProject;
 	}
 	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {
@@ -3136,7 +3147,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			newJclLibString = "JCL18_FULL";
 			newJclSrcString = "JCL18_SRC"; // Use the same source
 		} else {
-			if (compliance.equals("11")) {
+			if (compliance.equals("12")) {
+				newJclLibString = "JCL12_LIB";
+				newJclSrcString = "JCL12_SRC";
+			} else if (compliance.equals("11")) {
 				newJclLibString = "JCL11_LIB";
 				newJclSrcString = "JCL11_SRC";
 			} else if (compliance.equals("10")) {
@@ -3193,10 +3207,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IPath jcl9Lib = new Path("JCL19_LIB");
 		IPath jcl10Lib = new Path("JCL10_LIB");
 		IPath jcl11Lib = new Path("JCL11_LIB");
+		IPath jcl12Lib = new Path("JCL12_LIB");
 		IPath jclFull = new Path("JCL18_FULL");
 
 		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jcl9Lib)
-				|| path.equals(jcl10Lib) ||  path.equals(jcl11Lib) || path.equals(jclFull);
+				|| path.equals(jcl10Lib) ||  path.equals(jcl11Lib) || path.equals(jcl12Lib) || path.equals(jclFull);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		setUpJCLClasspathVariables(compliance, false);
@@ -3257,6 +3272,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL11_LIB", "JCL11_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath("11"), getExternalJCLSourcePath("11"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("12".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL12_LIB") == null) {
+				setupExternalJCL("jclMin12");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL12_LIB", "JCL12_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("12"), getExternalJCLSourcePath("12"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {

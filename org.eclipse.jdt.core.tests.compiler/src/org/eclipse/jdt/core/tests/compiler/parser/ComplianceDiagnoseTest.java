@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,7 +27,7 @@ public class ComplianceDiagnoseTest extends AbstractRegressionTest {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...
 static {
-//	TESTS_NAMES = new String[] { "test0061" };
+//	TESTS_NAMES = new String[] { "testBug531714" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 21, 50 };
 }
@@ -1250,12 +1250,22 @@ public void test0027() {
 	};
 
 	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	for(Object o : switch){\n" +
-		"	           ^\n" +
-		"Syntax error, insert \"; ; ) Statement\" to complete BlockStatements\n" +
-		"----------\n";
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	for(Object o : switch){\n" + 
+			"	             ^\n" + 
+			"Syntax error on token \":\", delete this token\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	for(Object o : switch){\n" + 
+			"	             ^\n" + 
+			"Syntax error, insert \": Expression )\" to complete EnhancedForStatementHeader\n" +  // FIXME: bogus suggestion, this rule is compliance 1.5
+			"----------\n" + 
+			"3. ERROR in X.java (at line 3)\n" + 
+			"	for(Object o : switch){\n" + 
+			"	             ^\n" + 
+			"Syntax error, insert \"Statement\" to complete BlockStatements\n" + 
+			"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -3509,5 +3519,108 @@ public void testBug440285() {
 		"	                                      ^\n" + 
 		"Type arguments are not allowed here\n" + 
 		"----------\n");
+}
+public void testBug531714_001() {
+	if (this.complianceLevel >= ClassFileConstants.JDK12)
+		return;
+	String[] testFiles = 			new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static int twice(int i) {\n" +
+			"		int tw = switch (i) {\n" +
+			"			case 0 -> i * 0;\n" +
+			"			case 1 -> 2;\n" +
+			"			default -> 3;\n" +
+			"		};\n" +
+			"		return tw;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.print(twice(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	int tw = switch (i) {\n" + 
+			"			case 0 -> i * 0;\n" + 
+			"			case 1 -> 2;\n" + 
+			"			default -> 3;\n" + 
+			"		};\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The preview feature Switch Expressions is only available with source level 12 and above\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	case 0 -> i * 0;\n" + 
+			"	^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 12 and above\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	case 1 -> 2;\n" + 
+			"	^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 12 and above\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	default -> 3;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 12 and above\n" + 
+			"----------\n";
+
+	runComplianceParserTest(
+		testFiles,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog
+	);
+}
+public void testBug531714_002() {
+	if (this.complianceLevel >= ClassFileConstants.JDK12)
+		return;
+	String[] testFiles = new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	static int twice(int i) {\n" +
+			"		switch (i) {\n" +
+			"			case 0 -> i * 0;\n" +
+			"			case 1 -> 2;\n" +
+			"			default -> 3;\n" +
+			"		}\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.print(twice(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	case 0 -> i * 0;\n" + 
+			"	^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 12 and above\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	case 1 -> 2;\n" + 
+			"	^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 12 and above\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
+			"	default -> 3;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 12 and above\n" + 
+			"----------\n";
+
+	runComplianceParserTest(
+		testFiles,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog,
+		expectedProblemLog
+	);
 }
 }

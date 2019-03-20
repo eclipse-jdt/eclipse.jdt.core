@@ -120,10 +120,11 @@ public void test5() {
 	assertTrue(JavaCore.compareJavaVersions("9", "1.8") > 0);
 	assertTrue(JavaCore.compareJavaVersions("9.0.1", "9.1.2") == 0);
 	assertTrue(JavaCore.compareJavaVersions("9", "9.1.2") == 0);
+	assertTrue(JavaCore.compareJavaVersions("12", "11") > 0);
+	assertTrue(JavaCore.compareJavaVersions("12", "1.5") > 0);
 	String latest = JavaCore.latestSupportedJavaVersion();
 	String latestPlus = "" + (Integer.parseInt(latest) + 1);
 	assertTrue(JavaCore.compareJavaVersions(latest, latestPlus) == 0);
-	
 }
 }
 

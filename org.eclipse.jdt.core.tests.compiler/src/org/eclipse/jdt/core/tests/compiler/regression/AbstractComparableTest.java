@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -110,6 +110,29 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	}
 	
 	protected String intersection(String... types) {
+		// From JDK 12, Comparable gets two new super interfaces, namely Constable and ConstantDesc.
+		// The idea is to append Comparable with &Constable&ConstantDesc automatically.
+		if (isJRE12Plus) {
+			int index = -1;
+			for(int i = 0; i < types.length; i++) {
+				if (types[i].startsWith("Comparable") && !types[i].endsWith("ConstantDesc")) {
+					if ((types.length <= i+1) || !types[i+1].startsWith("CharSequence")) {
+						index = i;
+						break;
+					}
+				}
+			}
+			if (index >= 0) {
+				index++;
+				String[] temp = new String[types.length + 2];
+				System.arraycopy(types, 0, temp, 0, index);
+				temp[index] = "Constable";
+				temp[index+1] = "ConstantDesc";
+				if (index < types.length)
+ 					System.arraycopy(types, index, temp, index+2, types.length - index);
+				types = temp;
+			}
+		}
 		if (this.complianceLevel >= ClassFileConstants.JDK1_8)
 			return String.join(" & ", types);
 		return String.join("&", types);

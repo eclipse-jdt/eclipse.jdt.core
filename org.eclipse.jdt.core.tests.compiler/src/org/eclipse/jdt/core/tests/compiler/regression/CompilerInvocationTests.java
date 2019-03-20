@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2018 IBM Corporation and others.
+ * Copyright (c) 2006, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -76,270 +76,240 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class CompilerInvocationTests extends AbstractRegressionTest {
 
-public CompilerInvocationTests(String name) {
-    super(name);
-}
+	public CompilerInvocationTests(String name) {
+		super(name);
+	}
 
 	// Static initializer to specify tests subset using TESTS_* static variables
-  	// All specified tests which does not belong to the class are skipped...
-  	// Only the highest compliance level is run; add the VM argument
-  	// -Dcompliance=1.4 (for example) to lower it if needed
-  	static {
-//    	TESTS_NAMES = new String[] { "test003_task_tags_options" };
+	// All specified tests which does not belong to the class are skipped...
+	// Only the highest compliance level is run; add the VM argument
+	// -Dcompliance=1.4 (for example) to lower it if needed
+	static {
+//    	TESTS_NAMES = new String[] { "test011_problem_categories" };
 //    	TESTS_NUMBERS = new int[] { 1 };
 //    	TESTS_RANGE = new int[] { 1, -1 };
 //  	TESTS_RANGE = new int[] { 1, 2049 };
 //  	TESTS_RANGE = new int[] { 449, 451 };
 //    	TESTS_RANGE = new int[] { 900, 999 };
-  	}
+	}
 
-public static Test suite() {
-    return buildAllCompliancesTestSuite(testClass());
-}
+	public static Test suite() {
+		return buildAllCompliancesTestSuite(testClass());
+	}
 
-public static Class testClass() {
-    return CompilerInvocationTests.class;
-}
+	public static Class testClass() {
+		return CompilerInvocationTests.class;
+	}
 
 // irritant vs warning token - check To/From symmetry
-public void test001_irritant_warning_token() {
-	Map matcher = new HashMap();
-	for (int group = 0; group < IrritantSet.GROUP_MAX; group++) {
-		for (int i = 0; i < 29; i++) {
-			int irritant = (group << IrritantSet.GROUP_SHIFT) + (1 << i);
-			String token = CompilerOptions.warningTokenFromIrritant(irritant);
-			if (token != null) {
-				matcher.put(token, token);
-				assertTrue(CompilerOptions.warningTokenToIrritants(token) != null);
-			}
-		}
-	}
-	// Add one for "preview", which doesn't have any irritant at the moment
-	matcher.put("preview", "preview");
-	String [] allTokens = CompilerOptions.warningTokens;
-	int length = allTokens.length;
-	matcher.put("all", "all"); // all gets undetected in the From/To loop
-	assertEquals(allTokens.length, matcher.size());
-	for (int i = 0; i < length; i++) {
-		Object object = matcher.get(allTokens[i]);
-		assertNotNull(object);
-	}
-}
-
-// problem categories - check that none is left unspecified
-// see also discussion in https://bugs.eclipse.org/bugs/show_bug.cgi?id=208383
-public void test002_problem_categories() {
-	try {
-		Class iProblemClass;
-		Field[] fields = (iProblemClass = IProblem.class).getFields();
-		for (int i = 0, length = fields.length; i < length; i++) {
-			Field field = fields[i];
-			if (field.getType() == Integer.TYPE) {
-				int problemId = field.getInt(iProblemClass), maskedProblemId = problemId & IProblem.IgnoreCategoriesMask;
-				if (maskedProblemId != 0 && maskedProblemId != IProblem.IgnoreCategoriesMask
-						&& ProblemReporter.getProblemCategory(ProblemSeverities.Error, problemId)
-							== CategorizedProblem.CAT_UNSPECIFIED) {
-					 fail("unspecified category for problem " + field.getName());
+	public void test001_irritant_warning_token() {
+		Map matcher = new HashMap();
+		for (int group = 0; group < IrritantSet.GROUP_MAX; group++) {
+			for (int i = 0; i < 29; i++) {
+				int irritant = (group << IrritantSet.GROUP_SHIFT) + (1 << i);
+				String token = CompilerOptions.warningTokenFromIrritant(irritant);
+				if (token != null) {
+					matcher.put(token, token);
+					assertTrue(CompilerOptions.warningTokenToIrritants(token) != null);
 				}
 			}
 		}
+		// Add one for "preview", which doesn't have any irritant at the moment
+		matcher.put("preview", "preview");
+		String[] allTokens = CompilerOptions.warningTokens;
+		int length = allTokens.length;
+		matcher.put("all", "all"); // all gets undetected in the From/To loop
+		assertEquals(allTokens.length, matcher.size());
+		for (int i = 0; i < length; i++) {
+			Object object = matcher.get(allTokens[i]);
+			assertNotNull(object);
+		}
 	}
-	catch (IllegalAccessException e) {
-		fail("could not access members");
+
+// problem categories - check that none is left unspecified
+// see also discussion in https://bugs.eclipse.org/bugs/show_bug.cgi?id=208383
+	public void test002_problem_categories() {
+		try {
+			Class iProblemClass;
+			Field[] fields = (iProblemClass = IProblem.class).getFields();
+			for (int i = 0, length = fields.length; i < length; i++) {
+				Field field = fields[i];
+				if (field.getType() == Integer.TYPE) {
+					int problemId = field.getInt(iProblemClass),
+							maskedProblemId = problemId & IProblem.IgnoreCategoriesMask;
+					if (maskedProblemId != 0 && maskedProblemId != IProblem.IgnoreCategoriesMask
+							&& ProblemReporter.getProblemCategory(ProblemSeverities.Error,
+									problemId) == CategorizedProblem.CAT_UNSPECIFIED) {
+						fail("unspecified category for problem " + field.getName());
+					}
+				}
+			}
+		} catch (IllegalAccessException e) {
+			fail("could not access members");
+		}
 	}
-}
-class TasksReader implements ICompilerRequestor {
-	CompilationResult result;
-	public void acceptResult(CompilationResult compilationResult) {
-		this.result = compilationResult;
+
+	class TasksReader implements ICompilerRequestor {
+		CompilationResult result;
+
+		public void acceptResult(CompilationResult compilationResult) {
+			this.result = compilationResult;
+		}
 	}
-}
-static String taskTagsAsCutAndPaste(CategorizedProblem tasks[]) {
-	StringBuffer result = new StringBuffer();
-	String arguments[];
-	for (int i = 0; i < tasks.length - 1; i++) {
-		arguments = tasks[i].getArguments();
+
+	static String taskTagsAsCutAndPaste(CategorizedProblem tasks[]) {
+		StringBuffer result = new StringBuffer();
+		String arguments[];
+		for (int i = 0; i < tasks.length - 1; i++) {
+			arguments = tasks[i].getArguments();
+			System.out.print("\t\t\"[");
+			System.out.print(arguments[0]);
+			System.out.print(',');
+			System.out.print(arguments[1]);
+			System.out.print(',');
+			System.out.print(arguments[2]);
+			System.out.println("]\\n\" +");
+		}
+		arguments = tasks[tasks.length - 1].getArguments();
 		System.out.print("\t\t\"[");
 		System.out.print(arguments[0]);
 		System.out.print(',');
 		System.out.print(arguments[1]);
 		System.out.print(',');
 		System.out.print(arguments[2]);
-		System.out.println("]\\n\" +");
+		System.out.println("]\\n\"");
+		return result.toString();
 	}
-	arguments = tasks[tasks.length - 1].getArguments();
-	System.out.print("\t\t\"[");
-	System.out.print(arguments[0]);
-	System.out.print(',');
-	System.out.print(arguments[1]);
-	System.out.print(',');
-	System.out.print(arguments[2]);
-	System.out.println("]\\n\"");
-	return result.toString();
-}
-static String taskTagsAsStrings(CategorizedProblem tasks[]) {
-	StringBuffer result = new StringBuffer();
-	String arguments[];
-	for (int i = 0; i < tasks.length; i++) {
-		arguments = tasks[i].getArguments();
-		result.append('[');
-		result.append(arguments[0]);
-		result.append(',');
-		result.append(arguments[1]);
-		result.append(',');
-		result.append(arguments[2]);
-		result.append(']');
-		result.append("\n");
+
+	static String taskTagsAsStrings(CategorizedProblem tasks[]) {
+		StringBuffer result = new StringBuffer();
+		String arguments[];
+		for (int i = 0; i < tasks.length; i++) {
+			arguments = tasks[i].getArguments();
+			result.append('[');
+			result.append(arguments[0]);
+			result.append(',');
+			result.append(arguments[1]);
+			result.append(',');
+			result.append(arguments[2]);
+			result.append(']');
+			result.append("\n");
+		}
+		return result.toString();
 	}
-	return result.toString();
-}
-public void runTaskTagsOptionsTest(
-		String[] testFiles,
-		Map customOptions,
-		String expectedTags) {
-	TasksReader reader = new TasksReader();
-	Map options = JavaCore.getDefaultOptions();
-	if (customOptions != null) {
-		options.putAll(customOptions);
+
+	public void runTaskTagsOptionsTest(String[] testFiles, Map customOptions, String expectedTags) {
+		TasksReader reader = new TasksReader();
+		Map options = JavaCore.getDefaultOptions();
+		if (customOptions != null) {
+			options.putAll(customOptions);
+		}
+		this.runConformTest(testFiles, "", null /* no extra class libraries */, true /* flush output directory */,
+				null, /* no VM args */
+				options, reader, true /* skip javac */);
+		String tags = taskTagsAsStrings(reader.result.tasks);
+		if (!tags.equals(expectedTags)) {
+			System.out.println(getClass().getName() + '#' + getName());
+			System.out.println("Effective results:");
+			System.out.println(tags);
+			System.out.println("Cut and paste:");
+			taskTagsAsCutAndPaste(reader.result.tasks);
+			assertEquals(expectedTags, tags);
+		}
 	}
-	this.runConformTest(
-		testFiles,
-		"",
-		null /* no extra class libraries */,
-		true /* flush output directory */,
-		null, /* no VM args */
-		options,
-		reader,
-		true /* skip javac */);
-	String tags = taskTagsAsStrings(reader.result.tasks);
-	if (! tags.equals(expectedTags)) {
-		System.out.println(getClass().getName() + '#' + getName());
-		System.out.println("Effective results:");
-		System.out.println(tags);
-		System.out.println("Cut and paste:");
-		taskTagsAsCutAndPaste(reader.result.tasks);
-		assertEquals(expectedTags, tags);
-	}
-}
+
 // Basic test on task tags: watch default behavior
-public void test003_task_tags_options() {
-	runTaskTagsOptionsTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"  void foo(X x) {\n" +
-			"    // FIXME TODO XXX message contents\n" +
-			"  }\n" +
-			"}\n"},
-		null,
-		"[FIXME, message contents,HIGH]\n" +
-		"[TODO, message contents,NORMAL]\n" +
-		"[XXX, message contents,NORMAL]\n");
-}
+	public void test003_task_tags_options() {
+		runTaskTagsOptionsTest(
+				new String[] { "X.java",
+						"public class X {\n" + "  void foo(X x) {\n" + "    // FIXME TODO XXX message contents\n"
+								+ "  }\n" + "}\n" },
+				null, "[FIXME, message contents,HIGH]\n" + "[TODO, message contents,NORMAL]\n"
+						+ "[XXX, message contents,NORMAL]\n");
+	}
+
 // effect of cancelling priorities
 // reactivate when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=143402 is fixed
-public void _test004_task_tags_options() {
-	Map customOptions = new HashMap();
-	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "");
-	runTaskTagsOptionsTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"  void foo(X x) {\n" +
-			"    // FIXME TODO XXX message contents\n" +
-			"  }\n" +
-			"}\n"},
-		customOptions,
-		"[FIXME, message contents,NORMAL]\n" +
-		"[TODO, message contents,NORMAL]\n" +
-		"[XXX, message contents,NORMAL]\n");
-}
+	public void _test004_task_tags_options() {
+		Map customOptions = new HashMap();
+		customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "");
+		runTaskTagsOptionsTest(
+				new String[] { "X.java",
+						"public class X {\n" + "  void foo(X x) {\n" + "    // FIXME TODO XXX message contents\n"
+								+ "  }\n" + "}\n" },
+				customOptions, "[FIXME, message contents,NORMAL]\n" + "[TODO, message contents,NORMAL]\n"
+						+ "[XXX, message contents,NORMAL]\n");
+	}
+
 // effect of cancelling priorities
 // reactivate when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=143402 is fixed
-public void _test005_task_tags_options() {
-	Map customOptions = new HashMap();
-	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, ",,");
-	runTaskTagsOptionsTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"  void foo(X x) {\n" +
-			"    // FIXME TODO XXX message contents\n" +
-			"  }\n" +
-			"}\n"},
-		customOptions,
-		"[FIXME,message contents,NORMAL]\n" +
-		"[TODO,message contents,NORMAL]\n" +
-		"[XXX,message contents,NORMAL]\n");
-	// would expect an exception of some sort
-}
+	public void _test005_task_tags_options() {
+		Map customOptions = new HashMap();
+		customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, ",,");
+		runTaskTagsOptionsTest(
+				new String[] { "X.java",
+						"public class X {\n" + "  void foo(X x) {\n" + "    // FIXME TODO XXX message contents\n"
+								+ "  }\n" + "}\n" },
+				customOptions, "[FIXME,message contents,NORMAL]\n" + "[TODO,message contents,NORMAL]\n"
+						+ "[XXX,message contents,NORMAL]\n");
+		// would expect an exception of some sort
+	}
+
 // effect of changing priorities
 // reactivate when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=143402 is fixed
-public void _test006_task_tags_options() {
-	Map customOptions = new HashMap();
-	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "A,B,C,D,E");
-	runTaskTagsOptionsTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"  void foo(X x) {\n" +
-			"    // FIXME TODO XXX message contents\n" +
-			"  }\n" +
-			"}\n"},
-		customOptions,
-		"[FIXME,message contents,NORMAL]\n" +
-		"[TODO,message contents,NORMAL]\n" +
-		"[XXX,message contents,NORMAL]\n");
-	// would expect an exception of some sort
-}
+	public void _test006_task_tags_options() {
+		Map customOptions = new HashMap();
+		customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "A,B,C,D,E");
+		runTaskTagsOptionsTest(
+				new String[] { "X.java",
+						"public class X {\n" + "  void foo(X x) {\n" + "    // FIXME TODO XXX message contents\n"
+								+ "  }\n" + "}\n" },
+				customOptions, "[FIXME,message contents,NORMAL]\n" + "[TODO,message contents,NORMAL]\n"
+						+ "[XXX,message contents,NORMAL]\n");
+		// would expect an exception of some sort
+	}
+
 // effect of changing priorities
-public void test007_task_tags_options() {
-	Map customOptions = new HashMap();
-	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,NORMAL,NORMAL");
-	runTaskTagsOptionsTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"  void foo(X x) {\n" +
-			"    // FIXME TODO XXX message contents\n" +
-			"  }\n" +
-			"}\n"},
-		customOptions,
-		"[FIXME, message contents,NORMAL]\n" +
-		"[TODO, message contents,NORMAL]\n" +
-		"[XXX, message contents,NORMAL]\n");
-}
+	public void test007_task_tags_options() {
+		Map customOptions = new HashMap();
+		customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,NORMAL,NORMAL");
+		runTaskTagsOptionsTest(
+				new String[] { "X.java",
+						"public class X {\n" + "  void foo(X x) {\n" + "    // FIXME TODO XXX message contents\n"
+								+ "  }\n" + "}\n" },
+				customOptions, "[FIXME, message contents,NORMAL]\n" + "[TODO, message contents,NORMAL]\n"
+						+ "[XXX, message contents,NORMAL]\n");
+	}
+
 // effect of changing priorities
 // reactivate when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=143402 is fixed
-public void _test008_task_tags_options() {
-	Map customOptions = new HashMap();
-	customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,NORMAL"); // one less than the number of tags
-	runTaskTagsOptionsTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" +
-			"  void foo(X x) {\n" +
-			"    // FIXME TODO XXX message contents\n" +
-			"  }\n" +
-			"}\n"},
-		customOptions,
-		"[FIXME,message contents,NORMAL]\n" +
-		"[TODO,message contents,NORMAL]\n" +
-		"[XXX,message contents,NORMAL]\n");
-}
+	public void _test008_task_tags_options() {
+		Map customOptions = new HashMap();
+		customOptions.put(JavaCore.COMPILER_TASK_PRIORITIES, "NORMAL,NORMAL"); // one less than the number of tags
+		runTaskTagsOptionsTest(
+				new String[] { "X.java",
+						"public class X {\n" + "  void foo(X x) {\n" + "    // FIXME TODO XXX message contents\n"
+								+ "  }\n" + "}\n" },
+				customOptions, "[FIXME,message contents,NORMAL]\n" + "[TODO,message contents,NORMAL]\n"
+						+ "[XXX,message contents,NORMAL]\n");
+	}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=206423
 // that bug showed that we had no coverage in the area of missing message
 // templates, which can occur downstream in the localization process (assuming
 // that we always release the English version right)
-public void test009_missing_message_templates() {
-	assertEquals("Unable to retrieve the error message for problem id: 8388607. Check compiler resources.",
-			new DefaultProblemFactory().getLocalizedMessage(Integer.MAX_VALUE, new String[]{}));
-}
+	public void test009_missing_message_templates() {
+		assertEquals("Unable to retrieve the error message for problem id: 4194303. Check compiler resources.",
+				new DefaultProblemFactory().getLocalizedMessage(Integer.MAX_VALUE, new String[] {}));
+	}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=206423
-public void test010_missing_elaboration_templates() {
-	assertEquals("Unable to retrieve the error message elaboration for elaboration id: 1073741823. Check compiler resources.",
-			new DefaultProblemFactory().getLocalizedMessage(0, Integer.MAX_VALUE / 2, new String[]{"Zork"}));
-}
+	public void test010_missing_elaboration_templates() {
+		assertEquals(
+				"Unable to retrieve the error message elaboration for elaboration id: 1073741823. Check compiler resources.",
+				new DefaultProblemFactory().getLocalizedMessage(0, Integer.MAX_VALUE / 2, new String[] { "Zork" }));
+	}
+
 // problem categories - check that categories match expected ones
 // see also discussion in https://bugs.eclipse.org/bugs/show_bug.cgi?id=208383
 public void test011_problem_categories() {
@@ -1188,6 +1158,23 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalArrayOfUnionType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalArrayTypeInIntersectionCast", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ProblemNotAnalysed", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
+		expectedProblemAttributes.put("SwitchExpressionsIncompatibleResultExpressionTypes",	new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("SwitchExpressionsEmptySwitchBlock", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("SwitchExpressionsNoResultExpression", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("SwitchExpressionSwitchLabeledBlockCompletesNormally", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("SwitchExpressionLastStatementCompletesNormally", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("SwitchExpressionTrailingSwitchLabels", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("switchMixedCase", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("SwitchExpressionMissingDefaultCase", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("SwitchExpressionNotBelow12", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchCaseLabelWithArrowNotBelow12", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionPreviewDisabled", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchCaseLabelWithArrowPreviewDisabled", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionBreakMissingValue", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("SwitchExpressionMissingEnumConstantCase", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("PreviewFeatureDisabled", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
+	    expectedProblemAttributes.put("PreviewFeatureUsed", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
+	    expectedProblemAttributes.put("PreviewFeatureNotSupported", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 		StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -1196,71 +1183,79 @@ public void test011_problem_categories() {
 				Field field1 = (Field) o1;
 				Field field2 = (Field) o2;
 				return field1.getName().compareTo(field2.getName());
-			}
-		});
-		boolean watchInternalCategory = false, printHeader = true;
-		for (int i = 0, length = fields.length; i < length; i++) {
-			Field field = fields[i];
-			if (field.getType() == Integer.TYPE) {
-				int problemId = field.getInt(iProblemClass);
-				int maskedProblemId = problemId & IProblem.IgnoreCategoriesMask;
-				if (maskedProblemId != 0 && maskedProblemId != IProblem.IgnoreCategoriesMask) {
-					String name = field.getName();
-					ProblemAttributes expectedAttributes = (ProblemAttributes) expectedProblemAttributes.get(name);
-					if (expectedAttributes == null) {
-						failures.append("missing expected problem attributes for problem " + name + "\n");
-						int actualCategory = ProblemReporter.getProblemCategory(ProblemSeverities.Error, problemId);
-						correctResult.append("\t\texpectedProblemAttributes.put(\"" + name + "\", new ProblemAttributes(CategorizedProblem." + categoryName(actualCategory) + "));\n");
-					} else if (!expectedAttributes.deprecated) {
-						int actualCategory = ProblemReporter.getProblemCategory(ProblemSeverities.Error, problemId);
-						correctResult.append("\t\texpectedProblemAttributes.put(\"" + name + "\", new ProblemAttributes(CategorizedProblem." + categoryName(actualCategory) + "));\n");
-						if (expectedAttributes.category != actualCategory) {
-							failures.append("category mismatch for problem " + name + " (expected " + categoryName(expectedAttributes.category) + ", got " + categoryName(actualCategory) + ")\n");
-						}
-						if (watchInternalCategory && actualCategory == CategorizedProblem.CAT_INTERNAL) {
-							if (printHeader) {
-								printHeader = false;
-								System.err.println("CAT_INTERNAL for problems:");
+				}
+			});
+			boolean watchInternalCategory = false, printHeader = true;
+			for (int i = 0, length = fields.length; i < length; i++) {
+				Field field = fields[i];
+				if (field.getType() == Integer.TYPE) {
+					int problemId = field.getInt(iProblemClass);
+					int maskedProblemId = problemId & IProblem.IgnoreCategoriesMask;
+					if (maskedProblemId != 0 && maskedProblemId != IProblem.IgnoreCategoriesMask) {
+						String name = field.getName();
+						ProblemAttributes expectedAttributes = (ProblemAttributes) expectedProblemAttributes.get(name);
+						if (expectedAttributes == null) {
+							failures.append("missing expected problem attributes for problem " + name + "\n");
+							int actualCategory = ProblemReporter.getProblemCategory(ProblemSeverities.Error, problemId);
+							correctResult.append("\t\texpectedProblemAttributes.put(\"" + name
+									+ "\", new ProblemAttributes(CategorizedProblem." + categoryName(actualCategory)
+									+ "));\n");
+						} else if (!expectedAttributes.deprecated) {
+							int actualCategory = ProblemReporter.getProblemCategory(ProblemSeverities.Error, problemId);
+							correctResult.append("\t\texpectedProblemAttributes.put(\"" + name
+									+ "\", new ProblemAttributes(CategorizedProblem." + categoryName(actualCategory)
+									+ "));\n");
+							if (expectedAttributes.category != actualCategory) {
+								failures.append("category mismatch for problem " + name + " (expected "
+										+ categoryName(expectedAttributes.category) + ", got "
+										+ categoryName(actualCategory) + ")\n");
 							}
-							System.err.println("\t" + name);
+							if (watchInternalCategory && actualCategory == CategorizedProblem.CAT_INTERNAL) {
+								if (printHeader) {
+									printHeader = false;
+									System.err.println("CAT_INTERNAL for problems:");
+								}
+								System.err.println("\t" + name);
+							}
+						} else {
+							correctResult.append("\t\texpectedProblemAttributes.put(\"" + name + "\", DEPRECATED);\n");
 						}
-					} else {
-						correctResult.append("\t\texpectedProblemAttributes.put(\"" + name + "\", DEPRECATED);\n");
+					}
+				}
+			}
+			if (failures.length() > 0) {
+				System.out.println(correctResult);
+				System.out.println();
+			}
+			assertEquals(failures.toString(), 0, failures.length());
+		} catch (IllegalAccessException e) {
+			fail("could not access members");
+		}
+	}
+
+	private static Map categoryNames;
+
+	private String categoryName(int category) {
+		if (categoryNames == null) {
+			categoryNames = new HashMap();
+			Field[] fields = CategorizedProblem.class.getFields();
+			for (int i = 0, length = fields.length; i < length; i++) {
+				Field field = fields[i];
+				if (field.getType() == Integer.TYPE) {
+					String name = field.getName();
+					if (name.startsWith("CAT_")) {
+						try {
+							categoryNames.put(Integer.valueOf(field.getInt(CategorizedProblem.class)), name);
+						} catch (IllegalArgumentException e) {
+						} catch (IllegalAccessException e) {
+						}
 					}
 				}
 			}
 		}
-		if (failures.length() > 0) {
-			System.out.println(correctResult);
-			System.out.println();
-		}
-		assertEquals(failures.toString(), 0, failures.length());
+		return (String) categoryNames.get(Integer.valueOf(category));
 	}
-	catch (IllegalAccessException e) {
-		fail("could not access members");
-	}
-}
-private static Map categoryNames;
-private String categoryName(int category) {
-	if (categoryNames == null) {
-		categoryNames = new HashMap();
-		Field[] fields = CategorizedProblem.class.getFields();
-		for (int i = 0, length = fields.length; i < length; i++) {
-			Field field = fields[i];
-			if (field.getType() == Integer.TYPE) {
-				String name = field.getName();
-				if (name.startsWith("CAT_")) {
-					try {
-						categoryNames.put(Integer.valueOf(field.getInt(CategorizedProblem.class)), name);
-					} catch (IllegalArgumentException e) {
-					} catch (IllegalAccessException e) {
-					}
-				}
-			}
-		}
-	}
-	return (String) categoryNames.get(Integer.valueOf(category));
-}
+
 // compiler problems tuning
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=218603
 public void test012_compiler_problems_tuning() {
@@ -2108,6 +2103,23 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("VarLocalReferencesItself", SKIP);
 		expectedProblemAttributes.put("VarLocalTooManyBrackets", SKIP);
 		expectedProblemAttributes.put("VarLocalWithoutInitizalier", SKIP);
+		expectedProblemAttributes.put("SwitchExpressionsIncompatibleResultExpressionTypes",SKIP);
+		expectedProblemAttributes.put("SwitchExpressionsEmptySwitchBlock",SKIP);
+		expectedProblemAttributes.put("SwitchExpressionsNoResultExpression",SKIP);
+		expectedProblemAttributes.put("SwitchExpressionSwitchLabeledBlockCompletesNormally",SKIP);
+		expectedProblemAttributes.put("SwitchExpressionLastStatementCompletesNormally",SKIP);
+		expectedProblemAttributes.put("SwitchExpressionTrailingSwitchLabels",SKIP);
+		expectedProblemAttributes.put("switchMixedCase", SKIP);
+		expectedProblemAttributes.put("SwitchExpressionMissingDefaultCase",SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionNotBelow12", SKIP);
+	    expectedProblemAttributes.put("SwitchCaseLabelWithArrowNotBelow12", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionPreviewDisabled", SKIP);
+	    expectedProblemAttributes.put("SwitchCaseLabelWithArrowPreviewDisabled", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionBreakMissingValue", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionMissingEnumConstantCase", SKIP);
+	    expectedProblemAttributes.put("PreviewFeatureDisabled", SKIP);
+	    expectedProblemAttributes.put("PreviewFeatureUsed", SKIP);
+	    expectedProblemAttributes.put("PreviewFeatureNotSupported", SKIP);
 		Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {
@@ -2115,46 +2127,47 @@ public void test012_compiler_problems_tuning() {
 			String fieldName;
 			if (field.getType() == String.class && (fieldName = field.getName()).startsWith("COMPILER_PB_")) {
 				constantNamesIndex.put(field.get(null), fieldName);
-			}
-		}
-		fields = IProblem.class.getFields();
-		StringBuffer failures = new StringBuffer();
-		StringBuffer correctResult = new StringBuffer(70000);
-		Arrays.sort(fields, new Comparator() {
-			public int compare(Object o1, Object o2) {
-				Field field1 = (Field) o1;
-				Field field2 = (Field) o2;
-				return field1.getName().compareTo(field2.getName());
-			}
-		});
-		for (int i = 0, length = fields.length; i < length; i++) {
-			Field field = fields[i];
-			if (field.getType() == Integer.TYPE) {
-				int problemId = field.getInt(null), maskedProblemId = problemId & IProblem.IgnoreCategoriesMask;
-				if (maskedProblemId != 0 && maskedProblemId != IProblem.IgnoreCategoriesMask) {
-					String name = field.getName();
-					ProblemAttributes expectedAttributes = (ProblemAttributes) expectedProblemAttributes.get(name);
-					String actualTuningOption = JavaCore.getOptionForConfigurableSeverity(problemId);
-					if (expectedAttributes == null) {
-						failures.append("missing expected problem attributes for problem " + name + "\n");
-					} else if (!expectedAttributes.skip && !expectedAttributes.option.equals(actualTuningOption)) {
-						failures.append("tuning option mismatch for problem " + name + " (expected " + expectedAttributes.option + ", got " + actualTuningOption + ")\n");
-					}
-					String optionFieldName = (String) constantNamesIndex.get(actualTuningOption);
-					correctResult.append("\t\texpectedProblemAttributes.put(\"" + name + "\", " +
-						(optionFieldName != null ? "new ProblemAttributes(JavaCore." + optionFieldName + ")" :
-							"SKIP") + ");\n");
 				}
 			}
+			fields = IProblem.class.getFields();
+			StringBuffer failures = new StringBuffer();
+			StringBuffer correctResult = new StringBuffer(70000);
+			Arrays.sort(fields, new Comparator() {
+				public int compare(Object o1, Object o2) {
+					Field field1 = (Field) o1;
+					Field field2 = (Field) o2;
+					return field1.getName().compareTo(field2.getName());
+				}
+			});
+			for (int i = 0, length = fields.length; i < length; i++) {
+				Field field = fields[i];
+				if (field.getType() == Integer.TYPE) {
+					int problemId = field.getInt(null), maskedProblemId = problemId & IProblem.IgnoreCategoriesMask;
+					if (maskedProblemId != 0 && maskedProblemId != IProblem.IgnoreCategoriesMask) {
+						String name = field.getName();
+						ProblemAttributes expectedAttributes = (ProblemAttributes) expectedProblemAttributes.get(name);
+						String actualTuningOption = JavaCore.getOptionForConfigurableSeverity(problemId);
+						if (expectedAttributes == null) {
+							failures.append("missing expected problem attributes for problem " + name + "\n");
+						} else if (!expectedAttributes.skip && !expectedAttributes.option.equals(actualTuningOption)) {
+							failures.append("tuning option mismatch for problem " + name + " (expected "
+									+ expectedAttributes.option + ", got " + actualTuningOption + ")\n");
+						}
+						String optionFieldName = (String) constantNamesIndex.get(actualTuningOption);
+						correctResult.append("\t\texpectedProblemAttributes.put(\"" + name + "\", "
+								+ (optionFieldName != null ? "new ProblemAttributes(JavaCore." + optionFieldName + ")"
+										: "SKIP")
+								+ ");\n");
+					}
+				}
+			}
+			if (failures.length() > 0) {
+				System.out.println(correctResult);
+				System.out.println();
+			}
+			assertEquals(failures.toString(), 0, failures.length());
+		} catch (IllegalAccessException e) {
+			fail("could not access members");
 		}
-		if (failures.length() > 0) {
-			System.out.println(correctResult);
-			System.out.println();
-		}
-		assertEquals(failures.toString(), 0, failures.length());
 	}
-	catch (IllegalAccessException e) {
-		fail("could not access members");
-	}
-}
 }

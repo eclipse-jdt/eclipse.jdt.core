@@ -77,7 +77,7 @@ public class IrritantSet {
 	public static final IrritantSet MODULE = new IrritantSet(CompilerOptions.UnstableAutoModuleName);
 
 	public static final IrritantSet JAVADOC = new IrritantSet(CompilerOptions.InvalidJavadoc);
-	public static final IrritantSet PREVIEW = new IrritantSet(0);
+	public static final IrritantSet PREVIEW = new IrritantSet(CompilerOptions.PreviewFeatureUsed);
 	public static final IrritantSet COMPILER_DEFAULT_ERRORS = new IrritantSet(0); // no optional error by default	
 	public static final IrritantSet COMPILER_DEFAULT_WARNINGS = new IrritantSet(0); // see static initializer below
 	public static final IrritantSet COMPILER_DEFAULT_INFOS = new IrritantSet(0); // As of now, no default values
@@ -135,7 +135,8 @@ public class IrritantSet {
 				|CompilerOptions.UnlikelyCollectionMethodArgumentType
 				|CompilerOptions.UsingTerminallyDeprecatedAPI
 				|CompilerOptions.APILeak
-				|CompilerOptions.UnstableAutoModuleName);
+				|CompilerOptions.UnstableAutoModuleName
+				|CompilerOptions.PreviewFeatureUsed);
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation
@@ -190,7 +191,6 @@ public class IrritantSet {
 
 		UNLIKELY_ARGUMENT_TYPE
 			.set(CompilerOptions.UnlikelyEqualsArgumentType);
-		//PREVIEW.set(CompilerOptions.DummyPreviewFeatureWarning);
 	}
 	// Internal state
 

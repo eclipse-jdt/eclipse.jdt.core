@@ -92,11 +92,8 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 	private boolean isJRE12Plus(Path path) {
 		try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(path)) {
 			for (final java.nio.file.Path subdir : stream) {
-				if (Files.exists(subdir.resolve("system-modules"))) { //$NON-NLS-1$
-					String rel = subdir.getFileName().toString();
-					if (rel.endsWith("/")) { //$NON-NLS-1$
-						rel = rel.substring(0, rel.length() - 1);
-					}
+				String rel = JRTUtil.sanitizedFileName(subdir);
+				if (Files.exists(this.fs.getPath(rel, "system-modules"))) { //$NON-NLS-1$
 					int parseInt = Integer.parseInt(rel, 16);
 					return (parseInt > 11);
 				}
@@ -157,10 +154,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 			List<String> sub = new ArrayList<>();
 			try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(releasePath)) {
 				for (final java.nio.file.Path subdir : stream) {
-					String rel = subdir.getFileName().toString();
-					if (rel.endsWith("/")) { //$NON-NLS-1$
-						rel = rel.substring(0, rel.length() - 1);
-					}
+					String rel = JRTUtil.sanitizedFileName(subdir);
 					if (rel.contains(this.releaseInHex)) {
 						sub.add(rel);
 					} else {
@@ -207,8 +201,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 						}
 
 						@Override
-						public FileVisitResult visitModule(Path mod) throws IOException {
-							String name = mod.getName(1).toString();
+						public FileVisitResult visitModule(Path path, String name) throws IOException {
 							this.packageSet = new SimpleSet(41);
 							this.packageSet.add(""); //$NON-NLS-1$
 							if (name.endsWith("/")) { //$NON-NLS-1$

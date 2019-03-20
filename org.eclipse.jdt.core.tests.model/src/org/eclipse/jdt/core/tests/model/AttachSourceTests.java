@@ -1903,6 +1903,7 @@ public void testModule2() throws CoreException, IOException {
 		System.err.println(this.getClass().getName()+'.'+getName()+" needs a Java 9 JRE - skipped");
 		return;
 	}
+	if (isJRE12) return;
 	try {
 		IJavaProject prj = createJava9Project("Test", new String[]{"src"});
 		String moduleSrc =

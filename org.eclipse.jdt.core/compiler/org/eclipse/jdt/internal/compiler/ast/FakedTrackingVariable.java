@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 GK Software AG and others.
+ * Copyright (c) 2011, 2019 GK Software AG and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -180,6 +180,14 @@ public class FakedTrackingVariable extends LocalDeclaration {
 					return falseTrackingVariable;
 				}
 				return getCloseTrackingVariable(((ConditionalExpression)expression).valueIfTrue, flowInfo, flowContext);
+			} else if (expression instanceof SwitchExpression) {
+				for (Expression re : ((SwitchExpression) expression).resultExpressions) {
+					FakedTrackingVariable fakedTrackingVariable = getCloseTrackingVariable(re, flowInfo, flowContext);
+					if (fakedTrackingVariable != null) {
+						return fakedTrackingVariable;
+					}
+				}
+				return null;
 			}
 			else
 				break;
@@ -242,12 +250,21 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		}
 	}
 
+	private static boolean containsAllocation(SwitchExpression location) {
+		for (Expression re : location.resultExpressions) {
+			if (containsAllocation(re))
+				return true;
+		}
+		return false;
+	}
 	private static boolean containsAllocation(ASTNode location) {
 		if (location instanceof AllocationExpression)
 			return true;
 		if (location instanceof ConditionalExpression) {
 			ConditionalExpression conditional = (ConditionalExpression) location;
 			return containsAllocation(conditional.valueIfTrue) || containsAllocation(conditional.valueIfFalse);
+		} else if (location instanceof SwitchExpression) {
+			return containsAllocation((SwitchExpression) location);
 		}
 		if (location instanceof CastExpression)
 			return containsAllocation(((CastExpression) location).expression);
@@ -260,6 +277,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			preConnectTrackerAcrossAssignment(location, local, flowInfo, (AllocationExpression) expression, closeTracker);
 		} else if (expression instanceof ConditionalExpression) {
 			preConnectTrackerAcrossAssignment(location, local, flowInfo, (ConditionalExpression) expression, closeTracker);
+		}  else if (expression instanceof SwitchExpression) {
+			preConnectTrackerAcrossAssignment(location, local, flowInfo, (SwitchExpression) expression, closeTracker);
 		} else if (expression instanceof CastExpression) {
 			preConnectTrackerAcrossAssignment(location, local, ((CastExpression) expression).expression, flowInfo);
 		}
@@ -269,6 +288,13 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			ConditionalExpression conditional, FakedTrackingVariable closeTracker) {
 		preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, conditional.valueIfFalse);
 		preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, conditional.valueIfTrue);
+	}
+
+	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, FlowInfo flowInfo,
+			SwitchExpression se, FakedTrackingVariable closeTracker) {
+		for (Expression re : se.resultExpressions) {
+			preConnectTrackerAcrossAssignment(location, local, flowInfo, closeTracker, re);
+		}
 	}
 
 	private static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, FlowInfo flowInfo,
@@ -456,7 +482,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 						rhsTrackVar.globalClosingState &= ~(SHARED_WITH_OUTSIDE|OWNED_BY_OUTSIDE|FOREACH_ELEMENT_VAR);
 					}
 				} else {
-					if (rhs instanceof AllocationExpression || rhs instanceof ConditionalExpression) {
+					if (rhs instanceof AllocationExpression || rhs instanceof ConditionalExpression || rhs instanceof SwitchExpression) {
 						if (rhsTrackVar == disconnectedTracker)
 							return;									// 		b.: self wrapper: res = new Wrap(res); -> done!
 						if (local.closeTracker == rhsTrackVar 

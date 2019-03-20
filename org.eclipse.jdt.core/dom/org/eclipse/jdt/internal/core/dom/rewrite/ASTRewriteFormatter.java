@@ -1,10 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
+ * 
  *
  * SPDX-License-Identifier: EPL-2.0
  *
@@ -574,6 +575,8 @@ public final class ASTRewriteFormatter {
 	public final BlockContext IF_BLOCK_NO_ELSE= new BlockFormattingPrefix("if (true)", 8); //$NON-NLS-1$
 	public final BlockContext ELSE_AFTER_STATEMENT= new BlockFormattingPrefix("if (true) foo();else ", 15); //$NON-NLS-1$
 	public final BlockContext ELSE_AFTER_BLOCK= new BlockFormattingPrefix("if (true) {}else ", 11); //$NON-NLS-1$
+	
+	public final Prefix CASE_SEPARATION= new FormattingPrefix("case A, B", "A" , CodeFormatter.K_EXPRESSION); //$NON-NLS-1$ //$NON-NLS-2$
 
 	public final BlockContext FOR_BLOCK= new BlockFormattingPrefix("for (;;) ", 7); //$NON-NLS-1$
 	public final BlockContext WHILE_BLOCK= new BlockFormattingPrefix("while (true)", 11); //$NON-NLS-1$

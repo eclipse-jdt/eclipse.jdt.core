@@ -170,7 +170,7 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 	Map<String,UpdatesByKind> moduleUpdates = new HashMap<>();
 	static final boolean isJRE12Plus;
 	static {
-		isJRE12Plus = "12".equals(System.getProperty("java.specification.version")); //$NON-NLS-1$ //$NON-NLS-2$
+		isJRE12Plus = CompilerOptions.VERSION_12.equals(System.getProperty("java.specification.version")); //$NON-NLS-1$
 	}
 
 /*

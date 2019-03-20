@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -153,6 +153,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		tests_10.add(CompletionParserTest18.class);
 		tests_10.add(SelectionParserTest18.class);
 		tests_10.add(SelectionParserTest9.class);
+		tests_10.add(SelectionParserTest10.class);
 		tests_10.add(ModuleDeclarationSyntaxTest.class);
 		tests_10.add(JEP286ReservedWordTest.class);
 		// Reset forgotten subsets tests
@@ -173,6 +174,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		tests_11.add(CompletionParserTest18.class);
 		tests_11.add(SelectionParserTest18.class);
 		tests_11.add(SelectionParserTest9.class);
+		tests_11.add(SelectionParserTest10.class);
 		tests_11.add(ModuleDeclarationSyntaxTest.class);
 		tests_11.add(JEP286ReservedWordTest.class);
 		// Reset forgotten subsets tests
@@ -182,6 +184,28 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11), tests_11));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_12) != 0) {
+		ArrayList tests_12 = (ArrayList)testClasses.clone();
+		tests_12.addAll(TEST_CLASSES_1_5);
+		tests_12.add(ParserTest1_7.class);
+		tests_12.add(LambdaExpressionSyntaxTest.class);
+		tests_12.add(ReferenceExpressionSyntaxTest.class);
+		tests_12.add(TypeAnnotationSyntaxTest.class);
+		tests_12.add(CompletionParserTest18.class);
+		tests_12.add(SelectionParserTest18.class);
+		tests_12.add(SelectionParserTest9.class);
+		tests_12.add(SelectionParserTest10.class);
+		tests_12.add(SelectionParserTest12.class);
+		tests_12.add(ModuleDeclarationSyntaxTest.class);
+		tests_12.add(JEP286ReservedWordTest.class);
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_12), tests_12));
 	}
 	return all;
 }

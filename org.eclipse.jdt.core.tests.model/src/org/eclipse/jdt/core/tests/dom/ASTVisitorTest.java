@@ -2096,6 +2096,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		String result = this.b.toString();
 		assertTrue(result.equals("[(eSMR"+this.N1S+this.N2S+"eSMR)]")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
+	@SuppressWarnings("deprecation")
 	public void testSwitchCase() {
 		SwitchCase x1 = this.ast.newSwitchCase();
 		x1.setExpression(this.E1);

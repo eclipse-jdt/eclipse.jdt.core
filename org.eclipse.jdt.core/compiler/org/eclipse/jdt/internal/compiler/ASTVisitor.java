@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -508,6 +508,9 @@ public abstract class ASTVisitor {
 	public void endVisit(IntersectionCastTypeReference intersectionCastTypeReference, BlockScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(SwitchExpression switchExpression,	BlockScope scope) {
+		// do nothing by default
+	}
 	public boolean visit(
     		AllocationExpression allocationExpression,
     		BlockScope scope) {
@@ -997,6 +1000,9 @@ public abstract class ASTVisitor {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(IntersectionCastTypeReference intersectionCastTypeReference, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
 		return true; // do nothing by default, keep traversing
 	}
 }

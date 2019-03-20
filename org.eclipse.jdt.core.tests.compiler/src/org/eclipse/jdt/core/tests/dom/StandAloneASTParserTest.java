@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2018 IBM Corporation and others.
+ * Copyright (c) 2010, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -49,11 +50,13 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SwitchExpression;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "rawtypes" })
 public class StandAloneASTParserTest extends AbstractRegressionTest {
@@ -61,7 +64,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		super(name);
 	}
 	
-	private static final int AST_JLS_LATEST = AST.JLS11;
+	private static final int AST_JLS_LATEST = AST.JLS12;
 
 	public ASTNode runConversion(
 			int astLevel,
@@ -1755,5 +1758,41 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			SimpleName simpleName = (SimpleName) name;
 			assertFalse("A var", simpleName.isVar());
 	}
+	public void testBug545383_01() throws JavaModelException {
+		String contents =
+				"class X {\n"+
+				"	public static int foo(int i) {\n"+
+				"		int result = switch (i) {\n"+
+				"		case 1 -> {break 5;}\n"+
+				"		default -> 0;\n"+
+				"		};\n"+
+				"		return result;\n"+
+				"	}\n"+
+				"}\n";
+
+		ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
+		parser.setSource(contents.toCharArray());
+		parser.setEnvironment(null, null, null, true);
+		parser.setResolveBindings(false);
+		Map<String, String> options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_12);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_12);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_12);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		parser.setCompilerOptions(options);
 	
+		ASTNode node = parser.createAST(null);
+		assertTrue("Should be a compilation unit", node instanceof CompilationUnit);
+		CompilationUnit cu = (CompilationUnit) node;
+		TypeDeclaration typeDeclaration = (TypeDeclaration) cu.types().get(0);
+		MethodDeclaration[] methods = typeDeclaration.getMethods();
+		MethodDeclaration methodDeclaration = methods[0];
+		VariableDeclarationStatement stmt = (VariableDeclarationStatement) methodDeclaration.getBody().statements().get(0);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) stmt.fragments().get(0);
+		SwitchExpression se = (SwitchExpression) fragment.getInitializer();
+		BreakStatement breakStatement = (BreakStatement) ((Block)se.statements().get(1)).statements().get(0);
+		assertNull("Unexpected Non null label", breakStatement.getLabel());
+		assertNotNull("Expression null", breakStatement.getExpression());
+	}	
 }

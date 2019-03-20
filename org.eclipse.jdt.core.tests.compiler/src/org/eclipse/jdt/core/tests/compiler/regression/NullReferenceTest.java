@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2016 IBM Corporation and others.
+ * Copyright (c) 2005, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -45,6 +45,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -18235,6 +18236,33 @@ public void testBug536408() {
 		"Potential null pointer access: This expression of type Long may be null but requires auto-unboxing\n" + 
 		"----------\n";
 	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
+	runner.runNegativeTest();
+}
+public void testBug542707_1() {
+	if (this.complianceLevel < ClassFileConstants.JDK12) return; // switch expression
+	Runner runner = new Runner();
+	runner.customOptions = new HashMap<>();
+	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	runner.customOptions.put(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+	runner.testFiles = new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	void test(int i) {\n" +
+		"		String s = switch (i) {\n" +
+		"			case 1 -> \"one\";\n" +
+		"			default -> null;\n" +
+		"		};\n" +
+		"		System.out.println(s.toLowerCase());\n" +
+		"	}\n" +
+		"}\n"
+	};
+	runner.expectedCompilerLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	System.out.println(s.toLowerCase());\n" + 
+			"	                   ^\n" + 
+			"Potential null pointer access: The variable s may be null at this location\n" + 
+			"----------\n";
 	runner.runNegativeTest();
 }
 }

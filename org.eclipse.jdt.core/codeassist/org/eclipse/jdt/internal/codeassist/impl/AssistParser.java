@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -337,7 +337,7 @@ public RecoveredElement buildInitialRecoveryState(){
 		}
 		if (this.assistNode != null && node instanceof Statement) {
 			Statement stmt = (Statement) node;
-			if (!(stmt instanceof Expression) || ((Expression) stmt).statementExpression()) {
+			if (!(stmt instanceof Expression && ((Expression) stmt).isTrulyExpression()) || ((Expression) stmt).statementExpression()) {
 				if (this.assistNode.sourceStart >= stmt.sourceStart && this.assistNode.sourceEnd <= stmt.sourceEnd) {
 					element.add(stmt, 0);
 					this.lastCheckPoint = stmt.sourceEnd + 1;
@@ -508,6 +508,8 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 		if (this.elementKindStack[i] != K_LAMBDA_EXPRESSION_DELIMITER)
 			continue;
 		LambdaExpression expression = (LambdaExpression) this.elementObjectInfoStack[i];
+		if (expression == null)
+			return false;
 		if (expression.sourceStart >= statementStart && expression.sourceEnd <= statementEnd) {
 			this.elementPtr = i - 1;
 			lambdaClosed = true;
@@ -556,7 +558,8 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 						if ((parseTree.sourceStart == 0 || parseTree.sourceEnd == 0) || (parseTree.sourceStart >= statementStart && parseTree.sourceEnd <= statementEnd)) {
 							recoveredBlock.statements[recoveredBlock.statementCount - 1] = new RecoveredStatement(statement, recoveredBlock, 0);
 							statement = null;
-						} else if (recoveredStatement instanceof RecoveredLocalVariable && statement instanceof Expression) {
+						} else if (recoveredStatement instanceof RecoveredLocalVariable && statement instanceof Expression &&
+								((Expression) statement).isTrulyExpression()) {
 							RecoveredLocalVariable local = (RecoveredLocalVariable) recoveredStatement;
 							if (local.localDeclaration != null && local.localDeclaration.initialization != null) {
 								if ((local.localDeclaration.initialization.sourceStart == 0 || local.localDeclaration.initialization.sourceEnd == 0) || 
@@ -1278,8 +1281,11 @@ private void adjustBracket(int token) {
 			break;
 	}
 }
+private boolean lastArrowAssociatedWithCase = false;
 @Override
 protected void consumeToken(int token) {
+	if (TokenNameARROW == token)
+		this.lastArrowAssociatedWithCase = this.caseFlagSet; // remember the arrow association before reset.
 	super.consumeToken(token);
 
 	if(this.isFirst) {
@@ -1312,7 +1318,7 @@ protected void consumeToken(int token) {
 				}
 				break;
 			case TokenNameLBRACE:
-				if (this.previousToken == TokenNameARROW) {
+				if (this.previousToken == TokenNameARROW && !this.lastArrowAssociatedWithCase) {
 					popElement(K_LAMBDA_EXPRESSION_DELIMITER);
 					pushOnElementStack(K_LAMBDA_EXPRESSION_DELIMITER, BLOCK_BODY, this.previousObjectInfo);
 				}
@@ -2483,6 +2489,7 @@ protected Object topKnownElementObjectInfo(int owner) {
 protected ASTNode wrapWithExplicitConstructorCallIfNeeded(ASTNode ast) {
 	int selector;
 	if (ast != null && topKnownElementKind(ASSIST_PARSER) == K_SELECTOR && ast instanceof Expression &&
+			((Expression) ast).isTrulyExpression() && 
 			(((selector = topKnownElementInfo(ASSIST_PARSER)) == THIS_CONSTRUCTOR) ||
 			(selector == SUPER_CONSTRUCTOR))) {
 		ExplicitConstructorCall call = new ExplicitConstructorCall(

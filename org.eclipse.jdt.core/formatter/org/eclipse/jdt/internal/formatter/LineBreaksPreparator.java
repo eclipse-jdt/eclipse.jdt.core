@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 Mateusz Matela and others.
+ * Copyright (c) 2014, 2019 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -67,6 +67,7 @@ import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SwitchCase;
+import org.eclipse.jdt.core.dom.SwitchExpression;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -328,9 +329,64 @@ public class LineBreaksPreparator extends ASTVisitor {
 			}
 		}
 
+		boolean arrowMode = statements.stream()
+				.anyMatch(s -> s instanceof SwitchCase && ((SwitchCase) s).isSwitchLabeledRule());
 		for (Statement statement : statements) {
 			if (statement instanceof Block)
 				continue; // will add break in visit(Block) if necessary
+			if (arrowMode && !(statement instanceof SwitchCase))
+				continue;
+			if (this.options.put_empty_statement_on_new_line || !(statement instanceof EmptyStatement))
+				breakLineBefore(statement);
+		}
+
+		return true;
+	}
+
+	@Override
+	public boolean visit(SwitchExpression node) {
+		handleBracedCode(node, node.getExpression(), this.options.brace_position_for_switch,
+				this.options.indent_switchstatements_compare_to_switch);
+
+		List<Statement> statements = node.statements();
+		if (this.options.indent_switchstatements_compare_to_cases) {
+			int nonBreakStatementEnd = -1;
+			for (Statement statement : statements) {
+				boolean isBreaking = statement instanceof BreakStatement || statement instanceof ReturnStatement
+						|| statement instanceof ContinueStatement || statement instanceof Block;
+				if (isBreaking && !(statement instanceof Block))
+					adjustEmptyLineAfter(this.tm.lastIndexIn(statement, -1), -1);
+				if (statement instanceof SwitchCase) {
+					if (nonBreakStatementEnd >= 0) {
+						// indent only comments between previous and current statement
+						this.tm.get(nonBreakStatementEnd + 1).indent();
+						this.tm.firstTokenIn(statement, -1).unindent();
+					}
+				} else if (!(statement instanceof BreakStatement || statement instanceof Block)) {
+					indent(statement);
+				}
+				nonBreakStatementEnd = isBreaking ? -1 : this.tm.lastIndexIn(statement, -1);
+			}
+			if (nonBreakStatementEnd >= 0) {
+				// indent comments between last statement and closing brace 
+				this.tm.get(nonBreakStatementEnd + 1).indent();
+				this.tm.lastTokenIn(node, TokenNameRBRACE).unindent();
+			}
+		}
+		if (this.options.indent_breaks_compare_to_cases) {
+			for (Statement statement : statements) {
+				if (statement instanceof BreakStatement)
+					indent(statement);
+			}
+		}
+
+		boolean arrowMode = statements.stream()
+				.anyMatch(s -> s instanceof SwitchCase && ((SwitchCase) s).isSwitchLabeledRule());
+		for (Statement statement : statements) {
+			if (statement instanceof Block)
+				continue; // will add break in visit(Block) if necessary
+			if (arrowMode && !(statement instanceof SwitchCase))
+				continue;
 			if (this.options.put_empty_statement_on_new_line || !(statement instanceof EmptyStatement))
 				breakLineBefore(statement);
 		}

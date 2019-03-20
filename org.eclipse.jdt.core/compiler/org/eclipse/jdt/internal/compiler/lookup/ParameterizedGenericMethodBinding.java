@@ -240,7 +240,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			BoundSet provisionalResult = null;
 			BoundSet result = null;
 			// ---- 18.5.1 (Applicability): ----
-			final boolean isPolyExpression = invocationSite instanceof Expression && ((Expression)invocationSite).isPolyExpression(originalMethod);
+			final boolean isPolyExpression = invocationSite instanceof Expression &&   ((Expression) invocationSite).isTrulyExpression() && 
+					((Expression)invocationSite).isPolyExpression(originalMethod);
 			boolean isDiamond = isPolyExpression && originalMethod.isConstructor();
 			if (arguments.length == parameters.length) {
 				infCtx18.inferenceKind = requireBoxing ? InferenceContext18.CHECK_LOOSE : InferenceContext18.CHECK_STRICT; // engine may still slip into loose mode and adjust level.

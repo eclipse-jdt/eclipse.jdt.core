@@ -36,6 +36,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Java8ElementsTests.class);
 		suite.addTestSuite(Java9ElementsTests.class);
 		suite.addTestSuite(Java11ElementsTests.class);
+		suite.addTestSuite(Java12ElementsTests.class);
 		suite.addTestSuite(AnnotationProcessorTests.class);
 		return suite;
 	}

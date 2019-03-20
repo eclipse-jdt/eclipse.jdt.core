@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.AssertStatement;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -86,6 +87,7 @@ import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodReference;
 import org.eclipse.jdt.core.dom.SwitchCase;
+import org.eclipse.jdt.core.dom.SwitchExpression;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.SynchronizedStatement;
 import org.eclipse.jdt.core.dom.ThrowStatement;
@@ -381,12 +383,43 @@ public class SpacePreparator extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(SwitchExpression node) {
+		handleToken(node, TokenNameLPAREN, this.options.insert_space_before_opening_paren_in_switch,
+				this.options.insert_space_after_opening_paren_in_switch);
+		handleTokenAfter(node.getExpression(), TokenNameRPAREN,
+				this.options.insert_space_before_closing_paren_in_switch, false);
+		handleTokenAfter(node.getExpression(), TokenNameLBRACE,
+				this.options.insert_space_before_opening_brace_in_switch, false);
+		handleSemicolon(node.statements());
+		return true;
+	}
+
+	@Override
 	public boolean visit(SwitchCase node) {
-		if (node.isDefault()) {
-			handleToken(node, TokenNameCOLON, this.options.insert_space_before_colon_in_default, false);
+		if (node.isSwitchLabeledRule()) {
+			handleToken(this.tm.lastTokenIn(node, TokenNameARROW),
+					node.isDefault() ? this.options.insert_space_before_arrow_in_switch_default
+							: this.options.insert_space_before_arrow_in_switch_case,
+					node.isDefault() ? this.options.insert_space_after_arrow_in_switch_default
+							: this.options.insert_space_after_arrow_in_switch_case);
 		} else {
+			handleToken(this.tm.lastTokenIn(node, TokenNameCOLON),
+					node.isDefault() ? this.options.insert_space_before_colon_in_default
+							: this.options.insert_space_before_colon_in_case,
+					false);
+		}
+		if (!node.isDefault()) {
 			handleToken(node, TokenNamecase, false, true);
-			handleToken(node.getExpression(), TokenNameCOLON, this.options.insert_space_before_colon_in_case, false);
+			handleCommas(node.expressions(), this.options.insert_space_before_comma_in_switch_case_expressions,
+					this.options.insert_space_after_comma_in_switch_case_expressions);
+		}
+		return true;
+	}
+
+	@Override
+	public boolean visit(BreakStatement node) {
+		if (node.getExpression() != null && !node.isImplicit()) {
+			this.tm.firstTokenIn(node, TokenNamebreak).spaceAfter();
 		}
 		return true;
 	}

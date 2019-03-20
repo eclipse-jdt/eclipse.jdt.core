@@ -113,6 +113,7 @@ $Terminals
 	ElidedSemicolonAndRightBrace
 	AT308
 	AT308DOTDOTDOT
+	BeginCaseExpr
 
 --    BodyMarker
 
@@ -1267,6 +1268,7 @@ SwitchBlockStatements ::= SwitchBlockStatements SwitchBlockStatement
 /.$putCase consumeSwitchBlockStatements() ; $break ./
 /:$readableName SwitchBlockStatements:/
 
+SwitchBlockStatement -> SwitchLabeledRule
 SwitchBlockStatement ::= SwitchLabels BlockStatements
 /.$putCase consumeSwitchBlockStatement() ; $break ./
 /:$readableName SwitchBlockStatement:/
@@ -1276,12 +1278,53 @@ SwitchLabels ::= SwitchLabels SwitchLabel
 /.$putCase consumeSwitchLabels() ; $break ./
 /:$readableName SwitchLabels:/
 
-SwitchLabel ::= 'case' ConstantExpression ':'
+SwitchLabel ::= SwitchLabelCaseLhs ':'
 /. $putCase consumeCaseLabel(); $break ./
 
 SwitchLabel ::= 'default' ':'
 /. $putCase consumeDefaultLabel(); $break ./
 /:$readableName SwitchLabel:/
+
+-- BEGIN SwitchExpression (JEP 325) --
+
+UnaryExpressionNotPlusMinus -> SwitchExpression
+UnaryExpressionNotPlusMinus_NotName -> SwitchExpression
+
+SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchBlock
+/.$putCase consumeSwitchExpression() ; $break ./
+/:$readableName SwitchExpression:/
+
+SwitchLabeledRule ::= SwitchLabeledExpression
+SwitchLabeledRule ::= SwitchLabeledBlock
+SwitchLabeledRule ::= SwitchLabeledThrowStatement
+/. $putCase consumeSwitchLabeledRule(); $break ./
+/:$readableName SwitchLabeledRule:/
+
+SwitchLabeledExpression ::= SwitchLabelExpr Expression ';'
+/. $putCase consumeSwitchLabeledExpression(); $break ./
+/:$readableName SwitchLabeledExpression:/
+
+SwitchLabeledBlock ::= SwitchLabelExpr Block
+/. $putCase consumeSwitchLabeledBlock(); $break ./
+/:$readableName SwitchLabeledBlock:/
+
+SwitchLabeledThrowStatement ::= SwitchLabelExpr ThrowExpression ';'
+/. $putCase consumeSwitchLabeledThrowStatement(); $break ./
+/:$readableName SwitchLabeledThrowStatement:/
+
+SwitchLabelExpr ::= 'default'  '->'
+/. $putCase consumeDefaultLabelExpr(); $break ./
+/:$readableName SwitchLabelDefaultExpr:/
+
+SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
+/. $putCase consumeCaseLabelExpr(); $break ./
+/:$readableName SwitchLabelExpr:/
+
+SwitchLabelCaseLhs ::= 'case' ConstantExpressions
+/. $putCase consumeSwitchLabelCaseLhs(); $break ./
+/:$readableName SwitchLabelCaseLhs:/
+
+-- END SwitchExpression (JEP 325) --
 
 WhileStatement ::= 'while' '(' Expression ')' Statement
 /.$putCase consumeStatementWhile() ; $break ./
@@ -1330,7 +1373,7 @@ AssertStatement ::= 'assert' Expression ':' Expression ';'
 BreakStatement ::= 'break' ';'
 /.$putCase consumeStatementBreak() ; $break ./
 
-BreakStatement ::= 'break' Identifier ';'
+BreakStatement ::= 'break' Expression ';'
 /.$putCase consumeStatementBreakWithLabel() ; $break ./
 /:$readableName BreakStatement:/
 
@@ -1348,6 +1391,10 @@ ReturnStatement ::= 'return' Expressionopt ';'
 ThrowStatement ::= 'throw' Expression ';'
 /.$putCase consumeStatementThrow(); $break ./
 /:$readableName ThrowStatement:/
+
+ThrowExpression ::= 'throw' Expression
+/.$putCase consumeThrowExpression() ; $break ./
+/:$readableName ThrowExpression:/
 
 SynchronizedStatement ::= OnlySynchronized '(' Expression ')' Block
 /.$putCase consumeStatementSynchronized(); $break ./
@@ -1989,6 +2036,11 @@ Expressionopt ::= $empty
 /.$putCase consumeEmptyExpression(); $break ./
 Expressionopt -> Expression
 /:$readableName Expression:/
+
+ConstantExpressions -> Expression
+ConstantExpressions ::= ConstantExpressions ',' Expression
+/.$putCase consumeConstantExpressions(); $break ./
+/:$readableName ConstantExpressions:/
 
 ConstantExpression -> Expression
 /:$readableName ConstantExpression:/

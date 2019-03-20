@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1180,7 +1180,7 @@ private Statement buildMoreCompletionEnclosingContext(Statement statement) {
 					this.currentElement.parent instanceof RecoveredBlock) {
 				RecoveredLocalVariable recoveredLocalVariable = (RecoveredLocalVariable) this.currentElement;
 				if (recoveredLocalVariable.localDeclaration.initialization == null &&
-						statement instanceof Expression &&
+						statement instanceof Expression && ((Expression) statement).isTrulyExpression() &&
 						condition.sourceStart < recoveredLocalVariable.localDeclaration.sourceStart) {
 					this.currentElement.add(statement, 0);
 	
@@ -2510,6 +2510,14 @@ protected void consumeCompilationUnit() {
 		}
 	}
 	super.consumeCompilationUnit();
+}
+@Override
+protected void consumeSwitchExpression() {
+	super.consumeSwitchExpression();
+	if (this.assistNode != null) {
+		SwitchExpression expr = (SwitchExpression) this.expressionStack[this.expressionPtr];
+		expr.resolveAll = true;
+	}
 }
 @Override
 protected void consumeConditionalExpression(int op) {
@@ -4268,6 +4276,16 @@ protected void consumeToken(int token) {
 					pushOnElementStack(K_CONDITIONAL_OPERATOR, QUESTION);
 				}
 				break;
+			case TokenNameARROW:
+				switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
+					case K_BETWEEN_CASE_AND_COLON:
+						popElement(K_BETWEEN_CASE_AND_COLON);
+						break;
+					case K_BETWEEN_DEFAULT_AND_COLON:
+						popElement(K_BETWEEN_DEFAULT_AND_COLON);
+						break;
+				}
+				break;
 			case TokenNameCOLON:
 				switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
 					case K_CONDITIONAL_OPERATOR:
@@ -4313,6 +4331,17 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNamecase :
 				pushOnElementStack(K_BETWEEN_CASE_AND_COLON);
+				break;
+			case TokenNameCOMMA :
+				switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
+					// for multi constant case stmt
+					// case MONDAY, FRI
+					// if there's a comma, ignore the previous expression (constant)
+					// Which doesn't matter for completing the next constant
+					case K_BETWEEN_CASE_AND_COLON:
+						this.expressionPtr--;
+						this.expressionLengthStack[this.expressionLengthPtr]--;
+				}
 				break;
 			case TokenNamedefault :
 				pushOnElementStack(K_BETWEEN_DEFAULT_AND_COLON);
@@ -4885,6 +4914,9 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 				if (kind == K_LOCAL_INITIALIZER_DELIMITER && this.options.complianceLevel >= ClassFileConstants.JDK11) {
 					keywords[count++]= Keywords.VAR;
 				}
+				if (kind == K_SELECTOR_QUALIFIER && this.options.complianceLevel >= ClassFileConstants.JDK12) {
+					keywords[count++] = Keywords.SWITCH;
+				}
 				keywords[count++]= Keywords.TRUE;
 				keywords[count++]= Keywords.FALSE;
 				keywords[count++]= Keywords.NULL;
@@ -5088,6 +5120,15 @@ protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 		recordReference(nameReference);
 	}
 	return nameReference;
+}
+@Override
+protected void consumePostfixExpression() {
+	// PostfixExpression ::= Name
+	if(this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_INSIDE_BREAK_STATEMENT) {
+		// Do nothing, just let checkLabelStatement() do the job
+	} else {
+		super.consumePostfixExpression();
+	}
 }
 @Override
 protected NameReference getUnspecifiedReferenceOptimized() {

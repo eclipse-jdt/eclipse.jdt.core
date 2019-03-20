@@ -4325,6 +4325,121 @@ public void testBug521362_emptyFile() {
 	        true,
 	        /*not tested with javac*/"");
 	}
+	public void testReleaseOption20() throws Exception {
+		if (!isJRE12Plus) return;
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.io.*;\n" + 
+					"\n" + 
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		String str = Integer.toUnsignedString(1, 1);\n" + 
+					"	}\n" + 
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 7 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+		     "----------\n" + 
+    		 "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 5)\n" + 
+    		 "	String str = Integer.toUnsignedString(1, 1);\n" + 
+    		 "	                     ^^^^^^^^^^^^^^^^\n" + 
+    		 "The method toUnsignedString(int, int) is undefined for the type Integer\n" + 
+    		 "----------\n" + 
+    		 "1 problem (1 error)\n",
+		     true);
+	}
+	public void testReleaseOption21() throws Exception {
+		if (!isJRE12Plus) return;
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" + 
+					"	public static void main(String[] args) {\n" + 
+					"		Integer.toUnsignedString(1, 1);\n" + 
+					"	}\n" + 
+					"}",
+				},
+		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		     + " --release 8 -d \"" + OUTPUT_DIR + "\"",
+		     "",
+    		 "",
+		     true);
+	}
+	public void testReleaseOption22() {
+		if (isJRE11Plus || isJRE12Plus) return;
+		runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"	}\n" +
+				"}",
+				"module-info.java",
+				"module mod.one { \n" +
+				"	requires java.base;\n" +
+				"	requires java.xml.ws.annotation;\n" +
+				"}"
+	        },
+			" --limit-modules java.base,java.xml.ws.annotation " +
+			" --release 10 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
+	        "",
+	        "----------\n" + 
+    		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 3)\n" + 
+    		"	requires java.xml.ws.annotation;\n" + 
+    		"	         ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"The module java.xml.ws.annotation has been deprecated since version 9 and marked for removal\n" + 
+    		"----------\n" + 
+    		"1 problem (1 warning)\n",
+	        true);
+	}
+	public void testReleaseOption23() {
+		if (!isJRE11Plus) return;
+		runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"	}\n" +
+				"}",
+				"module-info.java",
+				"module mod.one { \n" +
+				"	requires java.xml.ws.annotation;\n" +
+				"}"
+	        },
+			" --limit-modules java.base,java.xml.ws.annotation " +
+			" --release 11 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
+	        "",
+	        "invalid module name: java.xml.ws.annotation\n",
+	        true);
+	}
+	public void testReleaseOption24() {
+		if (!isJRE11Plus) return;
+		runNegativeTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"	}\n" +
+				"}",
+				"module-info.java",
+				"module mod.one { \n" +
+				"	requires java.xml.ws.annotation;\n" +
+				"}"
+	        },
+			" --limit-modules java.base,java.xml.ws.annotation " +
+			" --release 12 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
+	        "",
+	        "invalid module name: java.xml.ws.annotation\n",
+	        true);
+	}
 	public void testLimitModules1() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);

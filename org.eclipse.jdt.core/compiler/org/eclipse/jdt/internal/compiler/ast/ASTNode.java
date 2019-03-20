@@ -108,7 +108,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit18 = 0x20000;			// non null (expression) | onDemand (import reference)
 	public final static int Bit19 = 0x40000;			// didResolve (parameterized qualified type ref/parameterized single type ref)  | empty (javadoc return statement) | needReceiverGenericCast (msg/fieldref)
 	public final static int Bit20 = 0x80000;			// contains syntax errors (method declaration, type declaration, field declarations, initializer), typeref: <> name ref: lambda capture)
-	public final static int Bit21 = 0x100000;
+	public final static int Bit21 = 0x100000;			// for all declarations that can contain type references that have type annotations | insideExpressionStatement
 	public final static int Bit22 = 0x200000;			// parenthesis count (expression) | used (import reference) shadows outer local (local declarations)
 	public final static int Bit23 = 0x400000;			// parenthesis count (expression) | second or later declarator in declaration (local declarations)
 	public final static int Bit24 = 0x800000;			// parenthesis count (expression)
@@ -325,7 +325,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsDiamond = Bit20;
 
 	// this is only used for method invocation as the expression inside an expression statement
-	public static final int InsideExpressionStatement = Bit5;
+	public static final int InsideExpressionStatement = Bit21;
 
 	// for annotation reference, signal if annotation was created from a default:
 	public static final int IsSynthetic = ASTNode.Bit7;

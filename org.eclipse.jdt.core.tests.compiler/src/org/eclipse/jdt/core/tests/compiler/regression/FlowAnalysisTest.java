@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2018 IBM Corporation and others.
+ * Copyright (c) 2005, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2903,6 +2903,1944 @@ public void testBug537804_comment5() {
 		"	    ^^^^^^\n" + 
 		"The local variable action may not have been initialized\n" + 
 		"----------\n");
+}
+public void testBug542707_001() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); 
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	break k;\n" + 
+			"	      ^\n" + 
+			"The local variable k may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	return k + it;\n" + 
+			"	       ^\n" + 
+			"The local variable k may not have been initialized\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		final int k;\n" +
+			"\n" +
+			"		int it = switch (i) { \n" +
+			"		case 1  ->   {\n" +
+			"			k = 1;\n" +
+			"			break k ;\n" +
+			"		}\n" +
+			"		default -> {\n" +
+			"			break k;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		return k + it;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+		};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+
+}
+public void testBug542707_002() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); 
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	k = switch (i) { \n" + 
+			"	^\n" + 
+			"The final local variable k may already have been assigned\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	break k;\n" + 
+			"	      ^\n" + 
+			"The local variable k may not have been initialized\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		final int k;\n" +
+			"\n" +
+			"		k = switch (i) { \n" +
+			"		case 1  ->   {\n" +
+			"			k = 1;\n" +
+			"			break k ;\n" +
+			"		}\n" +
+			"		default -> {\n" +
+			"			break k;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		return k;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+		};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/*
+ * k is definitely assigned - no errors on that front.
+ */
+public void testBug542707_003() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); 
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 23)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		final int k;\n" +
+			"\n" +
+			"		int it = switch (i) { \n" +
+			"		case 1  ->   {\n" +
+			"			k = 1;\n" +
+			"			break k ;\n" +
+			"		}\n" +
+			"		case 2  ->   {\n" +
+			"			k = 2;\n" +
+			"			break k ;\n" +
+			"		}\n" +
+			"		default -> {\n" +
+			"			k = 3;\n" +
+			"			break k;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		return k;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+public void testBug542707_004() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); 
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	k = 1;\n" + 
+			"	^\n" + 
+			"The final local variable k cannot be assigned. It must be blank and not using a compound assignment\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	k = 2;\n" + 
+			"	^\n" + 
+			"The final local variable k cannot be assigned. It must be blank and not using a compound assignment\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 15)\n" + 
+			"	k = 3;\n" + 
+			"	^\n" + 
+			"The final local variable k cannot be assigned. It must be blank and not using a compound assignment\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 23)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		final int k = 1;\n" +
+			"\n" +
+			"		int it = switch (i) { \n" +
+			"		case 1  ->   {\n" +
+			"			k = 1;\n" +
+			"			break k ;\n" +
+			"		}\n" +
+			"		case 2  ->   {\n" +
+			"			k = 2;\n" +
+			"			break k ;\n" +
+			"		}\n" +
+			"		default -> {\n" +
+			"			k = 3;\n" +
+			"			break k;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		return k;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+public void testBug542707_005() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); 
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	break k ;\n" + 
+			"	      ^\n" + 
+			"The local variable k may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 18)\n" + 
+			"	return k;\n" + 
+			"	       ^\n" + 
+			"The local variable k may not have been initialized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 22)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		final int k;\n" +
+			"\n" +
+			"		int it = switch (i) { \n" +
+			"		case 1  ->   {\n" +
+			"			k = 1;\n" +
+			"			break k ;\n" +
+			"		}\n" +
+			"		case 2  ->   {\n" +
+			"			break k ;\n" +
+			"		}\n" +
+			"		default -> {\n" +
+			"			k = 3;\n" +
+			"			break k;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		return k;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued. 
+ * V is definitely assigned after a switch expression when true iff for every value break statement with
+ * expression e in the switch block that may exit the switch expression, V is definitely assigned after e when true.
+ * V is definitely assigned after a switch expression when false iff for every value break statement with
+ * expression e in the switch block that may exit the switch expression, V is definitely assigned after e when false.
+ */
+public void testBug542707_006() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 22)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v;\n" +
+			"		boolean b = switch (i) {\n" +
+			"		case 1 :\n" +
+			"			v = 1;\n" +
+			"			break true;\n" +
+			"		case 2 : {\n" +
+			"			v = 2;\n" +
+			"			break true;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			v = 3;\n" +
+			"			break false;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued.
+ * V is definitely unassigned after a switch expression when true iff for every value break statement with expression
+ * e in the switch block that may exit the switch expression, V is definitely unassigned before the value break
+ * statement and V is definitely unassigned after e when true.
+ * V is definitely unassigned after a switch expression when false iff for every value break statement with expression
+ * e in the switch block that may exit the switch expression, V is definitely unassigned before the value break
+ * statement and V is definitely unassigned after e when false.
+ */
+public void testBug542707_007() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 18)\n" + 
+			"	return v + d;\n" + 
+			"	       ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 22)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v;\n" +
+			"		boolean b = switch (i) {\n" +
+			"		case 1 :\n" +
+			"			//v = 1;\n" +
+			"			break true;\n" +
+			"		case 2 : {\n" +
+			"			//v = 2;\n" +
+			"			break true;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			//v = 3;\n" +
+			"			break false;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued. 
+ * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
+ */
+public void testBug542707_008() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 22)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v = 1;\n" +
+			"		boolean b = switch (i) {\n" +
+			"		case 1 :\n" +
+			"			//v = 1;\n" +
+			"			break true;\n" +
+			"		case 2 : {\n" +
+			"			//v = 2;\n" +
+			"			break true;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			//v = 3;\n" +
+			"			break false;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued. 
+ * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
+ */
+public void testBug542707_009() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	boolean b = switch (v) {\n" + 
+			"	                    ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 22)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v;\n" +
+			"		boolean b = switch (v) {\n" +
+			"		case 1 :\n" +
+			"			v = 1;\n" +
+			"			break true;\n" +
+			"		case 2 : {\n" +
+			"			v = 2;\n" +
+			"			break true;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			v = 3;\n" +
+			"			break false;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued. 
+ * V is [un]assigned before the first statement of the first switch labeled statement group in the switch block
+ * iff V is [un]assigned after the selector expression.
+ */
+public void testBug542707_010() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 22)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v;\n" +
+			"		boolean b = switch (i + (v =1)) {\n" +
+			"		case 1 :\n" +
+			"			v += 1;\n" +
+			"			break true;\n" +
+			"		case 2 : {\n" +
+			"			v = 2;\n" +
+			"			break true;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			v = 3;\n" +
+			"			break false;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued. 
+ * V is [un]assigned before the first statement of the first switch labeled statement group in the switch block
+ * iff V is [un]assigned after the selector expression.
+ */
+public void testBug542707_011() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	v += 1;\n" + 
+			"	^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 22)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v;\n" +
+			"		boolean b = switch (i) {\n" +
+			"		case 1 :\n" +
+			"			v += 1;\n" +
+			"			break true;\n" +
+			"		case 2 : {\n" +
+			"			v = 2;\n" +
+			"			break true;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			v = 3;\n" +
+			"			break false;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued.
+ * V is [un]assigned before the first statement of any switch labeled statement group other than the first iff
+ * V is [un]assigned after the selector expression and V is [un]assigned after the preceding statement.
+ * TODO: the second part - "and V is [un]assigned after the preceding statement" needs to be checked, now it looks identical to the 
+ * preceding rule
+ */
+public void testBug542707_012() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 22)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v;\n" +
+			"		boolean b = switch (i + (v =1)) {\n" +
+			"		case 1 :\n" +
+			"			v = 1;\n" +
+			"			break true;\n" +
+			"		case 2 : {\n" +
+			"			v += 2;\n" +
+			"			break true;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			v = 3;\n" +
+			"			break false;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued. 
+ * V is [un]assigned before the first statement of any switch labeled statement group other than the first iff
+ * V is [un]assigned after the selector expression and V is [un]assigned after the preceding statement.
+ * TODO: the second part - "and V is [un]assigned after the preceding statement" needs to be checked, now it looks identical to the 
+ * preceding rule
+ */
+public void testBug542707_013() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	v += 2;\n" + 
+			"	^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 22)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v;\n" +
+			"		boolean b = switch (i) {\n" +
+			"		case 1 :\n" +
+			"			v = 1;\n" +
+			"			break true;\n" +
+			"		case 2 : {\n" +
+			"			v += 2;\n" +
+			"			break true;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			v = 3;\n" +
+			"			break false;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued. 
+ * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
+ * V is definitely assigned after a switch expression when true iff for every switch labeled rule one of the following is true:
+ * 		It is a switch labeled expression e and V is definitely assigned after e when true.
+ * 		It is a switch labeled block b and for every value break statement expression e contained in b that may exit the switch expression, 
+ * 			V is definitely assigned after e when true.
+ * 		It is a switch labeled throw statement.
+ * 
+ * V is definitely assigned after a switch expression when false iff for every switch labeled rule one of the following is true:
+ * 		It is a switch labeled expression e and V is definitely assigned after e when false.
+ * 		It is a switch labeled block b and for every value break statement expression e contained in b that may exit the switch expression,
+ * 		V is definitely assigned after e when false.
+ * 		It is a switch labeled throw statement.
+ */
+public void testBug542707_014() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 23)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"	public static int foo(int i) throws IOException {\n" +
+			"		int v;\n" +
+			"		boolean b = switch (i ) {\n" +
+			"		case 0 -> (v = 1) != 0;\n" +
+			"		case 1 -> (v = 1) == 0;\n" +
+			"		case 2 -> {\n" +
+			"			v = 2;\n" +
+			"			break true;\n" +
+			"		}\n" +
+			"		case 3 -> {\n" +
+			"			v = 3;\n" +
+			"			break false;\n" +
+			"		}\n" +
+			"		default -> throw new IOException();\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			System.out.println(foo(3));\n" +
+			"		} catch (IOException e) {\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued. 
+ * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
+ * V is definitely unassigned after a switch expression when true iff for every switch labeled rule one of the following is true:
+ * 		It is a switch labeled expression e and V is definitely unassigned after e when true .
+ * 		It is a switch labeled block b and for every value break statement expression e contained in b that
+ * 		 may exit the switch expression, V is definitely unassigned before the value break statement and 
+ * 		     V is definitely unassigned after e when true.
+ * 		It is a switch labeled throw statement.
+ * 
+ * V is definitely unassigned after a switch expression when false iff for every switch labeled rule one of the following is true:
+ * 		It is a switch labeled expression e and V is definitely unassigned after e when false.
+ * 		It is a switch labeled block b and for every value break statement expression e contained in b that may
+ * 		exit the switch expression,	V is definitely unassigned before the value break statement and V is definitely unassigned 
+ * 			after e when false.
+ * 		It is a switch labeled throw statement.
+ */
+public void testBug542707_015() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 17)\n" + 
+			"	return v + d;\n" + 
+			"	       ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 21)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"	public static int foo(int i) throws IOException {\n" +
+			"		int v;\n" +
+			"		boolean b = switch (i ) {\n" +
+			"		case 0 ->  true;\n" +
+			"		case 1 -> false;\n" +
+			"		case 2 -> {\n" +
+			"			break true;\n" +
+			"		}\n" +
+			"		case 3 -> {\n" +
+			"			break false;\n" +
+			"		}\n" +
+			"		default -> throw new IOException();\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			System.out.println(foo(3));\n" +
+			"		} catch (IOException e) {\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued. 
+ * V is [un]assigned before any switch labeled expression or statement in the switch
+ * block iff V is [un]assigned after the selector expression.
+ */
+public void testBug542707_016() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 14)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"	public static int foo(int i) throws IOException {\n" +
+			"		int v;\n" +
+			"		boolean b = switch ((v = 1)) {\n" +
+			"		case 0 ->  v != 0;\n" +
+			"		default -> throw new IOException();\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			System.out.println(foo(3));\n" +
+			"		} catch (IOException e) {\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued. 
+ * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
+ * V is [un]assigned before any switch labeled expression or statement in the switch
+ * block iff V is [un]assigned after the selector expression.
+ */
+public void testBug542707_017() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	case 0 ->  v != 0;\n" + 
+			"	           ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	return v + d;\n" + 
+			"	       ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 14)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"	public static int foo(int i) throws IOException {\n" +
+			"		int v;\n" +
+			"		boolean b = switch (i) {\n" +
+			"		case 0 ->  v != 0;\n" +
+			"		default -> throw new IOException();\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			System.out.println(foo(3));\n" +
+			"		} catch (IOException e) {\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * which are boolean-valued.
+ * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
+ * labeled statement groups:
+ * V is definitely assigned after a switch expression iff for every value break statement with expression e
+ *  in the switch block that may exit the switch expression, either V is definitely assigned before the value
+ *   break statement or V is definitely assigned after e.
+ */
+public void testBug542707_018() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 20)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v;\n" +
+			"		int t = switch (i) {\n" +
+			"		case 0 : {\n" +
+			"			v = 1; // definitely assigned before break\n" +
+			"			break v;\n" +
+			"		}\n" +
+			"		case 2 : {\n" +
+			"			break v =1; // definitely assigned after e\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			break v = 2;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		return v + t;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * which are boolean-valued.
+ * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
+ * labeled statement groups:
+ * V is definitely unassigned after a switch expression iff for every value break statement with expression e
+ * in the switch block that may exit the switch expression, V is definitely unassigned before the value break
+ * statement and V is definitely unassigned after e.
+ */
+public void testBug542707_019() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
+			"	return v + t;\n" + 
+			"	       ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 19)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v;\n" +
+			"		int t = switch (i) {\n" +
+			"		case 0 : {\n" +
+			"			break 1;\n" +
+			"		}\n" +
+			"		case 2 : {\n" +
+			"			break 2;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			break 3;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		return v + t;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * which are boolean-valued.
+ * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
+ * labeled statement groups:
+ * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
+ */
+public void testBug542707_020() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 19)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v =1;\n" +
+			"		int t = switch (v) {\n" +
+			"		case 0 : {\n" +
+			"			break 1;\n" +
+			"		}\n" +
+			"		case 2 : {\n" +
+			"			break 2;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			break 3;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * which are boolean-valued.
+ * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
+ * labeled statement groups:
+ * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
+ */
+public void testBug542707_021() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	int t = switch (v) {\n" + 
+			"	                ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 19)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v;\n" +
+			"		int t = switch (v) {\n" +
+			"		case 0 : {\n" +
+			"			break 1;\n" +
+			"		}\n" +
+			"		case 2 : {\n" +
+			"			break 2;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			break 3;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * which are boolean-valued.
+ * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
+ * labeled statement groups:
+ * V is [un]assigned before the first statement of the first switch labeled statement group in the switch block
+ * iff V is [un]assigned after the selector expression.
+ */
+public void testBug542707_022() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 19)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v =1;\n" +
+			"		int t = switch (v) {\n" +
+			"		case 0 : {\n" +
+			"			break v;\n" +
+			"		}\n" +
+			"		case 2 : {\n" +
+			"			break 2;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			break 3;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * which are boolean-valued.
+ * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
+ * labeled statement groups:
+ * V is [un]assigned before the first statement of the first switch labeled statement group in the switch block
+ * iff V is [un]assigned after the selector expression.
+ */
+public void testBug542707_023() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	break v;\n" + 
+			"	      ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 19)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v;\n" +
+			"		int t = switch (i) {\n" +
+			"		case 0 : {\n" +
+			"			break v;\n" +
+			"		}\n" +
+			"		case 2 : {\n" +
+			"			break 2;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			break 3;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * which are boolean-valued.
+ * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
+ * labeled statement groups:
+ * V is [un]assigned before the first statement of any switch labeled statement group other than the first iff V is [un]assigned
+ * after the selector expression and V is [un]assigned after the preceding statement.
+ */
+public void testBug542707_024() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	break v;\n" + 
+			"	      ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 19)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v ;\n" +
+			"		int t = switch (i) {\n" +
+			"		case 0 : {\n" +
+			"			break 1;\n" +
+			"		}\n" +
+			"		case 2 : {\n" +
+			"			break v;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			break 3;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * which are boolean-valued.
+ * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
+ * V is definitely assigned after a switch expression iff for every switch labeled rule one of the following is true:
+ * 		It is a switch labeled expression e and V is definitely assigned after e.
+ * 		It is a switch labeled block b and for every value break statement expression e contained in b that may exit
+ * 			the switch expression, either V is definitely assigned before the value break statement or V is definitely
+ * 			assigned after e.
+ * 		It is a switch labeled throw statement.
+ */
+public void testBug542707_025() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 20)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"import java.io.IOException;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static int foo(int i) throws IOException {\n" +
+			"		int v ;\n" +
+			"		int t = switch (i) {\n" +
+			"		case 0 -> v = 1;\n" +
+			"		case 2 -> {\n" +
+			"			if (i > 1) {\n" +
+			"				break v = 2;\n" +
+			"			}\n" +
+			"			break v = 3;\n" +
+			"		}\n" +
+			"		default -> throw new IOException();\n" +
+			"		};\n" +
+			"		return v + t;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			System.out.println(foo(3));\n" +
+			"		} catch (IOException e) {\n" +
+			"			// TODO Auto-generated catch block\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * which are boolean-valued.
+ * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
+ * V is definitely unassigned after a switch expression iff for every switch labeled rule one of the following is true:
+ * 		It is a switch labeled expression e and V is definitely unassigned after e.
+ * 		It is a switch labeled block b and for every value break statement expression e contained in b that may exit the
+ * 			switch expression, V is definitely unassigned before the value break statement
+ * 			and V is definitely unassigned after e.
+ * 		It is a switch labeled throw statement.
+ */
+public void testBug542707_026() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 16)\n" + 
+			"	return v + t;\n" + 
+			"	       ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 20)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"import java.io.IOException;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static int foo(int i) throws IOException {\n" +
+			"		int v ;\n" +
+			"		int t = switch (i) {\n" +
+			"		case 0 ->  1;\n" +
+			"		case 2 -> {\n" +
+			"			if (i > 1) {\n" +
+			"				break  2;\n" +
+			"			}\n" +
+			"			break 3;\n" +
+			"		}\n" +
+			"		default -> throw new IOException();\n" +
+			"		};\n" +
+			"		return v + t;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			System.out.println(foo(3));\n" +
+			"		} catch (IOException e) {\n" +
+			"			// TODO Auto-generated catch block\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * which are boolean-valued.
+ * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
+ * V is [un]assigned before any switch labeled expression or statement in the switch block iff
+ * V is [un]assigned after the selector expression.
+ */
+public void testBug542707_027() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 20)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"import java.io.IOException;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static int foo(int i) throws IOException {\n" +
+			"		int v ;\n" +
+			"		int t = switch (v = 1) {\n" +
+			"		case 0 ->  v;\n" +
+			"		case 2 -> {\n" +
+			"			if (i > 1) {\n" +
+			"				break  2;\n" +
+			"			}\n" +
+			"			break 3;\n" +
+			"		}\n" +
+			"		default -> throw new IOException();\n" +
+			"		};\n" +
+			"		return v + t;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			System.out.println(foo(3));\n" +
+			"		} catch (IOException e) {\n" +
+			"			// TODO Auto-generated catch block\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * which are boolean-valued.
+ * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
+ * V is [un]assigned before any switch labeled expression or statement in the switch block iff
+ * V is [un]assigned after the selector expression.
+ */
+public void testBug542707_028() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	case 0 ->  v;\n" + 
+			"	           ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 20)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"import java.io.IOException;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static int foo(int i) throws IOException {\n" +
+			"		int v ;\n" +
+			"		int t = switch (i) {\n" +
+			"		case 0 ->  v;\n" +
+			"		case 2 -> {\n" +
+			"			if (i > 1) {\n" +
+			"				break  2;\n" +
+			"			}\n" +
+			"			break 3;\n" +
+			"		}\n" +
+			"		default -> throw new IOException();\n" +
+			"		};\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			System.out.println(foo(3));\n" +
+			"		} catch (IOException e) {\n" +
+			"			// TODO Auto-generated catch block\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.2.9, The following rules apply only if the switch block of the switch statement consists of switch labeled rules:
+ * V is [un]assigned after a switch statement iff for every switch labeled rule one of the following is true:
+ * 		It is a switch labeled expression e and either V is [un]assigned after e or after the selector expression.
+ * 		It is a switch labeled block b and either V is [un]assigned after e or V is [un]assigned before every
+ * 		break statement contained in b that may exit the switch statement.
+ * 		It is a switch labeled throw statement.
+ */
+public void testBug542707_029() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"2. ERROR in X.java (at line 24)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"import java.io.IOException;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static int foo(int i) throws IOException {\n" +
+			"		int v ;\n" +
+			"		switch (i) {\n" +
+			"		case 0 -> {\n" +
+			"			v = 0;\n" +
+			"		}\n" +
+			"		case 2 -> {\n" +
+			"			if (i > 1) {\n" +
+			"				v =  2;\n" +
+			"				break;\n" +
+			"			}\n" +
+			"			v = 3;\n" +
+			"			break;\n" +
+			"		}\n" +
+			"		default -> throw new IOException();\n" +
+			"		};\n" +
+			"		return v;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			System.out.println(foo(3));\n" +
+			"		} catch (IOException e) {\n" +
+			"			// TODO Auto-generated catch block\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 12 16.2.9, The following rules apply only if the switch block of the switch statement consists of switch labeled rules:
+ * V is [un]assigned after a switch statement iff for every switch labeled rule one of the following is true:
+ * 		It is a switch labeled expression e and either V is [un]assigned after e or after the selector expression.
+ * 		It is a switch labeled block b and either V is [un]assigned after e or V is [un]assigned before every
+ * 		break statement contained in b that may exit the switch statement.
+ * 		It is a switch labeled throw statement.
+ */
+public void testBug542707_030() {
+	if (this.complianceLevel != ClassFileConstants.JDK12)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 20)\n" + 
+			"	return v;\n" + 
+			"	       ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 24)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"import java.io.IOException;\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public static int foo(int i) throws IOException {\n" +
+			"		int v ;\n" +
+			"		switch (i) {\n" +
+			"		case 0 -> {\n" +
+			"			v = 0;\n" +
+			"		}\n" +
+			"		case 2 -> {\n" +
+			"			if (i > 1) {\n" +
+			"				v =  2;\n" +
+			"				break;\n" +
+			"			}\n" +
+			"	//		v = 3;\n" +
+			"			break;\n" +
+			"		}\n" +
+			"		default -> throw new IOException();\n" +
+			"		};\n" +
+			"		return v;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		try {\n" +
+			"			System.out.println(foo(3));\n" +
+			"		} catch (IOException e) {\n" +
+			"			// TODO Auto-generated catch block\n" +
+			"			e.printStackTrace();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;

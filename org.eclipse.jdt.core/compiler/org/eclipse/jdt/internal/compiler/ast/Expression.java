@@ -732,6 +732,15 @@ public void computeConversion(Scope scope, TypeBinding runtimeType, TypeBinding 
 	}
 }
 
+public static int computeNullStatus(int status, int combinedStatus) {
+	if ((combinedStatus & (FlowInfo.NULL|FlowInfo.POTENTIALLY_NULL)) != 0)
+		status |= FlowInfo.POTENTIALLY_NULL;
+	if ((combinedStatus & (FlowInfo.NON_NULL|FlowInfo.POTENTIALLY_NON_NULL)) != 0)
+		status |= FlowInfo.POTENTIALLY_NON_NULL;
+	if ((combinedStatus & (FlowInfo.UNKNOWN|FlowInfo.POTENTIALLY_UNKNOWN)) != 0)
+		status |= FlowInfo.POTENTIALLY_UNKNOWN;
+	return status;
+}
 /**
  * Expression statements are plain expressions, however they generate like
  * normal expressions with no value required.
@@ -1057,6 +1066,10 @@ public void resolve(BlockScope scope) {
 	this.resolveType(scope);
 	return;
 }
+@Override
+public TypeBinding resolveExpressionType(BlockScope scope) {
+	return resolveType(scope);
+}
 
 /**
  * Resolve the type of this expression in the context of a blockScope
@@ -1160,6 +1173,12 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 		ConditionalExpression ternary = (ConditionalExpression) this;
 		if (ternary.valueIfTrue.forcedToBeRaw(referenceContext) || ternary.valueIfFalse.forcedToBeRaw(referenceContext)) {
 			return true;
+		}
+	} else if (this instanceof SwitchExpression) {
+		SwitchExpression se = (SwitchExpression) this;
+		for (Expression e : se.resultExpressions) {
+			if (e.forcedToBeRaw(referenceContext))
+				return true;
 		}
 	}
 	return false;
@@ -1269,6 +1288,10 @@ public void traverse(ASTVisitor visitor, ClassScope scope) {
 // return true if this expression can be a stand alone statement when terminated with a semicolon
 public boolean statementExpression() {
 	return false;
+}
+// for switch statement
+public boolean isTrulyExpression() {
+	return true;
 }
 
 /**

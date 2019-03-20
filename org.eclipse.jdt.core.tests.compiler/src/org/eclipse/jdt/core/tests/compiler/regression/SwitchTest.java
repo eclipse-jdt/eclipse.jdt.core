@@ -3106,6 +3106,30 @@ public void testBug533475() {
 			"}\n"
 		});
 }
+public void testBug545518() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8 || this.complianceLevel >= ClassFileConstants.JDK12)
+		return;
+	String message = 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The preview feature Multi constant case is only available with source level 12 and above\n" + 
+			"----------\n";
+	
+	this.runNegativeTest(new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  public static void main(String [] args) {\n" +
+			"  	 String arg = \"ABD\";\n" +
+			"    switch(arg) {\n" + 
+			"      case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}\n"
+		},
+		message);
+}
 public static Class testClass() {
 	return SwitchTest.class;
 }

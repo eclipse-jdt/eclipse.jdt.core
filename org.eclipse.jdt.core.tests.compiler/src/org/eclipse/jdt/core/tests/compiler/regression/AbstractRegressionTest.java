@@ -298,6 +298,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_10;
 		} else if(rawVersion.startsWith("11")) {
 			return JavaCore.VERSION_11;
+		} else if(rawVersion.startsWith("12")) {
+			return JavaCore.VERSION_12;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -405,6 +407,17 @@ static class JavacCompiler {
 				return 0100;
 			}
 			if ("11.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_12) {
+			if ("12".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("12.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("12.0.2".equals(rawVersion)) {
 				return 0200;
 			}
 		}
@@ -1719,6 +1732,9 @@ protected static class JavacTestOptions {
 			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions) {
+		runConformTest(testFiles, expectedOutput, customOptions, null);
+	}
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions, String[] vmArguments) {
 		runTest(
 			// test directory preparation
 			true /* flush output directory */,
@@ -1733,7 +1749,7 @@ protected static class JavacTestOptions {
 			null /* do not check compiler log */,
 			// runtime options
 			false /* do not force execution */,
-			null /* no vm arguments */,
+			vmArguments /* no vm arguments */,
 			// runtime results
 			expectedOutput /* expected output string */,
 			null /* do not check error string */,
@@ -2553,10 +2569,19 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 						JavacTestOptions.DEFAULT /* javac test options */);
 		}
 	protected void runNegativeTest(
+			String[] testFiles,
+			String expectedCompilerLog,
+			String[] classLibraries,
+			boolean shouldFlushOutputDirectory,
+			Map customOptions) {
+		runNegativeTest(testFiles, expectedCompilerLog, classLibraries, shouldFlushOutputDirectory, null, customOptions);
+	}
+	protected void runNegativeTest(
 		String[] testFiles,
 		String expectedCompilerLog,
 		String[] classLibraries,
 		boolean shouldFlushOutputDirectory,
+		String[] vmArguments,
 		Map customOptions) {
 		runTest(
 	 		// test directory preparation
@@ -2577,7 +2602,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			expectedCompilerLog /* expected compiler log */,
 			// runtime options
 			false /* do not force execution */,
-			null /* no vm arguments */,
+			vmArguments /* no vm arguments */,
 			// runtime results
 			null /* do not check output string */,
 			null /* do not check error string */,

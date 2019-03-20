@@ -640,6 +640,9 @@ public class JavadocParser extends AbstractCommentParser {
 				} else if (length == TAG_SINCE_LENGTH && CharOperation.equals(TAG_SINCE, tagName, 0, length)) {
 					this.tagValue = TAG_SINCE_VALUE;
 					this.tagWaitingForDescription = this.tagValue;
+				} else if (length == TAG_SYSTEM_PROPERTY_LENGTH && CharOperation.equals(TAG_SYSTEM_PROPERTY, tagName, 0, length)) {
+					this.tagValue = TAG_SYSTEM_PROPERTY_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
 				}
 				break;
 			case 't':

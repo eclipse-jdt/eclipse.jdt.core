@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -954,6 +954,14 @@ public abstract class ASTNode {
 	 * @since 3.14
 	 */
 	public static final int MODULE_MODIFIER = 99;
+	
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>SwitchExpression</code>.
+	 * @see SwitchExpression
+	 * @since 3.17
+	 */
+	public static final int SWITCH_EXPRESSION = 100;
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -1129,6 +1137,8 @@ public abstract class ASTNode {
 				return SwitchCase.class;
 			case SWITCH_STATEMENT :
 				return SwitchStatement.class;
+			case SWITCH_EXPRESSION :
+				return SwitchExpression.class;
 			case SYNCHRONIZED_STATEMENT :
 				return SynchronizedStatement.class;
 			case TAG_ELEMENT :
@@ -2069,6 +2079,22 @@ public abstract class ASTNode {
 	final void unsupportedBelow11() {
 		if (this.ast.apiLevel < AST.JLS11_INTERNAL) {
 			throw new UnsupportedOperationException("Operation only supported in ASTs with level JLS11 and above"); //$NON-NLS-1$
+		}
+	}
+	
+	/**
+     * Checks that this AST operation is not used when
+     * building JLS2, JLS3, JLS4, JLS8, JLS9,JLS10 or JLS11 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties that have been added in JLS12
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is used below JLS12
+	 * @since 3.16 
+	 */
+	final void unsupportedBelow12() {
+		if (this.ast.apiLevel < AST.JLS12_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in ASTs with level JLS12 and above"); //$NON-NLS-1$
 		}
 	}
 	/**

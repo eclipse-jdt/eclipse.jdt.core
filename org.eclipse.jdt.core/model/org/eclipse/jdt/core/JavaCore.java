@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2571,6 +2571,31 @@ public final class JavaCore extends Plugin {
 	public static final String CORE_MAIN_ONLY_PROJECT_HAS_TEST_ONLY_DEPENDENCY = PLUGIN_ID + ".classpath.mainOnlyProjectHasTestOnlyDependency";  //$NON-NLS-1$
 
 	/**
+	 * Compiler option ID: Enabling support for preview language features.
+	 * <p>When enabled, the compiler will activate the preview language features of this Java version.</p>
+	 *
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * </dl>
+	 * @category CompilerOptionID
+	 * @since 3.17
+	 */
+	public static final String COMPILER_PB_ENABLE_PREVIEW_FEATURES = PLUGIN_ID + ".compiler.problem.enablePreviewFeatures"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Reporting Preview features.
+	 * <p>When enabled, the compiler will issue a warning when a preview feature is used.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportPreviewFeatures"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 * @category CompilerOptionID
+	 * @since 3.17
+	 */
+	public static final String COMPILER_PB_REPORT_PREVIEW_FEATURES = PLUGIN_ID + ".compiler.problem.reportPreviewFeatures"; //$NON-NLS-1$
+	/**
 	 * Core option ID: Set the timeout value for retrieving the method's parameter names from javadoc.
 	 * <p>Timeout in milliseconds to retrieve the method's parameter names from javadoc.</p>
 	 * <p>If the value is <code>0</code>, the parameter names are not fetched and the raw names are returned.</p>
@@ -3028,12 +3053,18 @@ public final class JavaCore extends Plugin {
 	public static final String VERSION_11 = "11"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
+	 * @since 3.17
+	 * @category OptionValue
+	 */
+	public static final String VERSION_12 = "12"; //$NON-NLS-1$
+	/**
+	 * Configurable option value: {@value}.
 	 * @since 3.4
 	 * @category OptionValue
 	 */
 	public static final String VERSION_CLDC_1_1 = "cldc1.1"; //$NON-NLS-1$
 	private static List<String> allVersions = Arrays.asList(VERSION_CLDC_1_1, VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4, VERSION_1_5,
-			VERSION_1_6, VERSION_1_7, VERSION_1_8, VERSION_9, VERSION_10, VERSION_11);
+			VERSION_1_6, VERSION_1_7, VERSION_1_8, VERSION_9, VERSION_10, VERSION_11, VERSION_12);
 
 	/**
 	 * Returns all {@link JavaCore}{@code #VERSION_*} levels in the order of their 
@@ -5986,6 +6017,8 @@ public final class JavaCore extends Plugin {
 	 * <li>{@link #COMPILER_PB_ASSERT_IDENTIFIER}</li>
 	 * <li>{@link #COMPILER_PB_ENUM_IDENTIFIER}</li>
 	 * <li>{@link #COMPILER_CODEGEN_INLINE_JSR_BYTECODE} for compliance levels 1.5 and greater</li>
+	 * <li>{@link #COMPILER_PB_ENABLE_PREVIEW_FEATURES} for compliance levels 11 and greater</li>
+	 * <li>{@link #COMPILER_PB_REPORT_PREVIEW_FEATURES} for compliance levels 11 and greater</li>
 	 * </ul>
 	 *
 	 * <p>If the given compliance is unknown, the given map is unmodified.</p>
@@ -6072,6 +6105,8 @@ public final class JavaCore extends Plugin {
 					options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
 					options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
 					options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+					options.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
+					options.put(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.WARNING);
 				}
 				break;
 		}

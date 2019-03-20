@@ -4829,12 +4829,14 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		statement = (Statement) statements.get(0);
     	assertEquals("Not a switch case statement", ASTNode.SWITCH_CASE, statement.getNodeType());
 		SwitchCase switchCase = (SwitchCase) statement;
+		@SuppressWarnings("deprecation")
 		Expression expression = switchCase.getExpression();
 		assertNull("Got a constant", expression.resolveConstantExpressionValue());
    }
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
-    public void test0152() throws CoreException {
+    @SuppressWarnings("deprecation")
+	public void test0152() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
 	   		"public class X {\n" +

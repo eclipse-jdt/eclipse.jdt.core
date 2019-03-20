@@ -4781,7 +4781,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
    }
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
-    public void test0151() throws CoreException {
+    @SuppressWarnings("deprecation")
+	public void test0151() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
 	   		"public enum X {\n" +
@@ -4844,7 +4845,8 @@ public class ASTConverter15Test extends ConverterTestSetup {
    }
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=88548
-    public void test0152() throws CoreException {
+    @SuppressWarnings("deprecation")
+	public void test0152() throws CoreException {
     	this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
     	String contents =
 	   		"public class X {\n" +

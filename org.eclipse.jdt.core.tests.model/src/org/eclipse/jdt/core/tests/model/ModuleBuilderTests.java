@@ -60,8 +60,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-//		 TESTS_NAMES = new String[] { "testBug522330" };
-	}
+//		 TESTS_NAMES = new String[] { "testReleaseOption8" };
+	} 
 	private String sourceWorkspacePath = null;
 	protected ProblemRequestor problemRequestor;
 	public static Test suite() {
@@ -4963,10 +4963,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getWorkingCopy("/Test/src/X.java", src, true);
 			assertProblems("should have not problems",
 					"----------\n" + 
-					"1. WARNING in /Test/src/X.java (at line 1)\n" + 
+					"1. ERROR in /Test/src/X.java (at line 1)\n" + 
 					"	import java.*;\n" + 
 					"	       ^^^^\n" + 
-					"The import java is never used\n" + 
+					"The package java is not accessible\n" + 
 					"----------\n",
 					this.problemRequestor);
 		} finally {
@@ -6184,6 +6184,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	public void testBug526054() throws Exception {
+		if (!isJRE9) return;
 		ClasspathJrt.resetCaches();
 		try {
 			// jdk.rmic is not be visible to code in an unnamed module, but using requires we can see the module.
@@ -6807,6 +6808,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569c() throws CoreException {
+		if (!isJRE9) return;
 		IJavaProject p1 = createJava9Project("Bug527569", "1.7");
 		Map<String, String> options = new HashMap<>();
 		// Make sure the new options map doesn't reset.
@@ -6856,6 +6858,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569e() throws CoreException {
+		if (!isJRE9 || isJRE12) return;
 		IJavaProject p1 = createJava9Project("Bug527569", "1.8");
 		Map<String, String> options = new HashMap<>();
 		// Make sure the new options map doesn't reset.
@@ -7650,39 +7653,39 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug543195() throws CoreException {
-		IJavaProject pj1 = createJava9Project("p1");
-		IJavaProject pj2 = createJava9Project("p2");
+		IJavaProject pj1 = createJava9Project("pj1");
+		IJavaProject pj2 = createJava9Project("pj2");
 		IJavaProject ptest = createJava9Project("ptest");
 		try {
 			addModularProjectEntry(pj2, pj1);
 			addModularProjectEntry(ptest, pj2);
 
-			createFolder("p1/src/p");
-			createFile("p1/src/p/Missing.java",
+			createFolder("pj1/src/p");
+			createFile("pj1/src/p/Missing.java",
 					"package p;\n" +
 					"public class Missing {\n" +
 					"	public void miss() {}\n" +
 					"}\n");
-			createFile("p1/src/module-info.java",
-					"module p1 {\n" +
+			createFile("pj1/src/module-info.java",
+					"module pj1 {\n" +
 					"	exports p;\n" +
 					"}\n");
 
-			createFolder("p2/src/q");
-			createFile("p2/src/q/API.java",
+			createFolder("pj2/src/q");
+			createFile("pj2/src/q/API.java",
 					"package q;\n" +
 					"public class API extends p.Missing {}\n");
-			createFile("p2/src/q/API2.java",
+			createFile("pj2/src/q/API2.java",
 					"package q;\n" +
 					"public class API2 extends API {}\n");
-			createFile("p2/src/module-info.java",
-					"module p2 {\n" +
-					"	requires p1;\n" +
+			createFile("pj2/src/module-info.java",
+					"module pj2 {\n" +
+					"	requires pj1;\n" +
 					"	exports q;\n" +
 					"}\n");
 			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
 
-			deleteFile("p1/bin/p/Missing.class");
+			deleteFile("pj1/bin/p/Missing.class");
 			pj1.getProject().close(null);
 
 			createFolder("ptest/src/p/r");

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -81,6 +81,14 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * @since 3.14
 	 */
 	private static final int JLS9 = AST.JLS9;
+	
+	/**
+	 * Internal synonym for {@link AST#JLS12}. Use to alleviate
+	 * deprecation warnings.
+	 * @since 3.17
+	 */
+	private static final int JLS12 = AST.JLS12;
+	
 
 	/**
 	 * The string buffer into which the serialized representation of the AST is
@@ -452,11 +460,22 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(BreakStatement node) {
+		if (node.getAST().apiLevel() >= JLS12 && node.isImplicit()  && node.getExpression() == null) {
+			return false;
+		}
 		printIndent();
-		this.buffer.append("break");//$NON-NLS-1$
+		if (node.getAST().apiLevel() < JLS12 || (node.getAST().apiLevel() >= JLS12 && !node.isImplicit())) {
+			this.buffer.append("break"); //$NON-NLS-1$
+		}
 		if (node.getLabel() != null) {
 			this.buffer.append(" ");//$NON-NLS-1$
 			node.getLabel().accept(this);
+		}
+		if (node.getAST().apiLevel() >= JLS12) {
+			if (node.getExpression() != null) {
+				this.buffer.append(" ");//$NON-NLS-1$
+				node.getExpression().accept(this);
+			}
 		}
 		this.buffer.append(";\n");//$NON-NLS-1$
 		return false;
@@ -1487,32 +1506,76 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if (node.isDefault()) {
-			this.buffer.append("default :\n");//$NON-NLS-1$
-		} else {
-			this.buffer.append("case ");//$NON-NLS-1$
-			node.getExpression().accept(this);
-			this.buffer.append(":\n");//$NON-NLS-1$
+		if (node.getAST().apiLevel() >= JLS12) {
+			if (node.isDefault()) {
+				this.buffer.append("default");//$NON-NLS-1$
+				this.buffer.append(node.isSwitchLabeledRule() ? "->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				this.buffer.append("case ");//$NON-NLS-1$
+				for (Iterator it = node.expressions().iterator(); it.hasNext(); ) {
+					Expression t = (Expression) it.next();
+						t.accept(this);
+						this.buffer.append(it.hasNext() ? ", " : //$NON-NLS-1$
+							node.isSwitchLabeledRule() ? "->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
+				}
+			}
+		}
+		else {
+			if (node.isDefault()) {
+				this.buffer.append("default :\n");//$NON-NLS-1$
+			} else {
+				this.buffer.append("case ");//$NON-NLS-1$
+				getSwitchExpression(node).accept(this);
+				this.buffer.append(":\n");//$NON-NLS-1$
+			}
 		}
 		this.indent++; //decremented in visit(SwitchStatement)
 		return false;
 	}
+	/**
+	 * @deprecated
+	 */
+	private Expression getSwitchExpression(SwitchCase node) {
+		return node.getExpression();
+	}
 
-	@Override
-	public boolean visit(SwitchStatement node) {
+	private void visitSwitchNode(ASTNode node) {
 		this.buffer.append("switch (");//$NON-NLS-1$
-		node.getExpression().accept(this);
+		if (node instanceof SwitchExpression) {
+			((SwitchExpression)node).getExpression().accept(this);
+		} else if (node instanceof SwitchStatement) {
+			((SwitchStatement)node).getExpression().accept(this);
+		}
 		this.buffer.append(") ");//$NON-NLS-1$
 		this.buffer.append("{\n");//$NON-NLS-1$
 		this.indent++;
-		for (Iterator it = node.statements().iterator(); it.hasNext(); ) {
-			Statement s = (Statement) it.next();
-			s.accept(this);
-			this.indent--; // incremented in visit(SwitchCase)
+		if (node instanceof SwitchExpression) {
+			for (Iterator it = ((SwitchExpression)node).statements().iterator(); it.hasNext(); ) {
+				Statement s = (Statement) it.next();
+				s.accept(this);
+				this.indent--; // incremented in visit(SwitchCase)
+			}
+		} else if (node instanceof SwitchStatement) {
+			for (Iterator it = ((SwitchStatement)node).statements().iterator(); it.hasNext(); ) {
+				Statement s = (Statement) it.next();
+				s.accept(this);
+				this.indent--; // incremented in visit(SwitchCase)
+			}
 		}
 		this.indent--;
 		printIndent();
 		this.buffer.append("}\n");//$NON-NLS-1$
+			
+	}
+	@Override
+	public boolean visit(SwitchExpression node) {
+		visitSwitchNode(node);
+		return false;
+	}
+	
+	@Override
+	public boolean visit(SwitchStatement node) {
+		visitSwitchNode(node);
 		return false;
 	}
 

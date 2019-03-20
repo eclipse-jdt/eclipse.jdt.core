@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -172,11 +172,17 @@ public static Test suite() {
 	// add 10 specific test here (check duplicates)
 	ArrayList since_10 = new ArrayList();
 	since_10.add(JEP286Test.class);
+	since_10.add(Unicode10Test.class);
 	
 	// add 11 specific test here (check duplicates)
 	ArrayList since_11 = new ArrayList();
 	 since_11.add(JEP323VarLambdaParamsTest.class);
 	 since_11.add(JEP181NestTest.class);
+
+	// add 12 specific test here (check duplicates)
+	 ArrayList since_12 = new ArrayList();
+	 since_12.add(SwitchExpressionTest.class);
+	 since_12.add(Unicode11Test.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
@@ -274,6 +280,20 @@ public static Test suite() {
 		tests_11.addAll(since_11);
 		TestCase.resetForgottenFilters(tests_11);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_11), tests_11));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_12) != 0) {
+		ArrayList tests_12 = (ArrayList)standardTests.clone();
+		tests_12.addAll(since_1_4);
+		tests_12.addAll(since_1_5);
+		tests_12.addAll(since_1_6);
+		tests_12.addAll(since_1_7);
+		tests_12.addAll(since_1_8);
+		tests_12.addAll(since_9);
+		tests_12.addAll(since_10);
+		tests_12.addAll(since_11);
+		tests_12.addAll(since_12);
+		TestCase.resetForgottenFilters(tests_12);
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_12), tests_12));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;

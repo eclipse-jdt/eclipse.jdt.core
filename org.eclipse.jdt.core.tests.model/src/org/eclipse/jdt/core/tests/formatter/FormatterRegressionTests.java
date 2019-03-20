@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Brock Janiczak - Contribution for bug 150741
@@ -14836,5 +14836,80 @@ public void testBug541011g() throws JavaModelException {
 	this.formatterPrefs.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
 	String input = getCompilationUnit("Formatter", "", "test541011", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test541011", "G_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
+ */
+public void testBug543818a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_12);
+	this.formatterPrefs.insert_space_before_comma_in_switch_case_expressions = true;
+	this.formatterPrefs.insert_space_before_colon_in_case = true;
+	this.formatterPrefs.indent_switchstatements_compare_to_switch = true;
+	String input = getCompilationUnit("Formatter", "", "test543818", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543818", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
+ */
+public void testBug543818b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_12);
+	this.formatterPrefs.insert_space_after_comma_in_switch_case_expressions = false;
+	this.formatterPrefs.insert_space_before_closing_paren_in_switch = true;
+	this.formatterPrefs.indent_switchstatements_compare_to_cases = false;
+	String input = getCompilationUnit("Formatter", "", "test543818", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543818", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
+ */
+public void testBug543818c() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_12);
+	this.formatterPrefs.insert_space_before_arrow_in_switch_case = false;
+	this.formatterPrefs.insert_space_before_opening_paren_in_switch = false;
+	this.formatterPrefs.indent_breaks_compare_to_cases = false;
+	String input = getCompilationUnit("Formatter", "", "test543818", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543818", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
+ */
+public void testBug543818d() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_12);
+	this.formatterPrefs.insert_space_after_arrow_in_switch_case = false;
+	this.formatterPrefs.insert_space_after_opening_paren_in_switch = true;
+	this.formatterPrefs.insert_space_before_opening_brace_in_block = false;
+	this.formatterPrefs.brace_position_for_switch = DefaultCodeFormatterConstants.NEXT_LINE;
+	String input = getCompilationUnit("Formatter", "", "test543818", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543818", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
+ */
+public void testBug543818e() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_12);
+	this.formatterPrefs.insert_space_before_arrow_in_switch_default = false;
+	this.formatterPrefs.insert_space_before_colon_in_default = true;
+	this.formatterPrefs.parenthesis_positions_in_switch_statement = DefaultCodeFormatterConstants.SEPARATE_LINES;
+	String input = getCompilationUnit("Formatter", "", "test543818", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543818", "E_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
+ */
+public void testBug543818f() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_12);
+	this.formatterPrefs.insert_space_after_arrow_in_switch_default = false;
+	this.formatterPrefs.insert_space_before_opening_brace_in_switch = false;
+	this.formatterPrefs.insert_space_before_opening_brace_in_block = false;
+	String input = getCompilationUnit("Formatter", "", "test543818", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543818", "F_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
+ */
+public void testBug543818g() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_12);
+	String input = getCompilationUnit("Formatter", "", "test543818", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test543818", "G_out.java").getSource());
 }
 }

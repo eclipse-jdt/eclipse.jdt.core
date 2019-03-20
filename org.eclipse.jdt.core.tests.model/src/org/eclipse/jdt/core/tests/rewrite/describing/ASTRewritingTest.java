@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,20 +16,32 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Tests for ASTRewrite. Subclasses must have 2 constructors that forward to
@@ -70,8 +82,10 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 
 	/** @deprecated using deprecated code */
 	private final static int JLS10_INTERNAL = AST.JLS10;
+	
+	private final static int JLS12_INTERNAL = AST.JLS12;
 
-	private final static int[] JLS_LEVELS = { JLS2_INTERNAL, JLS3_INTERNAL, JLS4_INTERNAL, JLS8_INTERNAL, JLS9_INTERNAL, JLS10_INTERNAL };
+	private final static int[] JLS_LEVELS = { JLS2_INTERNAL, JLS3_INTERNAL, JLS4_INTERNAL, JLS8_INTERNAL, JLS9_INTERNAL, JLS10_INTERNAL, JLS12_INTERNAL };
 
 	private static final String ONLY_AST_STRING = "_only";
 	private static final String SINCE_AST_STRING = "_since";
@@ -108,26 +122,31 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 
 	public static Test suite() {
 		TestSuite suite= new TestSuite(ASTRewritingTest.class.getName());
-		suite.addTest(ASTRewritingExpressionsTest.suite());
-		suite.addTest(ASTRewritingInsertBoundTest.suite());
-		suite.addTest(ASTRewritingMethodDeclTest.suite());
-		suite.addTest(ASTRewritingMoveCodeTest.suite());
-		suite.addTest(ASTRewritingStatementsTest.suite());
-		suite.addTest(ASTRewritingTrackingTest.suite());
-		suite.addTest(ASTRewritingJavadocTest.suite());
-		suite.addTest(ASTRewritingTypeAnnotationsTest.suite());
-		suite.addTest(ASTRewritingTypeDeclTest.suite());
-		suite.addTest(ASTRewritingGroupNodeTest.suite());
-		suite.addTest(ASTRewritingRevertTest.suite());
-		suite.addTest(LineCommentOffsetsTest.suite());
-		suite.addTest(ASTRewritingWithStatementsRecoveryTest.suite());
-		suite.addTest(ASTRewritePropertyTest.suite());
-		suite.addTest(ASTRewritingPackageDeclTest.suite());
-		suite.addTest(ASTRewritingLambdaExpressionTest.suite());		
-		suite.addTest(ASTRewritingReferenceExpressionTest.suite());		
-		suite.addTest(SourceModifierTest.suite());
-		suite.addTest(ImportRewriteTest.suite());
-		suite.addTest(ImportRewrite18Test.suite());
+		
+		
+		  suite.addTest(ASTRewritingExpressionsTest.suite());
+		  suite.addTest(ASTRewritingInsertBoundTest.suite());
+		  suite.addTest(ASTRewritingMethodDeclTest.suite());
+		  suite.addTest(ASTRewritingMoveCodeTest.suite());
+		  suite.addTest(ASTRewritingStatementsTest.suite());
+		  suite.addTest(ASTRewritingSwitchExpressionsTest.suite());
+		
+		  suite.addTest(ASTRewritingTrackingTest.suite());
+		  suite.addTest(ASTRewritingJavadocTest.suite());
+		  suite.addTest(ASTRewritingTypeAnnotationsTest.suite());
+		  suite.addTest(ASTRewritingTypeDeclTest.suite());
+		  suite.addTest(ASTRewritingGroupNodeTest.suite());
+		  suite.addTest(ASTRewritingRevertTest.suite());
+		  suite.addTest(LineCommentOffsetsTest.suite());
+		  suite.addTest(ASTRewritingWithStatementsRecoveryTest.suite());
+		  suite.addTest(ASTRewritePropertyTest.suite());
+		  suite.addTest(ASTRewritingPackageDeclTest.suite());
+		  suite.addTest(ASTRewritingLambdaExpressionTest.suite());
+		  suite.addTest(ASTRewritingReferenceExpressionTest.suite());
+		  suite.addTest(SourceModifierTest.suite());
+		  suite.addTest(ImportRewriteTest.suite());
+		  suite.addTest(ImportRewrite18Test.suite());
+		 
 		return suite;
 	}
 

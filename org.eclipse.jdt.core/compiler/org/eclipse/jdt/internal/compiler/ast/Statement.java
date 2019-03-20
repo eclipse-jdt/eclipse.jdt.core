@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -176,7 +176,16 @@ void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, Flow
 		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfTrue, flowInfo, ce.ifTrueNullStatus, expectedNonNullness, originalExpected);
 		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfFalse, flowInfo, ce.ifFalseNullStatus, expectedNonNullness, originalExpected);
 		return;
+	} else 	if (argument instanceof SwitchExpression && argument.isPolyExpression()) {
+		SwitchExpression se = (SwitchExpression) argument;
+		for (int i = 0; i < se.resultExpressions.size(); i++) {
+			se.internalAnalyseOneArgument18(currentScope, flowContext, expectedType,
+					se.resultExpressions.get(i), flowInfo,
+					se.resultExpressionNullStatus.get(i), expectedNonNullness, originalExpected);
+		}
+		return;
 	}
+
 	int nullStatus = argument.nullStatus(flowInfo, flowContext);
 	internalAnalyseOneArgument18(currentScope, flowContext, expectedType, argument, flowInfo,
 									nullStatus, expectedNonNullness, originalExpected);
@@ -204,6 +213,28 @@ void internalAnalyseOneArgument18(BlockScope currentScope, FlowContext flowConte
 		flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, flowInfo, nullStatus, annotationStatus);
 	}
 }
+/* package */ void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, Expression expr) {
+	int nullStatus = expr.nullStatus(flowInfo, flowContext);
+	long tagBits;
+	MethodBinding methodBinding = null;
+	boolean useTypeAnnotations = scope.environment().usesNullTypeAnnotations();
+	try {
+		methodBinding = scope.methodScope().referenceMethodBinding();
+		tagBits = (useTypeAnnotations) ? methodBinding.returnType.tagBits : methodBinding.tagBits;
+	} catch (NullPointerException npe) {
+		// chain of references in try-block has several potential nulls;
+		// any null means we cannot perform the following check
+		return;			
+	}
+	if (useTypeAnnotations) {
+		checkAgainstNullTypeAnnotation(scope, methodBinding.returnType, expr, flowContext, flowInfo);
+	} else if (nullStatus != FlowInfo.NON_NULL) {
+		// if we can't prove non-null check against declared null-ness of the enclosing method:
+		if ((tagBits & TagBits.AnnotationNonNull) != 0) {
+			flowContext.recordNullityMismatch(scope, expr, expr.resolvedType, methodBinding.returnType, flowInfo, nullStatus, null);
+		}
+	}
+}
 
 protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requiredType, Expression expression, FlowContext flowContext, FlowInfo flowInfo) {
 	if (expression instanceof ConditionalExpression && expression.isPolyExpression()) {
@@ -211,6 +242,14 @@ protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requ
 		ConditionalExpression ce = (ConditionalExpression) expression;
 		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfTrue, ce.ifTrueNullStatus, flowContext, flowInfo);
 		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfFalse, ce.ifFalseNullStatus, flowContext, flowInfo);
+		return;
+	} else 	if (expression instanceof SwitchExpression && expression.isPolyExpression()) {
+		SwitchExpression se = (SwitchExpression) expression;
+		for (int i = 0; i < se.resultExpressions.size(); i++) {
+			internalCheckAgainstNullTypeAnnotation(scope, requiredType, 
+					se.resultExpressions.get(i), 
+					se.resultExpressionNullStatus.get(i), flowContext, flowInfo);
+		}
 		return;
 	}
 	int nullStatus = expression.nullStatus(flowInfo, flowContext);
@@ -423,11 +462,19 @@ public abstract void resolve(BlockScope scope);
 
 /**
  * Returns case constant associated to this statement (NotAConstant if none)
+ * parameter statement has to be either a SwitchStatement or a SwitchExpression
  */
-public Constant resolveCase(BlockScope scope, TypeBinding testType, SwitchStatement switchStatement) {
+public Constant[] resolveCase(BlockScope scope, TypeBinding testType, SwitchStatement switchStatement) {
 	// statement within a switch that are not case are treated as normal statement....
 	resolve(scope);
-	return Constant.NotAConstant;
+	return new Constant[] {Constant.NotAConstant};
+}
+/**
+ * Returns the resolved expression if any associated to this statement - used
+ * parameter statement has to be either a SwitchStatement or a SwitchExpression
+ */
+public TypeBinding resolveExpressionType(BlockScope scope) {
+	return null;
 }
 /** 
  * Implementation of {@link org.eclipse.jdt.internal.compiler.lookup.InvocationSite#invocationTargetType}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -355,7 +355,9 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, IJa
 	else if (reference instanceof ArrayTypeReference)
 		matchReportReference((ArrayTypeReference) reference, element, elementBinding, accuracy, locator);
 	else {
-		TypeBinding typeBinding = reference instanceof Expression ? ((Expression)reference).resolvedType : null;
+		TypeBinding typeBinding = reference instanceof Expression  &&
+				((org.eclipse.jdt.internal.compiler.ast.Expression) reference).isTrulyExpression() ?
+						((Expression)reference).resolvedType : null;
 		if (typeBinding != null) {
 			matchReportReference((Expression)reference, -1, typeBinding, locator);
 			return;
@@ -652,6 +654,9 @@ protected int resolveLevel(NameReference nameRef) {
 			binding = ((ProblemReferenceBinding) binding).closestMatch();
 		if (binding instanceof ReferenceBinding)
 			return resolveLevelForType((ReferenceBinding) binding);
+		if (((SingleNameReference) nameRef).isLabel)
+			return IMPOSSIBLE_MATCH;
+		
 		return binding == null || binding instanceof ProblemBinding ? INACCURATE_MATCH : IMPOSSIBLE_MATCH;
 	}
 
