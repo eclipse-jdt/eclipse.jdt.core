@@ -649,4 +649,39 @@ public void testBug544017() throws CoreException {
 		deleteProject(testmain);
 	}
 }
+
+public void testBug545687() throws CoreException, IOException {
+	if (!isJRE9)
+		return;
+	IJavaProject p = null;
+	Hashtable<String, String> options = JavaCore.getOptions();
+	try {
+		p = createJava9Project("testproj", "9");
+		createFolder("/testproj/src/javax/xml/dummy");
+		createFile("/testproj/src/javax/xml/dummy/Dummy.java", //
+				"package javax.xml.dummy;\n" + //
+				"public class Dummy {\n" + //
+				"}\n");
+		createFolder("/testproj/src/test");
+		String testSrc = "package test;\n" + //
+				"import javax.xml.XMLConstants;\n" + //
+				"public class Test {\n" + //
+				"    String s = XMLConstants.NULL_NS_URI;\n" + //
+				"}\n";
+		createFile("/testproj/src/test/Test.java", testSrc);
+		this.workingCopy.discardWorkingCopy();
+		this.problemRequestor.initialize(testSrc.toCharArray());
+		this.workingCopy = getCompilationUnit("testproj/src/test/Test.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
+		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		assertProblems("Expecting no problems", "----------\n" + "----------\n", this.problemRequestor);
+
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers on client", "", markers);
+	} finally {
+		if (p != null)
+			deleteProject(p);
+		JavaCore.setOptions(options);
+	}
+}
 }

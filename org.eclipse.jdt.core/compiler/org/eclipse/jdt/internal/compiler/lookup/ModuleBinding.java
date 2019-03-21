@@ -101,6 +101,10 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			return ANY;
 		}
 		@Override
+		public char[] nameForCUCheck() {
+			return UNNAMED;
+		}
+		@Override
 		public char[] readableName() {
 			return UNNAMED_READABLE_NAME;
 		}
