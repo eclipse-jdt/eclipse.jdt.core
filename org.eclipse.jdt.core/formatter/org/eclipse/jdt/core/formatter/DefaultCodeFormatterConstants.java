@@ -337,7 +337,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see #createAlignmentValue(boolean, int, int)
 	 * @see #FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION
-	 * @since 3.17
+	 * @since 3.18
 	 */
 	public static final String FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION_CHAIN = JavaCore.PLUGIN_ID + ".formatter.alignment_for_conditional_expression_chain";	 //$NON-NLS-1$
 	/**
@@ -2599,7 +2599,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.17
+	 * @since 3.18
 	 */
 	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SWITCH_CASE_EXPRESSIONS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_switch_case_expressions"; //$NON-NLS-1$
 	/**
@@ -3658,7 +3658,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.17
+	 * @since 3.18
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SWITCH_CASE_EXPRESSIONS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_switch_case_expressions"; //$NON-NLS-1$
 	/**

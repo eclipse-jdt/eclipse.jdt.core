@@ -373,7 +373,7 @@ void setSourceStart(int sourceStart);
 	int Javadoc = 0x80000000;
 	/** @since 3.14 */
 	int ModuleRelated = 0x00800000;
-	/** @since 3.17 */
+	/** @since 3.18 */
 	int Compliance = 0x00400000;
 
 	/**
