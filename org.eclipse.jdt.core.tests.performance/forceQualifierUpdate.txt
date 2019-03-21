@@ -1,0 +1,2 @@
+# To force a version qualifier update, add the bug here
+Bug 545608 - [comparator] 4.12 Comparator errors - I20190320-1800
