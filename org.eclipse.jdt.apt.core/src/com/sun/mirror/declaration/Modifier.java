@@ -52,17 +52,17 @@ public enum Modifier {
     // See JLS2 sections 8.1.1, 8.3.1, 8.4.3, 8.8.3, and 9.1.1.
     // java.lang.reflect.Modifier includes INTERFACE, but that's a VMism.
 
-    /** The modifier <tt>public</tt> */		PUBLIC,
-    /** The modifier <tt>protected</tt> */	PROTECTED,
-    /** The modifier <tt>private</tt> */	PRIVATE,
-    /** The modifier <tt>abstract</tt> */	ABSTRACT,
-    /** The modifier <tt>static</tt> */		STATIC,
-    /** The modifier <tt>final</tt> */		FINAL,
-    /** The modifier <tt>transient</tt> */	TRANSIENT,
-    /** The modifier <tt>volatile</tt> */	VOLATILE,
-    /** The modifier <tt>synchronized</tt> */	SYNCHRONIZED,
-    /** The modifier <tt>native</tt> */		NATIVE,
-    /** The modifier <tt>strictfp</tt> */	STRICTFP;
+    /** The modifier <code>public</code> */		PUBLIC,
+    /** The modifier <code>protected</code> */	PROTECTED,
+    /** The modifier <code>private</code> */	PRIVATE,
+    /** The modifier <code>abstract</code> */	ABSTRACT,
+    /** The modifier <code>static</code> */		STATIC,
+    /** The modifier <code>final</code> */		FINAL,
+    /** The modifier <code>transient</code> */	TRANSIENT,
+    /** The modifier <code>volatile</code> */	VOLATILE,
+    /** The modifier <code>synchronized</code> */	SYNCHRONIZED,
+    /** The modifier <code>native</code> */		NATIVE,
+    /** The modifier <code>strictfp</code> */	STRICTFP;
 
 
     private String lowercase = null;	// modifier name in lowercase

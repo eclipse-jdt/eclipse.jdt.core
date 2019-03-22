@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.IPath;
  * by each package fragment root and package fragment associated with the entry.
  * <p>
  * A classpath entry can refer to any of the following:<ul>
- *
+ * </p>
  *	<li>Source code in the current project. In this case, the entry identifies a
  *		root folder in the current project containing package fragments and
  *		source files with one of the {@link JavaCore#getJavaLikeExtensions()
@@ -91,7 +91,6 @@ import org.eclipse.core.runtime.IPath;
  * 	<br> Also note that the container resolution APIs include an IJavaProject argument, so as to allow the same
  * 	container path to be interpreted in different ways for different projects. </li>
  * </ul>
- * </p>
  * The result of {@link IJavaProject#getResolvedClasspath} will have all entries of type
  * {@link #CPE_VARIABLE} and {@link #CPE_CONTAINER} resolved to a set of
  * {@link #CPE_SOURCE}, {@link #CPE_LIBRARY} or {@link #CPE_PROJECT}
@@ -275,7 +274,6 @@ public interface IClasspathEntry {
 	 * <code>tests</code>).
 	 * </li>
 	 * </ul>
-	 * </p>
 	 *
 	 * @return the possibly empty list of resource exclusion patterns
 	 *   associated with this classpath entry, or <code>null</code> if this kind
@@ -335,7 +333,6 @@ public interface IClasspathEntry {
 	 * named <code>Foo.java</code>.
 	 * </li>
 	 * </ul>
-	 * </p>
 	 *
 	 * @return the possibly empty list of resource inclusion patterns
 	 *   associated with this classpath entry, or <code>null</code> if this kind

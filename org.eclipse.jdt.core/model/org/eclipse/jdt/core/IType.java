@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -348,10 +348,11 @@ public interface IType extends IMember, IAnnotatable {
 	 *
 	 * <p>It is possible that a field with the same name already exists in this type.
 	 * The value of the <code>force</code> parameter affects the resolution of
-	 * such a conflict:<ul>
+	 * such a conflict:
+	 * <ul>
 	 * <li> <code>true</code> - in this case the field is created with the new contents</li>
 	 * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
-	 * </ul></p>
+	 * </ul>
 	 *
 	 * @param contents the given contents
 	 * @param sibling the given sibling
@@ -406,10 +407,11 @@ public interface IType extends IMember, IAnnotatable {
 	 *
 	 * <p>It is possible that a method with the same signature already exists in this type.
 	 * The value of the <code>force</code> parameter affects the resolution of
-	 * such a conflict:<ul>
+	 * such a conflict:
+	 * <ul>
 	 * <li> <code>true</code> - in this case the method is created with the new contents</li>
 	 * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
-	 * </ul></p>
+	 * </ul>
 	 *
 	 * @param contents the given contents
 	 * @param sibling the given sibling
@@ -440,10 +442,11 @@ public interface IType extends IMember, IAnnotatable {
 	 *
 	 * <p>It is possible that a type with the same name already exists in this type.
 	 * The value of the <code>force</code> parameter affects the resolution of
-	 * such a conflict:<ul>
+	 * such a conflict:
+	 * <ul>
 	 * <li> <code>true</code> - in this case the type is created with the new contents</li>
 	 * <li> <code>false</code> - in this case a <code>JavaModelException</code> is thrown</li>
-	 * </ul></p>
+	 * </ul>
 	 *
 	 * @param contents the given contents
 	 * @param sibling the given sibling

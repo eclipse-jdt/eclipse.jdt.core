@@ -70,7 +70,6 @@ import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
  * <li>types - <code>Type</code></li>
  * <li>type body declarations - <code>BodyDeclaration</code></li>
  * </ul>
- * </p>
  * <p>
  * Abstract syntax trees may be hand constructed by clients, using the
  * <code>new<i>TYPE</i></code> factory methods (see <code>AST</code>) to
@@ -1677,7 +1676,6 @@ public abstract class ASTNode {
 	/**
 	 * Returns the location of this node within its parent,
 	 * or <code>null</code> if this is a root node.
-	 * <p>
 	 * <pre>
 	 * ASTNode node = ...;
 	 * ASTNode parent = node.getParent();
@@ -1688,7 +1686,6 @@ public abstract class ASTNode {
 	 * if ((location != null) && location.isChildListProperty())
 	 *    assert ((List) parent.getStructuralProperty(location)).contains(node);
 	 * </pre>
-	 * </p>
 	 * <p>
 	 * Note that the relationship between an AST node and its parent node
 	 * may change over the lifetime of a node.
@@ -2576,7 +2573,6 @@ public abstract class ASTNode {
 	 *  is recovered from source that contains a syntax error</li>
 	 * </ul>
 	 * Other bit positions are reserved for future use.
-	 * </p>
 	 *
 	 * @return the bitwise-or of individual flags
 	 * @see #setFlags(int)
@@ -2601,7 +2597,6 @@ public abstract class ASTNode {
 	 *  is recovered from source that contains a syntax error</li>
 	 * </ul>
 	 * Other bit positions are reserved for future use.
-	 * </p>
 	 * <p>
 	 * Note that the flags are <em>not</em> considered a structural
 	 * property of the node, and can be changed even if the

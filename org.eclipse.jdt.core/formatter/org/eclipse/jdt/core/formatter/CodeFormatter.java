@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -142,7 +142,7 @@ public abstract class CodeFormatter {
 	 * 		<li>{@link #K_STATEMENTS} <i>(since 3.6)</i></li>
 	 * 		<li>{@link #K_MODULE_INFO} <i>(since 3.14)</i></li>
 	 * </ul>
-	 * </p><p>
+	 * <p>
 	 * Note also that it has an effect only when one or several format comments
 	 * options for
 	 * {@link DefaultCodeFormatterConstants#FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT javadoc}
@@ -193,7 +193,7 @@ public abstract class CodeFormatter {
 	 *  	}
 	 *  }
 	 * </pre>
-	 * </p><p>
+	 * <p>
 	 * <i><u>Note</u>: Although we're convinced that the formatter should
 	 * always include the comments while processing a
 	 * {@link #K_COMPILATION_UNIT kind of compilation unit}, we

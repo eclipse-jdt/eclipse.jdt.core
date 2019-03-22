@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -49,14 +49,13 @@ import org.eclipse.jdt.core.eval.IEvaluationContext;
  * the corresponding generated class files from the required project's output
  * location(s)). The classpath format is a sequence of classpath entries
  * describing the location and contents of package fragment roots.
- * </p>
+ * <p>
  * Java project elements need to be opened before they can be navigated or manipulated.
  * The children of a Java project are the package fragment roots that are
  * defined by the classpath and contained in this project (in other words, it
  * does not include package fragment roots for other projects). The children
  * (i.e. the package fragment roots) appear in the order they are defined by 
  * the classpath.
- * </p>
  * <p>
  * An instance of one of these handles can be created via
  * <code>JavaCore.create(project)</code>.
@@ -172,7 +171,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * 		variable}</li>
 	 * <li>{@link IAnnotation} for a binding key from an
 	 * 		{@link IAnnotationBinding}</li>
-	 * </ul></p>
+	 * </ul>
 	 * <p>Note: if two methods correspond to the binding key because their
 	 * parameter types' simple names are the same, then the first one is returned.
 	 * For example, if a class defines two methods <code>foo(p1.Y, String)</code>
@@ -649,7 +648,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * </p>
 	 * <p>
 	 * Note that in case the project isn't yet opened, the classpath will
-	 * be read directly from the associated <tt>.classpath</tt> file.
+	 * be read directly from the associated <code>.classpath</code> file.
 	 * </p>
 	 *
 	 * @return the raw classpath for the project, as a list of classpath entries
@@ -1218,7 +1217,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * 
 	 * @param path
 	 *            IPath
-	 * @return the classpath entry or <code>null</null>.
+	 * @return the classpath entry or <code>null</code>.
 	 * @throws JavaModelException
 	 * @since 3.14
 	 */

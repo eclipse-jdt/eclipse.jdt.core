@@ -51,7 +51,7 @@ public interface Declarations {
      *
      * @param sub the first member
      * @param sup the second member
-     * @return <tt>true</tt> if and only if the first member hides
+     * @return <code>true</code> if and only if the first member hides
      *		the second
      */
     boolean hides(MemberDeclaration sub, MemberDeclaration sup);
@@ -63,7 +63,7 @@ public interface Declarations {
      *
      * @param sub the first method
      * @param sup the second method
-     * @return <tt>true</tt> if and only if the first method overrides
+     * @return <code>true</code> if and only if the first method overrides
      *		the second
      */
     boolean overrides(MethodDeclaration sub, MethodDeclaration sup);

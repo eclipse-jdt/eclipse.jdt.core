@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 GK Software AG.
+ * Copyright (c) 2015, 2019 GK Software AG.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -612,7 +612,7 @@ public final class ExternalAnnotationUtil {
 	 * <li>prefix up-to the changed type</li>
 	 * <li>original type</li>
 	 * <li>changed type</li>
-	 * <li>postfix after the changed type <em>(here: empty string)</li>
+	 * <li>postfix after the changed type <em>(here: empty string)</em></li>
 	 * </ul>
 	 */
 	public static String[] annotateType(String originalSignature, String annotatedType, MergeStrategy mergeStrategy)
@@ -639,7 +639,7 @@ public final class ExternalAnnotationUtil {
 	 * <li>prefix up-to the changed type</li>
 	 * <li>original type</li>
 	 * <li>changed type</li>
-	 * <li>postfix after the changed type <em>(here: empty string)</li>
+	 * <li>postfix after the changed type <em>(here: empty string)</em></li>
 	 * </ul>
 	 */
 	public static String[] annotateReturnType(String originalSignature, String annotatedType, MergeStrategy mergeStrategy)

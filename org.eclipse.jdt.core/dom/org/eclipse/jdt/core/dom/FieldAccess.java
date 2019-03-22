@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -29,6 +29,7 @@ import java.util.List;
  * Note that there are several kinds of expressions that resemble field access
  * expressions: qualified names, this expressions, and super field access
  * expressions. The following guidelines help with correct usage:
+ * </p>
  * <ul>
  *   <li>An expression like "foo.this" can only be represented as a this
  *   expression (<code>ThisExpression</code>) containing a simple name.
@@ -50,7 +51,6 @@ import java.util.List;
  *   only be represented as field access expressions
  *   (<code>FieldAccess</code>).</li>
  * </ul>
- * </p>
  *
  * @see QualifiedName
  * @see ThisExpression

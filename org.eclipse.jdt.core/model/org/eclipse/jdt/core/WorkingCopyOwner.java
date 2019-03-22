@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -136,7 +136,6 @@ public abstract class WorkingCopyOwner {
 	 * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 	 * assert cu.getProblems().length == 0;
 	 * </pre>
-	 * </p>
 	 * 
 	 * @param typeName the simple name of the type to lookup
 	 * @param packageName the dot-separated name of the package of type
@@ -178,7 +177,7 @@ public abstract class WorkingCopyOwner {
 	 * </p><p>
 	 * A DOM AST created using this working copy will have bindings resolved using the given
 	 * classpath, and problem are reported to the given problem requestor.
-	 * <p></p>
+	 * </p><p>
 	 * <code>JavaCore#getOptions()</code> is used to create the DOM AST as it is not
 	 * possible to set the options on the non-existing Java project.
 	 * </p><p>
@@ -231,7 +230,7 @@ public abstract class WorkingCopyOwner {
 	 * If a DOM AST is created using this working copy, then given classpath will be used
 	 *  if bindings need to be resolved. Problems will be reported to the problem requestor
 	 * of the current working copy owner problem if it is not <code>null</code>.
-	 * <p></p>
+	 * </p><p>
 	 * Options used to create the DOM AST are got from {@link JavaCore#getOptions()}
 	 * as it is not possible to set the options on a non-existing Java project.
 	 * </p><p>

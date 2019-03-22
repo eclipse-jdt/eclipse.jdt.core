@@ -1203,9 +1203,11 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * 
 	 * Note that at most one of these options can be set to {@code TRUE}:
+	 * <ul>
 	 * <li>{@code FORMATTER_COMMENT_INDENT_ROOT_TAGS},
 	 * <li>{@code FORMATTER_COMMENT_ALIGN_TAGS_NAMES_DESCRIPTIONS},
 	 * <li>{@code FORMATTER_COMMENT_ALIGN_TAGS_DESCREIPTIONS_GROUPED}.
+	 * </ul>
 	 * 
 	 * @see #TRUE
 	 * @see #FALSE
@@ -1224,9 +1226,11 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * 
 	 * Note that at most one of these options can be set to {@code TRUE}:
+	 * <ul>
 	 * <li>{@code FORMATTER_COMMENT_INDENT_ROOT_TAGS},
 	 * <li>{@code FORMATTER_COMMENT_ALIGN_TAGS_NAMES_DESCRIPTIONS},
 	 * <li>{@code FORMATTER_COMMENT_ALIGN_TAGS_DESCREIPTIONS_GROUPED}.
+	 * </ul>
 	 * 
 	 * @see #TRUE
 	 * @see #FALSE
@@ -1245,9 +1249,11 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * 
 	 * Note that at most one of these options can be set to {@code TRUE}:
+	 * <ul>
 	 * <li>{@code FORMATTER_COMMENT_INDENT_ROOT_TAGS},
 	 * <li>{@code FORMATTER_COMMENT_ALIGN_TAGS_NAMES_DESCRIPTIONS},
 	 * <li>{@code FORMATTER_COMMENT_ALIGN_TAGS_DESCREIPTIONS_GROUPED}.
+	 * </ul>
 	 * 
 	 * @see #TRUE
 	 * @see #FALSE
@@ -1419,7 +1425,7 @@ public class DefaultCodeFormatterConstants {
 	 * void bar1() {}
 	 * void bar2() {}
 	 * }
-	 * </pre></p>
+	 * </pre>
 	 * </li>
 	 * <li>If no enabling tag is found by the formatter after the disabling tag, then
 	 * the end of the snippet won't be formatted.<br>
@@ -1497,7 +1503,6 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * </li>
 	 * </ol>
-	 * </p>
 	 * @since 3.6
 	 */
 	public static final String FORMATTER_DISABLING_TAG = JavaCore.PLUGIN_ID + ".formatter.disabling_tag";	//$NON-NLS-1$
@@ -1556,7 +1561,7 @@ public class DefaultCodeFormatterConstants {
 	 * // @formatter:on
 	 * void bar2() {}
 	 * }
-	 * </pre></p>
+	 * </pre>
 	 * </li>
 	 * <li>If a mix of disabling and enabling tags is done in the same comment, then
 	 * the formatter will only take into account the last encountered tag in the
@@ -1627,7 +1632,6 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * </li>
 	 * </ol>
-	 * </p>
 	 * @since 3.6
 	 */
 	public static final String FORMATTER_ENABLING_TAG = JavaCore.PLUGIN_ID + ".formatter.enabling_tag";	//$NON-NLS-1$
@@ -4896,8 +4900,6 @@ public class DefaultCodeFormatterConstants {
 	 *     }
 	 * }
 	 * </pre>
-	 * <p>
-	 * </p>
 	 * <p><b><u>Important notes</u></b>:</p>
 	 * <ol>
 	 * <li>This new behavior is automatically activated (i.e. the default value for this preference is {@link #TRUE}).

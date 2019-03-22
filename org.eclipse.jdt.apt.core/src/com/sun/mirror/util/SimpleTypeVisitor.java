@@ -52,7 +52,7 @@ import com.sun.mirror.type.*;
 public class SimpleTypeVisitor implements TypeVisitor {
 
     /**
-     * Creates a new <tt>SimpleTypeVisitor</tt>.
+     * Creates a new <code>SimpleTypeVisitor</code>.
      */
     public SimpleTypeVisitor() {}
 

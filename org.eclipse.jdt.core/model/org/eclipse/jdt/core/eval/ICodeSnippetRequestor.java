@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -153,7 +153,6 @@ public boolean acceptClassFiles(byte[][] classFileBytes, String[][] classFileCom
 /**
  * Notifies of an evaluation problem.
  * Problems can arise for source of the following kinds:
- * <p>
  * <ul>
  *   <li>global variable (<code>VARIABLE</code>) - fragment source is name of
  *     variable</li>
@@ -165,7 +164,6 @@ public boolean acceptClassFiles(byte[][] classFileBytes, String[][] classFileCom
  *     package declaration</li>
  *   <li>other (<code>INTERNAL</code>) - no fragment source is involved, internal error occurred.</li>
  * </ul>
- * </p>
  * @param problemMarker the problem marker (cannot be null)
  * @param fragmentSource the fragment source
  * @param fragmentKind the kind of source fragment; one of:

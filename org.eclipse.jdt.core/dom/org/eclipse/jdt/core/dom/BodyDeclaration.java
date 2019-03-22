@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,7 +22,6 @@ import java.util.List;
  * that may appear in the body of some kind of class or interface declaration,
  * including anonymous class declarations, enumeration declarations, and
  * enumeration constant declarations.
- * <p>
  * <pre>
  * BodyDeclaration:
  * 		{@link AbstractTypeDeclaration}
@@ -35,7 +34,6 @@ import java.util.List;
  * 		{@link Initializer}
  *		{@link MethodDeclaration} (for methods and constructors)
  * </pre>
- * </p>
  * <p>
  * All types of body declarations carry modifiers (and annotations), although they differ in
  * which modifiers are allowed. Most types of body declarations can carry a

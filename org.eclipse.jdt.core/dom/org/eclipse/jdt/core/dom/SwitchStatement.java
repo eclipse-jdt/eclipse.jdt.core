@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,7 +19,6 @@ import java.util.List;
 
 /**
  * Switch statement AST node type.
- * <p>
  * <pre>
  * SwitchStatement:
  *		<b>switch</b> <b>(</b> Expression <b>)</b>
@@ -30,7 +29,6 @@ import java.util.List;
  * </pre>
  * <code>SwitchCase</code> nodes are treated as a kind of
  * <code>Statement</code>.
- * </p>
  *
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.

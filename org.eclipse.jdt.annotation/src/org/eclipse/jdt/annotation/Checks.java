@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 Stephan Herrmann and others.
+ * Copyright (c) 2016, 2019 Stephan Herrmann and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -83,8 +83,8 @@ import java.util.function.Supplier;
  * <dt>computations</dt>
  * <dd>Methods {@link #ifNonNull(Object, Consumer)}, {@link #applyIfNonNull(Object, Function)},
  * {@link #applyIfNonNullElse(Object, Function, Object)} and {@link #applyIfNonNullElseGet(Object, Function, Supplier)}
- * feed unsafe values into a given functional expression in a null-safe way.
- * <dl>
+ * feed unsafe values into a given functional expression in a null-safe way.</dd>
+ * </dl>
  * 
  * @since 2.1
  */

@@ -54,7 +54,7 @@ import static com.sun.mirror.declaration.Modifier.*;
  * the {@link #matches(Declaration)} method.
  *
  * <p> Examples.
- * <p> Selecting the <tt>public</tt> declarations from a collection:
+ * <p> Selecting the <code>public</code> declarations from a collection:
  * <blockquote><pre>
  *     result = FILTER_PUBLIC.filter(decls);		</pre></blockquote>
  * Selecting class declarations (including enums):
@@ -86,19 +86,19 @@ public class DeclarationFilter {
     // Predefined filters for convenience.
 
     /**
-     * A filter that selects only <tt>public</tt> declarations.
+     * A filter that selects only <code>public</code> declarations.
      */
     public static final DeclarationFilter FILTER_PUBLIC =
 	    new AccessFilter(PUBLIC);
 
     /**
-     * A filter that selects only <tt>protected</tt> declarations.
+     * A filter that selects only <code>protected</code> declarations.
      */
     public static final DeclarationFilter FILTER_PROTECTED =
 	    new AccessFilter(PROTECTED);
 
     /**
-     * A filter that selects only <tt>public</tt> or <tt>protected</tt>
+     * A filter that selects only <code>public</code> or <code>protected</code>
      * declarations.
      */
     public static final DeclarationFilter FILTER_PUBLIC_OR_PROTECTED =
@@ -112,7 +112,7 @@ public class DeclarationFilter {
 	    new AccessFilter();
 
     /**
-     * A filter that selects only <tt>private</tt> declarations.
+     * A filter that selects only <code>private</code> declarations.
      */
     public static final DeclarationFilter FILTER_PRIVATE =
 	    new AccessFilter(PRIVATE);
@@ -133,7 +133,7 @@ public class DeclarationFilter {
      * collection of modifiers.
      *
      * @param mods  the modifiers to match (non-null)
-     * @return a filter that matches declarations containing <tt>mods</tt>
+     * @return a filter that matches declarations containing <code>mods</code>
      */
     public static DeclarationFilter getFilter(
 					     final Collection<Modifier> mods) {
@@ -226,11 +226,11 @@ public class DeclarationFilter {
 
     /**
      * Tests whether this filter matches a given declaration.
-     * The default implementation always returns <tt>true</tt>;
+     * The default implementation always returns <code>true</code>;
      * subclasses should override this.
      *
      * @param decl  the declaration to match
-     * @return <tt>true</tt> if this filter matches the given declaration
+     * @return <code>true</code> if this filter matches the given declaration
      */
     public boolean matches(Declaration decl) {
 	return true;
@@ -240,7 +240,7 @@ public class DeclarationFilter {
      * Returns the declarations matched by this filter.
      * The result is a collection of the same type as the argument;
      * the {@linkplain #filter(Collection, Class) two-parameter version}
-     * of <tt>filter</tt> offers control over the result type.
+     * of <code>filter</code> offers control over the result type.
      *
      * @param <D>    type of the declarations being filtered
      * @param decls  declarations being filtered
@@ -261,12 +261,12 @@ public class DeclarationFilter {
      * being restricted to declarations of a given kind.
      * Similar to the simpler
      * {@linkplain #filter(Collection) single-parameter version}
-     * of <tt>filter</tt>, but the result type is specified explicitly.
+     * of <code>filter</code>, but the result type is specified explicitly.
      *
      * @param <D>      type of the declarations being returned
      * @param decls    declarations being filtered
      * @param resType  type of the declarations being returned --
-     *			the reflective view of <tt>D</tt>
+     *			the reflective view of <code>D</code>
      * @return the declarations matched by this filter, restricted to those
      *			of the specified type
      */

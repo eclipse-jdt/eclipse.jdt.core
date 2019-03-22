@@ -65,7 +65,7 @@ public interface Declaration {
      * Tests whether an object represents the same declaration as this.
      *
      * @param obj  the object to be compared with this declaration
-     * @return <tt>true</tt> if the specified object represents the same
+     * @return <code>true</code> if the specified object represents the same
      *		declaration as this
      */
     @Override
@@ -75,7 +75,7 @@ public interface Declaration {
      * Returns the text of the documentation ("javadoc") comment of
      * this declaration.
      *
-     * @return the documentation comment of this declaration, or <tt>null</tt>
+     * @return the documentation comment of this declaration, or <code>null</code>
      *		if there is none
      */
     String getDocComment();
@@ -94,15 +94,15 @@ public interface Declaration {
      * present on this declaration.
      *
      * <p> The annotation returned by this method could contain an element
-     * whose value is of type <tt>Class</tt>.
+     * whose value is of type <code>Class</code>.
      * This value cannot be returned directly:  information necessary to
      * locate and load a class (such as the class loader to use) is
      * not available, and the class might not be loadable at all.
-     * Attempting to read a <tt>Class</tt> object by invoking the relevant
+     * Attempting to read a <code>Class</code> object by invoking the relevant
      * method on the returned annotation
      * will result in a {@link MirroredTypeException},
      * from which the corresponding {@link TypeMirror} may be extracted.
-     * Similarly, attempting to read a <tt>Class[]</tt>-valued element
+     * Similarly, attempting to read a <code>Class[]</code>-valued element
      * will result in a {@link MirroredTypesException}.
      *
      * <blockquote>
@@ -116,7 +116,7 @@ public interface Declaration {
      * </blockquote>
      *
      * @param <A>  the annotation type
-     * @param annotationType  the <tt>Class</tt> object corresponding to
+     * @param annotationType  the <code>Class</code> object corresponding to
      *		the annotation type
      * @return the annotation of this declaration having the specified type
      *
@@ -126,7 +126,7 @@ public interface Declaration {
 
     /**
      * Returns the modifiers of this declaration, excluding annotations.
-     * Implicit modifiers, such as the <tt>public</tt> and <tt>static</tt>
+     * Implicit modifiers, such as the <code>public</code> and <code>static</code>
      * modifiers of interface members, are included.
      *
      * @return the modifiers of this declaration in undefined order;
@@ -139,7 +139,7 @@ public interface Declaration {
      * The name of a generic type does not include any reference
      * to its formal type parameters.
      * For example, the simple name of the interface declaration
-     * {@code java.util.Set<E>} is <tt>"Set"</tt>.
+     * {@code java.util.Set<E>} is <code>"Set"</code>.
      * If this declaration represents the empty package, an empty
      * string is returned.
      * If it represents a constructor, the simple name of its
@@ -151,7 +151,7 @@ public interface Declaration {
 
     /**
      * Returns the source position of the beginning of this declaration.
-     * Returns <tt>null</tt> if the position is unknown or not applicable.
+     * Returns <code>null</code> if the position is unknown or not applicable.
      *
      * <p> This source position is intended for use in providing
      * diagnostics, and indicates only approximately where a declaration

@@ -41,7 +41,7 @@ import com.sun.mirror.util.SourcePosition;
  * each element of an annotation type.
  *
  * <p> Annotations should not be compared using reference-equality
- * ("<tt>==</tt>").  There is no guarantee that any particular
+ * ("<code>==</code>").  There is no guarantee that any particular
  * annotation will always be represented by the same object.
  *
  * @author Joseph D. Darcy

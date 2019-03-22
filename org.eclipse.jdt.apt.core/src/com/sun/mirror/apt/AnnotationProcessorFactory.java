@@ -44,7 +44,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
  * annotation types.
  * The factory is said to <i>support</i> these types.
  *
- * <p> Each implementation of an <tt>AnnotationProcessorFactory</tt>
+ * <p> Each implementation of an <code>AnnotationProcessorFactory</code>
  * must provide a public no-argument constructor to be used by tools to
  * instantiate the factory.
  *
@@ -61,9 +61,9 @@ public interface AnnotationProcessorFactory {
      * processors it may create.
      * Only {@linkplain AnnotationProcessorEnvironment#getOptions()
      * processor-specific} options are included, each of which begins
-     * with <tt>"-A"</tt>.  For example, if this factory recognizes
-     * options such as <tt>-Adebug -Aloglevel=3</tt>, it will
-     * return the strings <tt>"-Adebug"</tt> and <tt>"-Aloglevel"</tt>.
+     * with <code>"-A"</code>.  For example, if this factory recognizes
+     * options such as <code>-Adebug -Aloglevel=3</code>, it will
+     * return the strings <code>"-Adebug"</code> and <code>"-Aloglevel"</code>.
      *
      * <p> A tool might use this information to determine if any
      * options provided by a user are unrecognized by any processor,
@@ -78,10 +78,10 @@ public interface AnnotationProcessorFactory {
      * Returns the names of the annotation types supported by this factory.
      * An element of the result may be the canonical (fully qualified) name
      * of a supported annotation type.  Alternately it may be of the form
-     * <tt>"<i>name</i>.*"</tt>
+     * <code>"<i>name</i>.*"</code>
      * representing the set of all annotation types
-     * with canonical names beginning with <tt>"<i>name</i>."</tt>
-     * Finally, <tt>"*"</tt> by itself represents the set of all
+     * with canonical names beginning with <code>"<i>name</i>."</code>
+     * Finally, <code>"*"</code> by itself represents the set of all
      * annotation types.
      *
      * @return the names of the annotation types supported by this factory
@@ -91,18 +91,18 @@ public interface AnnotationProcessorFactory {
     /**
      * Returns an annotation processor for a set of annotation
      * types. The set will be empty if the factory supports
-     * &quot;<tt>*</tt>&quot; and the specified type declarations have
+     * &quot;<code>*</code>&quot; and the specified type declarations have
      * no annotations.  Note that the set of annotation types may be
      * empty for other reasons, such as giving the factory an
      * opportunity to register a listener.  An
-     * <tt>AnnotationProcessorFactory</tt> must gracefully handle an
+     * <code>AnnotationProcessorFactory</code> must gracefully handle an
      * empty set of annotations; an appropriate response to an empty
      * set will often be returning {@link AnnotationProcessors#NO_OP}.
      *
      * @param atds type declarations of the annotation types to be processed
      * @param env  environment to use during processing
      * @return an annotation processor for the given annotation types,
-     *		or <tt>null</tt> if the types are not supported or the
+     *		or <code>null</code> if the types are not supported or the
      *		processor cannot be created
      */
     AnnotationProcessor getProcessorFor(Set<AnnotationTypeDeclaration> atds,

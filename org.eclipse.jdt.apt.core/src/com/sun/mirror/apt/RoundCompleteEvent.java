@@ -34,7 +34,7 @@ package com.sun.mirror.apt;
 /**
  * Event for the completion of a round of annotation processing.
  *
- * <p>While this class extends the serializable <tt>EventObject</tt>, it
+ * <p>While this class extends the serializable <code>EventObject</code>, it
  * cannot meaningfully be serialized because all of the annotation
  * processing tool's internal state would potentially be needed.
  *
@@ -48,7 +48,7 @@ public abstract class RoundCompleteEvent extends java.util.EventObject {
     private RoundState rs;
 
     /**
-     * The current <tt>AnnotationProcessorEnvironment</tt> is regarded
+     * The current <code>AnnotationProcessorEnvironment</code> is regarded
      * as the source of events.
      *
      * @param source The source of events

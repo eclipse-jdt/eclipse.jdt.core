@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -375,7 +375,6 @@ public SearchPattern currentPattern() {
  * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap',
  * 'HatMapper' <b>and also</b> 'HashMapEntry'.
  * <p>
- * <pre>
  * Examples:
  * <ol><li>  pattern = "NPE"
  *  name = NullPointerException / NoPermissionException
@@ -395,7 +394,7 @@ public SearchPattern currentPattern() {
  * <li>  pattern = "HMap"
  *  name = "HatMapper"
  *  result => true</li>
- * </ol></pre>
+ * </ol>
  *
  * @see #camelCaseMatch(String, int, int, String, int, int, boolean) for algorithm
  * implementation
@@ -445,7 +444,6 @@ public static final boolean camelCaseMatch(String pattern, String name) {
  * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap' and
  * 'HatMapper' <b>but not</b> 'HashMapEntry'.
  * <p>
- * <pre>
  * Examples:
  * <ol><li>  pattern = "NPE"
  *  name = NullPointerException / NoPermissionException
@@ -462,7 +460,7 @@ public static final boolean camelCaseMatch(String pattern, String name) {
  * <li>  pattern = "HM"
  *  name = "HashMapEntry"
  *  result => (samePartCount == false)</li>
- * </ol></pre>
+ * </ol>
  *
  * @see #camelCaseMatch(String, int, int, String, int, int, boolean) for algorithm
  * 	implementation
@@ -526,7 +524,7 @@ public static final boolean camelCaseMatch(String pattern, String name, boolean 
  * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap',
  * 'HatMapper' <b>and also</b> 'HashMapEntry'.
  * <p>
- * <pre>Examples:<ol>
+ * <ol>
  * <li>  pattern = "NPE"
  *  patternStart = 0
  *  patternEnd = 3
@@ -583,7 +581,7 @@ public static final boolean camelCaseMatch(String pattern, String name, boolean 
  *  nameStart = 0
  *  nameEnd = 9
  *  result => true</li>
- * </ol></pre>
+ * </ol>
  *
  * @param pattern the given pattern
  * @param patternStart the start index of the pattern, inclusive
@@ -632,7 +630,8 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
  * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap' and
  * 'HatMapper' <b>but not</b> 'HashMapEntry'.
  * <p>
- * <pre>Examples:<ol>
+ * Examples:
+ * <ol>
  * <li>  pattern = "NPE"
  *  patternStart = 0
  *  patternEnd = 3
@@ -682,7 +681,7 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
  *  nameStart = 0
  *  nameEnd = 12
  *  result => (samePartCount == false)</li>
- * </ol></pre>
+ * </ol>
  *
  * @see CharOperation#camelCaseMatch(char[], int, int, char[], int, int, boolean)
  * 	from which algorithm implementation has been entirely copied.
@@ -735,7 +734,7 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
  * Each of these rules may be combined with the
  * {@link #R_CASE_SENSITIVE case sensitive flag} if the match comparison
  * should respect the case.
- * <pre>
+ * <p>
  * Examples:
  * <ol><li>  pattern = "NPE"
  *  name = NullPointerException / NoPermissionException
@@ -761,7 +760,7 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
  *  name = "HashMapEntry"
  *  matchRule = {@link #R_PATTERN_MATCH}
  *  result:  { 0, 2, 4, 1, 7, 3 }</li>
- * </ol></pre>
+ * </ol>
  *
  * @see #camelCaseMatch(String, String, boolean) for more details on the
  * 	camel case behavior
@@ -1546,10 +1545,10 @@ private static SearchPattern createPackagePattern(String patternString, int limi
  *		</li>
  *		 <li>All other fine grain constants defined in the <b>limitTo</b> category
  *				of the {@link IJavaSearchConstants} are also accepted nature: 
- * 			<table border=0>
+ * 			<table>
  *     			<tr>
- *         		<th align=left>Fine grain constant
- *         		<th align=left>Meaning
+ *         		<th>Fine grain constant
+ *         		<th>Meaning
  *     			<tr>
  *         		<td>{@link IJavaSearchConstants#FIELD_DECLARATION_TYPE_REFERENCE FIELD_DECLARATION_TYPE_REFERENCE}
  *         		<td>Return only type references used as the type of a field declaration.
@@ -1732,10 +1731,10 @@ public static SearchPattern createPattern(String stringPattern, int searchFor, i
  *		</li>
  *		 <li>All other fine grain constants defined in the <b>limitTo</b> category
  *				of the {@link IJavaSearchConstants} are also accepted nature: 
- * 			<table border=0>
+ * 			<table>
  *     			<tr>
- *         		<th align=left>Fine grain constant
- *         		<th align=left>Meaning
+ *         		<th>Fine grain constant
+ *         		<th>Meaning
  *     			<tr>
  *         		<td>{@link IJavaSearchConstants#FIELD_DECLARATION_TYPE_REFERENCE FIELD_DECLARATION_TYPE_REFERENCE}
  *         		<td>Return only type references used as the type of a field declaration.
@@ -1844,10 +1843,10 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo) {
  *		</li>
  *		 <li>All other fine grain constants defined in the <b>limitTo</b> category
  *				of the {@link IJavaSearchConstants} are also accepted nature: 
- * 			<table border=0>
+ * 			<table>
  *     			<tr>
- *         		<th align=left>Fine grain constant
- *         		<th align=left>Meaning
+ *         		<th>Fine grain constant
+ *         		<th>Meaning
  *     			<tr>
  *         		<td>{@link IJavaSearchConstants#FIELD_DECLARATION_TYPE_REFERENCE FIELD_DECLARATION_TYPE_REFERENCE}
  *         		<td>Return only type references used as the type of a field declaration.

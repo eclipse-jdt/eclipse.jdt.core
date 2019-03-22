@@ -41,7 +41,7 @@ import com.sun.mirror.util.TypeVisitor;
  * Represents a type in the Java programming language.
  * Types include primitive types, class and interface types, array
  * types, and type variables.  Wildcard type arguments, and the
- * pseudo-type representing the type of <tt>void</tt>, are represented
+ * pseudo-type representing the type of <code>void</code>, are represented
  * by type mirrors as well.
  *
  * <p> Types may be compared using the utility methods in
@@ -73,7 +73,7 @@ public interface TypeMirror {
      * Tests whether two types represent the same type.
      *
      * @param obj the object to be compared with this type
-     * @return <tt>true</tt> if the specified object represents the same
+     * @return <code>true</code> if the specified object represents the same
      *		type as this.
      */
     @Override

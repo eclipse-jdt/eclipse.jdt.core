@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -48,7 +48,6 @@ import org.eclipse.jdt.core.IJavaElement;
  * <li>add/insert - this splices an un-parented DF (one that has been cloned, removed, or created stand-alone),
  *    into an existing DF such that the newly inserted DF is only dependent on its new host.</li>
  * </ul>
- * </p>
  * <p>
  * Wherever types are specified in DOM APIs, type names must be specified as they would appear
  * in source code. The DOM does not have a notion of type signatures, only raw text. Example type

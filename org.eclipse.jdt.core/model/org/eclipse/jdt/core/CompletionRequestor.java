@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 IBM Corporation and others.
+ * Copyright (c) 2004, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
  * ...
  * requestor.endReporting();
  * </pre>
+ * <p>
  * If, however, the engine is unable to offer completion proposals
  * for whatever reason, <code>completionFailure</code> is called
  * with a problem object describing why completions were unavailable.
@@ -42,6 +43,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
  * requestor.completionFailure(problem);
  * requestor.endReporting();
  * </pre>
+ * <p>
  * In either case, the bracketing <code>beginReporting</code>
  * <code>endReporting</code> calls are always made as well as
  * <code>acceptContext</code> call.

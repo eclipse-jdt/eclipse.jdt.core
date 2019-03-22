@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -449,14 +449,12 @@ public final class Flags {
 	 * int flags = method.getFlags() & ~Flags.AccVarargs;
 	 * return Flags.toString(flags);
 	 * </pre>
-	 * </p>
 	 * <p>
 	 * Examples results:
 	 * <pre>
 	 *	  <code>"public static final"</code>
 	 *	  <code>"private native"</code>
 	 * </pre>
-	 * </p>
 	 *
 	 * @param flags the flags
 	 * @return the standard string representation of the given flags

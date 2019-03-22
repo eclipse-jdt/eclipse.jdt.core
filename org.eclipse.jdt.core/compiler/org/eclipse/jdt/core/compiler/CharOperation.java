@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -296,8 +296,8 @@ public static final char[][] arrayConcat(char[][] first, char[][] second) {
  * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap',
  * 'HatMapper' <b>and also</b> 'HashMapEntry'.
  * <p>
- * <pre>
- * Examples:<ol>
+ * Examples:
+ * <ol>
  * <li> pattern = "NPE".toCharArray()
  * name = "NullPointerException".toCharArray()
  * result => true</li>
@@ -319,7 +319,7 @@ public static final char[][] arrayConcat(char[][] first, char[][] second) {
  * <li> pattern = "HM".toCharArray()
  * name = "HashMapEntry".toCharArray()
  * result => true</li>
- * </ol></pre>
+ * </ol>
  *
  * @param pattern the given pattern
  * @param name the given name
@@ -366,7 +366,6 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap' and
  * 'HatMapper' <b>but not</b> 'HashMapEntry'.
  * <p>
- * <pre>
  * Examples:<ol>
  * <li> pattern = "NPE".toCharArray()
  * name = "NullPointerException".toCharArray()
@@ -389,7 +388,7 @@ public static final boolean camelCaseMatch(char[] pattern, char[] name) {
  * <li> pattern = "HM".toCharArray()
  * name = "HashMapEntry".toCharArray()
  * result => (samePartCount == false)</li>
- * </ol></pre>
+ * </ol>
  *
  * @param pattern the given pattern
  * @param name the given name
@@ -550,7 +549,6 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
  * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap' and
  * 'HatMapper' <b>but not</b> 'HashMapEntry'.
  * <p>
- * <pre>
  * Examples:
  * <ol>
  * <li> pattern = "NPE".toCharArray()
@@ -603,7 +601,6 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
  * nameEnd = 12
  * result => (samePartCount == false)</li>
  * </ol>
- * </pre>
  *
  * @param pattern the given pattern
  * @param patternStart the start index of the pattern, inclusive
@@ -1026,7 +1023,6 @@ public static final int compareTo(char[] array1, char[] array2, int start, int e
  * </pre>
  * </li>
  * </ol>
- * </p>
  *
  * @param array the given array
  * @param prefix the given prefix
@@ -1414,7 +1410,7 @@ public static final char[] concat(
  *    => result = { ' a' , '/', 'b' }
  * </pre>
  * </li>
- *  * <li><pre>
+ * <li><pre>
  *    first = { ' a' }
  *    second = {  }
  *    separator = '/'

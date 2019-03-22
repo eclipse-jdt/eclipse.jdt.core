@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -112,8 +112,8 @@ public abstract class Statement extends ASTNode {
 	 * </p>
 	 * <p>
 	 * Examples:
-	 * <code>
 	 * <pre>
+	 * <code>
 	 * setLeadingComment("/&#42; traditional comment &#42;/");  // correct
 	 * setLeadingComment("missing comment delimiters");  // wrong
 	 * setLeadingComment("/&#42; unterminated traditional comment ");  // wrong
@@ -121,9 +121,8 @@ public abstract class Statement extends ASTNode {
 	 * setLeadingComment("// end-of-line comment\n");  // correct
 	 * setLeadingComment("// end-of-line comment without line terminator");  // correct
 	 * setLeadingComment("// broken\n end-of-line comment\n");  // wrong
-	 * </pre>
 	 * </code>
-	 * </p>
+	 * </pre>
 	 *
 	 * @param comment the comment string, or <code>null</code> if none
 	 * @exception IllegalArgumentException if the comment string is invalid

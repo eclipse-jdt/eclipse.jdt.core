@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -418,11 +418,11 @@ IImportDeclaration[] getImports() throws JavaModelException;
  */
 ICompilationUnit getPrimary();
 /**
- * Returns <tt>null</tt> if this <code>ICompilationUnit</code> is the primary
+ * Returns <code>null</code> if this <code>ICompilationUnit</code> is the primary
  * working copy, or this <code>ICompilationUnit</code> is not a working copy,
  * otherwise the <code>WorkingCopyOwner</code>
  * 
- * @return <tt>null</tt> if this <code>ICompilationUnit</code> is the primary
+ * @return <code>null</code> if this <code>ICompilationUnit</code> is the primary
  * working copy, or this <code>ICompilationUnit</code> is not a working copy,
  * otherwise the <code>WorkingCopyOwner</code>
  * @since 3.0
@@ -736,7 +736,6 @@ CompilationUnit reconcile(int astLevel, boolean forceProblemDetection, boolean e
  *   <li>the requested level of AST API is not supported</li>
  *   <li>the working copy was already consistent and problem detection is not forced</li>
  * </ul>
- * </p>
  *
  * <p>
  * If statements recovery is enabled by passing the {@link #ENABLE_STATEMENTS_RECOVERY} bit in the given reconcile flag

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2017 IBM Corporation and others.
+ * Copyright (c) 2005, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -219,7 +219,7 @@ public interface IClasspathAttribute {
 	 * <code>"false"</code> is assumed. If the value of this attribute is <code>"true"</code>, and the classpath entry
 	 * is a source folder, it is assumed to contain test sources, otherwise main sources.
 	 * </p>
-	 * </p>
+	 * <p>
 	 * During the compilation of main sources, only code is visible, that is reachable via classpath entries which do
 	 * not have the test attribute set to to "true". During the compilation of test sources, all code is visible as if
 	 * this attribute didn't exist at all.

@@ -34,8 +34,8 @@ package com.sun.mirror.type;
 
 /**
  * Represents a primitive type.  These include
- * <tt>boolean</tt>, <tt>byte</tt>, <tt>short</tt>, <tt>int</tt>,
- * <tt>long</tt>, <tt>char</tt>, <tt>float</tt>, and <tt>double</tt>.
+ * <code>boolean</code>, <code>byte</code>, <code>short</code>, <code>int</code>,
+ * <code>long</code>, <code>char</code>, <code>float</code>, and <code>double</code>.
  * 
  * @author Joseph D. Darcy
  * @author Scott Seligman
@@ -56,13 +56,13 @@ public interface PrimitiveType extends TypeMirror {
      * An enumeration of the different kinds of primitive types.
      */
     enum Kind {
-	/** The primitive type <tt>boolean</tt> */	BOOLEAN,
-	/** The primitive type <tt>byte</tt> */		BYTE,
-	/** The primitive type <tt>short</tt> */	SHORT,
-	/** The primitive type <tt>int</tt> */		INT,
-	/** The primitive type <tt>long</tt> */		LONG,
-	/** The primitive type <tt>char</tt> */		CHAR,
-	/** The primitive type <tt>float</tt> */	FLOAT,
-	/** The primitive type <tt>double</tt> */	DOUBLE
+	/** The primitive type <code>boolean</code> */	BOOLEAN,
+	/** The primitive type <code>byte</code> */		BYTE,
+	/** The primitive type <code>short</code> */	SHORT,
+	/** The primitive type <code>int</code> */		INT,
+	/** The primitive type <code>long</code> */		LONG,
+	/** The primitive type <code>char</code> */		CHAR,
+	/** The primitive type <code>float</code> */	FLOAT,
+	/** The primitive type <code>double</code> */	DOUBLE
     }
 }

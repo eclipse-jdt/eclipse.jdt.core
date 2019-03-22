@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 IBM Corporation and others.
+ * Copyright (c) 2005, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -107,11 +107,10 @@ public class TargetSourceRangeComputer {
 	 * immediately before or after the normal source range for the node.
 	 * <p>
 	 * The returned source ranges must satisfy the following conditions:
-	 * <dl>
+	 * <ul>
 	 * <li>no two source ranges in an AST may be overlapping</li>
 	 * <li>a source range of a parent node must fully cover the source ranges of its children</li>
-	 * 	</dl>
-	 * 	</p>
+	 * </ul>
 	 * <p>
 	 * The default implementation uses
 	 * {@link CompilationUnit#getExtendedStartPosition(ASTNode)}

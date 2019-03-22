@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -24,7 +24,6 @@ package org.eclipse.jdt.core.dom;
  * meaningful in the type argument position of a parameterized type.
  * UnionType got introduced in JLS4 to support common catch blocks for disjunctive types.
  * For JLS8, optional annotations indicated by {Annotation} got added.
- * <p>
  * <pre>
  * Type:
  *    AnnotatableType:
@@ -63,9 +62,8 @@ package org.eclipse.jdt.core.dom;
  * {@link UnionType}:
  *    Type <b>|</b> Type { <b>|</b> Type }
  * {@link IntersectionType}:
- *    Type <b>&</b> Type { <b>&</b> Type }
+ *    Type <b>&amp;</b> Type { <b>&amp;</b> Type }
  * </pre>
- * </p>
  *
  * @since 2.0
  */
@@ -158,7 +156,6 @@ public abstract class Type extends ASTNode {
 	 * either rather than make assumptions. (Note also that the first form
 	 * became possible as of JLS3; only the second form existed in the
 	 * JLS2 API.)
-	 * </p>
 	 *
 	 * @return <code>true</code> if this is a qualified type, and
 	 *    <code>false</code> otherwise

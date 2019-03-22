@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
  * <p>
  * Deltas have a different status depending on the kind of change they represent.
  * The list below summarizes each status (as returned by {@link #getKind})
- * and its meaning (see individual constants for a more detailled description):
+ * and its meaning (see individual constants for a more detailed description):
  * <ul>
  * <li>{@link #ADDED} - The element described by the delta has been added.</li>
  * <li>{@link #REMOVED} - The element described by the delta has been removed.</li>
@@ -60,11 +60,10 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
  * <li>{@link #F_SOURCEDETACHED} - The source attachment path or the source attachment root path
  * of a classpath entry corresponding to the element was removed. This flag is only valid if the element is an
  * {@link IPackageFragmentRoot}.</li>
- * <li>{@link #F_SUPER_TYPES} - One of the supertypes of an {@link IType} has changed</li>.
+ * <li>{@link #F_SUPER_TYPES} - One of the supertypes of an {@link IType} has changed.</li>
  * </ul>
  * </li>
  * </ul>
- * </p>
  * <p>
  * Move operations are indicated by other change flags, layered on top
  * of the change flags described above. If element A is moved to become B,
@@ -369,7 +368,7 @@ public interface IJavaElementDelta {
 
 	/**
 	 * Returns flags that describe how an element has changed.
-	 * Such flags should be tested using the <code>&</code> operand. For example:
+	 * Such flags should be tested using the <code>&amp;</code> operand. For example:
 	 * <pre>
 	 * if ((delta.getFlags() & IJavaElementDelta.F_CONTENT) != 0) {
 	 * 	// the delta indicates a content change

@@ -41,7 +41,7 @@ import com.sun.mirror.type.InterfaceType;
  * Note that an {@linkplain AnnotationTypeDeclaration annotation type} is
  * a kind of interface.
  *
- * <p> While an <tt>InterfaceDeclaration</tt> represents the
+ * <p> While an <code>InterfaceDeclaration</code> represents the
  * <i>declaration</i> of an interface, an {@link InterfaceType}
  * represents an interface <i>type</i>.
  * See {@link TypeDeclaration} for more on this distinction.

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -87,7 +87,7 @@ public ReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, i
  * 			is the {@link IAnnotation} '<code>Num</code>'.<br><br>
  * 	</li>
  * </ul>
- * </p><p>
+ * <p>
  * A local element may also be a {@link ILocalVariable} whose type is the referenced
  * type. For example,
  * <ul>
@@ -112,7 +112,6 @@ public ReferenceMatch(IJavaElement enclosingElement, int accuracy, int offset, i
  * 		will return one {@link TypeReferenceMatch} match whose local element
  * 		is the {@link ITypeParameter} '<code>T</code>'.<br><br>
  * </ul>
- * </p>
  *
  * @return the local element of this search match, or <code>null</code> if none.
  *

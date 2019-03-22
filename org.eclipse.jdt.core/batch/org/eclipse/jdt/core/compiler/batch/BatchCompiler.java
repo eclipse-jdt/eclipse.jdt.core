@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2010 IBM Corporation and others.
+ * Copyright (c) 2008, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -43,7 +43,6 @@ public final class BatchCompiler {
 	 * <p>
 	 * The specification of the command line arguments is defined by running the batch compiler's help
 	 * <pre>BatchCompiler.compile("-help", new PrintWriter(System.out), new PrintWriter(System.err), null);</pre>
-	 * </p>
 	 *
 	 * @param commandLine the command line arguments passed to the compiler
 	 * @param outWriter the writer used to print standard messages
@@ -69,7 +68,7 @@ public final class BatchCompiler {
 	 * <p>
 	 * The specification of the command line arguments is defined by running the batch compiler's help
 	 * <pre>BatchCompiler.compile("-help", new PrintWriter(System.out), new PrintWriter(System.err), null);</pre>
-	 * </p>
+	 * <p>
 	 * Note that a <code>true</code> returned value indicates that no errors were reported, no runtime exceptions
 	 * occurred and that the compilation was not canceled.
 	 *

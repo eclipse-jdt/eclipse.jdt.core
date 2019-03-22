@@ -37,15 +37,16 @@ import java.util.Collection;
 
 /**
  * Represents a wildcard type argument.
- * Examples include:	<pre><tt>
+ * Examples include:	<pre><code>
  *   ?
  *   ? extends Number
  *   ? super T
- * </tt></pre>
+ * </code></pre>
  *
  * <p> A wildcard may have its upper bound explicitly set by an
- * <tt>extends</tt> clause, its lower bound explicitly set by a
- * <tt>super</tt> clause, or neither (but not both).
+ * <code>extends</code> clause, its lower bound explicitly set by a
+ * <code>super</code> clause, or neither (but not both).
+ * </p>
  *
  * @author Joseph D. Darcy
  * @author Scott Seligman

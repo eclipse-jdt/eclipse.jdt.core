@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -200,7 +200,6 @@ public class CharacterLiteral extends Expression {
 	 * s.setEscapedValue("\'x\'");
 	 * assert s.charValue() == 'x';
 	 * </pre>
-	 * </p>
 	 *
 	 * @return the character value without enclosing quotes and embedded
 	 *    escapes
@@ -300,7 +299,6 @@ public class CharacterLiteral extends Expression {
 	 * assert s.charValue() == 'x';
 	 * assert s.getEscapedValue().equals("\'x\'");
 	 * </pre>
-	 * </p>
 	 *
 	 * @param value the character value
 	 */

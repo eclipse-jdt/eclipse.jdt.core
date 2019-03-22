@@ -44,8 +44,8 @@ import com.sun.mirror.type.*;
  * and an {@linkplain AnnotationTypeDeclaration annotation type} is
  * a kind of interface.
  *
- * <p> <a name="DECL_VS_TYPE"></a>
- * While a <tt>TypeDeclaration</tt> represents the <i>declaration</i>
+ * <p> <a id="DECL_VS_TYPE"></a>
+ * While a <code>TypeDeclaration</code> represents the <i>declaration</i>
  * of a class or interface, a {@link DeclaredType} represents a class
  * or interface <i>type</i>, the latter being a use
  * (or <i>invocation</i>) of the former.
@@ -84,7 +84,7 @@ public interface TypeDeclaration extends MemberDeclaration {
      * The name of a generic type does not include any reference
      * to its formal type parameters.
      * For example, the the fully qualified name of the interface declaration
-     * {@code java.util.Set<E>} is <tt>"java.util.Set"</tt>.
+     * {@code java.util.Set<E>} is <code>"java.util.Set"</code>.
      *
      * @return the fully qualified name of this class or interface declaration
      */
@@ -124,8 +124,8 @@ public interface TypeDeclaration extends MemberDeclaration {
      * Returns the methods that are directly declared by this class or
      * interface.  Includes annotation type elements.  Excludes
      * implicitly declared methods of an interface, such as
-     * <tt>toString</tt>, that correspond to the methods of
-     * <tt>java.lang.Object</tt>.
+     * <code>toString</code>, that correspond to the methods of
+     * <code>java.lang.Object</code>.
      *
      * @return the methods that are directly declared,
      * or an empty collection if there are none

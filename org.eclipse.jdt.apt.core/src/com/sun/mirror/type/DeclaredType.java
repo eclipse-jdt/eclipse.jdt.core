@@ -42,15 +42,15 @@ import com.sun.mirror.declaration.TypeDeclaration;
  * This includes parameterized types such as {@code java.util.Set<String>}
  * as well as raw types.
  *
- * <p> While a <tt>TypeDeclaration</tt> represents the <i>declaration</i>
- * of a class or interface, a <tt>DeclaredType</tt> represents a class
+ * <p> While a <code>TypeDeclaration</code> represents the <i>declaration</i>
+ * of a class or interface, a <code>DeclaredType</code> represents a class
  * or interface <i>type</i>, the latter being a use of the former.
  * See {@link TypeDeclaration} for more on this distinction.
  *
- * <p> A <tt>DeclaredType</tt> may represent a type
+ * <p> A <code>DeclaredType</code> may represent a type
  * for which details (declaration, supertypes, <i>etc.</i>) are unknown.
  * This may be the result of a processing error, such as a missing class file,
- * and is indicated by {@link #getDeclaration()} returning <tt>null</tt>.
+ * and is indicated by {@link #getDeclaration()} returning <code>null</code>.
  * Other method invocations on such an unknown type will not, in general,
  * return meaningful results.
  *
@@ -74,14 +74,14 @@ public interface DeclaredType extends ReferenceType {
 
     /**
      * Returns the type that contains this type as a member.
-     * Returns <tt>null</tt> if this is a top-level type.
+     * Returns <code>null</code> if this is a top-level type.
      *
      * <p> For example, the containing type of {@code O.I<S>}
      * is the type {@code O}, and the containing type of
      * {@code O<T>.I<S>} is the type {@code O<T>}.
      *
      * @return the type that contains this type,
-     * or <tt>null</tt> if this is a top-level type
+     * or <code>null</code> if this is a top-level type
      */
     DeclaredType getContainingType();
 

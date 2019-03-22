@@ -46,7 +46,7 @@ import com.sun.mirror.util.*;
  *
  * <p> When an annotation processing tool is invoked, it is given a
  * set of type declarations on which to operate.  These
- * are refered to as the <i>specified</i> types.
+ * are referred to as the <i>specified</i> types.
  * The type declarations said to be <i>included</i> in this invocation
  * consist of the specified types and any types nested within them.
  *
@@ -65,11 +65,11 @@ public interface AnnotationProcessorEnvironment {
     /**
      * Returns the options passed to the annotation processing tool.
      * Options are returned in the form of a map from option name
-     * (such as <tt>"-encoding"</tt>) to option value.
-     * For an option with no value (such as <tt>"-help"</tt>), the
-     * corresponding value in the map is <tt>null</tt>.
+     * (such as <code>"-encoding"</code>) to option value.
+     * For an option with no value (such as <code>"-help"</code>), the
+     * corresponding value in the map is <code>null</code>.
      *
-     * <p> Options beginning with <tt>"-A"</tt> are <i>processor-specific.</i>
+     * <p> Options beginning with <code>"-A"</code> are <i>processor-specific.</i>
      * Such options are unrecognized by the tool, but intended to be used by
      * some annotation processor.
      *

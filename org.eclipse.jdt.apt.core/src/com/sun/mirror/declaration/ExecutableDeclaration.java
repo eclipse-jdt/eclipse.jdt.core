@@ -49,10 +49,10 @@ import com.sun.mirror.type.ReferenceType;
 public interface ExecutableDeclaration extends MemberDeclaration {
 
     /**
-     * Returns <tt>true</tt> if this method or constructor accepts a variable
+     * Returns <code>true</code> if this method or constructor accepts a variable
      * number of arguments.
      *
-     * @return <tt>true</tt> if this method or constructor accepts a variable
+     * @return <code>true</code> if this method or constructor accepts a variable
      * number of arguments
      */
     boolean isVarArgs();
@@ -77,10 +77,10 @@ public interface ExecutableDeclaration extends MemberDeclaration {
 
     /**
      * Returns the exceptions and other throwables listed in this
-     * method or constructor's <tt>throws</tt> clause.
+     * method or constructor's <code>throws</code> clause.
      *
      * @return the exceptions and other throwables listed in the
-     * <tt>throws</tt> clause, or an empty collection if there are none
+     * <code>throws</code> clause, or an empty collection if there are none
      */
     Collection<ReferenceType> getThrownTypes();
 }

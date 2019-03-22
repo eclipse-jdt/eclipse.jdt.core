@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1440,8 +1440,8 @@ public class SearchEngine {
 	 * Reports the field declarations using the given requestor.
 	 * <p>
 	 * Consider the following code:
-	 * <code>
 	 * <pre>
+	 * <code>
 	 *		class A {
 	 *			int field1;
 	 *		}
@@ -1454,8 +1454,9 @@ public class SearchEngine {
 	 *				System.out.println(b.value + b.field1);
 	 *			};
 	 *		}
-	 * </pre>
 	 * </code>
+	 * </pre>
+	 * <p>
 	 * then searching for declarations of accessed fields in method
 	 * <code>X.test()</code> would collect the fields
 	 * <code>B.value</code> and <code>A.field1</code>.
@@ -1482,8 +1483,8 @@ public class SearchEngine {
 	 * Reports the field declarations using the given collector.
 	 * <p>
 	 * Consider the following code:
-	 * <code>
 	 * <pre>
+	 * <code>
 	 *		class A {
 	 *			int field1;
 	 *		}
@@ -1496,8 +1497,9 @@ public class SearchEngine {
 	 *				System.out.println(b.value + b.field1);
 	 *			};
 	 *		}
-	 * </pre>
 	 * </code>
+	 * </pre>
+	 * <p>
 	 * then searching for declarations of accessed fields in method
 	 * <code>X.test()</code> would collect the fields
 	 * <code>B.value</code> and <code>A.field1</code>.
@@ -1524,8 +1526,8 @@ public class SearchEngine {
 	 * Reports the type declarations using the given requestor.
 	 * <p>
 	 * Consider the following code:
-	 * <code>
 	 * <pre>
+	 * <code>
 	 *		class A {
 	 *		}
 	 *		class B extends A {
@@ -1539,8 +1541,9 @@ public class SearchEngine {
 	 *				this.foo(b, I.VALUE);
 	 *			};
 	 *		}
-	 * </pre>
 	 * </code>
+	 * </pre>
+	 * <p>
 	 * then searching for declarations of referenced types in method <code>X.test()</code>
 	 * would collect the class <code>B</code> and the interface <code>I</code>.
 	 * </p>
@@ -1566,8 +1569,8 @@ public class SearchEngine {
 	 * Reports the type declarations using the given collector.
 	 * <p>
 	 * Consider the following code:
-	 * <code>
 	 * <pre>
+	 * <code>
 	 *		class A {
 	 *		}
 	 *		class B extends A {
@@ -1581,8 +1584,9 @@ public class SearchEngine {
 	 *				this.foo(b, I.VALUE);
 	 *			};
 	 *		}
-	 * </pre>
 	 * </code>
+	 * </pre>
+	 * <p>
 	 * then searching for declarations of referenced types in method <code>X.test()</code>
 	 * would collect the class <code>B</code> and the interface <code>I</code>.
 	 * </p>
@@ -1608,8 +1612,8 @@ public class SearchEngine {
 	 * Reports the method declarations using the given requestor.
 	 * <p>
 	 * Consider the following code:
-	 * <code>
 	 * <pre>
+	 * <code>
 	 *		class A {
 	 *			void foo() {};
 	 *			void bar() {};
@@ -1625,8 +1629,9 @@ public class SearchEngine {
 	 *				b.bar();
 	 *			};
 	 *		}
-	 * </pre>
 	 * </code>
+	 * </pre>
+	 * <p>
 	 * then searching for declarations of sent messages in method
 	 * <code>X.test()</code> would collect the methods
 	 * <code>A.foo()</code>, <code>B.foo()</code>, and <code>A.bar()</code>.
@@ -1653,8 +1658,8 @@ public class SearchEngine {
 	 * Reports the method declarations using the given collector.
 	 * <p>
 	 * Consider the following code:
-	 * <code>
 	 * <pre>
+	 * <code>
 	 *		class A {
 	 *			void foo() {};
 	 *			void bar() {};
@@ -1670,8 +1675,9 @@ public class SearchEngine {
 	 *				b.bar();
 	 *			};
 	 *		}
-	 * </pre>
 	 * </code>
+	 * </pre>
+	 * <p>
 	 * then searching for declarations of sent messages in method
 	 * <code>X.test()</code> would collect the methods
 	 * <code>A.foo()</code>, <code>B.foo()</code>, and <code>A.bar()</code>.

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2014 IBM Corporation and others.
+ * Copyright (c) 2003, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,7 +22,7 @@ import java.util.List;
  * 
  * <pre>
  * TypeParameter:
- *    { ExtendedModifier } Identifier [ <b>extends</b> Type { <b>&</b> Type } ]
+ *    { ExtendedModifier } Identifier [ <b>extends</b> Type { <b>&amp;</b> Type } ]
  * </pre>
  *
  * @since 3.1

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -97,7 +97,8 @@ import org.eclipse.text.edits.TextEdit;
  * <ul><li>{@link #setImportOrder(String[])} specifies the import groups and their preferred order</li>
  * <li>{@link #setOnDemandImportThreshold(int)} specifies the number of imports in a group needed for a on-demand import statement (star import)</li>
  * <li>{@link #setStaticOnDemandImportThreshold(int)} specifies the number of static imports in a group needed for a on-demand import statement (star import)</li>
- *</ul>
+ * </ul>
+ * <p>
  * This class is not intended to be subclassed.
  * </p>
  * @since 3.2

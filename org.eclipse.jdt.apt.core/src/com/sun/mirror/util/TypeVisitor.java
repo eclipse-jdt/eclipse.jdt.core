@@ -41,7 +41,7 @@ import com.sun.mirror.type.*;
  * of type is unknown at compile time.
  * When a visitor is passed to a type's
  * {@link TypeMirror#accept accept} method,
- * the most specific <tt>visit<i>Xxx</i></tt> method applicable to
+ * the most specific <code>visitXxx</code> method applicable to
  * that type is invoked.
  *
  * @author Joseph D. Darcy

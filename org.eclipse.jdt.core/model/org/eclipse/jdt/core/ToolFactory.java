@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -411,8 +411,8 @@ public class ToolFactory {
 	 * used to tokenize some source in a Java aware way.
 	 * Here is a typical scanning loop:
 	 *
-	 * <code>
 	 * <pre>
+	 * <code>
 	 *   IScanner scanner = ToolFactory.createScanner(false, false, false, false);
 	 *   scanner.setSource("int i = 0;".toCharArray());
 	 *   while (true) {
@@ -420,8 +420,8 @@ public class ToolFactory {
 	 *     if (token == ITerminalSymbols.TokenNameEOF) break;
 	 *     System.out.println(token + " : " + new String(scanner.getCurrentTokenSource()));
 	 *   }
-	 * </pre>
 	 * </code>
+	 * </pre>
 	 *
 	 * <p>By default the compliance used to create the scanner is the workspace's compliance when running inside the IDE
 	 * or 1.4 if running from outside of a headless eclipse.
@@ -465,8 +465,8 @@ public class ToolFactory {
 	 * used to tokenize some source in a Java aware way.
 	 * Here is a typical scanning loop:
 	 *
-	 * <code>
 	 * <pre>
+	 * <code>
 	 *   IScanner scanner = ToolFactory.createScanner(false, false, false, false);
 	 *   scanner.setSource("int i = 0;".toCharArray());
 	 *   while (true) {
@@ -474,8 +474,8 @@ public class ToolFactory {
 	 *     if (token == ITerminalSymbols.TokenNameEOF) break;
 	 *     System.out.println(token + " : " + new String(scanner.getCurrentTokenSource()));
 	 *   }
-	 * </pre>
 	 * </code>
+	 * </pre>
 	 *
 	 * <p>By default the compliance used to create the scanner is the workspace's compliance when running inside the IDE
 	 * or 1.4 if running from outside of a headless eclipse.
@@ -522,8 +522,8 @@ public class ToolFactory {
 	 * used to tokenize some source in a Java aware way.
 	 * Here is a typical scanning loop:
 	 *
-	 * <code>
 	 * <pre>
+	 * <code>
 	 *   IScanner scanner = ToolFactory.createScanner(false, false, false, false);
 	 *   scanner.setSource("int i = 0;".toCharArray());
 	 *   while (true) {
@@ -531,8 +531,8 @@ public class ToolFactory {
 	 *     if (token == ITerminalSymbols.TokenNameEOF) break;
 	 *     System.out.println(token + " : " + new String(scanner.getCurrentTokenSource()));
 	 *   }
-	 * </pre>
 	 * </code>
+	 * </pre>
 	 *
 	 * @param tokenizeComments if set to <code>false</code>, comments will be silently consumed
 	 * @param tokenizeWhiteSpace if set to <code>false</code>, white spaces will be silently consumed,

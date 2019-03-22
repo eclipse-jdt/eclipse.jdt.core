@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 IBM Corporation and others.
+ * Copyright (c) 2004, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,12 +19,10 @@ import java.util.List;
 /**
  * Marker annotation node (added in JLS3 API). The marker annotation
  * "@foo" is equivalent to the normal annotation "@foo()".
- * <p>
  * <pre>
  * MarkerAnnotation:
  *   <b>@</b> TypeName
  * </pre>
- * </p>
  *
  * @since 3.1
  * @noinstantiate This class is not intended to be instantiated by clients.

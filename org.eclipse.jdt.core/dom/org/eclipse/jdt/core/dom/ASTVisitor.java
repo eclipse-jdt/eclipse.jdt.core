@@ -35,7 +35,7 @@ package org.eclipse.jdt.core.dom;
  * <code>false</code>). The default implementation provided by this class does
  * nothing. Subclasses may reimplement this method as needed.</li>
  * </ul>
- * </p>
+ * <p>
  * In addition, there are a pair of methods for visiting AST nodes in the
  * abstract, regardless of node type:
  * <ul>

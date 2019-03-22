@@ -40,7 +40,7 @@ import com.sun.mirror.declaration.*;
  * operate on a declaration when the kind of declaration is unknown at
  * compile time.  When a visitor is passed to a declaration's {@link
  * Declaration#accept accept} method, the most specific
- * <tt>visit<i>Xxx</i></tt> method applicable to that declaration is
+ * <code>visitXxx</code> method applicable to that declaration is
  * invoked.
  *
  * @author Joseph D. Darcy

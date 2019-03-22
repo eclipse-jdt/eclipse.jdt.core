@@ -52,7 +52,7 @@ import com.sun.mirror.declaration.*;
 public class SimpleDeclarationVisitor implements DeclarationVisitor {
 
     /**
-     * Creates a new <tt>SimpleDeclarationVisitor</tt>.
+     * Creates a new <code>SimpleDeclarationVisitor</code>.
      */
     public SimpleDeclarationVisitor(){}
 

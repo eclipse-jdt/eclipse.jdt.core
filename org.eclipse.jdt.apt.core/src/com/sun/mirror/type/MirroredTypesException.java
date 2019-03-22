@@ -72,7 +72,7 @@ public class MirroredTypesException extends RuntimeException {
      * The type mirrors may be unavailable if this exception has been
      * serialized and then read back in.
      *
-     * @return the type mirrors in order, or <tt>null</tt> if unavailable
+     * @return the type mirrors in order, or <code>null</code> if unavailable
      */
     public Collection<TypeMirror> getTypeMirrors() {
 	return (types != null)
@@ -83,8 +83,8 @@ public class MirroredTypesException extends RuntimeException {
     /**
      * Returns the fully qualified names of the types being accessed.
      * More precisely, returns the canonical names of each class,
-     * interface, array, or primitive, and <tt>"void"</tt> for
-     * the pseudo-type representing the type of <tt>void</tt>.
+     * interface, array, or primitive, and <code>"void"</code> for
+     * the pseudo-type representing the type of <code>void</code>.
      *
      * @return the fully qualified names, in order, of the types being
      *		accessed

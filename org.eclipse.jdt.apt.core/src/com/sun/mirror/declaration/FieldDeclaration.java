@@ -55,26 +55,26 @@ public interface FieldDeclaration extends MemberDeclaration {
 
     /**
      * Returns the value of this field if this field is a compile-time
-     * constant.  Returns <tt>null</tt> otherwise.
-     * The value will be of a primitive type or <tt>String</tt>.
+     * constant.  Returns <code>null</code> otherwise.
+     * The value will be of a primitive type or <code>String</code>.
      * If the value is of a primitive type, it is wrapped in the
      * appropriate wrapper class (such as {@link Integer}).
      *
      * @return the value of this field if this field is a compile-time
-     * constant, or <tt>null</tt> otherwise
+     * constant, or <code>null</code> otherwise
      */
     Object getConstantValue();
 
     /**
      * Returns the text of a <i>constant expression</i> representing the
      * value of this field if this field is a compile-time constant.
-     * Returns <tt>null</tt> otherwise.
-     * The value will be of a primitive type or <tt>String</tt>.
+     * Returns <code>null</code> otherwise.
+     * The value will be of a primitive type or <code>String</code>.
      * The text returned is in a form suitable for representing the value
      * in source code.
      *
      * @return the text of a constant expression if this field is a
-     *		compile-time constant, or <tt>null</tt> otherwise
+     *		compile-time constant, or <code>null</code> otherwise
      */
     String getConstantExpression();
 }

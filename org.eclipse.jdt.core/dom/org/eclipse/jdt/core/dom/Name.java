@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,13 +18,11 @@ package org.eclipse.jdt.core.dom;
  * Abstract base class for all AST nodes that represent names.
  * There are exactly two kinds of name: simple ones
  * (<code>SimpleName</code>) and qualified ones (<code>QualifiedName</code>).
- * <p>
  * <pre>
  * Name:
  *     SimpleName
  *     QualifiedName
  * </pre>
- * </p>
  *
  * @since 2.0
  * @noextend This class is not intended to be subclassed by clients.

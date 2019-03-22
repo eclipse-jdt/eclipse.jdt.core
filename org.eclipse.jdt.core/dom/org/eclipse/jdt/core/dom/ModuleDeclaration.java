@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 IBM Corporation and others.
+ * Copyright (c) 2016, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -24,8 +24,6 @@ import java.util.List;
  *        { RequiresDirective | ExportsDirective | OpensDirective | UsesDirective | ProvidesDirective }
  *  <b>}</b>
  * </pre>
- * <p>
- * </p>
  *
  * @since 3.14
  *

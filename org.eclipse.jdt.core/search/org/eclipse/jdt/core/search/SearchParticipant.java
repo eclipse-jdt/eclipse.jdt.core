@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -42,13 +42,13 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
  * <li>{@link #scheduleDocumentIndexing(SearchDocument, IPath)}</li>
  * <li>{@link #indexDocument(SearchDocument, IPath)}</li>
  * </ul>
+ * <p>
  * During the search phase, a subclass will be called with the following requests in order:
  * <ul>
  * <li>{@link #selectIndexes(SearchPattern, IJavaSearchScope)}</li>
  * <li>one or more {@link #getDocument(String)}</li>
  * <li>{@link #locateMatches(SearchDocument[], SearchPattern, IJavaSearchScope, SearchRequestor, IProgressMonitor)}</li>
  * </ul>
- * </p>
  *
  * @since 3.0
  */

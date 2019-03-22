@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -581,7 +581,6 @@ public interface ITypeBinding extends IBinding {
 	 * <li>java.lang.@Marker2 String</li>
 	 * <li>java.lang.String</li>
 	 * </ul>
-	 * </p>
 	 * To get the type annotations on dimensions, clients should repeatedly call 
 	 * {@link #getComponentType()} and get the type annotations from there. 
 

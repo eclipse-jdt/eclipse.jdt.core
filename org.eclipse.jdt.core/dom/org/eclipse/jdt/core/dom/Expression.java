@@ -17,7 +17,6 @@ package org.eclipse.jdt.core.dom;
 /**
  * Abstract base class of AST nodes that represent expressions.
  * There are several kinds of expressions.
- * <p>
  * <pre>
  * Expression:
  *    {@link Annotation},
@@ -54,7 +53,6 @@ package org.eclipse.jdt.core.dom;
  *    {@link TypeMethodReference},
  *    {@link VariableDeclarationExpression}
  * </pre>
- * </p>
  *
  * @since 2.0
  */

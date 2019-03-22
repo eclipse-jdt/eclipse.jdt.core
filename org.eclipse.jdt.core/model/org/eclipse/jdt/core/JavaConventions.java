@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -113,7 +113,6 @@ public final class JavaConventions {
 	 * <li> it must not contain any characters or substrings that are not valid
 	 *		   on the file system on which workspace root is located.
 	 * </ul>
-	 * </p>
 	 * @param name the name of a compilation unit
 	 * @return a status object with code <code>IStatus.OK</code> if
 	 *		the given name is valid as a compilation unit name, otherwise a status
@@ -136,7 +135,6 @@ public final class JavaConventions {
 	 * <li> it must not contain any characters or substrings that are not valid
 	 *		   on the file system on which workspace root is located.
 	 * </ul>
-	 * </p>
 	 * @param name the name of a compilation unit
 	 * @param sourceLevel the source level
 	 * @param complianceLevel the compliance level
@@ -187,7 +185,6 @@ public final class JavaConventions {
 	 * <li> it must not contain any characters or substrings that are not valid
 	 *		   on the file system on which workspace root is located.
 	 * </ul>
-	 * </p>
 	 * @param name the name of a .class file
 	 * @return a status object with code <code>IStatus.OK</code> if
 	 *		the given name is valid as a .class file name, otherwise a status
@@ -210,7 +207,6 @@ public final class JavaConventions {
 	 * <li> it must not contain any characters or substrings that are not valid
 	 *		   on the file system on which workspace root is located.
 	 * </ul>
-	 * </p>
 	 * @param name the name of a .class file
 	 * @param sourceLevel the source level
 	 * @param complianceLevel the compliance level

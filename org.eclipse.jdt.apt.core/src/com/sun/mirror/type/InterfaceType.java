@@ -41,7 +41,7 @@ import com.sun.mirror.declaration.*;
  * a kind of interface.
  *
  * <p> While an {@link InterfaceDeclaration} represents the
- * <i>declaration</i> of an interface, an <tt>InterfaceType</tt>
+ * <i>declaration</i> of an interface, an <code>InterfaceType</code>
  * represents an interface <i>type</i>.
  * See {@link TypeDeclaration} for more on this distinction.
  *

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2009 IBM Corporation and others.
+ * Copyright (c) 2004, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,14 +19,12 @@ package org.eclipse.jdt.core.dom;
  * line comments ({@link LineComment}),
  * block comments ({@link BlockComment}), and
  * doc comments ({@link Javadoc}).
- * <p>
  * <pre>
  * Comment:
  *     LineComment
  *     BlockComment
  *     Javadoc
  * </pre>
- * </p>
  *
  * @since 3.0
  */
@@ -109,8 +107,6 @@ public abstract class Comment extends ASTNode {
 	/**
 	 * Returns the root AST node that this comment occurs
 	 * within, or <code>null</code> if none (or not recorded).
-	 * <p>
-	 * </p>
 	 *
 	 * @param root the alternate root node, or <code>null</code>
 	 * if none

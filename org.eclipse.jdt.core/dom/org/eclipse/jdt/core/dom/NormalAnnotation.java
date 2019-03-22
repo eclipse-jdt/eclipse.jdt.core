@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 IBM Corporation and others.
+ * Copyright (c) 2004, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,12 +18,10 @@ import java.util.List;
 
 /**
  * Normal annotation node (added in JLS3 API).
- * <p>
  * <pre>
  * NormalAnnotation:
  *   <b>@</b> TypeName <b>(</b> [ MemberValuePair { <b>,</b> MemberValuePair } ] <b>)</b>
  * </pre>
- * </p>
  *
  * @since 3.1
  * @noinstantiate This class is not intended to be instantiated by clients.

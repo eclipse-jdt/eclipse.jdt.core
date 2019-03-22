@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2007 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -120,7 +120,6 @@ public abstract class ClasspathContainerInitializer {
 	 * <li>Java element operations marked as "handle-only"</li>
 	 * </ul>
 	 * The effects of using other Java model APIs are unspecified.
-	 * </p>
 	 *
      * @param containerPath a two-segment path (ID/hint) identifying the container that needs
      * 	to be resolved
@@ -275,7 +274,7 @@ public abstract class ClasspathContainerInitializer {
 	 * 	respectively the {@link #ATTRIBUTE_NOT_SUPPORTED} value
 	 * 	or the {@link #ATTRIBUTE_READ_ONLY} value.</li>
 	 * </ul>
-	 * </p><p>
+	 * <p>
 	 * The status message can contain more information.
 	 * </p><p>
 	 * If the subclass does not override this method, then the default behavior is
@@ -311,7 +310,7 @@ public abstract class ClasspathContainerInitializer {
 	 * 	respectively the {@link #ATTRIBUTE_NOT_SUPPORTED} value
 	 * 	or the {@link #ATTRIBUTE_READ_ONLY} value.</li>
 	 * </ul>
-	 * </p><p>
+	 * <p>
 	 * The status message can contain more information.
 	 * </p><p>
 	 * If the subclass does not override this method, then the default behavior is
@@ -349,7 +348,7 @@ public abstract class ClasspathContainerInitializer {
 	 * 	respectively the {@link #ATTRIBUTE_NOT_SUPPORTED} value
 	 * 	or the {@link #ATTRIBUTE_READ_ONLY} value.</li>
 	 * </ul>
-	 * </p><p>
+	 * <p>
 	 * The status message can contain more information.
 	 * </p><p>
 	 * If the subclass does not override this method, then the default behavior is

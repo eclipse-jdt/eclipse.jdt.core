@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -399,7 +399,7 @@ public class ClassInstanceCreation extends Expression {
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>`
+	 * <li>the node already has a parent</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * an AST later than JLS2
@@ -459,7 +459,7 @@ public class ClassInstanceCreation extends Expression {
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>`
+	 * <li>the node already has a parent</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used in
 	 * a JLS2 AST

@@ -55,7 +55,7 @@ public interface Types {
      *
      * @param t1  the first type
      * @param t2  the second type
-     * @return <tt>true</tt> if and only if the first type is a subtype
+     * @return <code>true</code> if and only if the first type is a subtype
      *		of the second
      */
     boolean isSubtype(TypeMirror t1, TypeMirror t2);
@@ -65,7 +65,7 @@ public interface Types {
      *
      * @param t1  the first type
      * @param t2  the second type
-     * @return <tt>true</tt> if and only if the first type is assignable
+     * @return <code>true</code> if and only if the first type is assignable
      *		to the second
      */
     boolean isAssignable(TypeMirror t1, TypeMirror t2);
@@ -87,9 +87,9 @@ public interface Types {
     PrimitiveType getPrimitiveType(PrimitiveType.Kind kind);
 
     /**
-     * Returns the pseudo-type representing the type of <tt>void</tt>.
+     * Returns the pseudo-type representing the type of <code>void</code>.
      *
-     * @return the pseudo-type representing the type of <tt>void</tt>
+     * @return the pseudo-type representing the type of <code>void</code>
      */
     VoidType getVoidType();
 
@@ -129,9 +129,9 @@ public interface Types {
     /**
      * Returns the type corresponding to a type declaration and
      * actual type arguments.
-     * Given the declaration for <tt>String</tt>, for example, this
-     * method may be used to get the <tt>String</tt> type.  It may
-     * then be invoked a second time, with the declaration for <tt>Set</tt>,
+     * Given the declaration for <code>String</code>, for example, this
+     * method may be used to get the <code>String</code> type.  It may
+     * then be invoked a second time, with the declaration for <code>Set</code>,
      * to make the parameterized type {@code Set<String>}.
      *
      * <p> The number of type arguments must either equal the
@@ -171,10 +171,10 @@ public interface Types {
      * <p> If the containing type is a parameterized type,
      * the number of type arguments must equal the
      * number of the declaration's formal type parameters.
-     * If it is not parameterized or if it is <tt>null</tt>, this method is
-     * equivalent to <tt>getDeclaredType(decl, typeArgs)</tt>.
+     * If it is not parameterized or if it is <code>null</code>, this method is
+     * equivalent to <code>getDeclaredType(decl, typeArgs)</code>.
      *
-     * @param containing  the containing type, or <tt>null</tt> if none
+     * @param containing  the containing type, or <code>null</code> if none
      * @param decl	  the type declaration
      * @param typeArgs	  the actual type arguments
      * @return the type corresponding to the type declaration and

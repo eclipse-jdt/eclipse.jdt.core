@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -349,6 +349,7 @@ public class CompilationUnit extends ASTNode {
      * <li>member value pair binding - an <code>MemberValuePair</code>,
      *      or <code>null</code> if it represents a default value or a single member value</li>
 	 * </ul>
+	 * <p>
      * For parameterized or raw type bindings, the declaring node is
      * that of the corresponding generic type. And for parameterized or raw
      * method bindings, the declaring node is that of the corresponding
@@ -407,7 +408,6 @@ public class CompilationUnit extends ASTNode {
      * that of the corresponding generic type. And for parameterized or raw
      * method bindings, the declaring node is that of the corresponding
      * generic method.
-	 * </p>
 	 *
 	 * @param key the binding key, or <code>null</code>
 	 * @return the corresponding node where a binding with the given

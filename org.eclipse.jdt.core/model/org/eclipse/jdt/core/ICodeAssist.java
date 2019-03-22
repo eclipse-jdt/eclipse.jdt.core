@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -94,7 +94,6 @@ public interface ICodeAssist {
 	 * is the 0-based index of the character, after which code assist is desired.
 	 * An <code>offset</code> of -1 indicates to code assist at the beginning of this
 	 * compilation unit.
-	 * <p>
 	 * <p>
 	 * If {@link IProgressMonitor} is not <code>null</code> then some proposals which
 	 * can be very long to compute are proposed. To avoid that the code assist operation

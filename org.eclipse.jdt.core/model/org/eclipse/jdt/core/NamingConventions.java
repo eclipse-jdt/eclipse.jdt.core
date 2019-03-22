@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -42,7 +42,6 @@ import org.eclipse.jdt.internal.core.InternalNamingConventions;
  * <li> {@link JavaCore#CODEASSIST_ARGUMENT_PREFIXES} : Define the Prefixes for Argument Name.</li>
  * <li> {@link JavaCore#CODEASSIST_ARGUMENT_SUFFIXES} : Define the Suffixes for Argument Name.</li>
  * </ul>
- * </p>
  * <p>
  * For a complete description of the configurable options, see {@link JavaCore#getDefaultOptions()}.
  * To programmatically change these options, see {@link JavaCore#setOptions(java.util.Hashtable)}.
@@ -518,7 +517,6 @@ public final class NamingConventions {
 	 * <li>{@link #VK_STATIC_FIELD}: {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES} and {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES}</li>
 	 * <li>{@link #VK_STATIC_FINAL_FIELD}: {@link JavaCore#CODEASSIST_STATIC_FINAL_FIELD_PREFIXES} and {@link JavaCore#CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES}</li>
 	 * </ul>
-	 * </p>
 	 * <p>
 	 * e.g.<br>
 	 * If the variable is a {@link #VK_LOCAL}, the variable name is <code>preVariableNamesuf</code>, a possible prefix is <code>pre</code> and a possible suffix is <code>suf</code>
@@ -1083,7 +1081,6 @@ public final class NamingConventions {
 	 * </ul></li>
 	 * </ul>
 	 * Some other kinds could be added in the future.
-	 * </p>
 	 * <p>
 	 * Each variable kind is affected by the following JavaCore options:
 	 * <ul>
@@ -1093,7 +1090,6 @@ public final class NamingConventions {
 	 * <li>{@link #VK_STATIC_FIELD}: {@link JavaCore#CODEASSIST_STATIC_FIELD_PREFIXES} and {@link JavaCore#CODEASSIST_STATIC_FIELD_SUFFIXES}</li>
 	 * <li>{@link #VK_STATIC_FINAL_FIELD}: {@link JavaCore#CODEASSIST_STATIC_FINAL_FIELD_PREFIXES} and {@link JavaCore#CODEASSIST_STATIC_FINAL_FIELD_SUFFIXES}</li>
 	 * </ul>
-	 * </p>
 	 * <p>
 	 * For a complete description of these configurable options, see {@link JavaCore#getDefaultOptions()}.
 	 * To programmatically change these options, see {@link JavaCore#setOptions(java.util.Hashtable)} and {@link IJavaProject#setOptions(java.util.Map)}
@@ -1107,7 +1103,6 @@ public final class NamingConventions {
 	 * <li>Names with suffix. Longer names are proposed first</li>
 	 * <li>Names without prefix and suffix. Longer names are proposed first</li>
 	 * </ol>
-	 * </p>
 	 *
 	 * @param variableKind specifies what type the variable is: {@link #VK_LOCAL}, {@link #VK_PARAMETER}, {@link #VK_STATIC_FIELD},
 	 * {@link #VK_INSTANCE_FIELD} or {@link #VK_STATIC_FINAL_FIELD}.

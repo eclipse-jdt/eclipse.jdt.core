@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 IBM Corporation and others.
+ * Copyright (c) 2013, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,7 +21,7 @@ import java.util.List;
  * Type node for an intersection type in a cast expression (added in JLS8 API).
  * <pre>
  * IntersectionType:
- *    Type <b>&</b> Type { <b>&</b> Type }
+ *    Type <b>&amp;</b> Type { <b>&amp;</b> Type }
  * </pre>
  * <p>
  * This kind of node is used only inside a cast expression.

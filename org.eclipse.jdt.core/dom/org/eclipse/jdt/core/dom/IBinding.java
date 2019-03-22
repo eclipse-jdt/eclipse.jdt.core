@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -295,7 +295,6 @@ public interface IBinding {
 	 * <li>annotations - the key of the annotated element and the key of
 	 * the annotation type</li>
 	 * </ul>
-	 * </p>
 	 * <p>
 	 * The key for a type binding does <em>not</em> contain {@link ITypeBinding#getTypeAnnotations() type annotations},
 	 * so type bindings with different type annotations may have the same key (iff they denote the same un-annotated type).

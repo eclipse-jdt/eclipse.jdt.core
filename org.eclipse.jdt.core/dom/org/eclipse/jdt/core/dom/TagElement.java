@@ -363,7 +363,6 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * The use of Name, MethodRef, and MemberRef nodes within
 	 * tag elements allows these fragments to be queried for
 	 * binding information.
-	 * </p>
 	 * <p>
 	 * Adding and removing nodes from this list affects this node
 	 * dynamically. The nodes in this list may be of various

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2018 BEA Systems, Inc. and others
+ * Copyright (c) 2005, 2019 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -61,7 +61,7 @@ public class AptPreferenceConstants {
 	 * in order to disable processing while editing, that is, during reconcile.  If this option is set, ie if processing
 	 * is disabled, then the value of {@link #RTTG_ENABLED_OPTION} will be ignored.  Whether a processor is called 
 	 * during reconcile is also influenced by the project settings and the project factory path.
-	 * <p>
+	 *
 	 * @see AptConfig#setProcessDuringReconcile(org.eclipse.jdt.core.IJavaProject, boolean)
 	 */
 	public static final String PROCESSING_IN_EDITOR_DISABLED_OPTION = "disableProcessingInEditor"; //$NON-NLS-1$

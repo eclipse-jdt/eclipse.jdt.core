@@ -36,7 +36,7 @@ import com.sun.mirror.declaration.MethodDeclaration;
 
 
 /**
- * A pseudo-type representing the type of <tt>void</tt>.
+ * A pseudo-type representing the type of <code>void</code>.
  *
  * @author Joseph D. Darcy
  * @author Scott Seligman

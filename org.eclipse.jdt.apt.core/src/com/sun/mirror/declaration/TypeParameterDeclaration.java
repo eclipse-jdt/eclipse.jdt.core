@@ -54,7 +54,7 @@ public interface TypeParameterDeclaration extends Declaration {
      * Returns the bounds of this type parameter.
      * These are the types given by the <i>extends</i> clause.
      * If there is no explicit <i>extends</i> clause, then
-     * <tt>java.lang.Object</tt> is considered to be the sole bound.
+     * <code>java.lang.Object</code> is considered to be the sole bound.
      *
      * @return the bounds of this type parameter
      */

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 IBM Corporation and others.
+ * Copyright (c) 2004, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,11 +19,11 @@ import java.util.List;
 
 /**
  * Member value pair node (added in JLS3 API). Member value pairs appear in annotations.
- * <p>
  * <pre>
  * MemberValuePair:
  *   SimpleName <b>=</b> Expression
  * </pre>
+ * <p>
  * Within annotations, only certain kinds of expressions are meaningful,
  * including other annotations.
  * </p>

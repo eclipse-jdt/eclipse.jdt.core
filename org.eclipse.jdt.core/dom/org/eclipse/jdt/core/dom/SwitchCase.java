@@ -20,7 +20,6 @@ import java.util.List;
 /**
  * Switch case AST node type. A switch case is a special kind of node used only
  * in switch statements. It is a <code>Statement</code> in name only.
- * <p>
  * <pre>
  * SwitchCase:
  * 		<b>case</b> Expression  <b>:</b>
@@ -30,7 +29,6 @@ import java.util.List;
  *		<b>case</b> [ Expression { <b>,</b> Expression } ]  <b>{ : | ->}</b>
  *		<b>default</b> <b>{ : | ->}</b>
  * </pre>
- * </p>
  *
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.

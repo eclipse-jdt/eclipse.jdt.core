@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 IBM Corporation and others.
+ * Copyright (c) 2004, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,14 +15,12 @@ package org.eclipse.jdt.core.dom;
 
 /**
  * Abstract base class of AST nodes that represent annotations.
- * <p>
  * <pre>
  * Annotation:
  *		NormalAnnotation
  *		MarkerAnnotation
  *		SingleMemberAnnotation
  * </pre>
- * </p>
  * @since 3.1
  */
 @SuppressWarnings("rawtypes")

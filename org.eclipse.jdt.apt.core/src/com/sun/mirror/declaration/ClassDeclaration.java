@@ -44,7 +44,7 @@ import com.sun.mirror.type.ClassType;
  * its constructors.
  * Note that an {@linkplain EnumDeclaration enum} is a kind of class.
  *
- * <p> While a <tt>ClassDeclaration</tt> represents the <i>declaration</i>
+ * <p> While a <code>ClassDeclaration</code> represents the <i>declaration</i>
  * of a class, a {@link ClassType} represents a class <i>type</i>.
  * See {@link TypeDeclaration} for more on this distinction.
  *
@@ -64,7 +64,7 @@ public interface ClassDeclaration extends TypeDeclaration {
 
     /**
      * Returns the class type directly extended by this class.
-     * The only class with no superclass is <tt>java.lang.Object</tt>,
+     * The only class with no superclass is <code>java.lang.Object</code>,
      * for which this method returns null.
      *
      * @return the class type directly extended by this class, or null
