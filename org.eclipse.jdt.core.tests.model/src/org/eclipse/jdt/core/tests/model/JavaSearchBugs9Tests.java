@@ -16,13 +16,16 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
@@ -4547,5 +4550,83 @@ public void testBug531705() throws Exception {
 		deleteProject(project1);
 	}
 }
+public void testBug545293() throws Exception {
+	if(!isJRE11) return;
+
+	// Note: this test only failed (without the fix for bug 545293) if it was
+	// executed exactly with a JDK 11
+	
+	IJavaProject p = createJava9Project("P");
+	IJavaProject p1 = createJava9Project("P1");
+	try  {
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_11);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_11);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_11);
+		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		addClasspathEntry(p, JavaCore.newProjectEntry(p1.getPath()));
+
+		p.open(null);
+		p1.open(null);
+
+		IPath dummyJarPath = p.getProject().getLocation().append("dummy.jar");
+		createJar(
+			new String[] {
+					"javax/dummy/Dummy.java",
+					"package javax.dummy;\n" + //
+					"\n" + //
+					"public class Dummy {\n" + // 
+					"	public Dummy(String s) {\n" +// 
+					"	}\n" + //
+					"}"
+			},
+			dummyJarPath.toOSString()
+		);
+		addClasspathEntry(p, JavaCore.newLibraryEntry(dummyJarPath, null, null));
+
+		String content =  "import javax.dummy.Dummy;\n" + 
+				"import com.example.Bar;\n" + 
+				"\n" + 
+				"public class Hello {\n" + 
+				"    public void run() {\n" + 
+				"        String str = null;\n" + 
+				"        foo();\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    private Object foo() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"";
+		String filePath = "/P/src/Hello.java";
+		createFile(filePath, content);
+		
+		createFolder("/P1/src/com/example");
+		createFile("/P1/src/com/example/Bar.java", 
+				"package com.example.bar;\n" + 
+				"public class Bar {\n" + 
+				"}\n");
+		
+		
+		p.close();
+		p1.close();
+		p1.open(null);
+		p.open(null);
+		
+		waitUntilIndexesReady();
+
+		IType type = p.findType("Hello");
+		IMethod method = type.getMethod("foo", new String[] {});
+		SearchPattern pattern = SearchPattern.createPattern(method, REFERENCES, EXACT_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]{p});
+		search(pattern, scope, this.resultCollector);
+		String expected = "src/Hello.java void Hello.run() [foo()] EXACT_MATCH";
+		assertSearchResults(expected, this.resultCollector);
+
+	} finally {
+		deleteProject(p);
+		deleteProject(p1);
+	}
+}
+
 // Add more tests here
 }
