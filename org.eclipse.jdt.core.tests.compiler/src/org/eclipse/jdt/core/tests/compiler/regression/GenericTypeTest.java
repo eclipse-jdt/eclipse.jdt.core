@@ -52498,4 +52498,92 @@ public void testBug541772() {
 	getCompilerOptions(),
 	null /*customRequestor*/);
 }
+public void testBug541772_typeannotations() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	runConformTest(
+		new String[] {
+			"bug541772Runtime/GeneratedMessage.java",
+			"package bug541772Runtime;\n" +
+			"\n" +
+			"public class GeneratedMessage {\n" +
+			"    public class Builder<T> {\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+		},
+		"",
+		getCompilerOptions()
+	);
+	
+	runConformTest(
+	new String[] {
+		"token/Ann.java",
+		"package token;\n" +
+		"import java.lang.annotation.*;\n" +
+		"@Target(ElementType.TYPE_USE)\n" +
+		"@Retention(RetentionPolicy.CLASS)\n" +
+		"@interface Ann {}\n",
+		"token/Token.java",
+		"package token;\n" +
+		"\n" +
+		"public class Token {\n" +
+		"  \n" +
+		"  public Token() {\n" +
+		"  }\n" +
+		"\n" +
+		"  public Token(TokenProto tokenPB) {\n" +
+		"      tokenPB.hashCode();\n" +
+		"  }\n" +
+		"  public Token(String x) {\n" +
+		"      x.hashCode();\n" +
+		"  }\n" +
+		"}\n" +
+		"",
+		"token/TokenProto.java",
+		"package token;\n" +
+		"\n" +
+		"import bug541772Runtime.GeneratedMessage;\n" +
+		"\n" +
+		"public class TokenProto {\n" +
+		"\n" +
+		"    public TokenProto(GeneratedMessage.@Ann Builder<?> builder) {\n" +
+		"        builder.hashCode();\n" +
+		"    }\n" +
+		"}\n" +
+		"",
+	},
+	"",
+	null /*classLibraries*/,
+	false /*shouldFlushOutputDirectory*/,
+	null /*vmArguments*/,
+	getCompilerOptions(),
+	null /*customRequestor*/);
+
+	Util.flushDirectoryContent(new File(OUTPUT_DIR + File.separator + "bug541772Runtime"));
+
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+	runConformTest(
+	new String[] {
+		"pkg/Example.java",
+		"package pkg;\n" +
+		"\n" +
+		"import token.Token;\n" +
+		"\n" +
+		"public abstract class Example {\n" +
+		"	public static void setConnectorInfo() {\n" +
+		"		new Token(\"\");\n" +
+		"	}\n" +
+		"}\n" +
+		"",
+	},
+	"",
+	null /*classLibraries*/,
+	false /*shouldFlushOutputDirectory*/,
+	null /*vmArguments*/,
+	compilerOptions,
+	null /*customRequestor*/);
+}
 }

@@ -666,61 +666,67 @@ private int getNullDefaultFrom(IBinaryAnnotation[] declAnnotations) {
 
 private void createFields(IBinaryField[] iFields, IBinaryType binaryType, long sourceLevel, char[][][] missingTypeNames) {
 	if (!isPrototype()) throw new IllegalStateException();
-	this.fields = Binding.NO_FIELDS;
-	if (iFields != null) {
-		int size = iFields.length;
-		if (size > 0) {
-			FieldBinding[] fields1 = new FieldBinding[size];
-			boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
-			boolean hasRestrictedAccess = hasRestrictedAccess();
-			int firstAnnotatedFieldIndex = -1;
-			for (int i = 0; i < size; i++) {
-				IBinaryField binaryField = iFields[i];
-				char[] fieldSignature = use15specifics ? binaryField.getGenericSignature() : null;
-				ITypeAnnotationWalker walker = getTypeAnnotationWalker(binaryField.getTypeAnnotations(), getNullDefaultFrom(binaryField.getAnnotations()));
-				if (sourceLevel >= ClassFileConstants.JDK1_8) { // below 1.8, external annotations will be attached later
-					walker = binaryType.enrichWithExternalAnnotationsFor(walker, iFields[i], this.environment);
-				}
-				walker = walker.toField();
-				TypeBinding type = fieldSignature == null
-					? this.environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this, missingTypeNames, walker)
-					: this.environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), Binding.NO_TYPE_VARIABLES, this, missingTypeNames, walker);
-				FieldBinding field =
-					new FieldBinding(
-						binaryField.getName(),
-						type,
-						binaryField.getModifiers() | ExtraCompilerModifiers.AccUnresolved,
-						this,
-						binaryField.getConstant());
-				boolean forceStoreAnnotations = !this.environment.globalOptions.storeAnnotations
-						&& (this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK9
-						&& binaryField.getAnnotations() != null
-						&& (binaryField.getTagBits() & TagBits.AnnotationDeprecated) != 0);
-				if (firstAnnotatedFieldIndex < 0
-						&& (this.environment.globalOptions.storeAnnotations || forceStoreAnnotations)
-						&& binaryField.getAnnotations() != null) {
-					firstAnnotatedFieldIndex = i;
-					if (forceStoreAnnotations)
-						storedAnnotations(true, true); // for Java 9 @Deprecated we need to force storing annotations
-				}
-				field.id = i; // ordinal
-				if (use15specifics)
-					field.tagBits |= binaryField.getTagBits();
-				if (hasRestrictedAccess)
-					field.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-				if (fieldSignature != null)
-					field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
-				fields1[i] = field;
-			}
-			this.fields = fields1;
-			// second pass for reifying annotations, since may refer to fields being constructed (147875)
-			if (firstAnnotatedFieldIndex >= 0) {
-				for (int i = firstAnnotatedFieldIndex; i <size; i++) {
+	boolean save = this.environment.mayTolerateMissingType;
+	this.environment.mayTolerateMissingType = true;
+	try {
+		this.fields = Binding.NO_FIELDS;
+		if (iFields != null) {
+			int size = iFields.length;
+			if (size > 0) {
+				FieldBinding[] fields1 = new FieldBinding[size];
+				boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
+				boolean hasRestrictedAccess = hasRestrictedAccess();
+				int firstAnnotatedFieldIndex = -1;
+				for (int i = 0; i < size; i++) {
 					IBinaryField binaryField = iFields[i];
-					this.fields[i].setAnnotations(createAnnotations(binaryField.getAnnotations(), this.environment, missingTypeNames), false);
+					char[] fieldSignature = use15specifics ? binaryField.getGenericSignature() : null;
+					ITypeAnnotationWalker walker = getTypeAnnotationWalker(binaryField.getTypeAnnotations(), getNullDefaultFrom(binaryField.getAnnotations()));
+					if (sourceLevel >= ClassFileConstants.JDK1_8) { // below 1.8, external annotations will be attached later
+						walker = binaryType.enrichWithExternalAnnotationsFor(walker, iFields[i], this.environment);
+					}
+					walker = walker.toField();
+					TypeBinding type = fieldSignature == null
+						? this.environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this, missingTypeNames, walker)
+						: this.environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), Binding.NO_TYPE_VARIABLES, this, missingTypeNames, walker);
+					FieldBinding field =
+						new FieldBinding(
+							binaryField.getName(),
+							type,
+							binaryField.getModifiers() | ExtraCompilerModifiers.AccUnresolved,
+							this,
+							binaryField.getConstant());
+					boolean forceStoreAnnotations = !this.environment.globalOptions.storeAnnotations
+							&& (this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK9
+							&& binaryField.getAnnotations() != null
+							&& (binaryField.getTagBits() & TagBits.AnnotationDeprecated) != 0);
+					if (firstAnnotatedFieldIndex < 0
+							&& (this.environment.globalOptions.storeAnnotations || forceStoreAnnotations)
+							&& binaryField.getAnnotations() != null) {
+						firstAnnotatedFieldIndex = i;
+						if (forceStoreAnnotations)
+							storedAnnotations(true, true); // for Java 9 @Deprecated we need to force storing annotations
+					}
+					field.id = i; // ordinal
+					if (use15specifics)
+						field.tagBits |= binaryField.getTagBits();
+					if (hasRestrictedAccess)
+						field.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
+					if (fieldSignature != null)
+						field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+					fields1[i] = field;
+				}
+				this.fields = fields1;
+				// second pass for reifying annotations, since may refer to fields being constructed (147875)
+				if (firstAnnotatedFieldIndex >= 0) {
+					for (int i = firstAnnotatedFieldIndex; i <size; i++) {
+						IBinaryField binaryField = iFields[i];
+						this.fields[i].setAnnotations(createAnnotations(binaryField.getAnnotations(), this.environment, missingTypeNames), false);
+					}
 				}
 			}
 		}
+	} finally {
+		this.environment.mayTolerateMissingType = save;
 	}
 }
 
@@ -945,59 +951,65 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
  */
 private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, IBinaryType binaryType, long sourceLevel, char[][][] missingTypeNames) {
 	if (!isPrototype()) throw new IllegalStateException();
-	int total = 0, initialTotal = 0, iClinit = -1;
-	int[] toSkip = null;
-	if (iMethods != null) {
-		total = initialTotal = iMethods.length;
-		boolean keepBridgeMethods = sourceLevel < ClassFileConstants.JDK1_5; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=330347
-		for (int i = total; --i >= 0;) {
-			IBinaryMethod method = iMethods[i];
-			if ((method.getModifiers() & ClassFileConstants.AccSynthetic) != 0) {
-				if (keepBridgeMethods && (method.getModifiers() & ClassFileConstants.AccBridge) != 0)
-					continue; // want to see bridge methods as real methods
-				// discard synthetics methods
-				if (toSkip == null) toSkip = new int[iMethods.length];
-				toSkip[i] = -1;
-				total--;
-			} else if (iClinit == -1) {
-				char[] methodName = method.getSelector();
-				if (methodName.length == 8 && methodName[0] == Util.C_GENERIC_START) {
-					// discard <clinit>
-					iClinit = i;
+	boolean save = this.environment.mayTolerateMissingType;
+	this.environment.mayTolerateMissingType = true;
+	try {
+		int total = 0, initialTotal = 0, iClinit = -1;
+		int[] toSkip = null;
+		if (iMethods != null) {
+			total = initialTotal = iMethods.length;
+			boolean keepBridgeMethods = sourceLevel < ClassFileConstants.JDK1_5; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=330347
+			for (int i = total; --i >= 0;) {
+				IBinaryMethod method = iMethods[i];
+				if ((method.getModifiers() & ClassFileConstants.AccSynthetic) != 0) {
+					if (keepBridgeMethods && (method.getModifiers() & ClassFileConstants.AccBridge) != 0)
+						continue; // want to see bridge methods as real methods
+					// discard synthetics methods
+					if (toSkip == null) toSkip = new int[iMethods.length];
+					toSkip[i] = -1;
 					total--;
+				} else if (iClinit == -1) {
+					char[] methodName = method.getSelector();
+					if (methodName.length == 8 && methodName[0] == Util.C_GENERIC_START) {
+						// discard <clinit>
+						iClinit = i;
+						total--;
+					}
 				}
 			}
 		}
-	}
-	if (total == 0) {
-		this.methods = Binding.NO_METHODS;
-		return NO_BINARY_METHODS;
-	}
-
-	boolean hasRestrictedAccess = hasRestrictedAccess();
-	MethodBinding[] methods1 = new MethodBinding[total];
-	if (total == initialTotal) {
-		for (int i = 0; i < initialTotal; i++) {
-			MethodBinding method = createMethod(iMethods[i], binaryType, sourceLevel, missingTypeNames);
-			if (hasRestrictedAccess)
-				method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-			methods1[i] = method;
+		if (total == 0) {
+			this.methods = Binding.NO_METHODS;
+			return NO_BINARY_METHODS;
 		}
-		this.methods = methods1;
-		return iMethods;
-	} else {
-		IBinaryMethod[] mappedBinaryMethods = new IBinaryMethod[total];
-		for (int i = 0, index = 0; i < initialTotal; i++) {
-			if (iClinit != i && (toSkip == null || toSkip[i] != -1)) {
+
+		boolean hasRestrictedAccess = hasRestrictedAccess();
+		MethodBinding[] methods1 = new MethodBinding[total];
+		if (total == initialTotal) {
+			for (int i = 0; i < initialTotal; i++) {
 				MethodBinding method = createMethod(iMethods[i], binaryType, sourceLevel, missingTypeNames);
 				if (hasRestrictedAccess)
 					method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-				mappedBinaryMethods[index] = iMethods[i];
-				methods1[index++] = method;
+				methods1[i] = method;
 			}
+			this.methods = methods1;
+			return iMethods;
+		} else {
+			IBinaryMethod[] mappedBinaryMethods = new IBinaryMethod[total];
+			for (int i = 0, index = 0; i < initialTotal; i++) {
+				if (iClinit != i && (toSkip == null || toSkip[i] != -1)) {
+					MethodBinding method = createMethod(iMethods[i], binaryType, sourceLevel, missingTypeNames);
+					if (hasRestrictedAccess)
+						method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
+					mappedBinaryMethods[index] = iMethods[i];
+					methods1[index++] = method;
+				}
+			}
+			this.methods = methods1;
+			return mappedBinaryMethods;
 		}
-		this.methods = methods1;
-		return mappedBinaryMethods;
+	} finally {
+		this.environment.mayTolerateMissingType = save;
 	}
 }
 
