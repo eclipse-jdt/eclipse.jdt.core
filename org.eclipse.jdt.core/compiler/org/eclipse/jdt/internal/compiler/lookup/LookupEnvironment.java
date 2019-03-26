@@ -137,6 +137,12 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	/** Global access to the outermost active inference context as the universe for inference variable interning. */
 	InferenceContext18 currentInferenceContext;
 
+	/**
+	 * Flag that should be set during annotation traversal or similar runs
+	 * to prevent caching of failures regarding imports of yet to be generated classes.
+	 */
+	public boolean suppressImportErrors;			// per module
+
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;
 	final static int CHECK_AND_SET_IMPORTS = 2;

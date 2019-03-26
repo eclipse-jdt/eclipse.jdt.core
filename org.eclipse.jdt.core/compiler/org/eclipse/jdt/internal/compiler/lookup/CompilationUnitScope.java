@@ -53,12 +53,6 @@ public class CompilationUnitScope extends Scope {
 	private ImportBinding[] tempImports;	// to keep a record of resolved imports while traversing all in faultInImports()
 	
 	/**
-	 * Flag that should be set during annotation traversal or similar runs
-	 * to prevent caching of failures regarding imports of yet to be generated classes.
-	 */
-	public boolean suppressImportErrors;
-	
-	/**
 	 * Skips import caching if unresolved imports were
 	 * found last time.
 	 */
@@ -365,7 +359,7 @@ void faultInImports() {
 		return; // faultInImports already in progress
 	boolean unresolvedFound = false;
 	// should report unresolved only if we are not suppressing caching of failed resolutions
-	boolean reportUnresolved = !this.suppressImportErrors;
+	boolean reportUnresolved = !this.environment.suppressImportErrors;
 
 	if (this.typeOrPackageCache != null && !this.skipCachingImports)
 		return; // can be called when a field constant is resolved before static imports
@@ -506,7 +500,7 @@ void faultInImports() {
 		if (!binding.onDemand && binding.resolvedImport instanceof ReferenceBinding || binding instanceof ImportConflictBinding)
 			this.typeOrPackageCache.put(binding.compoundName[binding.compoundName.length - 1], binding);
 	}
-	this.skipCachingImports = this.suppressImportErrors && unresolvedFound;
+	this.skipCachingImports = this.environment.suppressImportErrors && unresolvedFound;
 }
 public void faultInTypes() {
 	faultInImports();

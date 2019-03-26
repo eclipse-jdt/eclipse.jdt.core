@@ -625,7 +625,11 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 					&& !packageMayBeIncomplete  // don't remember package that may still lack some siblings
 					&& !(parent instanceof SplitPackageBinding)) // don't store problem into SPB, because from different focus things may look differently
 			{
-				parent.knownPackages.put(name, binding == null ? LookupEnvironment.TheNotFoundPackage : binding);
+				if (binding == null) {
+					parent.addNotFoundPackage(name);
+				} else {
+					parent.knownPackages.put(name, binding);
+				}
 			}
 			return null;
 		}

@@ -60,9 +60,9 @@ public class RoundEnvImpl implements RoundEnvironment
 		AnnotationDiscoveryVisitor visitor = new AnnotationDiscoveryVisitor(_processingEnv);
 		if (_units != null) {
 			for (CompilationUnitDeclaration unit : _units) {
-				unit.scope.suppressImportErrors = true;
+				unit.scope.environment.suppressImportErrors = true;
 				unit.traverse(visitor, unit.scope);
-				unit.scope.suppressImportErrors = false;
+				unit.scope.environment.suppressImportErrors = false;
 			}
 		}
 		_annoToUnit = visitor._annoToElement;
