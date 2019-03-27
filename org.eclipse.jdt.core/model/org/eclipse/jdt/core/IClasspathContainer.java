@@ -98,6 +98,7 @@ public interface IClasspathContainer {
 	 * <li>{@link IJavaProject#readOutputLocation()}</li>
 	 * <li>Java element operations marked as "handle-only"</li>
 	 * </ul>
+	 * <p>
 	 * The effects of using other Java model APIs are unspecified.
 	 * </p>
 	 *

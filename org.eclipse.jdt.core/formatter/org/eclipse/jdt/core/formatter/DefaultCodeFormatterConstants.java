@@ -2125,6 +2125,7 @@ public class DefaultCodeFormatterConstants {
 	 */
 	public static final String FORMATTER_INSERT_SPACE_AFTER_AND_IN_TYPE_PARAMETER = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_and_in_type_parameter"; //$NON-NLS-1$
 	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space after arrow in switch case
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_arrow_in_switch_case"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -2136,6 +2137,7 @@ public class DefaultCodeFormatterConstants {
 	 */
 	public static final String FORMATTER_INSERT_SPACE_AFTER_ARROW_IN_SWITCH_CASE = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_arrow_in_switch_case"; //$NON-NLS-1$
 	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space after arrow in switch default
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_arrow_in_switch_default"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -2992,6 +2994,7 @@ public class DefaultCodeFormatterConstants {
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_AND_IN_TYPE_PARAMETER = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_and_in_type_parameter";	//$NON-NLS-1$
 	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space before arrow in switch case
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_arrow_in_switch_case"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -3003,6 +3006,7 @@ public class DefaultCodeFormatterConstants {
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_ARROW_IN_SWITCH_CASE = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_arrow_in_switch_case"; //$NON-NLS-1$
 	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space before arrow in switch default
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_arrow_in_switch_default"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }

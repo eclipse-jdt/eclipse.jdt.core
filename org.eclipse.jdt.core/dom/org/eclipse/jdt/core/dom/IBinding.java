@@ -230,6 +230,7 @@ public interface IBinding {
 	 * <li>synthetic bindings</li>
 	 * <li>problem package bindings (since Java 9)</li>
 	 * </ul>
+	 * <p>
 	 * For all other kind of type, method, variable, annotation and package bindings,
 	 * this method returns non-<code>null</code>.
 	 * </p>

@@ -19,7 +19,6 @@ import java.util.List;
 
 /**
  * Switch expression AST node type (added in JEP 325).
- * <p>
  * <pre>
  * SwitchExpression:
  *		<b>switch</b> <b>(</b> Expression <b>)</b>
@@ -30,7 +29,6 @@ import java.util.List;
  * </pre>
  * <code>SwitchCase</code> nodes are treated as a kind of
  * <code>Statement</code>.
- * </p>
  *
  * @since 3.18
  * @noinstantiate This class is not intended to be instantiated by clients.

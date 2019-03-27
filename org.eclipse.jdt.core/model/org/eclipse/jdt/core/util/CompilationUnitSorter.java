@@ -154,6 +154,7 @@ public final class CompilationUnitSorter {
      *		  RELATIVE_ORDER property</code></td>
 	 *	  </tr>
 	 * </table>
+	 * <p>
 	 * Clients should not rely on the AST nodes being properly parented or on
 	 * having source range information. (Future releases may provide options
 	 * for requesting additional information like source positions, full ASTs,

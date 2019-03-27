@@ -22,7 +22,6 @@ import org.eclipse.core.runtime.IPath;
  * by each package fragment root and package fragment associated with the entry.
  * <p>
  * A classpath entry can refer to any of the following:<ul>
- * </p>
  *	<li>Source code in the current project. In this case, the entry identifies a
  *		root folder in the current project containing package fragments and
  *		source files with one of the {@link JavaCore#getJavaLikeExtensions()

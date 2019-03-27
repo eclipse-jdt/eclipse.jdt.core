@@ -523,7 +523,6 @@ public static final boolean camelCaseMatch(String pattern, String name, boolean 
  * pattern (see {@link #camelCaseMatch(String, int, int, String, int, int, boolean)}).<br>
  * For instance, 'HM' , 'HaMa' and  'HMap' patterns will match 'HashMap',
  * 'HatMapper' <b>and also</b> 'HashMapEntry'.
- * <p>
  * <ol>
  * <li>  pattern = "NPE"
  *  patternStart = 0
@@ -711,7 +710,7 @@ public static final boolean camelCaseMatch(String pattern, int patternStart, int
 /**
  * Answers all the regions in a given name matching a given pattern using
  * a specified match rule.
- * </p><p>
+ * <p>
  * Each of these regions is made of its starting index and its length in the given
  * name. They are all concatenated in a single array of <code>int</code>
  * which therefore always has an even length.

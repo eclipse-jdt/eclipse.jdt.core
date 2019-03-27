@@ -239,7 +239,6 @@ public final class ImportRewrite {
 	 * give more information about the types visible in the scope. These types can be for example inherited inner types where it is
 	 * unnecessary to add import statements for.
 	 *
-	 * </p>
 	 * <p>
 	 * This class can be implemented by clients.
 	 * </p>
