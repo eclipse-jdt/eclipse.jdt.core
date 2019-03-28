@@ -14,8 +14,10 @@
 
 package org.eclipse.jdt.compiler.apt.tests;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +25,7 @@ import javax.lang.model.SourceVersion;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
+import org.eclipse.jdt.compiler.apt.tests.NegativeTests.TestDiagnosticListener;
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 
 import junit.framework.TestCase;
@@ -398,6 +401,10 @@ public class Java9ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTest(compiler, MODULE_PROC, "testBug498022b", null, "model9");
 	}
+	public void testBug535819() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest(compiler, MODULE_PROC, "testBug535819", null, "bug535819", true);
+	}
 	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea) throws IOException {
 		if (!canRunJava9()) {
 			return;
@@ -477,8 +484,11 @@ public class Java9ElementsTests extends TestCase {
 		if (compiler instanceof EclipseCompiler) {
 			options.add("-9");
 		}
+		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
+		PrintWriter printWriter = new PrintWriter(errBuffer);
+		TestDiagnosticListener diagnosticListener = new TestDiagnosticListener(printWriter);
 		if (continueWithErrors) {
-			BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, null, true, true);
+			BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, diagnosticListener, true, true);
 		} else {
 			BatchTestUtils.compileTree(compiler, options, targetFolder, true);
 		}
