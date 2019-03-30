@@ -541,6 +541,7 @@ public class BuilderTests extends TestCase {
 			StaticFinalTests.class,
 			GetResourcesTests.class,
 			FriendDependencyTests.class,
+			ReferenceCollectionTest.class,
 			TestAttributeBuilderTests.class,
 			Bug530366Test.class,
 			Bug531382Test.class,
