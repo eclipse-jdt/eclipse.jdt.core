@@ -1781,10 +1781,7 @@ public void deprecatedMethod(final MethodBinding method, ASTNode location) {
 			// omit the new keyword from the warning marker
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=300031
 			AllocationExpression allocationExpression = (AllocationExpression) location;
-			if (allocationExpression.enumConstant != null) {
-				start = allocationExpression.enumConstant.sourceStart;
-			}
-			start = allocationExpression.type.sourceStart;
+			start = allocationExpression.nameSourceStart();
 		}
 	} else {
 		if (location instanceof MessageSend) {

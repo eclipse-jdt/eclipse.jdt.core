@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,8 +17,12 @@ package org.eclipse.jdt.core.tests.model;
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 
 public class AccessRestrictionsTests extends ModifyingResourceTests {
 	static class ProblemRequestor extends AbstractJavaModelTests.ProblemRequestor {
@@ -1093,6 +1097,96 @@ public void test011() throws CoreException {
 		if (y != null)
 			y.discardWorkingCopy();
 		deleteProject("P1");
+	}
+}
+public void testBug545766() throws CoreException {
+	ICompilationUnit x1 = null, z = null;
+	try {
+		createJavaProject(
+			"P1",
+			new String[] {"src"},
+			new String[] {"JCL15_LIB"},
+			"bin",
+			"1.5");
+		createFolder("/P1/src/p");
+		createFile("/P1/src/p/X1.java",
+			"package p;\n" +
+			"public class X1 {\n" +
+			"	public enum E {" +
+			"		E1(), E2();" +
+			"	}\n" +
+			"}"
+		);
+		IJavaProject p2 = createJavaProject("P2", new String[] {"src"},
+				new String[] {"JCL15_LIB"}, "bin", "1.5");
+		IClasspathEntry[] classpath = p2.getRawClasspath();
+		int length = classpath.length;
+		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length+1], 0, length);
+		classpath[length] = createSourceEntry("P2", "/P1", "-p/X1");
+		p2.setRawClasspath(classpath, null);
+
+		String src =
+			"package p2;\n" +
+			"import p.X1;\n" +
+			"public class Z {\n" +
+			"	X1.E e = X1.E.E1;" +
+			"}";
+		String expectedProblems =
+				"1. ERROR in /P2/src/p2/Z.java (at line 2)\n" + 
+				"	import p.X1;\n" + 
+				"	       ^^^^\n" + 
+				"Access restriction: The type \'X1\' is not API (restriction on required project \'P1\')\n" + 
+				"----------\n" + 
+				"2. ERROR in /P2/src/p2/Z.java (at line 4)\n" + 
+				"	X1.E e = X1.E.E1;}\n" + 
+				"	^^^^\n" + 
+				"Access restriction: The type \'X1\' is not API (restriction on required project \'P1\')\n" + 
+				"----------\n" + 
+				"3. ERROR in /P2/src/p2/Z.java (at line 4)\n" + 
+				"	X1.E e = X1.E.E1;}\n" + 
+				"	^^^^\n" + 
+				"Access restriction: The type \'X1.E\' is not API (restriction on required project \'P1\')\n" + 
+				"----------\n" + 
+				"4. ERROR in /P2/src/p2/Z.java (at line 4)\n" + 
+				"	X1.E e = X1.E.E1;}\n" + 
+				"	         ^^^^^^^\n" + 
+				"Access restriction: The type \'X1\' is not API (restriction on required project \'P1\')\n" + 
+				"----------\n" + 
+				"5. ERROR in /P2/src/p2/Z.java (at line 4)\n" + 
+				"	X1.E e = X1.E.E1;}\n" + 
+				"	         ^^^^^^^\n" + 
+				"Access restriction: The type \'X1.E\' is not API (restriction on required project \'P1\')\n" + 
+				"----------\n" + 
+				"6. ERROR in /P2/src/p2/Z.java (at line 4)\n" + 
+				"	X1.E e = X1.E.E1;}\n" + 
+				"	              ^^\n" + 
+				"Access restriction: The field \'X1.E.E1\' is not API (restriction on required project \'P1\')\n" + 
+				"----------\n";
+		this.problemRequestor = new ProblemRequestor(src);
+		z = getWorkingCopy("/P2/src/p2/Z.java", src);
+		assertProblems("Unexpected problems value", "----------\n" + expectedProblems);
+		
+		int start = src.indexOf("E1");
+		IJavaElement[] elements = z.codeSelect(start, 2);
+		assertElementsEqual("Unexpected elements", "E1 [in E [in X1 [in X1.java [in p [in src [in P1]]]]]]", elements);
+		
+		createFolder("/P2/src/p2");
+		createFile("/P2/src/p2/Z.java", src);
+		ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS12);
+		parser.setProject(p2);
+		parser.setSource((ITypeRoot)p2.findElement(new Path("p2/Z.java")));
+		parser.setResolveBindings(true);
+		ASTNode ast = parser.createAST(null); // <== NPE was thrown here
+		assertProblems("unexpected problems",
+				expectedProblems,
+				((CompilationUnit) ast).getProblems(),
+				src.toCharArray());
+	} finally {
+		if (x1 != null)
+			x1.discardWorkingCopy();
+		if (z != null)
+			z.discardWorkingCopy();
+		deleteProjects(new String[] {"P1", "P2"});
 	}
 }
 }
