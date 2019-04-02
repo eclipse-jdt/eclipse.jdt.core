@@ -169,11 +169,20 @@ protected void verifyAllTagsCompletion() {
 		TAG_LINK,
 		TAG_DOC_ROOT,
 	};
+	char[][]  allTagsJava8 = {
+			// Block tags
+			TAG_AUTHOR, TAG_DEPRECATED, TAG_EXCEPTION, TAG_PARAM, TAG_RETURN, TAG_SEE, TAG_VERSION, TAG_CATEGORY,
+			TAG_SINCE,
+			TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD , TAG_THROWS,   TAG_API_NOTE, TAG_IMPL_SPEC, TAG_IMPL_NOTE,
+			// Inline tags
+			TAG_LINK,
+			TAG_DOC_ROOT
+		};
 	char[][]  allTagsJava9Plus = {
 				// Block tags
 				TAG_AUTHOR, TAG_DEPRECATED, TAG_EXCEPTION, TAG_PARAM, TAG_RETURN, TAG_SEE, TAG_VERSION, TAG_CATEGORY,
 				TAG_SINCE,
-				TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD , TAG_THROWS, TAG_HIDDEN, TAG_USES, TAG_PROVIDES,
+				TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD , TAG_THROWS, TAG_API_NOTE, TAG_IMPL_SPEC, TAG_IMPL_NOTE, TAG_HIDDEN, TAG_USES, TAG_PROVIDES,
 				// Inline tags
 				TAG_LINK,
 				TAG_DOC_ROOT
@@ -206,7 +215,7 @@ protected void verifyAllTagsCompletion() {
 			TAG_CODE, TAG_LITERAL, TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY
 		};
 	}
-	allTagsFinal = this.complianceLevel > ClassFileConstants.JDK1_8 ? allTagsJava9Plus  : allTags;
+	allTagsFinal = this.complianceLevel > ClassFileConstants.JDK1_8 ? allTagsJava9Plus  :  this.complianceLevel == ClassFileConstants.JDK1_8 ? allTagsJava8 : allTags  ;
 	if (additionalTags != null) {
 		int length = allTagsFinal.length;
 		int add = additionalTags.length;

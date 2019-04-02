@@ -523,6 +523,9 @@ public class JavadocParser extends AbstractCommentParser {
 				if (length == TAG_AUTHOR_LENGTH && CharOperation.equals(TAG_AUTHOR, tagName, 0, length)) {
 					this.tagValue = TAG_AUTHOR_VALUE;
 					this.tagWaitingForDescription = this.tagValue;
+				}else if (length == TAG_API_NOTE_LENGTH && CharOperation.equals(TAG_API_NOTE, tagName, 0, length)) {
+					this.tagValue = TAG_API_NOTE_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
 				}
 				break;
 			case 'c':
@@ -594,6 +597,12 @@ public class JavadocParser extends AbstractCommentParser {
 							}
 					}
 					this.tagValue = TAG_INHERITDOC_VALUE;
+				} else if (length == TAG_IMPL_SPEC_LENGTH && CharOperation.equals(TAG_IMPL_SPEC, tagName, 0, length)) {
+					this.tagValue = TAG_IMPL_SPEC_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+				} else if (length == TAG_IMPL_NOTE_LENGTH && CharOperation.equals(TAG_IMPL_NOTE, tagName, 0, length)) {
+					this.tagValue = TAG_IMPL_NOTE_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
 				}
 				break;
 			case 'l':
