@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class SwitchExpression extends SwitchStatement implements IPolyExpression {
-
+ 
 	/* package */ TypeBinding expectedType;
 	private ExpressionContext expressionContext = VANILLA_CONTEXT;
 	private boolean isPolyExpression = false;
