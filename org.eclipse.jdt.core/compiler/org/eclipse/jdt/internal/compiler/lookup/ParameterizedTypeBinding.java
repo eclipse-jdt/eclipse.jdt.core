@@ -788,21 +788,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return ReferenceBinding.binarySearch(fieldName, this.fields);
 	}
 	 
- 	/**
-	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getMemberType(char[])
-	 */
-	@Override
-	public ReferenceBinding getMemberType(char[] typeName) {
-		memberTypes(); // ensure memberTypes have been initialized... must create all at once unlike methods
-		int typeLength = typeName.length;
-		for (int i = this.memberTypes.length; --i >= 0;) {
-			ReferenceBinding memberType = this.memberTypes[i];
-			if (memberType.sourceName.length == typeLength && CharOperation.equals(memberType.sourceName, typeName))
-				return memberType;
-		}
-		return null;
-	}
-
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getMethods(char[])
 	 */
