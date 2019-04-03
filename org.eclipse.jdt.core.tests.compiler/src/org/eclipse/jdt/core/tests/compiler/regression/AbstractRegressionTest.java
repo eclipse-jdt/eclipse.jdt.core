@@ -302,6 +302,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_11;
 		} else if(rawVersion.startsWith("12")) {
 			return JavaCore.VERSION_12;
+		} else if(rawVersion.startsWith("13")) {
+			return JavaCore.VERSION_13;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -420,6 +422,17 @@ static class JavacCompiler {
 				return 0100;
 			}
 			if ("12.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_13) {
+			if ("13".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("13.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("13.0.2".equals(rawVersion)) {
 				return 0200;
 			}
 		}
