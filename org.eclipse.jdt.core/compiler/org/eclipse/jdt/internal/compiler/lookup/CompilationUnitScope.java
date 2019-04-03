@@ -552,7 +552,7 @@ private Binding findImport(char[][] compoundName, int length) {
 			packageBinding = (PackageBinding) binding;
 		}
 		if (packageBinding.isValidBinding() && !module.canAccess(packageBinding))
-			return new ProblemPackageBinding(compoundName, ProblemReasons.NotAccessible);
+			return new ProblemPackageBinding(compoundName, ProblemReasons.NotAccessible, this.environment);
 		return packageBinding;
 	}
 

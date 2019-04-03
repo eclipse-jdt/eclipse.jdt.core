@@ -17,12 +17,13 @@ public class ProblemPackageBinding extends PackageBinding {
 	private int problemId;
 // NOTE: must only answer the subset of the name related to the problem
 
-ProblemPackageBinding(char[][] compoundName, int problemId) {
+ProblemPackageBinding(char[][] compoundName, int problemId, LookupEnvironment environment) {
 	this.compoundName = compoundName;
 	this.problemId = problemId;
+	this.environment = environment;
 }
-ProblemPackageBinding(char[] name, int problemId) {
-	this(new char[][] {name}, problemId);
+ProblemPackageBinding(char[] name, int problemId, LookupEnvironment environment) {
+	this(new char[][] {name}, problemId, environment);
 }
 /* API
 * Answer the problem id associated with the receiver.
