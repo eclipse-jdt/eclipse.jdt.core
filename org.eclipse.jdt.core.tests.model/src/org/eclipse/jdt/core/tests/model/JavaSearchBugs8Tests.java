@@ -49,7 +49,7 @@ public class JavaSearchBugs8Tests extends AbstractJavaSearchTests {
 
 	static {
 //	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//	TESTS_NAMES = new String[] {"testBug429012"};
+//	TESTS_NAMES = new String[] {"testBug493433"};
 }
 
 public JavaSearchBugs8Tests(String name) {
@@ -4909,7 +4909,90 @@ public void testBug531641() throws CoreException {
 		deleteProject("P");
 	}
 }
-
+public void testBug493433a() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"import java.util.stream.IntStream;\n" + 
+		"public class CallerHierarchyExample {\n" + 
+		"    interface Interface {\n" + 
+		"        void method(int i);\n" + 
+		"    }\n" + 
+		"    class Implementation implements Interface {\n" + 
+		"        public void method(int i) {}\n" + 
+		"    }\n" + 
+		"    void caller() {\n" + 
+		"        Interface pred = new Implementation();\n" + 
+		"        IntStream.range(0, 3).forEach(pred::method);\n" + 
+		"    }\n" + 
+		"}"	
+		);
+	IType type = this.workingCopies[0].getType("CallerHierarchyExample");
+	IJavaElement[] children = type.getChildren();
+	IType memberType = null;
+	for (IJavaElement iJavaElement : children) {
+		if (iJavaElement.getElementType() == IJavaElement.TYPE &&
+				iJavaElement.getElementName().equals("Implementation")) {
+			memberType = (IType) iJavaElement;
+			break;
+		}
+	}
+	assertNotNull("type should not be null", memberType);
+	IMethod method = null;
+	IMethod[] methods = memberType.getMethods();
+	for (IMethod iMethod : methods) {
+		if (iMethod.getElementName().equals("method")) {
+			method = iMethod;
+			break;
+		}
+	}
+	assertNotNull("type should not be null", method);
+	search(method, REFERENCES, EXACT_RULE);
+	assertSearchResults(
+		"src/X.java void CallerHierarchyExample.caller() [method] EXACT_MATCH"
+	);	
+}
+public void testBug493433b() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"import java.util.stream.IntStream;\n" + 
+		"public class CallerHierarchyExample {\n" + 
+		"    interface Interface {\n" + 
+		"        void method(int i);\n" + 
+		"    }\n" + 
+		"    class Implementation implements Interface {\n" + 
+		"        public void method(int i) {}\n" + 
+		"    }\n" + 
+		"    void caller() {\n" + 
+		"        Interface pred = new Implementation();\n" + 
+		"        IntStream.range(0, 3).forEach(pred::method);\n" + 
+		"    }\n" + 
+		"}"	
+		);
+	IType type = this.workingCopies[0].getType("CallerHierarchyExample");
+	IJavaElement[] children = type.getChildren();
+	IType memberType = null;
+	for (IJavaElement iJavaElement : children) {
+		if (iJavaElement.getElementType() == IJavaElement.TYPE &&
+				iJavaElement.getElementName().equals("Interface")) {
+			memberType = (IType) iJavaElement;
+			break;
+		}
+	}
+	assertNotNull("type should not be null", memberType);
+	IMethod method = null;
+	IMethod[] methods = memberType.getMethods();
+	for (IMethod iMethod : methods) {
+		if (iMethod.getElementName().equals("method")) {
+			method = iMethod;
+			break;
+		}
+	}
+	assertNotNull("type should not be null", method);
+	search(method, REFERENCES, EXACT_RULE);
+	assertSearchResults(
+		"src/X.java void CallerHierarchyExample.caller() [method] EXACT_MATCH"
+	);	
+}
 // Add new tests in JavaSearchBugs8Tests
 }
 

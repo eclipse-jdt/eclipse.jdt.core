@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -165,7 +165,7 @@ protected ReferenceBinding checkMethodRef(MethodBinding method, ReferenceExpress
 	if (result) {
 		Expression lhs = referenceExpression.lhs;
 		if (lhs instanceof NameReference) {
-			Binding binding = ((NameReference) lhs).binding;
+			Binding binding = ((NameReference) lhs).resolvedType;
 			if (binding instanceof ReferenceBinding)
 				return (ReferenceBinding) binding;
 		}
