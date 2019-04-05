@@ -1386,6 +1386,53 @@ public void testBug535918_0056a() throws Exception {
 	verifyOutputNegative(XYZFile, "invokestatic X.access$0(X, int)");
 }
 
+public void testBug545387_01() throws Exception {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
+
+	this.runConformTest(
+			new String[] {
+					"pack1/X.java",
+					"package pack1;\n"+
+					"public class X {\n"+
+					"	public class Inner1 {\n"+
+					"		private void foo() {\n"+
+					"			System.out.println(\"hello\");;\n"+
+					"		}\n"+
+					"	}\n"+
+					"	public class Sub1 extends Inner1 {\n"+
+					"		public class Sub2 {\n"+
+					"			void testFoo() {\n"+
+					"				Sub1.super.foo();\n"+
+					"			}\n"+
+					"		}\n"+
+					"		void testFoo() {\n"+
+					"			(new Sub2()).testFoo();\n"+
+					"		}\n"+
+					"	}\n"+
+					"	public static void main(String[] args) {\n"+
+					"		Sub1 s1 = getS1();\n"+
+					"		s1.testFoo();\n"+
+					"	}\n"+
+					"	public static Sub1 getS1() {\n"+
+					"		return new X().new Sub1();\n"+
+					"	}\n"+
+					"}\n",
+			},
+			"hello",
+			options
+	);
+
+	String XSub1 = getClassFileContents("pack1/X$Sub1.class", ClassFileBytesDisassembler.SYSTEM);
+	String XSub1Sub2 = getClassFileContents("pack1/X$Sub1$Sub2.class", ClassFileBytesDisassembler.SYSTEM);
+	verifyOutputPositive(XSub1Sub2, "Nest Host: #29 pack1/X");
+
+	// the access is via synthetic emulation.
+//	verifyOutputNegative(XSub1, "access$");
+//	verifyOutputNegative(XSub1Sub2, "invokestatic X.access");
+}
+
 public static Class testClass() {
 	return JEP181NestTest.class;
 }
