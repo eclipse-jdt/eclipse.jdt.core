@@ -549,9 +549,10 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	// if method from parameterized type got found, use the original method at codegen time
 	MethodBinding codegenBinding = this.binding.original();
 	if (this.binding.isPrivate()){
-
+		boolean useNesting = currentScope.enclosingSourceType().isNestmateOf(codegenBinding.declaringClass) &&
+				!(this.receiver instanceof QualifiedSuperReference);
 		// depth is set for both implicit and explicit access (see MethodBinding#canBeSeenBy)
-		if (!currentScope.enclosingSourceType().isNestmateOf(codegenBinding.declaringClass) &&
+		if (!useNesting &&
 				TypeBinding.notEquals(currentScope.enclosingSourceType(), codegenBinding.declaringClass)){
 			this.syntheticAccessor = ((SourceTypeBinding)codegenBinding.declaringClass).addSyntheticMethod(codegenBinding, false /* not super access there */);
 			currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
