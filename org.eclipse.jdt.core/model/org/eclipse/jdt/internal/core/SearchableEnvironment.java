@@ -107,6 +107,15 @@ public class SearchableEnvironment
 					this.moduleUpdater.computeModuleUpdates(entry);
 		}
 	}
+
+	/**
+	 * Note: this is required for (abandoned) Scala-IDE
+	 */
+	@Deprecated
+	public SearchableEnvironment(JavaProject project, WorkingCopyOwner owner) throws JavaModelException {
+		this(project, owner, false);
+	}
+
 	/**
 	 * Creates a SearchableEnvironment on the given project
 	 */
