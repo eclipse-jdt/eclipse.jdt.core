@@ -1424,13 +1424,8 @@ public void testBug545387_01() throws Exception {
 			options
 	);
 
-	String XSub1 = getClassFileContents("pack1/X$Sub1.class", ClassFileBytesDisassembler.SYSTEM);
 	String XSub1Sub2 = getClassFileContents("pack1/X$Sub1$Sub2.class", ClassFileBytesDisassembler.SYSTEM);
 	verifyOutputPositive(XSub1Sub2, "Nest Host: #29 pack1/X");
-
-	// the access is via synthetic emulation.
-//	verifyOutputNegative(XSub1, "access$");
-//	verifyOutputNegative(XSub1Sub2, "invokestatic X.access");
 }
 
 public static Class testClass() {
