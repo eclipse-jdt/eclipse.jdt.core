@@ -2286,7 +2286,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					monitor.subTask(Messages.bind(Messages.build_readStateProgress, project.getName()));
 				info.savedState = readState(project);
 			} catch (CoreException e) {
-				e.printStackTrace();
+				Util.log(e, "Exception while reading last build state for: " + project); //$NON-NLS-1$
 			}
 		}
 		return info.savedState;
