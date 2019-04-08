@@ -112,6 +112,9 @@ public class SwitchStatement extends Expression {
 	protected void completeNormallyCheck(BlockScope blockScope) {
 		// do nothing
 	}
+	protected boolean checkNullDefaultFlow() {
+		return true;
+	}
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		try {
@@ -175,7 +178,7 @@ public class SwitchStatement extends Expression {
 				this.synthetic = sourceTypeBinding.addSyntheticMethodForSwitchEnum(resolvedTypeBinding, this);
 			}
 			// if no default case, then record it may jump over the block directly to the end
-			if (this.defaultCase == null) {
+			if (this.defaultCase == null && checkNullDefaultFlow()) {
 				// only retain the potential initializations
 				flowInfo.addPotentialInitializationsFrom(caseInits.mergedWith(switchContext.initsOnBreak));
 				this.mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo);

@@ -160,6 +160,10 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		}
 	}
 	@Override
+	protected boolean checkNullDefaultFlow() { // JLS 12 16.1.8 
+		return !this.switchLabeledRules;
+	}
+	@Override
 	public Expression[] getPolyExpressions() {
 		List<Expression> polys = new ArrayList<>();
 		for (Expression e : this.resultExpressions) {
