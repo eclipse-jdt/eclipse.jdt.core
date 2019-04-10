@@ -60,7 +60,7 @@ public class CompilationUnitScope extends Scope {
 
 	boolean connectingHierarchy;
 	private ArrayList<Invocation> inferredInvocations;
-	/** Cache of interned inference variables. Access only via {@link InferenceVariable#get(TypeBinding, int, InvocationSite, Scope, ReferenceBinding)}. */
+	/** Cache of interned inference variables. Access only via {@link InferenceVariable#get(TypeBinding, int, InvocationSite, Scope, ReferenceBinding, boolean)}. */
 	Map<InferenceVariable.InferenceVarKey, InferenceVariable> uniqueInferenceVariables = new HashMap<>();
 
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
