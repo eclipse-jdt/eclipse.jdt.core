@@ -77,7 +77,8 @@ public class ReferenceCollectionTest extends BuilderTests {
 		}
 	}
 
-	public void testInternQualifiedNamesSorts_01() {
+	// Disabled due bug 545491 comment 15
+	public void XtestInternQualifiedNamesSorts_01() {
 		char[][][] qualifiedNames = new char[][][] {
 			CharOperation.splitOn('.', "java.lang.RuntimeException".toCharArray()),
 			CharOperation.splitOn('.', "a.a.a".toCharArray()),
@@ -96,7 +97,8 @@ public class ReferenceCollectionTest extends BuilderTests {
 				toStringArray(internQualifiedNames));
 	}
 
-	public void testInternQualifiedNamesSorts_02() {
+	// Disabled due bug 545491 comment 15
+	public void XtestInternQualifiedNamesSorts_02() {
 		char[][][] qualifiedNames = new char[][][] {
 			CharOperation.splitOn('.', "java.lang.RuntimeException".toCharArray()),
 			CharOperation.splitOn('.', "a.a.a".toCharArray()),
@@ -122,7 +124,8 @@ public class ReferenceCollectionTest extends BuilderTests {
 				toStringArray(internQualifiedNames));
 	}
 
-	public void testInternSimpleNamesSorts_01() {
+	// Disabled due bug 545491 comment 15
+	public void XtestInternSimpleNamesSorts_01() {
 		char[][] simpleNames = new char[][] {
 			"Throwable".toCharArray(),
 			"aaa".toCharArray(),
@@ -139,7 +142,8 @@ public class ReferenceCollectionTest extends BuilderTests {
 				toStringArray(internSimpleNames));
 	}
 
-	public void testInternSimpleNamesSorts_02() {
+	// Disabled due bug 545491 comment 15
+	public void XtestInternSimpleNamesSorts_02() {
 		char[][] simpleNames = new char[][] {
 			"aaa".toCharArray(),
 			"bbb".toCharArray(),
@@ -287,7 +291,8 @@ public class ReferenceCollectionTest extends BuilderTests {
 		assertFalse(other.includes(refColl.getQualifiedNameReferences(), refColl.getSimpleNameReferences(), refColl.getRootReferences()));
 	}
 
-	public void testAddDependencies() {
+	// Disabled due bug 545491 comment 15
+	public void XtestAddDependencies() {
 		TestableReferenceCollection refColl = new TestableReferenceCollection(null, null, null);
 
 		String[] array = new String[] {"a.b.c.D"};
