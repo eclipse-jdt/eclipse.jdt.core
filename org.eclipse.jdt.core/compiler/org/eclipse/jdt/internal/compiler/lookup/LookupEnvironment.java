@@ -389,11 +389,13 @@ private NameEnvironmentAnswer[] askForTypeFromModules(ModuleBinding clientModule
 		for (int i = 0; i < otherModules.length; i++) {
 			NameEnvironmentAnswer answer = oracle.apply(otherModules[i]);
 			if (answer != null) {
-				char[] nameFromAnswer = answer.moduleName();
-				if (nameFromAnswer == null || CharOperation.equals(nameFromAnswer, otherModules[i].moduleName)) {
-					answer.moduleBinding = otherModules[i];
-				} else {
-					answer.moduleBinding = getModule(nameFromAnswer);
+				if (answer.moduleBinding == null) {
+					char[] nameFromAnswer = answer.moduleName();
+					if (CharOperation.equals(nameFromAnswer, otherModules[i].moduleName)) {
+						answer.moduleBinding = otherModules[i];
+					} else {
+						answer.moduleBinding = getModule(nameFromAnswer);
+					}
 				}
 				answers[i] = answer;
 				found = true;
