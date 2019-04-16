@@ -20,12 +20,12 @@
   </parent>
   <groupId>org.eclipse.jdt</groupId>
   <artifactId>org.eclipse.jdt.core.tests.compiler</artifactId>
-  <version>3.12.800-SNAPSHOT</version>
+  <version>3.12.850-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 
   <properties>
     <defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
-  </properties>
+  </properties> 
 
   <build>
   	<plugins>
