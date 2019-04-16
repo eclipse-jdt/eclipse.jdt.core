@@ -1503,5 +1503,58 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			deleteProject(p);
 		}
 	}
+	public void testBug542795() throws Exception {
+		IJavaProject p =  createJavaProject("Foo", new String[] {"src"}, new String[] {jcl9lib}, "bin", "11");
+		try {
+			createFolder("/Foo/src/test");
+			createFile("/Foo/src/test/ReaderWarningView.java",
+					"package test;\n" +
+					"@java.lang.Deprecated\n" +
+					"public class ReaderWarningView {}\n");
+			String source =
+					"public class Test implements test.Screen.Component {}\n";
+			createFile("/Foo/src/Test.java", source);
+			createFile("/Foo/src/test/Screen.java",
+					"package test;\n" +
+					"@interface Annot{ Class<?> value(); }\n" +
+					"@Annot(test.Screen.Component.class)\n" +
+					"@java.lang.Deprecated\n" +
+					"public final class Screen {\n" +
+					"	@java.lang.Deprecated\n" +
+					"	public interface Component extends test.ReaderWarningView.Component {\n" +
+					"	}\n" +
+					"}\n");
+			ICompilationUnit cuD = getCompilationUnit("/Foo/src/Test.java");
+			
+			p.setOption(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.ERROR);
+			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS11);
+			parser.setProject(p);
+			parser.setSource(cuD);
+			parser.setResolveBindings(true);
+			parser.setStatementsRecovery(true);
+			parser.setBindingsRecovery(true);
+			org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+			IProblem[] problems = cuAST.getProblems();
+			assertProblems("Unexpected problems",
+					"1. ERROR in /Foo/src/Test.java (at line 1)\n" + 
+					"	public class Test implements test.Screen.Component {}\n" + 
+					"	             ^^^^\n" + 
+					"The hierarchy of the type Test is inconsistent\n" + 
+					"----------\n" + 
+					"2. ERROR in /Foo/src/Test.java (at line 1)\n" + 
+					"	public class Test implements test.Screen.Component {}\n" + 
+					"	                                  ^^^^^^\n" + 
+					"The type Screen is deprecated\n" + 
+					"----------\n" + 
+					"3. ERROR in /Foo/src/Test.java (at line 1)\n" + 
+					"	public class Test implements test.Screen.Component {}\n" + 
+					"	                                         ^^^^^^^^^\n" + 
+					"The type Screen.Component is deprecated\n" + 
+					"----------\n",
+					problems, source.toCharArray());
+		} finally {
+			deleteProject(p);
+		}
+	}
 // Add new tests here
 }

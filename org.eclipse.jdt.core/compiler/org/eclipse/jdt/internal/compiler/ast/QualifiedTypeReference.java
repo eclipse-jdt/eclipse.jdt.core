@@ -108,6 +108,9 @@ public class QualifiedTypeReference extends TypeReference {
 			return this.resolvedType;
 		}
 		Binding binding = scope.getPackage(this.tokens);
+		if (this.resolvedType != null) { // recheck in case we had re-entrance
+			return this.resolvedType;
+		}
 		if (binding != null && !binding.isValidBinding()) {
 			if (binding instanceof ProblemReferenceBinding && binding.problemId() == ProblemReasons.NotFound) {
 				ProblemReferenceBinding problemBinding = (ProblemReferenceBinding) binding;
