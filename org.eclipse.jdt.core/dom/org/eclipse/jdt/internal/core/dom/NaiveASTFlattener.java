@@ -1509,14 +1509,14 @@ public class NaiveASTFlattener extends ASTVisitor {
 		if (node.getAST().apiLevel() >= JLS12) {
 			if (node.isDefault()) {
 				this.buffer.append("default");//$NON-NLS-1$
-				this.buffer.append(node.isSwitchLabeledRule() ? "->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
+				this.buffer.append(node.isSwitchLabeledRule() ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
 			} else {
 				this.buffer.append("case ");//$NON-NLS-1$
 				for (Iterator it = node.expressions().iterator(); it.hasNext(); ) {
 					Expression t = (Expression) it.next();
 						t.accept(this);
 						this.buffer.append(it.hasNext() ? ", " : //$NON-NLS-1$
-							node.isSwitchLabeledRule() ? "->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
+							node.isSwitchLabeledRule() ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
