@@ -2362,7 +2362,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			new String[] { "--enable-preview"},
 			options);
 	}
-	public void _testBug545915_01() {
+	public void testBug545715_01() {
 		runConformTest(
 			new String[] {
 				"X.java",
