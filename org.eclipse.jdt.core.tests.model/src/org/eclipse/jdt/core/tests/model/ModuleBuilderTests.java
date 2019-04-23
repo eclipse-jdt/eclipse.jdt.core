@@ -5410,7 +5410,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			IClasspathAttribute[] attributes = {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
-					JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, "java.base")
+					JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, "java.desktop=/missing.path::java.base=/org.astro.patch/src:/org.astro.patch/src2")
 			};
 			IJavaProject patchProject = createJava9ProjectWithJREAttributes("org.astro.patch", new String[]{"src", "src2"}, attributes);
 
@@ -5466,7 +5466,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject patchProject = createJava9Project("mod.one.patch");			
 			IClasspathAttribute[] attributes = {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
-					JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, "mod.one")
+					JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, "mod.one=/mod.one.patch")
 			};
 			addClasspathEntry(patchProject, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, attributes, false));
 
