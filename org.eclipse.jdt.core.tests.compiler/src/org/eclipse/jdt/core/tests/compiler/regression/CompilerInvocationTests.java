@@ -1163,6 +1163,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("SwitchExpressionsNoResultExpression", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("SwitchExpressionSwitchLabeledBlockCompletesNormally", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("SwitchExpressionLastStatementCompletesNormally", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("SwitchExpressionIllegalLastStatement", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("SwitchExpressionTrailingSwitchLabels", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("switchMixedCase", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("SwitchExpressionMissingDefaultCase", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -2108,6 +2109,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("SwitchExpressionsNoResultExpression",SKIP);
 		expectedProblemAttributes.put("SwitchExpressionSwitchLabeledBlockCompletesNormally",SKIP);
 		expectedProblemAttributes.put("SwitchExpressionLastStatementCompletesNormally",SKIP);
+		expectedProblemAttributes.put("SwitchExpressionIllegalLastStatement",SKIP);
 		expectedProblemAttributes.put("SwitchExpressionTrailingSwitchLabels",SKIP);
 		expectedProblemAttributes.put("switchMixedCase", SKIP);
 		expectedProblemAttributes.put("SwitchExpressionMissingDefaultCase",SKIP);

@@ -2106,4 +2106,6 @@ void setSourceStart(int sourceStart);
 	int SwitchExpressionBreakMissingValue = Internal + 1610;
 	/** @since 3.18 */
 	int SwitchExpressionMissingEnumConstantCase = Internal + 1611;
+	/** @since 3.18 */
+	int SwitchExpressionIllegalLastStatement = Internal + 1612;
 	}

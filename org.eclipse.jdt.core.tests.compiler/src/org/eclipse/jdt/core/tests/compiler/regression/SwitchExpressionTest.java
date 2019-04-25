@@ -2408,4 +2408,68 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		null,
 		new String[] {"--enable-preview"});
 	}
+	public void testBug545983_01() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				"	@SuppressWarnings(\"preview\")\n"+
+				"	public static int foo() {\n"+
+				"	for (int i = 0; i < 1; ++i) {\n"+
+				"			int k = switch (i) {\n"+
+				"				case 0:\n"+
+				"					break 1;\n"+
+				"				default:\n"+
+				"					continue;\n"+
+				"			};\n"+
+				"			System.out.println(k);\n"+
+				"		}\n"+
+				"		return 1;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		X.foo();\n"+
+				"	}\n"+
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	continue;\n" + 
+			"	^^^^^^^^^\n" + 
+			"Illegal last statement in Switch expression case body - continue, return not allowed\n" + 
+			"----------\n");
+	}
+	public void testBug545983_02() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				"	@SuppressWarnings(\"preview\")\n"+
+				"	public static int foo() {\n"+
+				"	for (int i = 0; i < 1; ++i) {\n"+
+				"			int k = switch (i) {\n"+
+				"				case 0:\n"+
+				"					break 1;\n"+
+				"				default:\n"+
+				"					return 2;\n"+
+				"			};\n"+
+				"			System.out.println(k);\n"+
+				"		}\n"+
+				"		return 1;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		X.foo();\n"+
+				"	}\n"+
+				"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	return 2;\n" + 
+			"	^^^^^^^^^\n" + 
+			"Illegal last statement in Switch expression case body - continue, return not allowed\n" + 
+			"----------\n");
+	}
 }

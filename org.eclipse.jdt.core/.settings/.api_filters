@@ -8,15 +8,6 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="compiler/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
-        <filter id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="IgnoreCategoriesMask"/>
-                <message_argument value="8388607"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/BreakStatement.java" type="org.eclipse.jdt.core.dom.BreakStatement">
         <filter comment="For Java 12 support." id="336658481">
             <message_arguments>
