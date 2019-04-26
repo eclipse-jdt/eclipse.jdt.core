@@ -164,7 +164,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		}
 	}
 	@Override
-	protected boolean checkNullDefaultFlow() { // JLS 12 16.1.8 
+	protected boolean needToCheckFlowInAbsenceOfDefaultBranch() { // JLS 12 16.1.8 
 		return !this.switchLabeledRules;
 	}
 	@Override
