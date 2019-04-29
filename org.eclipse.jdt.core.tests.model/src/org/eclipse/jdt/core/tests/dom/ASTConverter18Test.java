@@ -50,7 +50,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	static {
 //		TESTS_NUMBERS = new int[] { 19 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] {"test0001"};
+//		TESTS_NAMES = new String[] {"testLambdaSynthetic"};
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverter18Test.class);
@@ -5377,6 +5377,52 @@ public void testBug526449_001() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/jsr308/myex/X.java", true/*resolve*/);
 	ASTNode node = buildAST(contents, this.workingCopy, false);
 	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+}
+public void testLambdaSynthetic() throws JavaModelException {
+	this.workingCopy = getWorkingCopy("/Converter18/src/xyz/X.java",
+			true/* resolve */);
+	String contents = 
+			"package xyz;\n"+
+					"\n"+
+					"interface Function<T, R> {\n"+
+					"    R apply(T t);\n"+
+					" }\n"+
+					"\n"+
+					"public class X {\n"+
+					"\n"+
+					"    private int instanceField = 952;\n"+
+					"\n"+
+					"    static public void main(String[] args) throws Exception {\n"+
+					"        new X().callLambda(\"hello\");\n"+
+					"    }\n"+
+					"\n"+
+					"    void callLambda(String outerArg) throws Exception {\n"+
+					"        double outerLocal = 1.0; // Effectively final\n"+
+					"\n"+
+					"        Function<String, Integer> lambda = lambdaArg -> {\n"+
+					"            int lambdaLocal = 6;\n"+
+					"            System.out.println(instanceField);\n"+
+					"            System.out.println(outerArg);\n"+
+					"            System.out.println(outerLocal);\n"+
+					"            System.out.println(lambdaArg);\n"+
+					"            System.out.println(lambdaLocal);\n"+
+					"            return lambdaArg.length();\n"+
+					"        };\n"+
+					"        int result = lambda.apply(\"degenerate case\");\n"+
+					"        System.out.println(result);\n"+
+					"    }\n"+
+					"}\n";
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
+	MethodDeclaration methodDeclaration = (MethodDeclaration) typedeclaration.bodyDeclarations().get(2);
+	VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement) methodDeclaration.getBody().statements().get(1);
+	VariableDeclarationFragment fragment = (VariableDeclarationFragment)variableDeclarationStatement.fragments().get(0);
+	LambdaExpression lambdaExpression = (LambdaExpression) fragment.getInitializer();
+	IMethodBinding binding = lambdaExpression.resolveMethodBinding();
+	IVariableBinding[] synVars = binding.getSyntheticOuterLocals();
+	assertEquals(2, synVars.length);
+	assertEquals("val$outerArg",synVars[0].getName());
+	assertEquals("val$outerLocal",synVars[1].getName());
 }
 
 }
