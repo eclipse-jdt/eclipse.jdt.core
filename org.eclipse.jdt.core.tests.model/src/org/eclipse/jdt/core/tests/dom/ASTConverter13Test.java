@@ -526,6 +526,16 @@ public class ASTConverter13Test extends ConverterTestSetup {
 
 			assertTrue("String should not be empty", escapedValue.length() != 0);
 			assertTrue("String should start with \"\"\"", escapedValue.startsWith("\"\"\""));
+			
+			String literal = ((TextBlock) initializer).getLiteralValue();
+			assertEquals("literal value not correct", 
+					"      	<html>\n" + 
+					"        <body>\n" + 
+					"            <p>Hello, world</p>\n" + 
+					"        </body>\n" + 
+					"    	</html>\n" + 
+					"    	",
+					literal);
 
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
@@ -607,6 +617,30 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			ITypeBinding binding = initializer.resolveTypeBinding();
 			assertNotNull("No binding", binding);
 			assertEquals("Wrong qualified name", "java.lang.String", binding.getQualifiedName());
+			
+			String escapedValue = ((TextBlock) initializer).getEscapedValue();
+
+			assertTrue("String should not be empty", escapedValue.length() != 0);
+			assertTrue("String should start with \"\"\"", escapedValue.startsWith("\"\"\""));
+			assertEquals("escaped value not correct", 
+					"\"\"\"\n" + 
+					"      	<html>\n" + 
+					"        <body>\n" + 
+					"            <p>Hello, world</p>\n" + 
+					"        </body>\n" + 
+					"    	</html>\n" + 
+					"    	\"\"\"", 
+					escapedValue);
+			
+			String literal = ((TextBlock) initializer).getLiteralValue();
+			assertEquals("literal value not correct", 
+					"      	<html>\n" + 
+					"        <body>\n" + 
+					"            <p>Hello, world</p>\n" + 
+					"        </body>\n" + 
+					"    	</html>\n" + 
+					"    	", 
+					literal);
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
