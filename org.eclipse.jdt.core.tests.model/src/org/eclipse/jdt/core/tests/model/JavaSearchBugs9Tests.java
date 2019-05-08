@@ -14,9 +14,11 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -37,6 +39,7 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
+import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 import junit.framework.Test;
@@ -4625,6 +4628,28 @@ public void testBug545293() throws Exception {
 	} finally {
 		deleteProject(p);
 		deleteProject(p1);
+	}
+}
+
+public void testBug547051_modular() throws Exception {
+	try {
+		IJavaProject project = createJava9Project("P");
+		IType type = project.findType("java.util.Collection");
+		IJavaSearchScope scope = SearchEngine.createStrictHierarchyScope(project, type, Boolean.TRUE, Boolean.TRUE, null);
+		BasicSearchEngine engine = new BasicSearchEngine();
+		char[] packageName = null;
+		char[] typeName = null;
+		AtomicBoolean r = new AtomicBoolean(false);
+		engine.searchAllTypeNames(packageName, SearchPattern.R_PATTERN_MATCH,
+				typeName, SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CAMELCASE_MATCH,
+				TYPE, scope, 
+				(modifiers, packageName1, simpleTypeName, enclosingTypeNames, path, access) -> r.set(true), 
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, new NullProgressMonitor());
+		
+		assertTrue("Type search has no matches for subtypes of " + type, r.get());
+	}
+	finally {
+		deleteProject("P");
 	}
 }
 

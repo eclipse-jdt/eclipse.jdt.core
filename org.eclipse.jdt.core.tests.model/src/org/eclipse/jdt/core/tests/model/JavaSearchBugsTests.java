@@ -18,8 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import junit.framework.Test;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -32,6 +31,7 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.content.IContentType;
@@ -89,6 +89,8 @@ import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
 import org.eclipse.jdt.internal.core.search.matching.TypeReferencePattern;
+
+import junit.framework.Test;
 
 /**
  * Non-regression tests for bugs fixed in Java Search engine.
@@ -15137,6 +15139,28 @@ public void testBug521240_001() throws CoreException {
 	assertSearchResults(
 			"src/pack1/X.java void pack1.X.foo(Y) [foo] EXACT_MATCH"
 	);
+}
+public void testBug547051_nonModular() throws Exception {
+	try {
+		IJavaProject project = createJavaProject("P");
+		setUpProjectCompliance(project, "1.8", true);
+		IType type = project.findType("java.util.Collection");
+        IJavaSearchScope scope = SearchEngine.createStrictHierarchyScope(project, type, Boolean.TRUE, Boolean.TRUE, null);
+        BasicSearchEngine engine = new BasicSearchEngine();
+        char[] packageName = null;
+        char[] typeName = null;
+        AtomicBoolean r = new AtomicBoolean(false);
+        engine.searchAllTypeNames(packageName, SearchPattern.R_PATTERN_MATCH,
+        		typeName, SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CAMELCASE_MATCH,
+        		TYPE, scope, 
+        		(modifiers, packageName1, simpleTypeName, enclosingTypeNames, path, access) -> r.set(true), 
+        		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, new NullProgressMonitor());
+
+        assertTrue("Type search has no matches for subtypes of " + type, r.get());
+	}
+	finally {
+		deleteProject("P");
+	}
 }
 
 }
