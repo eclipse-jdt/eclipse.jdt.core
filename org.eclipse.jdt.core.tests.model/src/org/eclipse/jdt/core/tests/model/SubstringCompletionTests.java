@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 Gábor Kövesdán and others.
+ * Copyright (c) 2015, 2019 Gábor Kövesdán and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -942,11 +942,11 @@ public void testBug488441_3() throws JavaModelException {
 			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, lastIndexOf, (arg0), "+ (relevance + R_SUBSTRING) +"}\n" +
 			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, lastIndexOf, (arg0, arg1), "+ (relevance + R_SUBSTRING) +"}\n" +
 			"replaceFirst[METHOD_REF]{replaceFirst(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceFirst, (arg0, arg1), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
-			"startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), "+ (relevance + R_CASE) +"}\n" +
-			"startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), "+ (relevance + R_CASE) +"}\n" +
 			"substring[METHOD_REF]{substring(), Ljava.lang.String;, (I)Ljava.lang.String;, substring, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
 			"substring[METHOD_REF]{substring(), Ljava.lang.String;, (II)Ljava.lang.String;, substring, (arg0, arg1), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.String;, ()Ljava.lang.String;, toString, null, "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}",
+			"toString[METHOD_REF]{toString(), Ljava.lang.String;, ()Ljava.lang.String;, toString, null, "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE)  +"}\n" +
+			"startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), "+ (relevance + R_CASE) +"}\n" +
+			"startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), "+ (relevance + R_CASE) +"}",
 			requestor.getResults());
 }
 public void testBug488441_4() throws JavaModelException {
@@ -999,7 +999,6 @@ public void testBug488441_5() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_NON_INHERITED;
 	assertResults(
-			"asList[METHOD_REF]{asList(), Ljava.util.Arrays;, <T:Ljava.lang.Object;>([TT;)Ljava.util.List<TT;>;, asList, (arg0), "+ (relevance + R_CASE) +"}\n" +
 			"deepHashCode[METHOD_REF]{deepHashCode(), Ljava.util.Arrays;, ([Ljava.lang.Object;)I, deepHashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([B)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([C)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
@@ -1009,7 +1008,8 @@ public void testBug488441_5() throws JavaModelException {
 			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([J)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Ljava.lang.Object;)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([S)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Z)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}",
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Z)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE)+"}\n" +
+			"asList[METHOD_REF]{asList(), Ljava.util.Arrays;, <T:Ljava.lang.Object;>([TT;)Ljava.util.List<TT;>;, asList, (arg0), "+ (relevance + R_CASE)  +"}",
 			requestor.getResults());
 }
 public void testBug488441_6() throws JavaModelException {
@@ -1099,7 +1099,6 @@ public void testBug488441_8() throws JavaModelException {
 
 	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_NON_INHERITED;
 	assertResults(
-			"asList[METHOD_REF]{asList(), Ljava.util.Arrays;, <T:Ljava.lang.Object;>([TT;)Ljava.util.List<TT;>;, asList, (arg0), "+ (relevance + R_CASE) +"}\n" +
 			"deepHashCode[METHOD_REF]{deepHashCode(), Ljava.util.Arrays;, ([Ljava.lang.Object;)I, deepHashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([B)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([C)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
@@ -1109,7 +1108,8 @@ public void testBug488441_8() throws JavaModelException {
 			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([J)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Ljava.lang.Object;)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
 			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([S)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Z)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}",
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Z)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE)+"}\n" +
+			"asList[METHOD_REF]{asList(), Ljava.util.Arrays;, <T:Ljava.lang.Object;>([TT;)Ljava.util.List<TT;>;, asList, (arg0), "+ (relevance + R_CASE)  +"}",
 			requestor.getResults());
 }
 }
