@@ -13,6 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import static org.eclipse.jdt.core.search.IJavaSearchScope.APPLICATION_LIBRARIES;
+import static org.eclipse.jdt.core.search.IJavaSearchScope.REFERENCED_PROJECTS;
+import static org.eclipse.jdt.core.search.IJavaSearchScope.SOURCES;
+import static org.eclipse.jdt.core.search.IJavaSearchScope.SYSTEM_LIBRARIES;
+
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -39,6 +44,9 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.TypeParameter;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
@@ -4647,6 +4655,38 @@ public void testBug547051_modular() throws Exception {
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, new NullProgressMonitor());
 		
 		assertTrue("Type search has no matches for subtypes of " + type, r.get());
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug547095_local_variables_search_modular() throws Exception {
+	try {
+		IJavaProject project = createJava9Project("P");
+		IType type = project.findType("java.util.Collection");
+		
+		IMethod method = type.getMethod("equals", new String[] {"Ljava.lang.Object;" });
+		LocalVariable lv = new LocalVariable(((JavaElement)method), "o", 0, 0, 0, 0, "QObject;", null, 0, true); 
+		SearchPattern pattern = SearchPattern.createPattern(lv, REFERENCES, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, SYSTEM_LIBRARIES | APPLICATION_LIBRARIES | REFERENCED_PROJECTS | SOURCES);
+		search(pattern, scope, this.resultCollector);
+		// should not throw an error
+	}
+	finally {
+		deleteProject("P");
+	}
+}
+
+public void testBug547095_type_patter_search_modular() throws Exception {
+	try {
+		IJavaProject project = createJava9Project("P");
+		IType type = project.findType("java.util.Collection");
+		TypeParameter tp = new TypeParameter(((JavaElement)type), "E"); 
+		SearchPattern pattern = SearchPattern.createPattern(tp, REFERENCES, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, SYSTEM_LIBRARIES | APPLICATION_LIBRARIES | REFERENCED_PROJECTS | SOURCES);
+		search(pattern, scope, this.resultCollector);
+		// should not throw an error
 	}
 	finally {
 		deleteProject("P");
