@@ -9777,4 +9777,52 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug547061() {
+		runConformTest(
+			new String[] {
+				"test2/Problematic.java",
+				"package test2;\n" + 
+				"\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.util.Collections;\n" + 
+				"import java.util.Set;\n" + 
+				"import java.util.function.Consumer;\n" + 
+				"\n" + 
+				"public class Problematic {\n" + 
+				"\n" + 
+				"	@FunctionalInterface\n" + 
+				"	private interface ThrowingConsumer<T, E extends Throwable> {\n" + 
+				"		void accept(T t) throws E;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private class FileAsset {\n" + 
+				"		public FileAsset move(String path) throws IOException {\n" + 
+				"			System.out.println(path);\n" + 
+				"			return null;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	static <T, E extends Exception> void process(Consumer<Consumer<T>> code, ThrowingConsumer<T, E> throwingConsumer)\n" + 
+				"			throws E {\n" + 
+				"		code.accept(t -> {\n" + 
+				"			try {\n" + 
+				"				throwingConsumer.accept(t);\n" + 
+				"			} catch (Exception e) {\n" + 
+				"				e.printStackTrace();\n" + 
+				"			}\n" + 
+				"		});\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public void execute(String path) throws IOException {\n" + 
+				"		Set<FileAsset> set = Collections.singleton(new FileAsset());\n" + 
+				"		process(set::forEach, (asset) -> {\n" + 
+				"			process(set::forEach, (asset2) -> {\n" + 
+				"				asset2.move(path);\n" + 
+				"			});\n" + 
+				"		});\n" + 
+				"\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
 }
