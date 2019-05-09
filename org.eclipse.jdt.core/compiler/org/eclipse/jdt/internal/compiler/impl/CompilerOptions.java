@@ -205,6 +205,9 @@ public class CompilerOptions {
 	public static final String OPTION_EnablePreviews = "org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures"; //$NON-NLS-1$
 	public static final String OPTION_ReportPreviewFeatures = "org.eclipse.jdt.core.compiler.problem.reportPreviewFeatures"; //$NON-NLS-1$
 
+	// Internally used option to allow debug framework compile evaluation snippets in context of modules, see bug 543604
+	public static final String OPTION_JdtDebugCompileMode = "org.eclipse.jdt.internal.debug.compile.mode"; //$NON-NLS-1$
+
 	/**
 	 * Possible values for configurable options
 	 */
@@ -527,6 +530,9 @@ public class CompilerOptions {
 
 	/** Master flag to enabled/disable all preview features */
 	public boolean enablePreviewFeatures;
+
+	/** Enable a less restrictive compile mode for JDT debug. */
+	public boolean enableJdtDebugCompileMode;
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
@@ -1565,6 +1571,8 @@ public class CompilerOptions {
 
 		this.complainOnUninternedIdentityComparison = false;
 		this.enablePreviewFeatures = false;
+
+		this.enableJdtDebugCompileMode = false;
 	}
 
 	public void set(Map<String, String> optionsMap) {
@@ -2087,6 +2095,14 @@ public class CompilerOptions {
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportPreviewFeatures)) != null) 
 			updateSeverity(PreviewFeatureUsed, optionValue);
+
+		if ((optionValue = optionsMap.get(OPTION_JdtDebugCompileMode)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.enableJdtDebugCompileMode = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.enableJdtDebugCompileMode = false;
+			}
+		}
 	}
 
 	private String[] stringToNameList(String optionValue) {

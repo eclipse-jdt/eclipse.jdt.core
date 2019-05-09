@@ -3317,6 +3317,37 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("com.greetings");
 		}
 	}
+
+	// test that the compilation of a class using same package defined in the java.util module
+	// works if a special option is given
+	public void test_no_conflicting_packages_for_debugger() throws CoreException {
+		deleteProject("P1");
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		try {
+			Hashtable<String, String> newOptions=new Hashtable<>(javaCoreOptions);
+			newOptions.put(CompilerOptions.OPTION_JdtDebugCompileMode, JavaCore.ENABLED);
+			JavaCore.setOptions(newOptions);
+			String[] sources = new String[] {
+					"src/java/util/Map___.java",
+					"package java.util;\n" +
+					"abstract class Map___ implements java.util.Map {\n" +
+					"  Map___() {\n" +
+					"    super();\n" +
+					"  }\n" +
+					"  Object[] ___run() throws Throwable {\n" +
+					"    return entrySet().toArray();\n" +
+					"  }\n" +
+					"}"
+			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			IJavaProject p1= setupModuleProject("debugger_project", sources, new IClasspathEntry[]{dep});
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			deleteProject("debugger_project");
+			JavaCore.setOptions(javaCoreOptions);
+		}
+	}
 	// test that a package declared in a module conflicts with an accessible package
 	// of the same name declared in another required module
 	public void test_conflicting_packages_declaredvsaccessible() throws CoreException {

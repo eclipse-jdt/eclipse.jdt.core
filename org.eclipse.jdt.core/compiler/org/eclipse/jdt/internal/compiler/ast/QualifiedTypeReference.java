@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
@@ -125,10 +126,14 @@ public class QualifiedTypeReference extends TypeReference {
 	    if (packageBinding != null) {
 	    	PackageBinding uniquePackage = packageBinding.getVisibleFor(scope.module(), false);
 	    	if (uniquePackage instanceof SplitPackageBinding) {
-	    		SplitPackageBinding splitPackage = (SplitPackageBinding) uniquePackage;
-    			scope.problemReporter().conflictingPackagesFromModules(splitPackage, scope.module(), this.sourceStart, (int)this.sourcePositions[typeStart-1]);
-    			this.resolvedType = new ProblemReferenceBinding(this.tokens, null, ProblemReasons.Ambiguous);
-    			return null;
+	    		CompilerOptions compilerOptions = scope.compilerOptions();
+	    		boolean inJdtDebugCompileMode = compilerOptions.enableJdtDebugCompileMode;
+	    		if (!inJdtDebugCompileMode) {
+	    			SplitPackageBinding splitPackage = (SplitPackageBinding) uniquePackage;
+	    			scope.problemReporter().conflictingPackagesFromModules(splitPackage, scope.module(), this.sourceStart, (int)this.sourcePositions[typeStart-1]);
+	    			this.resolvedType = new ProblemReferenceBinding(this.tokens, null, ProblemReasons.Ambiguous);
+	    			return null;
+	    		}
 	    	}
 	    }
 	    rejectAnnotationsOnPackageQualifiers(scope, packageBinding);
