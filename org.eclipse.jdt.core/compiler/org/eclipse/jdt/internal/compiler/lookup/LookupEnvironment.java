@@ -1740,7 +1740,8 @@ private ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean 
 			}
 			packageBinding.addType(binding);
 		}
-	} else if (binding == TheNotFoundType) {
+	}
+	if (binding == TheNotFoundType) {
 		// report the missing class file first
 		if (!wasMissingType) {
 			/* Since missing types have been already been complained against while producing binaries, there is no class path 
