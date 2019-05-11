@@ -795,6 +795,7 @@ public static int getProblemCategory(int severity, int problemID) {
 	switch (problemID) {
 		case IProblem.IsClassPathCorrect :
 		case IProblem.CorruptedSignature :
+		case IProblem.UndefinedModuleAddReads :
 			return CategorizedProblem.CAT_BUILDPATH;
 		case IProblem.ProblemNotAnalysed :
 			return CategorizedProblem.CAT_UNNECESSARY_CODE;
@@ -10930,6 +10931,10 @@ public void invalidModule(ModuleReference ref) {
 	this.handle(IProblem.UndefinedModule, 
 		NoArgument, new String[] { CharOperation.charToString(ref.moduleName) },
 		ref.sourceStart, ref.sourceEnd);
+}
+public void missingModuleAddReads(char[] requiredModuleName) {
+	String[] args = new String[] { new String(requiredModuleName) };
+	this.handle(IProblem.UndefinedModuleAddReads, args, args, 0, 0);
 }
 public void invalidOpensStatement(OpensStatement statement, ModuleDeclaration module) {
 	this.handle(IProblem.InvalidOpensStatement,

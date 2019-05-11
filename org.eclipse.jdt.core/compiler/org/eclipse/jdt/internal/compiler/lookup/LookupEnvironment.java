@@ -1572,8 +1572,7 @@ private void initializeUsesNullTypeAnnotation() {
 	this.mayTolerateMissingType = true;
 	try {
 		nullable = this.nullableAnnotation != null ? this.nullableAnnotation.getAnnotationType()
-				: getType(this.getNullableAnnotationName(), this.UnNamedModule); // FIXME(SHMOD) module for null
-																					// annotations??
+				: getType(this.getNullableAnnotationName(), this.UnNamedModule); // FIXME(SHMOD) module for null annotations??
 		nonNull = this.nonNullAnnotation != null ? this.nonNullAnnotation.getAnnotationType()
 				: getType(this.getNonNullAnnotationName(), this.UnNamedModule);
 	} finally {

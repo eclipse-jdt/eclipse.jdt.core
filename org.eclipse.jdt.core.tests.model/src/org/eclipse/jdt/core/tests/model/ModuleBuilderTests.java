@@ -28,6 +28,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -8488,6 +8489,98 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			File outputDir = new File(outputDirectory);
 			if (outputDir.exists())
 				Util.flushDirectoryContent(outputDir);
+		}
+	}
+	public void testBug547114a() throws CoreException, IOException {
+		String outputDirectory = Util.getOutputDirectory();
+		String jarPath = outputDirectory + File.separator + "lib.jar";
+		try {
+			// focus project has no module-info, to trigger path where LE#knownPackages is not empty when processing add-reads
+			String[] sources = new String[] {
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"import p.C;\n" +
+					"public class World {\n" +
+					"	C f;\n" +
+					"}\n"
+			};
+			IJavaProject p = setupModuleProject("org.astro", sources);
+
+			Util.createJar(new String[] {
+					"/lib/src/module-info.java",
+					"module lib {\n" +
+					"	exports p;\n" +
+					"}\n",
+					"/lib/src/p/C.java",
+					"package p;\n" +
+					"public class C {}\n",
+				},
+				jarPath,
+				"9");
+			addClasspathEntry(p, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null,
+					new IClasspathAttribute[] {
+						JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
+						JavaCore.newClasspathAttribute(IClasspathAttribute.ADD_READS, "lib=missing.module") // problematic directive on jar-dependency
+					},
+					false));
+
+			p.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			waitForAutoBuild();
+			
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			// 1. marker is on the project, second on the "current" CU: World.java.
+			assertMarkers("Unexpected markers",
+					"The project was not built since its build path has a problem: missing.module cannot be resolved to a module, it is referenced from an add-reads directive. Fix the build path then try building this project\n" + 
+					"missing.module cannot be resolved to a module, it is referenced from an add-reads directive",
+					markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteFile(jarPath);
+		}
+	}
+	public void testBug547114b() throws CoreException, IOException {
+		try {
+			IJavaProject p = setupModuleProject("org.astro", new String[] {
+					"src/module-info.java",
+					"module org.astro {\n" +
+					"	requires lib;\n" +
+					"}\n",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"import p.C;\n" +
+					"public class World {\n" +
+					"	C f;\n" +
+					"}\n"
+			});
+			
+			IJavaProject lib = setupModuleProject("lib", new String[] {
+					"src/module-info.java",
+					"module lib {\n" +
+					"	exports p;\n" +
+					"}\n",
+					"src/p/C.java",
+					"package p;\n" +
+					"public class C {}\n",
+			});
+			addClasspathEntry(p, JavaCore.newProjectEntry(lib.getPath(), null, false,
+					new IClasspathAttribute[] {
+						JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
+						JavaCore.newClasspathAttribute(IClasspathAttribute.ADD_READS, "lib=missing.module") // problematic directive on project dependency
+					},
+					false));
+
+			ResourcesPlugin.getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			waitForAutoBuild();
+
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			// 1. marker is on the project, second on the "current" CU: World.java.
+			assertMarkers("Unexpected markers",
+					"The project was not built since its build path has a problem: missing.module cannot be resolved to a module, it is referenced from an add-reads directive. Fix the build path then try building this project\n" + 
+					"missing.module cannot be resolved to a module, it is referenced from an add-reads directive",
+					markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("lib");
 		}
 	}
 	protected void assertNoErrors() throws CoreException {

@@ -1041,6 +1041,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UndefinedLabel", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("UndefinedMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("UndefinedModule", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
+		expectedProblemAttributes.put("UndefinedModuleAddReads", new ProblemAttributes(CategorizedProblem.CAT_BUILDPATH));
 		expectedProblemAttributes.put("UndefinedName", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("UndefinedType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("UndefinedTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1987,6 +1988,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UndefinedLabel", SKIP);
 		expectedProblemAttributes.put("UndefinedMethod", SKIP);
 		expectedProblemAttributes.put("UndefinedModule", SKIP);
+		expectedProblemAttributes.put("UndefinedModuleAddReads", SKIP);
 		expectedProblemAttributes.put("UndefinedName", SKIP);
 		expectedProblemAttributes.put("UndefinedType", SKIP);
 		expectedProblemAttributes.put("UndefinedTypeVariable", SKIP);

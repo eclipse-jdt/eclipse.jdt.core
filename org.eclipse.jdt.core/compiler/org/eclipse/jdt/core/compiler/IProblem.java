@@ -1951,6 +1951,8 @@ void setSourceStart(int sourceStart);
 	int InvalidServiceImplType = ModuleRelated + 1317;
 	/** @since 3.14 */
 	int IllegalModifierForModule = ModuleRelated + 1318;
+	/** @since 3.18 */
+	int UndefinedModuleAddReads = ModuleRelated + 1319;
 
 	/** @since 3.14 */
 	int DuplicateResource = Internal + 1251;
