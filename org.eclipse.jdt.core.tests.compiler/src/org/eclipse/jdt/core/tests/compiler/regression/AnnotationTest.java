@@ -12147,10 +12147,7 @@ public void testBug546084a() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=546084 - Using Junit 5s MethodSource leads to
 // ClassCastException - non string value, e.g. ClassLiteralAccess in @MethodSource annotation
 public void testBug546084b() throws Exception {
-	Map customOptions = getCompilerOptions();
-	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	this.runNegativeTest(
-		true,
 		new String[] {
 			JUNIT_METHODSOURCE_NAME,
 			JUNIT_METHODSOURCE_CONTENT,
@@ -12168,19 +12165,17 @@ public void testBug546084b() throws Exception {
 			"	}\n" +
 			"}\n",
 		},
-		null, customOptions,
 		"----------\n" +
 		"1. ERROR in ExampleTest.java (at line 6)\n" +
 		"	@MethodSource(Object.class)\n" +
 		"	              ^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from Class<Object> to String[]\n" +
 		"----------\n" +
-		"2. ERROR in ExampleTest.java (at line 9)\n" +
+		"2. WARNING in ExampleTest.java (at line 9)\n" +
 		"	private static List<Integer> getIntegers(int i) {\n" +
 		"	                             ^^^^^^^^^^^^^^^^^^\n" +
 		"The method getIntegers(int) from the type ExampleTest is never used locally\n" +
-		"----------\n",
-		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=546084 - Using Junit 5s MethodSource leads to
 //ClassCastException - array of string values, e.g. ArrayInitializer in @MethodSource annotation
