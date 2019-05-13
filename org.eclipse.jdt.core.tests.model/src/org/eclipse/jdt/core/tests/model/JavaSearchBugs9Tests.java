@@ -4661,6 +4661,9 @@ public void testBug547051_modular() throws Exception {
 }
 
 public void testBug547051_modular2() throws Exception {
+	if (!isJRE9) {
+		return;
+	}
 	try {
 		IJavaProject project = createJava9Project("P");
 		IType type = project.findType("java.util.Collection");
@@ -4681,6 +4684,9 @@ public void testBug547051_modular2() throws Exception {
 	}
 }
 public void testBug547051_modular3() throws Exception {
+	if(!isJRE9) {
+		return;
+	}
 	try {
 		IJavaProject project = createJava9Project("P");
 		IType type = project.findType("java.util.Collection");
