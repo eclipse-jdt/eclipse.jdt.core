@@ -805,4 +805,50 @@ public void testBug546315() throws Exception {
 			Util.flushDirectoryContent(outputDir);
 	}
 }
+public void testBug544306() throws Exception {
+	if (!isJRE9)
+		return;
+	IJavaProject p1 = createJava9Project("p1");
+	IJavaProject p2 = createJava9Project("p2");
+	try {
+		createFolder("p1/src/p1");
+		createFile("p1/src/p1/P1.java",
+				"package p1;\n" + 
+				"public class P1 {\n" + 
+				"}\n");
+		createFile("p1/src/module-info.java",
+				"module p1 {\n" + 
+				"	exports p1;\n" + 
+				"}\n");
+
+		IClasspathAttribute[] testAttrs = { JavaCore.newClasspathAttribute("test", "true") };
+		addClasspathEntry(p2, JavaCore.newProjectEntry(p1.getPath(), null, false, testAttrs, false));
+		addClasspathEntry(p2, JavaCore.newSourceEntry(new Path("/p2/src-test"), null, null, new Path("/p2/bin-test"), testAttrs));
+		createFolder("p2/src/p2");
+		createFolder("p2/src-test/p2");
+
+		createFile("p2/src/module-info.java",
+				"module p2 {\n" + 
+				"}\n");
+		String testSource = "package p2;\n" +
+		"import p1.P1;\n" +
+		"class Test extends P1{ }";
+		
+		createFile("p2/src-test/p2/Test.java", testSource);
+		waitForAutoBuild();
+		IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers",
+				"",  markers);
+		
+		this.workingCopy.discardWorkingCopy();
+		this.workingCopy = getCompilationUnit("p2/src-test/p2/Test.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(testSource.toCharArray());
+		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		assertProblems("Expecting no problems", "----------\n" + "----------\n", this.problemRequestor);
+		this.workingCopy.discardWorkingCopy();
+	} finally {
+		deleteProject(p1);
+		deleteProject(p2);
+	}
+}
 }

@@ -1354,7 +1354,9 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 			// part two, where we access a module via a 'requires' reference from the second:
 			IJavaProject project2 = createJavaProject("Second", new String[] {"src"}, new String[] {jcl9lib}, "bin", "9");
-			addClasspathEntry(project2, JavaCore.newProjectEntry(project1.getPath()));
+			addClasspathEntry(project2, JavaCore.newProjectEntry(project1.getPath(), null, false,
+					new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") },
+					false));
 			project2.open(null);
 			createFile("/Second/src/module-info.java",
 					"module second {\n" +
