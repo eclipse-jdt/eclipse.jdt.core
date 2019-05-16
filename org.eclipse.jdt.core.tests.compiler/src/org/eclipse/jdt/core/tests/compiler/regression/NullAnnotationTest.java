@@ -10588,7 +10588,7 @@ public void testBug545715() {
 	Map<String, String>  customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
-	runConformTestWithLibs(
+	runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n"+
@@ -10597,9 +10597,13 @@ public void testBug545715() {
 			"            break loop;\n"+
 			"        }\n"+
 			"    }\n"+
+			"    public static void main(String[] args) {\n"+
+			"        new X().f();\n"+
+			"    }\n"+
 			"}\n"
 		},
-		customOptions,
-	    "");
+	    "",
+	    customOptions,
+	    new String[] {"--enable-preview"});
 }
 }
