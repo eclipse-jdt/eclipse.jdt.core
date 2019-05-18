@@ -9825,4 +9825,34 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug545420() {
+		runConformTest(
+			new String[] {
+				"Main.java",
+				"public class Main {\n" + 
+				"	public static void main(String[] args) {  \n" + 
+				"		System.out.println(new Main().getDetailCellCssFactory().getReturn());\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public FIReturnType getDetailCellCssFactory() {\n" + 
+				"		\n" + 
+				"		return 	method1(()-> {\n" + 
+				"					return  () ->{\n" + 
+				"							return \"something\";\n" + 
+				"					};\n" + 
+				"			});\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"	public <X> X method1(FIWithGenerics<X> init) {\n" + 
+				"		return init.init();		\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface FIReturnType {\n" + 
+				"	String getReturn();\n" + 
+				"}\n" + 
+				"interface FIWithGenerics<X> {\n" + 
+				"	 X init();\n" + 
+				"}\n"
+			});
+	}
 }

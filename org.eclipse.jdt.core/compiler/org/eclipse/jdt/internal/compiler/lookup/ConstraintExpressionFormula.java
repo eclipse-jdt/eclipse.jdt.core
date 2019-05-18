@@ -157,6 +157,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			} else if (this.left instanceof LambdaExpression) {
 				LambdaExpression lambda = (LambdaExpression) this.left;
 				BlockScope scope = lambda.enclosingScope;
+				if (this.right instanceof InferenceVariable)
+					return TRUE; // assume inner inference will handle the fine print
 				if (!this.right.isFunctionalInterface(scope))
 					return FALSE;
 				
