@@ -42,10 +42,13 @@
  *    Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
+ *    Sebastian Zarnekow - Contributions for
+ *								bug 544921 - [performance] Poor performance with large source files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
@@ -100,6 +103,7 @@ public class BinaryTypeBinding extends ReferenceBinding {
 
 	private ReferenceBinding containerAnnotationType;
 	int defaultNullness = 0;
+	boolean memberTypesSorted = false;
 	public enum ExternalAnnotationStatus {
 		FROM_SOURCE,
 		NOT_EEA_CONFIGURED,
@@ -1283,19 +1287,38 @@ public ReferenceBinding getMemberType(char[] typeName) {
 		return memberType == null ? null : this.environment.createMemberType(memberType, this);
 	}
 
-	for (int i = this.memberTypes.length; --i >= 0;) {
-	    ReferenceBinding memberType = this.memberTypes[i];
-	    if (memberType instanceof UnresolvedReferenceBinding) {
-			char[] name = memberType.sourceName; // source name is qualified with enclosing type name
-			int prefixLength = this.compoundName[this.compoundName.length - 1].length + 1; // enclosing$
-			if (name.length == (prefixLength + typeName.length)) // enclosing $ typeName
-				if (CharOperation.fragmentEquals(typeName, name, prefixLength, true)) // only check trailing portion
-					return this.memberTypes[i] = (ReferenceBinding) resolveType(memberType, this.environment, false /* no raw conversion for now */);
-	    } else if (CharOperation.equals(typeName, memberType.sourceName)) {
-	        return memberType;
-	    }
+	ReferenceBinding[] members = sortedMemberTypes();
+	int memberTypeIndex = unresolvedTypesAwareBinarySearch(typeName, members);
+	if (memberTypeIndex >= 0) {
+		ReferenceBinding memberType = members[memberTypeIndex];
+		if (memberType instanceof UnresolvedReferenceBinding) {
+			return members[memberTypeIndex] = (ReferenceBinding) resolveType(memberType, this.environment, false /* no raw conversion for now */);
+		}
+		return memberType;
 	}
 	return null;
+}
+private int unresolvedTypesAwareBinarySearch(char[] name, ReferenceBinding[] sortedMemberTypes) {
+	if (sortedMemberTypes == null)
+		return -1;
+	int max = sortedMemberTypes.length;
+	if (max == 0)
+		return -1;
+	int left = 0, right = max - 1, nameLength = name.length;
+	int mid = 0;
+	char[] midName;
+	while (left <= right) {
+		mid = left + (right - left) /2;
+		int compare = compare(name, midName = getSourceName(sortedMemberTypes[mid]), nameLength, midName.length);
+		if (compare < 0) {
+			right = mid-1;
+		} else if (compare > 0) {
+			left = mid+1;
+		} else {
+			return mid;
+		}
+	}
+	return -1;
 }
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 @Override
@@ -1522,6 +1545,11 @@ public ReferenceBinding[] memberTypes() {
  	if (!isPrototype()) {
 		if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0)
 			return this.memberTypes;
+		/*
+		 * The members obtained from the prototype are already sorted
+		 * thus we can safely assume that our local copy of the member types
+		 * is sorted, too.
+		 */
 		ReferenceBinding [] members = this.prototype.memberTypes();
 		int memberTypesLength = members == null ? 0 : members.length;
 		if (memberTypesLength > 0) {
@@ -1530,17 +1558,49 @@ public ReferenceBinding[] memberTypes() {
 				this.memberTypes[i] = this.environment.createMemberType(members[i], this);
 		}
 		this.tagBits &= ~TagBits.HasUnresolvedMemberTypes;
-		return this.memberTypes;	
+		this.memberTypesSorted = true;
+		return this.memberTypes;
 	}
 	
-	if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0)
-		return this.memberTypes;
-
+	if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0) {
+		return sortedMemberTypes();
+	}
 	for (int i = this.memberTypes.length; --i >= 0;)
 		this.memberTypes[i] = (ReferenceBinding) resolveType(this.memberTypes[i], this.environment, false /* no raw conversion for now */);
 	this.tagBits &= ~TagBits.HasUnresolvedMemberTypes;
+	return sortedMemberTypes();
+}
+
+private ReferenceBinding[] sortedMemberTypes() {
+	if (!this.memberTypesSorted) {
+		// lazily sort member types
+		int length = this.memberTypes.length;
+		if (length > 1)
+			unresolvedAwareSortMemberTypes(this.memberTypes, 0, length);
+		this.memberTypesSorted = true;
+	}
 	return this.memberTypes;
 }
+
+private void unresolvedAwareSortMemberTypes(ReferenceBinding[] sortedMemberTypes, int left, int right) {
+	Arrays.sort(sortedMemberTypes, left, right, this::unresolvedAwareCompare);
+}
+
+private int unresolvedAwareCompare(ReferenceBinding o1, ReferenceBinding o2) {
+	char[] n1 = getSourceName(o1);
+	char[] n2 = getSourceName(o2);
+	return ReferenceBinding.compare(n1, n2, n1.length, n2.length);
+}
+
+private char[] getSourceName(ReferenceBinding memberType) {
+	if (memberType instanceof UnresolvedReferenceBinding) {
+		char[] name = memberType.sourceName; // source name is qualified with enclosing type name
+		int prefixLength = this.compoundName[this.compoundName.length - 1].length + 1; // enclosing$
+		return CharOperation.subarray(name, prefixLength, name.length);
+    }
+	return memberType.sourceName;
+}
+
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 @Override
 public MethodBinding[] methods() {

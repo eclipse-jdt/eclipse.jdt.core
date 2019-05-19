@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.util.SortedCharArrays;
 
 public class ReferenceCollection {
 
@@ -58,14 +59,13 @@ public void addDependencies(String[] typeNameDependencies) {
 			qualifiedTypeName = internSimpleNames(qualifiedTypeName, false, false);
 			qualifiedTypeName = internedNames.add(qualifiedTypeName);
 			int idx;
-			while ((idx = Arrays.binarySearch(this.qualifiedNameReferences, qualifiedTypeName, CHAR_CHAR_ARR_COMPARATOR)) < 0) {
+			while ((idx = Arrays.binarySearch(this.qualifiedNameReferences, qualifiedTypeName, SortedCharArrays.CHAR_CHAR_ARR_COMPARATOR)) < 0) {
 				this.simpleNameReferences = ensureContainedInSortedOrder(this.simpleNameReferences, qualifiedTypeName[qualifiedTypeName.length - 1]);
 				this.rootReferences = ensureContainedInSortedOrder(this.rootReferences, qualifiedTypeName[0]);
 
 				int length = this.qualifiedNameReferences.length;
 				idx = -(idx+1);
-				char[][][] newArray = new char[length + 1][][];
-				insertIntoArray(this.qualifiedNameReferences, this.qualifiedNameReferences = newArray, qualifiedTypeName, idx);
+				this.qualifiedNameReferences = SortedCharArrays.insertIntoArray(this.qualifiedNameReferences, new char[length + 1][][], qualifiedTypeName, idx, this.qualifiedNameReferences.length);
 
 				qualifiedTypeName = CharOperation.subarray(qualifiedTypeName, 0, qualifiedTypeName.length - 1);
 				char[][][] temp = internQualifiedNames(new char[][][] {qualifiedTypeName}, false);
@@ -78,7 +78,7 @@ public void addDependencies(String[] typeNameDependencies) {
 }
 
 public boolean includes(char[] simpleName) {
-	boolean result = sortedArrayContains(this.simpleNameReferences, simpleName, CHAR_ARR_COMPARATOR);
+	boolean result = sortedArrayContains(this.simpleNameReferences, simpleName, SortedCharArrays.CHAR_ARR_COMPARATOR);
 	if (REFERENCE_COLLECTION_DEBUG) {
 		assertIncludes(result, simpleName);
 	}
@@ -86,7 +86,7 @@ public boolean includes(char[] simpleName) {
 }
 
 public boolean includes(char[][] qualifiedName) {
-	boolean result = sortedArrayContains(this.qualifiedNameReferences, qualifiedName, CHAR_CHAR_ARR_COMPARATOR);
+	boolean result = sortedArrayContains(this.qualifiedNameReferences, qualifiedName, SortedCharArrays.CHAR_CHAR_ARR_COMPARATOR);
 	if (REFERENCE_COLLECTION_DEBUG) {
 		assertIncludes(result, qualifiedName);
 	}
@@ -139,7 +139,7 @@ private boolean doIncludes(char[][][] qualifiedNames, char[][] simpleNames, char
 }
 
 public boolean insideRoot(char[] rootName) {
-	boolean result = sortedArrayContains(this.rootReferences, rootName, CHAR_ARR_COMPARATOR);
+	boolean result = sortedArrayContains(this.rootReferences, rootName, SortedCharArrays.CHAR_ARR_COMPARATOR);
 	if (REFERENCE_COLLECTION_DEBUG) {
 		if (result != debugIncludes(rootName)) {
 			String message = "Mismatch: " + String.valueOf(rootName) + (result ? " should not " : " should ") + " be included in "  //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -152,7 +152,7 @@ public boolean insideRoot(char[] rootName) {
 
 private static <T> boolean sortedArrayContains(T[] array, T element, Comparator<? super T> comparator) {
 	int l = array.length;
-	if (l < BINARY_SEARCH_THRESHOLD) {
+	if (l < SortedCharArrays.BINARY_SEARCH_THRESHOLD) {
 		for (int i = 0; i < l; i++)
 			if (element == array[i]) return true;
 		return false;
@@ -161,11 +161,11 @@ private static <T> boolean sortedArrayContains(T[] array, T element, Comparator<
 }
 
 private boolean includesSimpleName(char[][] simpleNames) {
-	return intersects(simpleNames, this.simpleNameReferences, CHAR_ARR_COMPARATOR);
+	return intersects(simpleNames, this.simpleNameReferences, SortedCharArrays.CHAR_ARR_COMPARATOR);
 }
 
 private boolean includesQualifiedName(char[][][] qualifiedNames) {
-	if (intersects(qualifiedNames, this.qualifiedNameReferences, CHAR_CHAR_ARR_COMPARATOR)) {
+	if (intersects(qualifiedNames, this.qualifiedNameReferences, SortedCharArrays.CHAR_CHAR_ARR_COMPARATOR)) {
 		return true;
 	}
 	char[][] maybeSimpleName;
@@ -178,11 +178,9 @@ private boolean includesQualifiedName(char[][][] qualifiedNames) {
 }
 
 private boolean includesRootName(char[][] rootNames) {
-	return intersects(rootNames, this.rootReferences, CHAR_ARR_COMPARATOR);
+	return intersects(rootNames, this.rootReferences, SortedCharArrays.CHAR_ARR_COMPARATOR);
 }
 
-// TODO there may be better thresholds available for different scenarios
-private static final int BINARY_SEARCH_THRESHOLD = 16;
 private static <T> boolean intersects(T[] firstSortedArr, T[] secondSortedArr, Comparator<? super T> comparator) {
 	/*
 	 * Both arrays are sorted, so we can walk them in pairs.
@@ -205,7 +203,7 @@ private static <T> boolean intersects(T[] firstSortedArr, T[] secondSortedArr, C
 			 * attempt a binary search for the second element to possibly skip a few elements.
 			 */
 			i++;
-			if (l - i > BINARY_SEARCH_THRESHOLD) {
+			if (l - i > SortedCharArrays.BINARY_SEARCH_THRESHOLD) {
 				i = Arrays.binarySearch(firstSortedArr, i, l, secondElement, comparator);
 				if (i >= 0) {
 					return true;
@@ -217,7 +215,7 @@ private static <T> boolean intersects(T[] firstSortedArr, T[] secondSortedArr, C
 			 * the inverse logic is applied here
 			 */
 			j++;
-			if (k - j > BINARY_SEARCH_THRESHOLD) {
+			if (k - j > SortedCharArrays.BINARY_SEARCH_THRESHOLD) {
 				j = Arrays.binarySearch(secondSortedArr, j, k, firstElement, comparator);
 				if (j >= 0) {
 					return true;
@@ -229,19 +227,11 @@ private static <T> boolean intersects(T[] firstSortedArr, T[] secondSortedArr, C
 	return false;
 }
 
-// Generifying this appears to be pointless since arracopy takes an Object array anyways.
-private static void insertIntoArray(Object[] src, Object[] target, Object entry, int idx) {
-	System.arraycopy(src, 0, target, 0, idx);
-	target[idx] = entry;
-	System.arraycopy(src, idx, target, idx+1, src.length - idx);
-}
-
 private static char[][] ensureContainedInSortedOrder(char[][] sortedArray, char[] entry) {
-	int idx = Arrays.binarySearch(sortedArray, entry, CHAR_ARR_COMPARATOR);
+	int idx = Arrays.binarySearch(sortedArray, entry, SortedCharArrays.CHAR_ARR_COMPARATOR);
 	if (idx < 0) {
 		idx = -(idx + 1);
-		char[][] result = new char[sortedArray.length + 1][];
-		insertIntoArray(sortedArray, result, entry, idx);
+		char[][] result = SortedCharArrays.insertIntoArray(sortedArray, new char[sortedArray.length + 1][], entry, idx, sortedArray.length);
 		return result;
 	}
 	return sortedArray;
@@ -367,7 +357,7 @@ static char[][][] internQualifiedNames(char[][][] qualifiedNames, boolean keepWe
 				if (keepWellKnown) {
 					// This code is duplicated to encourage the JIT to inline more stuff
 					if (doSort && isSorted) {
-						if (prev != null && compareCharCharArray(prev, qualifiedName) > 0) {
+						if (prev != null && SortedCharArrays.compareCharCharArray(prev, qualifiedName) > 0) {
 							isSorted = false;
 						}
 						prev = qualifiedName;
@@ -385,7 +375,7 @@ static char[][][] internQualifiedNames(char[][][] qualifiedNames, boolean keepWe
 		qualifiedName = internSimpleNames(qualifiedName, false, false);
 		// This code is duplicated to encourage the JIT to inline more stuff
 		if (doSort && isSorted) {
-			if (prev != null && compareCharCharArray(prev, qualifiedName) > 0) {
+			if (prev != null && SortedCharArrays.compareCharCharArray(prev, qualifiedName) > 0) {
 				isSorted = false;
 			}
 			prev = qualifiedName;
@@ -397,52 +387,10 @@ static char[][][] internQualifiedNames(char[][][] qualifiedNames, boolean keepWe
 		System.arraycopy(keepers, 0, keepers = new char[index][][], 0, index);
 	}
 	if (doSort && !isSorted) {
-		Arrays.sort(keepers, CHAR_CHAR_ARR_COMPARATOR);
+		Arrays.sort(keepers, SortedCharArrays.CHAR_CHAR_ARR_COMPARATOR);
 	}
 	return keepers;
 }
-
-/**
- * Compares the two char arrays.
- * Longer arrays are considered to be smaller than shorter arrays.
- * Arrays with the same length are compared char by char lexicographically.
- *
- * @see Character#compare(char, char)
- */
-private static int compareCharArray(char[] left, char[] right){
-	if (left == right) {
-		return 0;
-	}
-	int l = left.length;
-	int diff = right.length - l;
-	if (diff == 0) {
-		for(int i = 0; i < l && (diff = left[i] - right[i]) == 0; i++) {
-			// all logic is in the loop header
-		}
-	}
-	return diff;
-}
-private static final Comparator<char[]> CHAR_ARR_COMPARATOR = ReferenceCollection::compareCharArray;
-
-/**
- * Compares the two char-char arrays.
- * Longer arrays are considered to be smaller than shorter arrays.
- * Arrays with the same length are compared according to the logic in {@link #compareCharArray(char[], char[])}.
- */
-static int compareCharCharArray(char[][] left, char[][]right) {
-	if (left == right) {
-		return 0;
-	}
-	int l = left.length;
-	int diff = right.length - l;
-	if (diff == 0) {
-		for(int i = 0; i < l && (diff = compareCharArray(left[i], right[i])) == 0; i++) {
-			// all logic is in the loop header
-		}
-	}
-	return diff;
-}
-private static final Comparator<char[][]> CHAR_CHAR_ARR_COMPARATOR = ReferenceCollection::compareCharCharArray;
 
 /**
  * @deprecated
@@ -512,7 +460,7 @@ static char[][] internSimpleNames(char[][] simpleNames, boolean removeWellKnown,
 					keepers[index++] = wellKnownName;
 					// This code is duplicated to encourage the JIT to inline more stuff
 					if (doSort && isSorted) {
-						if (prev != null && compareCharArray(prev, name) > 0) {
+						if (prev != null && SortedCharArrays.compareCharArray(prev, name) > 0) {
 							isSorted = false;
 						}
 						prev = name;
@@ -529,7 +477,7 @@ static char[][] internSimpleNames(char[][] simpleNames, boolean removeWellKnown,
 		keepers[index++] = internedNames.add(name);
 		// This code is duplicated to encourage the JIT to inline more stuff
 		if (doSort && isSorted) {
-			if (prev != null && compareCharArray(prev, name) > 0) {
+			if (prev != null && SortedCharArrays.compareCharArray(prev, name) > 0) {
 				isSorted = false;
 			}
 			prev = name;
@@ -540,7 +488,7 @@ static char[][] internSimpleNames(char[][] simpleNames, boolean removeWellKnown,
 		System.arraycopy(keepers, 0, keepers = new char[index][], 0, index);
 	}
 	if (doSort && !isSorted) {
-		Arrays.sort(keepers, CHAR_ARR_COMPARATOR);
+		Arrays.sort(keepers, SortedCharArrays.CHAR_ARR_COMPARATOR);
 	}
 	return keepers;
 }

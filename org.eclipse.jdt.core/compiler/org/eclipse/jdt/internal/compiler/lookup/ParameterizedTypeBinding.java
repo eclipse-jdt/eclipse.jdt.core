@@ -1062,6 +1062,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public ReferenceBinding[] memberTypes() {
 		if (this.memberTypes == null) {
 			try {
+				// the originalMemberTypes are already sorted by name so there
+				// is no need to sort again in our copy - names are not affected by type parameters
 				ReferenceBinding[] originalMemberTypes = this.type.memberTypes();
 				int length = originalMemberTypes.length;
 				ReferenceBinding[] parameterizedMemberTypes = new ReferenceBinding[length];

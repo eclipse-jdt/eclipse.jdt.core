@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -554,6 +554,9 @@ public class BuilderTests extends TestCase {
 			list.add(PackageInfoTest.class);
 			list.add(ParticipantBuildTests.class);
 			list.add(AnnotationDependencyTests.class);
+		}
+		if (matchesCompliance(F_1_8)) {
+			list.add(Bug544921Test.class);
 		}
 		if (matchesCompliance(F_9)) {
 			list.add(LeakTestsAfter9.class);

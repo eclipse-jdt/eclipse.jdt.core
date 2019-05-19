@@ -48,10 +48,14 @@
  *     							bug 415269 - NonNullByDefault is not always inherited to nested classes
  *      Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          	Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
+ *      Sebastian Zarnekow - Contributions for
+ *								bug 544921 - [performance] Poor performance with large source files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -112,6 +116,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
 
 	public int defaultNullness;
+	boolean memberTypesSorted = false;
 	private int nullnessDefaultInitialized = 0; // 0: nothing; 1: type; 2: package
 	private ReferenceBinding containerAnnotationType = null;
 
@@ -1514,7 +1519,9 @@ public boolean canBeSeenBy(Scope sco) {
 public ReferenceBinding[] memberTypes() {
 	if (!isPrototype()) {
 		if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0)
-			return this.memberTypes;
+			return sortedMemberTypes();
+		// members obtained from the prototype are already sorted so it is safe
+		// to set the sorted flag here immediately.
 		ReferenceBinding [] members = this.memberTypes = this.prototype.memberTypes();
 		int membersLength = members == null ? 0 : members.length;
 		this.memberTypes = new ReferenceBinding[membersLength];
@@ -1522,9 +1529,34 @@ public ReferenceBinding[] memberTypes() {
 			this.memberTypes[i] = this.environment.createMemberType(members[i], this);
 		}
 		this.tagBits &= ~TagBits.HasUnresolvedMemberTypes;
+		this.memberTypesSorted = true;
+	}
+	return sortedMemberTypes();
+}
+
+private ReferenceBinding[] sortedMemberTypes() {
+	if (!this.memberTypesSorted) {
+		// lazily sort member types
+		int length = this.memberTypes.length;
+		if (length > 1)
+			sortMemberTypes(this.memberTypes, 0, length);
+		this.memberTypesSorted = true;
 	}
 	return this.memberTypes;
 }
+
+/**
+ * Sort the member types using a quicksort
+ */
+private static void sortMemberTypes(ReferenceBinding[] sortedMemberTypes, int left, int right) {
+	Arrays.sort(sortedMemberTypes, left, right, BASIC_MEMBER_TYPES_COMPARATOR);
+}
+
+private static final Comparator<ReferenceBinding> BASIC_MEMBER_TYPES_COMPARATOR = (ReferenceBinding o1, ReferenceBinding o2) -> {
+	char[] n1 = o1.sourceName;
+	char[] n2 = o2.sourceName;
+	return ReferenceBinding.compare(n1, n2, n1.length, n2.length);
+};
 
 @Override
 public boolean hasMemberTypes() {
@@ -2301,6 +2333,7 @@ public ReferenceBinding [] setMemberTypes(ReferenceBinding[] memberTypes) {
 			annotatedType.memberTypes(); // recompute.
 		}
 	}
+	sortedMemberTypes();
 	return this.memberTypes;
 }
 

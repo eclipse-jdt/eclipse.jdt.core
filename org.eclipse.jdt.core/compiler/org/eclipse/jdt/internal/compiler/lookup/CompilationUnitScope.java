@@ -14,12 +14,17 @@
  *     Stephan Herrmann - Contribution for
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *								Bug 434570 - Generic type mismatch for parametrized class annotation attribute with inner class
+ *     Sebastian Zarnekow - Contribution for
+ *								Bug 544921 - [performance] Poor performance with large source files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -41,10 +46,11 @@ public class CompilationUnitScope extends Scope {
 
 	public SourceTypeBinding[] topLevelTypes;
 
-	private CompoundNameVector qualifiedReferences;
-	private SimpleNameVector simpleNameReferences;
-	private SimpleNameVector rootReferences;
-	private ObjectVector referencedTypes;
+	private SortedCompoundNameVector qualifiedReferences;
+	private SortedSimpleNameVector simpleNameReferences;
+	private SortedSimpleNameVector rootReferences;
+	private LinkedHashSet<ReferenceBindingSetWrapper> referencedTypes;
+	private Set<ReferenceBindingSetWrapper> referencedSuperTypesSet;
 	private ObjectVector referencedSuperTypes;
 
 	HashtableOfType constantPoolNameUsage;
@@ -75,16 +81,18 @@ public CompilationUnitScope(CompilationUnitDeclaration unit, CompilerOptions com
 	this.currentPackageName = unit.currentPackage == null ? CharOperation.NO_CHAR_CHAR : unit.currentPackage.tokens;
 
 	if (compilerOptions.produceReferenceInfo) {
-		this.qualifiedReferences = new CompoundNameVector();
-		this.simpleNameReferences = new SimpleNameVector();
-		this.rootReferences = new SimpleNameVector();
-		this.referencedTypes = new ObjectVector();
+		this.qualifiedReferences = new SortedCompoundNameVector();
+		this.simpleNameReferences = new SortedSimpleNameVector();
+		this.rootReferences = new SortedSimpleNameVector();
+		this.referencedTypes = new LinkedHashSet<>();
+		this.referencedSuperTypesSet = new HashSet<>();
 		this.referencedSuperTypes = new ObjectVector();
 	} else {
 		this.qualifiedReferences = null; // used to test if dependencies should be recorded
 		this.simpleNameReferences = null;
 		this.rootReferences = null;
 		this.referencedTypes = null;
+		this.referencedSuperTypesSet = null;
 		this.referencedSuperTypes = null;
 	}
 	// client still needs to assign #environment
@@ -756,8 +764,7 @@ void recordQualifiedReference(char[][] qualifiedName) {
 	int length = qualifiedName.length;
 	if (length > 1) {
 		recordRootReference(qualifiedName[0]);
-		while (!this.qualifiedReferences.contains(qualifiedName)) {
-			this.qualifiedReferences.add(qualifiedName);
+		while (this.qualifiedReferences.add(qualifiedName)) {
 			if (length == 2) {
 				recordSimpleReference(qualifiedName[0]);
 				recordSimpleReference(qualifiedName[1]);
@@ -786,20 +793,18 @@ void recordReference(ReferenceBinding type, char[] simpleName) {
 void recordRootReference(char[] simpleName) {
 	if (this.rootReferences == null) return; // not recording dependencies
 
-	if (!this.rootReferences.contains(simpleName))
-		this.rootReferences.add(simpleName);
+	this.rootReferences.add(simpleName);
 }
 void recordSimpleReference(char[] simpleName) {
 	if (this.simpleNameReferences == null) return; // not recording dependencies
 
-	if (!this.simpleNameReferences.contains(simpleName))
-		this.simpleNameReferences.add(simpleName);
+	this.simpleNameReferences.add(simpleName);
 }
 void recordSuperTypeReference(TypeBinding type) {
 	if (this.referencedSuperTypes == null) return; // not recording dependencies
 
 	ReferenceBinding actualType = typeToRecord(type);
-	if (actualType != null && !this.referencedSuperTypes.containsIdentical(actualType))
+	if (actualType != null && this.referencedSuperTypesSet.add(new ReferenceBindingSetWrapper(actualType)))
 		this.referencedSuperTypes.add(actualType);
 }
 public void recordTypeConversion(TypeBinding superType, TypeBinding subType) {
@@ -809,8 +814,8 @@ void recordTypeReference(TypeBinding type) {
 	if (this.referencedTypes == null) return; // not recording dependencies
 
 	ReferenceBinding actualType = typeToRecord(type);
-	if (actualType != null && !this.referencedTypes.containsIdentical(actualType))
-		this.referencedTypes.add(actualType);
+	if (actualType != null)
+		this.referencedTypes.add(new ReferenceBindingSetWrapper(actualType));
 }
 void recordTypeReferences(TypeBinding[] types) {
 	if (this.referencedTypes == null) return; // not recording dependencies
@@ -820,8 +825,8 @@ void recordTypeReferences(TypeBinding[] types) {
 		// No need to record supertypes of method arguments & thrown exceptions, just the compoundName
 		// If a field/method is retrieved from such a type then a separate call does the job
 		ReferenceBinding actualType = typeToRecord(types[i]);
-		if (actualType != null && !this.referencedTypes.containsIdentical(actualType))
-			this.referencedTypes.add(actualType);
+		if (actualType != null)
+			this.referencedTypes.add(new ReferenceBindingSetWrapper(actualType));
 	}
 }
 Binding resolveSingleImport(ImportBinding importBinding, int mask) {
@@ -847,8 +852,7 @@ public void storeDependencyInfo() {
 	// cannot do early since the hierarchy may not be fully resolved
 	for (int i = 0; i < this.referencedSuperTypes.size; i++) { // grows as more types are added
 		ReferenceBinding type = (ReferenceBinding) this.referencedSuperTypes.elementAt(i);
-		if (!this.referencedTypes.containsIdentical(type))
-			this.referencedTypes.add(type);
+		this.referencedTypes.add(new ReferenceBindingSetWrapper(type));
 
 		if (!type.isLocalType()) {
 			ReferenceBinding enclosing = type.enclosingType();
@@ -864,8 +868,8 @@ public void storeDependencyInfo() {
 				recordSuperTypeReference(interfaces[j]);
 	}
 
-	for (int i = 0, l = this.referencedTypes.size; i < l; i++) {
-		ReferenceBinding type = (ReferenceBinding) this.referencedTypes.elementAt(i);
+	for (ReferenceBindingSetWrapper wrapper : this.referencedTypes) {
+		ReferenceBinding type = wrapper.referenceBinding;
 		if (!type.isLocalType())
 			recordQualifiedReference(type.isMemberType()
 				? CharOperation.splitOn('.', type.readableName())
