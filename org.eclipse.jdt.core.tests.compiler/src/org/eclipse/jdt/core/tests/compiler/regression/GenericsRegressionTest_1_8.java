@@ -9880,4 +9880,30 @@ public void testBug508834_comment0() {
 			"The method accept(Consumer<String>) is ambiguous for the type ECJTest\n" + 
 			"----------\n");
 	}
+	public void testBug502327() {
+		runConformTest(
+			new String[] {
+				"Bug.java",
+				"public class Bug {\n" + 
+				"\n" + 
+				"  public void execute() {\n" + 
+				"    foo(bar(new ExampleType()));\n" + 
+				"  }\n" + 
+				"\n" + 
+				"  public <VC> void foo(ClassB<VC> a) {}\n" + 
+				"\n" + 
+				"  public <T> ClassC<T> bar(T t) {\n" + 
+				"    return null;\n" + 
+				"  }\n" + 
+				"\n" + 
+				"  public class ClassC<T> extends ClassB<ClassC<T>.NestedClassC> {\n" + 
+				"    public class NestedClassC {}\n" + 
+				"  }\n" + 
+				"\n" + 
+				"  public abstract static class ClassB<VC> {}\n" + 
+				"\n" + 
+				"  public class ExampleType {}\n" + 
+				"}\n"
+			});
+	}
 }
