@@ -2122,6 +2122,7 @@ public void reset() {
 		this.root.reset();
 		return;
 	}
+	this.stepCompleted = 0;
 	this.knownModules = new HashtableOfModule();
 	this.UnNamedModule = new ModuleBinding.UnNamedModule(this);
 	this.module = this.UnNamedModule;

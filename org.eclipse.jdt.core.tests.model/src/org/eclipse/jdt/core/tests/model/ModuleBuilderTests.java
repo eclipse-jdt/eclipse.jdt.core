@@ -8648,6 +8648,62 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("lib");
 		}
 	}
+	public void testBug547479() throws CoreException {
+		int max = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
+
+		IJavaProject prjA = createJava9Project("A");
+		IJavaProject prjB = createJava9Project("B");
+		try {
+			createFile("A/src/module-info.java",
+				"module A {\n" + 
+				"}\n");
+
+			addModularProjectEntry(prjB, prjA);
+			// prepare files to be compiled in two batches à 2 files:
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 2;
+			// ---1---
+			createFolder("B/src/b");
+			createFile("B/src/b/Class1.java",
+				"package b;\n" + 
+				"import java.sql.Connection;\n" + 
+				"public class Class1 {\n" + 
+				"	Connection connection;\n" + 
+				"}\n");
+			createFile("B/src/b/Class2.java",
+				"package b;\n" + 
+				"import java.sql.Connection;\n" + 
+				"public class Class2 {\n" + 
+				"	Connection connection;\n" + 
+				"}\n");
+			// ---2---
+			createFile("B/src/module-info.java",
+				"module B {\n" + 
+				"	requires java.sql;\n" + 
+				"	requires A;\n" + 
+				"}\n");
+			String bPath = "B/src/b/Class3.java";
+			String bSource =
+				"package b;\n" + // <= this triggered createPackage in an inconsistent state
+				"import java.sql.Connection;\n" + 
+				"public class Class3 {\n" + 
+				"	Connection connection;\n" + 
+				"}\n";
+			createFile(bPath, bSource);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+
+			this.problemRequestor.initialize(bSource.toCharArray());
+			getCompilationUnit(bPath).getWorkingCopy(this.wcOwner, null);
+			assertProblems("unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
+			deleteProject(prjA);
+			deleteProject(prjB);
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
