@@ -2437,7 +2437,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	continue;\n" + 
 			"	^^^^^^^^^\n" + 
-			"Illegal last statement in Switch expression case body - continue, return not allowed\n" + 
+			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" + 
 			"----------\n");
 	}
 	public void testBug545983_02() {
@@ -2469,7 +2469,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 11)\n" + 
 			"	return 2;\n" + 
 			"	^^^^^^^^^\n" + 
-			"Illegal last statement in Switch expression case body - continue, return not allowed\n" + 
+			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" + 
 			"----------\n");
 	}
 	public void testBug547125_01() {
