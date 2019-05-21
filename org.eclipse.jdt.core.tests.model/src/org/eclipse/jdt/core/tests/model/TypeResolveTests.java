@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1478,6 +1478,33 @@ public void testBug533884b() throws Exception {
 		deleteProject("P");
 	}
 }
+public void testBug533884b_blockless() throws Exception {
+	if (!isJRE9) return;
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n" +
+				"public class X {\n" +
+				"	void bar() {\n" +
+				"		String[] x = {\"a\", \"b\"};\n" + 
+				"		for (var y : x) \n" + 
+				"			System.err.println(y.toUpperCase());\n" + // <= select this occurrence of 'y'
+				"	}\n" + 
+				"\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "y";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		assertEquals("should not be empty", 1, elements.length);
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		assertEquals("incorrect type", "Ljava.lang.String;", variable.getTypeSignature());
+	} finally {
+		deleteProject("P");
+	}
+}
 public void testBug533884c() throws Exception {
 	try {
 		createJava10Project("P", new String[] {"src"});
@@ -1488,6 +1515,35 @@ public void testBug533884c() throws Exception {
 				"		try (var rc = new FileInputStream(file)) { \n" + 
 				"			System.err.println(rc.read());\n" + // <= select this occurrence of 'rc'
 				"		}\n" + 
+				"	}\n" + 
+				"\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "rc";
+		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
+		assertEquals("should not be empty", 1, elements.length);
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		if (isJRE9)
+			assertEquals("incorrect type", "Ljava.io.FileInputStream;", variable.getTypeSignature());
+		else
+			assertEquals("incorrect type", "LFileInputStream;", variable.getTypeSignature()); // unresolved because JRT lib not available
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug533884c_blockless() throws Exception {
+	try {
+		createJava10Project("P", new String[] {"src"});
+		String source =   "package p;\n" +
+				"import java.io.*;\n" +
+				"public class X {\n" +
+				"	void bar(File file) {\n" +
+				"		try (var rc = new FileInputStream(file))\n" + 
+				"			System.err.println(rc.read());\n" + // <= select this occurrence of 'rc'
 				"	}\n" + 
 				"\n"
 				+ "}\n";
