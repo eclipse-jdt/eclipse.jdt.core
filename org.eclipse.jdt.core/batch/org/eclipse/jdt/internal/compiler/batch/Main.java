@@ -984,6 +984,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 				}
 			}
+			if (this.main.failOnWarning && globalWarningsCount > 0) {
+				printErr("\n"); //$NON-NLS-1$
+				printErr(this.main.bind("compile.failOnWarning")); //$NON-NLS-1$
+			}
 			if ((this.tagBits & Logger.XML) == 0) {
 				this.printlnErr();
 			}
@@ -1424,6 +1428,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	protected PrintWriter out;
 	public boolean proceed = true;
 	public boolean proceedOnError = false;
+	public boolean failOnWarning = false;
 	public boolean produceRefInfo = false;
 	public int currentRepetition, maxRepetition;
 	public boolean showProgress = false;
@@ -1779,6 +1784,9 @@ public boolean compile(String[] argv) {
 		if (this.systemExitWhenFinished) {
 			this.logger.flush();
 			this.logger.close();
+			if (this.failOnWarning && this.globalWarningsCount > 0) {
+				System.exit(-1);
+			}
 			System.exit(this.globalErrorsCount > 0 ? -1 : 0);
 		}
 	} catch (IllegalArgumentException e) {
@@ -1803,8 +1811,13 @@ public boolean compile(String[] argv) {
 		if (this.progress != null)
 			this.progress.done();
 	}
-	if (this.globalErrorsCount == 0 && (this.progress == null || !this.progress.isCanceled()))
-		return true;
+	if (this.progress == null || !this.progress.isCanceled()) {
+		if (this.failOnWarning && (this.globalWarningsCount > 0))
+			return false;
+		if (this.globalErrorsCount == 0)
+			return true;
+	}
+
 	return false;
 }
 
@@ -2331,6 +2344,11 @@ public void configure(String[] argv) {
 						this.options.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.DISABLED);
 					}
 					this.proceedOnError = true;
+					continue;
+				}
+				if (currentArg.equals("-failOnWarning")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					this.failOnWarning = true;
 					continue;
 				}
 				if (currentArg.equals("-time")) { //$NON-NLS-1$
