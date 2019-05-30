@@ -56,6 +56,7 @@ $Terminals
 	DoubleLiteral
 	CharacterLiteral
 	StringLiteral
+	TextBlock
 
 	PLUS_PLUS
 	MINUS_MINUS
@@ -227,6 +228,7 @@ Literal -> FloatingPointLiteral
 Literal -> DoubleLiteral
 Literal -> CharacterLiteral
 Literal -> StringLiteral
+Literal -> TextBlock
 Literal -> null
 Literal -> BooleanLiteral
 /:$readableName Literal:/

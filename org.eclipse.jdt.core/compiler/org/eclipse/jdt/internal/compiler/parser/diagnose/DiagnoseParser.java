@@ -2568,4 +2568,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 		//
 		return this.parser.isParsingModuleDeclaration();
 	}
+
+	@Override
+	public boolean isParsingJava13() {
+		return this.parser.isParsingJava13();
+	}
 }

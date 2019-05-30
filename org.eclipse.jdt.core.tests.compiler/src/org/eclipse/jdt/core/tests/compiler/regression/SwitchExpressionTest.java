@@ -48,12 +48,12 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	}
 	
 	@Override
-	protected void runConformTest(String[] testFiles, Map customOptions) {
+	protected void runConformTest(String[] testFiles, Map<String, String> customOptions) {
 		super.runConformTest(testFiles, "", null, true, new String[] {"--enable-preview"}, customOptions, null);
 	}
 
 	@Override
-	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions) {
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		super.runConformTest(testFiles, expectedOutput, null, true, new String[] {"--enable-preview"}, customOptions, null);
 	}
 	public void testSimpleExpressions() {

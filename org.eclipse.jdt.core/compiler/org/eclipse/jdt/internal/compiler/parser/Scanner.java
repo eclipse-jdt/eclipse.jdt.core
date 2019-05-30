@@ -128,6 +128,7 @@ public class Scanner implements TerminalTokens {
 	public static final String INVALID_CHARACTER_CONSTANT = "Invalid_Character_Constant";  //$NON-NLS-1$
 	public static final String INVALID_ESCAPE = "Invalid_Escape"; //$NON-NLS-1$
 	public static final String INVALID_INPUT = "Invalid_Input"; //$NON-NLS-1$
+	public static final String INVALID_TEXTBLOCK = "Invalid_Textblock"; //$NON-NLS-1$
 	public static final String INVALID_UNICODE_ESCAPE = "Invalid_Unicode_Escape"; //$NON-NLS-1$
 	public static final String INVALID_FLOAT = "Invalid_Float_Literal"; //$NON-NLS-1$
 	public static final String INVALID_LOW_SURROGATE = "Invalid_Low_Surrogate"; //$NON-NLS-1$
@@ -135,6 +136,7 @@ public class Scanner implements TerminalTokens {
 
 	public static final String NULL_SOURCE_STRING = "Null_Source_String"; //$NON-NLS-1$
 	public static final String UNTERMINATED_STRING = "Unterminated_String"; //$NON-NLS-1$
+	public static final String UNTERMINATED_TEXT_BLOCK = "Unterminated_Text_Block"; //$NON-NLS-1$
 	public static final String UNTERMINATED_COMMENT = "Unterminated_Comment"; //$NON-NLS-1$
 	public static final String INVALID_CHAR_IN_STRING = "Invalid_Char_In_String"; //$NON-NLS-1$
 	public static final String INVALID_DIGIT = "Invalid_Digit"; //$NON-NLS-1$
@@ -144,7 +146,7 @@ public class Scanner implements TerminalTokens {
 	public static final String BINARY_LITERAL_NOT_BELOW_17 = "Binary_Literal_Not_Below_17"; //$NON-NLS-1$
 	public static final String ILLEGAL_HEXA_LITERAL = "Illegal_Hexa_Literal"; //$NON-NLS-1$
 	public static final String INVALID_UNDERSCORE = "Invalid_Underscore"; //$NON-NLS-1$
-	public static final String UNDERSCORES_IN_LITERALS_NOT_BELOW_17 = "Underscores_In_Literals_Not_Below_17"; //$NON-NLS-1$`
+	public static final String UNDERSCORES_IN_LITERALS_NOT_BELOW_17 = "Underscores_In_Literals_Not_Below_17"; //$NON-NLS-1$
 
 	//----------------optimized identifier managment------------------
 	static final char[] charArray_a = new char[] {'a'},
@@ -233,6 +235,9 @@ public class Scanner implements TerminalTokens {
 	public static final int HIGH_SURROGATE_MIN_VALUE = 0xD800;
 	public static final int HIGH_SURROGATE_MAX_VALUE = 0xDBFF;
 	public static final int LOW_SURROGATE_MAX_VALUE = 0xDFFF;
+
+	// raw string support - 11
+	/* package */ int rawStart = -1;
 
 public Scanner() {
 	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
@@ -543,6 +548,121 @@ public char[] getCurrentTokenSourceString() {
 			0,
 			length);
 	}
+	return result;
+}
+protected final boolean scanForTextBlockBeginning() {
+	if (this.activeParser != null && !this.activeParser.isParsingJava13())
+		return false;
+	try {
+		// Don't change the position and current character unless we are certain
+		// to be dealing with a text block. For producing all errors like before
+		// in case of a valid """ but missing \r or \n, just return false and not
+		// throw any error.
+		int temp = this.currentPosition;
+		if ((this.source[temp++] == '\"' && this.source[temp++] == '\"')) {
+			char c = this.source[temp++];
+			while (ScannerHelper.isWhitespace(c)) {
+				switch (c) {
+					case 10 : /* \ u000a: LINE FEED               */
+					case 13 : /* \ u000d: CARRIAGE RETURN         */
+						this.currentCharacter = c;
+						this.currentPosition = temp;
+						return true;
+					default:
+						break;
+				}
+				c = this.source[temp++];
+			}
+		}
+	} catch(IndexOutOfBoundsException e) {
+		//let it return false;
+	}
+	return false;
+}
+protected final boolean scanForTextBlockClose() throws InvalidInputException {
+	try {
+		if (this.source[this.currentPosition] == '\"' && this.source[this.currentPosition + 1] == '\"') {
+			return true;
+		}
+	} catch(IndexOutOfBoundsException e) {
+		//let it return false;
+	}
+	return false;
+}
+public char[] getCurrentTextBlock() {
+	// 1. Normalize, i.e. convert all CR CRLF to LF
+	char[] all;
+	if (this.withoutUnicodePtr != 0) {
+		all = CharOperation.subarray(this.withoutUnicodeBuffer, this.rawStart + 1, this.withoutUnicodePtr + 1 );
+		//return new char[0];
+	} else {
+		all = CharOperation.subarray(this.source, this.startPosition + this.rawStart, this.currentPosition - 3);
+		if (all == null) {
+			all = new char[0];
+		}
+	}
+	CharOperation.replace(all, new char[] { '\r', '\n'}, '\n');
+	// 2. Handle incidental white space
+	// 2.1. Split into lines and identify determining lines
+	int prefix = 0;
+	int whitespaces = 0;
+	boolean blank;
+	char[][] lines = CharOperation.splitOn('\n', all);
+	int size = lines.length;
+	boolean[] blanks = new boolean[size];
+	for(int i = 0; i < size; i++) {
+		char[] line = lines[i];
+		blank = true;
+		whitespaces = 0;
+		for (char c : line) {
+			if (blank) {
+				if (ScannerHelper.isWhitespace(c)) {
+					whitespaces++;
+				} else {
+					blank = false;
+				}
+			}
+		}
+		if (!blank) {
+			if (prefix <= 0 || whitespaces < prefix) {
+				prefix = whitespaces;
+			}
+		}
+		blanks[i] = blank;
+	}
+	// 2.2. Remove the common white space prefix
+	// 3. Handle escape sequences (already done while processing
+	char[] result = new char[0];
+	for(int i = 0; i < lines.length; i++) {
+		char[] l  = lines[i];
+		// Remove the common prefix from each line
+		// And remove all trailing whitespace
+		int length = l.length;
+		int trail = length - 1;
+		for(int j = length - 1; j>0; j--) {
+			if (!ScannerHelper.isWhitespace(l[j])) {
+				trail = j;
+				break;
+			}
+		}
+		int newSize = length == 0 ? 0 : (trail - prefix + 1);
+		char[] nl;
+		if (i >= (size - 1)) {
+			if (trail <= 0)
+				continue;
+			nl = new char[newSize];
+			System.arraycopy(l, prefix, nl, 0, newSize);
+		} else {
+			newSize += 1;
+			nl = new char[newSize];
+			nl[newSize - 1] = '\n';
+			if (length > 0)
+				System.arraycopy(l, prefix, nl, 0, newSize - 1);
+		}
+		result = CharOperation.concat(result, nl);
+	}
+	//	get rid of all the cached values
+	this.rawStart = -1;
 	return result;
 }
 public final String getCurrentStringLiteral() {
@@ -1511,26 +1631,50 @@ protected int getNextToken0() throws InvalidInputException {
 					}
 					throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
 				case '"' :
+					boolean isTextBlock = false;
+					int lastQuotePos = 0;
 					try {
 						// consume next character
 						this.unicodeAsBackSlash = false;
 						boolean isUnicode = false;
-						if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-							&& (this.source[this.currentPosition] == 'u')) {
-							getNextUnicodeChar();
-							isUnicode = true;
-						} else {
-							if (this.withoutUnicodePtr != 0) {
-								unicodeStore();
+						isTextBlock = scanForTextBlockBeginning();
+						if (!isTextBlock) {
+							if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+									&& (this.source[this.currentPosition] == 'u')) {
+								getNextUnicodeChar();
+								isUnicode = true;
+							} else {
+								if (this.withoutUnicodePtr != 0) {
+									unicodeStore();
+								}
 							}
 						}
-
-						while (this.currentCharacter != '"') {
-							if (this.currentPosition >= this.eofPosition) {
-								throw new InvalidInputException(UNTERMINATED_STRING);
+						this.rawStart = this.currentPosition - this.startPosition;
+						int terminators = 0;
+						while (this.currentPosition <= this.eofPosition) {
+							if (this.currentCharacter == '"') {
+								if (!isTextBlock) {
+									return TerminalTokens.TokenNameStringLiteral;
+								}
+								lastQuotePos = this.currentPosition;
+								// look for text block delimiter
+								if (scanForTextBlockClose()) {
+									if (this.source[this.currentPosition + 2] == '"') {
+										terminators++;
+										if (terminators > 2)
+											throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
+									} else {
+										this.currentPosition += 2;
+										return TerminalTokens.TokenNameTextBlock;
+									}
+								}
+								if (this.withoutUnicodePtr != 0) {
+									unicodeStore();
+								}
+							} else {
+								terminators = 0;
 							}
-							/**** \r and \n are not valid in string literals ****/
-							if ((this.currentCharacter == '\n') || (this.currentCharacter == '\r')) {
+							if (!isTextBlock && (this.currentCharacter == '\n' || this.currentCharacter == '\r')) {
 								// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
 								if (isUnicode) {
 									int start = this.currentPosition;
@@ -1591,15 +1735,29 @@ protected int getNextToken0() throws InvalidInputException {
 								isUnicode = true;
 							} else {
 								isUnicode = false;
+								if (isTextBlock && this.currentCharacter == '"')
+									continue;
 								if (this.withoutUnicodePtr != 0) {
 									unicodeStore();
 								}
 							}
-
+						}
+						if (isTextBlock) {
+							if (lastQuotePos > 0)
+								this.currentPosition = lastQuotePos;
+							throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
+						} else {
+							throw new InvalidInputException(UNTERMINATED_STRING);
 						}
 					} catch (IndexOutOfBoundsException e) {
-						this.currentPosition--;
-						throw new InvalidInputException(UNTERMINATED_STRING);
+						if (isTextBlock) {
+							if (lastQuotePos > 0)
+								this.currentPosition = lastQuotePos;
+							throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
+						} else {
+							this.currentPosition--;
+							throw new InvalidInputException(UNTERMINATED_STRING);
+						}
 					} catch (InvalidInputException e) {
 						if (e.getMessage().equals(INVALID_ESCAPE)) {
 							// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
@@ -1617,7 +1775,6 @@ protected int getNextToken0() throws InvalidInputException {
 						}
 						throw e; // rethrow
 					}
-					return TokenNameStringLiteral;
 				case '/' :
 					if (!this.skipComments) {
 						int test = getNextChar('/', '*');
@@ -4244,7 +4401,8 @@ public String toStringAction(int act) {
 			return "Char(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		case TokenNameStringLiteral :
 			return "String(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
-
+		case TokenNameTextBlock :
+			return "String(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		case TokenNamePLUS_PLUS :
 			return "++"; //$NON-NLS-1$
 		case TokenNameMINUS_MINUS :
@@ -4388,6 +4546,7 @@ public static boolean isLiteral(int token) {
 		case TerminalTokens.TokenNameFloatingPointLiteral:
 		case TerminalTokens.TokenNameDoubleLiteral:
 		case TerminalTokens.TokenNameStringLiteral:
+		case TerminalTokens.TokenNameTextBlock:
 		case TerminalTokens.TokenNameCharacterLiteral:
 			return true;
 		default:
@@ -4568,7 +4727,7 @@ private static class Goal {
 	private static int [] followSetOfCast() {
 		return new int [] { TokenNameIdentifier, TokenNamenew, TokenNamesuper, TokenNamethis,
 				TokenNamefalse, TokenNametrue, TokenNamenull, 
-				TokenNameIntegerLiteral, TokenNameLongLiteral, TokenNameFloatingPointLiteral, TokenNameDoubleLiteral, TokenNameCharacterLiteral, TokenNameStringLiteral, 
+				TokenNameIntegerLiteral, TokenNameLongLiteral, TokenNameFloatingPointLiteral, TokenNameDoubleLiteral, TokenNameCharacterLiteral, TokenNameStringLiteral, TokenNameTextBlock,
 				TokenNameNOT, TokenNameTWIDDLE, TokenNameLPAREN
 		};
 	}
@@ -4993,6 +5152,7 @@ public int fastForward(Statement unused) {
 			case TokenNameDoubleLiteral:
 			case TokenNameCharacterLiteral:
 			case TokenNameStringLiteral:
+			case TokenNameTextBlock:
 			case TokenNamePLUS_PLUS:
 			case TokenNameMINUS_MINUS:
 			case TokenNameLESS:

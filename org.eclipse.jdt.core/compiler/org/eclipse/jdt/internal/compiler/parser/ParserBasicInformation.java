@@ -23,22 +23,22 @@ public interface ParserBasicInformation {
 
 	public final static int
 
-	ERROR_SYMBOL = 130,
+	ERROR_SYMBOL = 131,
 					MAX_NAME_LENGTH = 41,
 					NUM_STATES = 1168,
 
-					NT_OFFSET = 130,
+					NT_OFFSET = 131,
 					SCOPE_UBOUND = 297,
 					SCOPE_SIZE = 298,
-					LA_STATE_OFFSET = 16961,
+					LA_STATE_OFFSET = 16962,
 					MAX_LA = 1,
-					NUM_RULES = 870,
-					NUM_TERMINALS = 130,
+					NUM_RULES = 871,
+					NUM_TERMINALS = 131,
 					NUM_NON_TERMINALS = 398,
-					NUM_SYMBOLS = 528,
-					START_STATE = 1025,
-					EOFT_SYMBOL = 61,
-					EOLT_SYMBOL = 61,
-					ACCEPT_ACTION = 16960,
-					ERROR_ACTION = 16961;
+					NUM_SYMBOLS = 529,
+					START_STATE = 1026,
+					EOFT_SYMBOL = 62,
+					EOLT_SYMBOL = 62,
+					ACCEPT_ACTION = 16961,
+					ERROR_ACTION = 16962;
 }

@@ -780,7 +780,9 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.10 */
 	int MissingTypeInLambda = MethodRelated + 271;
-
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
+	int UnterminatedTextBlock = PreviewRelated + 272;
 	// type related problems
 	/** @since 3.1 */
 	int DiscouragedReference = TypeRelated + 280;

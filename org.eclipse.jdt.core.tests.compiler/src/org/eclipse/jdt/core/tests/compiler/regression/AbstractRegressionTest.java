@@ -1724,7 +1724,7 @@ protected static class JavacTestOptions {
 			skipJavac ? JavacTestOptions.SKIP :
 				javacTestOptions != null ? javacTestOptions : JavacTestOptions.DEFAULT /* default javac test options */);
 	}
-	protected void runConformTest(String[] testFiles, Map customOptions) {
+	protected void runConformTest(String[] testFiles, Map<String, String> customOptions) {
 		runTest(
 			// test directory preparation
 			true /* flush output directory */,
@@ -1746,10 +1746,10 @@ protected static class JavacTestOptions {
 			// javac options
 			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
-	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions) {
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		runConformTest(testFiles, expectedOutput, customOptions, null);
 	}
-	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions, String[] vmArguments) {
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments) {
 		runTest(
 			// test directory preparation
 			true /* flush output directory */,
@@ -1830,7 +1830,7 @@ protected static class JavacTestOptions {
 		String[] classLibraries,
 		boolean shouldFlushOutputDirectory,
 		String[] vmArguments,
-		Map customOptions,
+		Map<String, String> customOptions,
 		ICompilerRequestor customRequestor) {
 		runTest(
 	 		// test directory preparation
@@ -2916,7 +2916,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			String[] testFiles,
 			// compiler options
 			String[] classLibraries,
-			Map customOptions,
+			Map<String, String> customOptions,
 			boolean performStatementsRecovery,
 			ICompilerRequestor customRequestor,
 			// compiler results
@@ -3056,7 +3056,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			// compiler options
 			String[] classLibraries,
 			boolean libsOnModulePath,
-			Map customOptions,
+			Map<String, String> customOptions,
 			boolean performStatementsRecovery,
 			ICompilerRequestor customRequestor,
 			// compiler results
@@ -3091,7 +3091,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		requestor.outputPath = OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator;
 				// WORK should not have to test a constant?
 
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		if (customOptions != null) {
 			options.putAll(customOptions);
 		}

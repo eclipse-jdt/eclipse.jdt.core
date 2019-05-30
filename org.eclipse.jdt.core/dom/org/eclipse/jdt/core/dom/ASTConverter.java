@@ -1835,6 +1835,9 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.StringLiteral) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.StringLiteral) expression);
 		}
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TextBlock) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.TextBlock) expression);
+		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression) expression);
 		}
@@ -2851,6 +2854,17 @@ class ASTConverter {
 		if (expression instanceof StringLiteralConcatenation) {
 			return convert((StringLiteralConcatenation) expression);
 		}
+		int length = expression.sourceEnd - expression.sourceStart + 1;
+		int sourceStart = expression.sourceStart;
+		StringLiteral literal = new StringLiteral(this.ast);
+		if (this.resolveBindings) {
+			this.recordNodes(literal, expression);
+		}
+		literal.internalSetEscapedValue(new String(this.compilationUnitSource, sourceStart, length));
+		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
+		return literal;
+	}
+	public Expression convert(org.eclipse.jdt.internal.compiler.ast.TextBlock expression) {
 		int length = expression.sourceEnd - expression.sourceStart + 1;
 		int sourceStart = expression.sourceStart;
 		StringLiteral literal = new StringLiteral(this.ast);

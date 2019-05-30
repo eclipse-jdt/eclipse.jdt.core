@@ -7903,6 +7903,8 @@ public void scannerError(Parser parser, String errorTokenName) {
 		flag = IProblem.InvalidFloat;
 	else if (errorTokenName.equals(Scanner.UNTERMINATED_STRING))
 		flag = IProblem.UnterminatedString;
+	else if (errorTokenName.equals(Scanner.UNTERMINATED_TEXT_BLOCK))
+		flag = IProblem.UnterminatedTextBlock;
 	else if (errorTokenName.equals(Scanner.UNTERMINATED_COMMENT))
 		flag = IProblem.UnterminatedComment;
 	else if (errorTokenName.equals(Scanner.INVALID_CHAR_IN_STRING))
