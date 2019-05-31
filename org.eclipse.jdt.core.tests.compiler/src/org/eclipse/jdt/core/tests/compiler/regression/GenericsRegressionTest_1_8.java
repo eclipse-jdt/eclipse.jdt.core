@@ -9906,4 +9906,24 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug547807() {
+		runConformTest(
+			new String[] {
+				"DslStep1.java",
+				"public interface DslStep1 {\n" + 
+				"	DslStep2<?> nextStep();\n" + 
+				"}\n",
+				"DslStep2.java",
+				"public interface DslStep2<S extends DslStep2<? extends S>> {\n" + 
+				"	S doSomething();\n" + 
+				"}\n",
+				"CallBug.java",
+				"public class CallBug {\n" + 
+				"	public void doesNotCompileWithEcj(DslStep1 step1) {\n" + 
+				"		// Note we need three chained calls for the problem to show up. Two is not enough.\n" + 
+				"		step1.nextStep().doSomething().doSomething().doSomething();\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
 }
