@@ -14,10 +14,13 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -252,6 +255,23 @@ public String debugPathString() {
 public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
 	// 
 	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false, null);
+}
+
+@Override
+public char[][] listPackages() {
+	Set<String> packageNames = new HashSet<>();
+	IPath basePath = this.binaryFolder.getFullPath();
+	try {
+		this.binaryFolder.accept(r -> {
+			if (r instanceof IFile && SuffixConstants.EXTENSION_class.equals(r.getFileExtension().toLowerCase())) {
+				packageNames.add(r.getParent().getFullPath().makeRelativeTo(basePath).toString().replace('/', '.'));
+			}
+			return true;
+		});
+	} catch (CoreException e) {
+		Util.log(e, "Failed to scan packages of "+this.binaryFolder); //$NON-NLS-1$
+	}
+	return packageNames.stream().map(String::toCharArray).toArray(char[][]::new);
 }
 
 }

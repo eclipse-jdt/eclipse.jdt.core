@@ -561,8 +561,8 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, cha
 }
 
 @Override
-public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] name, char[] moduleName) {
-	String pkgName = new String(CharOperation.concatWith(parentPackageName, name, '/'));
+public char[][] getModulesDeclaringPackage(char[][] packageName, char[] moduleName) {
+	String pkgName = new String(CharOperation.concatWith(packageName, '/'));
 	String modName = new String(moduleName);
 	LookupStrategy strategy = LookupStrategy.get(moduleName);
 	switch (strategy) {
@@ -685,7 +685,19 @@ public boolean isPackage(String qualifiedPackageName, char[] moduleName) {
 	}
 	return false;
 }
-
+@Override
+public char[][] listPackages(char[] moduleName) {
+	LookupStrategy strategy = LookupStrategy.get(moduleName);
+	switch (strategy) {
+		case Named:
+			IModulePathEntry entry = this.modulePathEntries.get(String.valueOf(moduleName));
+			if (entry == null)
+				return CharOperation.NO_CHAR_CHAR;
+			return entry.listPackages();
+		default:
+			throw new UnsupportedOperationException("can list packages only of a named module"); //$NON-NLS-1$
+	}
+}
 void setNames(String[] typeNames, SourceFile[] additionalFiles) {
 	// convert the initial typeNames to a set
 	if (typeNames == null) {

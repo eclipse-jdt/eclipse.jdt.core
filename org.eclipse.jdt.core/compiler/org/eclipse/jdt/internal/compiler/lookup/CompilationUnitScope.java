@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.*;
@@ -162,11 +163,8 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 		TypeDeclaration typeDecl = types[i];
 		if (this.environment.root.isProcessingAnnotations && this.environment.isMissingType(typeDecl.name))
 			throw new SourceTypeCollisionException(); // resolved a type ref before APT generated the type
-		ReferenceBinding typeBinding = this.fPackage.getType0(typeDecl.name);
-		if (Binding.isValid(typeBinding) && this.fPackage instanceof SplitPackageBinding && !this.environment.module.canAccess(typeBinding.fPackage))
-			typeBinding = null;
 		recordSimpleReference(typeDecl.name); // needed to detect collision cases
-		if (Binding.isValid(typeBinding) && !(typeBinding instanceof UnresolvedReferenceBinding)) {
+		if (this.fPackage.hasType0Any(typeDecl.name)) {
 			// if its an unresolved binding - its fixed up whenever its needed, see UnresolvedReferenceBinding.resolve()
 			if (this.environment.root.isProcessingAnnotations)
 				throw new SourceTypeCollisionException(); // resolved a type ref before APT generated the type
@@ -197,6 +195,12 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 	// shrink topLevelTypes... only happens if an error was reported
 	if (count != this.topLevelTypes.length)
 		System.arraycopy(this.topLevelTypes, 0, this.topLevelTypes = new SourceTypeBinding[count], 0, count);
+
+	if (this.referenceContext.moduleDeclaration != null) {
+		this.module().completeIfNeeded(IUpdatableModule.UpdateKind.MODULE);
+		this.referenceContext.moduleDeclaration.resolvePackageDirectives(this);
+		this.module().completeIfNeeded(IUpdatableModule.UpdateKind.PACKAGE);
+	}
 }
 void checkAndSetImports() {
 	// TODO(SHMOD): verify: this block moved here from buildTypeBindings.
@@ -428,7 +432,7 @@ void faultInImports() {
 				continue nextImport;
 			}
 			if (importBinding instanceof PackageBinding) {
-				PackageBinding uniquePackage = ((PackageBinding)importBinding).getVisibleFor(module(), false);
+				PackageBinding uniquePackage = ((PackageBinding)importBinding).getVisibleFor(module(), false, false);
 				if (uniquePackage instanceof SplitPackageBinding && !inJdtDebugCompileMode) {
 					SplitPackageBinding splitPackage = (SplitPackageBinding) uniquePackage;
 					problemReporter().conflictingPackagesFromModules(splitPackage, module(), importReference.sourceStart, importReference.sourceEnd);
@@ -472,7 +476,7 @@ void faultInImports() {
 					// re-get to find a possible split package:
 					importedPackage = (PackageBinding) findImport(importedPackage.compoundName, false, true);
 					if (importedPackage != null)
-						importedPackage = importedPackage.getVisibleFor(module(), true);
+						importedPackage = importedPackage.getVisibleFor(module(), true, false);
 					if (importedPackage instanceof SplitPackageBinding && !inJdtDebugCompileMode) {
 						SplitPackageBinding splitPackage = (SplitPackageBinding) importedPackage;
 						int sourceEnd = (int) importReference.sourcePositions[splitPackage.compoundName.length-1];
@@ -516,7 +520,6 @@ void faultInImports() {
 public void faultInTypes() {
 	faultInImports();
 	if (this.referenceContext.moduleDeclaration != null) {
-		this.referenceContext.moduleDeclaration.resolvePackageDirectives(this);
 		this.referenceContext.moduleDeclaration.resolveTypeDirectives(this);
 	} else if (this.referenceContext.currentPackage != null) {
 		this.referenceContext.currentPackage.checkPackageConflict(this);
@@ -554,7 +557,7 @@ private Binding findImport(char[][] compoundName, int length) {
 				break foundNothingOrType;
 			}
 			if (!(binding instanceof PackageBinding)) {
-				PackageBinding visibleFor = packageBinding.getVisibleFor(module, false); // filter out empty parent-packages
+				PackageBinding visibleFor = packageBinding.getVisibleFor(module, false, false); // filter out empty parent-packages
 				if (visibleFor instanceof SplitPackageBinding)
 					return visibleFor;
 				break foundNothingOrType;
@@ -569,6 +572,11 @@ private Binding findImport(char[][] compoundName, int length) {
 
 	ReferenceBinding type;
 	if (binding == null) {
+		if (!module.isUnnamed()) {
+			Binding inaccessible = this.environment.getInaccessibleBinding(compoundName, module);
+			if (inaccessible != null)
+				return inaccessible;
+		}
 		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
 			return problemType(compoundName, i, null);
 		type = findType(compoundName[0], this.environment.defaultPackage, this.environment.defaultPackage);

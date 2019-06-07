@@ -1086,8 +1086,8 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"----------\n" +
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n" +
 				"	java.sql.Connection con = p.X.getConnection();\n" +
-				"	                          ^\n" +
-				"p cannot be resolved\n" +
+				"	                          ^^^\n" +
+				"The type p.X is not accessible\n" +
 				"----------\n" +
 				"1 problem (1 error)\n",
 				false,
@@ -5392,5 +5392,55 @@ public void testBug521362_emptyFile() {
 		} else {
 			runConformModuleTest(files, buffer, "Could not invoke method java.lang.module.ModuleDescriptor.Version.parse(), cannot validate module version.\n", "", false);
 		}
+	}
+	public void testPackageTypeConflict2() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+								"	exports p1.p2;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p1" + File.separator + "p2", "t3.java", 
+						"package p1.p2;\n" +
+						"public class t3 {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+							"	exports p1.p2.t3;\n" +
+							"	requires mod.one;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p1" + File.separator + "p2" + File.separator + "t3", "t4.java", 
+						"package p1.p2.t3;\n" +
+						"public class t4 {\n" +
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeModuleTest(
+				files,
+				buffer,
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/p1/p2/t3/t4.java (at line 1)\n" + 
+				"	package p1.p2.t3;\n" + 
+				"	        ^^^^^^^^\n" + 
+				"The package p1.p2.t3 collides with a type\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false,
+				"package p1.p2.t3 clashes with class of same name");
 	}
 }

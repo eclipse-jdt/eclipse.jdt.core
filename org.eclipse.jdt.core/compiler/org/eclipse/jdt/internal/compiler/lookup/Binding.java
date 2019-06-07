@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2010 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -50,6 +50,7 @@ public abstract class Binding {
 	// Shared binding collections
 	public static final ModuleBinding[] NO_MODULES = new ModuleBinding[0];
 	public static final PackageBinding[] NO_PACKAGES = new PackageBinding[0];
+	public static final PlainPackageBinding[] NO_PLAIN_PACKAGES = new PlainPackageBinding[0];
 	public static final TypeBinding[] NO_TYPES = new TypeBinding[0];
 	public static final ReferenceBinding[] NO_REFERENCE_TYPES = new ReferenceBinding[0];
 	public static final TypeBinding[] NO_PARAMETERS = new TypeBinding[0];

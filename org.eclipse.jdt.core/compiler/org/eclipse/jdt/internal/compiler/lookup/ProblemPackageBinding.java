@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,23 +13,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-public class ProblemPackageBinding extends PackageBinding {
+public class ProblemPackageBinding extends PlainPackageBinding {
 	private int problemId;
 // NOTE: must only answer the subset of the name related to the problem
 
 ProblemPackageBinding(char[][] compoundName, int problemId, LookupEnvironment environment) {
-	this.compoundName = compoundName;
+	super(compoundName, environment);
 	this.problemId = problemId;
-	this.environment = environment;
 }
 ProblemPackageBinding(char[] name, int problemId, LookupEnvironment environment) {
 	this(new char[][] {name}, problemId, environment);
 }
-/* API
-* Answer the problem id associated with the receiver.
-* NoError if the receiver is a valid binding.
-*/
-
+/**
+ * API
+ * Answer the problem id associated with the receiver.
+ * NoError if the receiver is a valid binding.
+ */
 @Override
 public final int problemId() {
 	return this.problemId;

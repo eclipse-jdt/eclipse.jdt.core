@@ -260,6 +260,19 @@ public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName
 	}	
 	return false;
 }
+
+@Override
+public char[][] listPackages() {
+	Set<String> packageNames = new HashSet<>();
+	for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
+		String fileName = e.nextElement().getName();
+		int lastSlash = fileName.lastIndexOf('/');
+		if (lastSlash != -1 && fileName.toLowerCase().endsWith(SUFFIX_STRING_class))
+			packageNames.add(fileName.substring(0, lastSlash).replace('/', '.'));
+	}
+	return packageNames.stream().map(String::toCharArray).toArray(char[][]::new);
+}
+
 @Override
 public void reset() {
 	super.reset();

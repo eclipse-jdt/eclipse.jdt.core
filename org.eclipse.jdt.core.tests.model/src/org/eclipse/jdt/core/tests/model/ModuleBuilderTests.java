@@ -4238,8 +4238,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
-					"The project was not built since its build path is incomplete. Cannot find the class file for org.astro.World. Fix the build path then try building this project\n" + 
-					"The type org.astro.World cannot be resolved. It is indirectly referenced from required .class files",
+					"Name of automatic module \'test\' is unstable, it is derived from the module\'s file name.\n" + 
+					"The type org.astro.World is not accessible",
 					markers);
 		} finally {
 			this.deleteProject("test");
@@ -8702,6 +8702,80 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
 			deleteProject(prjA);
 			deleteProject(prjB);
+		}
+	}
+	public void testBug547181() throws CoreException {
+		IJavaProject prjA = createJava9Project("A");
+		IJavaProject prjB = createJava9Project("B");
+		IJavaProject prjC = createJava9Project("C");
+		IJavaProject prjD = createJava9Project("D");
+		try {
+			createFile("A/src/module-info.java",
+				"module A {\n" + 
+				" exports p1.p2;\n" +
+				"}\n");
+			createFolder("A/src/p1/p2");
+			createFile("A/src/p1/p2/X.java",
+					"package p1.p2;\n" + 
+					"public class X {\n" + 
+					"}\n");
+
+			addModularProjectEntry(prjB, prjA);
+			addModularProjectEntry(prjD, prjA);
+			addModularProjectEntry(prjD, prjB);
+			addModularProjectEntry(prjD, prjC);
+
+			createFile("B/src/module-info.java",
+					"module B {\n" + 
+						" requires A;\n" +
+						" exports p1;\n" +
+					"}\n");
+			createFolder("B/src/p1");
+			createFile("B/src/p1/Y.java",
+				"package p1;\n" + 
+				"import p1.p2.X;\n" + 
+				"public class Y {\n" + 
+				"	private void f(X x) {}\n" + 
+				"}\n");
+			
+			createFile("C/src/module-info.java",
+					"module C {\n" + 
+					" exports p1.p2;\n" +
+					"}\n");
+			createFolder("C/src/p1/p2");
+			createFile("C/src/p1/p2/X.java",
+					"package p1.p2;\n" + 
+					"public class X {\n" + 
+					"}\n");
+			
+			createFile("D/src/module-info.java",
+					"module D {\n" + 
+						" requires B;\n" +
+						" requires C;\n" +
+					"}\n");
+			
+			createFolder("D/src/usage");
+			createFile("D/src/usage/AAA.java",
+					"package usage;\n" + 
+					"import p1.Y;\n" + 
+					"public class AAA {\n" + 
+					" Y y;\n" + 
+					"}\n");
+			createFile("D/src/usage/Usage.java",
+					"package usage;\n" + 
+					"import p1.p2.X;\n" + 
+					"public class Usage {\n" + 
+					" X x;\n" + 
+					"}\n");
+			
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+
+		} finally {
+			deleteProject(prjA);
+			deleteProject(prjB);
+			deleteProject(prjC);
+			deleteProject(prjD);
 		}
 	}
 	protected void assertNoErrors() throws CoreException {

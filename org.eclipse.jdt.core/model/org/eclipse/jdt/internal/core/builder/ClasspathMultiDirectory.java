@@ -82,12 +82,31 @@ String[] directoryList(String qualifiedPackageName) {
 			IResource[] members = ((IContainer) container).members();
 			dirList = new String[members.length];
 			int index = 0;
-			for (int i = 0, l = members.length; i < l; i++) {
-				IResource m = members[i];
-				String name = m.getName();
-				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
-					// add exclusion pattern check here if we want to hide .class files
-					dirList[index++] = name;
+			if (members.length > 0) {
+				for (int i = 0, l = members.length; i < l; i++) {
+					IResource m = members[i];
+					String name = m.getName();
+					if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
+						// add exclusion pattern check here if we want to hide .class files
+						dirList[index++] = name;
+					}
+				}
+			} else {
+				container = this.sourceFolder.findMember(qualifiedPackageName);
+				if (container instanceof IContainer) {
+					members = ((IContainer) container).members();
+					if (members.length > 0) {
+						dirList = new String[members.length];
+						index = 0;
+						for (int i = 0, l = members.length; i < l; i++) {
+							IResource m = members[i];
+							String name = m.getName();
+							if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isJavaFileName(name)) {
+								// FIXME: check if .java file has any declarations?
+								dirList[index++] = name;
+							}
+						}
+					}
 				}
 			}
 			if (index < dirList.length)

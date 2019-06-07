@@ -18,6 +18,7 @@ package org.eclipse.jdt.internal.core.builder;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.function.Predicate;
@@ -323,13 +324,15 @@ public boolean isPackage(String qualifiedPackageName, String moduleName) {
 }
 @Override
 public boolean hasCompilationUnit(String pkgName, String moduleName) {
-	for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
-		String fileName = e.nextElement().getName();
-		if (fileName.startsWith(pkgName)
-				&& fileName.toLowerCase().endsWith(SuffixConstants.SUFFIX_STRING_class)
-				&& fileName.indexOf('/', pkgName.length()+1) == -1)
-			return true;
-	}	
+	if (scanContent()) {
+		for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
+			String fileName = e.nextElement().getName();
+			if (fileName.startsWith(pkgName)
+					&& fileName.toLowerCase().endsWith(SuffixConstants.SUFFIX_STRING_class)
+					&& fileName.indexOf('/', pkgName.length()+1) == -1)
+				return true;
+		}
+	}
 	return false;
 }
 
@@ -398,5 +401,21 @@ public Manifest getManifest() {
 		// cannot use manifest
 	}
 	return null;
+}
+@Override
+public char[][] listPackages() {
+	if (!scanContent()) // ensure zipFile is initialized
+		return null;
+	char[][] result = new char[this.knownPackageNames.elementSize][];
+	int count = 0;
+	for (int i=0; i<this.knownPackageNames.values.length; i++) {
+		String string = (String) this.knownPackageNames.values[i];
+		if (string != null &&!string.isEmpty()) {
+			result[count++] = string.replace('/', '.').toCharArray();
+		}
+	}
+	if (count < result.length)
+		return Arrays.copyOf(result, count);
+	return result;
 }
 }

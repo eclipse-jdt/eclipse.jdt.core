@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 public class OpensStatement extends PackageVisibilityStatement {
@@ -24,8 +25,13 @@ public class OpensStatement extends PackageVisibilityStatement {
 		super(pkgRef, targets);
 	}
 	@Override
-	protected int computeSeverity(int problemId) {
-		return ProblemSeverities.Warning;
+	public int computeSeverity(int problemId) {
+		switch (problemId) {
+			case IProblem.PackageDoesNotExistOrIsEmpty:
+				return ProblemSeverities.Warning;
+			default:
+				return ProblemSeverities.Error;
+		}
 	}
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {

@@ -58,6 +58,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	public static final char[] ANY = "".toCharArray(); //$NON-NLS-1$
 	/** Module name for package/type lookup that should look into all named modules. */
 	public static final char[] ANY_NAMED = "".toCharArray(); //$NON-NLS-1$
+	/** Module name for an unobservable module */
+	public static final char[] UNOBSERVABLE = "".toCharArray();  //$NON-NLS-1$
 
 	public static class UnNamedModule extends ModuleBinding {
 
@@ -93,6 +95,20 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			return pkg.isDeclaredIn(this) && pkg.hasCompilationUnit(false);
 		}
 		@Override
+		PlainPackageBinding getDeclaredPackage(char[] flatName) {
+			PlainPackageBinding declaredPackage = super.getDeclaredPackage(flatName);
+			if (declaredPackage == null && this.environment.useModuleSystem) {
+				IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
+				char[][] compoundName = CharOperation.splitOn('.', flatName);
+				char[][] declaringModuleNames = moduleEnv.getUniqueModulesDeclaringPackage(compoundName, nameForLookup());
+				if (declaringModuleNames != null && CharOperation.containsEqual(declaringModuleNames, this.moduleName)) {
+					declaredPackage = getOrCreateDeclaredPackage(compoundName);
+					this.declaredPackages.put(flatName, declaredPackage);
+				}
+			}
+			return declaredPackage;
+		}
+		@Override
 		public boolean isUnnamed() {
 			return true;
 		}
@@ -116,10 +132,10 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	public char[] moduleName;
 	protected ModuleBinding[] requires;
 	protected ModuleBinding[] requiresTransitive;
-	protected PackageBinding[] exportedPackages;
-	private Map<PackageBinding,SimpleSetOfCharArray> exportRestrictions; // RHS is unresolved names, because unresolvable names are legal in this position
-	protected PackageBinding[] openedPackages;
-	private Map<PackageBinding,SimpleSetOfCharArray> openRestrictions; // RHS is unresolved names, because unresolvable names are legal in this position
+	protected PlainPackageBinding[] exportedPackages;
+	private Map<PlainPackageBinding,SimpleSetOfCharArray> exportRestrictions; // RHS is unresolved names, because unresolvable names are legal in this position
+	protected PlainPackageBinding[] openedPackages;
+	private Map<PlainPackageBinding,SimpleSetOfCharArray> openRestrictions; // RHS is unresolved names, because unresolvable names are legal in this position
 	protected TypeBinding[] uses;
 	protected TypeBinding[] services;
 	public Map<TypeBinding,TypeBinding[]> implementations;
@@ -133,7 +149,6 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	boolean isAuto = false;
 	private boolean[] isComplete = new boolean[UpdateKind.values().length];
 	private Set<ModuleBinding> transitiveRequires;
-	boolean isPackageLookupActive = false; // to prevent cyclic lookup caused by synthetic reads edges on behalf of auto-modules.
 	SimpleLookupTable storedAnnotations = null;
 
 	/**
@@ -141,8 +156,16 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	 * We consider a package as declared in a module,
 	 * if a compilation unit associated with the module
 	 * declares the package or a subpackage thereof.
+	 * <p>
+	 * A package in this structures is always represented by a {@link PlainPackageBinding},
+	 * as opposed to {@link SplitPackageBinding}, which are only maintained in the trees
+	 * below {@link LookupEnvironment#knownPackages}.
+	 * <p>
+	 * This structure is populated early during compilation with all packages that
+	 * are referenced in exports and opens directives, plus their parent packages.
+	 * </p>
 	 */
-	public HashtableOfPackage declaredPackages;
+	public HashtableOfPackage<PlainPackageBinding> declaredPackages;
 
 	/** Constructor for the unnamed module. */
 	private ModuleBinding(LookupEnvironment env) {
@@ -150,9 +173,9 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		this.environment = env;
 		this.requires = Binding.NO_MODULES;
 		this.requiresTransitive = Binding.NO_MODULES;
-		this.exportedPackages = Binding.NO_PACKAGES;
-		this.openedPackages = Binding.NO_PACKAGES;
-		this.declaredPackages = new HashtableOfPackage(0);
+		this.exportedPackages = Binding.NO_PLAIN_PACKAGES;
+		this.openedPackages = Binding.NO_PLAIN_PACKAGES;
+		this.declaredPackages = new HashtableOfPackage<PlainPackageBinding>();
 		Arrays.fill(this.isComplete, true);
 	}
 	/* For error binding and sub class SourceModuleBinding. */
@@ -160,11 +183,11 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		this.moduleName = moduleName;
 		this.requires = Binding.NO_MODULES;
 		this.requiresTransitive = Binding.NO_MODULES;
-		this.exportedPackages = Binding.NO_PACKAGES;
-		this.openedPackages = Binding.NO_PACKAGES;
+		this.exportedPackages = Binding.NO_PLAIN_PACKAGES;
+		this.openedPackages = Binding.NO_PLAIN_PACKAGES;
 		this.uses = Binding.NO_TYPES;
 		this.services = Binding.NO_TYPES;
-		this.declaredPackages = new HashtableOfPackage(5);
+		this.declaredPackages = new HashtableOfPackage<PlainPackageBinding>(5);
 	}
 
 	/* For sub class BinaryModuleBinding */
@@ -173,10 +196,10 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		this.requires = Binding.NO_MODULES;
 		this.requiresTransitive = Binding.NO_MODULES;
 		this.environment = new LookupEnvironment(existingEnvironment.root, this);
-		this.declaredPackages = new HashtableOfPackage(5);
+		this.declaredPackages = new HashtableOfPackage<PlainPackageBinding>(5);
 	}
 	
-	public PackageBinding[] getExports() {
+	public PlainPackageBinding[] getExports() {
 		completeIfNeeded(UpdateKind.PACKAGE);
 		return this.exportedPackages;
 	}
@@ -192,7 +215,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 		return CharOperation.NO_STRINGS;
 	}
-	public PackageBinding[] getOpens() {
+	public PlainPackageBinding[] getOpens() {
 		completeIfNeeded(UpdateKind.PACKAGE);
 		return this.openedPackages;
 	}
@@ -231,7 +254,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		return this.services;
 	}
 
-	private void completeIfNeeded(IUpdatableModule.UpdateKind kind) {
+	void completeIfNeeded(IUpdatableModule.UpdateKind kind) {
 		if (!this.isComplete[kind.ordinal()]) {
 			this.isComplete[kind.ordinal()] = true;
 			if (this.environment.nameEnvironment instanceof IModuleAwareNameEnvironment) {
@@ -257,23 +280,10 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			this.environment.problemReporter.missingModuleAddReads(requiredModuleName);
 			return;
 		}
-		// update known packages:
-		HashtableOfPackage knownPackages = this.environment.knownPackages;
-		for (int i = 0; i < knownPackages.valueTable.length; i++) {
-			PackageBinding packageBinding = knownPackages.valueTable[i];
-			if (packageBinding == null) continue;
-			PackageBinding newBinding = requiredModule.getVisiblePackage(packageBinding.compoundName);
-			newBinding = SplitPackageBinding.combine(newBinding, packageBinding, this);
-			if (packageBinding != newBinding) {
-				knownPackages.valueTable[i] = newBinding;
-				if (this.declaredPackages.containsKey(newBinding.readableName()))
-					this.declaredPackages.put(newBinding.readableName(), newBinding);
-			}
-		}
 	}
 	@Override
 	public void addExports(char[] packageName, char[][] targetModules) {
-		PackageBinding declaredPackage = getVisiblePackage(CharOperation.splitOn('.', packageName));
+		PlainPackageBinding declaredPackage = getOrCreateDeclaredPackage(CharOperation.splitOn('.', packageName));
 		if (declaredPackage != null && declaredPackage.isValidBinding())
 			addResolvedExport(declaredPackage, targetModules);
 	}
@@ -293,9 +303,9 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	public char[][] getPackageNamesForClassFile() {
 		if (this.packageNames == null)
 			return null;
-		for (PackageBinding packageBinding : this.exportedPackages)
+		for (PlainPackageBinding packageBinding : this.exportedPackages)
 			this.packageNames.add(packageBinding.readableName());
-		for (PackageBinding packageBinding : this.openedPackages)
+		for (PlainPackageBinding packageBinding : this.openedPackages)
 			this.packageNames.add(packageBinding.readableName());
 		if (this.implementations != null)
 			for (TypeBinding[] types : this.implementations.values())
@@ -306,38 +316,57 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 
 	// ---
 
-	public void addResolvedExport(PackageBinding declaredPackage, char[][] targetModules) {
-		int len = this.exportedPackages.length;
+	public PlainPackageBinding getOrCreateDeclaredPackage(char[][] compoundName) {
+		char[] flatName = CharOperation.concatWith(compoundName, '.');
+		PlainPackageBinding pkgBinding = this.declaredPackages.get(flatName);
+		if (pkgBinding != null)
+			return pkgBinding;
+		if (compoundName.length > 1) {
+			PlainPackageBinding parent = getOrCreateDeclaredPackage(CharOperation.subarray(compoundName, 0, compoundName.length-1));
+			pkgBinding = new PlainPackageBinding(compoundName, parent, this.environment, this);
+			parent.addPackage(pkgBinding, this);
+		} else {
+			pkgBinding = new PlainPackageBinding(compoundName[0], this.environment, this);
+			PackageBinding problemPackage = this.environment.getPackage0(compoundName[0]);
+			if (problemPackage == LookupEnvironment.TheNotFoundPackage)
+				this.environment.knownPackages.put(compoundName[0], null); // forget TheNotFoundPackage if package was detected late (e.g. with APT in the loop)
+		}
+		this.declaredPackages.put(flatName, pkgBinding);
+		return pkgBinding;
+	}
+
+	public void addResolvedExport(PlainPackageBinding declaredPackage, char[][] targetModules) {
 		if (declaredPackage == null || !declaredPackage.isValidBinding()) {
 			// TODO(SHMOD) use a problem binding (if needed by DOM clients)? See https://bugs.eclipse.org/518794#c13
 			return;
 		}
-		if (len == 0) {
-			this.exportedPackages = new PackageBinding[] { declaredPackage };
+		if (this.exportedPackages == null || this.exportedPackages.length == 0) {
+			this.exportedPackages = new PlainPackageBinding[] { declaredPackage };
 		} else {
-			System.arraycopy(this.exportedPackages, 0, this.exportedPackages = new PackageBinding[len+1], 0, len);
+			int len = this.exportedPackages.length;
+			System.arraycopy(this.exportedPackages, 0, this.exportedPackages = new PlainPackageBinding[len+1], 0, len);
 			this.exportedPackages[len] = declaredPackage;
 		}
 		declaredPackage.isExported = Boolean.TRUE;
 		recordExportRestrictions(declaredPackage, targetModules);
 	}
 
-	public void addResolvedOpens(PackageBinding declaredPackage, char[][] targetModules) {
+	public void addResolvedOpens(PlainPackageBinding declaredPackage, char[][] targetModules) {
 		int len = this.openedPackages.length;
 		if (declaredPackage == null || !declaredPackage.isValidBinding()) {
 			// TODO(SHMOD) use a problem binding (if needed by DOM clients)? See https://bugs.eclipse.org/518794#c13
 			return;
 		}
 		if (len == 0) {
-			this.openedPackages = new PackageBinding[] { declaredPackage };
+			this.openedPackages = new PlainPackageBinding[] { declaredPackage };
 		} else {
-			System.arraycopy(this.openedPackages, 0, this.openedPackages = new PackageBinding[len+1], 0, len);
+			System.arraycopy(this.openedPackages, 0, this.openedPackages = new PlainPackageBinding[len+1], 0, len);
 			this.openedPackages[len] = declaredPackage;
 		}
 		recordOpensRestrictions(declaredPackage, targetModules);
 	}
 
-	protected void recordExportRestrictions(PackageBinding exportedPackage, char[][] targetModules) {
+	protected void recordExportRestrictions(PlainPackageBinding exportedPackage, char[][] targetModules) {
 		if (targetModules != null && targetModules.length > 0) {
 			SimpleSetOfCharArray targetModuleSet = null;
 			if (this.exportRestrictions != null) {
@@ -355,7 +384,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 	}
 
-	protected void recordOpensRestrictions(PackageBinding openedPackage, char[][] targetModules) {
+	protected void recordOpensRestrictions(PlainPackageBinding openedPackage, char[][] targetModules) {
 		if (targetModules != null && targetModules.length > 0) {
 			SimpleSetOfCharArray targetModuleSet = null;
 			if (this.openRestrictions != null) {
@@ -472,12 +501,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	 */
 	public boolean isPackageExportedTo(PackageBinding pkg, ModuleBinding client) {
 		// TODO(SHMOD): cache the result?
-		PackageBinding resolved = null;
-		if (pkg instanceof SplitPackageBinding) {
-			resolved = ((SplitPackageBinding) pkg).getIncarnation(this);
-		} else if (pkg.enclosingModule == this) {
-			resolved = pkg;
-		}
+		PackageBinding resolved = pkg.getIncarnation(this);
 		if (resolved != null) {
 			if (this.isAuto) { // all packages are exported by an automatic module
 				return pkg.enclosingModule == this; // no transitive export
@@ -515,11 +539,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	 * </p>
 	 */
 	public PackageBinding getTopLevelPackage(char[] name) {
-		// check caches:
-		PackageBinding binding = this.declaredPackages.get(name);
-		if (binding != null)
-			return binding;
-		binding = this.environment.getPackage0(name);
+		// check cache:
+		PackageBinding binding = this.environment.getPackage0(name);
 		if (binding != null)
 			return binding;
 		binding = getVisiblePackage(null, name, true);
@@ -533,31 +554,14 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		return binding;
 	}
 
-	PackageBinding getDeclaredPackage(char[][] parentName, char[] name) {
-		// check caches:
-		char[][] subPkgCompoundName = CharOperation.arrayConcat(parentName, name);
-		char[] fullFlatName = CharOperation.concatWith(subPkgCompoundName, '.');
-		PackageBinding pkg = this.declaredPackages.get(fullFlatName);
-		if (pkg != null)
-			return pkg;
-		PackageBinding parent = parentName.length == 0 ? null : getVisiblePackage(parentName);
-		PackageBinding binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
-		// remember
-		this.declaredPackages.put(fullFlatName, binding);
-		if (parent == null) {
-			this.environment.knownPackages.put(name, binding);
-		}
-		return binding;
+	PlainPackageBinding getDeclaredPackage(char[] flatName) {
+		return this.declaredPackages.get(flatName);
 	}
+
 	// Given parent is visible in this module, see if there is sub package named name visible in this module
 	PackageBinding getVisiblePackage(PackageBinding parent, char[] name, boolean considerRequiredModules) {
-		// check caches:
-		char[][] parentName = parent == null ? CharOperation.NO_CHAR_CHAR : parent.compoundName;
-		char[][] subPkgCompoundName = CharOperation.arrayConcat(parentName, name);
-		char[] fullFlatName = CharOperation.concatWith(subPkgCompoundName, '.');
-		PackageBinding pkg = this.declaredPackages.get(fullFlatName);
-		if (pkg != null)
-			return pkg;
+		// check caches in PackageBinding/LookupEnvironment, which contain the full SplitPackageBinding if appropriate:
+		PackageBinding pkg;
 		if (parent != null)
 			pkg = parent.getPackage0(name);
 		else
@@ -569,33 +573,37 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				return addPackage(pkg, false);
 		}
 
-		PackageBinding binding = null;
+		// check cached plain PackageBinding in declaredPackages (which may need combining with siblings):
+		char[][] parentName = parent == null ? CharOperation.NO_CHAR_CHAR : parent.compoundName;
+		char[][] subPkgCompoundName = CharOperation.arrayConcat(parentName, name);
+		char[] fullFlatName = CharOperation.concatWith(subPkgCompoundName, '.');
+		PackageBinding binding = this.declaredPackages.get(fullFlatName);
+
 		char[][] declaringModuleNames = null;
 		boolean packageMayBeIncomplete = !considerRequiredModules;
 		if (this.environment.useModuleSystem) {
 			IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
-			declaringModuleNames = moduleEnv.getUniqueModulesDeclaringPackage(parentName, name, nameForLookup());
-			if (declaringModuleNames != null) {
-				if (CharOperation.containsEqual(declaringModuleNames, this.moduleName)) {
-					if (parent instanceof SplitPackageBinding) {
-						// parent.getPackage0() may have been too shy, so drill into the split:
-						PackageBinding singleParent = ((SplitPackageBinding) parent).getIncarnation(this);
-						if (singleParent != null)
-							binding = singleParent.getPackage0(name);
-					}
-					if (binding == null) {
-						// declared here, not yet known, so create it now:
-						binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
-					}
-				} else if (considerRequiredModules) {
-					// visible but foreign (when current is unnamed or auto):
-					for (char[] declaringModuleName : declaringModuleNames) {
-						ModuleBinding declaringModule = this.environment.root.getModule(declaringModuleName);
-						if (declaringModule != null) {
-							if (declaringModule.isPackageLookupActive) {
-								packageMayBeIncomplete = true;
-							} else {
-								PackageBinding declaredPackage = declaringModule.getDeclaredPackage(parentName, name);
+			declaringModuleNames = moduleEnv.getUniqueModulesDeclaringPackage(subPkgCompoundName, nameForLookup());
+			if (binding == null) {
+				if (declaringModuleNames != null) {
+					if (CharOperation.containsEqual(declaringModuleNames, this.moduleName)) {
+						if (parent != null) {
+							PackageBinding singleParent = parent.getIncarnation(this);
+							if (singleParent != null && singleParent != parent) {
+								// parent.getPackage0() may have been too shy, so drill into the split:
+								binding = singleParent.getPackage0(name);
+							}
+						}
+						if (binding == null) {
+							// declared here, not yet known, so create it now:
+							binding = new PlainPackageBinding(subPkgCompoundName, parent, this.environment, this);
+						}
+					} else if (considerRequiredModules) {
+						// visible but foreign (when current is unnamed or auto):
+						for (char[] declaringModuleName : declaringModuleNames) {
+							ModuleBinding declaringModule = this.environment.root.getModule(declaringModuleName);
+							if (declaringModule != null) {
+								PlainPackageBinding declaredPackage = declaringModule.getDeclaredPackage(fullFlatName);
 								if (declaredPackage != null) {
 									// don't add foreign package to 'parent' (below), but to its own parent:
 									if (declaredPackage.parent != null)
@@ -611,7 +619,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			}
 		} else {
 			if (this.environment.nameEnvironment.isPackage(parentName, name))
-				binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
+				binding = new PlainPackageBinding(subPkgCompoundName, parent, this.environment, this);
 		}
 
 		// enrich with split-siblings from visible modules:
@@ -716,11 +724,11 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				char[][] declaringModuleNames = null;
 				if (isUnnamed()) {
 					IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
-					declaringModuleNames = moduleEnv.getUniqueModulesDeclaringPackage(null, packageName, ANY);
+					declaringModuleNames = moduleEnv.getUniqueModulesDeclaringPackage(new char[][] {packageName}, ANY);
 				}
 				packageBinding = combineWithPackagesFromOtherRelevantModules(packageBinding, packageBinding.compoundName, declaringModuleNames);
 			}
-			this.declaredPackages.put(packageName, packageBinding);
+			this.declaredPackages.put(packageName, packageBinding.getIncarnation(this));
 			if (packageBinding.parent == null) {
 				this.environment.knownPackages.put(packageName, packageBinding);
 			}
@@ -729,23 +737,11 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 	
 	private PackageBinding combineWithPackagesFromOtherRelevantModules(PackageBinding currentBinding, char[][] compoundName, char[][] declaringModuleNames) {
-		boolean save = this.isPackageLookupActive;
-		this.isPackageLookupActive = true;
-		try {
-			char[] singleName = compoundName[compoundName.length-1];
-			PackageBinding parent = currentBinding != null ? currentBinding.parent : null;
-			for (ModuleBinding moduleBinding : otherRelevantModules(declaringModuleNames)) {
-				if (!moduleBinding.isPackageLookupActive) {
-					PackageBinding nextBinding = parent != null 
-							? moduleBinding.getVisiblePackage(parent, singleName, false)
-							: moduleBinding.getVisiblePackage(compoundName, false);
-					currentBinding = SplitPackageBinding.combine(nextBinding, currentBinding, this);
-				}
-			}
-			return currentBinding;
-		} finally {
-			this.isPackageLookupActive = save;
+		for (ModuleBinding moduleBinding : otherRelevantModules(declaringModuleNames)) {
+			PlainPackageBinding nextBinding = moduleBinding.getDeclaredPackage(CharOperation.concatWith(compoundName, '.'));
+			currentBinding = SplitPackageBinding.combine(nextBinding, currentBinding, this);
 		}
+		return currentBinding;
 	}
 
 	List<ModuleBinding> otherRelevantModules(char[][] declaringModuleNames) {

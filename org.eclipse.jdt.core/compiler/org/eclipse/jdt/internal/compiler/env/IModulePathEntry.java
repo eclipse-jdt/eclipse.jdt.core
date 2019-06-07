@@ -75,6 +75,14 @@ public interface IModulePathEntry {
 	boolean hasCompilationUnit(String qualifiedPackageName, String moduleName);
 
 	/**
+	 * Lists all packages in this modulepath entry.
+	 * @return array of flat, dot-separated package names
+	 */
+	default char[][] listPackages() {
+		return CharOperation.NO_CHAR_CHAR;
+	}
+
+	/**
 	 * Specifies whether this entry represents an automatic module.
 	 * 
 	 * @return true if this is an automatic module, false otherwise

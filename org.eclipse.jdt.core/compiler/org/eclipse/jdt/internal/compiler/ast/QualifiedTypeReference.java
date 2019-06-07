@@ -124,7 +124,7 @@ public class QualifiedTypeReference extends TypeReference {
 	    int typeStart = packageBinding == null ? 0 : packageBinding.compoundName.length;
 	    
 	    if (packageBinding != null) {
-	    	PackageBinding uniquePackage = packageBinding.getVisibleFor(scope.module(), false);
+	    	PackageBinding uniquePackage = packageBinding.getVisibleFor(scope.module(), false, false);
 	    	if (uniquePackage instanceof SplitPackageBinding) {
 	    		CompilerOptions compilerOptions = scope.compilerOptions();
 	    		boolean inJdtDebugCompileMode = compilerOptions.enableJdtDebugCompileMode;

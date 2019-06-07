@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
@@ -185,5 +186,8 @@ public char[][] singletonModuleNameIf(boolean condition) {
 	if (this.module != null)
 		return new char[][] { this.module.name() };
 	return new char[][] { ModuleBinding.UNNAMED };
+}
+public char[][] listPackages() {
+	return CharOperation.NO_CHAR_CHAR;
 }
 }

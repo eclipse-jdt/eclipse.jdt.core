@@ -55,10 +55,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 	}
 
 	private PackageBinding getModulesPackageBinding(PackageBinding binding) {
-		if (binding instanceof SplitPackageBinding) {
-			return ((SplitPackageBinding) binding).getIncarnation(this.binding);
-		}
-		return binding;
+		return binding.getIncarnation(this.binding);
 	}
 
 	@Override
@@ -85,9 +82,8 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 	@Override
 	public List<? extends Element> getEnclosedElements() {
 		ModuleBinding module = this.binding;
-		PackageBinding[] packs = module.declaredPackages.valueTable;
 		Set<PackageBinding> unique = new HashSet<>();
-		for (PackageBinding p : packs) {
+		for (PackageBinding p : module.declaredPackages.values()) {
 			if (p == null)
 				continue;
 			if (p instanceof SplitPackageBinding) {
@@ -111,12 +107,10 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 				unique.add(def);
 			}
 		} else {
-			packs = this.binding.getExports();
-			for (PackageBinding pBinding : packs) {
+			for (PackageBinding pBinding : this.binding.getExports()) {
 				unique.add(getModulesPackageBinding(pBinding));
 			}
-			packs = this.binding.getOpens();
-			for (PackageBinding pBinding : packs) {
+			for (PackageBinding pBinding : this.binding.getOpens()) {
 				unique.add(getModulesPackageBinding(pBinding));
 			}
 		}

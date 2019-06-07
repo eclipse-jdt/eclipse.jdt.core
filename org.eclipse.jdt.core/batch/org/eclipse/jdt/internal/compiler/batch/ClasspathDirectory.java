@@ -39,6 +39,13 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -329,6 +336,27 @@ public boolean hasCUDeclaringPackage(String qualifiedPackageName, Function<Compi
 		return hasDeclaration;
 	});
 }
+
+@Override
+public char[][] listPackages() {
+	Set<String> packageNames = new HashSet<>();
+	try {
+		Path basePath = FileSystems.getDefault().getPath(this.path);
+		Files.walkFileTree(basePath, new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+				if (file.toString().toLowerCase().endsWith(SUFFIX_STRING_class)) {
+					packageNames.add(file.getParent().relativize(basePath).toString().replace('/', '.'));
+				}
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	} catch (IOException e) {
+		// treat as if files are missing
+	}
+	return packageNames.stream().map(String::toCharArray).toArray(char[][]::new);
+}
+
 @Override
 public void reset() {
 	super.reset();

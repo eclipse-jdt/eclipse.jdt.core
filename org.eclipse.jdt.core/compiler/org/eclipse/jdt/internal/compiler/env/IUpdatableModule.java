@@ -43,7 +43,6 @@ public interface IUpdatableModule {
 		}
 		@Override
 		public void accept(IUpdatableModule t) {
-			// TODO Auto-generated method stub
 			t.addExports(this.name, this.targets);
 		}
 		
