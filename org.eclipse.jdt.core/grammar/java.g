@@ -114,6 +114,7 @@ $Terminals
 	AT308
 	AT308DOTDOTDOT
 	BeginCaseExpr
+	RestrictedIdentifierYield
 
 --    BodyMarker
 
@@ -216,6 +217,8 @@ Goal ::= '(' ParenthesizedCastNameAndBounds
 Goal ::= '<' ReferenceExpressionTypeArgumentsAndTrunk
 -- JSR 308 Reconnaissance mission.
 Goal ::= '@' TypeAnnotations
+-- JSR 354 Reconnaissance mission.
+Goal ::= '->' YieldStatement
 /:$readableName Goal:/
 
 Literal -> IntegerLiteral
@@ -1206,6 +1209,7 @@ StatementWithoutTrailingSubstatement -> SynchronizedStatement
 StatementWithoutTrailingSubstatement -> ThrowStatement
 StatementWithoutTrailingSubstatement -> TryStatement
 StatementWithoutTrailingSubstatement -> TryStatementWithResources
+StatementWithoutTrailingSubstatement -> YieldStatement
 /:$readableName Statement:/
 
 EmptyStatement ::= ';'
@@ -1325,6 +1329,10 @@ SwitchLabelCaseLhs ::= 'case' ConstantExpressions
 /:$readableName SwitchLabelCaseLhs:/
 
 -- END SwitchExpression (JEP 325) --
+
+YieldStatement ::= RestrictedIdentifierYield Expression ;
+/.$putCase consumeStatementYield() ; $break ./
+/:$readableName YieldStatement:/
 
 WhileStatement ::= 'while' '(' Expression ')' Statement
 /.$putCase consumeStatementWhile() ; $break ./

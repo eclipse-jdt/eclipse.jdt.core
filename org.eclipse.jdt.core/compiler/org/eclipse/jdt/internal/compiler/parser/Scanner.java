@@ -112,7 +112,7 @@ public class Scanner implements TerminalTokens {
 	 *
 	 */
 	enum ScanContext {
-		EXPECTING_KEYWORD, EXPECTING_IDENTIFIER, AFTER_REQUIRES, INACTIVE
+		EXPECTING_KEYWORD, EXPECTING_IDENTIFIER, AFTER_REQUIRES, EXPECTING_YIELD, INACTIVE
 	}
 	protected ScanContext scanContext = null;
 	protected boolean insideModuleInfo = false;
@@ -3705,6 +3705,19 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 					return TokenNameIdentifier;
 			}
 
+		case 'y' :
+			switch (length) {
+				case 5 :
+					if ((data[++index] == 'i')
+						&& (data[++index] == 'e')
+						&& (data[++index] == 'l')
+						&& (data[++index] == 'd'))
+						return disambiguatedRestrictedIdentifier(TokenNameRestrictedIdentifierYield);
+					//$FALL-THROUGH$
+				default :
+					return TokenNameIdentifier;
+			}
+
 		default :
 			return TokenNameIdentifier;
 	}
@@ -4479,12 +4492,14 @@ private static class Goal {
 	static int ReferenceExpressionRule = 0;
 	static int VarargTypeAnnotationsRule  = 0;
 	static int BlockStatementoptRule = 0;
+	static int YieldStatementRule = 0;
 	
 	static Goal LambdaParameterListGoal;
 	static Goal IntersectionCastGoal;
 	static Goal VarargTypeAnnotationGoal;
 	static Goal ReferenceExpressionGoal;
 	static Goal BlockStatementoptGoal;
+	static Goal YieldStatementGoal;
 	
 	static {
 		
@@ -4503,6 +4518,9 @@ private static class Goal {
 			else
 			if ("BlockStatementopt".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				BlockStatementoptRule = i;
+			else
+			if ("YieldStatement".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				YieldStatementRule = i;
 					
 		}
 		
@@ -4511,6 +4529,7 @@ private static class Goal {
 		VarargTypeAnnotationGoal = new Goal(TokenNameAT, new int[] { TokenNameELLIPSIS }, VarargTypeAnnotationsRule);
 		ReferenceExpressionGoal =  new Goal(TokenNameLESS, new int[] { TokenNameCOLON_COLON }, ReferenceExpressionRule);
 		BlockStatementoptGoal =    new Goal(TokenNameLBRACE, new int [0], BlockStatementoptRule);
+		YieldStatementGoal =       new Goal(TokenNameARROW, new int [0], YieldStatementRule);
 	}
 
 
@@ -4791,6 +4810,40 @@ public static boolean isRestrictedKeyword(int token) {
 		default:
 			return false;
 	}
+}
+private boolean mayBeAtAnYieldStatement() {
+	// preceded by ;, {, }, ), or -> [Ref: http://mail.openjdk.java.net/pipermail/amber-spec-experts/2019-May/001401.html]
+	switch (this.lookBack[1]) {
+		case TokenNameSEMICOLON:
+		case TokenNameLBRACE:
+		case TokenNameRBRACE:
+		case TokenNameLBRACKET:
+		case TokenNameRBRACKET:
+		case TokenNameARROW:
+			return true;
+		default:
+			return false;
+	}
+}
+int disambiguatedRestrictedIdentifier(int restrictedKeywordToken) {
+	if (this.scanContext == ScanContext.EXPECTING_YIELD)
+		return TokenNameRestrictedIdentifierYield;
+
+	if (this.sourceLevel < ClassFileConstants.JDK13)
+		return TokenNameIdentifier;
+
+	int token = TokenNameIdentifier;
+	// not working - check intermittent parser rule definition possibility.
+	final VanguardParser parser = getVanguardParser();
+	if (restrictedKeywordToken == TokenNameRestrictedIdentifierYield  && mayBeAtAnYieldStatement()) {
+		parser.scanner.resetTo(this.startPosition, this.eofPosition - 1);
+		parser.scanner.scanContext = ScanContext.EXPECTING_YIELD;
+		if (parser.parse(Goal.YieldStatementGoal) == VanguardParser.SUCCESS) {
+			token = TokenNameRestrictedIdentifierYield;
+		}
+	}
+	parser.scanner.scanContext = null; 
+	return token;
 }
 int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 	int token = restrictedKeywordToken;

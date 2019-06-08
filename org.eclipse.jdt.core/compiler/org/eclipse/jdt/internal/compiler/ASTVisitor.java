@@ -496,6 +496,9 @@ public abstract class ASTVisitor {
 	public void endVisit(Wildcard wildcard, ClassScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(YieldStatement yieldStatement, BlockScope blockScope) {
+		// do nothing by default
+	}
 	public void endVisit(LambdaExpression lambdaExpression, BlockScope blockScope) {
 		// do nothing by default
 	}
@@ -1004,5 +1007,9 @@ public abstract class ASTVisitor {
 	}
 	public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
 		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(YieldStatement yieldStatement, BlockScope blockScope) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }
