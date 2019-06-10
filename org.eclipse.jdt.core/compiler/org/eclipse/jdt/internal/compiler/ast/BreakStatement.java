@@ -49,6 +49,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 		return flowInfo; // pretend it did not break since no actual target
 	}
+	if (targetContext.associatedNode instanceof SwitchExpression) {
+		//TODO : flag error here currentScope.problemReporter().invalidBreak(this);
+	}
 
 	if ((this.isImplicit || this.switchExpression != null) && this.expression != null) {
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);

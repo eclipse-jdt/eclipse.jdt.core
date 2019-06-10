@@ -943,6 +943,7 @@ protected int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
 protected boolean parsingJava8Plus;
 protected boolean parsingJava9Plus;
+protected boolean parsingJava13Plus;
 protected boolean parsingJava12Plus;
 protected boolean parsingJava11Plus;
 protected int unstackedAct = ERROR_ACTION;
@@ -963,6 +964,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	initializeScanner();
 	this.parsingJava8Plus = this.options.sourceLevel >= ClassFileConstants.JDK1_8;
 	this.parsingJava9Plus = this.options.sourceLevel >= ClassFileConstants.JDK9;
+	this.parsingJava13Plus = this.options.sourceLevel >= ClassFileConstants.JDK13;
 	this.parsingJava12Plus = this.options.sourceLevel >= ClassFileConstants.JDK12;
 	this.parsingJava11Plus = this.options.sourceLevel >= ClassFileConstants.JDK11;
 	this.astLengthStack = new int[50];
@@ -9302,7 +9304,7 @@ protected void consumeStatementReturn() {
 		pushOnAstStack(new ReturnStatement(null, this.intStack[this.intPtr--], this.endStatementPosition));
 	}
 }
-private void createSwitchStatementOrExpression(boolean isStmt) {
+private SwitchStatement createSwitchStatementOrExpression(boolean isStmt) {
 	
 	//OpenBlock just makes the semantic action blockStart()
 	//the block is inlined but a scope need to be created
@@ -9330,11 +9332,13 @@ private void createSwitchStatementOrExpression(boolean isStmt) {
 	switchStatement.sourceEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(switchStatement.blockStart, switchStatement.sourceEnd)) {
 		switchStatement.bits |= ASTNode.UndocumentedEmptyBlock;
-	}	
+	}
+	return switchStatement;
 }
 protected void consumeStatementSwitch() {
 	// SwitchStatement ::= 'switch' OpenBlock '(' Expression ')' SwitchBlock
-	createSwitchStatementOrExpression(true);
+	SwitchStatement s = createSwitchStatementOrExpression(true);
+	replaceYield(s);
 }
 protected void consumeStatementSynchronized() {
 	// SynchronizedStatement ::= OnlySynchronized '(' Expression ')' Block
@@ -9666,6 +9670,70 @@ protected void consumeDefaultLabelExpr() {
 		stmt.traverse(reCollector, null);
 	}
 }
+/* package */ void flagBreak(SwitchExpression s) {
+	if (s.resultExpressions != null)
+		return; // already calculated.
+
+	class BreakFlagVisitor extends ASTVisitor {
+		Stack<SwitchExpression> targetSwitchExpressions;
+		public BreakFlagVisitor(SwitchExpression se) {
+			if (this.targetSwitchExpressions == null)
+				this.targetSwitchExpressions = new Stack<>();
+			this.targetSwitchExpressions.push(se);
+		}
+		@Override
+		public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
+			if (switchExpression.resultExpressions == null)
+				switchExpression.resultExpressions = new ArrayList<>(0);
+			this.targetSwitchExpressions.push(switchExpression);
+			return false;
+		}
+		@Override
+		public void endVisit(SwitchExpression switchExpression,	BlockScope blockScope) {
+			this.targetSwitchExpressions.pop();
+		}
+		@Override
+		public boolean visit(BreakStatement breakStatement, BlockScope blockScope) {
+			// flag an error while resolving
+			breakStatement.switchExpression = this.targetSwitchExpressions.peek();
+			return true;
+		}
+		@Override
+		public boolean visit(DoStatement stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
+		public boolean visit(ForStatement stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
+		public boolean visit(ForeachStatement stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
+		public boolean visit(SwitchStatement stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
+		public boolean visit(TypeDeclaration stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
+		public boolean visit(WhileStatement stmt, BlockScope blockScope) {
+			return false;
+		}
+		@Override
+		public boolean visit(CaseStatement caseStatement, BlockScope blockScope) {
+			return true; // do nothing by default, keep traversing
+		}
+	}
+	int l = s.statements == null ? 0 : s.statements.length;
+	for (int i = 0; i < l; ++i) {
+		Statement stmt = s.statements[i];
+		BreakFlagVisitor reCollector = new BreakFlagVisitor(s);
+		stmt.traverse(reCollector, null);
+	}
+}
 /* package */ void collectResultExpressionsYield(SwitchExpression s) {
 	if (s.resultExpressions != null)
 		return; // already calculated.
@@ -9750,6 +9818,29 @@ protected void consumeDefaultLabelExpr() {
 		stmt.traverse(reCollector, null);
 	}
 }
+/* package */ void replaceYield(SwitchStatement s) {
+	if (!this.parsingJava13Plus)
+		return;
+	int l = s.statements == null ? 0 : s.statements.length;
+	List<Statement> tmp = new ArrayList<>(l);
+	for (int i = 0; i < l; ++i) {
+		//TODO:  add opt for lazy init
+		Statement stmt = s.statements[i];
+		if (stmt instanceof YieldStatement) {
+			Expression e = ((YieldStatement) stmt).expression;
+			tmp.add(e);
+			BreakStatement b = new BreakStatement(null, -1, -1);
+			b.isImplicit = true;
+			tmp.add(b);
+		} else {
+			tmp.add(stmt);
+		}
+	}
+	int sztmp = tmp.size();
+	if (sztmp > l) {
+		s.statements = tmp.toArray(new Statement[]{});
+	}
+}
 protected void consumeSwitchExpression() {
 // SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchExpressionBlock
 	createSwitchStatementOrExpression(false);
@@ -9797,13 +9888,12 @@ protected void consumeSwitchLabeledRuleToBlockStatement() {
 protected void consumeSwitchLabeledExpression() {
 	consumeExpressionStatement();
 	Expression expr = (Expression) this.astStack[this.astPtr];
-	BreakStatement breakStatement = new BreakStatement(
-			null,
+	YieldStatement yieldStatement = new YieldStatement(
+			expr,
 			expr.sourceStart,
 			this.endStatementPosition);
-	breakStatement.isImplicit = true;
-	breakStatement.expression = expr;
-	this.astStack[this.astPtr] = breakStatement;
+	yieldStatement.isImplicit = true;
+	this.astStack[this.astPtr] = yieldStatement;
 	concatNodeLists();
 } 
 protected void consumeSwitchLabeledBlock() {

@@ -159,6 +159,21 @@ public class SwitchStatement extends Expression {
 						complaintLevel = initialComplaintLevel; // reset complaint
 						fallThroughState = CASE;
 					} else {
+						if (i > 0 && !(this instanceof SwitchExpression) &&
+							currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK13 &&
+							statement instanceof BreakStatement &&
+							((BreakStatement) statement).isImplicit) {
+							Statement prevStmt = this.statements[i - 1];
+							if (prevStmt instanceof Expression) {
+								Expression e = (Expression) prevStmt;
+								/* JLS 13 14.11.2
+									Switch labeled rules in switch statements differ from those in switch expressions (15.28).
+									In switch statements they must be switch labeled statement expressions, ... */
+								if (!e.statementExpression()) {
+									this.scope.problemReporter().invalidExpressionAsStatement(e);
+								}
+							}
+						}
 						fallThroughState = getFallThroughState(statement, currentScope); // reset below if needed
 					}
 					if ((complaintLevel = statement.complainIfUnreachable(caseInits, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {

@@ -26,6 +26,7 @@ public class YieldStatement extends BranchStatement {
 
 	public Expression expression;
 	public SwitchExpression switchExpression;
+	public boolean isImplicit;
 
 public YieldStatement(Expression exp, int sourceStart, int e) {
 	super(null, sourceStart, e);
@@ -118,24 +119,13 @@ public void resolve(BlockScope scope) {
 	// METHOD IN WORKS - INCOMPLETE
 	super.resolve(scope);
 //	if (this.expression == null)
-//	currentScope.problemReporter().yieldWithNullExpression(this);
+//	currentScope.problemReporter().switchExpressionYieldMissingExpression(this);
 //	
 //if (this.switchExpression == null)
 //	currentScope.problemReporter().yieldInNonSwitchExpression(this);
 
-	if  (this.expression != null && (this.switchExpression != null)) {
-		if (this.switchExpression == null && !this.expression.statementExpression()) {
-			if (scope.compilerOptions().enablePreviewFeatures) {
-				/* JLS 12 14.11.2
-				Switch labeled rules in switch statements differ from those in switch expressions (15.28).
-				In switch statements they must be switch labeled statement expressions, ... */
-				scope.problemReporter().invalidExpressionAsStatement(this.expression);
-				return;
-			}
-		}
+	if  (this.expression != null) {
 		this.expression.resolveType(scope);
-	} else if (this.expression == null && this.switchExpression != null) {
-		scope.problemReporter().switchExpressionBreakMissingValue(this);
 	}
 }
 

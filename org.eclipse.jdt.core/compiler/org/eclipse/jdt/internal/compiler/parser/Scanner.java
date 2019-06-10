@@ -2568,7 +2568,8 @@ public boolean isInModuleDeclaration() {
 			(this.activeParser != null ? this.activeParser.isParsingModuleDeclaration() : false);
 }
 protected boolean areRestrictedModuleKeywordsActive() {
-	return this.scanContext != null && this.scanContext != ScanContext.INACTIVE;
+	return this.scanContext != null && this.scanContext != ScanContext.INACTIVE &&
+			this.scanContext != ScanContext.EXPECTING_YIELD;
 }
 void updateScanContext(int token) {
 	switch (token) {
@@ -4122,6 +4123,8 @@ public String toStringAction(int act) {
 	switch (act) {
 		case TokenNameIdentifier :
 			return "Identifier(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		case TokenNameRestrictedIdentifierYield :
+			return "yield"; //$NON-NLS-1$
 		case TokenNameabstract :
 			return "abstract"; //$NON-NLS-1$
 		case TokenNameboolean :
@@ -4441,6 +4444,9 @@ public static boolean isKeyword(int token) {
 		case TerminalTokens.TokenNamevolatile:
 		case TerminalTokens.TokenNamewhile:
 			return true;
+		case TerminalTokens.TokenNameRestrictedIdentifierYield:
+			// making explicit - yield not a (restricted) keyword but restricted identifier.
+			//$FALL-THROUGH$
 		default:
 			return false;
 	}
@@ -4813,16 +4819,12 @@ public static boolean isRestrictedKeyword(int token) {
 }
 private boolean mayBeAtAnYieldStatement() {
 	// preceded by ;, {, }, ), or -> [Ref: http://mail.openjdk.java.net/pipermail/amber-spec-experts/2019-May/001401.html]
+	// above comment is super-seded by http://mail.openjdk.java.net/pipermail/amber-spec-experts/2019-May/001414.html
 	switch (this.lookBack[1]) {
-		case TokenNameSEMICOLON:
-		case TokenNameLBRACE:
-		case TokenNameRBRACE:
-		case TokenNameLBRACKET:
-		case TokenNameRBRACKET:
-		case TokenNameARROW:
-			return true;
-		default:
+		case TokenNameDOT:
 			return false;
+		default:
+			return true;
 	}
 }
 int disambiguatedRestrictedIdentifier(int restrictedKeywordToken) {
@@ -4995,6 +4997,7 @@ public int fastForward(Statement unused) {
 			case TokenNameAT:
 			case TokenNameBeginLambda:
 			case TokenNameAT308:
+			case TokenNameRestrictedIdentifierYield: // can be in FOLLOW of Block
 				if(getVanguardParser().parse(Goal.BlockStatementoptGoal) == VanguardParser.SUCCESS)
 					return token;
 				break;
