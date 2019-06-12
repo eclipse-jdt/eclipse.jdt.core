@@ -26,6 +26,9 @@ public class YieldStatement extends BranchStatement {
 
 	public Expression expression;
 	public SwitchExpression switchExpression;
+	/**
+	 * @noreference This field is not intended to be referenced by clients.
+	 */
 	public boolean isImplicit;
 
 public YieldStatement(Expression exp, int sourceStart, int e) {
