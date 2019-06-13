@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -95,11 +99,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	private static final int JLS9_INTERNAL = AST.JLS9;
 	
 	/**
-	 * Internal synonym for {@link AST#JLS12}. Use to alleviate
+	 * Internal synonym for {@link AST#JLS13}. Use to alleviate
 	 * deprecation warnings.
-	 * @since 3.18
+	 * @since 3.18 BETA_JAVA13
 	 */
-	private static final int JLS12 = AST.JLS12;
+	private static final int JLS13 = AST.JLS13;
 
 
 	public static String asString(ASTNode node, RewriteEventStore store) {
@@ -362,24 +366,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(BreakStatement node) {
-		if (node.getAST().apiLevel() >= JLS12 && node.isImplicit()  && node.getExpression() == null) {
-			return false;
-		}
-		
-		if (node.getAST().apiLevel() < JLS12 || (node.getAST().apiLevel() >= JLS12 && !node.isImplicit())) {
-			this.result.append("break"); //$NON-NLS-1$
-		}
+		this.result.append("break"); //$NON-NLS-1$
 		ASTNode label= getChildNode(node, BreakStatement.LABEL_PROPERTY);
 		if (label != null) {
 			this.result.append(' ');
 			label.accept(this);
-		}
-		if (node.getAST().apiLevel() >= JLS12) {
-			ASTNode expression = getChildNode(node, BreakStatement.EXPRESSION_PROPERTY);
-			if (expression != null ) {
-				this.result.append(' ');
-				expression.accept(this);
-			}
 		}
 		this.result.append(';');
 		return false;
@@ -983,7 +974,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if (node.getAST().apiLevel() >= JLS12) {
+		if (node.getAST().apiLevel() == JLS13) {
 			if (node.isDefault()) {
 				this.result.append("default");//$NON-NLS-1$
 				this.result.append(getBooleanAttribute(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY) ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
@@ -1507,6 +1498,23 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			}
 			bound.accept(this);
 		}
+		return false;
+	}
+	
+	@Override
+	public boolean visit(YieldStatement node) {
+		if (node.getAST().apiLevel() == JLS13 && node.isImplicit()  && node.getExpression() == null) {
+			return false;
+		}
+		
+		this.result.append("yield"); //$NON-NLS-1$
+
+		ASTNode expression = getChildNode(node, YieldStatement.EXPRESSION_PROPERTY);
+		if (expression != null ) {
+			this.result.append(' ');
+			expression.accept(this);
+		}
+		this.result.append(';');
 		return false;
 	}
 }

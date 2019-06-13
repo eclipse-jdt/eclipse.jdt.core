@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,10 +7,11 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
+ * 
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -21,37 +22,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Break statement AST node type.
+ * Yield statement AST node type.
  *
  * <pre>
- * BreakStatement:
- *    <b>break</b> [ Identifier ] <b>;</b>
- *    
- *    Break statement allows expression as part of Java 12 preview feature (JEP 325)
- *		<b>break</b> <b>{ Identifier | Expression }</b>
+ * YieldStatement:
+ *		<b>Yield</b> <b>{ Identifier/Expression }</b>
  * </pre>
  *
- * @since 2.0
+ * @since 3.18 BETA_JAVA13
  * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noreference This class is not intended to be referenced by clients as it is a part of Java preview feature.
  */
 @SuppressWarnings("rawtypes")
-public class BreakStatement extends Statement {
+public class YieldStatement extends Statement {
 
 	/**
-	 * The "label" structural property of this node type (child type: {@link SimpleName}).
-	 * @since 3.0
-	 */
-	public static final ChildPropertyDescriptor LABEL_PROPERTY =
-		new ChildPropertyDescriptor(BreakStatement.class, "label", SimpleName.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
-	
-	/**
-	 * The "expression" structural property of this node type (child type: {@link Expression}). (added in JEP 325).
-	 * @noreference This property is not intended to be referenced by clients as it is a part of Java preview feature.
-	 * @deprecated
-	 * @since 3.18
+	 * The "expression" structural property of this node type (child type: {@link Expression}). (added in JEP 354).
 	 */
 	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
-			new ChildPropertyDescriptor(BreakStatement.class, "expression", Expression.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$);
+			new ChildPropertyDescriptor(YieldStatement.class, "expression", Expression.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$);
 
 	/**
 	 * A list of property descriptors (element type:
@@ -59,30 +48,17 @@ public class BreakStatement extends Statement {
 	 * or null if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
-	
-	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
-	 */
-	private static final List PROPERTY_DESCRIPTORS_12;
-	
+
 	/**
 	 * <code>true</code> indicates implicit and <code>false</code> indicates not implicit.
 	 */
 	private boolean isImplicit = false;
-
+	
 	static {
 		List properyList = new ArrayList(2);
-		createPropertyList(BreakStatement.class, properyList);
-		addProperty(LABEL_PROPERTY, properyList);
+		createPropertyList(YieldStatement.class, properyList);
+		addProperty(EXPRESSION_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
-		
-		List properyList_12 = new ArrayList(2);
-		createPropertyList(BreakStatement.class, properyList_12);
-		addProperty(LABEL_PROPERTY, properyList_12);
-		addProperty(EXPRESSION_PROPERTY, properyList_12);
-		PROPERTY_DESCRIPTORS_12 = reapPropertyList(properyList_12);
 	}
 
 	/**
@@ -94,36 +70,33 @@ public class BreakStatement extends Statement {
 
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS12_INTERNAL) {
-			return PROPERTY_DESCRIPTORS_12;
+		if (apiLevel >= AST.JLS13_INTERNAL) {
+			return PROPERTY_DESCRIPTORS;
 		}
 		return PROPERTY_DESCRIPTORS;
 	}
 
-	/**
-	 * The label, or <code>null</code> if none; none by default.
-	 */
-	private SimpleName optionalLabel = null;
 	
 	/**
-	 * The expression; <code>null</code> for none
+	 * The expression
 	 */
-	private Expression optionalExpression = null;
+	private Expression expression = null;
 
 	/**
-	 * Creates a new unparented break statement node owned by the given
-	 * AST. By default, the break statement has no label/identifier/expression and is not implicit.
+	 * Creates a new unparented Yield statement node owned by the given
+	 * AST. By default, the Yield statement has identifier/expression.
 	 * <p>
 	 * N.B. This constructor is package-private.
 	 * </p>
 	 *
 	 * @param ast the AST that is to own this node
+	 * @exception UnsupportedOperationException if this operation is used other than JLS13
 	 */
-	BreakStatement(AST ast) {
+	YieldStatement(AST ast) {
 		super(ast);
+		supportedOnlyIn13();
 	}
 
 	@Override
@@ -133,14 +106,6 @@ public class BreakStatement extends Statement {
 
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
-		if (property == LABEL_PROPERTY) {
-			if (get) {
-				return getLabel();
-			} else {
-				setLabel((SimpleName) child);
-				return null;
-			}
-		} 
 		if (property == EXPRESSION_PROPERTY) {
 			if (get) {
 				return getExpression();
@@ -155,16 +120,15 @@ public class BreakStatement extends Statement {
 
 	@Override
 	final int getNodeType0() {
-		return BREAK_STATEMENT;
+		return YIELD_STATEMENT;
 	}
 
 	@Override
 	ASTNode clone0(AST target) {
-		BreakStatement result = new BreakStatement(target);
+		YieldStatement result = new YieldStatement(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
-		result.setLabel((SimpleName) ASTNode.copySubtree(target, getLabel()));
-		if (this.ast.apiLevel == AST.JLS12_INTERNAL) {
+		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
 			result.setExpression((Expression) ASTNode.copySubtree(target, getExpression()));
 		}
 		return result;
@@ -180,80 +144,45 @@ public class BreakStatement extends Statement {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			if (this.ast.apiLevel == AST.JLS12_INTERNAL) {
+			if (this.ast.apiLevel >= AST.JLS13_INTERNAL) {
 				acceptChild(visitor, getExpression());
 			} 
-			acceptChild(visitor, getLabel());
 		}
 		visitor.endVisit(this);
 	}
-
-	/**
-	 * Returns the label of this break statement, or <code>null</code> if
-	 * there is none.
-	 *
-	 * @return the label, or <code>null</code> if there is none
-	 */
-	public SimpleName getLabel() {
-		return this.optionalLabel;
-	}
-
-	/**
-	 * Sets or clears the label of this break statement.
-	 *
-	 * @param label the label, or <code>null</code> if
-	 *    there is none
-	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * </ul>
-	 */
-	public void setLabel(SimpleName label) {
-		ASTNode oldChild = this.optionalLabel;
-		preReplaceChild(oldChild, label, LABEL_PROPERTY);
-		this.optionalLabel = label;
-		postReplaceChild(oldChild, label, LABEL_PROPERTY);
-	}
 	
 	/**
-	 * Returns the expression of this break statement, or <code>null</code> if
+	 * Returns the expression of this Yield statement, or <code>null</code> if
 	 * there is none.
 	 *
 	 * @return the expression, or <code>null</code> if there is none
-	 * @exception UnsupportedOperationException if this operation is used other than JLS12
+	 * @exception UnsupportedOperationException if this operation is used other than JLS13
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
-	 * @deprecated
-	 * @since 3.18
 	 */
 	public Expression getExpression() {
-		// optionalExpression can be null
-		supportedOnlyIn12();
-		return this.optionalExpression;
+		supportedOnlyIn13();
+		return this.expression;
 	}
 
 	/**
-	 * Sets or clears the expression of this break statement.
+	 * Sets or clears the expression of this Yield statement.
 	 *
-	 * @param expression the expression, or <code>null</code> if
-	 *    there is none
+	 * @param expression the expression
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * </ul>
-	 * @exception UnsupportedOperationException if this operation is used other than JLS12
+	 * @exception UnsupportedOperationException if this operation is used other than JLS13
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
-	 * @deprecated
-	 * @since 3.18
 	 */
 	public void setExpression(Expression expression) {
-		supportedOnlyIn12();
-		ASTNode oldChild = this.optionalExpression;
+		supportedOnlyIn13();
+		ASTNode oldChild = this.expression;
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
-		this.optionalExpression = expression;
+		this.expression = expression;
 		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
@@ -262,14 +191,12 @@ public class BreakStatement extends Statement {
 	 *<code>true</code> indicates implicit and <code>false</code> indicates not implicit.
 	 *
 	 * @return isImplicit <code>true</code> or <code>false</code>
-	 * @exception UnsupportedOperationException if this operation is used other than JLS12
+	 * @exception UnsupportedOperationException if this operation is used other than JLS13
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
-	 * @deprecated
-	 * @since 3.18
 	 */
 	public boolean isImplicit() {
-		supportedOnlyIn12();
+		supportedOnlyIn13();
 		return this.isImplicit;
 	}
 
@@ -279,15 +206,14 @@ public class BreakStatement extends Statement {
 	 * generated by compiler and is not expected to be set by client.
 
 	 * @param isImplicit <code>true</code> or <code>false</code>
-	 * @exception UnsupportedOperationException if this operation is used other than JLS12
-	 * @deprecated
-	 * @since 3.18
+	 * @exception UnsupportedOperationException if this operation is used other than JLS13
 	 */
 	void setImplicit(boolean isImplicit) {
-		supportedOnlyIn12();
+		supportedOnlyIn13();
 		this.isImplicit = isImplicit;
 	}
 
+	
 	@Override
 	int memSize() {
 		return super.memSize() + 2 * 4;
@@ -297,8 +223,7 @@ public class BreakStatement extends Statement {
 	int treeSize() {
 		return
 			memSize()
-			+ (this.optionalLabel == null ? 0 : getLabel().treeSize())
-			+ (this.optionalExpression == null ? 0 : getExpression().treeSize());
+			+ (this.expression == null ? 0 : getExpression().treeSize());
 	}
 }
 

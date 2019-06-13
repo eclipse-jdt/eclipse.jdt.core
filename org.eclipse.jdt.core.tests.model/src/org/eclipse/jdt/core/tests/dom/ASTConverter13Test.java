@@ -34,20 +34,21 @@ import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.YieldStatement;
 
 import junit.framework.Test;
 
 @SuppressWarnings("rawtypes")
-public class ASTConverter12Test extends ConverterTestSetup {
+public class ASTConverter13Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getAST12());
+		this.ast = AST.newAST(getAST13());
 	}
 
-	public ASTConverter12Test(String name) {
+	public ASTConverter13Test(String name) {
 		super(name);
 	}
 
@@ -57,11 +58,11 @@ public class ASTConverter12Test extends ConverterTestSetup {
 //		TESTS_NAMES = new String[] {"test0001"};
 	}
 	public static Test suite() {
-		return buildModelTestSuite(ASTConverter12Test.class);
+		return buildModelTestSuite(ASTConverter13Test.class);
 	}
 	
-	static int getAST12() {
-		return AST.JLS12;
+	static int getAST13() {
+		return AST.JLS13;
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -73,7 +74,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 	/*
 	 * Test that a simple switch expression's return type holds the correct type
 	 */
-	public void test0001() throws JavaModelException {
+	public void _test0001() throws JavaModelException {
 		String contents =
 			"	public class X {\n" +
 			"   enum Day\n" +
@@ -87,15 +88,15 @@ public class ASTConverter12Test extends ConverterTestSetup {
 			"    	case MONDAY  -> throw new NullPointerException();\n" + 
 			"    	case TUESDAY -> 1;\n" + 
 			"\n" +     
-			"	 	case WEDNESDAY -> {break 10;}\n" + 
+			"	 	case WEDNESDAY -> {yield 10;}\n" + 
 			"    	default      -> {\n" +
 			"        	int g = day.toString().length();\n" +
-			"        	break g;\n" +
+			"        	yield g;\n" +
 			"   	}};\n" +
 			"   	System.out.println(k);\n" +
 			"	}\n" +
 			"}" ;
-		this.workingCopy = getWorkingCopy("/Converter12/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
@@ -122,7 +123,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 	 * Test that a case statement with multiple cases is resolved correctly
 	 * and has the correct source range
 	 */
-	public void test0002() throws JavaModelException {
+	public void _test0002() throws JavaModelException {
 		String contents =
 			"public class X {\n" + 
 			"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" + 
@@ -154,7 +155,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 			"		return today;\n" + 
 			"	}\n" + 
 			"}" ;
-		this.workingCopy = getWorkingCopy("/Converter12/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
@@ -178,7 +179,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 	
 	/* test implicit break statement */
 
-	public void test0003() throws JavaModelException {
+	public void _test0003() throws JavaModelException {
 		String contents =
 			"public class X {\n" +
 			"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" +
@@ -199,16 +200,16 @@ public class ASTConverter12Test extends ConverterTestSetup {
 			"		String today = \"\";\n" +
 			"		today = switch (day) {\n" +
 			"			case SATURDAY,SUNDAY:\n" +
-			"				break \"Weekend day\";\n" +
+			"				yield \"Weekend day\";\n" +
 			"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY:\n" +
-			"				break \"Week day\";\n" +
+			"				yield \"Week day\";\n" +
 			"			default:\n" +
-			"				break \"Any day\";\n" +
+			"				yield \"Any day\";\n" +
 			"		};\n" +
 			"		return today;\n" +
 			"	}\n" +
 			"}" ;
-		this.workingCopy = getWorkingCopy("/Converter12/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
@@ -229,23 +230,23 @@ public class ASTConverter12Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-	public void test0004() throws JavaModelException {
+	public void _test0004() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
 				"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" +
 				"	String bb(Day day) throws Exception {\n" +
 				"		String today = switch (day) {\n" +
 				"			case SATURDAY,SUNDAY:\n" +
-				"				break \"Weekend day\";\n" +
+				"				yield \"Weekend day\";\n" +
 				"			case MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY:\n" +
-				"				break \"Week day\";\n" +
+				"				yield \"Week day\";\n" +
 				"			default:\n" +
-				"				break \"Any day\";\n" +
+				"				yield \"Any day\";\n" +
 				"		};\n" +
 				"		return today;\n" +
 				"	}\n" +
 				"}" ;
-		this.workingCopy = getWorkingCopy("/Converter12/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
@@ -271,7 +272,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 				assertEquals("incorrect name", "day", ((SimpleName) expression).getFullyQualifiedName());
 				List statements = ((SwitchExpression) initializer).statements();
 				assertEquals("incorrect no of statements", 6, statements.size());
-				BreakStatement brStmt = (BreakStatement) statements.get(1);
+				YieldStatement brStmt = (YieldStatement) statements.get(1);
 				Expression expression2 = brStmt.getExpression();
 				assertNotNull("should not null", expression2);
 				assertEquals("incorrect node type", ASTNode.STRING_LITERAL, expression2.getNodeType());
@@ -279,7 +280,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 				//default case:
 				SwitchCase caseStmt = (SwitchCase) statements.get(4);
 				assertTrue("not default", caseStmt.isDefault());
-				brStmt = (BreakStatement) statements.get(5);
+				brStmt = (YieldStatement) statements.get(5);
 				expression2 = brStmt.getExpression();
 				assertNotNull("should not null", expression2);
 				assertEquals("incorrect node type", ASTNode.STRING_LITERAL, expression2.getNodeType());
@@ -288,7 +289,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-	public void test0005() throws JavaModelException {
+	public void _test0005() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
 				"	public String test001() {\n" + 
@@ -301,7 +302,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 				"		return ret;\n" + 
 				"	}" +
 				"}" ;
-		this.workingCopy = getWorkingCopy("/Converter12/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
@@ -343,7 +344,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-	public void test0006() throws JavaModelException {
+	public void _test0006() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
 						"	public String test001() {\n" + 
@@ -356,7 +357,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 						"		return ret;\n" + 
 						"	}" +
 						"}" ;
-		this.workingCopy = getWorkingCopy("/Converter12/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
 		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {

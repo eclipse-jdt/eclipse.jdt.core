@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -83,9 +87,9 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	/** @deprecated using deprecated code */
 	private final static int JLS10_INTERNAL = AST.JLS10;
 	
-	private final static int JLS12_INTERNAL = AST.JLS12;
+	private final static int JLS13_INTERNAL = AST.JLS13;
 
-	private final static int[] JLS_LEVELS = { JLS2_INTERNAL, JLS3_INTERNAL, JLS4_INTERNAL, JLS8_INTERNAL, JLS9_INTERNAL, JLS10_INTERNAL, JLS12_INTERNAL };
+	private final static int[] JLS_LEVELS = { JLS2_INTERNAL, JLS3_INTERNAL, JLS4_INTERNAL, JLS8_INTERNAL, JLS9_INTERNAL, JLS10_INTERNAL, JLS13_INTERNAL };
 
 	private static final String ONLY_AST_STRING = "_only";
 	private static final String SINCE_AST_STRING = "_since";

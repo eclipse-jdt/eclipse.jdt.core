@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -961,6 +965,14 @@ public abstract class ASTNode {
 	 * @since 3.18
 	 */
 	public static final int SWITCH_EXPRESSION = 100;
+	
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>YieldStatement</code>.
+	 * @see YieldStatement
+	 * @since 3.18 BETA_JAVA13
+	 */
+	public static final int YIELD_STATEMENT = 10;
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -2087,6 +2099,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is used below JLS12
+	 * @deprecated
 	 * @since 3.16 
 	 */
 	final void unsupportedBelow12() {
@@ -2128,6 +2141,38 @@ public abstract class ASTNode {
 	  }
 	}
 	
+	/**
+     * Checks that this AST operation is only used when
+     * building JLS12 level ASTs.
+     * <p>
+     * Use this method to prevent access to properties available only in JLS12.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is is not used in JLS12
+	 * @since 3.18 BETA_JAVA13
+     */
+	// In API Javadocs, add: * @deprecated In the JLS13 API, this method is replaced by {@link #replacement()}.
+	final void supportedOnlyIn12() {
+	  if (this.ast.apiLevel != AST.JLS12_INTERNAL) {
+	  	throw new UnsupportedOperationException("Operation only supported in JLS12 AST"); //$NON-NLS-1$
+	  }
+	}
+	
+	/**
+ 	 * Checks that this AST operation is only used when
+     * building JLS13 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties available only in JLS13.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is not used in JLS13
+	 * @since 3.18 BETA_JAVA13
+	 */
+	final void supportedOnlyIn13() {
+		if (this.ast.apiLevel != AST.JLS13_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in JLS13 AST\""); //$NON-NLS-1$
+		}
+	}
 	/**
 	 * Sets or clears this node's parent node and location.
 	 * <p>

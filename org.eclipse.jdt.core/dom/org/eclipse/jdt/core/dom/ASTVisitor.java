@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1533,6 +1537,8 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
 	 * @since 3.18
 	 */
 	public boolean visit(SwitchExpression node) {
@@ -1853,6 +1859,24 @@ public abstract class ASTVisitor {
 		return true;
 	}
 
+	/**
+	 * Visits the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing and returns true.
+	 * Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @return <code>true</code> if the children of this node should be
+	 * visited, and <code>false</code> if the children of this node should
+	 * be skipped
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
+	 * @since 3.18 BETA_JAVA13
+	 */
+	public boolean visit(YieldStatement node) {
+		return true;
+	}
 	/**
 	 * End of visit the given type-specific AST node.
 	 * <p>
@@ -3098,6 +3122,21 @@ public abstract class ASTVisitor {
 	 * @since 3.1
 	 */
 	public void endVisit(WildcardType node) {
+		// default implementation: do nothing
+	}
+	
+	/**
+	 * End of visit the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing. Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
+	 * @since 3.18 BETA_JAVA13
+	 */
+	public void endVisit(YieldStatement node) {
 		// default implementation: do nothing
 	}
 }

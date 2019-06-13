@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -137,7 +141,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	/** @deprecated using deprecated code */
 	private static final int JLS9_INTERNAL = AST.JLS9;
 	
+	/** @deprecated using deprecated code */
 	private static final int JLS12_INTERNAL = AST.JLS12;
+	
+	private static final int JLS13_INTERNAL = AST.JLS13;
 
 
 	TextEdit currentEdit;
@@ -2574,9 +2581,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		try {
 			int offset= getScanner().getTokenEndOffset(TerminalTokens.TokenNamebreak, node.getStartPosition());
 			rewriteNode(node, BreakStatement.LABEL_PROPERTY, offset, ASTRewriteFormatter.SPACE); // space between break and label
-			if (node.getAST().apiLevel() >= JLS12_INTERNAL) {
-				rewriteNode(node, BreakStatement.EXPRESSION_PROPERTY, offset, ASTRewriteFormatter.SPACE); // space between break and label
-			}
 		} catch (CoreException e) {
 			handleException(e);
 		}
@@ -3517,7 +3521,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		// dont allow switching from case to default or back. New statements should be created.
-		if (node.getAST().apiLevel() >= JLS12_INTERNAL) {
+		if (node.getAST().apiLevel() == JLS13_INTERNAL) {
 			int pos = node.expressions().size() == 0 ? node.getStartPosition() :
 					rewriteNodeList(node, SwitchCase.EXPRESSIONS2_PROPERTY, node.getStartPosition(), Util.EMPTY_STRING, ", "); //$NON-NLS-1$
 			if (isChanged(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY)) {
@@ -3741,7 +3745,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					insertIndent++;
 				}
 				ParagraphListRewriter listRewriter;
-				if (node.getAST().apiLevel() >= JLS12_INTERNAL) {
+				if (node.getAST().apiLevel() == JLS13_INTERNAL) {
 					listRewriter= new SwitchListLabeledRuleRewriter(insertIndent);
 				} else {
 					listRewriter= new SwitchListRewriter(insertIndent);
@@ -4462,6 +4466,23 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				}
 			}
 			rewriteNode(node, WildcardType.BOUND_PROPERTY, pos, prefix);
+		} catch (CoreException e) {
+			handleException(e);
+		}
+		return false;
+	}
+	
+	@Override
+	public boolean visit(YieldStatement node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+
+		try {
+			int offset= getScanner().getTokenEndOffset(TerminalTokens.TokenNamebreak, node.getStartPosition());
+			if (node.getAST().apiLevel() == JLS13_INTERNAL) {
+				rewriteNode(node, YieldStatement.EXPRESSION_PROPERTY, offset, ASTRewriteFormatter.SPACE); // space between yield and label
+			}
 		} catch (CoreException e) {
 			handleException(e);
 		}

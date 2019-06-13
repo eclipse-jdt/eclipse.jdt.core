@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * SPDX-License-Identifier: EPL-2.0
  *Contributors:
  *     IBM Corporation - initial API and implementation
@@ -14,10 +18,7 @@ package org.eclipse.jdt.core.tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
 
-import org.eclipse.jdt.core.tests.dom.ASTConverter12Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 
 import junit.framework.Test;
@@ -36,18 +37,10 @@ public class RunOnlyJava12Tests extends TestCase {
 		};
 	}
 	
-	public static Class[] getConverterTestClasses() {
-		return new Class[] {
-				ASTConverter12Test.class
-		};
-	}
 	public static Test suite() {
 		TestSuite ts = new TestSuite(RunOnlyJava12Tests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
-		addTestsToSuite(ts, testClasses);
-		testClasses = getConverterTestClasses();
-		ConverterTestSetup.TEST_SUITES = new ArrayList(Arrays.asList(testClasses));
 		addTestsToSuite(ts, testClasses);
 		return ts;
 	}

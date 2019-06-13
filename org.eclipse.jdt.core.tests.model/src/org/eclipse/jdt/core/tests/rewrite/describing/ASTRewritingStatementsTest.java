@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -3606,7 +3610,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			assertTrue("Number of statements not 0", statements.size() == 0);
 
 			SwitchCase caseStatement1= ast.newSwitchCase();
-			if (this.apiLevel < AST.JLS12) {
+			if (this.apiLevel < AST.JLS13) {
 				caseStatement1.setExpression(ast.newNumberLiteral("1"));
 			}
 			else {
@@ -3616,7 +3620,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			Statement statement1= ast.newReturnStatement();
 
 			SwitchCase caseStatement2= ast.newSwitchCase(); // default
-			if (this.apiLevel < AST.JLS12) {
+			if (this.apiLevel < AST.JLS13) {
 				caseStatement2.setExpression(null);
 			}
 
@@ -3641,7 +3645,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			// change case statement
 			SwitchCase caseStatement= (SwitchCase) statements.get(3);
 			Expression newCaseExpression= ast.newNumberLiteral("10");
-			if (this.apiLevel < AST.JLS12) {
+			if (this.apiLevel < AST.JLS13) {
 				rewrite.replace(caseStatement.getExpression(), newCaseExpression, null);
 			} else {
 				List expressions = caseStatement.expressions();
@@ -3654,7 +3658,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			{
 				// insert case statement
 				SwitchCase caseStatement2= ast.newSwitchCase();
-				if (this.apiLevel < AST.JLS12) {
+				if (this.apiLevel < AST.JLS13) {
 					caseStatement2.setExpression(ast.newNumberLiteral("11"));
 				}
 				else {
@@ -3670,7 +3674,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			{
 				// insert case statement
 				SwitchCase caseStatement2= ast.newSwitchCase();
-				if (this.apiLevel < AST.JLS12) {
+				if (this.apiLevel < AST.JLS13) {
 					caseStatement2.setExpression(ast.newNumberLiteral("12"));
 				}
 				else {
@@ -3765,7 +3769,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				assertTrue("Number of statements not 0", statements.size() == 0);
 	
 				SwitchCase caseStatement1= ast.newSwitchCase();
-				if (this.apiLevel < AST.JLS12) {
+				if (this.apiLevel < AST.JLS13) {
 					caseStatement1.setExpression(ast.newNumberLiteral("1"));
 				}
 				else {
@@ -3775,7 +3779,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				Statement statement1= ast.newReturnStatement();
 	
 				SwitchCase caseStatement2= ast.newSwitchCase(); // default
-				if (this.apiLevel < AST.JLS12) {
+				if (this.apiLevel < AST.JLS13) {
 					caseStatement2.setExpression(null);
 				}
 	
@@ -3800,7 +3804,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				// change case statement
 				SwitchCase caseStatement= (SwitchCase) statements.get(3);
 				Expression newCaseExpression= ast.newNumberLiteral("10");
-				if (this.apiLevel < AST.JLS12) {
+				if (this.apiLevel < AST.JLS13) {
 					rewrite.replace(caseStatement.getExpression(), newCaseExpression, null);
 				} else {
 					List expressions = caseStatement.expressions();
@@ -3813,7 +3817,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				{
 					// insert case statement
 					SwitchCase caseStatement2= ast.newSwitchCase();
-					if (this.apiLevel < AST.JLS12) {
+					if (this.apiLevel < AST.JLS13) {
 						caseStatement2.setExpression(ast.newNumberLiteral("11"));
 					}
 					else {
@@ -3830,7 +3834,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				{
 					// insert case statement
 					SwitchCase caseStatement2= ast.newSwitchCase();
-					if (this.apiLevel < AST.JLS12) {
+					if (this.apiLevel < AST.JLS13) {
 						caseStatement2.setExpression(ast.newNumberLiteral("12"));
 					}
 					else {
@@ -4141,7 +4145,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				ExpressionStatement assignment = (ExpressionStatement)statements.get(1); // i= 1;:
 				
 				SwitchCase switchCase = ast.newSwitchCase();
-				if (this.apiLevel < AST.JLS12) {
+				if (this.apiLevel < AST.JLS13) {
 					switchCase.setExpression(ast.newNumberLiteral("2"));
 				}
 				else {
@@ -4289,7 +4293,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				ExpressionStatement assignment = (ExpressionStatement)statements.get(1); // i= 1;
 				
 				SwitchCase switchCase = ast.newSwitchCase();
-				if (this.apiLevel < AST.JLS12) {
+				if (this.apiLevel < AST.JLS13) {
 					switchCase.setExpression(ast.newNumberLiteral("2"));
 				}
 				else {
@@ -4613,7 +4617,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			SwitchStatement switchStmt = (SwitchStatement) blockStatements.get(1);
 
 			SwitchCase caseStatement1= ast.newSwitchCase();
-			if (this.apiLevel < AST.JLS12) {
+			if (this.apiLevel < AST.JLS13) {
 				caseStatement1.setExpression(ast.newNumberLiteral("100"));
 			} else {
 				caseStatement1.expressions().add(ast.newNumberLiteral("100"));

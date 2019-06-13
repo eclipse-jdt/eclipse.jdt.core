@@ -1302,7 +1302,7 @@ class ASTConverter {
 
 	public SwitchCase convert(org.eclipse.jdt.internal.compiler.ast.CaseStatement statement) {
 		SwitchCase switchCase = new SwitchCase(this.ast);
-		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
+		if (this.ast.apiLevel == AST.JLS13_INTERNAL) {
 			org.eclipse.jdt.internal.compiler.ast.Expression[] expressions = statement.constantExpressions;
 			if (expressions == null || expressions.length == 0) {
 				switchCase.expressions().clear();
@@ -1319,7 +1319,7 @@ class ASTConverter {
 				internalSetExpression(switchCase, convert(constantExpression));
 			}
 		}
-		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
+		if (this.ast.apiLevel == AST.JLS13_INTERNAL) {
 			switchCase.setSwitchLabeledRule(statement.isExpr);
 		}
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
@@ -2863,7 +2863,7 @@ class ASTConverter {
 	}
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.SwitchExpression expression) {
-		if (this.ast.apiLevel < AST.JLS12_INTERNAL) {
+		if (this.ast.apiLevel != AST.JLS13_INTERNAL) {
 			return createFakeNullLiteral(expression);		
 		}
 		SwitchExpression switchExpression = new SwitchExpression(this.ast);
@@ -3200,6 +3200,17 @@ class ASTConverter {
 		return whileStatement;
 	}
 
+	public Statement convert(org.eclipse.jdt.internal.compiler.ast.YieldStatement statement) {
+		if (this.ast.apiLevel != AST.JLS13_INTERNAL) {
+			return createFakeEmptyStatement(statement);		
+		}
+		YieldStatement yieldStatement = new YieldStatement(this.ast);
+		// We don't need to record Nodes
+		yieldStatement.setExpression(convert(statement.expression));
+		yieldStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
+		return yieldStatement;
+	}
+	
 	public ImportDeclaration convertImport(org.eclipse.jdt.internal.compiler.ast.ImportReference importReference) {
 		final ImportDeclaration importDeclaration = new ImportDeclaration(this.ast);
 		Name name = getImportName(importReference);

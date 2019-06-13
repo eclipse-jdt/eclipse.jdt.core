@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -294,6 +298,29 @@ public final class AST {
 	 * @since 3.18 
 	 */
 	static final int JLS12_INTERNAL = JLS12;
+	
+	/**
+	 * Constant for indicating the AST API that handles JLS13.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 13 Edition (JLS13).
+	 * JLS13 is a superset of all earlier versions of the
+	 * Java language, and the JLS13 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 13 (aka JDK 13).
+	 * </p>
+	 *
+	 * @since 3.18 BETA_JAVA13
+	 */
+	public static final int JLS13 = 13;
+	
+	/**
+	 * Internal synonym for {@link #JLS13}. Use to alleviate
+	 * deprecation warnings once JLS13 is deprecated
+	 * @since 3.18 BETA_JAVA13 
+	 */
+	static final int JLS13_INTERNAL = JLS13;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
@@ -879,6 +906,20 @@ public final class AST {
 				this.apiLevel = level;
 				// initialize a scanner
 				compliance = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_12);
+				this.scanner = new Scanner(
+						true /*comment*/,
+						true /*whitespace*/,
+						false /*nls*/,
+						compliance /*sourceLevel*/,
+						compliance /*complianceLevel*/,
+						null/*taskTag*/,
+						null/*taskPriorities*/,
+						true/*taskCaseSensitive*/);
+				break;
+			case JLS13_INTERNAL :
+				this.apiLevel = level;
+				// initialize a scanner
+				compliance = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_13);
 				this.scanner = new Scanner(
 						true /*comment*/,
 						true /*whitespace*/,

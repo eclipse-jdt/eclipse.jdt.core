@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,6 +36,7 @@ import java.util.List;
  *
  * @since 3.18
  * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SwitchExpression extends Expression {
@@ -56,6 +61,12 @@ public class SwitchExpression extends Expression {
 	 * or null if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS_12_0;
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS_13_0;
 
 	static {
 		List propertyList = new ArrayList(3);
@@ -63,6 +74,12 @@ public class SwitchExpression extends Expression {
 		addProperty(EXPRESSION_PROPERTY, propertyList);
 		addProperty(STATEMENTS_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_12_0 = reapPropertyList(propertyList);
+		
+		propertyList = new ArrayList(3);
+		createPropertyList(SwitchExpression.class, propertyList);
+		addProperty(EXPRESSION_PROPERTY, propertyList);
+		addProperty(STATEMENTS_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_13_0 = reapPropertyList(propertyList);
 	}
 
 	/**
@@ -76,7 +93,12 @@ public class SwitchExpression extends Expression {
 	 * @since 3.16
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		return PROPERTY_DESCRIPTORS_12_0;
+		if (apiLevel == AST.JLS12_INTERNAL) {
+			return PROPERTY_DESCRIPTORS_12_0;
+		} else if (apiLevel == AST.JLS13_INTERNAL) {
+			return PROPERTY_DESCRIPTORS_13_0;
+		}
+		return null;
 	}
 
 	/**
@@ -102,11 +124,11 @@ public class SwitchExpression extends Expression {
 	 * </p>
 	 *
 	 * @param ast the AST that is to own this node
-	 * @exception UnsupportedOperationException if this operation is used below JLS12
+	 * @exception UnsupportedOperationException if this operation is used other than JLS13
 	 */
 	SwitchExpression(AST ast) {
 		super(ast);
-		unsupportedBelow12();
+		supportedOnlyIn13();
 	}
 
 	@Override
