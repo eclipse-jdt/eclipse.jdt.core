@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter comment="No need of minor version bump for Java 13 work." id="924844039">
+            <message_arguments>
+                <message_argument value="3.18.0"/>
+                <message_argument value="3.18.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="To be addressed while merging 12" id="336658481">
             <message_arguments>
