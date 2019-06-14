@@ -1286,33 +1286,14 @@ class ASTConverter {
 
 	public BreakStatement convert(org.eclipse.jdt.internal.compiler.ast.BreakStatement statement)  {
 		BreakStatement breakStatement = new BreakStatement(this.ast);
-		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
-			breakStatement.setImplicit(statement.isImplicit);
-			if (statement.isImplicit) {
-				breakStatement.setSourceRange(statement.sourceEnd -1, 0);
-			} else {
-				breakStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
-			}
-		}
-		else {
-			breakStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
-		}
+		breakStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		if (statement.label != null) {
 			final SimpleName name = new SimpleName(this.ast);
 			name.internalSetIdentifier(new String(statement.label));
 			retrieveIdentifierAndSetPositions(statement.sourceStart, statement.sourceEnd, name);
 			breakStatement.setLabel(name);
 		}
-		else if (statement.expression != null && this.ast.apiLevel >= AST.JLS12_INTERNAL) {
-			final Expression expression= convert(statement.expression);
-			breakStatement.setExpression(expression);
-			int sourceEnd = statement.sourceEnd;
-			if (sourceEnd == -1) {
-				breakStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 2);
-			} else {
-				breakStatement.setSourceRange(statement.sourceStart, sourceEnd - statement.sourceStart + 1);
-			}
-		}
+		breakStatement.setImplicit(statement.isImplicit);
 		return breakStatement;
 	}
 

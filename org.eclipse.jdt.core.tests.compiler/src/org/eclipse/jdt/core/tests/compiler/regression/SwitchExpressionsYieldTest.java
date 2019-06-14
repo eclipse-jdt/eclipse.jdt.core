@@ -24,7 +24,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug544073_035" };
+//		TESTS_NAMES = new String[] { "testBug544073_81" };
 	}
 	
 	public static Class<?> testClass() {
@@ -2587,5 +2587,36 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"2",
 				null,
 				new String[] {"--enable-preview"});
+	}
+	public void testBug544073_81() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"\n"+
+					"	@SuppressWarnings(\"preview\")\n"+
+					"	public static int foo(int val) {\n"+
+					"		int k = switch (val) {\n"+
+					"		case 1 : { break 1; }\n"+
+					"		default : { break 2; }\n"+
+					"		};\n"+
+					"		return k;\n"+
+					"	}\n"+
+					"	public static void main(String[] args) {\n"+
+					"		System.out.println(X.foo(1));\n"+
+					"	}\n"+
+					"}\n", 
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	case 1 : { break 1; }\n" + 
+				"	                 ^\n" + 
+				"Syntax error on token \"1\", delete this token\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	default : { break 2; }\n" + 
+				"	                  ^\n" + 
+				"Syntax error on token \"2\", delete this token\n" + 
+				"----------\n");
 	}
 }

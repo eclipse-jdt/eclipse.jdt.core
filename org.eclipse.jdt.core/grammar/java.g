@@ -1381,7 +1381,7 @@ AssertStatement ::= 'assert' Expression ':' Expression ';'
 BreakStatement ::= 'break' ';'
 /.$putCase consumeStatementBreak() ; $break ./
 
-BreakStatement ::= 'break' Expression ';'
+BreakStatement ::= 'break' Identifier ';'
 /.$putCase consumeStatementBreakWithLabel() ; $break ./
 /:$readableName BreakStatement:/
 

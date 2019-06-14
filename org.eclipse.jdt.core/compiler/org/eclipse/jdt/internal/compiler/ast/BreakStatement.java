@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -16,18 +20,15 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class BreakStatement extends BranchStatement {
-
-	public Expression expression;
-	public SwitchExpression switchExpression;
 	public boolean isImplicit;
 
 public BreakStatement(char[] label, int sourceStart, int e) {
 	super(label, sourceStart, e);
+	this.isImplicit = false;
 }
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -44,20 +45,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (this.label == null) {
 			currentScope.problemReporter().invalidBreak(this);
 		} else {
-			if (this.switchExpression == null)
-				currentScope.problemReporter().undefinedLabel(this);
+			currentScope.problemReporter().undefinedLabel(this);
 		}
 		return flowInfo; // pretend it did not break since no actual target
-	}
-	if (targetContext.associatedNode instanceof SwitchExpression) {
-		//TODO : flag error here currentScope.problemReporter().invalidBreak(this);
-	}
-
-	if ((this.isImplicit || this.switchExpression != null) && this.expression != null) {
-		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo);
-		this.expression.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
-		if (flowInfo.reachMode() == FlowInfo.REACHABLE && currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
-			checkAgainstNullAnnotation(currentScope, flowContext, flowInfo, this.expression);
 	}
 
 	targetContext.recordAbruptExit();
@@ -104,72 +94,17 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	return FlowInfo.DEAD_END;
 }
-@Override
-protected void generateExpressionResultCode(BlockScope currentScope, CodeStream codeStream) {
-	if (this.label == null && this.expression != null) {
-		this.expression.generateCode(currentScope, codeStream, this.switchExpression != null);
-	}
-}
-@Override
-protected void adjustStackSize(BlockScope currentScope, CodeStream codeStream) {
-	if (this.label == null && this.expression != null && this.switchExpression != null) {
-		TypeBinding postConversionType = this.expression.postConversionType(currentScope);
-		switch(postConversionType.id) {
-			case TypeIds.T_long :
-			case TypeIds.T_double :
-				codeStream.decrStackSize(2);
-				break;
-			case TypeIds.T_void :
-				break;
-			default :
-				codeStream.decrStackSize(1);
-				break;
-		}
-	}
-}
-@Override
-public void resolve(BlockScope scope) {
-	super.resolve(scope);
-	if  (this.expression != null && (this.switchExpression != null || this.isImplicit)) {
-		if (this.switchExpression == null && this.isImplicit && !this.expression.statementExpression()) {
-			if (scope.compilerOptions().enablePreviewFeatures) {
-				/* JLS 12 14.11.2
-				Switch labeled rules in switch statements differ from those in switch expressions (15.28).
-				In switch statements they must be switch labeled statement expressions, ... */
-				scope.problemReporter().invalidExpressionAsStatement(this.expression);
-				return;
-			}
-		}
-		this.expression.resolveType(scope);
-	} else if (this.expression == null && this.switchExpression != null) {
-		scope.problemReporter().switchExpressionBreakMissingValue(this);
-	}
-}
-
-@Override
-public TypeBinding resolveExpressionType(BlockScope scope) {
-	return this.expression != null ? this.expression.resolveType(scope) : null;
-}
 
 @Override
 public StringBuffer printStatement(int tab, StringBuffer output) {
-	if (!this.isImplicit) // implicit for SwitchLabeledExpressions
-		printIndent(tab, output).append("break"); //$NON-NLS-1$
-	if (this.label != null) 
-		output.append(' ').append(this.label);
-	if (this.expression != null) {
-		output.append(' ');
-		this.expression.printExpression(tab, output);
-	}
+	printIndent(tab, output).append("break"); //$NON-NLS-1$
+	if (this.label != null) output.append(' ').append(this.label);
 	return output.append(';');
 }
 
 @Override
 public void traverse(ASTVisitor visitor, BlockScope blockscope) {
-	if (visitor.visit(this, blockscope)) {
-		if (this.expression != null)
-			this.expression.traverse(visitor, blockscope);
-	}
+	visitor.visit(this, blockscope);
 	visitor.endVisit(this, blockscope);
 }
 @Override
