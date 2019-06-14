@@ -160,7 +160,7 @@ public class BreakStatement extends Statement {
 		result.copyLeadingComment(this);
 		result.setLabel((SimpleName) ASTNode.copySubtree(target, getLabel()));
 		if (this.ast.apiLevel >= AST.JLS12_INTERNAL) {
-			result.setExpression((Expression) ASTNode.copySubtree(target, getLabel()));
+			result.setExpression((Expression) ASTNode.copySubtree(target, getExpression()));
 		}
 		return result;
 	}
