@@ -112,8 +112,10 @@ public String[] getCommandLine() {
 
 	long vmVersion = Util.getMajorMinorVMVersion();
 	if (vmVersion != -1) {
-		if (vmVersion >= ClassFileConstants.JDK1_6) {
+		if (vmVersion < ClassFileConstants.JDK13) { // FailOverToOldVerifier deprecated from 13
 			commandLine.addElement("-XX:-FailOverToOldVerifier");
+		} 	
+		if (vmVersion >= ClassFileConstants.JDK1_6) {
 			commandLine.addElement("-Xverify:all");
 		}
 		if (vmVersion >= ClassFileConstants.JDK1_7) {

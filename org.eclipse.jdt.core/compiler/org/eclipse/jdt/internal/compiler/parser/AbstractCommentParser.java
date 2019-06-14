@@ -1081,6 +1081,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					consumeToken();
 					break;
 
+				case TerminalTokens.TokenNameRestrictedIdentifierYield:
+					throw new InvalidInputException(); // unexpected.
+					
 				case TerminalTokens.TokenNameDOT :
 					if ((iToken & 1) == 0) { // dots must be even tokens
 						throw new InvalidInputException();

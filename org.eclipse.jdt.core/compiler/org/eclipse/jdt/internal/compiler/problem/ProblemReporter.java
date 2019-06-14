@@ -5089,6 +5089,9 @@ private boolean isKeyword(int token) {
 		case TerminalTokens.TokenNamevolatile:
 		case TerminalTokens.TokenNamewhile:
 			return true;
+		case TerminalTokens.TokenNameRestrictedIdentifierYield:
+			// making explicit - yield not a (restricted) keyword but restricted identifier.
+			//$FALL-THROUGH$
 		default:
 			return false;
 	}

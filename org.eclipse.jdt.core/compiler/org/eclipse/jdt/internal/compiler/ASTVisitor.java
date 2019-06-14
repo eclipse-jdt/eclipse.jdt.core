@@ -487,6 +487,9 @@ public abstract class ASTVisitor {
 			ClassScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(YieldStatement yieldStatement, BlockScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(WhileStatement whileStatement, BlockScope scope) {
 		// do nothing by default
 	}
@@ -979,6 +982,9 @@ public abstract class ASTVisitor {
 	public boolean visit(
 			UnionTypeReference unionTypeReference,
 			ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(YieldStatement yieldStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(WhileStatement whileStatement, BlockScope scope) {
