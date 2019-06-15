@@ -14,3 +14,4 @@ Snap.*
 
 # maven
 /*/target/
+/target/
