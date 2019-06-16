@@ -267,7 +267,7 @@ public Binding getTypeOrPackage(char[] name, ModuleBinding mod, boolean splitPac
 	PackageBinding packageBinding = getPackage0(name);
 	if (packageBinding != null && packageBinding != LookupEnvironment.TheNotFoundPackage) {
 		if (!splitPackageAllowed) {
-			return packageBinding.getVisibleFor(mod, false, false);
+			return packageBinding.getVisibleFor(mod, false);
 		}
 		return packageBinding;
 	}
@@ -293,7 +293,7 @@ public Binding getTypeOrPackage(char[] name, ModuleBinding mod, boolean splitPac
 	if (packageBinding == null) { // have not looked for it before
 		if ((packageBinding = findPackage(name, mod)) != null) {
 			if (!splitPackageAllowed) {
-				return packageBinding.getVisibleFor(mod, false, false);
+				return packageBinding.getVisibleFor(mod, false);
 			}
 			return packageBinding;
 		}
@@ -452,7 +452,7 @@ public boolean isExported() {
  * In case of multiple accessible foreign packages a SplitPackageBinding is returned
  * to indicate a conflict.
  */
-public PackageBinding getVisibleFor(ModuleBinding module, boolean preferLocal, boolean skipCUcheck) {
+public PackageBinding getVisibleFor(ModuleBinding module, boolean preferLocal) {
 	return this;
 }
 

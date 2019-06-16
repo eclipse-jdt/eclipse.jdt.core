@@ -432,7 +432,7 @@ void faultInImports() {
 				continue nextImport;
 			}
 			if (importBinding instanceof PackageBinding) {
-				PackageBinding uniquePackage = ((PackageBinding)importBinding).getVisibleFor(module(), false, false);
+				PackageBinding uniquePackage = ((PackageBinding)importBinding).getVisibleFor(module(), false);
 				if (uniquePackage instanceof SplitPackageBinding && !inJdtDebugCompileMode) {
 					SplitPackageBinding splitPackage = (SplitPackageBinding) uniquePackage;
 					problemReporter().conflictingPackagesFromModules(splitPackage, module(), importReference.sourceStart, importReference.sourceEnd);
@@ -476,7 +476,7 @@ void faultInImports() {
 					// re-get to find a possible split package:
 					importedPackage = (PackageBinding) findImport(importedPackage.compoundName, false, true);
 					if (importedPackage != null)
-						importedPackage = importedPackage.getVisibleFor(module(), true, false);
+						importedPackage = importedPackage.getVisibleFor(module(), true);
 					if (importedPackage instanceof SplitPackageBinding && !inJdtDebugCompileMode) {
 						SplitPackageBinding splitPackage = (SplitPackageBinding) importedPackage;
 						int sourceEnd = (int) importReference.sourcePositions[splitPackage.compoundName.length-1];
@@ -557,7 +557,7 @@ private Binding findImport(char[][] compoundName, int length) {
 				break foundNothingOrType;
 			}
 			if (!(binding instanceof PackageBinding)) {
-				PackageBinding visibleFor = packageBinding.getVisibleFor(module, false, false); // filter out empty parent-packages
+				PackageBinding visibleFor = packageBinding.getVisibleFor(module, false); // filter out empty parent-packages
 				if (visibleFor instanceof SplitPackageBinding)
 					return visibleFor;
 				break foundNothingOrType;

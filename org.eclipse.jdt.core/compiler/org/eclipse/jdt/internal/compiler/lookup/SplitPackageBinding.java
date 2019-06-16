@@ -256,22 +256,23 @@ public class SplitPackageBinding extends PackageBinding {
 	}
 
 	@Override
-	public PackageBinding getVisibleFor(ModuleBinding clientModule, boolean preferLocal, boolean skipCUcheck) {
+	public PackageBinding getVisibleFor(ModuleBinding clientModule, boolean preferLocal) {
 		int visibleCount = 0;
 		PlainPackageBinding unique = null;
 		for (PlainPackageBinding incarnation : this.incarnations) {
-			if (skipCUcheck || incarnation.hasCompilationUnit(false)) {
+			if (incarnation.hasCompilationUnit(false)) {
 				if (preferLocal && incarnation.enclosingModule == clientModule) {
 					return incarnation;
 				} else {
 					if (clientModule.canAccess(incarnation)) {
-						if (++visibleCount > 1)
-							return this;
+						visibleCount++;
 						unique = incarnation;
 					}
 				}
 			}
 		}
+		if (visibleCount > 1)
+			return this; // conflict, return split
 		return unique;
 	}
 
