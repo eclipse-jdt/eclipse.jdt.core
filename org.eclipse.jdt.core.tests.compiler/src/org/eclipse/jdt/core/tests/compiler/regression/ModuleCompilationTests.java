@@ -31,8 +31,14 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.IClassFileAttribute;
+import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.core.util.IModuleAttribute;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
@@ -5311,5 +5317,80 @@ public void testBug521362_emptyFile() {
 				"1 problem (1 error)\n",
 				false,
 				"unnamed package is not allowed in named modules");
+	}
+	public void testBug548195() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						" exports p;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
+				"package p;\n" +
+				"public class X {\n" +
+				"}");
+
+		StringBuffer buffer = new StringBuffer();
+		String binDir = OUTPUT_DIR + File.separator + out;
+		buffer.append("-d " + binDir )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -warn:-unused")
+			.append(" --module-source-path " + "\"" + directory + "\" ")
+			.append(" --module-version 47.11 ");
+		String outText = isJRE9Plus ? "" : "Could not invoke method java.lang.module.ModuleDescriptor.Version.parse(), cannot validate module version.\n";
+		runConformModuleTest(files, buffer, outText, "", false);
+
+		IClassFileReader cfr = ToolFactory.createDefaultClassFileReader(binDir + File.separator + "mod.one" + File.separator + "module-info.class", IClassFileReader.CLASSFILE_ATTRIBUTES);
+		assertNotNull("Error reading module-info.class", cfr);
+		IClassFileAttribute[] attrs = cfr.getAttributes();
+		for (IClassFileAttribute attr : attrs) {
+			char[] name = attr.getAttributeName();
+			if (CharOperation.equals(name, AttributeNamesConstants.ModuleName)) {
+				IModuleAttribute modAttr = (IModuleAttribute) attr;
+				String expectedVersion = isJRE9Plus ? "47.11" : "";
+				assertEquals("version in attribute", expectedVersion, new String(modAttr.getModuleVersionValue()));
+				return;
+			}
+		}
+		fail("module attribute not found");
+	}
+	public void testBug548195fail() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		List<String> files = new ArrayList<>(); 
+		writeFileCollecting(files, moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						" exports p;\n" +
+						"}");
+		writeFileCollecting(files, moduleLoc + File.separator + "p", "X.java", 
+				"package p;\n" +
+				"public class X {\n" +
+				"}");
+
+		StringBuffer buffer = new StringBuffer();
+		String binDir = OUTPUT_DIR + File.separator + out;
+		buffer.append("-d " + binDir )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -warn:-unused")
+			.append(" --module-source-path " + "\"" + directory + "\" ")
+			.append(" --module-version fourtyseven.11 ");
+		if (isJRE9Plus) {
+			runNegativeModuleTest(files, buffer, "", "fourtyseven.11: Version string does not start with a number\n", false, "bad value");			
+		} else {
+			runConformModuleTest(files, buffer, "Could not invoke method java.lang.module.ModuleDescriptor.Version.parse(), cannot validate module version.\n", "", false);
+		}
 	}
 }

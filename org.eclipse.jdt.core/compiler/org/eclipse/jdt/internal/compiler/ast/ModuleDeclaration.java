@@ -446,4 +446,12 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
 		// Nothing to do for this context;
 	}
+
+	public String getModuleVersion() {
+		if (this.scope != null) {
+			LookupEnvironment env = this.scope.environment().root;
+			return env.moduleVersion;
+		}
+		return null;
+	}
 }

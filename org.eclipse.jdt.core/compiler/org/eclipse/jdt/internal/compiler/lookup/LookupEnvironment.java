@@ -143,6 +143,8 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	 */
 	public boolean suppressImportErrors;			// per module
 
+	public String moduleVersion; 	// ROOT_ONLY
+
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;
 	final static int CHECK_AND_SET_IMPORTS = 2;

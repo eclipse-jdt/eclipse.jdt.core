@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -49,6 +49,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -1367,6 +1369,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	protected FileSystem.Classpath[] checkedClasspaths;
 	// For single module mode
 	protected IModule module;
+	private String moduleVersion;
 	// paths to external annotations:
 	protected List<String> annotationPaths;
 	protected boolean annotationsFromClasspath;
@@ -1440,6 +1443,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	private PrintWriter err;
 
 	protected ArrayList<CategorizedProblem> extraProblems;
+
 	public final static String bundleName = "org.eclipse.jdt.internal.compiler.batch.messages"; //$NON-NLS-1$
 	// two uses: recognize 'none' in options; code the singleton none
 	// for the '-d none' option (wherever it may be found)
@@ -1842,6 +1846,7 @@ public void configure(String[] argv) {
 	final int INSIDE_ADD_MODULES = 29;
 	final int INSIDE_RELEASE = 30;
 	final int INSIDE_LIMIT_MODULES = 31;
+	final int INSIDE_MODULE_VERSION = 32;
 
 	final int DEFAULT = 0;
 	ArrayList<String> bootclasspaths = new ArrayList<>(DEFAULT_SIZE_CLASSPATH);
@@ -2256,6 +2261,10 @@ public void configure(String[] argv) {
 				}
 				if (currentArg.equals("--limit-modules")) { //$NON-NLS-1$
 					mode = INSIDE_LIMIT_MODULES;
+					continue;
+				}
+				if (currentArg.equals("--module-version")) { //$NON-NLS-1$
+					mode = INSIDE_MODULE_VERSION;
 					continue;
 				}
 				if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
@@ -2918,6 +2927,10 @@ public void configure(String[] argv) {
 					this.limitedModules.add(tokenizer.nextToken().trim());
 				}
 				continue;
+			case INSIDE_MODULE_VERSION:
+				mode = DEFAULT;
+				this.moduleVersion = validateModuleVersion(currentArg);
+				continue;
 			case INSIDE_CLASSPATH_start:
 				mode = DEFAULT;
 				index += processPaths(newCommandLineArgs, index, currentArg, classpaths);
@@ -3212,6 +3225,22 @@ public void configure(String[] argv) {
 		this.pendingErrors = null;
 	}
 }
+private String validateModuleVersion(String versionString) {
+	try {
+		Class<?> versionClass = Class.forName("java.lang.module.ModuleDescriptor$Version"); //$NON-NLS-1$
+		Method method = versionClass.getMethod("parse", String.class); //$NON-NLS-1$
+		try {
+			method.invoke(null, versionString);
+		} catch (InvocationTargetException e) {
+			if (e.getCause() instanceof IllegalArgumentException)
+				throw (IllegalArgumentException) e.getCause();
+		}
+	} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalAccessException e) {
+		this.logger.logWarning(this.bind("configure.no.ModuleDescriptorVersionparse")); //$NON-NLS-1$
+	}
+	return versionString;
+}
+
 private Parser getNewParser() {
 	return new Parser(new ProblemReporter(getHandlingPolicy(), 
 			new CompilerOptions(this.options), getProblemFactory()), false);
@@ -4778,6 +4807,7 @@ private void initRootModules(LookupEnvironment environment, FileSystem fileSyste
 			}
 		}
 	}
+	environment.moduleVersion = this.moduleVersion;
 }
 private ReferenceBinding[] processClassNames(LookupEnvironment environment) {
 	// check for .class file presence in case of apt processing
