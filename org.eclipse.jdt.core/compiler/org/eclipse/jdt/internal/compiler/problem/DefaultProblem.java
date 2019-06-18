@@ -178,6 +178,8 @@ public String getInternalCategoryMessage() {
 			return "restriction"; //$NON-NLS-1$
 		case CAT_MODULE:
 			return "module"; //$NON-NLS-1$
+		case CAT_PREVIEW_RELATED:
+			return "preview related"; //$NON-NLS-1$
 	}
 	return null;
 }

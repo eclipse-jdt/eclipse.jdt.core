@@ -15,6 +15,12 @@
                 <message_argument value="CAT_COMPLIANCE"/>
             </message_arguments>
         </filter>
+        <filter comment="PREVIEW RELATED" id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.CategorizedProblem"/>
+                <message_argument value="CAT_PREVIEW_RELATED"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
         <filter id="388194388">

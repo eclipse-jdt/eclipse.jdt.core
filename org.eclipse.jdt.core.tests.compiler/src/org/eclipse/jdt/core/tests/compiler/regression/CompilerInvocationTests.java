@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -299,7 +303,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 // templates, which can occur downstream in the localization process (assuming
 // that we always release the English version right)
 	public void test009_missing_message_templates() {
-		assertEquals("Unable to retrieve the error message for problem id: 4194303. Check compiler resources.",
+		assertEquals("Unable to retrieve the error message for problem id: 2097151. Check compiler resources.",
 				new DefaultProblemFactory().getLocalizedMessage(Integer.MAX_VALUE, new String[] {}));
 	}
 
@@ -1178,7 +1182,18 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("PreviewFeatureDisabled", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("PreviewFeatureUsed", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("PreviewFeatureNotSupported", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
-		StringBuffer failures = new StringBuffer();
+	    expectedProblemAttributes.put("SwitchExpressionsYieldIncompatibleResultExpressionTypes", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldEmptySwitchBlock", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldNoResultExpression", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldLastStatementCompletesNormally", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldTrailingSwitchLabels", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+		expectedProblemAttributes.put("SwitchPreviewMixedCase", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingDefaultCase", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingValue", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingEnumConstantCase", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldIllegalLastStatement", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
 		Arrays.sort(fields, new Comparator() {
@@ -2126,7 +2141,18 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("PreviewFeatureDisabled", SKIP);
 	    expectedProblemAttributes.put("PreviewFeatureUsed", SKIP);
 	    expectedProblemAttributes.put("PreviewFeatureNotSupported", SKIP);
-		Map constantNamesIndex = new HashMap();
+	    expectedProblemAttributes.put("SwitchExpressionsYieldIncompatibleResultExpressionTypes", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionsYieldEmptySwitchBlock", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionsYieldNoResultExpression", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionsYieldLastStatementCompletesNormally", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionsYieldTrailingSwitchLabels", SKIP);
+	    expectedProblemAttributes.put("SwitchPreviewMixedCase", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingDefaultCase", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingValue", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingEnumConstantCase", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionsYieldIllegalLastStatement", SKIP);
+	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {
 			Field field = fields[i];

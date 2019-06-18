@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -107,6 +111,9 @@ public abstract class CategorizedProblem implements IProblem {
 	 * @since 3.18
 	 */
 	public static final int CAT_COMPLIANCE = 170;
+	/** Category for problems related to preview features 
+	 * @since 3.18 BETA_JAVA13*/
+	public static final int CAT_PREVIEW_RELATED = 180;
 
 /**
  * Returns an integer identifying the category of this problem. Categories, like problem IDs are

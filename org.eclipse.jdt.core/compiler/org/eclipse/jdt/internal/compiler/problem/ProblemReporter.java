@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -812,6 +816,8 @@ public static int getProblemCategory(int severity, int problemID) {
 				return CategorizedProblem.CAT_MODULE;
 			if ((problemID & IProblem.Compliance) != 0)
 				return CategorizedProblem.CAT_COMPLIANCE;
+			if ((problemID & IProblem.PreviewRelated) != 0)
+				return CategorizedProblem.CAT_PREVIEW_RELATED;
 	}
 	return CategorizedProblem.CAT_INTERNAL;
 }
@@ -6507,7 +6513,7 @@ public void missingEnumConstantCase(SwitchExpression switchExpression, FieldBind
 }
 private void missingSwitchExpressionEnumConstantCase(CaseStatement defaultCase, FieldBinding enumConstant, ASTNode expression) {
 	this.handle(
-			IProblem.SwitchExpressionMissingEnumConstantCase,
+			IProblem.SwitchExpressionsYieldMissingEnumConstantCase,
 			new String[] {new String(enumConstant.declaringClass.readableName()), new String(enumConstant.name) },
 			new String[] {new String(enumConstant.declaringClass.shortReadableName()), new String(enumConstant.name) },
 			expression.sourceStart,
@@ -6532,7 +6538,7 @@ public void missingDefaultCase(SwitchStatement switchStatement, boolean isEnumSw
 	} else {
 		this.handle(
 				switchStatement instanceof SwitchExpression ?
-						IProblem.SwitchExpressionMissingDefaultCase : IProblem.MissingDefaultCase,
+						IProblem.SwitchExpressionsYieldMissingDefaultCase : IProblem.MissingDefaultCase,
 				NoArgument,
 				NoArgument,
 				switchStatement.expression.sourceStart,
@@ -11057,7 +11063,7 @@ public void autoModuleWithUnstableName(ModuleReference moduleReference) {
 public void switchExpressionIncompatibleResultExpressions(SwitchExpression expression) {
 	TypeBinding type = expression.resultExpressions.get(0).resolvedType;
 	this.handle(
-		IProblem.SwitchExpressionsIncompatibleResultExpressionTypes,
+		IProblem.SwitchExpressionsYieldIncompatibleResultExpressionTypes,
 		new String[] {new String(type.readableName())},
 		new String[] {new String(type.shortReadableName())},
 		expression.sourceStart,
@@ -11065,7 +11071,7 @@ public void switchExpressionIncompatibleResultExpressions(SwitchExpression expre
 }
 public void switchExpressionEmptySwitchBlock(SwitchExpression expression) {
 	this.handle(
-		IProblem.SwitchExpressionsEmptySwitchBlock,
+		IProblem.SwitchExpressionsYieldEmptySwitchBlock,
 		NoArgument,
 		NoArgument,
 		expression.sourceStart,
@@ -11073,7 +11079,7 @@ public void switchExpressionEmptySwitchBlock(SwitchExpression expression) {
 }
 public void switchExpressionNoResultExpressions(SwitchExpression expression) {
 	this.handle(
-		IProblem.SwitchExpressionsNoResultExpression,
+		IProblem.SwitchExpressionsYieldNoResultExpression,
 		NoArgument,
 		NoArgument,
 		expression.sourceStart,
@@ -11081,7 +11087,7 @@ public void switchExpressionNoResultExpressions(SwitchExpression expression) {
 }
 public void switchExpressionSwitchLabeledBlockCompletesNormally(Block block) {
 	this.handle(
-		IProblem.SwitchExpressionSwitchLabeledBlockCompletesNormally,
+		IProblem.SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally,
 		NoArgument,
 		NoArgument,
 		block.sourceStart,
@@ -11089,7 +11095,7 @@ public void switchExpressionSwitchLabeledBlockCompletesNormally(Block block) {
 }
 public void switchExpressionLastStatementCompletesNormally(Statement stmt) {
 	this.handle(
-		IProblem.SwitchExpressionSwitchLabeledBlockCompletesNormally,
+		IProblem.SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally,
 		NoArgument,
 		NoArgument,
 		stmt.sourceStart,
@@ -11097,7 +11103,7 @@ public void switchExpressionLastStatementCompletesNormally(Statement stmt) {
 }
 public void switchExpressionIllegalLastStatement(Statement stmt) {
 	this.handle(
-		IProblem.SwitchExpressionIllegalLastStatement,
+		IProblem.SwitchExpressionsYieldIllegalLastStatement,
 		NoArgument,
 		NoArgument,
 		stmt.sourceStart,
@@ -11105,7 +11111,7 @@ public void switchExpressionIllegalLastStatement(Statement stmt) {
 }
 public void switchExpressionTrailingSwitchLabels(Statement stmt) {
 	this.handle(
-		IProblem.SwitchExpressionTrailingSwitchLabels,
+		IProblem.SwitchExpressionsYieldTrailingSwitchLabels,
 		NoArgument,
 		NoArgument,
 		stmt.sourceStart,
@@ -11113,7 +11119,7 @@ public void switchExpressionTrailingSwitchLabels(Statement stmt) {
 }
 public void switchExpressionMixedCase(ASTNode statement) {
 	this.handle(
-		IProblem.switchMixedCase,
+		IProblem.SwitchPreviewMixedCase,
 		NoArgument,
 		NoArgument,
 		statement.sourceStart,
@@ -11121,7 +11127,7 @@ public void switchExpressionMixedCase(ASTNode statement) {
 }
 public void switchExpressionBreakMissingValue(ASTNode statement) {
 	this.handle(
-		IProblem.SwitchExpressionBreakMissingValue,
+		IProblem.SwitchExpressionsYieldMissingValue,
 		NoArgument,
 		NoArgument,
 		statement.sourceStart,

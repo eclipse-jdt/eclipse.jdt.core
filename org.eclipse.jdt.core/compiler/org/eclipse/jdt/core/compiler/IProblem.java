@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added the following constants
@@ -375,11 +379,13 @@ void setSourceStart(int sourceStart);
 	int ModuleRelated = 0x00800000;
 	/** @since 3.18 */
 	int Compliance = 0x00400000;
+	/** @since 3.18 BETA_JAVA13 */
+	int PreviewRelated = 0x00200000; 
 
 	/**
 	 * Mask to use in order to filter out the category portion of the problem ID.
 	 */
-	int IgnoreCategoriesMask = 0x3FFFFF;
+	int IgnoreCategoriesMask = 0x1FFFFF;
 
 	/*
 	 * Below are listed all available problem IDs. Note that this list could be augmented in the future,
@@ -2092,26 +2098,70 @@ void setSourceStart(int sourceStart);
 	int VarIsNotAllowedHere = Syntax + 1511; // ''var'' is not allowed here
 	/** @since 3.16 */
 	int VarCannotBeMixedWithNonVarParams = Syntax + 1512; // ''var'' cannot be mixed with explicit or implicit parameters
-	/** @since 3.18 */
+	/** @since 3.18 
+	 * @deprecated preview related error - will be removed
+	 * @noreference preview related error */
 	int SwitchExpressionsIncompatibleResultExpressionTypes = TypeRelated + 1600;
-	/** @since 3.18 */
+	/** @since 3.18 
+	 * @deprecated preview related error - will be removed
+	 * @noreference preview related error */
 	int SwitchExpressionsEmptySwitchBlock = Internal + 1601;
-	/** @since 3.18 */
+	/** @since 3.18 
+	 * @deprecated preview related error - will be removed
+	 * @noreference preview related error */
 	int SwitchExpressionsNoResultExpression = TypeRelated + 1602;
-	/** @since 3.18 */
+	/** @since 3.18 
+	 * @deprecated preview related error - will be removed
+	 * @noreference preview related error */
 	int SwitchExpressionSwitchLabeledBlockCompletesNormally = Internal + 1603;
-	/** @since 3.18 */
+	/** @since 3.18 
+	 * @deprecated preview related error - will be removed
+	 * @noreference preview related error */
 	int SwitchExpressionLastStatementCompletesNormally = Internal + 1604;
-	/** @since 3.18 */
+	/** @since 3.18 
+	 * @deprecated preview related error - will be removed
+	 * @noreference preview related error */
 	int SwitchExpressionTrailingSwitchLabels = Internal + 1605;
-	/** @since 3.18 */
+	/** @since 3.18 
+	 * @deprecated preview related error - will be removed
+	 * @noreference preview related error */
 	int switchMixedCase = Syntax + 1606;
-	/** @since 3.18 */
+	/** @since 3.18 
+	 * @deprecated preview related error - will be removed
+	 * @noreference preview related error */
 	int SwitchExpressionMissingDefaultCase = Internal + 1607;
-	/** @since 3.18 */
+	/** @since 3.18 
+	 * @deprecated preview related error - will be removed
+	 * @noreference preview related error */
 	int SwitchExpressionBreakMissingValue = Internal + 1610;
-	/** @since 3.18 */
+	/** @since 3.18 
+	 * @deprecated preview related error - will be removed
+	 * @noreference preview related error */
 	int SwitchExpressionMissingEnumConstantCase = Internal + 1611;
-	/** @since 3.18 */
+	/** @since 3.18 
+	 * @deprecated preview related error - will be removed
+	 * @noreference preview related error */
 	int SwitchExpressionIllegalLastStatement = Internal + 1612;
+	/** @since 3.18 BETA_JAVA13 */
+	int SwitchExpressionsYieldIncompatibleResultExpressionTypes = PreviewRelated + 1700;
+	/** @since 3.18 BETA_JAVA13 */
+	int SwitchExpressionsYieldEmptySwitchBlock = PreviewRelated + 1701;
+	/** @since 3.18 BETA_JAVA13*/
+	int SwitchExpressionsYieldNoResultExpression = PreviewRelated + 1702;
+	/** @since 3.18 */
+	int SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally = PreviewRelated + 1703;
+	/** @since 3.18 BETA_JAVA13 */
+	int SwitchExpressionsYieldLastStatementCompletesNormally = PreviewRelated + 1704;
+	/** @since 3.18 BETA_JAVA13*/
+	int SwitchExpressionsYieldTrailingSwitchLabels = PreviewRelated + 1705;
+	/** @since 3.18 BETA_JAVA13 */
+	int SwitchPreviewMixedCase = PreviewRelated + 1706;
+	/** @since 3.18 BETA_JAVA13 */
+	int SwitchExpressionsYieldMissingDefaultCase = PreviewRelated + 1707;
+	/** @since 3.18 BETA_JAVA13 */
+	int SwitchExpressionsYieldMissingValue = PreviewRelated + 1708;
+	/** @since 3.18 BETA_JAVA13 */
+	int SwitchExpressionsYieldMissingEnumConstantCase = PreviewRelated + 1709;
+	/** @since 3.18 BETA_JAVA13 */
+	int SwitchExpressionsYieldIllegalLastStatement = PreviewRelated + 1710;
 	}
