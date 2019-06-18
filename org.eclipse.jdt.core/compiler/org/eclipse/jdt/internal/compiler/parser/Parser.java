@@ -9332,8 +9332,7 @@ private SwitchStatement createSwitchStatementOrExpression(boolean isStmt) {
 }
 protected void consumeStatementSwitch() {
 	// SwitchStatement ::= 'switch' OpenBlock '(' Expression ')' SwitchBlock
-	SwitchStatement s = createSwitchStatementOrExpression(true);
-	replaceYield(s);
+	createSwitchStatementOrExpression(true);
 }
 protected void consumeStatementSynchronized() {
 	// SynchronizedStatement ::= OnlySynchronized '(' Expression ')' Block
@@ -9659,29 +9658,6 @@ protected void consumeDefaultLabelExpr() {
 		// break statement and block statement of SwitchLabelRule or block statement of ':'
 		ResultExpressionsCollector reCollector = new ResultExpressionsCollector(s);
 		stmt.traverse(reCollector, null);
-	}
-}
-/* package */ void replaceYield(SwitchStatement s) {
-	if (!this.parsingJava13Plus)
-		return;
-	int l = s.statements == null ? 0 : s.statements.length;
-	List<Statement> tmp = new ArrayList<>(l);
-	for (int i = 0; i < l; ++i) {
-		//TODO:  add opt for lazy init
-		Statement stmt = s.statements[i];
-		if (stmt instanceof YieldStatement) {
-			Expression e = ((YieldStatement) stmt).expression;
-			tmp.add(e);
-			BreakStatement b = new BreakStatement(null, -1, -1);
-			b.isImplicit = true;
-			tmp.add(b);
-		} else {
-			tmp.add(stmt);
-		}
-	}
-	int sztmp = tmp.size();
-	if (sztmp > l) {
-		s.statements = tmp.toArray(new Statement[]{});
 	}
 }
 protected void consumeSwitchExpression() {
