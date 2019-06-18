@@ -289,9 +289,9 @@ public final class AST {
 	 */
 	public static final int JLS12 = 12;
 	/**
-	 * Internal synonym for {@link #JLS11}. Use to alleviate
-	 * deprecation warnings once JLS11 is deprecated
-	 * @since 3.16 
+	 * Internal synonym for {@link #JLS12}. Use to alleviate
+	 * deprecation warnings once JLS12 is deprecated
+	 * @since 3.18 
 	 */
 	static final int JLS12_INTERNAL = JLS12;
 
