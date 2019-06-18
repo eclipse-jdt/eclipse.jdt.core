@@ -39,7 +39,7 @@ public static Test suite() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=338398
 public void testBug338398a() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/A.java",
@@ -74,7 +74,7 @@ public void testBug338398a() throws CoreException {
 }
 public void _testBug338398b() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/A_CLASS.java",
@@ -100,7 +100,7 @@ public void _testBug338398b() throws CoreException {
 }
 public void _testBug338398c() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/A_CLASS.java",
@@ -126,7 +126,7 @@ public void _testBug338398c() throws CoreException {
 }
 public void testBug504095() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/P/src/a/Bug504095.java",
@@ -155,7 +155,7 @@ public void testBug504095() throws CoreException {
 }
 public void testBug425035a() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -196,7 +196,7 @@ public void testBug425035a() throws CoreException {
 }
 public void testBug425035b() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -236,7 +236,7 @@ public void testBug425035b() throws CoreException {
 }
 public void testBug425035c() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -277,7 +277,7 @@ public void testBug425035c() throws CoreException {
 }
 public void testBug425035d() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -317,7 +317,7 @@ public void testBug425035d() throws CoreException {
 }
 public void testBug425035e() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -357,7 +357,7 @@ public void testBug425035e() throws CoreException {
 }
 public void testBug425035f() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -398,7 +398,7 @@ public void testBug425035f() throws CoreException {
 }
 public void testBug425035_method_a() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -442,7 +442,7 @@ public void testBug425035_method_a() throws CoreException {
 }
 public void testBug425035_method_b() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -485,7 +485,7 @@ public void testBug425035_method_b() throws CoreException {
 }
 public void testBug425035_method_c() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -529,7 +529,7 @@ public void testBug425035_method_c() throws CoreException {
 }
 public void testBug425035_method_d() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -572,7 +572,7 @@ public void testBug425035_method_d() throws CoreException {
 }
 public void testBug425035_method_e() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -615,7 +615,7 @@ public void testBug425035_method_e() throws CoreException {
 }
 public void testBug425035_method_f() throws CoreException {
 	try {
-		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 				"/P/src/a/Values.java",
@@ -653,6 +653,39 @@ public void testBug425035_method_f() throws CoreException {
 				"OTHER_VALUE[FIELD_REF]{Values.OTHER_VALUE, La.Values;, La.Values;, OTHER_VALUE, null, 104}\n" + 
 				"SOME_VALUE[FIELD_REF]{Values.SOME_VALUE, La.Values;, La.Values;, SOME_VALUE, null, 104}",
 				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug547256() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/jdt/Something.java",
+				"package jdt;\n" + 
+				"public class Something {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		done: for (int i = 0; i < 5; ++i) {\n" + 
+				"			if (i == 3) {\n" + 
+				"				break done;\n" + 
+				"			}\n" + 
+				"			System.out.println(i);\n" + 
+				"		}\n" +
+				"		arg\n" + 
+				"		System.out.println(\"done\");\n" + 
+				"	}\n" + 
+				"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF, true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "arg";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"args[LOCAL_VARIABLE_REF]{args, null, [Ljava.lang.String;, args, null, 52}",
+				requestor.getResults());
+
 	} finally {
 		deleteProject("P");
 	}
