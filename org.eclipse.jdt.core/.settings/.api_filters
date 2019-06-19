@@ -7,6 +7,12 @@
                 <message_argument value="3.18.0"/>
             </message_arguments>
         </filter>
+        <filter comment="BETA_JAVA13 code - plugin bumping to be done at merge only" id="924844039">
+            <message_arguments>
+                <message_argument value="3.18.100"/>
+                <message_argument value="3.18.0"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="To be addressed while merging 12" id="336658481">
@@ -23,6 +29,13 @@
         </filter>
     </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
+        <filter comment="BETA_JAVA13 addition of preview related base" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="IgnoreCategoriesMask"/>
+                <message_argument value="4194303"/>
+            </message_arguments>
+        </filter>
         <filter id="388194388">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
