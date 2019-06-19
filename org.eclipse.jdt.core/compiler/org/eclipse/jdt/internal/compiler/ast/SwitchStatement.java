@@ -96,7 +96,6 @@ public class SwitchStatement extends Expression {
 				}
 				// else add an implicit break
 				BreakStatement breakStatement = new BreakStatement(null, block.sourceEnd -1, block.sourceEnd);
-				breakStatement.isImplicit = true;
 
 				int l = block.statements == null ? 0 : block.statements.length;
 				if (l == 0) {
