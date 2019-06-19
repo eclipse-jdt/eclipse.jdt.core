@@ -37,12 +37,11 @@ public YieldStatement(Expression exp, int sourceStart, int e) {
 }
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	/* METHOD IN THE WORKS - INCOMPLETE */
+	// this.switchExpression != null && this.expression != null true here.
 
 	// here requires to generate a sequence of finally blocks invocations depending corresponding
 	// to each of the traversed try statements, so that execution will terminate properly.
 
-	// this.switchExpression != null && this.expression != null true here.
 
 	// lookup the null label, this should answer the returnContext
 	FlowContext targetContext = flowContext.getTargetContextForDefaultBreak();

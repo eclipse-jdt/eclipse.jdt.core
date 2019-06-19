@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -2904,19 +2908,19 @@ public void testBug537804_comment5() {
 		"The local variable action may not have been initialized\n" + 
 		"----------\n");
 }
-public void testBug542707_001() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_001() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); 
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
-			"	break k;\n" + 
+			"	yield k;\n" + 
 			"	      ^\n" + 
 			"The local variable k may not have been initialized\n" + 
 			"----------\n" + 
@@ -2934,10 +2938,10 @@ public void testBug542707_001() {
 			"		int it = switch (i) { \n" +
 			"		case 1  ->   {\n" +
 			"			k = 1;\n" +
-			"			break k ;\n" +
+			"			yield k ;\n" +
 			"		}\n" +
 			"		default -> {\n" +
-			"			break k;\n" +
+			"			yield k;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		return k + it;\n" +
@@ -2959,13 +2963,13 @@ public void testBug542707_001() {
 			defaultOptions);
 
 }
-public void testBug542707_002() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_002() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); 
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -2976,7 +2980,7 @@ public void testBug542707_002() {
 			"The final local variable k may already have been assigned\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
-			"	break k;\n" + 
+			"	yield k;\n" + 
 			"	      ^\n" + 
 			"The local variable k may not have been initialized\n" + 
 			"----------\n";
@@ -2989,10 +2993,10 @@ public void testBug542707_002() {
 			"		k = switch (i) { \n" +
 			"		case 1  ->   {\n" +
 			"			k = 1;\n" +
-			"			break k ;\n" +
+			"			yield k ;\n" +
 			"		}\n" +
 			"		default -> {\n" +
-			"			break k;\n" +
+			"			yield k;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		return k;\n" +
@@ -3016,13 +3020,13 @@ public void testBug542707_002() {
 /*
  * k is definitely assigned - no errors on that front.
  */
-public void testBug542707_003() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_003() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); 
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3041,15 +3045,15 @@ public void testBug542707_003() {
 			"		int it = switch (i) { \n" +
 			"		case 1  ->   {\n" +
 			"			k = 1;\n" +
-			"			break k ;\n" +
+			"			yield k ;\n" +
 			"		}\n" +
 			"		case 2  ->   {\n" +
 			"			k = 2;\n" +
-			"			break k ;\n" +
+			"			yield k ;\n" +
 			"		}\n" +
 			"		default -> {\n" +
 			"			k = 3;\n" +
-			"			break k;\n" +
+			"			yield k;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		return k;\n" +
@@ -3071,13 +3075,13 @@ public void testBug542707_003() {
 			true,
 			defaultOptions);
 }
-public void testBug542707_004() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_004() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); 
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3111,15 +3115,15 @@ public void testBug542707_004() {
 			"		int it = switch (i) { \n" +
 			"		case 1  ->   {\n" +
 			"			k = 1;\n" +
-			"			break k ;\n" +
+			"			yield k ;\n" +
 			"		}\n" +
 			"		case 2  ->   {\n" +
 			"			k = 2;\n" +
-			"			break k ;\n" +
+			"			yield k ;\n" +
 			"		}\n" +
 			"		default -> {\n" +
 			"			k = 3;\n" +
-			"			break k;\n" +
+			"			yield k;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		return k;\n" +
@@ -3141,19 +3145,19 @@ public void testBug542707_004() {
 			true,
 			defaultOptions);
 }
-public void testBug542707_005() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_005() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12); 
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
-			"	break k ;\n" + 
+			"	yield k ;\n" + 
 			"	      ^\n" + 
 			"The local variable k may not have been initialized\n" + 
 			"----------\n" + 
@@ -3176,14 +3180,14 @@ public void testBug542707_005() {
 			"		int it = switch (i) { \n" +
 			"		case 1  ->   {\n" +
 			"			k = 1;\n" +
-			"			break k ;\n" +
+			"			yield k ;\n" +
 			"		}\n" +
 			"		case 2  ->   {\n" +
-			"			break k ;\n" +
+			"			yield k ;\n" +
 			"		}\n" +
 			"		default -> {\n" +
 			"			k = 3;\n" +
-			"			break k;\n" +
+			"			yield k;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		return k;\n" +
@@ -3206,20 +3210,20 @@ public void testBug542707_005() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
  * which are boolean-valued. 
- * V is definitely assigned after a switch expression when true iff for every value break statement with
+ * V is definitely assigned after a switch expression when true iff for every value yield statement with
  * expression e in the switch block that may exit the switch expression, V is definitely assigned after e when true.
- * V is definitely assigned after a switch expression when false iff for every value break statement with
+ * V is definitely assigned after a switch expression when false iff for every value yield statement with
  * expression e in the switch block that may exit the switch expression, V is definitely assigned after e when false.
  */
-public void testBug542707_006() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_006() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3237,14 +3241,14 @@ public void testBug542707_006() {
 			"		boolean b = switch (i) {\n" +
 			"		case 1 :\n" +
 			"			v = 1;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		case 2 : {\n" +
 			"			v = 2;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		}\n" +
 			"		default : {\n" +
 			"			v = 3;\n" +
-			"			break false;\n" +
+			"			yield false;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		int d = b == true ? 0 : 1; \n" +
@@ -3268,22 +3272,22 @@ public void testBug542707_006() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
  * which are boolean-valued.
- * V is definitely unassigned after a switch expression when true iff for every value break statement with expression
- * e in the switch block that may exit the switch expression, V is definitely unassigned before the value break
+ * V is definitely unassigned after a switch expression when true iff for every value yield statement with expression
+ * e in the switch block that may exit the switch expression, V is definitely unassigned before the value yield
  * statement and V is definitely unassigned after e when true.
- * V is definitely unassigned after a switch expression when false iff for every value break statement with expression
- * e in the switch block that may exit the switch expression, V is definitely unassigned before the value break
+ * V is definitely unassigned after a switch expression when false iff for every value yield statement with expression
+ * e in the switch block that may exit the switch expression, V is definitely unassigned before the value yield
  * statement and V is definitely unassigned after e when false.
  */
-public void testBug542707_007() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_007() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3306,14 +3310,14 @@ public void testBug542707_007() {
 			"		boolean b = switch (i) {\n" +
 			"		case 1 :\n" +
 			"			//v = 1;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		case 2 : {\n" +
 			"			//v = 2;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		}\n" +
 			"		default : {\n" +
 			"			//v = 3;\n" +
-			"			break false;\n" +
+			"			yield false;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		int d = b == true ? 0 : 1; \n" +
@@ -3337,17 +3341,17 @@ public void testBug542707_007() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
  * which are boolean-valued. 
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
-public void testBug542707_008() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_008() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3365,14 +3369,14 @@ public void testBug542707_008() {
 			"		boolean b = switch (i) {\n" +
 			"		case 1 :\n" +
 			"			//v = 1;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		case 2 : {\n" +
 			"			//v = 2;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		}\n" +
 			"		default : {\n" +
 			"			//v = 3;\n" +
-			"			break false;\n" +
+			"			yield false;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		int d = b == true ? 0 : 1; \n" +
@@ -3396,17 +3400,17 @@ public void testBug542707_008() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
  * which are boolean-valued. 
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
-public void testBug542707_009() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_009() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3429,14 +3433,14 @@ public void testBug542707_009() {
 			"		boolean b = switch (v) {\n" +
 			"		case 1 :\n" +
 			"			v = 1;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		case 2 : {\n" +
 			"			v = 2;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		}\n" +
 			"		default : {\n" +
 			"			v = 3;\n" +
-			"			break false;\n" +
+			"			yield false;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		int d = b == true ? 0 : 1; \n" +
@@ -3460,18 +3464,18 @@ public void testBug542707_009() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
  * which are boolean-valued. 
  * V is [un]assigned before the first statement of the first switch labeled statement group in the switch block
  * iff V is [un]assigned after the selector expression.
  */
-public void testBug542707_010() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_010() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3489,14 +3493,14 @@ public void testBug542707_010() {
 			"		boolean b = switch (i + (v =1)) {\n" +
 			"		case 1 :\n" +
 			"			v += 1;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		case 2 : {\n" +
 			"			v = 2;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		}\n" +
 			"		default : {\n" +
 			"			v = 3;\n" +
-			"			break false;\n" +
+			"			yield false;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		int d = b == true ? 0 : 1; \n" +
@@ -3520,18 +3524,18 @@ public void testBug542707_010() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
  * which are boolean-valued. 
  * V is [un]assigned before the first statement of the first switch labeled statement group in the switch block
  * iff V is [un]assigned after the selector expression.
  */
-public void testBug542707_011() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_011() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3554,14 +3558,14 @@ public void testBug542707_011() {
 			"		boolean b = switch (i) {\n" +
 			"		case 1 :\n" +
 			"			v += 1;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		case 2 : {\n" +
 			"			v = 2;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		}\n" +
 			"		default : {\n" +
 			"			v = 3;\n" +
-			"			break false;\n" +
+			"			yield false;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		int d = b == true ? 0 : 1; \n" +
@@ -3585,20 +3589,19 @@ public void testBug542707_011() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
  * which are boolean-valued.
  * V is [un]assigned before the first statement of any switch labeled statement group other than the first iff
  * V is [un]assigned after the selector expression and V is [un]assigned after the preceding statement.
- * TODO: the second part - "and V is [un]assigned after the preceding statement" needs to be checked, now it looks identical to the 
- * preceding rule
+ * and V is [un]assigned after the preceding statement
  */
-public void testBug542707_012() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_012() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3616,14 +3619,14 @@ public void testBug542707_012() {
 			"		boolean b = switch (i + (v =1)) {\n" +
 			"		case 1 :\n" +
 			"			v = 1;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		case 2 : {\n" +
 			"			v += 2;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		}\n" +
 			"		default : {\n" +
 			"			v = 3;\n" +
-			"			break false;\n" +
+			"			yield false;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		int d = b == true ? 0 : 1; \n" +
@@ -3647,20 +3650,82 @@ public void testBug542707_012() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * which are boolean-valued.
+ * V is [un]assigned before the first statement of any switch labeled statement group other than the first iff
+ * V is [un]assigned after the selector expression and V is [un]assigned after the preceding statement.
+ * and V is [un]assigned after the preceding statement" 
+ */
+public void testBug548318_012b() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
+		return;
+	Map<String, String> defaultOptions = super.getCompilerOptions();
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 15)\n" + 
+			"	return v + d;\n" + 
+			"	       ^\n" + 
+			"The local variable v may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 19)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type X\n" + 
+			"----------\n";
+	String[] testFiles = new String[] {
+			"X.java", // =================
+			"public class X {\n" +
+			"	public static int foo(int i) {\n" +
+			"		int v;\n" +
+			"		boolean b = switch (i) {\n" +
+			"		case 1 :i =1;\n" +
+			"		case 2 : {\n" +
+			"			yield true;\n" +
+			"		}\n" +
+			"		default : {\n" +
+			"			v = 3;\n" +
+			"			yield false;\n" +
+			"		}\n" +
+			"		};\n" +
+			"		int d = b == true ? 0 : 1; \n" +
+			"		return v + d;\n" +
+			"	}\n" +
+			"\n" +
+			"	public boolean bar() {\n" +
+			"		Zork();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		System.out.println(foo(3));\n" +
+			"	}\n" +
+			"}\n",
+	};
+	this.runNegativeTest(
+			testFiles,
+			expectedProblemLog,
+			null,
+			true,
+			defaultOptions);
+}
+/**
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
  * which are boolean-valued. 
  * V is [un]assigned before the first statement of any switch labeled statement group other than the first iff
  * V is [un]assigned after the selector expression and V is [un]assigned after the preceding statement.
- * TODO: the second part - "and V is [un]assigned after the preceding statement" needs to be checked, now it looks identical to the 
- * preceding rule
+ * and V is [un]assigned after the preceding statement" needs to be checked
  */
-public void testBug542707_013() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_013() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3683,14 +3748,14 @@ public void testBug542707_013() {
 			"		boolean b = switch (i) {\n" +
 			"		case 1 :\n" +
 			"			v = 1;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		case 2 : {\n" +
 			"			v += 2;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		}\n" +
 			"		default : {\n" +
 			"			v = 3;\n" +
-			"			break false;\n" +
+			"			yield false;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		int d = b == true ? 0 : 1; \n" +
@@ -3714,28 +3779,28 @@ public void testBug542707_013() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
  * which are boolean-valued. 
  * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
  * V is definitely assigned after a switch expression when true iff for every switch labeled rule one of the following is true:
  * 		It is a switch labeled expression e and V is definitely assigned after e when true.
- * 		It is a switch labeled block b and for every value break statement expression e contained in b that may exit the switch expression, 
+ * 		It is a switch labeled block b and for every value yield statement expression e contained in b that may exit the switch expression, 
  * 			V is definitely assigned after e when true.
  * 		It is a switch labeled throw statement.
  * 
  * V is definitely assigned after a switch expression when false iff for every switch labeled rule one of the following is true:
  * 		It is a switch labeled expression e and V is definitely assigned after e when false.
- * 		It is a switch labeled block b and for every value break statement expression e contained in b that may exit the switch expression,
+ * 		It is a switch labeled block b and for every value yield statement expression e contained in b that may exit the switch expression,
  * 		V is definitely assigned after e when false.
  * 		It is a switch labeled throw statement.
  */
-public void testBug542707_014() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_014() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3756,11 +3821,11 @@ public void testBug542707_014() {
 			"		case 1 -> (v = 1) == 0;\n" +
 			"		case 2 -> {\n" +
 			"			v = 2;\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		}\n" +
 			"		case 3 -> {\n" +
 			"			v = 3;\n" +
-			"			break false;\n" +
+			"			yield false;\n" +
 			"		}\n" +
 			"		default -> throw new IOException();\n" +
 			"		};\n" +
@@ -3789,30 +3854,30 @@ public void testBug542707_014() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
  * which are boolean-valued. 
  * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
  * V is definitely unassigned after a switch expression when true iff for every switch labeled rule one of the following is true:
  * 		It is a switch labeled expression e and V is definitely unassigned after e when true .
- * 		It is a switch labeled block b and for every value break statement expression e contained in b that
- * 		 may exit the switch expression, V is definitely unassigned before the value break statement and 
+ * 		It is a switch labeled block b and for every value yield statement expression e contained in b that
+ * 		 may exit the switch expression, V is definitely unassigned before the value yield statement and 
  * 		     V is definitely unassigned after e when true.
  * 		It is a switch labeled throw statement.
  * 
  * V is definitely unassigned after a switch expression when false iff for every switch labeled rule one of the following is true:
  * 		It is a switch labeled expression e and V is definitely unassigned after e when false.
- * 		It is a switch labeled block b and for every value break statement expression e contained in b that may
- * 		exit the switch expression,	V is definitely unassigned before the value break statement and V is definitely unassigned 
+ * 		It is a switch labeled block b and for every value yield statement expression e contained in b that may
+ * 		exit the switch expression,	V is definitely unassigned before the value yield statement and V is definitely unassigned 
  * 			after e when false.
  * 		It is a switch labeled throw statement.
  */
-public void testBug542707_015() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_015() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3837,10 +3902,10 @@ public void testBug542707_015() {
 			"		case 0 ->  true;\n" +
 			"		case 1 -> false;\n" +
 			"		case 2 -> {\n" +
-			"			break true;\n" +
+			"			yield true;\n" +
 			"		}\n" +
 			"		case 3 -> {\n" +
-			"			break false;\n" +
+			"			yield false;\n" +
 			"		}\n" +
 			"		default -> throw new IOException();\n" +
 			"		};\n" +
@@ -3869,18 +3934,18 @@ public void testBug542707_015() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
  * which are boolean-valued. 
  * V is [un]assigned before any switch labeled expression or statement in the switch
  * block iff V is [un]assigned after the selector expression.
  */
-public void testBug542707_016() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_016() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3925,19 +3990,19 @@ public void testBug542707_016() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
+ * From JLS 13 16.1.7 , Suppose that the switch expression has result expressions e1, â€¦, en, all of
  * which are boolean-valued. 
  * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
  * V is [un]assigned before any switch labeled expression or statement in the switch
  * block iff V is [un]assigned after the selector expression.
  */
-public void testBug542707_017() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_017() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -3992,21 +4057,18 @@ public void testBug542707_017() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
- * which are boolean-valued.
- * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
- * labeled statement groups:
- * V is definitely assigned after a switch expression iff for every value break statement with expression e
- *  in the switch block that may exit the switch expression, either V is definitely assigned before the value
- *   break statement or V is definitely assigned after e.
+ * From JLS 13 16.1.8, V is [un]assigned after a switch expression (15.28) iff all of the following are true:
+ * 	V is [un]assigned before every yield statement that may exit the switch statement.
+ * 	For each switch labeled rule (14.11.1) in the switch block, V is [un]assigned after the 
+ *          expression, block, or throw statement of the switch labeled rule.
  */
-public void testBug542707_018() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_018() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -4023,14 +4085,14 @@ public void testBug542707_018() {
 			"		int v;\n" +
 			"		int t = switch (i) {\n" +
 			"		case 0 : {\n" +
-			"			v = 1; // definitely assigned before break\n" +
-			"			break v;\n" +
+			"			v = 1; // definitely assigned before yield\n" +
+			"			yield v;\n" +
 			"		}\n" +
 			"		case 2 : {\n" +
-			"			break v =1; // definitely assigned after e\n" +
+			"			yield v =1; // definitely assigned after e\n" +
 			"		}\n" +
 			"		default : {\n" +
-			"			break v = 2;\n" +
+			"			yield v = 2;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		return v + t;\n" +
@@ -4053,21 +4115,18 @@ public void testBug542707_018() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
- * which are boolean-valued.
- * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
- * labeled statement groups:
- * V is definitely unassigned after a switch expression iff for every value break statement with expression e
- * in the switch block that may exit the switch expression, V is definitely unassigned before the value break
- * statement and V is definitely unassigned after e.
+ * From JLS 13 16.1.8, V is [un]assigned after a switch expression (15.28) iff all of the following are true:
+ * 	V is [un]assigned before every yield statement that may exit the switch statement.
+ * 	For each switch labeled rule (14.11.1) in the switch block, V is [un]assigned after the 
+ *          expression, block, or throw statement of the switch labeled rule.
  */
-public void testBug542707_019() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_019() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -4089,13 +4148,13 @@ public void testBug542707_019() {
 			"		int v;\n" +
 			"		int t = switch (i) {\n" +
 			"		case 0 : {\n" +
-			"			break 1;\n" +
+			"			yield 1;\n" +
 			"		}\n" +
 			"		case 2 : {\n" +
-			"			break 2;\n" +
+			"			yield 2;\n" +
 			"		}\n" +
 			"		default : {\n" +
-			"			break 3;\n" +
+			"			yield 3;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		return v + t;\n" +
@@ -4118,19 +4177,17 @@ public void testBug542707_019() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
  * which are boolean-valued.
- * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
- * labeled statement groups:
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
-public void testBug542707_020() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_020() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -4147,13 +4204,13 @@ public void testBug542707_020() {
 			"		int v =1;\n" +
 			"		int t = switch (v) {\n" +
 			"		case 0 : {\n" +
-			"			break 1;\n" +
+			"			yield 1;\n" +
 			"		}\n" +
 			"		case 2 : {\n" +
-			"			break 2;\n" +
+			"			yield 2;\n" +
 			"		}\n" +
 			"		default : {\n" +
-			"			break 3;\n" +
+			"			yield 3;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		return t;\n" +
@@ -4176,19 +4233,17 @@ public void testBug542707_020() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
  * which are boolean-valued.
- * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
- * labeled statement groups:
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
-public void testBug542707_021() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_021() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -4210,13 +4265,13 @@ public void testBug542707_021() {
 			"		int v;\n" +
 			"		int t = switch (v) {\n" +
 			"		case 0 : {\n" +
-			"			break 1;\n" +
+			"			yield 1;\n" +
 			"		}\n" +
 			"		case 2 : {\n" +
-			"			break 2;\n" +
+			"			yield 2;\n" +
 			"		}\n" +
 			"		default : {\n" +
-			"			break 3;\n" +
+			"			yield 3;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		return t;\n" +
@@ -4239,20 +4294,21 @@ public void testBug542707_021() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
  * which are boolean-valued.
- * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
- * labeled statement groups:
- * V is [un]assigned before the first statement of the first switch labeled statement group in the switch block
- * iff V is [un]assigned after the selector expression.
+ * 	V is [un]assigned before the first block statement of a switch labeled statement group (14.11.1) of a switch expression 
+ * iff both of following are true:
+ * V is [un]assigned after the selector expression of the switch statement.
+ * If the switch labeled statement group is not the first in the switch block, 
+ * V is [un]assigned after the last block statement of the preceding switch labeled statement group. 
  */
-public void testBug542707_022() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_022() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -4269,13 +4325,13 @@ public void testBug542707_022() {
 			"		int v =1;\n" +
 			"		int t = switch (v) {\n" +
 			"		case 0 : {\n" +
-			"			break v;\n" +
+			"			yield v;\n" +
 			"		}\n" +
 			"		case 2 : {\n" +
-			"			break 2;\n" +
+			"			yield 2;\n" +
 			"		}\n" +
 			"		default : {\n" +
-			"			break 3;\n" +
+			"			yield 3;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		return t;\n" +
@@ -4298,26 +4354,27 @@ public void testBug542707_022() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
  * which are boolean-valued.
- * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
- * labeled statement groups:
- * V is [un]assigned before the first statement of the first switch labeled statement group in the switch block
- * iff V is [un]assigned after the selector expression.
+ * 	V is [un]assigned before the first block statement of a switch labeled statement group (14.11.1) of a switch expression 
+ * iff both of following are true:
+ * V is [un]assigned after the selector expression of the switch statement.
+ * If the switch labeled statement group is not the first in the switch block, 
+ * V is [un]assigned after the last block statement of the preceding switch labeled statement group. 
  */
-public void testBug542707_023() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_023() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
-			"	break v;\n" + 
+			"	yield v;\n" + 
 			"	      ^\n" + 
 			"The local variable v may not have been initialized\n" + 
 			"----------\n" + 
@@ -4333,13 +4390,13 @@ public void testBug542707_023() {
 			"		int v;\n" +
 			"		int t = switch (i) {\n" +
 			"		case 0 : {\n" +
-			"			break v;\n" +
+			"			yield v;\n" +
 			"		}\n" +
 			"		case 2 : {\n" +
-			"			break 2;\n" +
+			"			yield 2;\n" +
 			"		}\n" +
 			"		default : {\n" +
-			"			break 3;\n" +
+			"			yield 3;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		return t;\n" +
@@ -4362,26 +4419,27 @@ public void testBug542707_023() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
  * which are boolean-valued.
- * The following rules apply only if the switch block of a switch expression (15.28) consists of switch
- * labeled statement groups:
- * V is [un]assigned before the first statement of any switch labeled statement group other than the first iff V is [un]assigned
- * after the selector expression and V is [un]assigned after the preceding statement.
+ * 	V is [un]assigned before the first block statement of a switch labeled statement group (14.11.1) of a switch expression 
+ * iff both of following are true:
+ * V is [un]assigned after the selector expression of the switch statement.
+ * If the switch labeled statement group is not the first in the switch block, 
+ * V is [un]assigned after the last block statement of the preceding switch labeled statement group. 
  */
-public void testBug542707_024() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_024() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 9)\n" + 
-			"	break v;\n" + 
+			"	yield v;\n" + 
 			"	      ^\n" + 
 			"The local variable v may not have been initialized\n" + 
 			"----------\n" + 
@@ -4397,13 +4455,13 @@ public void testBug542707_024() {
 			"		int v ;\n" +
 			"		int t = switch (i) {\n" +
 			"		case 0 : {\n" +
-			"			break 1;\n" +
+			"			yield 1;\n" +
 			"		}\n" +
 			"		case 2 : {\n" +
-			"			break v;\n" +
+			"			yield v;\n" +
 			"		}\n" +
 			"		default : {\n" +
-			"			break 3;\n" +
+			"			yield 3;\n" +
 			"		}\n" +
 			"		};\n" +
 			"		return t;\n" +
@@ -4426,23 +4484,18 @@ public void testBug542707_024() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
- * which are boolean-valued.
- * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
- * V is definitely assigned after a switch expression iff for every switch labeled rule one of the following is true:
- * 		It is a switch labeled expression e and V is definitely assigned after e.
- * 		It is a switch labeled block b and for every value break statement expression e contained in b that may exit
- * 			the switch expression, either V is definitely assigned before the value break statement or V is definitely
- * 			assigned after e.
- * 		It is a switch labeled throw statement.
+ * From JLS 13 16.1.8, V is [un]assigned after a switch expression (15.28) iff all of the following are true:
+ * 	V is [un]assigned before every yield statement that may exit the switch statement.
+ * 	For each switch labeled rule (14.11.1) in the switch block, V is [un]assigned after the 
+ *          expression, block, or throw statement of the switch labeled rule.
  */
-public void testBug542707_025() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_025() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -4463,9 +4516,9 @@ public void testBug542707_025() {
 			"		case 0 -> v = 1;\n" +
 			"		case 2 -> {\n" +
 			"			if (i > 1) {\n" +
-			"				break v = 2;\n" +
+			"				yield v = 2;\n" +
 			"			}\n" +
-			"			break v = 3;\n" +
+			"			yield v = 3;\n" +
 			"		}\n" +
 			"		default -> throw new IOException();\n" +
 			"		};\n" +
@@ -4494,23 +4547,18 @@ public void testBug542707_025() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
- * which are boolean-valued.
- * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
- * V is definitely unassigned after a switch expression iff for every switch labeled rule one of the following is true:
- * 		It is a switch labeled expression e and V is definitely unassigned after e.
- * 		It is a switch labeled block b and for every value break statement expression e contained in b that may exit the
- * 			switch expression, V is definitely unassigned before the value break statement
- * 			and V is definitely unassigned after e.
- * 		It is a switch labeled throw statement.
+ * From JLS 13 16.1.8, V is [un]assigned after a switch expression (15.28) iff all of the following are true:
+ * 	V is [un]assigned before every yield statement that may exit the switch statement.
+ * 	For each switch labeled rule (14.11.1) in the switch block, V is [un]assigned after the 
+ *          expression, block, or throw statement of the switch labeled rule.
  */
-public void testBug542707_026() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_026() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -4536,9 +4584,9 @@ public void testBug542707_026() {
 			"		case 0 ->  1;\n" +
 			"		case 2 -> {\n" +
 			"			if (i > 1) {\n" +
-			"				break  2;\n" +
+			"				yield  2;\n" +
 			"			}\n" +
-			"			break 3;\n" +
+			"			yield 3;\n" +
 			"		}\n" +
 			"		default -> throw new IOException();\n" +
 			"		};\n" +
@@ -4567,19 +4615,18 @@ public void testBug542707_026() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
  * which are boolean-valued.
- * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
- * V is [un]assigned before any switch labeled expression or statement in the switch block iff
- * V is [un]assigned after the selector expression.
+ * V is [un]assigned before the expression, block, or throw statement of a switch labeled rule of a
+ * switch expression iff V is [un]assigned after the selector expression of the switch expression.
  */
-public void testBug542707_027() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_027() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -4600,9 +4647,9 @@ public void testBug542707_027() {
 			"		case 0 ->  v;\n" +
 			"		case 2 -> {\n" +
 			"			if (i > 1) {\n" +
-			"				break  2;\n" +
+			"				yield  2;\n" +
 			"			}\n" +
-			"			break 3;\n" +
+			"			yield 3;\n" +
 			"		}\n" +
 			"		default -> throw new IOException();\n" +
 			"		};\n" +
@@ -4631,19 +4678,18 @@ public void testBug542707_027() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
+ * From JLS 13 16.1.8, Suppose that the switch expression has result expressions e1, â€¦, en, not all of
  * which are boolean-valued.
- * The following rules apply only if the switch block of a switch expression consists of switch labeled rules:
- * V is [un]assigned before any switch labeled expression or statement in the switch block iff
- * V is [un]assigned after the selector expression.
+ * V is [un]assigned before the expression, block, or throw statement of a switch labeled rule of a
+ * switch expression iff V is [un]assigned after the selector expression of the switch expression.
  */
-public void testBug542707_028() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_028() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
@@ -4669,9 +4715,9 @@ public void testBug542707_028() {
 			"		case 0 ->  v;\n" +
 			"		case 2 -> {\n" +
 			"			if (i > 1) {\n" +
-			"				break  2;\n" +
+			"				yield  2;\n" +
 			"			}\n" +
-			"			break 3;\n" +
+			"			yield 3;\n" +
 			"		}\n" +
 			"		default -> throw new IOException();\n" +
 			"		};\n" +
@@ -4700,25 +4746,28 @@ public void testBug542707_028() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.2.9, The following rules apply only if the switch block of the switch statement consists of switch labeled rules:
- * V is [un]assigned after a switch statement iff for every switch labeled rule one of the following is true:
- * 		It is a switch labeled expression e and either V is [un]assigned after e or after the selector expression.
- * 		It is a switch labeled block b and either V is [un]assigned after e or V is [un]assigned before every
- * 		break statement contained in b that may exit the switch statement.
- * 		It is a switch labeled throw statement.
+ * From JLS 13 16.2.9, [tests the second rule - assigned]
+ * V is [un]assigned after a switch statement (14.11) iff all of the following are true:
+ *     V is [un]assigned before every break statement that may exit the switch statement.
+ *     For each switch labeled rule (14.11.1) in the switch block, V is [un]assigned after the
+ *         expression, block, or throw statement of the switch labeled rule.
+ *     If there is a switch labeled statement group (14.11.1) in the switch block, then V is [un]assigned
+ *         after the last block statement of the last switch labeled statement group.
+ *     If there is no default label in the switch block, or if the switch block ends with a switch label
+ *        followed by }, then V is [un]assigned after the selector expression
  */
-public void testBug542707_029() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_029() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
 			"----------\n" + 
-			"2. ERROR in X.java (at line 24)\n" + 
+			"1. ERROR in X.java (at line 24)\n" + 
 			"	Zork();\n" + 
 			"	^^^^\n" + 
 			"The method Zork() is undefined for the type X\n" + 
@@ -4769,20 +4818,23 @@ public void testBug542707_029() {
 			defaultOptions);
 }
 /**
- * From JLS 12 16.2.9, The following rules apply only if the switch block of the switch statement consists of switch labeled rules:
- * V is [un]assigned after a switch statement iff for every switch labeled rule one of the following is true:
- * 		It is a switch labeled expression e and either V is [un]assigned after e or after the selector expression.
- * 		It is a switch labeled block b and either V is [un]assigned after e or V is [un]assigned before every
- * 		break statement contained in b that may exit the switch statement.
- * 		It is a switch labeled throw statement.
+ * From JLS 13 16.2.9, [tests the second rule - unassigned]
+ * V is [un]assigned after a switch statement (14.11) iff all of the following are true:
+ *     V is [un]assigned before every break statement that may exit the switch statement.
+ *     For each switch labeled rule (14.11.1) in the switch block, V is [un]assigned after the
+ *         expression, block, or throw statement of the switch labeled rule.
+ *     If there is a switch labeled statement group (14.11.1) in the switch block, then V is [un]assigned
+ *         after the last block statement of the last switch labeled statement group.
+ *     If there is no default label in the switch block, or if the switch block ends with a switch label
+ *        followed by }, then V is [un]assigned after the selector expression
  */
-public void testBug542707_030() {
-	if (this.complianceLevel != ClassFileConstants.JDK12)
+public void testBug548318_030() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
 		return;
 	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 	String expectedProblemLog =
