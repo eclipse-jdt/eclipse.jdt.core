@@ -2142,26 +2142,37 @@ void setSourceStart(int sourceStart);
 	 * @deprecated preview related error - will be removed
 	 * @noreference preview related error */
 	int SwitchExpressionIllegalLastStatement = Internal + 1612;
-	/** @since 3.18 BETA_JAVA13 */
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
 	int SwitchExpressionsYieldIncompatibleResultExpressionTypes = PreviewRelated + 1700;
-	/** @since 3.18 BETA_JAVA13 */
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
 	int SwitchExpressionsYieldEmptySwitchBlock = PreviewRelated + 1701;
-	/** @since 3.18 BETA_JAVA13*/
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
 	int SwitchExpressionsYieldNoResultExpression = PreviewRelated + 1702;
-	/** @since 3.18 */
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
 	int SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally = PreviewRelated + 1703;
-	/** @since 3.18 BETA_JAVA13 */
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
 	int SwitchExpressionsYieldLastStatementCompletesNormally = PreviewRelated + 1704;
-	/** @since 3.18 BETA_JAVA13*/
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
 	int SwitchExpressionsYieldTrailingSwitchLabels = PreviewRelated + 1705;
-	/** @since 3.18 BETA_JAVA13 */
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
 	int SwitchPreviewMixedCase = PreviewRelated + 1706;
-	/** @since 3.18 BETA_JAVA13 */
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
 	int SwitchExpressionsYieldMissingDefaultCase = PreviewRelated + 1707;
-	/** @since 3.18 BETA_JAVA13 */
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
 	int SwitchExpressionsYieldMissingValue = PreviewRelated + 1708;
-	/** @since 3.18 BETA_JAVA13 */
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
 	int SwitchExpressionsYieldMissingEnumConstantCase = PreviewRelated + 1709;
-	/** @since 3.18 BETA_JAVA13 */
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
 	int SwitchExpressionsYieldIllegalLastStatement = PreviewRelated + 1710;
 	}
