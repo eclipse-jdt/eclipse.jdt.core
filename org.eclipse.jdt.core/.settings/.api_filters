@@ -7,9 +7,9 @@
                 <message_argument value="3.18.0"/>
             </message_arguments>
         </filter>
-        <filter comment="BETA_JAVA13 code - plugin bumping to be done at merge only" id="924844039">
+        <filter comment="BETA_JAVA13 - temporary service segment bumping - to merge with master later (4.14)" id="924844039">
             <message_arguments>
-                <message_argument value="3.18.100"/>
+                <message_argument value="3.18.50"/>
                 <message_argument value="3.18.0"/>
             </message_arguments>
         </filter>
