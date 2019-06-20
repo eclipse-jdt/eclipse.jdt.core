@@ -597,6 +597,13 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			if (info == null) {
 				info = newElements.get(this);
 			}
+			// Bug 548456: check if some concurrent call already added the info to the manager, do not throw an exception if so
+			if (info == null) {
+				info = manager.getInfo(this);
+				if (info != null) {
+					return info;
+				}
+			}
 			if (info == null) { // a source ref element could not be opened
 				// close the buffer that was opened for the openable parent
 			    // close only the openable's buffer (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=62854)

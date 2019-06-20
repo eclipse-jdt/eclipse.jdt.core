@@ -219,6 +219,8 @@ private static Class[] getAllTestClasses() {
 		ResolveTests9.class,
 
 		NullAnnotationModelTests9.class,
+
+		JavaModelManagerTests.class,
 	};
 
 	Class[] deprecatedClasses = getDeprecatedJDOMTestClasses();
