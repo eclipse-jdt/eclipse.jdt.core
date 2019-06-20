@@ -1,25 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter comment="No need of minor version bump for Java 13 work." id="924844039">
-        	<message_arguments>
-                <message_argument value="3.18.0"/>
-                <message_argument value="3.18.0"/>
-            </message_arguments>
-         </filter>    
-        <filter comment="Not required as it is a part of preview feature" id="923795461">
-            <message_arguments>
-                <message_argument value="3.18.0"/>
-                <message_argument value="3.18.0"/>
-            </message_arguments>
-        </filter>
-        <filter comment="BETA_JAVA13 - temporary service segment bumping - to merge with master later (4.14)" id="924844039">
-            <message_arguments>
-                <message_argument value="3.18.50"/>
-                <message_argument value="3.18.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="To be addressed while merging 12" id="336658481">
             <message_arguments>
@@ -35,100 +15,11 @@
         </filter>
     </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
-        <filter comment="BETA_JAVA13 addition of preview related base" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="IgnoreCategoriesMask"/>
-                <message_argument value="4194303"/>
-            </message_arguments>
-        </filter>
         <filter id="388194388">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
                 <message_argument value="IgnoreCategoriesMask"/>
                 <message_argument value="8388607"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/ASTVisitor.java" type="org.eclipse.jdt.core.dom.ASTVisitor">
-        <filter comment="Not required as it is a part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.ASTVisitor"/>
-                <message_argument value="visit(SwitchExpression)"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/BreakStatement.java" type="org.eclipse.jdt.core.dom.BreakStatement">
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.BreakStatement"/>
-                <message_argument value="getExpression()"/>
-            </message_arguments>
-        </filter>
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.BreakStatement"/>
-                <message_argument value="isImplicit()"/>
-            </message_arguments>
-        </filter>
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.BreakStatement"/>
-                <message_argument value="setExpression(Expression)"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/SwitchCase.java" type="org.eclipse.jdt.core.dom.SwitchCase">
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchCase"/>
-                <message_argument value="expressions()"/>
-            </message_arguments>
-        </filter>
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchCase"/>
-                <message_argument value="isSwitchLabeledRule()"/>
-            </message_arguments>
-        </filter>
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchCase"/>
-                <message_argument value="setSwitchLabeledRule(boolean)"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/SwitchExpression.java" type="org.eclipse.jdt.core.dom.SwitchExpression">
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchExpression"/>
-                <message_argument value="getExpression()"/>
-            </message_arguments>
-        </filter>
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchExpression"/>
-                <message_argument value="propertyDescriptors(int)"/>
-            </message_arguments>
-        </filter>
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchExpression"/>
-                <message_argument value="setExpression(Expression)"/>
-            </message_arguments>
-        </filter>
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchExpression"/>
-                <message_argument value="statements()"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="model/org/eclipse/jdt/core/util/IClassFileReader.java" type="org.eclipse.jdt.core.util.IClassFileReader">
-        <filter comment="default method added for getting nest members" id="404000815">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.util.IClassFileReader"/>
-                <message_argument value="getNestMembersAttribute()"/>
             </message_arguments>
         </filter>
     </resource>

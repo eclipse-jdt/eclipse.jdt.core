@@ -141,9 +141,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	/** @deprecated using deprecated code */
 	private static final int JLS9_INTERNAL = AST.JLS9;
 	
-	/** @deprecated using deprecated code */
-	private static final int JLS12_INTERNAL = AST.JLS12;
-	
 	private static final int JLS13_INTERNAL = AST.JLS13;
 
 

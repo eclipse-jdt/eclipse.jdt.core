@@ -156,6 +156,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		buf.append("}\n");
 		assertEqualString(preview, buf.toString());
 	}
+	@Deprecated
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_02_since_12() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -215,6 +216,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
+	@Deprecated
 	@SuppressWarnings("rawtypes")
 	public void testSwitchExpressions_03_since_12() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

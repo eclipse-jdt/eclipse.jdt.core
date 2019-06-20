@@ -289,6 +289,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
+	@Deprecated
 	public void _test0005() throws JavaModelException {
 		String contents =
 				"public class X {\n" +

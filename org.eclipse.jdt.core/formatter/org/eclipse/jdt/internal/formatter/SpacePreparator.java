@@ -424,6 +424,7 @@ public class SpacePreparator extends ASTVisitor {
 	}
 
 	@Override
+	@Deprecated
 	public boolean visit(BreakStatement node) {
 		if (node.getExpression() != null && !node.isImplicit()) {
 			this.tm.firstTokenIn(node, TokenNamebreak).spaceAfter();
