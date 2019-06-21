@@ -11127,9 +11127,9 @@ public void switchExpressionMixedCase(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-public void switchExpressionBreakMissingValue(ASTNode statement) {
+public void switchExpressionBreakNotAllowed(ASTNode statement) {
 	this.handle(
-		IProblem.SwitchExpressionsYieldMissingValue,
+		IProblem.SwitchExpressionsYieldBreakNotAllowed,
 		NoArgument,
 		NoArgument,
 		statement.sourceStart,

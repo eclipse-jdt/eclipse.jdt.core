@@ -810,7 +810,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MissingSynchronizedModifierInInheritedMethod", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MissingTypeInConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MissingTypeInLambda", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
-		expectedProblemAttributes.put("UnterminatedTextBlock", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("UnterminatedTextBlock", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 		expectedProblemAttributes.put("MissingTypeInMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("MissingValueForAnnotationMember", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("MissingValueFromLambda", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1194,6 +1194,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingValue", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingEnumConstantCase", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIllegalLastStatement", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldBreakNotAllowed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2154,6 +2155,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingValue", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingEnumConstantCase", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIllegalLastStatement", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionsYieldBreakNotAllowed", SKIP);
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {

@@ -2177,4 +2177,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.18 BETA_JAVA13
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldIllegalLastStatement = PreviewRelated + 1710;
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
+	int SwitchExpressionsYieldBreakNotAllowed = PreviewRelated + 1711;
 	}

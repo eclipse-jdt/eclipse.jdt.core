@@ -1366,7 +1366,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 10)\n" + 
 			"	break;\n" + 
 			"	^^^^^^\n" + 
-			"Break of a switch expression should have a value\n" + 
+			"break out of switch expression not allowed\n" + 
 			"----------\n");
 	}
 	public void testBug544073_036() {
