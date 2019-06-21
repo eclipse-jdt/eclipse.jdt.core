@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.core.dom.rewrite;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -177,9 +178,7 @@ public final class ASTRewriteFormatter {
 		node.accept(flattener);
 
 		NodeMarker[] markers= flattener.getMarkers();
-		for (int i= 0; i < markers.length; i++) {
-			resultingMarkers.add(markers[i]); // add to result
-		}
+		Collections.addAll(resultingMarkers, markers);
 
 		String unformatted= flattener.getResult();
 		TextEdit edit= formatNode(node, unformatted, initialIndentationLevel);

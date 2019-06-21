@@ -2312,9 +2312,7 @@ public class JavaProject
 			IPackageFragmentRoot root = roots[i];
 			try {
 				IJavaElement[] rootFragments = root.getChildren();
-				for (int j = 0; j < rootFragments.length; j++) {
-					frags.add(rootFragments[j]);
-				}
+				Collections.addAll(frags, rootFragments);
 			} catch (JavaModelException e) {
 				// do nothing
 			}

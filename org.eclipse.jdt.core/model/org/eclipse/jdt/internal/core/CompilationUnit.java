@@ -637,17 +637,13 @@ public IType[] getAllTypes() throws JavaModelException {
 	int i;
 	ArrayList allTypes = new ArrayList(types.length);
 	ArrayList typesToTraverse = new ArrayList(types.length);
-	for (i = 0; i < types.length; i++) {
-		typesToTraverse.add(types[i]);
-	}
+	Collections.addAll(typesToTraverse, types);
 	while (!typesToTraverse.isEmpty()) {
 		IType type = (IType) typesToTraverse.get(0);
 		typesToTraverse.remove(type);
 		allTypes.add(type);
 		types = type.getTypes();
-		for (i = 0; i < types.length; i++) {
-			typesToTraverse.add(types[i]);
-		}
+		Collections.addAll(typesToTraverse, types);
 	}
 	IType[] arrayOfAllTypes = new IType[allTypes.size()];
 	allTypes.toArray(arrayOfAllTypes);
