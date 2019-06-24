@@ -9926,4 +9926,33 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug548589() {
+		runConformTest(
+			new String[] {
+				"InferenceCheck.java",
+				"import java.util.*;\n" + 
+				"import java.util.function.*;\n" + 
+				"\n" + 
+				"public class InferenceCheck {\n" + 
+				"\n" + 
+				"    public interface P<T> {\n" + 
+				"\n" + 
+				"        public boolean apply(T value);        \n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static <T> P<T> compilation_failed(P<T> predicate) {\n" + 
+				"        List<P<T>> list = Collections.emptyList();\n" + 
+				"        list.stream().map(InferenceCheck::compilation_failed);\n" + 
+				"        return null;\n" + 
+				"    }    \n" + 
+				"\n" + 
+				"    public static <T> P<T> compilation_ok(P<T> predicate) {\n" + 
+				"        List<P<T>> list = Collections.emptyList();\n" + 
+				"        Function<P<T>, P<T>> f = InferenceCheck::compilation_ok;\n" + 
+				"        list.stream().map(f);\n" + 
+				"        return null;\n" + 
+				"    }    \n" + 
+				"}\n"
+			});
+	}
 }
