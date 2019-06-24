@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -292,14 +296,14 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				resolve(upperScope);
 	
 				if (this.statements == null || this.statements.length == 0) {
-					//	Report Error JLS 12 15.28.1  The switch block must not be empty.
+					//	Report Error JLS 13 15.28.1  The switch block must not be empty.
 					upperScope.problemReporter().switchExpressionEmptySwitchBlock(this);
 					return null;
 				}
 				
 				resultExpressionsCount = this.resultExpressions != null ? this.resultExpressions.size() : 0;
 				if (resultExpressionsCount == 0) {
-					//  Report Error JLS 12 15.28.1 
+					//  Report Error JLS 13 15.28.1 
 					// It is a compile-time error if a switch expression has no result expressions.
 					upperScope.problemReporter().switchExpressionNoResultExpressions(this);
 					return null;
@@ -390,10 +394,11 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 			boolean typeNumeric = true;
 			TypeBinding resultNumeric = null;
 			HashSet<TypeBinding> typeSet = new HashSet<>();
-			/*  JLS 12 5.6.3 Switch Numeric Promotion
-			 * When a switch expression applies numeric promotion to a set of result expressions, each of which
-			 * must denote a value that is convertible to a numeric type, the following rules apply, in order:
-			 *  If any result expression is of a reference type, it is subjected to unboxing conversion (5.1.8).
+			/*  JLS 13 5.6 Numeric Contexts
+			 * An expression appears in a numeric context if it is one of:....
+			 * ...8. a result expression of a standalone switch expression (15.28.1),
+			 * where all the result expressions are convertible to a numeric type
+			 * If any expression is of a reference type, it is subjected to unboxing conversion (5.1.8).
 			 */
 			for (int i = 0; i < resultExpressionsCount; ++i) {
 				TypeBinding originalType = this.originalValueResultExpressionTypes[i];
@@ -413,7 +418,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				 *  Otherwise, if any result expression is of type long, then other result expressions that are not of 
 				 *  type long are widened to long.
 				 */
-				TypeBinding[] dfl = new TypeBinding[]{// do not change the order JLS 12 5.6.3
+				TypeBinding[] dfl = new TypeBinding[]{// do not change the order JLS 13 5.6
 						TypeBinding.DOUBLE,
 						TypeBinding.FLOAT,
 						TypeBinding.LONG};
@@ -424,6 +429,13 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 					}
 				}
 
+				/* Otherwise, if any expression appears in a numeric array context or a numeric arithmetic context,
+				 * rather than a numeric choice context, then the promoted type is int and other expressions that are
+				 * not of type int undergo widening primitive conversion to int. - not applicable since numeric choice context.
+				 * [Note: A numeric choice context is a numeric context that is either a numeric conditional expression or
+				 * a standalone switch expression where all the result expressions are convertible to a numeric type.]
+				 */
+
 				 /*  Otherwise, if any result expression is of type int and is not a constant expression, the other 
 				 *  result expressions that are not of type int are widened to int.
 				 */
@@ -433,7 +445,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 					getResultNumeric(typeSet, this.originalValueResultExpressionTypes); // check the rest
 				typeSet = null; // hey gc!
 				for (int i = 0; i < resultExpressionsCount; ++i) {
-					// auto-unboxing and/or widening/narrrowing JLS 12 5.6.3
 					this.resultExpressions.get(i).computeConversion(this.scope,
 							resultNumeric, this.originalValueResultExpressionTypes[i]);
 					this.finalValueResultExpressionTypes[i] = resultNumeric;
@@ -517,24 +528,25 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		// note: if an expression has a type integer, then it will be a constant 
 		// since non-constant integers are already processed before reaching here.
 
-		/*
-		 * Otherwise, if any result expression is of type char, and every other result expression is either of
-		 * type char, or of type byte, or a constant expression of type int with a value that is representable
-		 * in the type char, then the byte results are widened to char and the int results are narrowed to char.
+		/* Otherwise, if any expression is of type short, and every other expression is either of type short,
+		 * or of type byte, or a constant expression of type int with a value that is representable in the
+		 * type short, then T is short, the byte expressions undergo widening primitive conversion to short, 
+		 * and the int expressions undergo narrowing primitive conversion to short.\
+		 *
+		 * Otherwise, if any expression is of type byte, and every other expression is either of type byte or a
+		 * constant expression of type int with a value that is representable in the type byte, then T is byte 
+		 * and the int expressions undergo narrowing primitive conversion to byte.
+		 *
+		 * Otherwise, if any expression is of type char, and every other expression is either of type char or a
+		 * constant expression of type int with a value that is representable in the type char, then T is char
+		 * and the int expressions undergo narrowing primitive conversion to char.
+		 *
+		 * Otherwise, T is int and all the expressions that are not of type int undergo widening
+		 * primitive conversion to int.
 		 */
 
-		 /*  Otherwise, if any result expression is of type short, and every other result expression is either of
-		 *  type short, or of type byte, or a constant expression of type int with a value that is representable
-		 *  in the type short, then the byte results are widened to short and the int results are narrowed to
-		 *  short.
-		 */
-		 /*  Otherwise, if any result expression is of type byte, and every other result expression is either of
-		 *  type byte or a constant expression of type int with a value that is representable in the type byte,
-		 *  then the int results are narrowed to byte.
-		 */
-
-		// DO NOT Change the order below [as per JLS 12 5.6.3 item 2, sub-items 5,6 and 7].
-		TypeBinding[] csb = new TypeBinding[] {TypeBinding.CHAR, TypeBinding.SHORT, TypeBinding.BYTE};
+		// DO NOT Change the order below [as per JLS 13 5.6 ].
+		TypeBinding[] csb = new TypeBinding[] {TypeBinding.SHORT, TypeBinding.BYTE, TypeBinding.CHAR};
 		for (TypeBinding c : csb) {
 			TypeBinding result = check_csb(typeSet, c);
 			if (result != null)
@@ -547,7 +559,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	public boolean isPolyExpression() {
 		if (this.isPolyExpression)
 			return true;
-		// JLS 12 15.28.1 A switch expression is a poly expression if it appears in an assignment context or
+		// JLS 13 15.28.1 A switch expression is a poly expression if it appears in an assignment context or
 		// an invocation context (5.2, 5.3). Otherwise, it is a standalone expression.
 		return this.isPolyExpression = this.expressionContext == ASSIGNMENT_CONTEXT || 
 				this.expressionContext == INVOCATION_CONTEXT;
