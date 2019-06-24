@@ -2836,6 +2836,9 @@ class ASTConverter {
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.WhileStatement) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.WhileStatement) statement);
 		}
+		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.YieldStatement) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.YieldStatement) statement);
+		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.Expression &&
 				((org.eclipse.jdt.internal.compiler.ast.Expression) statement).isTrulyExpression()) {
 			org.eclipse.jdt.internal.compiler.ast.Expression statement2 = (org.eclipse.jdt.internal.compiler.ast.Expression) statement;

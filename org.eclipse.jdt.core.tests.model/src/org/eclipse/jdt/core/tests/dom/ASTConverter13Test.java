@@ -6,8 +6,12 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * SPDX-License-Identifier: EPL-2.0
- *Contributors:
+ * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
@@ -74,7 +78,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	/*
 	 * Test that a simple switch expression's return type holds the correct type
 	 */
-	public void _test0001() throws JavaModelException {
+	public void test0001() throws JavaModelException {
 		String contents =
 			"	public class X {\n" +
 			"   enum Day\n" +
@@ -123,7 +127,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	 * Test that a case statement with multiple cases is resolved correctly
 	 * and has the correct source range
 	 */
-	public void _test0002() throws JavaModelException {
+	public void test0002() throws JavaModelException {
 		String contents =
 			"public class X {\n" + 
 			"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" + 
@@ -179,7 +183,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	
 	/* test implicit break statement */
 
-	public void _test0003() throws JavaModelException {
+	public void test0003() throws JavaModelException {
 		String contents =
 			"public class X {\n" +
 			"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" +
@@ -230,7 +234,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-	public void _test0004() throws JavaModelException {
+	public void test0004() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
 				"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" +
@@ -345,7 +349,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-	public void _test0006() throws JavaModelException {
+	public void test0006() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
 						"	public String test001() {\n" + 
