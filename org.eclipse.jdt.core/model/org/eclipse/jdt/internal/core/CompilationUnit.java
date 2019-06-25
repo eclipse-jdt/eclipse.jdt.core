@@ -634,7 +634,6 @@ public ICompilationUnit findWorkingCopy(WorkingCopyOwner workingCopyOwner) {
 @Override
 public IType[] getAllTypes() throws JavaModelException {
 	IJavaElement[] types = getTypes();
-	int i;
 	ArrayList allTypes = new ArrayList(types.length);
 	ArrayList typesToTraverse = new ArrayList(types.length);
 	Collections.addAll(typesToTraverse, types);
