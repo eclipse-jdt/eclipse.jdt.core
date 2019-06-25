@@ -18,6 +18,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
@@ -123,9 +124,15 @@ public void resolve(BlockScope scope) {
 //	if (this.expression == null)
 //	currentScope.problemReporter().switchExpressionYieldMissingExpression(this);
 //	
-//if (this.switchExpression == null)
-//	currentScope.problemReporter().yieldInNonSwitchExpression(this);
-
+	if (this.switchExpression == null) {
+		if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK13) {
+			if (scope.compilerOptions().enablePreviewFeatures) {
+				scope.problemReporter().switchExpressionsYieldOutsideSwitchExpression(this);
+			} else {
+				scope.problemReporter().switchExpressionsYieldIllegalStatement(this);
+			}
+		}
+	}
 	if  (this.expression != null) {
 		this.expression.resolveType(scope);
 	}

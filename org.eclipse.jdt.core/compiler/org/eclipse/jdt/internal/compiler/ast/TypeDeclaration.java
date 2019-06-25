@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -658,6 +662,7 @@ public boolean hasErrors() {
  *	Common flow analysis for all types
  */
 private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
+	checkYieldUsage();
 	if (!this.binding.isUsed() && this.binding.isOrEnclosedByPrivateType()) {
 		if (!this.scope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
 			this.scope.problemReporter().unusedPrivateType(this);
@@ -777,6 +782,18 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 	// enable enum support ?
 	if (this.binding.isEnum() && !this.binding.isAnonymousType()) {
 		this.enumValuesSyntheticfield = this.binding.addSyntheticFieldForEnumValues();
+	}
+}
+
+private void checkYieldUsage() {
+	long sourceLevel = this.scope.compilerOptions().sourceLevel;
+	if (sourceLevel < ClassFileConstants.JDK13 || this.name == null ||
+			!("yield".equals(new String(this.name)))) //$NON-NLS-1$
+		return;
+	if (sourceLevel == ClassFileConstants.JDK13 && this.scope.compilerOptions().enablePreviewFeatures) {
+		this.scope.problemReporter().switchExpressionsYieldTypeDeclarationError(this);
+	} else {
+		this.scope.problemReporter().switchExpressionsYieldTypeDeclarationWarning(this);
 	}
 }
 

@@ -52,6 +52,7 @@ public class Scanner implements TerminalTokens {
 	public long sourceLevel;
 	public long complianceLevel;
 
+	public boolean previewEnabled;
 	// 1.4 feature
 	public boolean useAssertAsAnIndentifier = false;
 	//flag indicating if processed source contains occurrences of keyword assert
@@ -4618,8 +4619,9 @@ public static boolean isKeyword(int token) {
 // Vanguard Scanner - A Private utility helper class for the scanner.
 private static final class VanguardScanner extends Scanner {
 	
-	public VanguardScanner(long sourceLevel, long complianceLevel) {
+	public VanguardScanner(long sourceLevel, long complianceLevel, boolean previewEnabled) {
 		super (false /*comment*/, false /*whitespace*/, false /*nls*/, sourceLevel, complianceLevel, null/*taskTag*/, null/*taskPriorities*/, false /*taskCaseSensitive*/);
+		this.previewEnabled = previewEnabled;
 	}
 	
 	@Override
@@ -4841,6 +4843,7 @@ private class ScanContextDetector extends VanguardParser {
 		};
 		this.scanner.recordLineSeparator = false;
 		this.scanner.setActiveParser(this);
+		this.scanner.previewEnabled = this.options.enablePreviewFeatures;
 	}
 
 	@Override
@@ -4865,7 +4868,7 @@ private class ScanContextDetector extends VanguardParser {
 
 private VanguardParser getVanguardParser() {
 	if (this.vanguardParser == null) {
-		this.vanguardScanner = new VanguardScanner(this.sourceLevel, this.complianceLevel);
+		this.vanguardScanner = new VanguardScanner(this.sourceLevel, this.complianceLevel, this.previewEnabled);
 		this.vanguardParser = new VanguardParser(this.vanguardScanner);
 		this.vanguardScanner.setActiveParser(this.vanguardParser);
 	}
@@ -4991,6 +4994,8 @@ private boolean mayBeAtAnYieldStatement() {
 	}
 }
 int disambiguatedRestrictedIdentifier(int restrictedKeywordToken) {
+	if (!this.previewEnabled)
+		return TokenNameIdentifier;
 	if (this.scanContext == ScanContext.EXPECTING_YIELD)
 		return TokenNameRestrictedIdentifierYield;
 

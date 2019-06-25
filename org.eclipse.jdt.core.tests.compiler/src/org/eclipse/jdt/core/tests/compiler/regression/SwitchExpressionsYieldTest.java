@@ -2639,7 +2639,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	yield();\n" + 
 				"	^^^^^^^\n" + 
-				"restricted identified yield not allowed here - method calls need to be qualified\n" + 
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
 				"----------\n");
 	}
 	public void testBug547891_02() {
@@ -2660,6 +2660,345 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	yield();\n" + 
 				"	^^^^^^^\n" + 
 				"yield may be disallowed in future - qualify method calls to avoid this message\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] {""},
+				options);
+	}
+	public void testBug547891_03() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void main(String[] args) {\n"+
+				"		yield 1;\n"+
+				"	}\n"+
+				"}\n"+
+				"class yield {\n" +
+				"}\n", 
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	yield 1;\n" +
+				"	^^^^^^^^\n" +
+				"yield outside of switch expression\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	class yield {\n" + 
+				"	      ^^^^^\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n");
+	}
+	public void testBug547891_04() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void main(String[] args) {\n"+
+				"		yield 1;\n"+
+				"	}\n"+
+				"}\n"+
+				"class yield {\n" +
+				"}\n", 
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	yield 1;\n" + 
+				"	^^^^^\n" + 
+				"Syntax error on token \"yield\", AssignmentOperator expected after this token\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 6)\n" + 
+				"	class yield {\n" + 
+				"	      ^^^^^\n" + 
+				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] {""},
+				options);
+	}
+	public void testBug547891_05() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void main(String[] args) {\n"+
+				"		yield y;\n"+
+				"	}\n"+
+				"}\n"+
+				"class yield {\n" +
+				"}\n", 
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	yield y;\n" + 
+				"	^^^^^^^^\n" + 
+				"yield outside of switch expression\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	yield y;\n" + 
+				"	      ^\n" + 
+				"y cannot be resolved to a variable\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	class yield {\n" + 
+				"	      ^^^^^\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n");
+	}
+	public void testBug547891_06() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void main(String[] args) {\n"+
+				"		yield y;\n"+
+				"	}\n"+
+				"}\n"+
+				"class yield {\n" +
+				"}\n", 
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. WARNING in X.java (at line 3)\n" + 
+				"	yield y;\n" + 
+				"	^^^^^\n" + 
+				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 6)\n" + 
+				"	class yield {\n" + 
+				"	      ^^^^^\n" + 
+				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+			"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] {""},
+				options);
+	}
+	public void testBug547891_07() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void main(String[] args) {\n"+
+				"		yield y = null;\n"+
+				"	}\n"+
+				"}\n"+
+				"class yield {\n" +
+				"}\n", 
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	yield y = null;\n" + 
+				"	^^^^^^^^^^^^^^^\n" + 
+				"yield outside of switch expression\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 3)\n" + 
+				"	yield y = null;\n" + 
+				"	      ^\n" + 
+				"y cannot be resolved to a variable\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 6)\n" + 
+				"	class yield {\n" + 
+				"	      ^^^^^\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n");
+	}
+	public void testBug547891_08() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void main(String[] args) {\n"+
+				"		yield y = null;\n"+
+				"	}\n"+
+				"}\n"+
+				"class yield {\n" +
+				"}\n", 
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. WARNING in X.java (at line 3)\n" + 
+				"	yield y = null;\n" + 
+				"	^^^^^\n" + 
+				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 6)\n" + 
+				"	class yield {\n" + 
+				"	      ^^^^^\n" + 
+				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+			"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] {""},
+				options);
+	}	public void testBug547891_09() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void main(String[] args) {\n"+
+				"	}\n"+
+				"}\n"+
+				"class yield {\n" +
+				"}\n", 
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	class yield {\n" + 
+				"	      ^^^^^\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n");
+	}
+	public void testBug547891_10() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void main(String[] args) {\n"+
+				"	}\n"+
+				"}\n"+
+				"class yield {\n" +
+				"}\n", 
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. WARNING in X.java (at line 5)\n" + 
+				"	class yield {\n" + 
+				"	      ^^^^^\n" + 
+				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] {""},
+				options);
+	}
+	public void testBug547891_11() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void main(String[] args) {\n"+
+				"		new yield();\n"+
+				"	}\n"+
+				"}\n"+
+				"class yield {\n" +
+				"}\n", 
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	new yield();\n" + 
+				"	    ^^^^^\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	class yield {\n" + 
+				"	      ^^^^^\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n");
+	}
+	public void testBug547891_12() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void main(String[] args) {\n"+
+				"		new yield();\n"+
+				"	}\n"+
+				"}\n"+
+				"class yield {\n" +
+				"}\n", 
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. WARNING in X.java (at line 3)\n" + 
+				"	new yield();\n" + 
+				"	    ^^^^^\n" + 
+				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 6)\n" + 
+				"	class yield {\n" + 
+				"	      ^^^^^\n" + 
+				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] {""},
+				options);
+	}
+	public void testBug547891_13() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void main(String[] args) {\n"+
+				"		yield[] y;\n"+
+				"	}\n"+
+				"}\n"+
+				"class yield {\n" +
+				"}\n", 
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	yield[] y;\n" + 
+				"	^^^^^^^\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	class yield {\n" + 
+				"	      ^^^^^\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
+				"----------\n");
+	}
+	public void testBug547891_14() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void main(String[] args) {\n"+
+				"		yield[] y;\n"+
+				"	}\n"+
+				"}\n"+
+				"class yield {\n" +
+				"}\n", 
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. WARNING in X.java (at line 3)\n" + 
+				"	yield[] y;\n" + 
+				"	^^^^^^^\n" + 
+				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 6)\n" + 
+				"	class yield {\n" + 
+				"	      ^^^^^\n" + 
+				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,

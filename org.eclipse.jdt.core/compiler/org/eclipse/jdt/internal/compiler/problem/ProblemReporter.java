@@ -1607,6 +1607,8 @@ public int computeSeverity(int problemID){
  		case IProblem.TypeCollidesWithPackage :
 			return ProblemSeverities.Warning;
  		case IProblem.SwitchExpressionsYieldUnqualifiedMethodWarning:
+ 		case IProblem.SwitchExpressionsYieldRestrictedGeneralWarning:
+ 		case IProblem.SwitchExpressionsYieldTypeDeclarationWarning:
  			return ProblemSeverities.Warning;
 
 		/*
@@ -11148,6 +11150,46 @@ public void switchExpressionsYieldUnqualifiedMethodWarning(ASTNode statement) {
 public void switchExpressionsYieldUnqualifiedMethodError(ASTNode statement) {
 	this.handle(
 		IProblem.SwitchExpressionsYieldUnqualifiedMethodError,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldOutsideSwitchExpression(ASTNode statement) {
+	this.handle(
+		IProblem.SwitchExpressionsYieldOutsideSwitchExpression,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldRestrictedGeneralWarning(ASTNode statement) {
+	this.handle(
+		IProblem.SwitchExpressionsYieldRestrictedGeneralWarning,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldIllegalStatement(ASTNode statement) {
+	this.handle(
+		IProblem.SwitchExpressionsYieldIllegalStatement,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldTypeDeclarationWarning(ASTNode statement) {
+	this.handle(
+		IProblem.SwitchExpressionsYieldTypeDeclarationWarning,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldTypeDeclarationError(ASTNode statement) {
+	this.handle(
+		IProblem.SwitchExpressionsYieldTypeDeclarationError,
 		NoArgument,
 		NoArgument,
 		statement.sourceStart,
