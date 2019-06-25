@@ -306,9 +306,7 @@ public class CorrectionEngine {
 			} finally {
 				JavaCore.setOptions(oldOptions);
 			}
-		} catch (JavaModelException e) {
-			return;
-		} catch (InvalidInputException e) {
+		} catch (JavaModelException | InvalidInputException e) {
 			return;
 		}
 	}

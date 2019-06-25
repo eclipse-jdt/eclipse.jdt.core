@@ -78,9 +78,7 @@ public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws Ja
 		try {
 			UndoEdit undoEdit= edit.apply(document);
 			return undoEdit;
-		} catch (MalformedTreeException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.BAD_TEXT_EDIT_LOCATION);
-		} catch (BadLocationException e) {
+		} catch (MalformedTreeException | BadLocationException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.BAD_TEXT_EDIT_LOCATION);
 		}
 	}

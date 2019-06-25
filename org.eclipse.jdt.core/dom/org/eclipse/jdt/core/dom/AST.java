@@ -992,15 +992,7 @@ public final class AST {
 			Constructor c = nodeClass.getDeclaredConstructor(AST_CLASS);
 			Object result = c.newInstance(this.THIS_AST);
 			return (ASTNode) result;
-		} catch (NoSuchMethodException e) {
-			// all AST node classes have a Foo(AST) constructor
-			// therefore nodeClass is not legit
-			throw new IllegalArgumentException(e);
-		} catch (InstantiationException e) {
-			// all concrete AST node classes can be instantiated
-			// therefore nodeClass is not legit
-			throw new IllegalArgumentException(e);
-		} catch (IllegalAccessException e) {
+		} catch (NoSuchMethodException | InstantiationException | IllegalAccessException e) {
 			// all AST node classes have an accessible Foo(AST) constructor
 			// therefore nodeClass is not legit
 			throw new IllegalArgumentException(e);

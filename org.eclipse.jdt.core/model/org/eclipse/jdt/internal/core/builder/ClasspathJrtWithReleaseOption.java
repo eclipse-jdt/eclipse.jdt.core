@@ -325,9 +325,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 						moduleNameFilter);
 			}
 			return createAnswer(fileNameWithoutExtension, reader);
-		} catch (ClassFormatException e) { 
-			// treat as if class file is missing
-		} catch (IOException e) { 
+		} catch (ClassFormatException | IOException e) { 
 			// treat as if class file is missing
 		}
 		return null;

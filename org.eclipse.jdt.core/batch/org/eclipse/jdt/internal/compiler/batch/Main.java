@@ -209,11 +209,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						Logger.FIELD_TABLE.put(key2, field.getName());
 					}
 				}
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
+			} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
 		}
@@ -1789,14 +1785,6 @@ public boolean compile(String[] argv) {
 			}
 			System.exit(this.globalErrorsCount > 0 ? -1 : 0);
 		}
-	} catch (IllegalArgumentException e) {
-		this.logger.logException(e);
-		if (this.systemExitWhenFinished) {
-			this.logger.flush();
-			this.logger.close();
-			System.exit(-1);
-		}
-		return false;
 	} catch (Exception e) { // internal compiler failure
 		this.logger.logException(e);
 		if (this.systemExitWhenFinished) {

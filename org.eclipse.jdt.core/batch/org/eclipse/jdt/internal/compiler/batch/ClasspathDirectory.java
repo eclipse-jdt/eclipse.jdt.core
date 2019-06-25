@@ -159,9 +159,7 @@ private NameEnvironmentAnswer findClassInternal(char[] typeName, String qualifie
 						fetchAccessRestriction(qualifiedBinaryFileName),
 						modName);
 			}
-		} catch (IOException e) {
-			// treat as if file is missing
-		} catch (ClassFormatException e) {
+		} catch (IOException | ClassFormatException e) {
 			// treat as if file is missing
 		}
 	}

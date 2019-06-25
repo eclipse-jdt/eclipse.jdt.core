@@ -200,9 +200,7 @@ public class JRTUtil {
 	public static byte[] safeReadBytes(Path path) throws IOException {
 		try {
 			return Files.readAllBytes(path);
-		} catch(ClosedByInterruptException e) {
-			return null;
-		} catch (NoSuchFileException e) {
+		} catch (ClosedByInterruptException | NoSuchFileException e) {
 			return null;
 		}
 	}

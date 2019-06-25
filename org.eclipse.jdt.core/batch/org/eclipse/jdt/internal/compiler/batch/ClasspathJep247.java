@@ -95,9 +95,7 @@ public class ClasspathJep247 extends ClasspathJrt {
 				char[] modName = moduleName != null ? moduleName.toCharArray() : null;
 				return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName), modName);
 			}
-		} catch(ClassFormatException e) {
-			// Continue
-		} catch (IOException e) {
+		} catch (ClassFormatException | IOException e) {
 			// continue
 		}
 		return null;

@@ -922,10 +922,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 					return new String(contents);
 				}
 			}
-		} catch (IllegalArgumentException e) {
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304316
-			return null;
-		} catch (NullPointerException e) {
+		} catch (IllegalArgumentException | NullPointerException e) {
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=304316
 			return null;
 		} catch (SocketTimeoutException e) {
@@ -935,15 +932,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		} catch (FileNotFoundException e) {
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403154
 			validateAndCache(baseLoc, e);
-		} catch (SocketException e) {
-			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845 &
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400060
-			throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);
-		} catch (UnknownHostException e) {
-			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845 &
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400060
-			throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);
-		} catch (ProtocolException e) {
+		} catch (SocketException | UnknownHostException | ProtocolException e) {
 			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=247845 &
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=400060
 			throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);
@@ -963,9 +952,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			if (connection2 != null) {
 				try {
 					connection2.getJarFile().close();
-				} catch(IOException e) {
-					// ignore
-				} catch(IllegalStateException e) {
+				} catch(IOException | IllegalStateException e) {
 					/*
 					 * ignore. Can happen in case the stream.close() did close the jar file
 					 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=140750

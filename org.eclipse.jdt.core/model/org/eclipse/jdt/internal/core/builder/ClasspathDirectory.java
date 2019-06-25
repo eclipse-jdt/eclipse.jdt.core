@@ -157,11 +157,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	IBinaryType reader = null;
 	try {
 		reader = Util.newClassFileReader(this.binaryFolder.getFile(new Path(qualifiedBinaryFileName)));
-	} catch (CoreException e) {
-		return null;
-	} catch (ClassFormatException e) {
-		return null;
-	} catch (IOException e) {
+	} catch (CoreException | ClassFormatException | IOException e) {
 		return null;
 	}
 	if (reader != null) {

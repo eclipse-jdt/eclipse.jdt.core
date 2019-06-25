@@ -2483,9 +2483,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 							}
 							memberValuePairsCount++;
 							resetPosition = this.contentsOffset;
-						} catch(ClassCastException e) {
-							this.contentsOffset = resetPosition;
-						} catch(ShouldNotImplement e) {
+						} catch(ClassCastException | ShouldNotImplement e) {
 							this.contentsOffset = resetPosition;
 						}
 					}
@@ -2518,9 +2516,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						// completely remove the annotation as its value is invalid
 						this.contentsOffset = startingContentsOffset;
 					}
-				} catch(ClassCastException e) {
-					this.contentsOffset = startingContentsOffset;
-				} catch(ShouldNotImplement e) {
+				} catch(ClassCastException | ShouldNotImplement e) {
 					this.contentsOffset = startingContentsOffset;
 				}
 			}

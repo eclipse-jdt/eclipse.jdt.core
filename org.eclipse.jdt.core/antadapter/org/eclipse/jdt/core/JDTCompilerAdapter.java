@@ -163,9 +163,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		if (getSourcepathMethod != null) {
 			try {
 				compileSourcePath = (Path) getSourcepathMethod.invoke(this.attributes, (Object[]) null);
-			} catch (IllegalAccessException e) {
-				// should never happen
-			} catch (InvocationTargetException e) {
+			} catch (IllegalAccessException | InvocationTargetException e) {
 				// should never happen
 			}
 		}
@@ -211,9 +209,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			if (getDebugLevelMethod != null) {
 				try {
 					debugLevel = (String) getDebugLevelMethod.invoke(this.attributes, (Object[]) null);
-				} catch (IllegalAccessException e) {
-					// should never happen
-				} catch (InvocationTargetException e) {
+				} catch (IllegalAccessException | InvocationTargetException e) {
 					// should never happen
 				}
 			}
@@ -365,9 +361,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		if (getCurrentCompilerArgsMethod != null) {
 			try {
 				compilerArgs = (String[]) getCurrentCompilerArgsMethod.invoke(this.attributes, (Object[]) null);
-			} catch (IllegalAccessException e) {
-				// should never happen
-			} catch (InvocationTargetException e) {
+			} catch (IllegalAccessException | InvocationTargetException e) {
 				// should never happen
 			}
 		}

@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -165,8 +164,6 @@ static long[][][] initializeTables(String unicode_path) {
 			readValues[i] = inputStream.readLong();
 		}
 		tempTable[START_INDEX][0] = readValues;
-	} catch (FileNotFoundException e) {
-		e.printStackTrace();
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
@@ -176,8 +173,6 @@ static long[][][] initializeTables(String unicode_path) {
 			readValues[i] = inputStream.readLong();
 		}
 		tempTable[START_INDEX][1] = readValues;
-	} catch (FileNotFoundException e) {
-		e.printStackTrace();
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
@@ -187,8 +182,6 @@ static long[][][] initializeTables(String unicode_path) {
 			readValues[i] = inputStream.readLong();
 		}
 		tempTable[START_INDEX][2] = readValues;
-	} catch (FileNotFoundException e) {
-		e.printStackTrace();
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
@@ -198,8 +191,6 @@ static long[][][] initializeTables(String unicode_path) {
 			readValues[i] = inputStream.readLong();
 		}
 		tempTable[PART_INDEX][0] = readValues;
-	} catch (FileNotFoundException e) {
-		e.printStackTrace();
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
@@ -209,8 +200,6 @@ static long[][][] initializeTables(String unicode_path) {
 			readValues[i] = inputStream.readLong();
 		}
 		tempTable[PART_INDEX][1] = readValues;
-	} catch (FileNotFoundException e) {
-		e.printStackTrace();
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
@@ -220,8 +209,6 @@ static long[][][] initializeTables(String unicode_path) {
 			readValues[i] = inputStream.readLong();
 		}
 		tempTable[PART_INDEX][2] = readValues;
-	} catch (FileNotFoundException e) {
-		e.printStackTrace();
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
@@ -231,8 +218,6 @@ static long[][][] initializeTables(String unicode_path) {
 			readValues[i] = inputStream.readLong();
 		}
 		tempTable[PART_INDEX][3] = readValues;
-	} catch (FileNotFoundException e) {
-		e.printStackTrace();
 	} catch (IOException e) {
 		e.printStackTrace();
 	}

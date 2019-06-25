@@ -295,8 +295,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 					this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), 
 					modName);
 		}
-	} catch (IOException e) { // treat as if class file is missing
-	} catch (ClassFormatException e) { // treat as if class file is missing
+	} catch (IOException | ClassFormatException e) { // treat as if class file is missing
 	}
 	return null;
 }

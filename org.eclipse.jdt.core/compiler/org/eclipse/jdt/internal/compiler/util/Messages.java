@@ -213,9 +213,7 @@ public final class Messages {
 					String value = "Missing message: " + field.getName() + " in: " + bundleName; //$NON-NLS-1$ //$NON-NLS-2$
 					field.set(null, value);
 				}
-			} catch (IllegalArgumentException e) {
-				// ignore
-			} catch (IllegalAccessException e) {
+			} catch (IllegalArgumentException | IllegalAccessException e) {
 				// ignore
 			}
 		}

@@ -614,9 +614,7 @@ public final int getNextChar() {
 			}
 		}
 		return this.currentCharacter;
-	} catch (IndexOutOfBoundsException e) {
-		return -1;
-	} catch(InvalidInputException e) {
+	} catch(IndexOutOfBoundsException | InvalidInputException e) {
 		return -1;
 	}
 }
@@ -684,11 +682,7 @@ public final boolean getNextChar(char testedChar) {
 				unicodeStore();
 			return true;
 		}
-	} catch (IndexOutOfBoundsException e) {
-		this.unicodeAsBackSlash = false;
-		this.currentPosition = temp;
-		return false;
-	} catch(InvalidInputException e) {
+	} catch(IndexOutOfBoundsException | InvalidInputException e) {
 		this.unicodeAsBackSlash = false;
 		this.currentPosition = temp;
 		return false;
@@ -738,10 +732,7 @@ public final int getNextChar(char testedChar1, char testedChar2) {
 				unicodeStore();
 			return result;
 		}
-	} catch (IndexOutOfBoundsException e) {
-		this.currentPosition = temp;
-		return -1;
-	} catch(InvalidInputException e) {
+	} catch(IndexOutOfBoundsException | InvalidInputException e) {
 		this.currentPosition = temp;
 		return -1;
 	}
@@ -827,10 +818,7 @@ public final boolean getNextCharAsDigit() throws InvalidInputException {
 				unicodeStore();
 			return true;
 		}
-	} catch (IndexOutOfBoundsException e) {
-		this.currentPosition = temp;
-		return false;
-	} catch(InvalidInputException e) {
+	} catch(IndexOutOfBoundsException | InvalidInputException e) {
 		this.currentPosition = temp;
 		return false;
 	}
@@ -868,10 +856,7 @@ public final boolean getNextCharAsDigit(int radix) {
 				unicodeStore();
 			return true;
 		}
-	} catch (IndexOutOfBoundsException e) {
-		this.currentPosition = temp;
-		return false;
-	} catch(InvalidInputException e) {
+	} catch(IndexOutOfBoundsException | InvalidInputException e) {
 		this.currentPosition = temp;
 		return false;
 	}
@@ -1012,11 +997,7 @@ public boolean getNextCharAsJavaIdentifierPart() {
 			    unicodeStore();
 			return true;
 		}
-	} catch (IndexOutOfBoundsException e) {
-		this.currentPosition = pos;
-		this.withoutUnicodePtr = temp2;
-		return false;
-	} catch(InvalidInputException e) {
+	} catch(IndexOutOfBoundsException | InvalidInputException e) {
 		this.currentPosition = pos;
 		this.withoutUnicodePtr = temp2;
 		return false;
@@ -2239,9 +2220,7 @@ public final void jumpOverMethodBody() {
 			}
 		}
 		//-----------------end switch while try--------------------
-	} catch (IndexOutOfBoundsException e) {
-		// ignore
-	} catch (InvalidInputException e) {
+	} catch (IndexOutOfBoundsException | InvalidInputException e) {
 		// ignore
 	}
 	return;

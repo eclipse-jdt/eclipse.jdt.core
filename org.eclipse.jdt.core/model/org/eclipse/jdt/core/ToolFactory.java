@@ -312,9 +312,7 @@ public class ToolFactory {
 	public static IClassFileReader createDefaultClassFileReader(InputStream stream, int decodingFlag) {
 		try {
 			return new ClassFileReader(Util.getInputStreamAsByteArray(stream, -1), decodingFlag);
-		} catch(ClassFormatException e) {
-			return null;
-		} catch(IOException e) {
+		} catch(ClassFormatException | IOException e) {
 			return null;
 		}
 	}
@@ -336,9 +334,7 @@ public class ToolFactory {
 	public static IClassFileReader createDefaultClassFileReader(String fileName, int decodingFlag){
 		try {
 			return new ClassFileReader(Util.getFileByteContent(new File(fileName)), decodingFlag);
-		} catch(ClassFormatException e) {
-			return null;
-		} catch(IOException e) {
+		} catch(ClassFormatException | IOException e) {
 			return null;
 		}
 	}
@@ -374,9 +370,7 @@ public class ToolFactory {
 			}
 			byte classFileBytes[] = Util.getZipEntryByteContent(zipEntry, zipFile);
 			return new ClassFileReader(classFileBytes, decodingFlag);
-		} catch(ClassFormatException e) {
-			return null;
-		} catch(IOException e) {
+		} catch(ClassFormatException | IOException e) {
 			return null;
 		} finally {
 			if (zipFile != null) {

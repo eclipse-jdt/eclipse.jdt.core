@@ -979,10 +979,7 @@ class CompilationUnitResolver extends Compiler {
 			throw e;
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
-		} catch (Error e) {
-			this.handleInternalException(e, unit, null);
-			throw e; // rethrow
-		} catch (RuntimeException e) {
+		} catch (Error | RuntimeException e) {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
@@ -1117,10 +1114,7 @@ class CompilationUnitResolver extends Compiler {
 			throw e;
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
-		} catch (Error e) {
-			this.handleInternalException(e, unit, null);
-			throw e; // rethrow
-		} catch (RuntimeException e) {
+		} catch (Error | RuntimeException e) {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
@@ -1266,10 +1260,7 @@ class CompilationUnitResolver extends Compiler {
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
 			return unit == null ? this.unitsToProcess[0] : unit;
-		} catch (Error e) {
-			this.handleInternalException(e, unit, null);
-			throw e; // rethrow
-		} catch (RuntimeException e) {
+		} catch (Error | RuntimeException e) {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
