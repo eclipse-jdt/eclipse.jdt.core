@@ -3224,6 +3224,7 @@ class ASTConverter {
 		YieldStatement yieldStatement = new YieldStatement(this.ast);
 		// We don't need to record Nodes
 		yieldStatement.setExpression(convert(statement.expression));
+		yieldStatement.setImplicit(statement.isImplicit);
 		yieldStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		return yieldStatement;
 	}

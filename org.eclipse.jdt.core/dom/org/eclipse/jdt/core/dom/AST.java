@@ -123,7 +123,7 @@ public final class AST {
      * </p>
      *
 	 * @since 3.0
-	 * @deprecated Clients should use the {@link #JLS11} AST API instead.
+	 * @deprecated Clients should use the  {@link #JLS_Latest} AST API instead.
 	 */
 	public static final int JLS2 = 2;
 
@@ -147,7 +147,7 @@ public final class AST {
      * </p>
      *
 	 * @since 3.1
-	 * @deprecated Clients should use the {@link #JLS11} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
 	 */
 	public static final int JLS3 = 3;
 	
@@ -171,7 +171,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.7.1
-	 * @deprecated Clients should use the {@link #JLS11} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
 	 */
 	public static final int JLS4 = 4;
 	
@@ -195,7 +195,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.10
-	 * @deprecated Clients should use the {@link #JLS11} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
 	 */
 	public static final int JLS8 = 8;
 
@@ -219,7 +219,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.14
-	 * @deprecated Clients should use the {@link #JLS11} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
 	 */
 	public static final int JLS9 = 9;
 
@@ -243,7 +243,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @since 3.14
-	 * @deprecated Clients should use the {@link #JLS11} AST API instead.
+	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
 	 */
 	public static final int JLS10 = 10;
 
@@ -266,6 +266,7 @@ public final class AST {
 	 * up to and including Java SE 11 (aka JDK 11).
 	 * </p>
 	 *
+	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
 	 * @since 3.16
 	 */
 	public static final int JLS11 = 11;
@@ -288,7 +289,7 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 12 (aka JDK 12).
 	 * </p>
-	 *
+	 * @deprecated Clients should use the {@link #JLS_Latest} AST API instead.
 	 * @since 3.18
 	 */
 	public static final int JLS12 = 12;
@@ -322,6 +323,10 @@ public final class AST {
 	 */
 	static final int JLS13_INTERNAL = JLS13;
 
+	@SuppressWarnings("unused")
+	/* Used for Java doc only*/
+	private static final int JLS_Latest = JLS13;
+	
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
 	 */
