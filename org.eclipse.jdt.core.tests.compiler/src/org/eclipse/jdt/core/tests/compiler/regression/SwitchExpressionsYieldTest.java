@@ -2623,4 +2623,50 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Syntax error on token \"2\", delete this token\n" + 
 				"----------\n");
 	}
+	public void testBug547891_01() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"	public static void yield() {}\n"+
+					"	public static void main(String[] args) {\n"+
+					"		yield();\n"+
+					"		X.yield();\n"+
+					"	}\n"+
+					"}\n", 
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	yield();\n" + 
+				"	^^^^^^^\n" + 
+				"restricted identified yield not allowed here - method calls need to be qualified\n" + 
+				"----------\n");
+	}
+	public void testBug547891_02() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	public static void yield() {}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		yield();\n"+
+				"	}\n"+
+				"}\n", 
+		};
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. WARNING in X.java (at line 4)\n" + 
+				"	yield();\n" + 
+				"	^^^^^^^\n" + 
+				"yield may be disallowed in future - qualify method calls to avoid this message\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				new String[] {""},
+				options);
+	}
 }

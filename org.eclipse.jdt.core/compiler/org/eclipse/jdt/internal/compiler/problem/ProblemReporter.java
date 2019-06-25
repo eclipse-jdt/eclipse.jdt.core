@@ -1606,6 +1606,8 @@ public int computeSeverity(int problemID){
 			return ProblemSeverities.Warning;
  		case IProblem.TypeCollidesWithPackage :
 			return ProblemSeverities.Warning;
+ 		case IProblem.SwitchExpressionsYieldUnqualifiedMethodWarning:
+ 			return ProblemSeverities.Warning;
 
 		/*
 		 * Javadoc tags resolved references errors
@@ -11130,6 +11132,22 @@ public void switchExpressionMixedCase(ASTNode statement) {
 public void switchExpressionBreakNotAllowed(ASTNode statement) {
 	this.handle(
 		IProblem.SwitchExpressionsYieldBreakNotAllowed,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldUnqualifiedMethodWarning(ASTNode statement) {
+	this.handle(
+		IProblem.SwitchExpressionsYieldUnqualifiedMethodWarning,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldUnqualifiedMethodError(ASTNode statement) {
+	this.handle(
+		IProblem.SwitchExpressionsYieldUnqualifiedMethodError,
 		NoArgument,
 		NoArgument,
 		statement.sourceStart,

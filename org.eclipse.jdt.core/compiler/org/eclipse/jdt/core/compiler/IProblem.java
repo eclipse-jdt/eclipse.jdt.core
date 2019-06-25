@@ -2180,4 +2180,10 @@ void setSourceStart(int sourceStart);
 	/** @since 3.18 BETA_JAVA13
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldBreakNotAllowed = PreviewRelated + 1711;
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
+	int SwitchExpressionsYieldUnqualifiedMethodWarning = PreviewRelated + 1712;
+	/** @since 3.18 BETA_JAVA13
+	 * @noreference preview related error */
+	int SwitchExpressionsYieldUnqualifiedMethodError = PreviewRelated + 1713;
 	}
