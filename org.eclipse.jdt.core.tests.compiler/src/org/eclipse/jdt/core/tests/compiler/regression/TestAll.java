@@ -295,6 +295,20 @@ public static Test suite() {
 		TestCase.resetForgottenFilters(tests_12);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_12), tests_12));
 	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_13) != 0) {
+		ArrayList tests_13 = (ArrayList)standardTests.clone();
+		tests_13.addAll(since_1_4);
+		tests_13.addAll(since_1_5);
+		tests_13.addAll(since_1_6);
+		tests_13.addAll(since_1_7);
+		tests_13.addAll(since_1_8);
+		tests_13.addAll(since_9);
+		tests_13.addAll(since_10);
+		tests_13.addAll(since_11);
+		tests_13.addAll(since_12);
+		TestCase.resetForgottenFilters(tests_13);
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_13), tests_13));
+	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;
 }

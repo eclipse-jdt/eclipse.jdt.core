@@ -595,7 +595,6 @@ public char[] getCurrentTextBlock() {
 	char[] all;
 	if (this.withoutUnicodePtr != 0) {
 		all = CharOperation.subarray(this.withoutUnicodeBuffer, this.rawStart + 1, this.withoutUnicodePtr + 1 );
-		//return new char[0];
 	} else {
 		all = CharOperation.subarray(this.source, this.startPosition + this.rawStart, this.currentPosition - 3);
 		if (all == null) {
@@ -604,17 +603,14 @@ public char[] getCurrentTextBlock() {
 	}
 	CharOperation.replace(all, new char[] { '\r', '\n'}, '\n');
 	// 2. Handle incidental white space
-	// 2.1. Split into lines and identify determining lines
+	//   2.1. Split into lines and identify determining lines
 	int prefix = 0;
-	int whitespaces = 0;
-	boolean blank;
 	char[][] lines = CharOperation.splitOn('\n', all);
 	int size = lines.length;
-	boolean[] blanks = new boolean[size];
 	for(int i = 0; i < size; i++) {
 		char[] line = lines[i];
-		blank = true;
-		whitespaces = 0;
+		boolean blank = true;
+		int whitespaces = 0;
 		for (char c : line) {
 			if (blank) {
 				if (ScannerHelper.isWhitespace(c)) {
@@ -629,18 +625,18 @@ public char[] getCurrentTextBlock() {
 				prefix = whitespaces;
 			}
 		}
-		blanks[i] = blank;
 	}
-	// 2.2. Remove the common white space prefix
+	//   2.2. Remove the common white space prefix
 	// 3. Handle escape sequences (already done while processing
 	char[] result = new char[0];
 	for(int i = 0; i < lines.length; i++) {
 		char[] l  = lines[i];
 		// Remove the common prefix from each line
 		// And remove all trailing whitespace
+		// Finally append the \n at the end of the line (except the last line)
 		int length = l.length;
 		int trail = length - 1;
-		for(int j = length - 1; j>0; j--) {
+		for(int j = trail; j>0; j--) {
 			if (!ScannerHelper.isWhitespace(l[j])) {
 				trail = j;
 				break;
