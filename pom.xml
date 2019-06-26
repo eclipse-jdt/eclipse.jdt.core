@@ -68,6 +68,7 @@
     <module>org.eclipse.jdt.apt.pluggable.tests</module>
     <module>org.eclipse.jdt.apt.tests</module>
     <module>org.eclipse.jdt.compiler.apt.tests</module>
+    <module>org.eclipse.jdt.tests.latestBREE</module>
   </modules>
 
   <build>

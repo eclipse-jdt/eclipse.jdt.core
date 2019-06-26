@@ -23,11 +23,12 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
+@SuppressWarnings("preview")
 public class TextBlockTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
-//		TESTS_NAMES = new String[] { "test003" };
+//		TESTS_NAMES = new String[] { "test024" };
 	}
 	
 	public static Class<?> testClass() {
@@ -435,10 +436,66 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"	}\n" +
 						"}\n"
 				},
-				"<html>\n\n" + 
-				"    <body>\n\n" + 
-				"        <p>Hello, world</p>\n\n" + 
-				"    </body>\n\n" + 
+				"<html>\n" + 
+				"    <body>\n" + 
+				"        <p>Hello, world</p>\n" + 
+				"    </body>\n" + 
+				"</html>",
+				null,
+				new String[] {"--enable-preview"});
+	}
+	/*
+	 * positive - html code with indentation with empty lines
+	 * output compared with String API
+	 */
+	@SuppressWarnings("removal")
+	public void test016b() {
+		String text = "  <html>\n" + 
+					"    <body>\n" + 
+					"      <p>Hello, world</p>\n" + 
+					"    </body>\n" + 
+					"  </html>";
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	static String html = \"\"\"\n" + 
+						text + "\\n" +
+						"\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(html);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				text.stripIndent().translateEscapes(),
+				null,
+				new String[] {"--enable-preview"});
+			
+	}
+	/*
+	 * positive - html code with indentation with \r as terminator
+	 */
+	public void test016c() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	static String html = \"\"\"\n" + 
+						"              <html>\\r" + 
+						"                  <body>\\r" + 
+						"                      <p>Hello, world</p>\\r" + 
+						"                  </body>\\r" + 
+						"              </html>\\r" + 
+						"              \"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(html);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"<html>\n" + 
+				"    <body>\n" + 
+				"        <p>Hello, world</p>\n" + 
+				"    </body>\n" + 
 				"</html>",
 				null,
 				new String[] {"--enable-preview"});
@@ -583,7 +640,54 @@ public class TextBlockTest extends AbstractRegressionTest {
 				null,
 				new String[] {"--enable-preview"});
 	}
+	/*
+	 * positive - escaped '\', compare with String::translateEscapes
+	 */
+	@SuppressWarnings("removal")
 	public void test022() {
+		String text = "abc\\\\def\"";
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" + 
+						text + 
+						"\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(textb);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				text.translateEscapes(),
+				null,
+				new String[] {"--enable-preview"});
+	}
+	/*
+	 * positive - escaped """, compare output with 
+	 * 							String::translateEscapes
+	 * 							String::stripIndent
+	 */
+	@SuppressWarnings("removal")
+	public void test023() {
+		String text = "abc\\\"\"\"def\"  ";
+		System.out.println(text.translateEscapes().stripIndent());
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" + 
+						text + 
+						"\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(textb);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				text.translateEscapes().stripIndent(),
+				null,
+				new String[] {"--enable-preview"});
+	}
+	public void test024() {
 		runConformTest(
 				new String[] {
 						"Main.java",
@@ -622,6 +726,53 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"	}\n" + 
 				"}",
 				null,
+				new String[] {"--enable-preview"});
+	}
+	public void test025() {
+		runNegativeTest(
+				new String[] {
+						"""
+						X.java""",
+						"""
+						public class X {
+							public static String textb = \"""
+									abc\\def\""";
+							public static void main(String[] args) {
+								System.out.println(textb);
+							}
+						}
+						"""
+				}, 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	public static String textb = \"\"\"\n" + 
+				"			abc\\def\"\"\";\n" + 
+				"	                             ^^^^^^^^^^^^^^^\n" + 
+				"Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\\'  \\\\ )\n" + 
+				"----------\n",
+				null,
+				true,
+				getCompilerOptions());
+	}
+	@SuppressWarnings("removal")
+	public void test026() {
+		String text = "abc\\\\def";
+		runConformTest(
+				new String[] {
+						"""
+						X.java""",
+						"""
+						public class X {
+							public static String textb = \"""
+									abc\\\\def\""";
+							public static void main(String[] args) {
+								System.out.println(textb);
+							}
+						}
+						"""
+				}, 
+				text.translateEscapes(),
+				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
 }
