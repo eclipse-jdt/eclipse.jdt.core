@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IModuleDescription;
 
@@ -61,7 +63,7 @@ public class OpenableElementInfo extends JavaElementInfo {
 	public IJavaElement[] getChildren() {
 		return this.children;
 	}
-	
+
 	/**
 	 * @see IJavaElement#isStructureKnown()
 	 */
@@ -94,6 +96,32 @@ public class OpenableElementInfo extends JavaElementInfo {
 	public void setModule(IModuleDescription module) {
 		this.module = module;
 	}
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().getSimpleName());
+		sb.append(" ["); //$NON-NLS-1$
+		sb.append("isStructureKnown="); //$NON-NLS-1$
+		sb.append(this.isStructureKnown);
+		sb.append(", "); //$NON-NLS-1$
+		if (this.module != null) {
+			sb.append("module="); //$NON-NLS-1$
+			sb.append(this.module);
+			sb.append(", "); //$NON-NLS-1$
+		}
+		if (this.children != null) {
+			sb.append("children="); //$NON-NLS-1$
+			sb.append(Arrays.toString(this.children));
+			sb.append(", "); //$NON-NLS-1$
+		}
+		if (this.nonJavaResources != null) {
+			sb.append("nonJavaResources="); //$NON-NLS-1$
+			sb.append(Arrays.toString(this.nonJavaResources));
+		}
+		sb.append("]"); //$NON-NLS-1$
+		return sb.toString();
+	}
+
 	public IModuleDescription getModule() {
 		return this.module;
 	}
