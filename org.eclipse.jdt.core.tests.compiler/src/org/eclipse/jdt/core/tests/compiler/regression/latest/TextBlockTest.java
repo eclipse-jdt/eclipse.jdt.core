@@ -499,4 +499,129 @@ public class TextBlockTest extends AbstractRegressionTest {
 				null,
 				new String[] {"--enable-preview"});
 	}
+	/*
+	 * positive - using text block as a method argument
+	 */
+	public void test019() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(\"\"\"\n" + 
+						"              <html>\\n" + 
+						"                  <body>\\n" + 
+						"                      <p>Hello, world</p>\\n" + 
+						"                  </body>\\n" + 
+						"              </html>\\n" + 
+						"              \"\"\");\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"<html>\n" + 
+				"    <body>\n" + 
+				"        <p>Hello, world</p>\n" + 
+				"    </body>\n" + 
+				"</html>",
+				null,
+				new String[] {"--enable-preview"});
+	}
+	/*
+	 * positive - using variable assigned with text block as a method argument
+	 */
+	public void test020() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		String html = \"\"\"\n" + 
+						"              <html>\n" + 
+						"                  <body>\n" + 
+						"                      <p>Hello, world</p>\n" + 
+						"                  </body>\n" + 
+						"              </html>\n" + 
+						"                  \"\"\";\n" +	
+						"		System.out.println(html);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"<html>\n" + 
+				"    <body>\n" + 
+				"        <p>Hello, world</p>\n" + 
+				"    </body>\n" + 
+				"</html>",
+				null,
+				new String[] {"--enable-preview"});
+	}
+	/*
+	 * positive - assigning strings and text blocks interchangeably.
+	 */
+	public void test021() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static void main(String[] args) {\n" +
+						"		String html = \"\"\"\n" + 
+						"              <html>\n" + 
+						"                  <body>\n" + 
+						"                      <p>Hello, world</p>\n" + 
+						"                  </body>\n" + 
+						"              </html>\n" + 
+						"                  \"\"\";\n" +	
+						"       String s = html;\n" +	
+						"		System.out.println(s);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"<html>\n" + 
+				"    <body>\n" + 
+				"        <p>Hello, world</p>\n" + 
+				"    </body>\n" + 
+				"</html>",
+				null,
+				new String[] {"--enable-preview"});
+	}
+	public void test022() {
+		runConformTest(
+				new String[] {
+						"Main.java",
+						"@SuppressWarnings(\"preview\")\n" + 
+						"public class Main {\n" + 
+						"    public static void main(String[] args) {\n" + 
+						"		runConformTest(\n" + 
+						"				new String[] {\n" + 
+						"						\"XYZ.java\",\n" + 
+						"						\"\"\"\n" + 
+						"								public class XYZ {\n" + 
+						"									public static String textb = \\\"\"\"\n" + 
+						"											abc\\\\\\\"\"\"def\"  \n" + 
+						"												\\\"\"\";\n" + 
+						"									public static void main(String[] args) {\n" + 
+						"										System.out.println(textb);\n" + 
+						"									}\n" + 
+						"								} \n" + 
+						"						\"\"\"\n" + 
+						"				}, \n" + 
+						"				\"\",\n" + 
+						"				null,\n" + 
+						"				new String[] {\"--enable-preview\"});\n" + 
+						"    }\n" + 
+						"	private static void runConformTest(String[] strings, String text, Object object, String[] strings2) {\n" + 
+						"		System.out.println(strings[1]);\n" + 
+						"	}\n" + 
+						"}"
+				}, 
+				"public class XYZ {\n" + 
+				"	public static String textb = \"\"\"\n" + 
+				"			abc\\\"\"\"def\"\n" + 
+				"				\"\"\";\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(textb);\n" + 
+				"	}\n" + 
+				"}",
+				null,
+				new String[] {"--enable-preview"});
+	}
 }

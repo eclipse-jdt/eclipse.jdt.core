@@ -19,6 +19,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -601,12 +604,25 @@ public char[] getCurrentTextBlock() {
 			all = new char[0];
 		}
 	}
-	CharOperation.replace(all, new char[] { '\r', '\n'}, '\n');
-	// 2. Handle incidental white space
-	//   2.1. Split into lines and identify determining lines
-	int prefix = 0;
+	// 2. Split into lines. Consider both \n and \r as line separators
 	char[][] lines = CharOperation.splitOn('\n', all);
 	int size = lines.length;
+	List<char[]> list = new ArrayList<>(lines.length);
+	for(int i = 0; i < lines.length; i++) {
+		char[] line = lines[i];
+		char[][] sub = CharOperation.splitOn('\r', line);
+		for (char[] cs : sub) {
+			if (cs.length > 0) {
+				list.add(cs);
+			}
+		}
+	}
+	size = list.size();
+	lines = list.toArray(new char[size][]);
+
+	// 	3. Handle incidental white space
+	//  3.1. Split into lines and identify determining lines
+	int prefix = 0;
 	for(int i = 0; i < size; i++) {
 		char[] line = lines[i];
 		boolean blank = true;
@@ -626,8 +642,8 @@ public char[] getCurrentTextBlock() {
 			}
 		}
 	}
-	//   2.2. Remove the common white space prefix
-	// 3. Handle escape sequences (already done while processing
+	// 3.2. Remove the common white space prefix
+	// 4. Handle escape sequences (already done while processing
 	char[] result = new char[0];
 	for(int i = 0; i < lines.length; i++) {
 		char[] l  = lines[i];
@@ -642,10 +658,10 @@ public char[] getCurrentTextBlock() {
 				break;
 			}
 		}
-		int newSize = length == 0 ? 0 : (trail - prefix + 1);
+		int newSize = (length == 0 || prefix > trail) ? 0 : (trail - prefix + 1);
 		char[] nl;
 		if (i >= (size - 1)) {
-			if (trail <= 0)
+			if (trail <= 0 || newSize == 0)
 				continue;
 			nl = new char[newSize];
 			System.arraycopy(l, prefix, nl, 0, newSize);
