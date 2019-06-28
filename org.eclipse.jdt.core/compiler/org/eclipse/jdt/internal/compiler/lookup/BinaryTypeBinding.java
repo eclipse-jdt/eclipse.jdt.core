@@ -48,7 +48,6 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
@@ -59,7 +58,16 @@ import org.eclipse.jdt.internal.compiler.classfmt.MethodInfoWithAnnotations;
 import org.eclipse.jdt.internal.compiler.classfmt.NonNullDefaultAwareTypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.classfmt.TypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
-import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.env.ClassSignature;
+import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
+import org.eclipse.jdt.internal.compiler.env.IBinaryField;
+import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -1287,39 +1295,30 @@ public ReferenceBinding getMemberType(char[] typeName) {
 		return memberType == null ? null : this.environment.createMemberType(memberType, this);
 	}
 
-	ReferenceBinding[] members = sortedMemberTypes();
-	int memberTypeIndex = unresolvedTypesAwareBinarySearch(typeName, members);
-	if (memberTypeIndex >= 0) {
-		ReferenceBinding memberType = members[memberTypeIndex];
-		if (memberType instanceof UnresolvedReferenceBinding) {
-			return members[memberTypeIndex] = (ReferenceBinding) resolveType(memberType, this.environment, false /* no raw conversion for now */);
+	ReferenceBinding[] members = maybeSortedMemberTypes();
+	// do not try to binary search while we are still resolving and the array is not necessarily sorted
+	if (!this.memberTypesSorted) {
+		for (int i = members.length; --i >= 0;) {
+		    ReferenceBinding memberType = members[i];
+		    if (memberType instanceof UnresolvedReferenceBinding) {
+				char[] name = memberType.sourceName; // source name is qualified with enclosing type name
+				int prefixLength = this.compoundName[this.compoundName.length - 1].length + 1; // enclosing$
+				if (name.length == (prefixLength + typeName.length)) // enclosing $ typeName
+					if (CharOperation.fragmentEquals(typeName, name, prefixLength, true)) // only check trailing portion
+						return members[i] = (ReferenceBinding) resolveType(memberType, this.environment, false /* no raw conversion for now */);
+		    } else if (CharOperation.equals(typeName, memberType.sourceName)) {
+		        return memberType;
+		    }
 		}
-		return memberType;
+		return null;
+	}
+	int memberTypeIndex = ReferenceBinding.binarySearch(typeName, members);
+	if (memberTypeIndex >= 0) {
+		return members[memberTypeIndex];
 	}
 	return null;
 }
-private int unresolvedTypesAwareBinarySearch(char[] name, ReferenceBinding[] sortedMemberTypes) {
-	if (sortedMemberTypes == null)
-		return -1;
-	int max = sortedMemberTypes.length;
-	if (max == 0)
-		return -1;
-	int left = 0, right = max - 1, nameLength = name.length;
-	int mid = 0;
-	char[] midName;
-	while (left <= right) {
-		mid = left + (right - left) /2;
-		int compare = compare(name, midName = getSourceName(sortedMemberTypes[mid]), nameLength, midName.length);
-		if (compare < 0) {
-			right = mid-1;
-		} else if (compare > 0) {
-			left = mid+1;
-		} else {
-			return mid;
-		}
-	}
-	return -1;
-}
+
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 @Override
 public MethodBinding[] getMethods(char[] selector) {
@@ -1563,42 +1562,27 @@ public ReferenceBinding[] memberTypes() {
 	}
 	
 	if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0) {
-		return sortedMemberTypes();
+		return maybeSortedMemberTypes();
 	}
 	for (int i = this.memberTypes.length; --i >= 0;)
 		this.memberTypes[i] = (ReferenceBinding) resolveType(this.memberTypes[i], this.environment, false /* no raw conversion for now */);
 	this.tagBits &= ~TagBits.HasUnresolvedMemberTypes;
-	return sortedMemberTypes();
+	return maybeSortedMemberTypes();
 }
 
-private ReferenceBinding[] sortedMemberTypes() {
+private ReferenceBinding[] maybeSortedMemberTypes() {
+	// do not try to sort while we are still resolving
+	if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) != 0) {
+		return this.memberTypes;
+	}
 	if (!this.memberTypesSorted) {
 		// lazily sort member types
 		int length = this.memberTypes.length;
 		if (length > 1)
-			unresolvedAwareSortMemberTypes(this.memberTypes, 0, length);
+			sortMemberTypes(this.memberTypes, 0, length);
 		this.memberTypesSorted = true;
 	}
 	return this.memberTypes;
-}
-
-private void unresolvedAwareSortMemberTypes(ReferenceBinding[] sortedMemberTypes, int left, int right) {
-	Arrays.sort(sortedMemberTypes, left, right, this::unresolvedAwareCompare);
-}
-
-private int unresolvedAwareCompare(ReferenceBinding o1, ReferenceBinding o2) {
-	char[] n1 = getSourceName(o1);
-	char[] n2 = getSourceName(o2);
-	return ReferenceBinding.compare(n1, n2, n1.length, n2.length);
-}
-
-private char[] getSourceName(ReferenceBinding memberType) {
-	if (memberType instanceof UnresolvedReferenceBinding) {
-		char[] name = memberType.sourceName; // source name is qualified with enclosing type name
-		int prefixLength = this.compoundName[this.compoundName.length - 1].length + 1; // enclosing$
-		return CharOperation.subarray(name, prefixLength, name.length);
-    }
-	return memberType.sourceName;
 }
 
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed

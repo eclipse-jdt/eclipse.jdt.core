@@ -235,6 +235,19 @@ public static void sortMethods(MethodBinding[] sortedMethods, int left, int righ
 }
 
 /**
+ * Sort the member types using a quicksort
+ */
+static void sortMemberTypes(ReferenceBinding[] sortedMemberTypes, int left, int right) {
+	Arrays.sort(sortedMemberTypes, left, right, BASIC_MEMBER_TYPES_COMPARATOR);
+}
+
+static final Comparator<ReferenceBinding> BASIC_MEMBER_TYPES_COMPARATOR = (ReferenceBinding o1, ReferenceBinding o2) -> {
+	char[] n1 = o1.sourceName;
+	char[] n2 = o2.sourceName;
+	return ReferenceBinding.compare(n1, n2, n1.length, n2.length);
+};
+
+/**
  * Return the array of resolvable fields (resilience)
  */
 public FieldBinding[] availableFields() {
@@ -1055,14 +1068,14 @@ public char[] getFileName() {
  */
 public ReferenceBinding getMemberType(char[] typeName) {
 	ReferenceBinding[] memberTypes = memberTypes();
-	int memberTypeIndex = ReferenceBinding.binarySearch(typeName, memberTypes);
+	int memberTypeIndex = binarySearch(typeName, memberTypes);
 	if (memberTypeIndex >= 0) {
 		return memberTypes[memberTypeIndex];
 	}
 	return null;
 }
 
-private static int binarySearch(char[] name, ReferenceBinding[] sortedMemberTypes) {
+static int binarySearch(char[] name, ReferenceBinding[] sortedMemberTypes) {
 	if (sortedMemberTypes == null)
 		return -1;
 	int max = sortedMemberTypes.length;

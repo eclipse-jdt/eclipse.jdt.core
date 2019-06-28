@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.builder;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
+
 import junit.framework.Test;
 
 public class Bug544921Test extends BuilderTests {
@@ -25,6 +26,27 @@ public class Bug544921Test extends BuilderTests {
 
 	public static Test suite() {
 		return buildTestSuite(Bug544921Test.class);
+	}
+
+	public void testCompilerRegression() throws JavaModelException, Exception {
+		IPath projectPath = env.addProject("Bug544921Test", "1.8"); //$NON-NLS-1$
+
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.addClass(projectPath, "a", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+				"package a;\n" +
+				"import java.util.EnumMap;\n" +
+				"enum E {}\n" +
+				"public class Test {\n" +
+				"    Object x = new EnumMap<E, String>(E.class) {\n" +
+				"        static final long serialVersionUID = 1;\n" +
+				"        {\n" +
+				"            E.values();\n" +
+				"        }\n" +
+				"    };\n" +
+				"}" //$NON-NLS-1$
+				);
+		fullBuild();
+		expectingNoProblems();
 	}
 
 	public void testBuildLargeFile_01() throws JavaModelException, Exception {
@@ -48,32 +70,46 @@ public class Bug544921Test extends BuilderTests {
 		expectingNoProblems();
 	}
 
+	private boolean hasEnoughMemory(long required) {
+		long bytes = Runtime.getRuntime().maxMemory();
+		long megabytes = bytes / 1024 / 1024;
+		return megabytes > required;
+	}
+
 	public void testBuildLargeFile_04() throws JavaModelException, Exception {
-		IPath projectPath = env.addProject("Bug544921Test", "1.8"); //$NON-NLS-1$
-		scaffoldProject(projectPath, 4, 500, 64);
-		fullBuild();
-		expectingNoProblems();
+		if (hasEnoughMemory(2048)) {
+			IPath projectPath = env.addProject("Bug544921Test", "1.8"); //$NON-NLS-1$
+			scaffoldProject(projectPath, 4, 500, 64);
+			fullBuild();
+			expectingNoProblems();
+		}
 	}
 
 	public void testBuildLargeFile_05() throws JavaModelException, Exception {
-		IPath projectPath = env.addProject("Bug544921Test", "1.8"); //$NON-NLS-1$
-		scaffoldProject(projectPath, 5, 500, 64);
-		fullBuild();
-		expectingNoProblems();
+		if (hasEnoughMemory(2048)) {
+			IPath projectPath = env.addProject("Bug544921Test", "1.8"); //$NON-NLS-1$
+			scaffoldProject(projectPath, 5, 500, 64);
+			fullBuild();
+			expectingNoProblems();
+		}
 	}
 
 	public void testBuildLargeFile_08() throws JavaModelException, Exception {
-		IPath projectPath = env.addProject("Bug544921Test", "1.8"); //$NON-NLS-1$
-		scaffoldProject(projectPath, 8, 500, 64);
-		fullBuild();
-		expectingNoProblems();
+		if (hasEnoughMemory(2048)) {
+			IPath projectPath = env.addProject("Bug544921Test", "1.8"); //$NON-NLS-1$
+			scaffoldProject(projectPath, 8, 500, 64);
+			fullBuild();
+			expectingNoProblems();
+		}
 	}
 
-	public void _testBuildLargeFile_10() throws JavaModelException, Exception {
-		IPath projectPath = env.addProject("Bug544921Test", "1.8"); //$NON-NLS-1$
-		scaffoldProject(projectPath, 10, 500, 64);
-		fullBuild();
-		expectingNoProblems();
+	public void testBuildLargeFile_10() throws JavaModelException, Exception {
+		if (hasEnoughMemory(2048)) {
+			IPath projectPath = env.addProject("Bug544921Test", "1.8"); //$NON-NLS-1$
+			scaffoldProject(projectPath, 10, 500, 64);
+			fullBuild();
+			expectingNoProblems();
+		}
 	}
 
 	private void scaffoldProject(IPath projectPath, int maxPeripheral, int maxRegister, int maxFields) throws JavaModelException {

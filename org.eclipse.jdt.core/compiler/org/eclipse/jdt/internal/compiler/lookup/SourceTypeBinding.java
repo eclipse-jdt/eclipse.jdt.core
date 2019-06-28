@@ -53,9 +53,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1544,19 +1542,6 @@ private ReferenceBinding[] sortedMemberTypes() {
 	}
 	return this.memberTypes;
 }
-
-/**
- * Sort the member types using a quicksort
- */
-private static void sortMemberTypes(ReferenceBinding[] sortedMemberTypes, int left, int right) {
-	Arrays.sort(sortedMemberTypes, left, right, BASIC_MEMBER_TYPES_COMPARATOR);
-}
-
-private static final Comparator<ReferenceBinding> BASIC_MEMBER_TYPES_COMPARATOR = (ReferenceBinding o1, ReferenceBinding o2) -> {
-	char[] n1 = o1.sourceName;
-	char[] n2 = o2.sourceName;
-	return ReferenceBinding.compare(n1, n2, n1.length, n2.length);
-};
 
 @Override
 public boolean hasMemberTypes() {
