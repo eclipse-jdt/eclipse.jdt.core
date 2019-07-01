@@ -374,6 +374,7 @@ public final class AST {
 			complianceLevel = sourceLevel;
 		}
 		ast.scanner.complianceLevel = complianceLevel;
+		ast.scanner.previewEnabled = JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES));
 		int savedDefaultNodeFlag = ast.getDefaultNodeFlag();
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		BindingResolver resolver = null;
@@ -702,6 +703,7 @@ public final class AST {
 	 */
 	int apiLevel;
 
+	private boolean previewEnabled;
 	/**
 	 * Tag bit value. This represents internal state of the tree.
 	 */
@@ -807,7 +809,8 @@ public final class AST {
 						ClassFileConstants.JDK1_5 /*complianceLevel*/,
 						null/*taskTag*/,
 						null/*taskPriorities*/,
-						true/*taskCaseSensitive*/);
+						true/*taskCaseSensitive*/,
+						false/*isPreviewEnabled*/);
 				break;
 			case JLS4_INTERNAL :
 				this.apiLevel = level;
@@ -820,7 +823,8 @@ public final class AST {
 						ClassFileConstants.JDK1_7 /*complianceLevel*/,
 						null/*taskTag*/,
 						null/*taskPriorities*/,
-						true/*taskCaseSensitive*/);
+						true/*taskCaseSensitive*/,
+						false/*isPreviewEnabled*/);
 				break;
 			case JLS8_INTERNAL :
 				this.apiLevel = level;
@@ -833,7 +837,8 @@ public final class AST {
 						ClassFileConstants.JDK1_8 /*complianceLevel*/,
 						null/*taskTag*/,
 						null/*taskPriorities*/,
-						true/*taskCaseSensitive*/);
+						true/*taskCaseSensitive*/,
+						false/*isPreviewEnabled*/);
 				break;	
 			case JLS9_INTERNAL :
 				this.apiLevel = level;
@@ -846,7 +851,8 @@ public final class AST {
 						ClassFileConstants.JDK9 /*complianceLevel*/,
 						null/*taskTag*/,
 						null/*taskPriorities*/,
-						true/*taskCaseSensitive*/);
+						true/*taskCaseSensitive*/,
+						false/*isPreviewEnabled*/);
 				break;	
 			case JLS10_INTERNAL :
 				this.apiLevel = level;
@@ -859,7 +865,8 @@ public final class AST {
 						ClassFileConstants.JDK10 /*complianceLevel*/,
 						null/*taskTag*/,
 						null/*taskPriorities*/,
-						true/*taskCaseSensitive*/);
+						true/*taskCaseSensitive*/,
+						false/*isPreviewEnabled*/);
 				break;	
 			case JLS11_INTERNAL :
 				this.apiLevel = level;
@@ -873,7 +880,8 @@ public final class AST {
 						compliance /*complianceLevel*/,
 						null/*taskTag*/,
 						null/*taskPriorities*/,
-						true/*taskCaseSensitive*/);
+						true/*taskCaseSensitive*/,
+						false/*isPreviewEnabled*/);
 				break;
 			case JLS12_INTERNAL :
 				this.apiLevel = level;
@@ -887,7 +895,8 @@ public final class AST {
 						compliance /*complianceLevel*/,
 						null/*taskTag*/,
 						null/*taskPriorities*/,
-						true/*taskCaseSensitive*/);
+						true/*taskCaseSensitive*/,
+						this.previewEnabled);
 				break;
 			default:
 				throw new IllegalArgumentException("Unsupported JLS level"); //$NON-NLS-1$
@@ -948,7 +957,8 @@ public final class AST {
 			complianceLevel /*complianceLevel*/,
 			null/*taskTag*/,
 			null/*taskPriorities*/,
-			true/*taskCaseSensitive*/);
+			true/*taskCaseSensitive*/,
+			JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 	}
 
 	/**

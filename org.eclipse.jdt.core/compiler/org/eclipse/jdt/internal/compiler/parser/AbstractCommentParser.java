@@ -105,7 +105,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 	protected AbstractCommentParser(Parser sourceParser) {
 		this.sourceParser = sourceParser;
-		this.scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_3, null, null, true/*taskCaseSensitive*/);
+		this.scanner = new Scanner(false, false, false, ClassFileConstants.JDK1_3, null, null, true/*taskCaseSensitive*/,
+				sourceParser != null ? this.sourceParser.options.enablePreviewFeatures : false);
 		this.identifierStack = new char[20][];
 		this.identifierPositionStack = new long[20];
 		this.identifierLengthStack = new int[10];

@@ -1520,7 +1520,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 }
 @Override
 public void initializeScanner(){
-	this.scanner = new SelectionScanner(this.options.sourceLevel);
+	this.scanner = new SelectionScanner(this.options.sourceLevel, this.options.enablePreviewFeatures);
 }
 @Override
 public ReferenceExpression newReferenceExpression() {

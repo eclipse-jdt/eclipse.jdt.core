@@ -566,7 +566,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				this.compilerOptions.complianceLevel,
 				null/*taskTag*/,
 				null/*taskPriorities*/,
-				true /*taskCaseSensitive*/);
+				true /*taskCaseSensitive*/,
+				this.compilerOptions.enablePreviewFeatures);
 		scanner.setSource(source);
 		
 		int lastIdentifierStart = -1;

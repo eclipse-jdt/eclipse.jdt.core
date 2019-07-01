@@ -273,7 +273,8 @@ public class CommentRecorderParser extends Parser {
 				this.options.sourceLevel /*sourceLevel*/,
 				this.options.taskTags/*taskTags*/,
 				this.options.taskPriorities/*taskPriorities*/,
-				this.options.isTaskCaseSensitive/*taskCaseSensitive*/);
+				this.options.isTaskCaseSensitive/*taskCaseSensitive*/,
+				this.options.enablePreviewFeatures /*isPreviewEnabled*/);
 	}
 
 	/*

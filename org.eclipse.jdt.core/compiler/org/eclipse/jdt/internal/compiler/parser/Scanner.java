@@ -52,6 +52,7 @@ public class Scanner implements TerminalTokens {
 	public boolean useAssertAsAnIndentifier = false;
 	//flag indicating if processed source contains occurrences of keyword assert
 	public boolean containsAssertKeyword = false;
+	public boolean previewEnabled;
 
 	// 1.5 feature
 	public boolean useEnumAsAnIndentifier = false;
@@ -242,7 +243,8 @@ public Scanner(
 		long complianceLevel,
 		char[][] taskTags,
 		char[][] taskPriorities,
-		boolean isTaskCaseSensitive) {
+		boolean isTaskCaseSensitive,
+		boolean isPreviewEnabled) {
 
 	this.eofPosition = Integer.MAX_VALUE;
 	this.tokenizeComments = tokenizeComments;
@@ -252,6 +254,7 @@ public Scanner(
 	this.consumingEllipsisAnnotations = false;
 	this.complianceLevel = complianceLevel;
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
+	this.previewEnabled = isPreviewEnabled;
 	if (taskTags != null) {
 		int taskTagsLength = taskTags.length;
 		int length = taskTagsLength;
@@ -290,6 +293,28 @@ public Scanner(
 		long sourceLevel,
 		char[][] taskTags,
 		char[][] taskPriorities,
+		boolean isTaskCaseSensitive,
+		boolean isPreviewEnabled) {
+
+	this(
+		tokenizeComments,
+		tokenizeWhiteSpace,
+		checkNonExternalizedStringLiterals,
+		sourceLevel,
+		sourceLevel,
+		taskTags,
+		taskPriorities,
+		isTaskCaseSensitive,
+		isPreviewEnabled);
+}
+
+public Scanner(
+		boolean tokenizeComments,
+		boolean tokenizeWhiteSpace,
+		boolean checkNonExternalizedStringLiterals,
+		long sourceLevel,
+		char[][] taskTags,
+		char[][] taskPriorities,
 		boolean isTaskCaseSensitive) {
 
 	this(
@@ -300,9 +325,9 @@ public Scanner(
 		sourceLevel,
 		taskTags,
 		taskPriorities,
-		isTaskCaseSensitive);
+		isTaskCaseSensitive,
+		false);
 }
-
 public final boolean atEnd() {
 	// This code is not relevant if source is
 	// Only a part of the real stream input
@@ -4436,8 +4461,9 @@ public static boolean isKeyword(int token) {
 // Vanguard Scanner - A Private utility helper class for the scanner.
 private static final class VanguardScanner extends Scanner {
 	
-	public VanguardScanner(long sourceLevel, long complianceLevel) {
-		super (false /*comment*/, false /*whitespace*/, false /*nls*/, sourceLevel, complianceLevel, null/*taskTag*/, null/*taskPriorities*/, false /*taskCaseSensitive*/);
+	public VanguardScanner(long sourceLevel, long complianceLevel, boolean previewEnabled) {
+		super (false /*comment*/, false /*whitespace*/, false /*nls*/, sourceLevel, complianceLevel, null/*taskTag*/,
+				null/*taskPriorities*/, false /*taskCaseSensitive*/, previewEnabled);
 	}
 	
 	@Override
@@ -4643,7 +4669,8 @@ private class ScanContextDetector extends VanguardParser {
 			this.options.complianceLevel /*complianceLevel*/,
 			this.options.taskTags/*taskTags*/,
 			this.options.taskPriorities/*taskPriorities*/,
-			this.options.isTaskCaseSensitive/*taskCaseSensitive*/)
+			this.options.isTaskCaseSensitive/*taskCaseSensitive*/,
+			this.options.enablePreviewFeatures /*isPreviewEnabled*/)
 		{
 			@Override
 			void updateScanContext(int token) {
@@ -4677,7 +4704,7 @@ private class ScanContextDetector extends VanguardParser {
 
 private VanguardParser getVanguardParser() {
 	if (this.vanguardParser == null) {
-		this.vanguardScanner = new VanguardScanner(this.sourceLevel, this.complianceLevel);
+		this.vanguardScanner = new VanguardScanner(this.sourceLevel, this.complianceLevel, this.previewEnabled);
 		this.vanguardParser = new VanguardParser(this.vanguardScanner);
 		this.vanguardScanner.setActiveParser(this.vanguardParser);
 	}

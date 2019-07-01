@@ -7757,7 +7757,8 @@ private int retrieveClosingAngleBracketPosition(int start) {
 	char[] contents = compilationUnit.getContents();
 	if (contents.length == 0) return start;
 	if (this.positionScanner == null) {
-		this.positionScanner = new Scanner(false, false, false, this.options.sourceLevel, this.options.complianceLevel, null, null, false);
+		this.positionScanner = new Scanner(false, false, false, this.options.sourceLevel, this.options.complianceLevel, null, null, false,
+				this.options.enablePreviewFeatures);
 		this.positionScanner.returnOnlyGreater = true;
 	}
 	this.positionScanner.setSource(contents);
@@ -7796,7 +7797,8 @@ private int retrieveEndingPositionAfterOpeningParenthesis(int sourceStart, int s
 	char[] contents = compilationUnit.getContents();
 	if (contents.length == 0) return sourceEnd;
 	if (this.positionScanner == null) {
-		this.positionScanner = new Scanner(false, false, false, this.options.sourceLevel, this.options.complianceLevel, null, null, false);
+		this.positionScanner = new Scanner(false, false, false, this.options.sourceLevel, this.options.complianceLevel, null, null, false,
+				this.options.enablePreviewFeatures);
 	}
 	this.positionScanner.setSource(contents);
 	this.positionScanner.resetTo(sourceStart, sourceEnd);
@@ -7825,7 +7827,8 @@ private int retrieveStartingPositionAfterOpeningParenthesis(int sourceStart, int
 	char[] contents = compilationUnit.getContents();
 	if (contents.length == 0) return sourceStart;
 	if (this.positionScanner == null) {
-		this.positionScanner = new Scanner(false, false, false, this.options.sourceLevel, this.options.complianceLevel, null, null, false);
+		this.positionScanner = new Scanner(false, false, false, this.options.sourceLevel, this.options.complianceLevel, null, null, false,
+				this.options.enablePreviewFeatures);
 	}
 	this.positionScanner.setSource(contents);
 	this.positionScanner.resetTo(sourceStart, sourceEnd);

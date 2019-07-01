@@ -219,7 +219,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 							compilerOptions.complianceLevel,
 							null/*taskTags*/,
 							null/*taskPriorities*/,
-							true/*taskCaseSensitive*/);
+							true/*taskCaseSensitive*/,
+							compilerOptions.enablePreviewFeatures/*isPreviewEnabled*/);
 			} else {
 				scanner =
 					new RecoveryScanner(
@@ -230,6 +231,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 							null/*taskTags*/,
 							null/*taskPriorities*/,
 							true/*taskCaseSensitive*/,
+							compilerOptions.enablePreviewFeatures/*isPreviewEnabled*/,
 							this.recoveryScannerData);
 			}
 			scanner.setSource(this.content);

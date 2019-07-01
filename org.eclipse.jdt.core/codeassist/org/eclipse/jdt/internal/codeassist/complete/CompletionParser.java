@@ -5200,7 +5200,7 @@ private void initializeForBlockStatements() {
 }
 @Override
 public void initializeScanner(){
-	this.scanner = new CompletionScanner(this.options.sourceLevel);
+	this.scanner = new CompletionScanner(this.options.sourceLevel, this.options.enablePreviewFeatures);
 }
 /**
  * Returns whether the completion is just after an array type
