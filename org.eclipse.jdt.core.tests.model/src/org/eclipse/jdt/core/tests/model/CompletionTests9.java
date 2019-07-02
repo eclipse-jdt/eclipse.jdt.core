@@ -1596,4 +1596,32 @@ public void testBug530911() throws Exception {
 		deleteProject(project1);
 	}
 }
+public void testBug548888() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL19_LIB", "org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "bin", "9");
+	try  {
+		project1.open(null);
+
+		String content = 
+				"/**\n" +
+				"  * @see List\n" + 
+				"  */\n" + 
+				"module firstmod {\n" + 
+				"}\n";
+		String filePath = "/Completion9_1/src/module-info.java";
+		String completeBehind="List";
+		createFile(filePath, content);
+		int cursorLocation = content.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		waitUntilIndexesReady();
+
+		ICompilationUnit unit = getCompilationUnit(filePath);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "List[TYPE_REF]{java.util.List, java.util, Ljava.util.List;, null, 53}";
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+	}
+}
 }

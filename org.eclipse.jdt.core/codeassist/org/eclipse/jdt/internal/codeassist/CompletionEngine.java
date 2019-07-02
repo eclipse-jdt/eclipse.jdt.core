@@ -2337,6 +2337,7 @@ public final class CompletionEngine
 				throw new CompletionNodeFound(this.parser.assistNode, null, parsedUnit.scope);
 			}
 			catch (CompletionNodeFound e) {
+				this.unitScope = parsedUnit.scope;
 				if (e.astNode != null) {
 					// if null then we found a problem in the completion node
 					if(DEBUG) {
