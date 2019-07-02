@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -136,7 +136,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		this.ast = AST.newAST(this.API_LEVEL);
+		this.ast = AST.newAST(this.API_LEVEL, true);
 		this.N1 = this.ast.newSimpleName("N"); //$NON-NLS-1$
 		this.N2 = this.ast.newSimpleName("M"); //$NON-NLS-1$
 		this.N3 = this.ast.newSimpleName("O"); //$NON-NLS-1$

@@ -89,7 +89,7 @@ import org.eclipse.text.edits.TextEdit;
  * read-only AST.
  * </p>
  * <p>
- * Clients may create instances of this class using {@link #newAST(int)},
+ * Clients may create instances of this class using {@link #newAST(int, boolean)},
  * but this class is not intended to be subclassed.
  * </p>
  *
@@ -359,7 +359,7 @@ public final class AST {
 		IProgressMonitor monitor) {
 
 		ASTConverter converter = new ASTConverter(options, isResolved, monitor);
-		AST ast = AST.newAST(level);
+		AST ast = AST.newAST(level, JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 		String sourceModeSetting = (String) options.get(JavaCore.COMPILER_SOURCE);
 		long sourceLevel = CompilerOptions.versionToJdkLevel(sourceModeSetting);
 		if (sourceLevel == 0) {
@@ -400,7 +400,7 @@ public final class AST {
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules.
      * <p>
-     * Clients should use this method specifying {@link #JLS11} as the
+     * Clients should use this method specifying {@link #JLS13} as the
      * AST level in all cases, even when dealing with source of earlier JDK versions like 1.3 or 1.4.
      * </p>
      *
@@ -410,10 +410,33 @@ public final class AST {
 	 * <ul>
 	 * <li>the API level is not one of the <code>JLS*</code> level constants</li>
 	 * </ul>
+	 * @deprecated Clients should port their code to use the latest JLS* AST API and call
+	 *    {@link #newAST(int, boolean) AST.newAST(AST.JLS13, false)} instead of using this constructor.
      * @since 3.0
 	 */
 	public static AST newAST(int level) {
-		return new AST(level);
+		return new AST(level, false);
+	}
+	
+		/**
+	 * Creates a new Java abstract syntax tree
+     * (AST) following the specified set of API rules.
+     * <p>
+     * Clients should use this method specifying {@link #JLS13} as the
+     * AST level in all cases, even when dealing with source of earlier JDK versions like 1.3 or 1.4.
+     * </p>
+     *
+ 	 * @param level the API level; one of the <code>JLS*</code> level constants
+ 	 * @param previewEnabled <code>true</code> if preview feature is enabled else <code>false</code>
+	 * @return new AST instance following the specified set of API rules.
+	 * @exception IllegalArgumentException if:
+	 * <ul>
+	 * <li>the API level is not one of the <code>JLS*</code> level constants</li>
+	 * </ul>
+     * @since 3.19 BETA_JAVA13
+	 */
+	public static AST newAST(int level, boolean previewEnabled) {
+		return new AST(level, previewEnabled);
 	}
 
 	/**
@@ -782,7 +805,7 @@ public final class AST {
 	 *
 	 * @see JavaCore#getDefaultOptions()
 	 * @deprecated Clients should port their code to use the latest JLS* AST API and call
-	 *    {@link #newAST(int) AST.newAST(AST.JLS9)} instead of using this constructor.
+	 *    {@link #newAST(int, boolean) AST.newAST(AST.JLS13, false)} instead of using this constructor.
 	 */
 	public AST() {
 		this(JavaCore.getDefaultOptions());
@@ -795,7 +818,8 @@ public final class AST {
  	 * @param level the API level; one of the <code>JLS*</code> level constants
      * @since 3.0
 	 */
-	private AST(int level) {
+	private AST(int level, boolean previewEnabled) {
+		this.previewEnabled = previewEnabled;
 		switch(level) {
 			case JLS2_INTERNAL :
 			case JLS3_INTERNAL :
@@ -896,7 +920,7 @@ public final class AST {
 						null/*taskTag*/,
 						null/*taskPriorities*/,
 						true/*taskCaseSensitive*/,
-						this.previewEnabled);
+						previewEnabled);
 				break;
 			default:
 				throw new IllegalArgumentException("Unsupported JLS level"); //$NON-NLS-1$
@@ -926,10 +950,10 @@ public final class AST {
 	 *    value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
 	 * @deprecated Clients should port their code to use the latest JLS* AST API and call
-	 *    {@link #newAST(int) AST.newAST(AST.JLS9)} instead of using this constructor.
+	 *    {@link #newAST(int, boolean) AST.newAST(AST.JLS13, false)} instead of using this constructor.
 	 */
 	public AST(Map options) {
-		this(JLS2);
+		this(JLS2, false);
 		Object sourceLevelOption = options.get(JavaCore.COMPILER_SOURCE);
 		long sourceLevel = ClassFileConstants.JDK1_3;
 		if (JavaCore.VERSION_1_4.equals(sourceLevelOption)) {

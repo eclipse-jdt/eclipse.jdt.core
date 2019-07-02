@@ -44,7 +44,7 @@ public class ASTConverter12Test extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getAST12());
+		this.ast = AST.newAST(getAST12(), true);
 	}
 
 	public ASTConverter12Test(String name) {

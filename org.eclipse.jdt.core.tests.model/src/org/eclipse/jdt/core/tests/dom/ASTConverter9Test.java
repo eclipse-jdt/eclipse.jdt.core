@@ -48,7 +48,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getAST9());
+		this.ast = AST.newAST(getAST9(), false);
 	}
 	/**
 	 * @deprecated

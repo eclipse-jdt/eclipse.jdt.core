@@ -602,7 +602,7 @@ boolean isWorkingCopy();
  * </p>
  *
  * @param astLevel either {@link #NO_AST} if no AST is wanted,
- * or the {@linkplain AST#newAST(int) AST API level} of the AST if one is wanted
+ * or the {@linkplain AST#newAST(int, boolean) AST API level} of the AST if one is wanted
  * @param forceProblemDetection boolean indicating whether problem should be
  *   recomputed even if the source hasn't changed
  * @param owner the owner of working copies that take precedence over the
@@ -671,7 +671,7 @@ CompilationUnit reconcile(int astLevel, boolean forceProblemDetection, WorkingCo
  * </p>
  *
  * @param astLevel either {@link #NO_AST} if no AST is wanted,
- * or the {@linkplain AST#newAST(int) AST API level} of the AST if one is wanted
+ * or the {@linkplain AST#newAST(int, boolean) AST API level} of the AST if one is wanted
  * @param forceProblemDetection boolean indicating whether problem should be
  *   recomputed even if the source hasn't changed
  * @param enableStatementsRecovery if <code>true</code> statements recovery is enabled.
@@ -750,7 +750,7 @@ CompilationUnit reconcile(int astLevel, boolean forceProblemDetection, boolean e
  * </p>
  *
  * @param astLevel either {@link #NO_AST} if no AST is wanted,
- * or the {@linkplain AST#newAST(int) AST API level} of the AST if one is wanted
+ * or the {@linkplain AST#newAST(int, boolean) AST API level} of the AST if one is wanted
  * @param reconcileFlags the given reconcile flags
  * @param owner the owner of working copies that take precedence over the
  *   original compilation units, or <code>null</code> if the primary working

@@ -81,7 +81,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getAST8());
+		this.ast = AST.newAST(getAST8(), false);
 	}
 	/**
 	 * @deprecated

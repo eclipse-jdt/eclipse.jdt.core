@@ -2584,7 +2584,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		String[] order= new String[] { "java.util", "java.io", "java.net" };
 		int threshold= 99;
-		AST ast= AST.newAST(JLS3_INTERNAL);
+		AST ast= AST.newAST(JLS3_INTERNAL, false);
 		ImportRewrite importsRewrite= newImportsRewrite(cu2, order, threshold, threshold, true);
 		{
 			IJavaElement[] elements= cu1.codeSelect(content.indexOf("IOException"), "IOException".length());
@@ -2657,7 +2657,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 
 		String[] order= new String[] { "java.util", "java.io", "java.net" };
 		int threshold= 99;
-		AST ast= AST.newAST(JLS3_INTERNAL);
+		AST ast= AST.newAST(JLS3_INTERNAL, false);
 		ImportRewrite importsRewrite= newImportsRewrite(cu2, order, threshold, threshold, true);
 		{
 			IJavaElement[] elements= cu1.codeSelect(content.indexOf("Map"), "Map".length());

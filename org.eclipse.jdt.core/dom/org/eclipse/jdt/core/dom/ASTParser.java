@@ -1339,7 +1339,7 @@ public class ASTParser {
 		converter.compilationUnitSourceLength = this.rawSource.length;
 		converter.scanner.setSource(this.rawSource);
 
-		AST ast = AST.newAST(this.apiLevel);
+		AST ast = AST.newAST(this.apiLevel, JavaCore.ENABLED.equals(this.compilerOptions.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 		ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 		ast.setBindingResolver(new BindingResolver());
 		if ((this.bits & CompilationUnitResolver.STATEMENT_RECOVERY) != 0) {
