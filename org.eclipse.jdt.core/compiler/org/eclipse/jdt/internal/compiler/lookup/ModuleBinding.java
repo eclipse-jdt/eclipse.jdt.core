@@ -103,7 +103,6 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				char[][] declaringModuleNames = moduleEnv.getUniqueModulesDeclaringPackage(compoundName, nameForLookup());
 				if (declaringModuleNames != null && CharOperation.containsEqual(declaringModuleNames, this.moduleName)) {
 					declaredPackage = getOrCreateDeclaredPackage(compoundName);
-					this.declaredPackages.put(flatName, declaredPackage);
 				}
 			}
 			return declaredPackage;
@@ -543,11 +542,10 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		PackageBinding binding = this.environment.getPackage0(name);
 		if (binding != null)
 			return binding;
-		binding = getVisiblePackage(null, name, true);
+		binding = getVisiblePackage(null, name);
 		// remember:
 		if (binding != null) {
 			this.environment.knownPackages.put(name, binding);
-			binding = addPackage(binding, false); // no further lookup needed, binding is already complete (split?)
 		} else {
 			this.environment.knownPackages.put(name, LookupEnvironment.TheNotFoundPackage);
 		}
@@ -559,7 +557,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 
 	// Given parent is visible in this module, see if there is sub package named name visible in this module
-	PackageBinding getVisiblePackage(PackageBinding parent, char[] name, boolean considerRequiredModules) {
+	PackageBinding getVisiblePackage(PackageBinding parent, char[] name) {
 		// check caches in PackageBinding/LookupEnvironment, which contain the full SplitPackageBinding if appropriate:
 		PackageBinding pkg;
 		if (parent != null)
@@ -580,7 +578,6 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		PackageBinding binding = this.declaredPackages.get(fullFlatName);
 
 		char[][] declaringModuleNames = null;
-		boolean packageMayBeIncomplete = !considerRequiredModules;
 		if (this.environment.useModuleSystem) {
 			IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
 			declaringModuleNames = moduleEnv.getUniqueModulesDeclaringPackage(subPkgCompoundName, nameForLookup());
@@ -598,7 +595,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 							// declared here, not yet known, so create it now:
 							binding = new PlainPackageBinding(subPkgCompoundName, parent, this.environment, this);
 						}
-					} else if (considerRequiredModules) {
+					} else {
 						// visible but foreign (when current is unnamed or auto):
 						for (char[] declaringModuleName : declaringModuleNames) {
 							ModuleBinding declaringModule = this.environment.root.getModule(declaringModuleName);
@@ -623,14 +620,11 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 
 		// enrich with split-siblings from visible modules:
-		if (considerRequiredModules) {
-			if (parent != null && binding != null)
-				parent.addPackage(binding, this); // preliminarily add to avoid creating duplicates, will be updated below
-			binding = combineWithPackagesFromOtherRelevantModules(binding, subPkgCompoundName, declaringModuleNames);
-		}
+		if (parent != null && binding != null)
+			parent.addPackage(binding, this); // preliminarily add to avoid creating duplicates, will be updated below
+		binding = combineWithPackagesFromOtherRelevantModules(binding, subPkgCompoundName, declaringModuleNames);
 		if (binding == null || !binding.isValidBinding()) {
 			if (parent != null
-					&& !packageMayBeIncomplete  // don't remember package that may still lack some siblings
 					&& !(parent instanceof SplitPackageBinding)) // don't store problem into SPB, because from different focus things may look differently
 			{
 				if (binding == null) {
@@ -647,8 +641,6 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		} else if (parent != null) {
 			binding = parent.addPackage(binding, this);
 		}
-		if (packageMayBeIncomplete)
-			return binding;
 		return addPackage(binding, false);
 	}
 
@@ -661,9 +653,6 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	 * </p>
 	 */
 	public PackageBinding getVisiblePackage(char[][] qualifiedPackageName) {
-		return getVisiblePackage(qualifiedPackageName, true);
-	}
-	PackageBinding getVisiblePackage(char[][] qualifiedPackageName, boolean considerRequiredModules) {
 		if (qualifiedPackageName == null || qualifiedPackageName.length == 0) {
 			return this.environment.defaultPackage;
 		}
@@ -674,7 +663,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 
 		// check each sub package
 		for (int i = 1; i < qualifiedPackageName.length; i++) {
-			PackageBinding binding = getVisiblePackage(parent, qualifiedPackageName[i], considerRequiredModules); 
+			PackageBinding binding = getVisiblePackage(parent, qualifiedPackageName[i]); 
 			if (binding == null || binding == LookupEnvironment.TheNotFoundPackage) {
 				return null;
 			}
@@ -695,12 +684,12 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		// Returns a package binding if there exists such a package in the context of this module and it is observable
 		// A package is observable if it is declared in this module or it is exported by some required module
 		if (parentPackageName == null || parentPackageName.length == 0) {
-			return getVisiblePackage(null, packageName, true);
+			return getVisiblePackage(null, packageName);
 		}
 		PackageBinding binding = null;
 		PackageBinding parent = getVisiblePackage(parentPackageName);
 		if (parent != null && parent != LookupEnvironment.TheNotFoundPackage) {
-			binding = getVisiblePackage(parent, packageName, true);
+			binding = getVisiblePackage(parent, packageName);
 		}
 		if (binding != null)
 			return addPackage(binding, false);

@@ -774,7 +774,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 						}
 					}
 				} else {
-					packageBinding = this.module.getVisiblePackage(parent, constantPoolName[i], true);
+					packageBinding = this.module.getVisiblePackage(parent, constantPoolName[i]);
 				}
 			}
 			if (packageBinding == null || packageBinding == TheNotFoundPackage) {
@@ -1094,11 +1094,8 @@ public PackageBinding createPackage(char[][] compoundName) {
 		packageBinding = getPackage0(compoundName[0]);
 		if (packageBinding == null || packageBinding == TheNotFoundPackage) {
 			packageBinding = new PlainPackageBinding(compoundName[0], this, this.module);
-			this.knownPackages.put(compoundName[0], packageBinding);
-			if (this.module != null) {
-				packageBinding = this.module.addPackage(packageBinding, true);
-				this.knownPackages.put(compoundName[0], packageBinding); // update in case of split package
-			}
+			packageBinding = this.module.addPackage(packageBinding, true);
+			this.knownPackages.put(compoundName[0], packageBinding); // update in case of split package
 		}
 	}
 
@@ -1647,8 +1644,7 @@ PackageBinding getTopLevelPackage(char[] name) {
 		return packageBinding;
 	}
 	if (this.useModuleSystem) {
-		if (this.module != null)
-			packageBinding = this.module.getTopLevelPackage(name);
+		packageBinding = this.module.getTopLevelPackage(name);
 	} else {
 		if (this.nameEnvironment.isPackage(null, name)) {
 			this.knownPackages.put(name, packageBinding = new PlainPackageBinding(name, this, this.module));
