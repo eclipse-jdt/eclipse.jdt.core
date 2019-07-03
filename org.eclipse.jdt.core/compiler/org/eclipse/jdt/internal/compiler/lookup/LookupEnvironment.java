@@ -83,7 +83,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public ModuleBinding UnNamedModule;
 	public ModuleBinding JavaBaseModule;
 	public ModuleBinding module;
-	public PackageBinding defaultPackage;
+	public PlainPackageBinding defaultPackage;
 	/** All visible toplevel packages, i.e. observable packages associated with modules read by the current module. */
 	HashtableOfPackage knownPackages;
 	private int lastCompletedUnitIndex = -1; 	// ROOT_ONLY
@@ -1086,6 +1086,9 @@ public MissingTypeBinding createMissingType(PackageBinding packageBinding, char[
  * 3. Create the method bindings
  */
 public PackageBinding createPackage(char[][] compoundName) {
+	return createPlainPackage(compoundName);	
+}
+public PlainPackageBinding createPlainPackage(char[][] compoundName) {
 	PackageBinding packageBinding = this.module.getDeclaredPackage(CharOperation.concatWith(compoundName, '.'));
 	if (packageBinding != null && packageBinding.isValidBinding()) {
 		// restart from the toplevel package to proceed with clash analysis below
@@ -1637,22 +1640,17 @@ public ReferenceBinding getResolvedJavaBaseType(char[][] compoundName, Scope sco
 * Answer null if the package cannot be found.
 */
 PackageBinding getTopLevelPackage(char[] name) {
+	if (this.useModuleSystem) {
+		return this.module.getTopLevelPackage(name);
+	}
 	PackageBinding packageBinding = getPackage0(name);
 	if (packageBinding != null) {
 		if (packageBinding == TheNotFoundPackage)
 			return null;
 		return packageBinding;
 	}
-	if (this.useModuleSystem) {
-		packageBinding = this.module.getTopLevelPackage(name);
-	} else {
-		if (this.nameEnvironment.isPackage(null, name)) {
-			this.knownPackages.put(name, packageBinding = new PlainPackageBinding(name, this, this.module));
-		}
-	}
-	if (packageBinding != null) {
-		if (packageBinding == TheNotFoundPackage)
-			return null;
+	if (this.nameEnvironment.isPackage(null, name)) {
+		this.knownPackages.put(name, packageBinding = new PlainPackageBinding(name, this, this.module));
 		return packageBinding;
 	}
 

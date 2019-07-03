@@ -40,7 +40,7 @@ public class CompilationUnitScope extends Scope {
 	public LookupEnvironment environment;
 	public CompilationUnitDeclaration referenceContext;
 	public char[][] currentPackageName;
-	public PackageBinding fPackage;
+	public PlainPackageBinding fPackage;
 	public ImportBinding[] imports;
 	public int importPtr;
 	public HashtableOfObject typeOrPackageCache; // used in Scope.getTypeOrPackage()
@@ -132,7 +132,7 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 			problemReporter().unnamedPackageInNamedModule(module());
 		}
 	} else {
-		if ((this.fPackage = this.environment.createPackage(this.currentPackageName)) == null) {
+		if ((this.fPackage = this.environment.createPlainPackage(this.currentPackageName)) == null) {
 			if (this.referenceContext.currentPackage != null) {
 				problemReporter().packageCollidesWithType(this.referenceContext); // only report when the unit has a package statement
 			}

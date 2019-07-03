@@ -541,7 +541,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		// check cache:
 		PackageBinding binding = this.environment.getPackage0(name);
 		if (binding != null)
-			return binding;
+			return binding == LookupEnvironment.TheNotFoundPackage ? null : binding;
 		binding = getVisiblePackage(null, name);
 		// remember:
 		if (binding != null) {
@@ -658,13 +658,13 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 
 		PackageBinding parent = getTopLevelPackage(qualifiedPackageName[0]);
-		if (parent == null || parent == LookupEnvironment.TheNotFoundPackage)
+		if (parent == null)
 			return null;
 
 		// check each sub package
 		for (int i = 1; i < qualifiedPackageName.length; i++) {
 			PackageBinding binding = getVisiblePackage(parent, qualifiedPackageName[i]); 
-			if (binding == null || binding == LookupEnvironment.TheNotFoundPackage) {
+			if (binding == null) {
 				return null;
 			}
 			parent = binding;
@@ -688,12 +688,10 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 		PackageBinding binding = null;
 		PackageBinding parent = getVisiblePackage(parentPackageName);
-		if (parent != null && parent != LookupEnvironment.TheNotFoundPackage) {
+		if (parent != null) {
 			binding = getVisiblePackage(parent, packageName);
 		}
-		if (binding != null)
-			return addPackage(binding, false);
-		return null;
+		return binding;
 	}
 	
 	/**

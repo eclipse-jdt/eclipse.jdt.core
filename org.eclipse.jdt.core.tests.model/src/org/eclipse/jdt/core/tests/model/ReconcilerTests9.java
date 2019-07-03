@@ -852,6 +852,8 @@ public void testBug544306() throws Exception {
 	}
 }
 public void testBug547113() throws CoreException {
+	if (!isJRE9)
+		return;
 	IJavaProject unnamed = createJava9Project("unnamed");
 	IJavaProject a = createJava9Project("a");
 	IJavaProject b = createJava9Project("b");
