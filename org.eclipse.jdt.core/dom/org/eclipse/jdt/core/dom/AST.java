@@ -400,7 +400,7 @@ public final class AST {
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules.
      * <p>
-     * Clients should use this method specifying {@link #JLS13} as the
+     * Clients should use this method specifying {@link #JLS12} as the
      * AST level in all cases, even when dealing with source of earlier JDK versions like 1.3 or 1.4.
      * </p>
      *
@@ -411,7 +411,7 @@ public final class AST {
 	 * <li>the API level is not one of the <code>JLS*</code> level constants</li>
 	 * </ul>
 	 * @deprecated Clients should port their code to use the latest JLS* AST API and call
-	 *    {@link #newAST(int, boolean) AST.newAST(AST.JLS13, false)} instead of using this constructor.
+	 *    {@link #newAST(int, boolean) AST.newAST(AST.JLS12, false)} instead of using this constructor.
      * @since 3.0
 	 */
 	public static AST newAST(int level) {
@@ -422,7 +422,7 @@ public final class AST {
 	 * Creates a new Java abstract syntax tree
      * (AST) following the specified set of API rules.
      * <p>
-     * Clients should use this method specifying {@link #JLS13} as the
+     * Clients should use this method specifying {@link #JLS12} as the
      * AST level in all cases, even when dealing with source of earlier JDK versions like 1.3 or 1.4.
      * </p>
      *
@@ -805,7 +805,7 @@ public final class AST {
 	 *
 	 * @see JavaCore#getDefaultOptions()
 	 * @deprecated Clients should port their code to use the latest JLS* AST API and call
-	 *    {@link #newAST(int, boolean) AST.newAST(AST.JLS13, false)} instead of using this constructor.
+	 *    {@link #newAST(int, boolean) AST.newAST(AST.JLS12, false)} instead of using this constructor.
 	 */
 	public AST() {
 		this(JavaCore.getDefaultOptions());
@@ -950,7 +950,7 @@ public final class AST {
 	 *    value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
 	 * @deprecated Clients should port their code to use the latest JLS* AST API and call
-	 *    {@link #newAST(int, boolean) AST.newAST(AST.JLS13, false)} instead of using this constructor.
+	 *    {@link #newAST(int, boolean) AST.newAST(AST.JLS12, false)} instead of using this constructor.
 	 */
 	public AST(Map options) {
 		this(JLS2, false);
@@ -3457,5 +3457,13 @@ public final class AST {
 	  	throw new UnsupportedOperationException("Operation not supported in JLS2 AST"); //$NON-NLS-1$
 	  }
 	}
-}
 
+	/**
+	 * 
+	 * @return previewEnabled
+	 * @since 3.19
+	 */
+	public boolean isPreviewEnabled() {
+		return this.previewEnabled;
+	}
+}
