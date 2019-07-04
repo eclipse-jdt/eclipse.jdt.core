@@ -140,7 +140,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 }
 protected PackageBinding findPackage(char[] name, ModuleBinding module) {
 	// delegate to the module to consider the module graph:
-	return module.getPackage(this.compoundName, name);
+	return module.getVisiblePackage(CharOperation.arrayConcat(this.compoundName, name));
 }
 /* Answer the subpackage named name; ask the oracle for the package if its not in the cache.
 * Answer null if it could not be resolved.

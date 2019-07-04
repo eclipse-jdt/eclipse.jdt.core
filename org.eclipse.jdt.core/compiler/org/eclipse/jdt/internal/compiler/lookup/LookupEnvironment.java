@@ -764,13 +764,14 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 		if ((packageBinding = parent.getPackage0(constantPoolName[i])) == null || packageBinding == TheNotFoundPackage) {
 			if (this.useModuleSystem) {
 				if (this.module.isUnnamed()) {
+					char[][] currentCompoundName = CharOperation.arrayConcat(parent.compoundName, constantPoolName[i]);
 					char[][] declaringModules = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModulesDeclaringPackage(
-							CharOperation.arrayConcat(parent.compoundName, constantPoolName[i]), ModuleBinding.ANY);
+							currentCompoundName, ModuleBinding.ANY);
 					if (declaringModules != null) {
 						for (char[] mod : declaringModules) {
 							ModuleBinding declaringModule = this.root.getModule(mod);
 							if (declaringModule != null)
-								packageBinding = SplitPackageBinding.combine(declaringModule.getPackage(parent.compoundName, constantPoolName[i]), packageBinding, this.module);
+								packageBinding = SplitPackageBinding.combine(declaringModule.getVisiblePackage(currentCompoundName), packageBinding, this.module);
 						}
 					}
 				} else {

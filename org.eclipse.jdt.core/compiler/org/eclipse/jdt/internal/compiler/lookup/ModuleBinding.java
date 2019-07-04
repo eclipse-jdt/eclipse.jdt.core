@@ -673,28 +673,6 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 
 	/**
-	 * Answer a package, that is a member named <em>packageName</em> of the parent package
-	 * named <em>parentPackageName</em>.
-	 * Considers all packages that are visible to the current module,
-	 * i.e., we consider locally declared packages and packages in all modules
-	 * read by the current module.
-	 * Accessibility (via package exports) is <strong>not</strong> checked.
-	 */
-	public PackageBinding getPackage(char[][] parentPackageName, char[] packageName) {
-		// Returns a package binding if there exists such a package in the context of this module and it is observable
-		// A package is observable if it is declared in this module or it is exported by some required module
-		if (parentPackageName == null || parentPackageName.length == 0) {
-			return getVisiblePackage(null, packageName);
-		}
-		PackageBinding binding = null;
-		PackageBinding parent = getVisiblePackage(parentPackageName);
-		if (parent != null) {
-			binding = getVisiblePackage(parent, packageName);
-		}
-		return binding;
-	}
-	
-	/**
 	 * Check if the given package is declared in this module,
 	 * and if so, remember this fact for later.
 	 * The package can be a {@code SplitPackageBinding} in which case

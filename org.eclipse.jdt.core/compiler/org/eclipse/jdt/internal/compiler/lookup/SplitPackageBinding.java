@@ -163,9 +163,10 @@ public class SplitPackageBinding extends PackageBinding {
 
 	@Override
 	protected PackageBinding findPackage(char[] name, ModuleBinding module) {
+		char[][] subpackageCompoundName = CharOperation.arrayConcat(this.compoundName, name);
 		Set<PackageBinding> candidates = new HashSet<>();
 		for (ModuleBinding candidateModule : this.declaringModules) {
-			PackageBinding candidate = super.findPackage(name, candidateModule);
+			PackageBinding candidate = candidateModule.getVisiblePackage(subpackageCompoundName);
 			if (candidate != null
 					&& candidate != LookupEnvironment.TheNotFoundPackage
 					&& ((candidate.tagBits & TagBits.HasMissingType) == 0))

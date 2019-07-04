@@ -174,15 +174,7 @@ public class ElementsImpl9 extends ElementsImpl {
 		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
 		PackageBinding p = null;
 		if (mBinding != null) {
-			
-			int length = compoundName.length;
-			if (length > 1) {
-				char[][] parent = new char[compoundName.length - 1][];
-				System.arraycopy(compoundName, 0, parent, 0, length - 1);
-				p = mBinding.getPackage(parent, compoundName[length - 1]);
-			} else {
-				p = mBinding.getTopLevelPackage(compoundName[0]);
-			}
+			p = mBinding.getVisiblePackage(compoundName);
 		} else {
 			p = _env.getLookupEnvironment().createPackage(compoundName);
 		}
