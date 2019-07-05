@@ -1097,8 +1097,15 @@ public PlainPackageBinding createPlainPackage(char[][] compoundName) {
 	} else {
 		packageBinding = getPackage0(compoundName[0]);
 		if (packageBinding == null || packageBinding == TheNotFoundPackage) {
-			packageBinding = new PlainPackageBinding(compoundName[0], this, this.module);
-			packageBinding = this.module.addPackage(packageBinding, true);
+			packageBinding = this.module.createDeclaredToplevelPackage(compoundName[0]);
+			if (this.useModuleSystem) {
+				char[][] declaringModuleNames = null;
+				if (this.module.isUnnamed()) {
+					IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.nameEnvironment;
+					declaringModuleNames = moduleEnv.getUniqueModulesDeclaringPackage(new char[][] {packageBinding.readableName()}, ModuleBinding.ANY);
+				}
+				packageBinding = this.module.combineWithPackagesFromOtherRelevantModules(packageBinding, packageBinding.compoundName, declaringModuleNames);
+			}
 			this.knownPackages.put(compoundName[0], packageBinding); // update in case of split package
 		}
 	}

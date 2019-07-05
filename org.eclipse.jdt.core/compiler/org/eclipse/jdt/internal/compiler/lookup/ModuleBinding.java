@@ -549,18 +549,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	 * </p>
 	 */
 	public PackageBinding getTopLevelPackage(char[] name) {
-		// check cache:
-		PackageBinding binding = this.environment.getPackage0(name);
-		if (binding != null)
-			return binding == LookupEnvironment.TheNotFoundPackage ? null : binding;
-		binding = getVisiblePackage(null, name);
-		// remember:
-		if (binding != null) {
-			this.environment.knownPackages.put(name, binding);
-		} else {
-			this.environment.knownPackages.put(name, LookupEnvironment.TheNotFoundPackage);
-		}
-		return binding;
+		return getVisiblePackage(null, name);
 	}
 
 	PlainPackageBinding getDeclaredPackage(char[] flatName) {
@@ -579,7 +568,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			if (pkg == LookupEnvironment.TheNotFoundPackage)
 				return null;
 			else
-				return addPackage(pkg, false);
+				return pkg;
 		}
 
 		// check cached plain PackageBinding in declaredPackages (which may need combining with siblings):
@@ -604,7 +593,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 						}
 						if (binding == null) {
 							// declared here, not yet known, so create it now:
-							binding = new PlainPackageBinding(subPkgCompoundName, parent, this.environment, this);
+							binding = this.createDeclaredPackage(subPkgCompoundName, parent);
 						}
 					} else {
 						// visible but foreign (when current is unnamed or auto):
@@ -612,14 +601,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 							ModuleBinding declaringModule = this.environment.root.getModule(declaringModuleName);
 							if (declaringModule != null) {
 								PlainPackageBinding declaredPackage = declaringModule.getDeclaredPackage(fullFlatName);
-								if (declaredPackage != null) {
-									// don't add foreign package to 'parent' (below), but to its own parent:
-									if (declaredPackage.parent != null)
-										declaredPackage.parent.addPackage(declaredPackage, declaringModule);
-									parent = null;
-									//
-									binding = SplitPackageBinding.combine(declaredPackage, binding, this);
-								}
+								binding = SplitPackageBinding.combine(declaredPackage, binding, this);
 							}
 						}
 					}
@@ -627,32 +609,32 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 			}
 		} else {
 			if (this.environment.nameEnvironment.isPackage(parentName, name))
-				binding = new PlainPackageBinding(subPkgCompoundName, parent, this.environment, this);
+				binding = this.createDeclaredPackage(subPkgCompoundName, parent);
 		}
-
-		// enrich with split-siblings from visible modules:
-		if (parent != null && binding != null)
-			parent.addPackage(binding, this); // preliminarily add to avoid creating duplicates, will be updated below
+		
 		binding = combineWithPackagesFromOtherRelevantModules(binding, subPkgCompoundName, declaringModuleNames);
+
+		assert binding == null || binding instanceof PlainPackageBinding || binding.enclosingModule == this;
+		
 		if (binding == null || !binding.isValidBinding()) {
-			if (parent != null
-					&& !(parent instanceof SplitPackageBinding)) // don't store problem into SPB, because from different focus things may look differently
-			{
+			if (parent != null) {
 				if (binding == null) {
 					parent.addNotFoundPackage(name);
 				} else {
 					parent.knownPackages.put(name, binding);
 				}
+			} else {
+				this.environment.knownPackages.put(name, LookupEnvironment.TheNotFoundPackage);
 			}
 			return null;
 		}
 		// remember
 		if (parentName.length == 0) {
-			binding.environment.knownPackages.put(name, binding);
+			this.environment.knownPackages.put(name, binding);
 		} else if (parent != null) {
 			binding = parent.addPackage(binding, this);
 		}
-		return addPackage(binding, false);
+		return binding;
 	}
 
 	/**
@@ -683,36 +665,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		return parent;
 	}
 
-	/**
-	 * Check if the given package is declared in this module,
-	 * and if so, remember this fact for later.
-	 * The package can be a {@code SplitPackageBinding} in which case
-	 * only one of its incarnations needs to be declared in this module.
-	 * @param packageBinding the package to add
-	 * @param checkForSplit if true then we should try to construct a split package from
-	 * 	same named packages in required modules.
-	 * @return the given package, possibly enriched to a {@link SplitPackageBinding}
-	 */
-	PackageBinding addPackage(PackageBinding packageBinding, boolean checkForSplit) {
-		if (packageBinding.isDeclaredIn(this)) {
-			char[] packageName = packageBinding.readableName();
-			if (checkForSplit && this.environment.useModuleSystem) {
-				char[][] declaringModuleNames = null;
-				if (isUnnamed()) {
-					IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
-					declaringModuleNames = moduleEnv.getUniqueModulesDeclaringPackage(new char[][] {packageName}, ANY);
-				}
-				packageBinding = combineWithPackagesFromOtherRelevantModules(packageBinding, packageBinding.compoundName, declaringModuleNames);
-			}
-			this.declaredPackages.put(packageName, packageBinding.getIncarnation(this));
-			if (packageBinding.parent == null) {
-				this.environment.knownPackages.put(packageName, packageBinding);
-			}
-		}
-		return packageBinding;
-	}
-	
-	private PackageBinding combineWithPackagesFromOtherRelevantModules(PackageBinding currentBinding, char[][] compoundName, char[][] declaringModuleNames) {
+	PackageBinding combineWithPackagesFromOtherRelevantModules(PackageBinding currentBinding, char[][] compoundName, char[][] declaringModuleNames) {
 		for (ModuleBinding moduleBinding : otherRelevantModules(declaringModuleNames)) {
 			PlainPackageBinding nextBinding = moduleBinding.getDeclaredPackage(CharOperation.concatWith(compoundName, '.'));
 			currentBinding = SplitPackageBinding.combine(nextBinding, currentBinding, this);

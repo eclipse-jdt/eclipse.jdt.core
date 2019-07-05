@@ -20,12 +20,12 @@ public class PlainPackageBinding extends PackageBinding {
 
 	/** Create a toplevel package. */
 	public PlainPackageBinding(char[] topLevelPackageName, LookupEnvironment environment, ModuleBinding enclosingModule) {
-		super(new char[][] {topLevelPackageName}, null, environment, enclosingModule);
+		this(new char[][] {topLevelPackageName}, null, environment, enclosingModule);
 	}
 
 	/** Create a default package. */
 	public PlainPackageBinding(LookupEnvironment environment) {
-		super(CharOperation.NO_CHAR_CHAR, null, environment, environment.module);
+		this(CharOperation.NO_CHAR_CHAR, null, environment, environment.module);
 	}
 
 	/** Create a normal package. */
