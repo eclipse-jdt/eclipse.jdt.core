@@ -121,10 +121,22 @@ protected void adjustStackSize(BlockScope currentScope, CodeStream codeStream) {
 public void resolve(BlockScope scope) {
 	// METHOD IN WORKS - INCOMPLETE
 	super.resolve(scope);
-//	if (this.expression == null)
-//	currentScope.problemReporter().switchExpressionYieldMissingExpression(this);
-//	
-	if (this.switchExpression == null) {
+	if (this.expression == null) {
+		//currentScope.problemReporter().switchExpressionYieldMissingExpression(this);
+		return;
+		
+	}
+	if (this.switchExpression != null || this.isImplicit) {
+		if (this.switchExpression == null && this.isImplicit && !this.expression.statementExpression()) {
+			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK12 && scope.compilerOptions().enablePreviewFeatures) {
+				/* JLS 13 14.11.2
+				Switch labeled rules in switch statements differ from those in switch expressions (15.28).
+				In switch statements they must be switch labeled statement expressions, ... */
+				scope.problemReporter().invalidExpressionAsStatement(this.expression);
+				return;
+			}
+		}
+	} else {
 		if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK13) {
 			if (scope.compilerOptions().enablePreviewFeatures) {
 				scope.problemReporter().switchExpressionsYieldOutsideSwitchExpression(this);
@@ -133,9 +145,10 @@ public void resolve(BlockScope scope) {
 			}
 		}
 	}
-	if  (this.expression != null) {
-		this.expression.resolveType(scope);
-	}
+	this.expression.resolveType(scope);
+//	if  (this.expression != null) {
+//		this.expression.resolveType(scope);
+//	}
 }
 
 @Override
