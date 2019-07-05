@@ -314,6 +314,17 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 
 	// ---
+	PlainPackageBinding createDeclaredToplevelPackage(char[] name) {
+		PlainPackageBinding packageBinding = new PlainPackageBinding(name, this.environment, this);
+		this.declaredPackages.put(name, packageBinding);
+		return packageBinding;
+	}
+
+	PlainPackageBinding createDeclaredPackage(char[][] compoundName, PackageBinding parent) {
+		PlainPackageBinding packageBinding = new PlainPackageBinding(compoundName, parent, this.environment, this);
+		this.declaredPackages.put(CharOperation.concatWith(compoundName, '.'), packageBinding);
+		return packageBinding;
+	}
 
 	public PlainPackageBinding getOrCreateDeclaredPackage(char[][] compoundName) {
 		char[] flatName = CharOperation.concatWith(compoundName, '.');

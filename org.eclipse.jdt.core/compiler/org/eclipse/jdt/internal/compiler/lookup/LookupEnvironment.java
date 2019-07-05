@@ -753,7 +753,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 			}
 		}
 		if (packageBinding == null || packageBinding == TheNotFoundPackage) {
-			packageBinding = new PlainPackageBinding(constantPoolName[0], this, this.module);
+			packageBinding = this.module.createDeclaredToplevelPackage(constantPoolName[0]); 
 		}
 		if (isMissing) packageBinding.tagBits |= TagBits.HasMissingType;
 		this.knownPackages.put(constantPoolName[0], packageBinding); // TODO: split?
@@ -779,7 +779,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 				}
 			}
 			if (packageBinding == null || packageBinding == TheNotFoundPackage) {
-				packageBinding = new PlainPackageBinding(CharOperation.subarray(constantPoolName, 0, i + 1), parent, this, this.module);
+				packageBinding = this.module.createDeclaredPackage(CharOperation.subarray(constantPoolName, 0, i + 1), parent);
 			}
 			if (isMissing) {
 				packageBinding.tagBits |= TagBits.HasMissingType;
@@ -1137,7 +1137,7 @@ public PlainPackageBinding createPlainPackage(char[][] compoundName) {
 				packageBinding = singleParent.getPackage0(compoundName[i]);
 			}
 			if (packageBinding == null) {
-				packageBinding = new PlainPackageBinding(CharOperation.subarray(compoundName, 0, i + 1), parent, this, this.module);
+				packageBinding = this.module.createDeclaredPackage(CharOperation.subarray(compoundName, 0, i + 1), parent);
 				packageBinding = parent.addPackage(packageBinding, this.module);
 			}
 		}
@@ -1651,7 +1651,7 @@ PackageBinding getTopLevelPackage(char[] name) {
 		return packageBinding;
 	}
 	if (this.nameEnvironment.isPackage(null, name)) {
-		this.knownPackages.put(name, packageBinding = new PlainPackageBinding(name, this, this.module));
+		this.knownPackages.put(name, packageBinding = this.module.createDeclaredToplevelPackage(name));
 		return packageBinding;
 	}
 
