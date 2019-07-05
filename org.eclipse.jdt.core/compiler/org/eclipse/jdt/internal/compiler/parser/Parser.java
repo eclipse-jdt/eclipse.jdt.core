@@ -9608,8 +9608,8 @@ protected void consumeDefaultLabelExpr() {
 //	SwitchLabelDefaultExpr ::= 'default' '->'
 	consumeDefaultLabel();
 	CaseStatement defaultStatement = (CaseStatement) this.astStack[this.astPtr];
-	if (!this.parsingJava12Plus) {
-		problemReporter().previewFeatureNotSupported(defaultStatement.sourceStart, defaultStatement.sourceEnd, "Case Labels with '->'", CompilerOptions.VERSION_12); //$NON-NLS-1$
+	if (!this.parsingJava13Plus) {
+		problemReporter().previewFeatureNotSupported(defaultStatement.sourceStart, defaultStatement.sourceEnd, "Case Labels with '->'", CompilerOptions.VERSION_13); //$NON-NLS-1$
 	} else if (!this.options.enablePreviewFeatures){
 		problemReporter().previewFeatureNotEnabled(defaultStatement.sourceStart, defaultStatement.sourceEnd, "Case Labels with '->'"); //$NON-NLS-1$
 	} else {

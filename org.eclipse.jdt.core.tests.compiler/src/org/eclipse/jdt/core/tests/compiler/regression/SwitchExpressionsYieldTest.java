@@ -519,7 +519,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"1. ERROR in X.java (at line 4)\n" + 
 					"	default -> 3;\n" + 
 					"	^^^^^^^\n" + 
-					"The preview feature Case Labels with \'->\' is only available with source level 12 and above\n" + 
+					"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
 					"----------\n";
 			this.runNegativeTest(
 					testFiles,

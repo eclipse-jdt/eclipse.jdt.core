@@ -8134,6 +8134,8 @@ private String replaceIfSynthetic(String token) {
 		return "."; //$NON-NLS-1$
 	if (token.equals("BeginLambda")) //$NON-NLS-1$
 		return "("; //$NON-NLS-1$
+	if (token.equals("RestrictedIdentifierYield")) //$NON-NLS-1$
+		return "yield"; //$NON-NLS-1$
 	return token;
 }
 public void task(String tag, String message, String priority, int start, int end){
