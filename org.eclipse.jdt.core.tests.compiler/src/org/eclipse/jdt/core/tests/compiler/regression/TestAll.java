@@ -184,6 +184,11 @@ public static Test suite() {
 	 since_12.add(SwitchExpressionTest.class);
 	 since_12.add(Unicode11Test.class);
 
+		// add 13 specific test here (check duplicates)
+	 ArrayList since_13 = new ArrayList();
+	 since_13.add(SwitchExpressionsYieldTest.class);
+	 since_13.add(Unicode12_1Test.class);
+
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));
@@ -306,6 +311,7 @@ public static Test suite() {
 		tests_13.addAll(since_10);
 		tests_13.addAll(since_11);
 		tests_13.addAll(since_12);
+		tests_13.addAll(since_13);
 		TestCase.resetForgottenFilters(tests_13);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_13), tests_13));
 	}

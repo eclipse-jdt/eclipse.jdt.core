@@ -979,7 +979,6 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.parsingJava13Plus = this.options.sourceLevel >= ClassFileConstants.JDK13;
 	this.parsingJava12Plus = this.options.sourceLevel >= ClassFileConstants.JDK12;
 	this.parsingJava11Plus = this.options.sourceLevel >= ClassFileConstants.JDK11;
-	this.parsingJava13Plus = this.options.sourceLevel >= ClassFileConstants.JDK13;
 	this.astLengthStack = new int[50];
 	this.expressionLengthStack = new int[30];
 	this.typeAnnotationLengthStack = new int[30];
@@ -11911,10 +11910,6 @@ public boolean atConflictScenario(int token) {
 	}
 	
 	return automatonWillShift(token, this.unstackedAct);
-}
-@Override
-public boolean isParsingJava13() {
-	return this.parsingJava13Plus;
 }
 /*main loop of the automat
 When a rule is reduced, the method consumeRule(int) is called with the number
