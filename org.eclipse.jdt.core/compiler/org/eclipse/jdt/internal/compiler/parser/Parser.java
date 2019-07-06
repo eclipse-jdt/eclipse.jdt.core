@@ -2240,7 +2240,7 @@ protected void consumeCaseLabel() {
 	}
 	CaseStatement caseStatement = new CaseStatement(constantExpressions[0], constantExpressions[length - 1].sourceEnd, this.intStack[this.intPtr--]);
 	if (constantExpressions.length > 1) {
-		if (this.parsingJava12Plus) {
+		if (this.parsingJava13Plus) {
 			if (this.options.enablePreviewFeatures) {
 				if (this.options.isAnyEnabled(IrritantSet.PREVIEW) && constantExpressions.length > 1) {
 					problemReporter().previewFeatureUsed(caseStatement.sourceStart, caseStatement.sourceEnd);
@@ -2249,7 +2249,7 @@ protected void consumeCaseLabel() {
 				problemReporter().previewFeatureNotEnabled(caseStatement.sourceStart, caseStatement.sourceEnd, "Multi constant case"); //$NON-NLS-1$
 			}
 		} else {
-			problemReporter().previewFeatureNotSupported(caseStatement.sourceStart, caseStatement.sourceEnd, "Multi constant case", CompilerOptions.VERSION_12); //$NON-NLS-1$
+			problemReporter().previewFeatureNotSupported(caseStatement.sourceStart, caseStatement.sourceEnd, "Multi constant case", CompilerOptions.VERSION_13); //$NON-NLS-1$
 		}
 	}
 	caseStatement.constantExpressions = constantExpressions;
