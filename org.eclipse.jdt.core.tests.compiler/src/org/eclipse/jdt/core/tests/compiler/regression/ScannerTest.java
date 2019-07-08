@@ -1512,6 +1512,7 @@ public class ScannerTest extends AbstractRegressionTest {
 				"  String  s = \"\"\"\nThis is the new String\"\"\";\n" +
 				"}").toCharArray();
 		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.getLatestJDKLevel(), null, null, false);
+		scanner.previewEnabled = true;
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
