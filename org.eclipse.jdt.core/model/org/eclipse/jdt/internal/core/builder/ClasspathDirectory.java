@@ -259,7 +259,8 @@ public char[][] listPackages() {
 	IPath basePath = this.binaryFolder.getFullPath();
 	try {
 		this.binaryFolder.accept(r -> {
-			if (r instanceof IFile && SuffixConstants.EXTENSION_class.equals(r.getFileExtension().toLowerCase())) {
+			String extension = r.getFileExtension();
+			if (r instanceof IFile && extension != null && SuffixConstants.EXTENSION_class.equals(extension.toLowerCase())) {
 				packageNames.add(r.getParent().getFullPath().makeRelativeTo(basePath).toString().replace('/', '.'));
 			}
 			return true;

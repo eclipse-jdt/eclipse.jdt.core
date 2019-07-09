@@ -91,7 +91,8 @@ String[] directoryList(String qualifiedPackageName) {
 						dirList[index++] = name;
 					}
 				}
-			} else {
+			}
+			if(index==0) {
 				container = this.sourceFolder.findMember(qualifiedPackageName);
 				if (container instanceof IContainer) {
 					members = ((IContainer) container).members();

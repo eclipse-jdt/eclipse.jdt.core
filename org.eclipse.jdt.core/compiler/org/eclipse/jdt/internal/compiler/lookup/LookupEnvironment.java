@@ -359,8 +359,8 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, ModuleBi
 private ReferenceBinding combine(ReferenceBinding one, ReferenceBinding two, ModuleBinding clientModule) {
 	if (one == null) return two;
 	if (two == null) return one;
-	if (!clientModule.canAccess(one.fPackage)) return two;
-	if (!clientModule.canAccess(two.fPackage)) return one;
+	if (one.fPackage == null || !clientModule.canAccess(one.fPackage)) return two;
+	if (two.fPackage == null || !clientModule.canAccess(two.fPackage)) return one;
 	if (one == two) return one; //$IDENTITY-COMPARISON$
 	return new ProblemReferenceBinding(one.compoundName, one, ProblemReasons.Ambiguous); // TODO(SHMOD): use a new problem ID
 }
