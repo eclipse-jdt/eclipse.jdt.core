@@ -516,10 +516,10 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 
 			String expectedProblemLog =
 					"----------\n" + 
-					"1. ERROR in X.java (at line 4)\n" + 
-					"	default -> 3;\n" + 
-					"	^^^^^^^\n" + 
-					"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+					"1. ERROR in X.java (at line 0)\n" + 
+					"	public class X {\n" + 
+					"	^\n" + 
+					"Preview features enabled at an invalid source release level 11, preview can be enabled only at source level 13\n" + 
 					"----------\n";
 			this.runNegativeTest(
 					testFiles,

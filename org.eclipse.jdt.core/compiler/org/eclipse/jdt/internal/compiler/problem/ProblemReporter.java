@@ -834,6 +834,16 @@ public void abortDueToInternalError(String errorMessage, ASTNode location) {
 		location == null ? 0 : location.sourceStart,
 		location == null ? 0 : location.sourceEnd);
 }
+public void abortDueToPreviewEnablingNotAllowed(String sourceLevel, String expectedSourceLevel) {
+	String[] args = new String[] {sourceLevel, expectedSourceLevel};
+	this.handle(
+			IProblem.PreviewEnablingNotAllowed,
+			args,
+			args,
+			ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
+			0,
+			0);
+}
 public void abstractMethodCannotBeOverridden(SourceTypeBinding type, MethodBinding concreteMethod) {
 
 	this.handle(

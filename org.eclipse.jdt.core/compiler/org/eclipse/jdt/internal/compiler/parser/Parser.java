@@ -9557,7 +9557,7 @@ protected void consumeTextBlock() {
 						this.scanner.startPosition,
 						this.scanner.currentPosition - 1,
 						Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr));
-		// TOOD	
+		// TODO
 		//this.compilationUnit.recordStringLiteral(stringLiteral, this.currentElement != null);
 	} else {
 		textBlock = new TextBlock(
@@ -9593,8 +9593,8 @@ protected void consumeCaseLabelExpr() {
 //	SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
 	consumeCaseLabel();
 	CaseStatement caseStatement = (CaseStatement) this.astStack[this.astPtr];
-	if (!this.parsingJava12Plus) {
-		problemReporter().previewFeatureNotSupported(caseStatement.sourceStart, caseStatement.sourceEnd, "Case Labels with '->'", CompilerOptions.VERSION_12); //$NON-NLS-1$
+	if (!this.parsingJava13Plus) {
+		problemReporter().previewFeatureNotSupported(caseStatement.sourceStart, caseStatement.sourceEnd, "Case Labels with '->'", CompilerOptions.VERSION_13); //$NON-NLS-1$
 	} else if (!this.options.enablePreviewFeatures){
 		problemReporter().previewFeatureNotEnabled(caseStatement.sourceStart, caseStatement.sourceEnd, "Case Labels with '->'"); //$NON-NLS-1$
 	} else {
@@ -9709,8 +9709,8 @@ protected void consumeSwitchExpression() {
 	if (this.astLengthStack[this.astLengthPtr--] != 0) {
 		SwitchExpression s = (SwitchExpression) this.astStack[this.astPtr--];
 
-		if (!this.parsingJava12Plus) {
-			problemReporter().previewFeatureNotSupported(s.sourceStart, s.sourceEnd, "Switch Expressions", CompilerOptions.VERSION_12); //$NON-NLS-1$
+		if (!this.parsingJava13Plus) {
+			problemReporter().previewFeatureNotSupported(s.sourceStart, s.sourceEnd, "Switch Expressions", CompilerOptions.VERSION_13); //$NON-NLS-1$
 		} else if (!this.options.enablePreviewFeatures) {
 			problemReporter().previewFeatureNotEnabled(s.sourceStart, s.sourceEnd, "Switch Expressions"); //$NON-NLS-1$
 		} else {

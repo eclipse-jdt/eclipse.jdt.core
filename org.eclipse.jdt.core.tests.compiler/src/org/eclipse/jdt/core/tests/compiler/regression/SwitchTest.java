@@ -3114,7 +3114,7 @@ public void testBug545518() {
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The preview feature Multi constant case is only available with source level 12 and above\n" + 
+			"The preview feature Multi constant case is only available with source level 13 and above\n" + 
 			"----------\n";
 	
 	this.runNegativeTest(new String[] {
