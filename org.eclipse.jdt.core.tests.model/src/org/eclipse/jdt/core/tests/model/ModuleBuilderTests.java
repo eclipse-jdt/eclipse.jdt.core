@@ -8778,6 +8778,35 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject(prjD);
 		}
 	}
+	public void testBug547181Comment104() throws CoreException {
+
+		IJavaProject prjA = createJava9Project("A");
+		IJavaProject prjB = createJava9Project("B");
+		try {
+			// NO module-info.java, so A is accessed as automatic module
+			createFolder("A/src/pack/a");
+
+			createFile("A/src/pack/_some_resource_without_extension",
+					"dummy content\n");
+
+			addModularProjectEntry(prjB, prjA);
+			// ---1---
+			createFolder("B/src/pack/b");
+			createFile("B/src/pack/b/Usage.java",
+				"package pack.b;\n" + 
+				"public class Usage {\n" + 
+				"}\n");
+			createFile("B/src/module-info.java",
+					"module B {\n" + 
+					" requires A;\n" +
+					"}\n");
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+		} finally {
+			deleteProject(prjA);
+			deleteProject(prjB);
+		}
+	}
 	protected void assertNoErrors() throws CoreException {
 		for (IProject p : getWorkspace().getRoot().getProjects()) {
 			int maxSeverity = p.findMaxProblemSeverity(null, true, IResource.DEPTH_INFINITE);
