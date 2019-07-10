@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.tests.compiler.regression.JEP286ReservedWordTest;
-import org.eclipse.jdt.core.tests.compiler.regression.Unicode12_1Test;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -226,7 +225,6 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		tests_13.add(SelectionParserTest12.class);
 		tests_13.add(ModuleDeclarationSyntaxTest.class);
 		tests_13.add(JEP286ReservedWordTest.class);
-		tests_13.add(Unicode12_1Test.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
