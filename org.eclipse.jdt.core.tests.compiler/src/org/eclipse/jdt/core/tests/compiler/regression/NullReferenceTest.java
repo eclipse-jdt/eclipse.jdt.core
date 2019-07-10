@@ -18265,4 +18265,27 @@ public void testBug542707_1() {
 			"----------\n";
 	runner.runNegativeTest();
 }
+public void testBug544872() {
+	runNegativeNullTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"    static void f(String string) {\n" + 
+			"        if (string != null)\n" + 
+			"            string.hashCode();\n" + 
+			"        synchronized (string) {\n" + 
+			"            string.hashCode();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n" + 
+			""
+		}, 
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 5)\n" + 
+		"	synchronized (string) {\n" + 
+		"	              ^^^^^^\n" + 
+		"Potential null pointer access: The variable string may be null at this location\n" + 
+		"----------\n"
+	);
+}
 }
