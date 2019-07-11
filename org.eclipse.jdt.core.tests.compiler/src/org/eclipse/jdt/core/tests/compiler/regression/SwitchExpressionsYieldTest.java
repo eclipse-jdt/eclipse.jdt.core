@@ -2652,6 +2652,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	public static void main(String[] args) {\n"+
 				"		yield();\n"+
 				"	}\n"+
+				"	public static void bar() {\n"+
+				"		Zork();\n"+
+				"	}\n"+
 				"}\n", 
 		};
 		String expectedProblemLog =
@@ -2660,6 +2663,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	yield();\n" + 
 				"	^^^^^^^\n" + 
 				"yield may be disallowed in future - qualify method calls to avoid this message\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	Zork();\n" + 
+				"	^^^^\n" + 
+				"The method Zork() is undefined for the type X\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2701,6 +2709,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"public class X {\n"+
 				"	public static void main(String[] args) {\n"+
 				"		yield 1;\n"+
+				"		Zork();\n"+
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
@@ -2713,7 +2722,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	^^^^^\n" + 
 				"Syntax error on token \"yield\", AssignmentOperator expected after this token\n" + 
 				"----------\n" + 
-				"2. WARNING in X.java (at line 6)\n" + 
+				"2. WARNING in X.java (at line 7)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
 				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
@@ -2763,6 +2772,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"public class X {\n"+
 				"	public static void main(String[] args) {\n"+
 				"		yield y;\n"+
+				"		Zork();\n"+
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
@@ -2775,11 +2785,16 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	^^^^^\n" + 
 				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
 				"----------\n" + 
-				"2. WARNING in X.java (at line 6)\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	Zork();\n" + 
+				"	^^^^\n" + 
+				"The method Zork() is undefined for the type X\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 7)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
 				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
-			"----------\n";
+				"----------\n";
 		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
@@ -2825,6 +2840,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"public class X {\n"+
 				"	public static void main(String[] args) {\n"+
 				"		yield y = null;\n"+
+				"		Zork();\n"+
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
@@ -2837,11 +2853,16 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	^^^^^\n" + 
 				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
 				"----------\n" + 
-				"2. WARNING in X.java (at line 6)\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	Zork();\n" + 
+				"	^^^^\n" + 
+				"The method Zork() is undefined for the type X\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 7)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
 				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
-			"----------\n";
+				"----------\n";
 		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
@@ -2874,6 +2895,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"X.java",
 				"public class X {\n"+
 				"	public static void main(String[] args) {\n"+
+				"		Zork();\n"+
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
@@ -2881,7 +2903,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 		String expectedProblemLog =
 				"----------\n" + 
-				"1. WARNING in X.java (at line 5)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	Zork();\n" + 
+				"	^^^^\n" + 
+				"The method Zork() is undefined for the type X\n" + 
+				"----------\n" + 
+				"2. WARNING in X.java (at line 6)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
 				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
@@ -2926,6 +2953,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"public class X {\n"+
 				"	public static void main(String[] args) {\n"+
 				"		new yield();\n"+
+				"		Zork();\n"+
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
@@ -2938,7 +2966,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	    ^^^^^\n" + 
 				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
 				"----------\n" + 
-				"2. WARNING in X.java (at line 6)\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	Zork();\n" + 
+				"	^^^^\n" + 
+				"The method Zork() is undefined for the type X\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 7)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
 				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
@@ -2983,6 +3016,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"public class X {\n"+
 				"	public static void main(String[] args) {\n"+
 				"		yield[] y;\n"+
+				"		Zork();\n"+
 				"	}\n"+
 				"}\n"+
 				"class yield {\n" +
@@ -2995,7 +3029,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	^^^^^^^\n" + 
 				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
 				"----------\n" + 
-				"2. WARNING in X.java (at line 6)\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	Zork();\n" + 
+				"	^^^^\n" + 
+				"The method Zork() is undefined for the type X\n" + 
+				"----------\n" + 
+				"3. WARNING in X.java (at line 7)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
 				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
