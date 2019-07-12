@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1417,94 +1421,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			deleteProject("Foo");
 		}
 	}
-	// TODO: should probably start a new test class
-	public void testBug531714_015() throws CoreException {
-		// saw NPE in SwitchExpression.resolveType(SwitchExpression.java:423)
-		if (!isJRE12) {
-			System.err.println("Test "+getName()+" requires a JRE 12");
-			return;
-		}
-		IJavaProject p =  createJavaProject("Foo", new String[] {"src"}, new String[] {jcl9lib}, "bin", "12"); // FIXME jcl12?
-		p.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
-		p.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
-		try {
-			String source =
-				"import java.util.*;\n" +
-				"public class X {\n" +
-				"	void testForeach1(int i, List<String> list) {\n" + 
-				"		for (String s : switch(i) { case 1 -> list; default -> ; }) {\n" + 
-				"			\n" + 
-				"		}\n" +
-				"		Throwable t = switch (i) {\n" +
-				"			case 1 -> new Exception();\n" +
-				"			case 2 -> new RuntimeException();\n" + // trigger !typeUniformAcrossAllArms
-				"			default -> missing;\n" +
-				"		};\n" +
-				"	}\n" + 
-				"	void testForeach0(int i, List<String> list) {\n" + // errors in first arm
-				"		for (String s : switch(i) { case 1 -> ; default -> list; }) {\n" + 
-				"			\n" + 
-				"		}\n" +
-				"		Throwable t = switch (i) {\n" +
-				"			case 0 -> missing;\n" +
-				"			case 1 -> new Exception();\n" +
-				"			default -> new RuntimeException();\n" + // trigger !typeUniformAcrossAllArms
-				"		};\n" +
-				"	}\n" +
-				"	void testForeachAll(int i) {\n" + // only erroneous arms
-				"		Throwable t = switch (i) {\n" +
-				"			case 0 -> missing;\n" +
-				"			default -> absent;\n" +
-				"		};\n" +
-				"	}\n" +
-				"}\n";
-			createFile("Foo/src/X.java", source);
-			ICompilationUnit cuD = getCompilationUnit("/Foo/src/X.java");
-				
-			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS11);
-			parser.setProject(p);
-			parser.setSource(cuD);
-			parser.setResolveBindings(true);
-			parser.setStatementsRecovery(true);
-			parser.setBindingsRecovery(true);
-			org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
-			IProblem[] problems = cuAST.getProblems();
-			assertProblems("Unexpected problems",
-					"1. ERROR in /Foo/src/X.java (at line 4)\n" + 
-					"	for (String s : switch(i) { case 1 -> list; default -> ; }) {\n" + 
-					"	                                                    ^^\n" + 
-					"Syntax error on token \"->\", Expression expected after this token\n" + 
-					"----------\n" + 
-					"2. ERROR in /Foo/src/X.java (at line 10)\n" + 
-					"	default -> missing;\n" + 
-					"	           ^^^^^^^\n" + 
-					"missing cannot be resolved to a variable\n" + 
-					"----------\n" + 
-					"3. ERROR in /Foo/src/X.java (at line 14)\n" + 
-					"	for (String s : switch(i) { case 1 -> ; default -> list; }) {\n" + 
-					"	                                   ^^\n" + 
-					"Syntax error on token \"->\", Expression expected after this token\n" + 
-					"----------\n" + 
-					"4. ERROR in /Foo/src/X.java (at line 18)\n" + 
-					"	case 0 -> missing;\n" + 
-					"	          ^^^^^^^\n" + 
-					"missing cannot be resolved to a variable\n" + 
-					"----------\n" + 
-					"5. ERROR in /Foo/src/X.java (at line 25)\n" + 
-					"	case 0 -> missing;\n" + 
-					"	          ^^^^^^^\n" + 
-					"missing cannot be resolved to a variable\n" + 
-					"----------\n" + 
-					"6. ERROR in /Foo/src/X.java (at line 26)\n" + 
-					"	default -> absent;\n" + 
-					"	           ^^^^^^\n" + 
-					"absent cannot be resolved to a variable\n" + 
-					"----------\n",
-					problems, source.toCharArray());
-		} finally {
-			deleteProject(p);
-		}
-	}
+	/**
+	 * @deprecated
+	 * @throws Exception
+	 */
 	public void testBug542795() throws Exception {
 		IJavaProject p =  createJavaProject("Foo", new String[] {"src"}, new String[] {jcl9lib}, "bin", "11");
 		try {

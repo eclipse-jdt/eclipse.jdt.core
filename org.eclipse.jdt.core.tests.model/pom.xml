@@ -197,7 +197,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<!-- Overridden in https://ci.eclipse.org/jdt/job/eclipse.jdt.core-run.javac-12/configure  -->
+			<!-- Overridden in https://ci.eclipse.org/jdt/job/eclipse.jdt.core-run.javac-13/configure  -->
 			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,13</tycho.surefire.argLine>
 		</properties>
 	</profile>

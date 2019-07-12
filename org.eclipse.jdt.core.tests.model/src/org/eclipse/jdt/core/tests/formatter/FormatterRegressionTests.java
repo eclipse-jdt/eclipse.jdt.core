@@ -14840,7 +14840,7 @@ public void testBug541011g() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
-public void testBug543818a() throws JavaModelException {
+public void _testBug543818a() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_12);
 	this.formatterPrefs.insert_space_before_comma_in_switch_case_expressions = true;
 	this.formatterPrefs.insert_space_before_colon_in_case = true;
@@ -14851,7 +14851,7 @@ public void testBug543818a() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
-public void testBug543818b() throws JavaModelException {
+public void _testBug543818b() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_12);
 	this.formatterPrefs.insert_space_after_comma_in_switch_case_expressions = false;
 	this.formatterPrefs.insert_space_before_closing_paren_in_switch = true;
@@ -14862,7 +14862,7 @@ public void testBug543818b() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
-public void testBug543818c() throws JavaModelException {
+public void _testBug543818c() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_12);
 	this.formatterPrefs.insert_space_before_arrow_in_switch_case = false;
 	this.formatterPrefs.insert_space_before_opening_paren_in_switch = false;
@@ -14873,7 +14873,7 @@ public void testBug543818c() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
-public void testBug543818d() throws JavaModelException {
+public void _testBug543818d() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_12);
 	this.formatterPrefs.insert_space_after_arrow_in_switch_case = false;
 	this.formatterPrefs.insert_space_after_opening_paren_in_switch = true;
@@ -14885,7 +14885,7 @@ public void testBug543818d() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
-public void testBug543818e() throws JavaModelException {
+public void _testBug543818e() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_12);
 	this.formatterPrefs.insert_space_before_arrow_in_switch_default = false;
 	this.formatterPrefs.insert_space_before_colon_in_default = true;
@@ -14896,7 +14896,7 @@ public void testBug543818e() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
-public void testBug543818f() throws JavaModelException {
+public void _testBug543818f() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_12);
 	this.formatterPrefs.insert_space_after_arrow_in_switch_default = false;
 	this.formatterPrefs.insert_space_before_opening_brace_in_switch = false;
@@ -14907,7 +14907,7 @@ public void testBug543818f() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
-public void testBug543818g() throws JavaModelException {
+public void _testBug543818g() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_12);
 	String input = getCompilationUnit("Formatter", "", "test543818", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test543818", "G_out.java").getSource());

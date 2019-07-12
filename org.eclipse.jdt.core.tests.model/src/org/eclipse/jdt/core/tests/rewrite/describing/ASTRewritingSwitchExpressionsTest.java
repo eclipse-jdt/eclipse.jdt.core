@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -158,7 +162,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 	}
 	@Deprecated
 	@SuppressWarnings("rawtypes")
-	public void testSwitchExpressions_02_since_12() throws Exception {
+	public void _testSwitchExpressions_02_since_12() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
@@ -218,7 +222,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 
 	@Deprecated
 	@SuppressWarnings("rawtypes")
-	public void testSwitchExpressions_03_since_12() throws Exception {
+	public void _testSwitchExpressions_03_since_12() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
 				"package test1;\n"+
@@ -306,7 +310,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void testSwitchStatement_Bug543720_since_12() throws Exception {
+	public void _testSwitchStatement_Bug543720_since_12() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	=
 				"package test1;\n"+
@@ -387,7 +391,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	@SuppressWarnings("rawtypes")
-	public void testSwitchExpressions_04_since_12() throws Exception {
+	public void _testSwitchExpressions_04_since_12() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		String s	= "package test1;\n"+
 				"public class X {\n"+

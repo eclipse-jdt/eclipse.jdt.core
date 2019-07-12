@@ -76,12 +76,6 @@ public class SwitchCase extends Statement {
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
 	 */
-	private static final List PROPERTY_DESCRIPTORS_12;
-	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
-	 */
 	private static final List PROPERTY_DESCRIPTORS_13;
 
 	static {
@@ -89,12 +83,6 @@ public class SwitchCase extends Statement {
 		createPropertyList(SwitchCase.class, propertyList);
 		addProperty(EXPRESSION_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
-		
-		propertyList = new ArrayList(2);
-		createPropertyList(SwitchCase.class, propertyList);
-		addProperty(EXPRESSIONS2_PROPERTY , propertyList);
-		addProperty(SWITCH_LABELED_RULE_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS_12 = reapPropertyList(propertyList);
 		
 		propertyList = new ArrayList(2);
 		createPropertyList(SwitchCase.class, propertyList);
@@ -114,9 +102,7 @@ public class SwitchCase extends Statement {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS12_INTERNAL) {
-			return PROPERTY_DESCRIPTORS_12;
-		} else if (apiLevel == AST.JLS13_INTERNAL) {
+		if (apiLevel == AST.JLS13_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_13;
 		}
 		return PROPERTY_DESCRIPTORS;

@@ -2170,7 +2170,7 @@ public abstract class ASTNode {
 	 */
 	final void supportedOnlyIn13() {
 		if (this.ast.apiLevel != AST.JLS13_INTERNAL) {
-			throw new UnsupportedOperationException("Operation only supported in JLS13 AST\""); //$NON-NLS-1$
+			throw new UnsupportedOperationException("Operation only supported in JLS13 AST"); //$NON-NLS-1$
 		}
 	}
 	/**
