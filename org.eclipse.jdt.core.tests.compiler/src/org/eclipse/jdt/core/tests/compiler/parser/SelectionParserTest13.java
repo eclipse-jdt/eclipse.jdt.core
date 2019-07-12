@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -17,16 +21,16 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import junit.framework.Test;
 
-public class SelectionParserTest12 extends AbstractSelectionTest {
+public class SelectionParserTest13 extends AbstractSelectionTest {
 static {
 //		TESTS_NUMBERS = new int[] { 1 };
 //		TESTS_NAMES = new String[] { "test005" };
 }
 public static Test suite() {
-	return buildMinimalComplianceTestSuite(SelectionParserTest12.class, F_12);
+	return buildMinimalComplianceTestSuite(SelectionParserTest13.class, F_13);
 }
 
-public SelectionParserTest12(String testName) {
+public SelectionParserTest13(String testName) {
 	super(testName);
 }
 /*
@@ -778,6 +782,287 @@ public void test017() throws JavaModelException {
 			"  }\n" + 
 			"}\n";
 	String expectedReplacedSource = "i_j";
+	String testName = "X.java";
+
+	int selectionStart = string.lastIndexOf(selection);
+	int selectionEnd = selectionStart + selection.length() - 1;
+
+	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
+			selectionIdentifier, expectedReplacedSource, testName);
+}
+public void test018() throws JavaModelException {
+	String string =  "import org.eclipse.jdt.annotation.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"interface IN0 {} \n" + 
+			"interface IN1 extends IN0 {} \n" + 
+			"interface IN2 extends IN0 {}\n" + 
+			"public class X {\n" + 
+			"	 IN1 n_1() { return new IN1() {}; } \n" + 
+			"	IN2 n_2() { return null; } \n" + 
+			"	<M> void m( Supplier< M> m2) { } \n" + 
+			"	void testSw(int i) { \n" + 
+			"		m(switch(i) { \n" + 
+			"			case 1 -> this::n_1; \n" + 
+			"			default -> this::n_2; }); \n" + 
+			"	}\n" + 
+			"}";
+
+	String selection = "n_1";
+	String selectKey = "<SelectionOnReferenceExpressionName:this::";
+	String expectedSelection = selectKey + selection + ">";
+
+	String selectionIdentifier = "n_1";
+	String expectedUnitDisplayString =
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"interface IN0 {\n" + 
+			"}\n" + 
+			"interface IN1 extends IN0 {\n" + 
+			"}\n" + 
+			"interface IN2 extends IN0 {\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  IN1 n_1() {\n" + 
+			"  }\n" + 
+			"  IN2 n_2() {\n" + 
+			"  }\n" + 
+			"  <M>void m(Supplier<M> m2) {\n" + 
+			"  }\n" + 
+			"  void testSw(int i) {\n" + 
+			"    m(switch (i) {\n" + 
+			"case 1 ->\n" + 
+			" <SelectionOnReferenceExpressionName:this::n_1>;\n" + 
+			"default ->\n" + 
+			" this::n_2;\n" + 
+			"});\n" + 
+			"  }\n" + 
+			"}\n";
+	String expectedReplacedSource = "this::n_1";
+	String testName = "X.java";
+
+	int selectionStart = string.lastIndexOf(selection);
+	int selectionEnd = selectionStart + selection.length() - 1;
+
+	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
+			selectionIdentifier, expectedReplacedSource, testName);
+}
+public void test019() throws JavaModelException {
+	String string =  "import org.eclipse.jdt.annotation.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"interface IN0 {} \n" + 
+			"interface IN1 extends IN0 {} \n" + 
+			"interface IN2 extends IN0 {}\n" + 
+			"public class X {\n" + 
+			"	 IN1 n_1() { return new IN1() {}; } \n" + 
+			"	IN2 n_2() { return null; } \n" + 
+			"	<M> void m( Supplier< M> m2) { } \n" + 
+			"	void testSw(int i) { \n" + 
+			"		m(switch(i) { \n" + 
+			"			case 2 -> () -> n_1(); \n" + 
+			"			default -> this::n_2; }); \n" + 
+			"	}\n" + 
+			"}";
+
+	String selection = "n_1";
+	String selectKey = "<SelectOnMessageSend:";
+	String expectedSelection = selectKey + selection + "()>";
+
+	String selectionIdentifier = "n_1";
+	String expectedUnitDisplayString =
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"interface IN0 {\n" + 
+			"}\n" + 
+			"interface IN1 extends IN0 {\n" + 
+			"}\n" + 
+			"interface IN2 extends IN0 {\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  IN1 n_1() {\n" + 
+			"  }\n" + 
+			"  IN2 n_2() {\n" + 
+			"  }\n" + 
+			"  <M>void m(Supplier<M> m2) {\n" + 
+			"  }\n" + 
+			"  void testSw(int i) {\n" + 
+			"    m(switch (i) {\n" + 
+			"case 2 ->\n" + 
+			" () -> <SelectOnMessageSend:n_1()>;\n" + 
+			"default ->\n" + 
+			" this::n_2;\n" + 
+			"});\n" + 
+			"  }\n" + 
+			"}\n";
+	String expectedReplacedSource = "n_1()";
+	String testName = "X.java";
+
+	int selectionStart = string.lastIndexOf(selection);
+	int selectionEnd = selectionStart + selection.length() - 1;
+
+	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
+			selectionIdentifier, expectedReplacedSource, testName);
+}
+public void test020() throws JavaModelException {
+	String string =  "import org.eclipse.jdt.annotation.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"interface IN0 {} \n" + 
+			"interface IN1 extends IN0 {} \n" + 
+			"interface IN2 extends IN0 {}\n" + 
+			"public class X {\n" + 
+			"	 IN1 n_1() { return new IN1() {}; } \n" + 
+			"	IN2 n_2() { return null; } \n" + 
+			"	<M> void m( Supplier< M> m2) { } \n" + 
+			"	void testSw(int i) { \n" + 
+			"		m(switch(i) { \n" + 
+			"			default -> this::n_2; }); \n" + 
+			"	}\n" + 
+			"}";
+
+	String selection = "n_2";
+	String selectKey = "<SelectionOnReferenceExpressionName:this::";
+	String expectedSelection = selectKey + selection + ">";
+
+	String selectionIdentifier = "n_2";
+	String expectedUnitDisplayString =
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"interface IN0 {\n" + 
+			"}\n" + 
+			"interface IN1 extends IN0 {\n" + 
+			"}\n" + 
+			"interface IN2 extends IN0 {\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  IN1 n_1() {\n" + 
+			"  }\n" + 
+			"  IN2 n_2() {\n" + 
+			"  }\n" + 
+			"  <M>void m(Supplier<M> m2) {\n" + 
+			"  }\n" + 
+			"  void testSw(int i) {\n" + 
+			"    m(switch (i) {\n" + 
+			"default ->\n" + 
+			" <SelectionOnReferenceExpressionName:this::n_2>;\n" + 
+			"});\n" + 
+			"  }\n" + 
+			"}\n";
+	String expectedReplacedSource = "this::n_2";
+	String testName = "X.java";
+
+	int selectionStart = string.lastIndexOf(selection);
+	int selectionEnd = selectionStart + selection.length() - 1;
+
+	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
+			selectionIdentifier, expectedReplacedSource, testName);
+}
+public void test021() throws JavaModelException {
+	String string =  "import org.eclipse.jdt.annotation.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"interface IN0 {} \n" + 
+			"interface IN1 extends IN0 {} \n" + 
+			"interface IN2 extends IN0 {}\n" + 
+			"public class X {\n" + 
+			"	 IN1 n_1(int ijk) { return new IN1() {}; } \n" + 
+			"	IN2 n_2() { return null; } \n" + 
+			"	<M> void m( Supplier< M> m2) { } \n" + 
+			"	void testSw(int ijk) { \n" + 
+			"		m(switch(ijk) { \n" + 
+			"			default -> () -> n_1(ijk); }); \n" + 
+			"	}\n" + 
+			"}";
+
+	String selection = "n_1";
+	String selectKey = "<SelectOnMessageSend:";
+	String expectedSelection = selectKey + selection + "(ijk)>";
+
+	String selectionIdentifier = "n_1";
+	String expectedUnitDisplayString =
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"interface IN0 {\n" + 
+			"}\n" + 
+			"interface IN1 extends IN0 {\n" + 
+			"}\n" + 
+			"interface IN2 extends IN0 {\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  IN1 n_1(int ijk) {\n" + 
+			"  }\n" + 
+			"  IN2 n_2() {\n" + 
+			"  }\n" + 
+			"  <M>void m(Supplier<M> m2) {\n" + 
+			"  }\n" + 
+			"  void testSw(int ijk) {\n" + 
+			"    m(switch (ijk) {\n" + 
+			"default ->\n" + 
+			" () -> <SelectOnMessageSend:n_1(ijk)>;\n" + 
+			"});\n" + 
+			"  }\n" + 
+			"}\n";
+	String expectedReplacedSource = "n_1(ijk)";
+	String testName = "X.java";
+
+	int selectionStart = string.lastIndexOf(selection);
+	int selectionEnd = selectionStart + selection.length() - 1;
+
+	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
+			selectionIdentifier, expectedReplacedSource, testName);
+}
+public void test022() throws JavaModelException {
+	String string =  "import org.eclipse.jdt.annotation.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"interface IN0 {} \n" + 
+			"interface IN1 extends IN0 {} \n" + 
+			"interface IN2 extends IN0 {}\n" + 
+			"public class X {\n" + 
+			"	 IN1 n_1(int ijk) { return new IN1() {}; } \n" + 
+			"	IN2 n_2() { return null; } \n" + 
+			"	<M> void m( Supplier< M> m2) { } \n" + 
+			"	void testSw(int ijk) { \n" + 
+			"		m(switch(ijk) { \n" + 
+			"			default -> () -> n_1(ijk); }); \n" + 
+			"	}\n" + 
+			"}";
+
+	String selection = "ijk";
+	String selectKey = "<SelectOnName:";
+	String expectedSelection = selectKey + selection + ">";
+
+	String selectionIdentifier = "ijk";
+	String expectedUnitDisplayString =
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"interface IN0 {\n" + 
+			"}\n" + 
+			"interface IN1 extends IN0 {\n" + 
+			"}\n" + 
+			"interface IN2 extends IN0 {\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  public X() {\n" + 
+			"  }\n" + 
+			"  IN1 n_1(int ijk) {\n" + 
+			"  }\n" + 
+			"  IN2 n_2() {\n" + 
+			"  }\n" + 
+			"  <M>void m(Supplier<M> m2) {\n" + 
+			"  }\n" + 
+			"  void testSw(int ijk) {\n" + 
+			"    m(switch (ijk) {\n" + 
+			"default ->\n" + 
+			" () -> n_1(<SelectOnName:ijk>);\n" + 
+			"});\n" + 
+			"  }\n" + 
+			"}\n";
+	String expectedReplacedSource = "ijk";
 	String testName = "X.java";
 
 	int selectionStart = string.lastIndexOf(selection);
