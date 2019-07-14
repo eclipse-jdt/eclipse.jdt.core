@@ -14912,4 +14912,112 @@ public void testBug543818g() throws JavaModelException {
 	String input = getCompilationUnit("Formatter", "", "test543818", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test543818", "G_out.java").getSource());
 }
+/**
+ * https://bugs.eclipse.org/549249 - [formatter] Extend Blank Lines settings to remove excess lines
+ */
+public void testBug549249a() throws JavaModelException {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 4;
+	this.formatterPrefs.blank_lines_after_imports = ~2;
+	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/549249 - [formatter] Extend Blank Lines settings to remove excess lines
+ */
+public void testBug549249b() throws JavaModelException {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 4;
+	this.formatterPrefs.blank_lines_after_package = ~1;
+	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/549249 - [formatter] Extend Blank Lines settings to remove excess lines
+ */
+public void testBug549249c() throws JavaModelException {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 4;
+	this.formatterPrefs.blank_lines_at_beginning_of_method_body = ~0;
+	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/549249 - [formatter] Extend Blank Lines settings to remove excess lines
+ */
+public void testBug549249d() throws JavaModelException {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 4;
+	this.formatterPrefs.blank_lines_before_field = ~3;
+	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/549249 - [formatter] Extend Blank Lines settings to remove excess lines
+ */
+public void testBug549249e() throws JavaModelException {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 4;
+	this.formatterPrefs.blank_lines_before_first_class_body_declaration = ~2;
+	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "E_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/549249 - [formatter] Extend Blank Lines settings to remove excess lines
+ */
+public void testBug549249f() throws JavaModelException {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 4;
+	this.formatterPrefs.blank_lines_before_imports = ~1;
+	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "F_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/549249 - [formatter] Extend Blank Lines settings to remove excess lines
+ */
+public void testBug549249g() throws JavaModelException {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 4;
+	this.formatterPrefs.blank_lines_before_member_type = ~0;
+	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "G_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/549249 - [formatter] Extend Blank Lines settings to remove excess lines
+ */
+public void testBug549249h() throws JavaModelException {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 4;
+	this.formatterPrefs.blank_lines_before_method = ~3;
+	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "H_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/549249 - [formatter] Extend Blank Lines settings to remove excess lines
+ */
+public void testBug549249i() throws JavaModelException {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 4;
+	this.formatterPrefs.blank_lines_before_new_chunk = ~2;
+	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "I_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/549249 - [formatter] Extend Blank Lines settings to remove excess lines
+ */
+public void testBug549249j() throws JavaModelException {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 4;
+	this.formatterPrefs.blank_lines_before_package = ~1;
+	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "J_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/549249 - [formatter] Extend Blank Lines settings to remove excess lines
+ */
+public void testBug549249k() throws JavaModelException {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 4;
+	this.formatterPrefs.blank_lines_between_import_groups = ~1;
+	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "K_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/549249 - [formatter] Extend Blank Lines settings to remove excess lines
+ */
+public void testBug549249l() throws JavaModelException {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 4;
+	this.formatterPrefs.blank_lines_between_type_declarations = ~3;
+	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "L_out.java").getSource());
+}
 }

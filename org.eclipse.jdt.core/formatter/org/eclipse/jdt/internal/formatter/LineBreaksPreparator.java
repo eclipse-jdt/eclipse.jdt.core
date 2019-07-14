@@ -24,7 +24,6 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameR
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameSEMICOLON;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameelse;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamefinally;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamepackage;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamewhile;
 
 import java.util.List;
@@ -96,10 +95,18 @@ public class LineBreaksPreparator extends ASTVisitor {
 	@Override
 	public boolean visit(CompilationUnit node) {
 		List<ImportDeclaration> imports = node.imports();
-		if (!imports.isEmpty()) {
-			int index = this.tm.firstIndexIn(imports.get(0), -1);
-			if (index > 0)
-				this.tm.get(index).putLineBreaksBefore(this.options.blank_lines_before_imports + 1);
+		if (!imports.isEmpty() && this.tm.firstIndexIn(imports.get(0), -1) > 0)
+			putBlankLinesBefore(imports.get(0), this.options.blank_lines_before_imports);
+
+		for (int i = 1; i < imports.size(); i++) {
+			int from = this.tm.lastIndexIn(imports.get(i - 1), -1);
+			int to = this.tm.firstIndexIn(imports.get(i), -1);
+			for (int j = from; j < to; j++) {
+				Token token1 = this.tm.get(j);
+				Token token2 = this.tm.get(j + 1);
+				if (this.tm.countLineBreaksBetween(token1, token2) > 1)
+					putBlankLinesAfter(token1, this.options.blank_lines_between_import_groups);
+			}
 		}
 
 		List<AnnotationTypeDeclaration> types = node.types();
@@ -114,14 +121,13 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(PackageDeclaration node) {
-		int blanks = this.options.blank_lines_before_package;
-		if (blanks > 0) {
-			List<Annotation> annotations = node.annotations();
-			int firstTokenIndex = annotations.isEmpty() ? this.tm.firstIndexBefore(node.getName(), TokenNamepackage)
-					: this.tm.firstIndexIn(annotations.get(0), -1);
-			this.tm.get(firstTokenIndex).putLineBreaksBefore(blanks + 1);
+		if (node.getJavadoc() == null) {
+			putBlankLinesBefore(node, this.options.blank_lines_before_package);
+		} else {
+			putBlankLinesAfter(this.tm.lastTokenIn(node.getJavadoc(), -1), this.options.blank_lines_before_package);
 		}
-		this.tm.lastTokenIn(node, TokenNameSEMICOLON).putLineBreaksAfter(this.options.blank_lines_after_package + 1);
+
+		putBlankLinesAfter(this.tm.lastTokenIn(node, -1), this.options.blank_lines_after_package);
 		this.declarationModifierVisited = false;
 		return true;
 	}
@@ -164,10 +170,9 @@ public class LineBreaksPreparator extends ASTVisitor {
 					blankLines = this.options.blank_lines_before_method;
 				}
 
-				if (!sameChunk(previous, bodyDeclaration))
-					blankLines = Math.max(blankLines, this.options.blank_lines_before_new_chunk);
-
 				putBlankLinesBefore(bodyDeclaration, blankLines);
+				if (!sameChunk(previous, bodyDeclaration))
+					putBlankLinesBefore(bodyDeclaration, this.options.blank_lines_before_new_chunk);
 			}
 			previous = bodyDeclaration;
 		}
@@ -188,7 +193,21 @@ public class LineBreaksPreparator extends ASTVisitor {
 		int index = this.tm.firstIndexIn(node, -1);
 		while (index > 0 && this.tm.get(index - 1).tokenType == TokenNameCOMMENT_JAVADOC)
 			index--;
-		this.tm.get(index).putLineBreaksBefore(linesCount + 1);
+		if (linesCount >= 0) {
+			this.tm.get(index).putLineBreaksBefore(linesCount + 1);
+		} else {
+			this.tm.get(index).putLineBreaksBefore(~linesCount + 1);
+			this.tm.get(index).setPreserveLineBreaksBefore(false);
+		}
+	}
+
+	private void putBlankLinesAfter(Token token, int linesCount) {
+		if (linesCount >= 0) {
+			token.putLineBreaksAfter(linesCount + 1);
+		} else {
+			token.putLineBreaksAfter(~linesCount + 1);
+			token.setPreserveLineBreaksAfter(false);
+		}
 	}
 
 	@Override
@@ -260,7 +279,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 		handleBracedCode(node.getBody(), null, bracePosition, this.options.indent_statements_compare_to_body);
 		Token openBrace = this.tm.firstTokenIn(node.getBody(), TokenNameLBRACE);
 		if (openBrace.getLineBreaksAfter() > 0) // if not, these are empty braces
-			openBrace.putLineBreaksAfter(this.options.blank_lines_at_beginning_of_method_body + 1);
+			putBlankLinesAfter(openBrace, this.options.blank_lines_at_beginning_of_method_body);
 		return true;
 	}
 

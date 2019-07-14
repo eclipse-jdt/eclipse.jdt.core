@@ -10630,7 +10630,7 @@ public void testBug356851() throws Exception {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=437639"
  */
 public void testBug437639() throws Exception {
-	this.formatterPrefs.blank_lines_between_import_groups = 0;
+	this.formatterPrefs.blank_lines_between_import_groups = ~0;
 	String source =
 		"package com.test;\n" +
 		"\n" +
