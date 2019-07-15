@@ -125,6 +125,10 @@ public class Scanner implements TerminalTokens {
 	protected ScanContext scanContext = null;
 	protected boolean insideModuleInfo = false;
 
+	enum ScanYieldContext {
+		EXPECTING_YIELD, FLAGGED_YIELD, INACTIVE
+	}
+	protected ScanYieldContext scanYieldContext = null;
 	public static final String END_OF_SOURCE = "End_Of_Source"; //$NON-NLS-1$
 
 	public static final String INVALID_HEXA = "Invalid_Hexa_Literal"; //$NON-NLS-1$
@@ -2743,8 +2747,7 @@ public boolean isInModuleDeclaration() {
 			(this.activeParser != null ? this.activeParser.isParsingModuleDeclaration() : false);
 }
 protected boolean areRestrictedModuleKeywordsActive() {
-	return this.scanContext != null && this.scanContext != ScanContext.INACTIVE &&
-			this.scanContext != ScanContext.EXPECTING_YIELD;
+	return this.scanContext != null && this.scanContext != ScanContext.INACTIVE;
 }
 void updateScanContext(int token) {
 	switch (token) {
@@ -5007,20 +5010,27 @@ private boolean mayBeAtAnYieldStatement() {
 	}
 }
 int disambiguatedRestrictedIdentifier(int restrictedKeywordToken) {
+	if (restrictedKeywordToken != TokenNameRestrictedIdentifierYield)
+		return restrictedKeywordToken; // safety net - only yield processed here!
 	if (!this.previewEnabled)
 		return TokenNameIdentifier;
-	if (this.scanContext == ScanContext.EXPECTING_YIELD)
+	if (this.scanYieldContext == ScanYieldContext.FLAGGED_YIELD) // nested yield implies identifier.
+		return TokenNameIdentifier;		
+	if (this.scanYieldContext == ScanYieldContext.EXPECTING_YIELD) {
+		this.scanYieldContext = ScanYieldContext.FLAGGED_YIELD;
 		return TokenNameRestrictedIdentifierYield;
+	}
 
 	if (this.sourceLevel < ClassFileConstants.JDK13)
 		return TokenNameIdentifier;
 
 	int token = TokenNameIdentifier;
+	
 	// not working - check intermittent parser rule definition possibility.
 	final VanguardParser parser = getVanguardParser();
 	if (restrictedKeywordToken == TokenNameRestrictedIdentifierYield  && mayBeAtAnYieldStatement()) {
 		parser.scanner.resetTo(this.startPosition, this.eofPosition - 1);
-		parser.scanner.scanContext = ScanContext.EXPECTING_YIELD;
+		parser.scanner.scanYieldContext = ScanYieldContext.EXPECTING_YIELD;
 		if (parser.parse(Goal.YieldStatementGoal) == VanguardParser.SUCCESS) {
 			token = TokenNameRestrictedIdentifierYield;
 		}

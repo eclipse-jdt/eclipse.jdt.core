@@ -3047,4 +3047,57 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				new String[] {""},
 				options);
 	}
+	public void testBug547891_15() {
+		if (this.complianceLevel < ClassFileConstants.JDK12)
+			return;
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
+		String message = 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	case 1 -> yield();\n" + 
+				"	          ^^^^^^^\n" + 
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
+				"	case 3 -> {yield yield();}\n" + 
+				"	                 ^^^^^^^\n" + 
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 10)\n" + 
+				"	default -> { yield yield();}\n" + 
+				"	                   ^^^^^^^\n" + 
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
+				"----------\n";
+		
+		this.runNegativeTest(new String[] {
+				"X.java",
+				"public class X {\n"+
+				"\n"+
+				"	@SuppressWarnings(\"preview\")\n"+
+				"	public static int foo(int i) {\n"+
+				"		int r = switch(i) {\n"+
+				"			case 1 -> yield();\n"+
+				"			case 2 -> X.yield();\n"+
+				"			case 3 -> {yield yield();}\n"+
+				"			case 4 -> {yield X.yield();}\n"+
+				"			default -> { yield yield();}\n"+
+				"		};\n"+
+				"		return r;\n"+
+				"	}\n"+
+				"	public static int yield() {\n"+
+				"		return 0;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.println(X.foo(0));\n"+
+				"	}\n"+
+				"}\n"
+			},
+			message,
+			null,
+			true,
+			new String[] { "--enable-preview"},
+			options);
+	}
 }
