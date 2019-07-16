@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - contribution for bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
@@ -2656,7 +2660,7 @@ public void testBug495598_001() throws CoreException {
 				"public class X {}\n");
 		ICompilationUnit cuD = getCompilationUnit("/P/src/X.java");
 		
-		ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS11);
+		ASTParser parser = ASTParser.newParser(AST_INTERNAL_LATEST);
 		parser.setProject(this.testProject);
 		parser.setSource(cuD);
 		parser.setResolveBindings(true);

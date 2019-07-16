@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -1591,7 +1595,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 					super.acceptAST(sourceFilePath, ast);
 				}
 			};
-			ASTParser parser = ASTParser.newParser(AST.JLS11);
+			ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
 			parser.setResolveBindings(true);
 			parser.setStatementsRecovery(true);
 			parser.setBindingsRecovery(true);
@@ -1622,7 +1626,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 				"       for (var i = 0; i < 10; ++i) {}\n" +
 				"	}\n" +
 				"}";
-	    ASTParser parser = ASTParser.newParser(AST.JLS11);
+	    ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
 	    parser.setSource(contents.toCharArray());
 		parser.setStatementsRecovery(true);
 		parser.setBindingsRecovery(true);

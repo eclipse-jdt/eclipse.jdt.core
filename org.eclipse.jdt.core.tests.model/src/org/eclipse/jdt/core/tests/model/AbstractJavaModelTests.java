@@ -167,6 +167,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS11 = AST.JLS11;
+
+	/**
+	 * Internal synonym for the latest AST level.
+	 * 
+	 */
+	protected static final int AST_INTERNAL_LATEST = AST.JLS13;
+
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}
 		public void beginReporting() {}
