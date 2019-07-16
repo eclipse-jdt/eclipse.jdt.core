@@ -837,7 +837,7 @@ public void abortDueToInternalError(String errorMessage, ASTNode location) {
 public void abortDueToPreviewEnablingNotAllowed(String sourceLevel, String expectedSourceLevel) {
 	String[] args = new String[] {sourceLevel, expectedSourceLevel};
 	this.handle(
-			IProblem.PreviewEnablingNotAllowed,
+			IProblem.PreviewFeaturesNotAllowed,
 			args,
 			args,
 			ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,

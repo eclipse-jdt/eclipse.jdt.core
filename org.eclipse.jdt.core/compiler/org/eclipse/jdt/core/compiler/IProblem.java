@@ -2067,10 +2067,9 @@ void setSourceStart(int sourceStart);
 	int PreviewFeatureUsed = Compliance + 1104;
 	/** @since 3.18 */
 	int PreviewFeatureNotSupported = Compliance + 1105;
-	/** @since 3.18 BETA_JAVA13
-	 * @noreference standard preview related error */
-	int PreviewEnablingNotAllowed = PreviewRelated + 1106;
-	
+	/** @since 3.18 BETA_JAVA13 */
+	int PreviewFeaturesNotAllowed = PreviewRelated + 1106;
+
 	/** @since 3.13 */
 	int UnlikelyCollectionMethodArgumentType = 1200;
 	/** @since 3.13 */

@@ -1183,7 +1183,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("PreviewFeatureDisabled", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("PreviewFeatureUsed", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("PreviewFeatureNotSupported", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
-	    expectedProblemAttributes.put("PreviewEnablingNotAllowed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("PreviewFeaturesNotAllowed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIncompatibleResultExpressionTypes", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SwitchExpressionsYieldEmptySwitchBlock", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SwitchExpressionsYieldNoResultExpression", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
@@ -2152,7 +2152,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("PreviewFeatureDisabled", SKIP);
 	    expectedProblemAttributes.put("PreviewFeatureUsed", SKIP);
 	    expectedProblemAttributes.put("PreviewFeatureNotSupported", SKIP);
-	    expectedProblemAttributes.put("PreviewEnablingNotAllowed", SKIP);
+	    expectedProblemAttributes.put("PreviewFeaturesNotAllowed", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIncompatibleResultExpressionTypes", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldEmptySwitchBlock", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldNoResultExpression", SKIP);
