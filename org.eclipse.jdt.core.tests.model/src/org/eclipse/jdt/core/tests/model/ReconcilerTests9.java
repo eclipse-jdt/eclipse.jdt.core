@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *		IBM Corporation - initial API and implementation
  *		Stephan Herrmann - Copy-adjusted structure from ReconcilerTests, filled with new content
@@ -43,7 +47,7 @@ public class ReconcilerTests9 extends ModifyingResourceTests {
 	protected ICompilationUnit workingCopy;
 	protected ProblemRequestor problemRequestor;
 	
-	/*package*/ static final int JLS_LATEST = AST.JLS11;
+	/*package*/ static final int JLS_LATEST = AST.JLS13;
 
 /**
  */
@@ -436,7 +440,7 @@ public void testBug540541() throws CoreException, IOException {
 					"}\n");
 		this.workingCopy = getCompilationUnit("client/src/p/X.java").getWorkingCopy(this.wcOwner, null);
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
-		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems",
 						"----------\n" + 
 						"----------\n",
@@ -501,7 +505,7 @@ public void testBug543092() throws Exception {
 
 		this.workingCopy = getCompilationUnit("p/src/test/Test.java").getWorkingCopy(this.wcOwner, null);
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
-		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems",
 						"----------\n" + 
 						"----------\n",
@@ -560,7 +564,7 @@ public void testBug543092b() throws Exception {
 
 		this.workingCopy = getCompilationUnit("p/src/test/Test.java").getWorkingCopy(this.wcOwner, null);
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
-		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems",
 						"----------\n" + 
 						"1. ERROR in /p/src/test/Test.java (at line 3)\n" + 
@@ -641,7 +645,7 @@ public void testBug544017() throws CoreException {
 		ICompilationUnit wc = getCompilationUnit(pathExample).getWorkingCopy(this.wcOwner, null);
 		wc.getBuffer().append(" ");
 		this.problemRequestor.initialize((sourceExample+" ").toCharArray());
-		wc.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		wc.reconcile(JLS_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems",
 						"----------\n" + 
 						"----------\n",
@@ -676,7 +680,7 @@ public void testBug545687() throws CoreException, IOException {
 		this.problemRequestor.initialize(testSrc.toCharArray());
 		this.workingCopy = getCompilationUnit("testproj/src/test/Test.java").getWorkingCopy(this.wcOwner, null);
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
-		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems", "----------\n" + "----------\n", this.problemRequestor);
 
 		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -792,7 +796,7 @@ public void testBug546315() throws Exception {
 		this.problemRequestor.initialize(testSource.toCharArray());
 		this.workingCopy = getCompilationUnit("p/src-test/test/Test.java").getWorkingCopy(this.wcOwner, null);
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
-		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems", "----------\n" + "----------\n", this.problemRequestor);
 
 		markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
@@ -843,7 +847,7 @@ public void testBug544306() throws Exception {
 		this.workingCopy.discardWorkingCopy();
 		this.workingCopy = getCompilationUnit("p2/src-test/p2/Test.java").getWorkingCopy(this.wcOwner, null);
 		this.problemRequestor.initialize(testSource.toCharArray());
-		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems", "----------\n" + "----------\n", this.problemRequestor);
 		this.workingCopy.discardWorkingCopy();
 	} finally {
@@ -934,7 +938,7 @@ public void testBug547113() throws CoreException {
 		this.problemRequestor.initialize(cSource.toCharArray());
 		this.workingCopy = getCompilationUnit("c/src/com/example/c/C.java").getWorkingCopy(this.wcOwner, null);
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
-		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		this.workingCopy.reconcile(AST_INTERNAL_JLS13, true, this.wcOwner, null);
 		assertProblems("Expecting no problems",
 				"----------\n" +
 				"----------\n",

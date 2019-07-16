@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 Sven Strohschein and others.
+ * Copyright (c) 2016, 2019 Sven Strohschein and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     Sven Strohschein - initial API and implementation
  *******************************************************************************/
@@ -84,7 +88,7 @@ public class SecondaryTypesPerformanceTest extends PerformanceTestCase {
 		classpathList.add(testScratchArea);
 
 		for (int i = 0; i<10; ++i) {
-			ASTParser parser = ASTParser.newParser(AST.JLS11);
+			ASTParser parser = ASTParser.newParser(AST.JLS13);
 			parser.setResolveBindings(true);
 			parser.setStatementsRecovery(true);
 			parser.setBindingsRecovery(true);

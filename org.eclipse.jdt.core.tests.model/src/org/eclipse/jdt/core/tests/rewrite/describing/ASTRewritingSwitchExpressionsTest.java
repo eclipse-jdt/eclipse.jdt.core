@@ -58,7 +58,8 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		return createSuite(ASTRewritingSwitchExpressionsTest.class);
 	}
 
- 	@Override
+ 	@SuppressWarnings("deprecation")
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		if (this.apiLevel >= AST.JLS12 ) {

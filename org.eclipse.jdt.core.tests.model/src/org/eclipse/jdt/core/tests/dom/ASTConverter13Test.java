@@ -18,12 +18,15 @@ package org.eclipse.jdt.core.tests.dom;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -46,10 +49,11 @@ import junit.framework.Test;
 public class ASTConverter13Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
+	private static final String jclLib = "CONVERTER_JCL9_LIB";
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getAST13());
+		this.ast = AST.newAST(getAST13(), false);
 	}
 
 	public ASTConverter13Test(String name) {
@@ -392,6 +396,94 @@ public class ASTConverter13Test extends ConverterTestSetup {
 
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	// Moved over from ASTConverter9Test
+	public void testBug531714_015() throws CoreException {
+		// saw NPE in SwitchExpression.resolveType(SwitchExpression.java:423)
+		if (!isJRE13) {
+			System.err.println("Test "+getName()+" requires a JRE 13");
+			return;
+		}
+		IJavaProject p =  createJavaProject("Foo", new String[] {"src"}, new String[] {jclLib}, "bin", "13"); // FIXME jcl12?
+		p.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		p.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+		try {
+			String source =
+				"import java.util.*;\n" +
+				"public class X {\n" +
+				"	void testForeach1(int i, List<String> list) {\n" + 
+				"		for (String s : switch(i) { case 1 -> list; default -> ; }) {\n" + 
+				"			\n" + 
+				"		}\n" +
+				"		Throwable t = switch (i) {\n" +
+				"			case 1 -> new Exception();\n" +
+				"			case 2 -> new RuntimeException();\n" + // trigger !typeUniformAcrossAllArms
+				"			default -> missing;\n" +
+				"		};\n" +
+				"	}\n" + 
+				"	void testForeach0(int i, List<String> list) {\n" + // errors in first arm
+				"		for (String s : switch(i) { case 1 -> ; default -> list; }) {\n" + 
+				"			\n" + 
+				"		}\n" +
+				"		Throwable t = switch (i) {\n" +
+				"			case 0 -> missing;\n" +
+				"			case 1 -> new Exception();\n" +
+				"			default -> new RuntimeException();\n" + // trigger !typeUniformAcrossAllArms
+				"		};\n" +
+				"	}\n" +
+				"	void testForeachAll(int i) {\n" + // only erroneous arms
+				"		Throwable t = switch (i) {\n" +
+				"			case 0 -> missing;\n" +
+				"			default -> absent;\n" +
+				"		};\n" +
+				"	}\n" +
+				"}\n";
+			createFile("Foo/src/X.java", source);
+			ICompilationUnit cuD = getCompilationUnit("/Foo/src/X.java");
+				
+			ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS13);
+			parser.setProject(p);
+			parser.setSource(cuD);
+			parser.setResolveBindings(true);
+			parser.setStatementsRecovery(true);
+			parser.setBindingsRecovery(true);
+			org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+			IProblem[] problems = cuAST.getProblems();
+			assertProblems("Unexpected problems",
+					"1. ERROR in /Foo/src/X.java (at line 4)\n" + 
+					"	for (String s : switch(i) { case 1 -> list; default -> ; }) {\n" + 
+					"	                                                    ^^\n" + 
+					"Syntax error on token \"->\", Expression expected after this token\n" + 
+					"----------\n" + 
+					"2. ERROR in /Foo/src/X.java (at line 10)\n" + 
+					"	default -> missing;\n" + 
+					"	           ^^^^^^^\n" + 
+					"missing cannot be resolved to a variable\n" + 
+					"----------\n" + 
+					"3. ERROR in /Foo/src/X.java (at line 14)\n" + 
+					"	for (String s : switch(i) { case 1 -> ; default -> list; }) {\n" + 
+					"	                                   ^^\n" + 
+					"Syntax error on token \"->\", Expression expected after this token\n" + 
+					"----------\n" + 
+					"4. ERROR in /Foo/src/X.java (at line 18)\n" + 
+					"	case 0 -> missing;\n" + 
+					"	          ^^^^^^^\n" + 
+					"missing cannot be resolved to a variable\n" + 
+					"----------\n" + 
+					"5. ERROR in /Foo/src/X.java (at line 25)\n" + 
+					"	case 0 -> missing;\n" + 
+					"	          ^^^^^^^\n" + 
+					"missing cannot be resolved to a variable\n" + 
+					"----------\n" + 
+					"6. ERROR in /Foo/src/X.java (at line 26)\n" + 
+					"	default -> absent;\n" + 
+					"	           ^^^^^^\n" + 
+					"absent cannot be resolved to a variable\n" + 
+					"----------\n",
+					problems, source.toCharArray());
+		} finally {
+			deleteProject(p);
 		}
 	}
 }

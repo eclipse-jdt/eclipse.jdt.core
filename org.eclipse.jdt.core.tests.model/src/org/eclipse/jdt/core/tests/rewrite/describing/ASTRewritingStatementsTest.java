@@ -108,7 +108,8 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		return createSuite(ASTRewritingStatementsTest.class);
 	}
 
- 	@Override
+ 	@SuppressWarnings("deprecation")
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		if (this.apiLevel >= AST.JLS12 ) {

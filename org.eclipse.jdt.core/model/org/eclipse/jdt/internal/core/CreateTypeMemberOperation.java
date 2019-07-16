@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -83,7 +87,7 @@ protected StructuralPropertyDescriptor getChildPropertyDescriptor(ASTNode parent
 protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
 	if (this.createdNode == null) {
 		this.source = removeIndentAndNewLines(this.source, cu);
-		ASTParser parser = ASTParser.newParser(AST.JLS11);
+		ASTParser parser = ASTParser.newParser(AST.JLS13);
 		parser.setSource(this.source.toCharArray());
 		parser.setProject(getCompilationUnit().getJavaProject());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
@@ -170,7 +174,7 @@ protected String generateSyntaxIncorrectAST() {
 	buff.append(lineSeparator + " public class A {" + lineSeparator); //$NON-NLS-1$
 	buff.append(this.source);
 	buff.append(lineSeparator).append('}');
-	ASTParser parser = ASTParser.newParser(AST.JLS11);
+	ASTParser parser = ASTParser.newParser(AST.JLS13);
 	parser.setSource(buff.toString().toCharArray());
 	CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
 	TypeDeclaration typeDeclaration = (TypeDeclaration) compilationUnit.types().iterator().next();

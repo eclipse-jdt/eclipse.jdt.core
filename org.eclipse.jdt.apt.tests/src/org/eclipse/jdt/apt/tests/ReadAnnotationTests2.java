@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems, Inc.
+ * Copyright (c) 2005, 2019 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
  *     tyeung@bea.com - initial API and implementation
@@ -187,7 +191,7 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		}
 
 		final BindingRequestor requestor = new BindingRequestor();
-		final ASTParser parser = ASTParser.newParser(AST.JLS11);
+		final ASTParser parser = ASTParser.newParser(AST.JLS13);
 		parser.setResolveBindings(true);
 		parser.setProject(javaProj);
 		parser.setIgnoreMethodBodies(true);
