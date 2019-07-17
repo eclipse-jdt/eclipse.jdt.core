@@ -3012,6 +3012,17 @@ public final class AST {
 	}
 
 	/**
+	 * Creates an unparented yield statement node owned by this AST.
+	 * The yield statement has no label/identifier/expression and is not implicit.
+	 *
+	 * @return a new unparented yield statement node
+	 * @since 3.18 BETA_JAVA13
+	 */
+	public YieldStatement newYieldStatement() {
+		return new YieldStatement(this);
+	}
+	
+	/**
 	 * Reports that the given node has just gained a child.
 	 *
 	 * @param node the node that was modified
