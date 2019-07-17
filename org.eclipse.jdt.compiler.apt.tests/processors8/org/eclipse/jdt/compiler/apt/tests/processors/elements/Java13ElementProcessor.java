@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,24 +31,29 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.element.ModuleElement;
+import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
-import javax.tools.JavaFileObject;
 
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
- * A processor that explores the java 11 specific elements and validates the lambda and 
+ * A processor that explores the java 13 specific elements and validates the lambda and 
  * type annotated elements. To enable this processor, add 
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.elements.Java11ElementProcessor to the command line.
  * @since 3.14
  */
 @SupportedAnnotationTypes("*")
-public class Java11ElementProcessor extends BaseProcessor {
+public class Java13ElementProcessor extends BaseProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
 	Messager _messager = null;
 	Filer _filer = null;
+	boolean isBinaryMode = false;
+	String mode;
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
@@ -70,6 +76,12 @@ public class Java11ElementProcessor extends BaseProcessor {
 			return false;
 		} else {
 			try {
+				if (options.containsKey("binary")) {
+					this.isBinaryMode = true;
+					this.mode = "binary";
+				} else {
+					this.mode = "source";
+				}
 				if (!invokeTestMethods(options)) {
 					testAll();
 				}
@@ -107,47 +119,24 @@ public class Java11ElementProcessor extends BaseProcessor {
 		return testsFound;
 	}
 
-	public void testAll() throws AssertionFailedError {
+	public void testAll() throws AssertionFailedError, IOException {
+		testPreviewFlagTrue();
+		testPreviewFlagFalse();
 	}
 
-	public void testFiler1() throws IOException {
-		String typeName = "abc.internal.TypeInAModule";
-		TypeElement typeElement = _elementUtils.getTypeElement(typeName);
-		assertNotNull("type element should not be null", typeElement);
-		Object obj = null;
-		try {
-			obj = _filer.createSourceFile("mod.a/" + typeName);
-			obj = typeName;
-		} catch (IOException e) {
+	public void testPreviewFlagTrue() throws IOException {
+		if (this.processingEnv instanceof BaseProcessingEnvImpl) {
+			boolean preview = ((BaseProcessingEnvImpl) this.processingEnv).isPreviewEnabled();
+			assertTrue("Preview flag not seen as enabled", preview);
 		}
-		assertNull("Source should not be created", obj);
 	}
-	public void testFiler2() throws IOException {
-		String typeName = "abc.internal.TypeInAModule";
-		TypeElement typeElement = _elementUtils.getTypeElement(typeName);
-		assertNotNull("type element should not be null", typeElement);
-		Object obj = null;
-		try {
-			obj = _filer.createSourceFile(typeName);
-			obj = typeName;
-		} catch (IOException e) {
+	public void testPreviewFlagFalse() throws IOException {
+		if (this.processingEnv instanceof BaseProcessingEnvImpl) {
+			boolean preview = ((BaseProcessingEnvImpl) this.processingEnv).isPreviewEnabled();
+			assertFalse("Preview flag not seen as enabled", preview);
 		}
-		assertNull("Source should not be created", obj);
 	}
-	public void testFiler3() throws IOException {
-		String typeName = "mod.a/abc.internal.AnotherTypeInAModule";
-		JavaFileObject obj = null;
-		try {
-			obj = _filer.createSourceFile(typeName);
-		} catch (IOException e) {
-		}
-		assertNotNull("Source should have been created", obj);
-		String name = obj.getName();
-		if (!name.contains("mod.a")) {
-			reportError("source should be created inside the module");
-		}
-		
-	}
+
 	@Override
 	public void reportError(String msg) {
 		throw new AssertionFailedError(msg);
@@ -162,6 +151,23 @@ public class Java11ElementProcessor extends BaseProcessor {
 				break; // Don't dump all stacks
 		}
 		return buf.toString();
+	}
+	protected String getElementsAsString(List<? extends Element> list) {
+		StringBuilder builder = new StringBuilder("[");
+		for (Element element : list) {
+			if (element instanceof PackageElement) {
+				builder.append(((PackageElement) element).getQualifiedName());
+			} else if (element instanceof ModuleElement) {
+				builder.append(((ModuleElement) element).getQualifiedName());
+			} else if (element instanceof TypeElement) {
+				builder.append(((TypeElement) element).getQualifiedName());
+			}  else {
+				builder.append(element.getSimpleName());
+			}
+			builder.append(", ");
+		}
+		builder.append("]");
+		return builder.toString();
 	}
 	public void assertModifiers(Set<Modifier> modifiers, String[] expected) {
 		assertEquals("Incorrect no of modifiers", modifiers.size(), expected.length);
