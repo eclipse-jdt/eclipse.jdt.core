@@ -1833,11 +1833,11 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral) expression);
 		}
-		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.StringLiteral) {
-			return convert((org.eclipse.jdt.internal.compiler.ast.StringLiteral) expression);
-		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TextBlock) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.TextBlock) expression);
+		}
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.StringLiteral) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.StringLiteral) expression);
 		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression) expression);
@@ -2868,18 +2868,7 @@ class ASTConverter {
 		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		return literal;
 	}
-	public Expression convert(org.eclipse.jdt.internal.compiler.ast.TextBlock expression) {
-		int length = expression.sourceEnd - expression.sourceStart + 1;
-		int sourceStart = expression.sourceStart;
-		StringLiteral literal = new StringLiteral(this.ast);
-		if (this.resolveBindings) {
-			this.recordNodes(literal, expression);
-		}
-		literal.internalSetEscapedValue(new String(this.compilationUnitSource, sourceStart, length));
-		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
-		return literal;
-	}
-
+	
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.SwitchExpression expression) {
 		if (this.ast.apiLevel != AST.JLS13_INTERNAL) {
 			return createFakeNullLiteral(expression);		
@@ -2936,6 +2925,18 @@ class ASTConverter {
 		return synchronizedStatement;
 	}
 
+	public Expression convert(org.eclipse.jdt.internal.compiler.ast.TextBlock expression) {
+		int length = expression.sourceEnd - expression.sourceStart + 1;
+		int sourceStart = expression.sourceStart;
+		TextBlock literal = new TextBlock(this.ast);
+		if (this.resolveBindings) {
+			this.recordNodes(literal, expression);
+		}
+		literal.internalSetEscapedValue(new String(this.compilationUnitSource, sourceStart, length));
+		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
+		return literal;
+	}
+	
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.ThisReference reference) {
 		if (reference.isImplicitThis()) {
 			// There is no source associated with an implicit this

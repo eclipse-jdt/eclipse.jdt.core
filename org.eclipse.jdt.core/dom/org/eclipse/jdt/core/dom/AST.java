@@ -2710,6 +2710,18 @@ public final class AST {
 		TagElement result = new TagElement(this);
 		return result;
 	}
+	 
+	/**
+	 * Creates an unparented yield statement node owned by this AST. The yield statement has no
+	 * label/identifier/expression and is not implicit.
+	 *
+	 * @return a new unparented yield statement node
+	 * @since 3.18 BETA_JAVA13
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public TextBlock newTextBlock() {
+		return new TextBlock(this);
+	}
 
 	/**
 	 * Creates and returns a new text element node.
@@ -3017,6 +3029,7 @@ public final class AST {
 	 *
 	 * @return a new unparented yield statement node
 	 * @since 3.18 BETA_JAVA13
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public YieldStatement newYieldStatement() {
 		return new YieldStatement(this);

@@ -973,6 +973,14 @@ public abstract class ASTNode {
 	 * @since 3.18 BETA_JAVA13
 	 */
 	public static final int YIELD_STATEMENT = 10;
+	
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>TextBlock</code>.
+	 * @see TextBlock
+	 * @since 3.18 BETA_JAVA13
+	 */
+	public static final int TEXT_BLOCK = 101;
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -1154,6 +1162,8 @@ public abstract class ASTNode {
 				return SynchronizedStatement.class;
 			case TAG_ELEMENT :
 				return TagElement.class;
+			case TEXT_BLOCK :
+				return TextBlock.class;
 			case TEXT_ELEMENT :
 				return TextElement.class;
 			case THIS_EXPRESSION :
