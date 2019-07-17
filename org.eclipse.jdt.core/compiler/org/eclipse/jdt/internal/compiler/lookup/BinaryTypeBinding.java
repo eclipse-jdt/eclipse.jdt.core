@@ -42,6 +42,8 @@
  *    Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
+ *    Sebastian Zarnekow - Contributions for
+ *								bug 544921 - [performance] Poor performance with large source files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -56,7 +58,16 @@ import org.eclipse.jdt.internal.compiler.classfmt.MethodInfoWithAnnotations;
 import org.eclipse.jdt.internal.compiler.classfmt.NonNullDefaultAwareTypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.classfmt.TypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
-import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.env.ClassSignature;
+import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
+import org.eclipse.jdt.internal.compiler.env.IBinaryField;
+import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -100,6 +111,7 @@ public class BinaryTypeBinding extends ReferenceBinding {
 
 	private ReferenceBinding containerAnnotationType;
 	int defaultNullness = 0;
+	boolean memberTypesSorted = false;
 	public enum ExternalAnnotationStatus {
 		FROM_SOURCE,
 		NOT_EEA_CONFIGURED,
@@ -1283,20 +1295,30 @@ public ReferenceBinding getMemberType(char[] typeName) {
 		return memberType == null ? null : this.environment.createMemberType(memberType, this);
 	}
 
-	for (int i = this.memberTypes.length; --i >= 0;) {
-	    ReferenceBinding memberType = this.memberTypes[i];
-	    if (memberType instanceof UnresolvedReferenceBinding) {
-			char[] name = memberType.sourceName; // source name is qualified with enclosing type name
-			int prefixLength = this.compoundName[this.compoundName.length - 1].length + 1; // enclosing$
-			if (name.length == (prefixLength + typeName.length)) // enclosing $ typeName
-				if (CharOperation.fragmentEquals(typeName, name, prefixLength, true)) // only check trailing portion
-					return this.memberTypes[i] = (ReferenceBinding) resolveType(memberType, this.environment, false /* no raw conversion for now */);
-	    } else if (CharOperation.equals(typeName, memberType.sourceName)) {
-	        return memberType;
-	    }
+	ReferenceBinding[] members = maybeSortedMemberTypes();
+	// do not try to binary search while we are still resolving and the array is not necessarily sorted
+	if (!this.memberTypesSorted) {
+		for (int i = members.length; --i >= 0;) {
+		    ReferenceBinding memberType = members[i];
+		    if (memberType instanceof UnresolvedReferenceBinding) {
+				char[] name = memberType.sourceName; // source name is qualified with enclosing type name
+				int prefixLength = this.compoundName[this.compoundName.length - 1].length + 1; // enclosing$
+				if (name.length == (prefixLength + typeName.length)) // enclosing $ typeName
+					if (CharOperation.fragmentEquals(typeName, name, prefixLength, true)) // only check trailing portion
+						return members[i] = (ReferenceBinding) resolveType(memberType, this.environment, false /* no raw conversion for now */);
+		    } else if (CharOperation.equals(typeName, memberType.sourceName)) {
+		        return memberType;
+		    }
+		}
+		return null;
+	}
+	int memberTypeIndex = ReferenceBinding.binarySearch(typeName, members);
+	if (memberTypeIndex >= 0) {
+		return members[memberTypeIndex];
 	}
 	return null;
 }
+
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 @Override
 public MethodBinding[] getMethods(char[] selector) {
@@ -1522,6 +1544,11 @@ public ReferenceBinding[] memberTypes() {
  	if (!isPrototype()) {
 		if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0)
 			return this.memberTypes;
+		/*
+		 * The members obtained from the prototype are already sorted
+		 * thus we can safely assume that our local copy of the member types
+		 * is sorted, too.
+		 */
 		ReferenceBinding [] members = this.prototype.memberTypes();
 		int memberTypesLength = members == null ? 0 : members.length;
 		if (memberTypesLength > 0) {
@@ -1530,17 +1557,34 @@ public ReferenceBinding[] memberTypes() {
 				this.memberTypes[i] = this.environment.createMemberType(members[i], this);
 		}
 		this.tagBits &= ~TagBits.HasUnresolvedMemberTypes;
-		return this.memberTypes;	
+		this.memberTypesSorted = true;
+		return this.memberTypes;
 	}
 	
-	if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0)
-		return this.memberTypes;
-
+	if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0) {
+		return maybeSortedMemberTypes();
+	}
 	for (int i = this.memberTypes.length; --i >= 0;)
 		this.memberTypes[i] = (ReferenceBinding) resolveType(this.memberTypes[i], this.environment, false /* no raw conversion for now */);
 	this.tagBits &= ~TagBits.HasUnresolvedMemberTypes;
+	return maybeSortedMemberTypes();
+}
+
+private ReferenceBinding[] maybeSortedMemberTypes() {
+	// do not try to sort while we are still resolving
+	if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) != 0) {
+		return this.memberTypes;
+	}
+	if (!this.memberTypesSorted) {
+		// lazily sort member types
+		int length = this.memberTypes.length;
+		if (length > 1)
+			sortMemberTypes(this.memberTypes, 0, length);
+		this.memberTypesSorted = true;
+	}
 	return this.memberTypes;
 }
+
 // NOTE: the return type, arg & exception types of each method of a binary type are resolved when needed
 @Override
 public MethodBinding[] methods() {

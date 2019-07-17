@@ -222,9 +222,7 @@ public char[][][] collect() throws JavaModelException {
 				if (matches(binding))
 					collectSuperTypeNames(binding, binding.compoundName);
 			}
-		} catch (AbortCompilation e) {
-			// ignore: continue with next element
-		} catch (JavaModelException e) {
+		} catch (AbortCompilation | JavaModelException e) {
 			// ignore: continue with next element
 		}
 	}

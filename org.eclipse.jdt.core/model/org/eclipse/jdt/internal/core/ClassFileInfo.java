@@ -310,11 +310,7 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
 				final String[] parameterTypes = Signature.getParameterTypes(new String(descriptor));
 				pNames[0] = parameterTypes[0];
 			}
-		} catch (IllegalArgumentException e) {
-			// protect against malformed .class file (e.g. com/sun/crypto/provider/SunJCE_b.class has a 'a' generic signature)
-			signature = methodInfo.getMethodDescriptor();
-			pNames = Signature.getParameterTypes(new String(signature));
-		} catch (JavaModelException e) {
+		} catch (IllegalArgumentException | JavaModelException e) {
 			// protect against malformed .class file (e.g. com/sun/crypto/provider/SunJCE_b.class has a 'a' generic signature)
 			signature = methodInfo.getMethodDescriptor();
 			pNames = Signature.getParameterTypes(new String(signature));

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -63,7 +63,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getJLS4());
+		this.ast = AST.newAST(getJLS4(), false);
 	}
 
 	public ASTConverter17Test(String name) {
@@ -458,7 +458,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 	 * Binary literals with underscores
 	 */
 	public void test0012() throws JavaModelException {
-		AST localAst= AST.newAST(getJLS4());
+		AST localAst= AST.newAST(getJLS4(), false);
 		NumberLiteral literal= localAst.newNumberLiteral();
 		try {
 			literal.setToken("0b1010");

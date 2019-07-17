@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -47,6 +47,8 @@
  *                              bug 386692 - Missing "unused" warning on "autowired" fields
  *     Pierre-Yves B. <pyvesdev@gmail.com> - Contribution for
  *                              bug 542520 - [JUnit 5] Warning The method xxx from the type X is never used locally is shown when using MethodSource
+ *     Sebastian Zarnekow - Contributions for
+ *								bug 544921 - [performance] Poor performance with large source files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -105,9 +107,7 @@ abstract public class ReferenceBinding extends TypeBinding {
 	};
 	private static final Comparator<MethodBinding> METHOD_COMPARATOR = new Comparator<MethodBinding>() {
 		@Override
-		public int compare(MethodBinding o1, MethodBinding o2) {
-			MethodBinding m1 = o1;
-			MethodBinding m2 = o2;
+		public int compare(MethodBinding m1, MethodBinding m2) {
 			char[] s1 = m1.selector;
 			char[] s2 = m2.selector;
 			int c = ReferenceBinding.compare(s1, s2, s1.length, s2.length);
@@ -233,6 +233,19 @@ public static void sortFields(FieldBinding[] sortedFields, int left, int right) 
 public static void sortMethods(MethodBinding[] sortedMethods, int left, int right) {
 	Arrays.sort(sortedMethods, left, right, METHOD_COMPARATOR);
 }
+
+/**
+ * Sort the member types using a quicksort
+ */
+static void sortMemberTypes(ReferenceBinding[] sortedMemberTypes, int left, int right) {
+	Arrays.sort(sortedMemberTypes, left, right, BASIC_MEMBER_TYPES_COMPARATOR);
+}
+
+static final Comparator<ReferenceBinding> BASIC_MEMBER_TYPES_COMPARATOR = (ReferenceBinding o1, ReferenceBinding o2) -> {
+	char[] n1 = o1.sourceName;
+	char[] n2 = o2.sourceName;
+	return ReferenceBinding.compare(n1, n2, n1.length, n2.length);
+};
 
 /**
  * Return the array of resolvable fields (resilience)
@@ -1049,12 +1062,40 @@ public char[] getFileName() {
 	return this.fileName;
 }
 
+/**
+ * Find the member type with the given simple typeName. Benefits from the fact that
+ * the array of {@link #memberTypes()} is sorted.
+ */
 public ReferenceBinding getMemberType(char[] typeName) {
 	ReferenceBinding[] memberTypes = memberTypes();
-	for (int i = memberTypes.length; --i >= 0;)
-		if (CharOperation.equals(memberTypes[i].sourceName, typeName))
-			return memberTypes[i];
+	int memberTypeIndex = binarySearch(typeName, memberTypes);
+	if (memberTypeIndex >= 0) {
+		return memberTypes[memberTypeIndex];
+	}
 	return null;
+}
+
+static int binarySearch(char[] name, ReferenceBinding[] sortedMemberTypes) {
+	if (sortedMemberTypes == null)
+		return -1;
+	int max = sortedMemberTypes.length;
+	if (max == 0)
+		return -1;
+	int left = 0, right = max - 1, nameLength = name.length;
+	int mid = 0;
+	char[] midName;
+	while (left <= right) {
+		mid = left + (right - left) /2;
+		int compare = compare(name, midName = sortedMemberTypes[mid].sourceName, nameLength, midName.length);
+		if (compare < 0) {
+			right = mid-1;
+		} else if (compare > 0) {
+			left = mid+1;
+		} else {
+			return mid;
+		}
+	}
+	return -1;
 }
 
 @Override
@@ -1095,6 +1136,10 @@ public int hashCode() {
 	return (this.compoundName == null || this.compoundName.length == 0)
 		? super.hashCode()
 		: CharOperation.hashCode(this.compoundName[this.compoundName.length - 1]);
+}
+
+final int identityHashCode() {
+	return super.hashCode();
 }
 
 /**
@@ -1673,6 +1718,9 @@ public final boolean isViewedAsDeprecated() {
 	return false;
 }
 
+/**
+ * Returns the member types of this type sorted by simple name.
+ */
 public ReferenceBinding[] memberTypes() {
 	return Binding.NO_MEMBER_TYPES;
 }

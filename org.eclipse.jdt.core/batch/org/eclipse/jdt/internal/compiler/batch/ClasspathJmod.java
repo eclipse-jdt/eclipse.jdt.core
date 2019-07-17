@@ -89,9 +89,7 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 			}
 			return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName), modName);
 		}
-	} catch(ClassFormatException e) {
-		// treat as if class file is missing
-	} catch (IOException e) {
+	} catch (ClassFormatException | IOException e) {
 		// treat as if class file is missing
 	}
 	return null;

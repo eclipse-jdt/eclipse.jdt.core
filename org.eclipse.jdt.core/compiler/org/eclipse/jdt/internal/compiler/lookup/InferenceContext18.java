@@ -488,7 +488,11 @@ public class InferenceContext18 {
 	// ---  not per JLS: emulate how javac passes type bounds from inner to outer: ---
 	/** Not per JLS: push current bounds to outer inference if outer is ready for it. */
 	private void pushBoundsToOuter() {
-		InferenceContext18 outer = this.outerContext;
+		pushBoundsTo(this.outerContext);
+	}
+
+	/** Not per JLS: invent more bubbling up of inner bounds. */
+	public void pushBoundsTo(InferenceContext18 outer) {
 		if (outer != null && outer.stepCompleted >= APPLICABILITY_INFERRED) {
 			boolean deferred = outer.currentInvocation instanceof Invocation; // need to wait till after overload resolution?
 			BoundSet toPush = deferred ? this.currentBounds.copy() : this.currentBounds;

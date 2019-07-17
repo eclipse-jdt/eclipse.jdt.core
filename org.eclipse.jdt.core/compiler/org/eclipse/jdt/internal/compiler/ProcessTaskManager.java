@@ -150,13 +150,7 @@ public void run() {
 			}
 
 			addNextUnit(this.unitToProcess);
-		} catch (Error e) {
-			synchronized (this) {
-				this.processingThread = null;
-				this.caughtException = e;
-			}
-			return;
-		} catch (RuntimeException e) {
+		} catch (Error | RuntimeException e) {
 			synchronized (this) {
 				this.processingThread = null;
 				this.caughtException = e;

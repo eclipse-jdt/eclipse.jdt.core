@@ -88,9 +88,7 @@ public class WildcardBinding extends ReferenceBinding {
 		try {
 			allBounds[0] = (ReferenceBinding) this.bound;
 			System.arraycopy(this.otherBounds, 0, allBounds, 1, this.otherBounds.length);
-		} catch (ClassCastException cce) {
-			return this.bound;
-		} catch (ArrayStoreException ase) {
+		} catch (ClassCastException | ArrayStoreException ase) {
 			return this.bound;
 		}
 		return this.environment.createIntersectionType18(allBounds);
@@ -682,9 +680,7 @@ public class WildcardBinding extends ReferenceBinding {
     		try {
     			allBounds[0] = (ReferenceBinding) this.bound;
     			System.arraycopy(this.otherBounds, 0, allBounds, 1, this.otherBounds.length);
-    		} catch (ClassCastException cce) {
-    			return null;
-    		} catch (ArrayStoreException ase) {
+    		} catch (ClassCastException | ArrayStoreException ase) {
     			return null;
     		}
     		return allBounds;

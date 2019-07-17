@@ -1479,7 +1479,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		char[] source = ("class X {\n" +
 				"  String  s = \"\"\"This is the new String\"\"\";\n" +
 				"}").toCharArray();
-		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.getLatestJDKLevel(), null, null, false);
+		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.getLatestJDKLevel(), null, null, false, true /* previewEnabled */);
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);
 		try {
@@ -1511,7 +1511,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		char[] source = ("class X {\n" +
 				"  String  s = \"\"\"\nThis is the new String\"\"\";\n" +
 				"}").toCharArray();
-		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.getLatestJDKLevel(), null, null, false);
+		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.getLatestJDKLevel(), null, null, false, true /* previewEnabled */);
 		scanner.previewEnabled = true;
 		scanner.setSource(source);
 		scanner.resetTo(0, source.length - 1);

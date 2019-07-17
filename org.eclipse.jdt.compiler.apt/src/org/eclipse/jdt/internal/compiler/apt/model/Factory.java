@@ -52,7 +52,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -392,8 +391,8 @@ public class Factory {
 	 */
 	public PackageElement newPackageElement(PackageBinding binding)
 	{
-		if (binding instanceof SplitPackageBinding && binding.enclosingModule != null) {
-			binding = ((SplitPackageBinding) binding).getIncarnation(binding.enclosingModule);
+		if (binding != null && binding.enclosingModule != null) {
+			binding = binding.getIncarnation(binding.enclosingModule);
 		}
 		if (binding == null) {
 			return null;

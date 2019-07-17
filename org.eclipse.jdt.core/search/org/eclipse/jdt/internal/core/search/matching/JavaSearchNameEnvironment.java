@@ -328,8 +328,8 @@ public NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName) 
 }
 
 @Override
-public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] packageName, char[] moduleName) {
-	String qualifiedPackageName = String.valueOf(CharOperation.concatWith(parentPackageName, packageName, '/'));
+public char[][] getModulesDeclaringPackage(char[][] packageName, char[] moduleName) {
+	String qualifiedPackageName = String.valueOf(CharOperation.concatWith(packageName, '/'));
 	LookupStrategy strategy = LookupStrategy.get(moduleName);
 	if (strategy == LookupStrategy.Named) {
 		if (this.moduleToClassPathLocations != null) {
@@ -356,6 +356,22 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] pa
 		}
 	}
 	return moduleNames == CharOperation.NO_CHAR_CHAR ? null : moduleNames;
+}
+
+@Override
+public char[][] listPackages(char[] moduleName) { LookupStrategy strategy = LookupStrategy.get(moduleName);
+	switch (strategy) {
+		case Named:
+			if (this.moduleLocations != null) {
+				ClasspathLocation location = this.moduleLocations.get(String.valueOf(moduleName));
+				if (location == null)
+					return CharOperation.NO_CHAR_CHAR;
+				return location.listPackages();
+			}
+			return CharOperation.NO_CHAR_CHAR;
+		default:
+			throw new UnsupportedOperationException("can list packages only of a named module"); //$NON-NLS-1$
+	}
 }
 
 @Override

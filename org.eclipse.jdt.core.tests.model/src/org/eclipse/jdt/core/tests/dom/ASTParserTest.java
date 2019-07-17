@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2015 IBM Corporation and others.
+ * Copyright (c) 2004, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -54,7 +54,7 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.ast = AST.newAST(this.API_LEVEL);
+		this.ast = AST.newAST(this.API_LEVEL, true);
 		this.parser = ASTParser.newParser(this.API_LEVEL);
 	}
 

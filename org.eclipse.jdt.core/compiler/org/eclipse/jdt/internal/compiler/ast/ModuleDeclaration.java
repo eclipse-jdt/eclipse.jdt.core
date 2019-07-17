@@ -37,10 +37,9 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PlainPackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceModuleBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
@@ -195,7 +194,7 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 
 		this.hasResolvedPackageDirectives = true;
 
-		Set<PackageBinding> exportedPkgs = new HashSet<>();
+		Set<PlainPackageBinding> exportedPkgs = new HashSet<>();
 		for (int i = 0; i < this.exportsCount; i++) {
 			ExportsStatement ref = this.exports[i];
  			if (ref != null && ref.resolve(cuScope)) {
@@ -283,16 +282,21 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 	
 	private void analyseReferencedPackages(CompilationUnitScope skope) {
 		if (this.exports != null) {
-			for (ExportsStatement export : this.exports) {
-				PackageBinding pb = export.resolvedPackage;
-				if (pb == null)
-					continue;
-				if (pb instanceof SplitPackageBinding)
-					pb = ((SplitPackageBinding) pb).getIncarnation(this.binding);
-				if (pb.hasCompilationUnit(true))
-					continue;
-				skope.problemReporter().invalidPackageReference(IProblem.PackageDoesNotExistOrIsEmpty, export);
-			}
+			analyseSomeReferencedPackages(this.exports, skope);
+		}
+		if (this.opens != null) {
+			analyseSomeReferencedPackages(this.opens, skope);
+		}
+	}
+
+	private void analyseSomeReferencedPackages(PackageVisibilityStatement[] stats, CompilationUnitScope skope) {
+		for (PackageVisibilityStatement stat : stats) {
+			PlainPackageBinding pb = stat.resolvedPackage;
+			if (pb == null)
+				continue;
+			if (pb.hasCompilationUnit(true))
+				continue;
+			skope.problemReporter().invalidPackageReference(IProblem.PackageDoesNotExistOrIsEmpty, stat);
 		}
 	}
 
@@ -301,8 +305,7 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 			// collect transitively:
 			Map<String, Set<ModuleBinding>> pack2mods = new HashMap<>();
 			for (ModuleBinding requiredModule : this.binding.getAllRequiredModules()) {
-				for (PackageBinding exportedPackage : requiredModule.getExports()) {
-					exportedPackage = exportedPackage.getVisibleFor(requiredModule, true);
+				for (PlainPackageBinding exportedPackage : requiredModule.getExports()) {
 					if (this.binding.canAccess(exportedPackage)) {
 						String packName = String.valueOf(exportedPackage.readableName());
 						Set<ModuleBinding> mods = pack2mods.get(packName);
@@ -331,7 +334,7 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 	private void analyseOneDependency(RequiresStatement requiresStat, ModuleBinding requiredModule, CompilationUnitScope skope,
 			Map<String, Set<ModuleBinding>> pack2mods)
 	{
-		for (PackageBinding pack : requiredModule.getExports()) {
+		for (PlainPackageBinding pack : requiredModule.getExports()) {
 			Set<ModuleBinding> mods = pack2mods.get(String.valueOf(pack.readableName()));
 			if (mods != null && mods.size() > 1) {
 				CompilerOptions compilerOptions = skope.compilerOptions();
@@ -445,5 +448,13 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 	@Override
 	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
 		// Nothing to do for this context;
+	}
+
+	public String getModuleVersion() {
+		if (this.scope != null) {
+			LookupEnvironment env = this.scope.environment().root;
+			return env.moduleVersion;
+		}
+		return null;
 	}
 }

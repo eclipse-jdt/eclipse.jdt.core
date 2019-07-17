@@ -252,7 +252,8 @@ public class CorrectionEngine {
 					complianceLevel,
 					null/*taskTag*/,
 					null/*taskPriorities*/,
-					true /*taskCaseSensitive*/);
+					true /*taskCaseSensitive*/,
+					JavaCore.ENABLED.equals(currentProjectOptions.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 			scanner.setSource(source.toCharArray());
 
 			scanner.resetTo(this.correctionStart, this.correctionEnd);
@@ -305,9 +306,7 @@ public class CorrectionEngine {
 			} finally {
 				JavaCore.setOptions(oldOptions);
 			}
-		} catch (JavaModelException e) {
-			return;
-		} catch (InvalidInputException e) {
+		} catch (JavaModelException | InvalidInputException e) {
 			return;
 		}
 	}

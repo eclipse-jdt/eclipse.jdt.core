@@ -119,14 +119,14 @@ public class SourceModuleBinding extends ModuleBinding {
 	}
 
 	@Override
-	public PackageBinding[] getExports() {
+	public PlainPackageBinding[] getExports() {
 		// don't rely on "if (this.exportedPackages == Binding.NO_PACKAGES)" - could have been modified by completeIfNeeded()
 		this.scope.referenceContext.moduleDeclaration.resolvePackageDirectives(this.scope);
 		return super.getExports();
 	}
 
 	@Override
-	public PackageBinding[] getOpens() {
+	public PlainPackageBinding[] getOpens() {
 		// don't rely on "if (this.openedPackages == Binding.NO_PACKAGES)" - could have been modified by completeIfNeeded()
 		this.scope.referenceContext.moduleDeclaration.resolvePackageDirectives(this.scope);
 		return super.getOpens();

@@ -152,9 +152,7 @@ public class UserLibrary {
 		try {
 			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
-		} catch (SAXException e) {
-			throw new IOException(Messages.file_badFormat, e);
-		} catch (ParserConfigurationException e) {
+		} catch (SAXException | ParserConfigurationException e) {
 			throw new IOException(Messages.file_badFormat, e);
 		} finally {
 			reader.close();

@@ -64,7 +64,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.ast = AST.newAST(this.API_LEVEL);
+		this.ast = AST.newAST(this.API_LEVEL, true);
 		this.parser = ASTParser.newParser(this.API_LEVEL);
 	}
 

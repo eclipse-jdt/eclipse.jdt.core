@@ -250,7 +250,7 @@ public class Scanner implements TerminalTokens {
 	/* package */ int rawStart = -1;
 
 public Scanner() {
-	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
+	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/, true /*taskCaseSensitive*/);
 }
 
 public Scanner(
@@ -261,7 +261,8 @@ public Scanner(
 		long complianceLevel,
 		char[][] taskTags,
 		char[][] taskPriorities,
-		boolean isTaskCaseSensitive) {
+		boolean isTaskCaseSensitive,
+		boolean isPreviewEnabled) {
 
 	this.eofPosition = Integer.MAX_VALUE;
 	this.tokenizeComments = tokenizeComments;
@@ -300,8 +301,30 @@ public Scanner(
 		this.taskTags = taskTags;
 		this.isTaskCaseSensitive = isTaskCaseSensitive;
 	}
+	this.previewEnabled = isPreviewEnabled;
 }
 
+public Scanner(
+		boolean tokenizeComments,
+		boolean tokenizeWhiteSpace,
+		boolean checkNonExternalizedStringLiterals,
+		long sourceLevel,
+		char[][] taskTags,
+		char[][] taskPriorities,
+		boolean isTaskCaseSensitive,
+		boolean isPreviewEnabled) {
+
+	this(
+		tokenizeComments,
+		tokenizeWhiteSpace,
+		checkNonExternalizedStringLiterals,
+		sourceLevel,
+		sourceLevel,
+		taskTags,
+		taskPriorities,
+		isTaskCaseSensitive,
+		isPreviewEnabled);
+}
 public Scanner(
 		boolean tokenizeComments,
 		boolean tokenizeWhiteSpace,
@@ -319,9 +342,9 @@ public Scanner(
 		sourceLevel,
 		taskTags,
 		taskPriorities,
-		isTaskCaseSensitive);
+		isTaskCaseSensitive,
+		false);
 }
-
 public final boolean atEnd() {
 	// This code is not relevant if source is
 	// Only a part of the real stream input
@@ -4644,8 +4667,7 @@ public static boolean isKeyword(int token) {
 private static final class VanguardScanner extends Scanner {
 	
 	public VanguardScanner(long sourceLevel, long complianceLevel, boolean previewEnabled) {
-		super (false /*comment*/, false /*whitespace*/, false /*nls*/, sourceLevel, complianceLevel, null/*taskTag*/, null/*taskPriorities*/, false /*taskCaseSensitive*/);
-		this.previewEnabled = previewEnabled;
+		super (false /*comment*/, false /*whitespace*/, false /*nls*/, sourceLevel, complianceLevel, null/*taskTag*/, null/*taskPriorities*/, false /*taskCaseSensitive*/, previewEnabled);
 	}
 	
 	@Override
@@ -4857,7 +4879,8 @@ private class ScanContextDetector extends VanguardParser {
 			this.options.complianceLevel /*complianceLevel*/,
 			this.options.taskTags/*taskTags*/,
 			this.options.taskPriorities/*taskPriorities*/,
-			this.options.isTaskCaseSensitive/*taskCaseSensitive*/)
+			this.options.isTaskCaseSensitive/*taskCaseSensitive*/,
+			this.options.enablePreviewFeatures /*isPreviewEnabled*/)
 		{
 			@Override
 			void updateScanContext(int token) {
@@ -4867,7 +4890,6 @@ private class ScanContextDetector extends VanguardParser {
 		};
 		this.scanner.recordLineSeparator = false;
 		this.scanner.setActiveParser(this);
-		this.scanner.previewEnabled = this.options.enablePreviewFeatures;
 	}
 
 	@Override

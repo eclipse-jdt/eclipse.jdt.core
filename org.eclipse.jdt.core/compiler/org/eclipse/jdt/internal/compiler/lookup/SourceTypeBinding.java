@@ -48,6 +48,8 @@
  *     							bug 415269 - NonNullByDefault is not always inherited to nested classes
  *      Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          	Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
+ *      Sebastian Zarnekow - Contributions for
+ *								bug 544921 - [performance] Poor performance with large source files
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -112,6 +114,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
 
 	public int defaultNullness;
+	boolean memberTypesSorted = false;
 	private int nullnessDefaultInitialized = 0; // 0: nothing; 1: type; 2: package
 	private ReferenceBinding containerAnnotationType = null;
 
@@ -1514,7 +1517,9 @@ public boolean canBeSeenBy(Scope sco) {
 public ReferenceBinding[] memberTypes() {
 	if (!isPrototype()) {
 		if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0)
-			return this.memberTypes;
+			return sortedMemberTypes();
+		// members obtained from the prototype are already sorted so it is safe
+		// to set the sorted flag here immediately.
 		ReferenceBinding [] members = this.memberTypes = this.prototype.memberTypes();
 		int membersLength = members == null ? 0 : members.length;
 		this.memberTypes = new ReferenceBinding[membersLength];
@@ -1522,6 +1527,18 @@ public ReferenceBinding[] memberTypes() {
 			this.memberTypes[i] = this.environment.createMemberType(members[i], this);
 		}
 		this.tagBits &= ~TagBits.HasUnresolvedMemberTypes;
+		this.memberTypesSorted = true;
+	}
+	return sortedMemberTypes();
+}
+
+private ReferenceBinding[] sortedMemberTypes() {
+	if (!this.memberTypesSorted) {
+		// lazily sort member types
+		int length = this.memberTypes.length;
+		if (length > 1)
+			sortMemberTypes(this.memberTypes, 0, length);
+		this.memberTypesSorted = true;
 	}
 	return this.memberTypes;
 }
@@ -2301,6 +2318,7 @@ public ReferenceBinding [] setMemberTypes(ReferenceBinding[] memberTypes) {
 			annotatedType.memberTypes(); // recompute.
 		}
 	}
+	sortedMemberTypes();
 	return this.memberTypes;
 }
 

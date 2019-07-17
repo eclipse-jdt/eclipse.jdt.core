@@ -228,14 +228,7 @@ public class IndexAllProject extends IndexRequest {
 
 			// request to save index when all cus have been indexed... also sets state to SAVED_STATE
 			this.manager.request(new SaveIndex(this.containerPath, this.manager));
-		} catch (CoreException e) {
-			if (JobManager.VERBOSE) {
-				Util.verbose("-> failed to index " + this.project + " because of the following exception:", System.err); //$NON-NLS-1$ //$NON-NLS-2$
-				e.printStackTrace();
-			}
-			this.manager.removeIndex(this.containerPath);
-			return false;
-		} catch (IOException e) {
+		} catch (CoreException | IOException e) {
 			if (JobManager.VERBOSE) {
 				Util.verbose("-> failed to index " + this.project + " because of the following exception:", System.err); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();

@@ -49,12 +49,7 @@ public ReadManager(ICompilationUnit[] files, int length) {
 			else if (threadCount > CACHE_SIZE)
 				threadCount = CACHE_SIZE;
 		}
-	} catch (IllegalAccessException ignored) { // ignored
-	} catch (ClassNotFoundException e) { // ignored
-	} catch (SecurityException e) { // ignored
-	} catch (NoSuchMethodException e) { // ignored
-	} catch (IllegalArgumentException e) { // ignored
-	} catch (InvocationTargetException e) { // ignored
+	} catch (IllegalAccessException | ClassNotFoundException | SecurityException | NoSuchMethodException | IllegalArgumentException | InvocationTargetException e) { // ignored
 	}
 
 	if (threadCount > 0) {
@@ -184,13 +179,7 @@ public void run() {
 				}
 			}
 		}
-	} catch (Error e) {
-		synchronized (this) {
-			this.caughtException = e;
-			shutdown();
-		}
-		return;
-	} catch (RuntimeException e) {
+	} catch (Error | RuntimeException e) {
 		synchronized (this) {
 			this.caughtException = e;
 			shutdown();

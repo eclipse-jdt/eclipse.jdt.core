@@ -140,9 +140,7 @@ public class ModuleUtil {
 		toCompile.toArray(sources);
 		compiler.compile(sources);
 		String[] mods = environment.getModules();
-		for (String string : mods) {
-			required.add(string);
-		}
+		Collections.addAll(required, mods);
 		Collections.sort(required, new Comparator<String>() {
 			@Override
 			public int compare(String o1, String o2) {

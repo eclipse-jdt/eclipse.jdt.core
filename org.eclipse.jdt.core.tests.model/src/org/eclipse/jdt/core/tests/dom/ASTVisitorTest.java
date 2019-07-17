@@ -160,7 +160,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		this.ast = AST.newAST(this.API_LEVEL);
+		this.ast = AST.newAST(this.API_LEVEL, true);
 		this.N1 = this.ast.newSimpleName("N"); //$NON-NLS-1$
 		this.N1S = "[(nSNNnS)]"; //$NON-NLS-1$
 		this.N2 = this.ast.newSimpleName("M"); //$NON-NLS-1$
