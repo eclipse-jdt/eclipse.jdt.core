@@ -2691,9 +2691,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
-				"	yield 1;\n" +
-				"	^^^^^^^^\n" +
-				"yield outside of switch expression\n" + 
+				"	yield 1;\n" + 
+				"	^^^^^\n" + 
+				"Syntax error on token \"yield\", AssignmentOperator expected after this token\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 6)\n" + 
 				"	class yield {\n" + 
@@ -2750,15 +2750,10 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	yield y;\n" + 
-				"	^^^^^^^^\n" + 
-				"yield outside of switch expression\n" + 
+				"	^^^^^\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 3)\n" + 
-				"	yield y;\n" + 
-				"	      ^\n" + 
-				"y cannot be resolved to a variable\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 6)\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
 				"yield is a restricted identifier and cannot be used as type name\n" + 
@@ -2818,15 +2813,10 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 3)\n" + 
 				"	yield y = null;\n" + 
-				"	^^^^^^^^^^^^^^^\n" + 
-				"yield outside of switch expression\n" + 
+				"	^^^^^\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 3)\n" + 
-				"	yield y = null;\n" + 
-				"	      ^\n" + 
-				"y cannot be resolved to a variable\n" + 
-				"----------\n" + 
-				"3. ERROR in X.java (at line 6)\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
 				"yield is a restricted identifier and cannot be used as type name\n" + 
@@ -3099,5 +3089,404 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			true,
 			new String[] { "--enable-preview"},
 			options);
+	}
+	public void testBug547891_16() {
+		if (this.complianceLevel < ClassFileConstants.JDK12)
+			return;
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
+		String message = 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 9)\n" + 
+				"	case 3 -> {yield yield();}\n" + 
+				"	                 ^^^^^^^\n" + 
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 11)\n" + 
+				"	default -> { yield yield();}\n" + 
+				"	                   ^^^^^^^\n" + 
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
+				"----------\n";
+		
+		this.runNegativeTest(new String[] {
+				"X.java",
+				"public class X {\n"+
+				"\n"+
+				"	@SuppressWarnings(\"preview\")\n"+
+				"	public  int foo(int i) {\n"+
+				"		X x = new X();\n"+
+				"		int r = switch(i) {\n"+
+				"			case 1 -> this.yield();\n"+
+				"			case 2 -> x.new Y().yield();\n"+
+				"			case 3 -> {yield yield();}\n"+
+				"			case 4 -> {yield new X().yield() + x.new Y().yield();}\n"+
+				"			default -> { yield yield();}\n"+
+				"		};\n"+
+				"		return r;\n"+
+				"	}\n"+
+				"	public  int yield() {\n"+
+				"		return 0;\n"+
+				"	}\n"+
+				"	class Y {\n"+
+				"		public  int yield() {\n"+
+				"			return 0;\n"+
+				"		}	\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.println(new X().foo(0));\n"+
+				"	}\n"+
+				"}\n"
+			},
+			message,
+			null,
+			true,
+			new String[] { "--enable-preview"},
+			options);
+	}
+	public void testBug547891_17() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n"+
+					"\n"+
+					"	@SuppressWarnings(\"preview\")\n"+
+					"	public  static int foo(int i) {\n"+
+					"		int yield = 100;\n"+
+					"		int r = switch(i) {\n"+
+					"			default -> yield - 1;\n"+
+					"		};\n"+
+					"		return r;\n"+
+					"	}\n"+
+					"	public  int yield() {\n"+
+					"		return 0;\n"+
+					"	}\n"+
+					"	public static void main(String[] args) {\n"+
+					"		System.out.println(X.foo(0));\n"+
+					"	}\n"+
+					"}"
+			},
+			"99",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug547891_18() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n"+
+					"\n"+
+					"	@SuppressWarnings(\"preview\")\n"+
+					"	public  static int foo(int i) {\n"+
+					"		int yield = 100;\n"+
+					"		int r = switch(i) {\n"+
+					"			default -> {yield - 1;}\n"+
+					"		};\n"+
+					"		return r;\n"+
+					"	}\n"+
+					"	public  int yield() {\n"+
+					"		return 0;\n"+
+					"	}\n"+
+					"	public static void main(String[] args) {\n"+
+					"		System.out.println(X.foo(0));\n"+
+					"	}\n"+
+					"}"
+			},
+			"-1",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug547891_19() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n"+
+					"   static int yield = 100;\n"+
+					"\n"+
+					"	@SuppressWarnings(\"preview\")\n"+
+					"	public  static int foo(int i) {\n"+
+					"		int r = switch(i) {\n"+
+					"			default -> yield - 1;\n"+
+					"		};\n"+
+					"		return r;\n"+
+					"	}\n"+
+					"	public  int yield() {\n"+
+					"		return 0;\n"+
+					"	}\n"+
+					"	public static void main(String[] args) {\n"+
+					"		System.out.println(X.foo(0));\n"+
+					"	}\n"+
+					"}"
+			},
+			"99",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug547891_20() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n"+
+					"   static int yield = 100;\n"+
+					"\n"+
+					"	@SuppressWarnings(\"preview\")\n"+
+					"	public  static int foo(int i) {\n"+
+					"		int r = switch(i) {\n"+
+					"			default -> {yield - 1;}\n"+
+					"		};\n"+
+					"		return r;\n"+
+					"	}\n"+
+					"	public  int yield() {\n"+
+					"		return 0;\n"+
+					"	}\n"+
+					"	public static void main(String[] args) {\n"+
+					"		System.out.println(X.foo(0));\n"+
+					"	}\n"+
+					"}"
+			},
+			"-1",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug547891_21() {
+		if (this.complianceLevel < ClassFileConstants.JDK12)
+			return;
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
+		String message = 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 7)\n" + 
+				"	default -> yield - 1;\n" + 
+				"	           ^^^^^\n" + 
+				"Cannot make a static reference to the non-static field yield\n" + 
+				"----------\n";
+		
+		this.runNegativeTest(new String[] {
+				"X.java",
+				"public class X {\n"+
+				"   int yield = 100;\n"+
+				"\n"+
+				"	@SuppressWarnings(\"preview\")\n"+
+				"	public  static int foo(int i) {\n"+
+				"		int r = switch(i) {\n"+
+				"			default -> yield - 1;\n"+
+				"		};\n"+
+				"		return r;\n"+
+				"	}\n"+
+				"	public  int yield() {\n"+
+				"		return 0;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.println(X.foo(0));\n"+
+				"	}\n"+
+				"}"
+			},
+			message,
+			null,
+			true,
+			new String[] { "--enable-preview"},
+			options);
+	}
+	public void testBug547891_22() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n"+
+					"\n"+
+					"	static int yield = 100;\n"+
+					"	@SuppressWarnings(\"preview\")\n"+
+					"	public  static int foo(int i) {\n"+
+					"	int r = switch(i) {\n"+
+					"			default -> X.yield();\n"+
+					"		};\n"+
+					"		return r;\n"+
+					"	}\n"+
+					"	public static  int yield() {\n"+
+					"		yield: while (X.yield == 100) {\n"+
+					"			yield = 256;\n"+
+					"			break yield;\n"+
+					"		}\n"+
+					"		return yield;\n"+
+					"	}\n"+
+					"	public static void main(String[] args) {\n"+
+					"		System.out.println(X.foo(0));\n"+
+					"	}\n"+
+					"}\n"
+			},
+			"256",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug547891_23() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"public class X {\n"+
+					"\n"+
+					"	static int yield =100 ;\n"+
+					"	@SuppressWarnings(\"preview\")\n"+
+					"	public  static int foo(int i) {\n"+
+					"	int r = switch(i) {\n"+
+					"			default -> X.yield();\n"+
+					"		};\n"+
+					"		return r;\n"+
+					"	}\n"+
+					"	public static  int yield() {\n"+
+					"		int yield = 500 ;\n"+
+					"		yield: while (yield == 500) {\n"+
+					"			yield = 1024;\n"+
+					"			break yield;\n"+
+					"		}\n"+
+					"		return yield;\n"+
+					"	}\n"+
+					"	public static void main(String[] args) {\n"+
+					"		System.out.println(X.foo(0));\n"+
+					"	}\n"+
+					"}\n"
+			},
+			"1024",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug547891_24() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"\n"+
+				"	@SuppressWarnings(\"preview\")\n"+
+				"	public  static int foo(int i) {\n"+
+				"		int yield = 100;\n"+
+				"		int r = switch(i) {\n"+
+				"			default -> {yield yield + 1;}\n"+
+				"		};\n"+
+				"		return r;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.println(X.foo(0));\n"+
+				"	}\n"+
+				"}"
+			},
+			"101",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug547891_25() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"\n"+
+				"	@SuppressWarnings(\"preview\")\n"+
+				"	public  static int foo(int i) {\n"+
+				"		int yield = 100;\n"+
+				"		int r = switch(i) {\n"+
+				"			default -> {yield yield + yield + yield * yield;}\n"+
+				"		};\n"+
+				"		return r;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.println(X.foo(0));\n"+
+				"	}\n"+
+				"}"
+			},
+			"10200",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug547891_26() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"\n"+
+				"	@SuppressWarnings(\"preview\")\n"+
+				"	public  static int foo(int i) {\n"+
+				"		int yield = 100;\n"+
+				"		int r = switch(i) {\n"+
+				"			default -> {yield + yield + yield + yield * yield;}\n"+
+				"		};\n"+
+				"		return r;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.println(X.foo(0));\n"+
+				"	}\n"+
+				"}"
+			},
+			"10200",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug547891_27() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"\n"+
+				"	@SuppressWarnings(\"preview\")\n"+
+				"	public  static int foo(int i) {\n"+
+				"		int yield = 100;\n"+
+				"		int r = switch(i) {\n"+
+				"			default ->0 + yield + 10;\n"+
+				"		};\n"+
+				"		return r;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.println(X.foo(0));\n"+
+				"	}\n"+
+				"}"
+			},
+			"110",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug547891_28() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	@SuppressWarnings(\"preview\")\n"+
+				"	public  static int foo(int i) {\n"+
+				"		int yield = 100;\n"+
+				"		int r = switch(i) {\n"+
+				"			 case 0 : yield 100;\n"+
+				"			 case 1 : yield yield;\n"+
+				"			 default: yield 0;\n"+
+				"		};\n"+
+				"		return r;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.println(X.foo(0));\n"+
+				"	}\n"+
+				"}"
+			},
+			"100",
+			null,
+			new String[] {"--enable-preview"});
+	}
+	public void testBug547891_29() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	@SuppressWarnings(\"preview\")\n"+
+				"	public  static int foo(int i) {\n"+
+				"		int yield = 100;\n"+
+				"		int r = switch(i) {\n"+
+				"			 case 0 : yield 100;\n"+
+				"			 case 1 : yield yield;\n"+
+				"			 default: yield 0;\n"+
+				"		};\n"+
+				"		return r > 100 ? yield + 1 : yield + 200;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.println(X.foo(0));\n"+
+				"	}\n"+
+				"}"
+			},
+			"300",
+			null,
+			new String[] {"--enable-preview"});
 	}
 }

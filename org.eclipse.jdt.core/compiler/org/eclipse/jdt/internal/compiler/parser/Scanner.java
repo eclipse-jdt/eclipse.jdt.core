@@ -115,6 +115,7 @@ public class Scanner implements TerminalTokens {
 
 	public boolean fakeInModule = false;
 	boolean inCase = false;
+	/* package */ int yieldColons = -1;
 	/**
 	 * The current context of the scanner w.r.t restricted keywords
 	 *
@@ -129,6 +130,7 @@ public class Scanner implements TerminalTokens {
 		EXPECTING_YIELD, FLAGGED_YIELD, INACTIVE
 	}
 	protected ScanYieldContext scanYieldContext = null;
+	private int yieldStatementEnd = -1;
 	public static final String END_OF_SOURCE = "End_Of_Source"; //$NON-NLS-1$
 
 	public static final String INVALID_HEXA = "Invalid_Hexa_Literal"; //$NON-NLS-1$
@@ -1345,6 +1347,8 @@ protected int getNextToken0() throws InvalidInputException {
 		return this.currentPosition > this.eofPosition ? TokenNameEOF : TokenNameRBRACE;
 	}
 	int whiteStart = 0;
+	if (this.currentPosition > this.yieldStatementEnd)
+		this.yieldStatementEnd = -1;
 	try {
 		while (true) { //loop for jumping over comments
 			this.withoutUnicodePtr = 0;
@@ -1565,6 +1569,7 @@ protected int getNextToken0() throws InvalidInputException {
 				case ':' :
 					if (getNextChar(':'))
 						return TokenNameCOLON_COLON;
+					++this.yieldColons;
 					return TokenNameCOLON;
 				case '\'' :
 					{
@@ -4237,6 +4242,9 @@ public final void setSource(char[] sourceString){
 	this.containsAssertKeyword = false;
 	this.linePtr = -1;
 	this.scanContext = null;
+	this.scanYieldContext = null;
+	this.yieldStatementEnd = -1;
+	this.yieldColons = -1;
 	this.insideModuleInfo = false;
 }
 /*
@@ -5003,13 +5011,22 @@ private boolean mayBeAtAnYieldStatement() {
 	// preceded by ;, {, }, ), or -> [Ref: http://mail.openjdk.java.net/pipermail/amber-spec-experts/2019-May/001401.html]
 	// above comment is super-seded by http://mail.openjdk.java.net/pipermail/amber-spec-experts/2019-May/001414.html
 	switch (this.lookBack[1]) {
-		case TokenNameDOT:
-			return false;
-		default:
+		case TokenNameLBRACE:
+		case TokenNameRBRACE:
+		case TokenNameRBRACKET:
+		case TokenNameSEMICOLON:
+		case TokenNameelse:
 			return true;
+		case TokenNameCOLON:
+			return this.lookBack[0] == TokenNamedefault || this.yieldColons == 1;
+		case TokenNameDOT:
+		case TokenNameARROW:
+		default:
+			return false;
 	}
 }
 int disambiguatedRestrictedIdentifier(int restrictedKeywordToken) {
+	// and here's the kludge
 	if (restrictedKeywordToken != TokenNameRestrictedIdentifierYield)
 		return restrictedKeywordToken; // safety net - only yield processed here!
 	if (!this.previewEnabled)
@@ -5017,9 +5034,11 @@ int disambiguatedRestrictedIdentifier(int restrictedKeywordToken) {
 	if (this.scanYieldContext == ScanYieldContext.FLAGGED_YIELD) // nested yield implies identifier.
 		return TokenNameIdentifier;		
 	if (this.scanYieldContext == ScanYieldContext.EXPECTING_YIELD) {
-		this.scanYieldContext = ScanYieldContext.FLAGGED_YIELD;
+		this.scanYieldContext = ScanYieldContext.FLAGGED_YIELD; // producer/consumer: vanguard scanner
 		return TokenNameRestrictedIdentifierYield;
 	}
+	if (this.currentPosition < this.yieldStatementEnd) //producer/consumer: current scanner [value from vanguard scanner]
+		return TokenNameIdentifier; // don't bother until yieldStatementEnd
 
 	if (this.sourceLevel < ClassFileConstants.JDK13)
 		return TokenNameIdentifier;
@@ -5032,10 +5051,10 @@ int disambiguatedRestrictedIdentifier(int restrictedKeywordToken) {
 		parser.scanner.resetTo(this.startPosition, this.eofPosition - 1);
 		parser.scanner.scanYieldContext = ScanYieldContext.EXPECTING_YIELD;
 		if (parser.parse(Goal.YieldStatementGoal) == VanguardParser.SUCCESS) {
+			this.yieldStatementEnd = parser.scanner.currentPosition;
 			token = TokenNameRestrictedIdentifierYield;
 		}
 	}
-	parser.scanner.scanContext = null; 
 	return token;
 }
 int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
