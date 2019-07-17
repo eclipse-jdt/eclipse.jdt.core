@@ -9587,7 +9587,8 @@ protected void consumeSwitchLabels() {
 	optimizedConcatNodeLists();
 }
 protected void consumeSwitchLabelCaseLhs() {
-//	System.out.println("consumeSwitchLabelCaseLhs");
+	if (this.scanner.lookBack[1] == TerminalTokens.TokenNameCOLON) // kludge for yield :(
+		this.scanner.yieldColons = 1;
 }
 protected void consumeCaseLabelExpr() {
 //	SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
