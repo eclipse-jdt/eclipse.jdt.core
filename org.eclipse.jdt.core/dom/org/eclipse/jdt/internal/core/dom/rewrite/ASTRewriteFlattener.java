@@ -1274,6 +1274,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(TextBlock node) {
+		this.result.append(getAttribute(node, TextBlock.ESCAPED_VALUE_PROPERTY));
+		return false;
+	}
+	
+	@Override
 	public boolean visit(TextElement node) {
 		this.result.append(getAttribute(node, TextElement.TEXT_PROPERTY));
 		return false;

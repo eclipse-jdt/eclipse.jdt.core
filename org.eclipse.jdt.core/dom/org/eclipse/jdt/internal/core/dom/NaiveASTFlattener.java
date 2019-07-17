@@ -1625,6 +1625,12 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(TextBlock node) {
+		this.buffer.append(node.getEscapedValue());
+		return false;
+	}
+	
+	@Override
 	public boolean visit(TextElement node) {
 		this.buffer.append(node.getText());
 		return false;

@@ -4067,6 +4067,18 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(TextBlock node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		String escapedSeq= (String) getNewValue(node, TextBlock.ESCAPED_VALUE_PROPERTY);
+		TextEditGroup group = getEditGroup(node, TextBlock.ESCAPED_VALUE_PROPERTY);
+		doTextReplace(node.getStartPosition(), node.getLength(), escapedSeq, group);
+
+		return false;
+	}
+	
+	@Override
 	public boolean visit(TextElement node) {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);

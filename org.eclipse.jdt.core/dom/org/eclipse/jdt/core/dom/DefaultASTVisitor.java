@@ -357,6 +357,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	@Override
+	public void endVisit(TextBlock node) {
+		endVisitNode(node);
+	}
+	@Override
 	public void endVisit(TextElement node) {
 		endVisitNode(node);
 	}
@@ -763,6 +767,11 @@ class DefaultASTVisitor extends ASTVisitor {
 		return visitNode(node);
 	}
 
+	@Override
+	public boolean visit(TextBlock node) {
+		return visitNode(node);
+	}
+	
 	@Override
 	public boolean visit(TextElement node) {
 		return visitNode(node);
