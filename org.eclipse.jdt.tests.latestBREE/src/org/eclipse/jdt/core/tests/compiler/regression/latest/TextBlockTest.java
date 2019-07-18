@@ -28,7 +28,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
-//		TESTS_NAMES = new String[] { "test024" };
+//		TESTS_NAMES = new String[] { "test007" };
 	}
 	
 	public static Class<?> testClass() {
@@ -772,6 +772,48 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"""
 				}, 
 				text.translateEscapes(),
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void test027() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"  public static void main (String[] args) {\n" +
+						"     String xyz = \n" + 
+						"       \"\"\"\n" + 
+						"         public class Switch {\n" + 
+						"           public static void bar(int arg0) {\n" + 
+						"             int arg1 = 0;\n" + 
+						"             pointer: foo(\n" + 
+						"               switch (0 + arg0) {\n" + 
+						"                 case 1 -> 1;\n" + 
+						"                 default -> {break p;}\\n\"\n" + 
+						"               }\n" + 
+						"             });\n" + 
+						"             public static void foo(int arg0) {\n" + 
+						"               bar(MyDay.SUNDAY);\n" + 
+						"               }\n" + 
+						"             }\\n\"\"\";  \n" + 
+						"    System.out.println(xyz);\n" +
+						"  }\n" +
+						"}"
+				}, 
+				"public class Switch {\n" + 
+				"           public static void bar(int arg0) {\n" + 
+				"             int arg1 = 0;\n" + 
+				"             pointer: foo(\n" + 
+				"               switch (0 + arg0) {\n" + 
+				"                 case 1 -> 1;\n" + 
+				"                 default -> {break p;}\n" + 
+				"\"\n" + 
+				"               }\n" + 
+				"             });\n" + 
+				"             public static void foo(int arg0) {\n" + 
+				"               bar(MyDay.SUNDAY);\n" + 
+				"               }\n" + 
+				"             }",
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}

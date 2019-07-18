@@ -652,12 +652,12 @@ public char[] getCurrentTextBlock() {
 
 	// 	3. Handle incidental white space
 	//  3.1. Split into lines and identify determining lines
-	int prefix = 0;
+	int prefix = -1;
 	for(int i = 0; i < size; i++) {
 		char[] line = lines[i];
 		boolean blank = true;
 		int whitespaces = 0;
-		for (char c : line) {
+ 		for (char c : line) {
 			if (blank) {
 				if (ScannerHelper.isWhitespace(c)) {
 					whitespaces++;
@@ -667,8 +667,8 @@ public char[] getCurrentTextBlock() {
 			}
 		}
 		if (!blank) {
-			if (prefix <= 0 || whitespaces < prefix) {
-				prefix = whitespaces;
+			if (prefix < 0 || whitespaces < prefix) {
+ 				prefix = whitespaces;
 			}
 		}
 	}
