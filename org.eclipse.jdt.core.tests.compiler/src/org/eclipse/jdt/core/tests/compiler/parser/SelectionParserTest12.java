@@ -500,11 +500,13 @@ public void test010() throws JavaModelException {
 			"  public X() {\n" + 
 			"  }\n" + 
 			"  public static void foo(Num num_) {\n" + 
-			"    {\n" + 
-			"      {\n" + 
-			"        int i_j;\n" + 
-			"        <SelectOnName:i_j>;\n" + 
-			"      }\n" + 
+			"    switch (num_) {\n" + 
+			"    case THREE ->\n" + 
+			"        {\n" + 
+			"          int i_j;\n" + 
+			"          System.out.println(<SelectOnName:i_j>);\n" + 
+			"          break;\n" + 
+			"        }\n" + 
 			"    }\n" + 
 			"  }\n" + 
 			"}\n";

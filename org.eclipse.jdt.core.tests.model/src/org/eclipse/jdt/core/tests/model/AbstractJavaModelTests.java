@@ -3318,7 +3318,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		} else if ("13".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL13_LIB") == null) {
-				setupExternalJCL("jclMin12"); // No need for an explicit jclmin13, just use the same old one.
+				setupExternalJCL("jclMin13"); // No need for an explicit jclmin13, just use the same old one.
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL13_LIB", "JCL13_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath("13"), getExternalJCLSourcePath("13"), getExternalJCLRootSourcePath()},

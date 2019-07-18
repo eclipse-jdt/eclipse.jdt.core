@@ -9794,7 +9794,7 @@ protected void consumeToken(int type) {
 	//System.out.println(this.scanner.toStringAction(type));
 	switch (type) {
 		case TokenNameARROW:
-			if (!this.caseFlagSet  && this.scanner.lookBack[0] != TokenNamedefault)
+			if (!this.caseFlagSet && this.scanner.lookBack[0] != TokenNamedefault)
 				consumeLambdaHeader();
 			this.caseFlagSet = false;
 			break;

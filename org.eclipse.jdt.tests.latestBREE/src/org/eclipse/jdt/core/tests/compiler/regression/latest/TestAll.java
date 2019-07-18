@@ -3,6 +3,7 @@ package org.eclipse.jdt.core.tests.compiler.regression.latest;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.model.CompletionTests13;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
@@ -20,6 +21,7 @@ public static Test suite() {
 	// Common test suites
 	ArrayList standardTests = new ArrayList();
 	standardTests.add(TextBlockTest.class);
+	standardTests.add(CompletionTests13.class);
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_13) != 0) {

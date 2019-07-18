@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -104,6 +108,7 @@ public abstract class AssistParser extends Parser {
 	protected static final int K_ENUM_CONSTANT_DELIMITER = ASSIST_PARSER + 6; // whether we are inside a field initializer
 	protected static final int K_LAMBDA_EXPRESSION_DELIMITER = ASSIST_PARSER + 7; // whether we are inside a lambda expression
 	protected static final int K_MODULE_INFO_DELIMITER = ASSIST_PARSER + 8; // whether we are inside a module info declaration
+	protected static final int K_SWITCH_EXPRESSION_DELIMITTER = ASSIST_PARSER + 9; // whether we are inside a switch expression
 
 	// selector constants
 	protected static final int THIS_CONSTRUCTOR = -1;
@@ -1281,11 +1286,8 @@ private void adjustBracket(int token) {
 			break;
 	}
 }
-private boolean lastArrowAssociatedWithCase = false;
 @Override
 protected void consumeToken(int token) {
-	if (TokenNameARROW == token)
-		this.lastArrowAssociatedWithCase = this.caseFlagSet; // remember the arrow association before reset.
 	super.consumeToken(token);
 
 	if(this.isFirst) {
@@ -1318,9 +1320,10 @@ protected void consumeToken(int token) {
 				}
 				break;
 			case TokenNameLBRACE:
-				if (this.previousToken == TokenNameARROW && !this.lastArrowAssociatedWithCase) {
+				if (this.previousToken == TokenNameARROW) {
 					popElement(K_LAMBDA_EXPRESSION_DELIMITER);
-					pushOnElementStack(K_LAMBDA_EXPRESSION_DELIMITER, BLOCK_BODY, this.previousObjectInfo);
+					if (topKnownElementKind(ASSIST_PARSER, 1) != K_SWITCH_EXPRESSION_DELIMITTER)
+						pushOnElementStack(K_LAMBDA_EXPRESSION_DELIMITER, BLOCK_BODY, this.previousObjectInfo);
 				}
 				break;
 		}
