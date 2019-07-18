@@ -32,8 +32,8 @@ public class YieldStatement extends BranchStatement {
 	 */
 	public boolean isImplicit;
 
-public YieldStatement(Expression exp, int sourceStart, int e) {
-	super(null, sourceStart, e);
+public YieldStatement(Expression exp, int sourceStart, int sourceEnd) {
+	super(null, sourceStart, sourceEnd);
 	this.expression = exp;
 }
 @Override
