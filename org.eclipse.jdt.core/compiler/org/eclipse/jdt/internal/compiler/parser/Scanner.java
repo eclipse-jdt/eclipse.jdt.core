@@ -674,6 +674,8 @@ public char[] getCurrentTextBlock() {
 	}
 	// 3.2. Remove the common white space prefix
 	// 4. Handle escape sequences (already done while processing
+	if (prefix == -1)
+		prefix = 0;
 	char[] result = new char[0];
 	for(int i = 0; i < lines.length; i++) {
 		char[] l  = lines[i];
@@ -694,7 +696,7 @@ public char[] getCurrentTextBlock() {
 			if (trail <= 0 || newSize == 0)
 				continue;
 			nl = new char[newSize];
-			System.arraycopy(l, prefix, nl, 0, newSize);
+			System.arraycopy(l, prefix, nl, 0, newSize); 
 		} else {
 			newSize += 1;
 			nl = new char[newSize];
