@@ -80,6 +80,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.dom.YieldStatement;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 public class LineBreaksPreparator extends ASTVisitor {
@@ -358,7 +359,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 		if (this.options.indent_switchstatements_compare_to_cases) {
 			int nonBreakStatementEnd = -1;
 			for (Statement statement : statements) {
-				boolean isBreaking = statement instanceof BreakStatement || statement instanceof ReturnStatement
+				boolean isBreaking = statement instanceof YieldStatement || statement instanceof ReturnStatement
 						|| statement instanceof ContinueStatement || statement instanceof Block;
 				if (isBreaking && !(statement instanceof Block))
 					adjustEmptyLineAfter(this.tm.lastIndexIn(statement, -1), -1);
@@ -368,7 +369,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 						this.tm.get(nonBreakStatementEnd + 1).indent();
 						this.tm.firstTokenIn(statement, -1).unindent();
 					}
-				} else if (!(statement instanceof BreakStatement || statement instanceof Block)) {
+				} else if (!(statement instanceof YieldStatement || statement instanceof Block)) {
 					indent(statement);
 				}
 				nonBreakStatementEnd = isBreaking ? -1 : this.tm.lastIndexIn(statement, -1);
@@ -381,7 +382,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 		}
 		if (this.options.indent_breaks_compare_to_cases) {
 			for (Statement statement : statements) {
-				if (statement instanceof BreakStatement)
+				if (statement instanceof YieldStatement)
 					indent(statement);
 			}
 		}

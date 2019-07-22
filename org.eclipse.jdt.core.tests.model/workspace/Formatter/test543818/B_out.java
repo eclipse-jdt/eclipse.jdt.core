@@ -31,7 +31,7 @@ public class C {
 
 		int value = switch (ABC ) {
 		case A:
-			break 1;
+			yield 1;
 		case B:
 		System.out.println("!!!");
 		return;
@@ -40,16 +40,16 @@ public class C {
 		case C,D,E,F,G:
 		case H,I,J: {
 			System.out.println("@@@");
-			break 3454366;
+			yield 3454366;
 		}
 		default:
-			break 6;
+			yield 6;
 		};
 
 		Object value2 = switch (a.b.c.d(e.f.g.h()) ) {
 		case a -> {
 			System.out.println("aaaaaaa");
-			break "";
+			yield "";
 		}
 		case b + c,d.e,f("aaaaaaaaaaaa"//
 				+ //

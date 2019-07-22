@@ -43,7 +43,6 @@ import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.AssertStatement;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -108,6 +107,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.WildcardType;
+import org.eclipse.jdt.core.dom.YieldStatement;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class SpacePreparator extends ASTVisitor {
@@ -424,10 +424,9 @@ public class SpacePreparator extends ASTVisitor {
 	}
 
 	@Override
-	@Deprecated
-	public boolean visit(BreakStatement node) {
+	public boolean visit(YieldStatement node) {
 		if (node.getExpression() != null && !node.isImplicit()) {
-			this.tm.firstTokenIn(node, TokenNamebreak).spaceAfter();
+			this.tm.firstTokenIn(node, -1).spaceAfter();
 		}
 		return true;
 	}
