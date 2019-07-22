@@ -817,4 +817,22 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
+	// An empty text block
+	public void test028() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"  public static void main (String[] args) {\n" +
+						"     String xyz = \n" + 
+						"       \"\"\"\n" + 
+						"         \\n\"\"\";  \n" + 
+						"    System.out.println(xyz);\n" +
+						"  }\n" +
+						"}"
+				}, 
+				"",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
 }
