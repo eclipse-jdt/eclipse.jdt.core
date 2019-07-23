@@ -102,7 +102,7 @@ class BoundSet {
 		}
 		// pre: this.subBounds != null
 		public TypeBinding[] upperBounds(boolean onlyProper, InferenceVariable variable) {
-			ReferenceBinding[] rights = new ReferenceBinding[this.subBounds.size()];
+			TypeBinding[] rights = new TypeBinding[this.subBounds.size()];
 			TypeBinding simpleUpper = null;
 			Iterator<TypeBound> it = this.subBounds.iterator();
 			long nullHints = variable.nullHints;
@@ -111,7 +111,7 @@ class BoundSet {
 				TypeBinding right=it.next().right;
 				if (!onlyProper || right.isProperType(true)) {
 					if (right instanceof ReferenceBinding) {
-						rights[i++] = (ReferenceBinding) right;
+						rights[i++] = right;
 						nullHints |= right.tagBits & TagBits.AnnotationNullMASK; 
 					} else {
 						if (simpleUpper != null)
@@ -125,7 +125,7 @@ class BoundSet {
 			if (i == 1 && simpleUpper != null)
 				return new TypeBinding[] { simpleUpper }; // no nullHints since not a reference type
 			if (i < rights.length)
-				System.arraycopy(rights, 0, rights=new ReferenceBinding[i], 0, i);
+				System.arraycopy(rights, 0, rights=new TypeBinding[i], 0, i);
 			useNullHints(nullHints, rights, variable.environment);
 			InferenceContext18.sortTypes(rights);
 			return rights;
