@@ -835,4 +835,23 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
+	// An empty text block
+	public void test029() {
+		runConformTest(
+				new String[] {
+						"Cls2.java",
+						"public class Cls2 {\n" + 
+						"	public static String str = \"\"\"\n" + 
+						"			   Hello Guru	\n" + 
+						"				\n" + 
+						"			\"\"\";\n" + 
+						"  public static void main (String[] args) {\n" +
+						"    System.out.println(str);\n" +
+						"  }\n" +
+						"}"
+				}, 
+				"Hello Guru", // output comparison tool strips off all trailing whitespace
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
 }
