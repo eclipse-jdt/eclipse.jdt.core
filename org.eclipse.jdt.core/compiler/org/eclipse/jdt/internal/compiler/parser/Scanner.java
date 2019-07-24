@@ -701,7 +701,7 @@ public char[] getCurrentTextBlock() {
 			newSize += 1;
 			nl = new char[newSize];
 			nl[newSize - 1] = '\n';
-			if (length > 0)
+			if (newSize > 1)
 				System.arraycopy(l, prefix, nl, 0, newSize - 1);
 		}
 		result = CharOperation.concat(result, nl);
