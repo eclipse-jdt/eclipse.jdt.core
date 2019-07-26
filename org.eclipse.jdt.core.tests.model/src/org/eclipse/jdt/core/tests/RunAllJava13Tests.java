@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchExpressionsYieldTest;
 import org.eclipse.jdt.core.tests.dom.ASTConverter13Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
+import org.eclipse.jdt.core.tests.model.JavaSearchBugs13Tests;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
@@ -39,6 +40,7 @@ public class RunAllJava13Tests extends TestCase {
 	}
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
+			JavaSearchBugs13Tests.class,
 			ComplianceDiagnoseTest.class,
 			SwitchExpressionsYieldTest.class,
 			org.eclipse.jdt.compiler.apt.tests.AllTests.class,
