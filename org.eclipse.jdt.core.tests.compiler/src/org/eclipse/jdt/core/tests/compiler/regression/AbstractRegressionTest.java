@@ -556,6 +556,15 @@ protected static class JavacTestOptions {
 			options.setCompilerOptions("-source 1."+release+" -target 1."+release);
 		return options;
 	}
+	@java.lang.SuppressWarnings("synthetic-access")
+	static JavacTestOptions forReleaseWithPreview(String release) {
+		JavacTestOptions options = new JavacTestOptions(Long.parseLong(release));
+		if (isJRE9Plus)
+			options.setCompilerOptions("--release "+release+" --enable-preview -Xlint:-preview");
+		else
+			throw new IllegalArgumentException("preview not supported at release "+release);
+		return options;
+	}
 	public static class SuppressWarnings extends JavacTestOptions {
 		public SuppressWarnings(String token) {
 			setCompilerOptions("-Xlint:-"+token);
