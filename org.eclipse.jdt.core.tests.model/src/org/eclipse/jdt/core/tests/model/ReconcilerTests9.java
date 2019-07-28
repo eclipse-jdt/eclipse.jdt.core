@@ -851,4 +851,99 @@ public void testBug544306() throws Exception {
 		deleteProject(p2);
 	}
 }
+public void testBug547113() throws CoreException {
+	if (!isJRE9)
+		return;
+	IJavaProject unnamed = createJava9Project("unnamed");
+	IJavaProject a = createJava9Project("a");
+	IJavaProject b = createJava9Project("b");
+	IJavaProject c = createJava9Project("c");
+	try {
+		createFolder("a/src/com/example/a");
+		createFile("a/src/com/example/Base.java",
+				"package com.example;\n" + 
+				"\n" + 
+				"public class Base {}\n");
+		createFile("a/src/com/example/a/A.java",
+				"package com.example.a;\n" + 
+				"\n" + 
+				"public class A {}\n");
+		createFile("a/src/module-info.java",
+				"open module com.example.a {\n" + 
+				"	exports com.example;\n" + 
+				"	exports com.example.a;\n" + 
+				"	\n" + 
+				"	requires unnamed;\n" + 
+				"}\n");
+		addModularProjectEntry(a, unnamed);
+
+		createFolder("b/src/com/example/b");
+		createFile("b/src/com/example/b/B.java",
+				"package com.example.b;\n" + 
+				"\n" + 
+				"import com.example.Base;\n" + 
+				"import com.example.a.A;\n" + 
+				"\n" + 
+				"public class B {\n" + 
+				"\n" + 
+				"	public void a(A a) {\n" + 
+				"		System.out.println(a);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public void base(Base base) {\n" + 
+				"		System.out.println(base);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"}\n");
+		createFile("b/src/module-info.java",
+				"open module com.example.b {\n" + 
+				"	exports com.example.b;\n" + 
+				"	requires transitive com.example.a;\n" + 
+				"}\n");
+		addModularProjectEntry(b, a);
+		addModularProjectEntry(b, unnamed);
+
+		createFolder("c/src/com/example/c");
+		String cSource = "package com.example.c;\n" + 
+				"\n" + 
+				"import com.example.Base;\n" + 
+				"import com.example.a.A;\n" + 
+				"import com.example.b.B;\n" + 
+				"\n" + 
+				"public class C {\n" + 
+				"\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new B().a(new A());\n" + 
+				"		new B().base(new Base());\n" + 
+				"		System.out.println(\"done.\");\n" + 
+				"	}\n" + 
+				"}\n";
+		createFile("c/src/com/example/c/C.java", cSource);
+		createFile("c/src/module-info.java",
+				"open module com.example.c {\n" + 
+				"	exports com.example.c;\n" + 
+				"	requires com.example.b;\n" + 
+				"}\n");
+		addModularProjectEntry(c, a);
+		addModularProjectEntry(c, b);
+		addModularProjectEntry(c, unnamed);
+
+		waitForAutoBuild();
+
+		this.workingCopy.discardWorkingCopy();
+		this.problemRequestor.initialize(cSource.toCharArray());
+		this.workingCopy = getCompilationUnit("c/src/com/example/c/C.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
+		this.workingCopy.reconcile(AST_INTERNAL_JLS11, true, this.wcOwner, null);
+		assertProblems("Expecting no problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+	} finally {
+		deleteProject(unnamed);
+		deleteProject(a);
+		deleteProject(b);
+		deleteProject(c);
+	}
+}
 }

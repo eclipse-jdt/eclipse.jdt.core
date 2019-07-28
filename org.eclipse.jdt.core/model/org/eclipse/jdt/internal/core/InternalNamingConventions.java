@@ -38,7 +38,8 @@ public class InternalNamingConventions {
 				compilerOptions.sourceLevel /*sourceLevel*/,
 				null /*taskTags*/,
 				null/*taskPriorities*/,
-				true/*taskCaseSensitive*/);
+				true/*taskCaseSensitive*/,
+				compilerOptions.enablePreviewFeatures);
 	}
 
 	private static void acceptName(

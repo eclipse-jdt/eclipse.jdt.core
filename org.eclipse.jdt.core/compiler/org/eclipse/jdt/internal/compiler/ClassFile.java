@@ -2483,9 +2483,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 							}
 							memberValuePairsCount++;
 							resetPosition = this.contentsOffset;
-						} catch(ClassCastException e) {
-							this.contentsOffset = resetPosition;
-						} catch(ShouldNotImplement e) {
+						} catch(ClassCastException | ShouldNotImplement e) {
 							this.contentsOffset = resetPosition;
 						}
 					}
@@ -2518,9 +2516,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						// completely remove the annotation as its value is invalid
 						this.contentsOffset = startingContentsOffset;
 					}
-				} catch(ClassCastException e) {
-					this.contentsOffset = startingContentsOffset;
-				} catch(ShouldNotImplement e) {
+				} catch(ClassCastException | ShouldNotImplement e) {
 					this.contentsOffset = startingContentsOffset;
 				}
 			}
@@ -2752,9 +2748,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int flags = module.modifiers & ~(ClassFileConstants.AccModule);
 		this.contents[localContentsOffset++] = (byte) (flags >> 8);
 		this.contents[localContentsOffset++] = (byte) flags;
-		int module_version = 0;
-		this.contents[localContentsOffset++] = (byte) (module_version >> 8);
-		this.contents[localContentsOffset++] = (byte) module_version;
+		String moduleVersion = module.getModuleVersion();
+		int module_version_idx = moduleVersion == null ? 0 : this.constantPool.literalIndex(moduleVersion.toCharArray());
+		this.contents[localContentsOffset++] = (byte) (module_version_idx >> 8);
+		this.contents[localContentsOffset++] = (byte) module_version_idx;
 		int attrLength = 6;
 		
 		// ================= requires section =================

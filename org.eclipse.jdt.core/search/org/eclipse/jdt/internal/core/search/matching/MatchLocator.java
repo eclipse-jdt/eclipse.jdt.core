@@ -1334,11 +1334,7 @@ protected void locateMatches(JavaProject javaProject, PossibleMatch[] possibleMa
 		this.matchesToProcess[i] = null; // release reference to processed possible match
 		try {
 			process(possibleMatch, bindingsWereCreated);
-		} catch (AbortCompilation e) {
-			// problem with class path: it could not find base classes
-			// continue and try next matching openable reporting inaccurate matches (since bindings will be null)
-			bindingsWereCreated = false;
-		} catch (JavaModelException e) {
+		} catch (AbortCompilation | JavaModelException e) {
 			// problem with class path: it could not find base classes
 			// continue and try next matching openable reporting inaccurate matches (since bindings will be null)
 			bindingsWereCreated = false;

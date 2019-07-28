@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfType;
 
-public class PackageBinding extends Binding implements TypeConstants {
+public abstract class PackageBinding extends Binding implements TypeConstants {
 	public long tagBits = 0; // See values in the interface TagBits below
 
 	public char[][] compoundName;
@@ -35,7 +35,7 @@ public class PackageBinding extends Binding implements TypeConstants {
 	/** Types in this map are either uniquely visible in the current module or ProblemReferenceBindings. */
 	public HashtableOfType knownTypes;
 	/** All visible member packages, i.e. observable packages associated with modules read by the current module. */
-	HashtableOfPackage knownPackages;
+	HashtableOfPackage<PackageBinding> knownPackages;
 
 	// code representing the default that has been defined for this package (using @NonNullByDefault)
 	// one of Binding.{NO_NULL_DEFAULT,NULL_UNSPECIFIED_BY_DEFAULT,NONNULL_BY_DEFAULT}
@@ -46,12 +46,12 @@ public class PackageBinding extends Binding implements TypeConstants {
 	/** Is this package exported from its module? NB: to query this property use {@link #isExported()} to ensure initialization. */
 	Boolean isExported;
 
-protected PackageBinding() {
+protected PackageBinding(char[][] compoundName, LookupEnvironment environment) {
 	// for creating problem package
+	this.compoundName = compoundName;
+	this.environment = environment;
 }
-public PackageBinding(char[] topLevelPackageName, LookupEnvironment environment, ModuleBinding enclosingModule) {
-	this(new char[][] {topLevelPackageName}, null, environment, enclosingModule);
-}
+
 /* Create a normal package.
 */
 public PackageBinding(char[][] compoundName, PackageBinding parent, LookupEnvironment environment, ModuleBinding enclosingModule) {
@@ -59,7 +59,7 @@ public PackageBinding(char[][] compoundName, PackageBinding parent, LookupEnviro
 	this.parent = parent;
 	this.environment = environment;
 	this.knownTypes = null; // initialized if used... class counts can be very large 300-600
-	this.knownPackages = new HashtableOfPackage(3); // sub-package counts are typically 0-3
+	this.knownPackages = new HashtableOfPackage<PackageBinding>(3); // sub-package counts are typically 0-3
 	
 	if (compoundName != CharOperation.NO_CHAR_CHAR)
 		checkIfNullAnnotationPackage();
@@ -73,9 +73,6 @@ public PackageBinding(char[][] compoundName, PackageBinding parent, LookupEnviro
 		throw new IllegalStateException("Package should have an enclosing module"); //$NON-NLS-1$
 }
 
-public PackageBinding(LookupEnvironment environment) {
-	this(CharOperation.NO_CHAR_CHAR, null, environment, environment.module);
-}
 protected void addNotFoundPackage(char[] simpleName) {
 	if (!this.environment.suppressImportErrors)
 		this.knownPackages.put(simpleName, LookupEnvironment.TheNotFoundPackage);
@@ -143,7 +140,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 }
 protected PackageBinding findPackage(char[] name, ModuleBinding module) {
 	// delegate to the module to consider the module graph:
-	return module.getPackage(this.compoundName, name);
+	return module.getVisiblePackage(CharOperation.arrayConcat(this.compoundName, name));
 }
 /* Answer the subpackage named name; ask the oracle for the package if its not in the cache.
 * Answer null if it could not be resolved.
@@ -226,6 +223,17 @@ ReferenceBinding getType0(char[] name) {
 		return null;
 	return this.knownTypes.get(name);
 }
+
+/**
+ * Test if this package (or any of its incarnations in case of a SplitPackageBinding) has recorded
+ * an actual, resolved type of the given name (based on answers from getType0()).
+ * Useful for clash detection.
+ */
+boolean hasType0Any(char[] name) {
+	ReferenceBinding type0 = getType0(name);
+	return type0 != null && type0 != LookupEnvironment.TheNotFoundType && !(type0 instanceof UnresolvedReferenceBinding);
+}
+
 /* Answer the package or type named name; ask the oracle if it is not in the cache.
 * Answer null if it could not be resolved.
 *
@@ -258,8 +266,8 @@ public Binding getTypeOrPackage(char[] name, ModuleBinding mod, boolean splitPac
 
 	PackageBinding packageBinding = getPackage0(name);
 	if (packageBinding != null && packageBinding != LookupEnvironment.TheNotFoundPackage) {
-		if (!splitPackageAllowed && packageBinding instanceof SplitPackageBinding) {
-			return ((SplitPackageBinding) packageBinding).getVisibleFor(mod, false);
+		if (!splitPackageAllowed) {
+			return packageBinding.getVisibleFor(mod, false);
 		}
 		return packageBinding;
 	}
@@ -284,8 +292,8 @@ public Binding getTypeOrPackage(char[] name, ModuleBinding mod, boolean splitPac
 
 	if (packageBinding == null) { // have not looked for it before
 		if ((packageBinding = findPackage(name, mod)) != null) {
-			if (!splitPackageAllowed && packageBinding instanceof SplitPackageBinding) {
-				return ((SplitPackageBinding) packageBinding).getVisibleFor(mod, false);
+			if (!splitPackageAllowed) {
+				return packageBinding.getVisibleFor(mod, false);
 			}
 			return packageBinding;
 		}
@@ -433,15 +441,23 @@ public boolean isExported() {
 }
 /**
  * If this package is uniquely visible to 'module' return a plain PackageBinding.
- * In case of a conflict between a local package and foreign package
- * the plain local package is returned, because this conflict will more
- * appropriately be reported against the package declaration, not its references.
+ * In case of a conflict between a local package and foreign package flag <b>preferLocal</b>
+ * will select the behavior:
+ * <ul>
+ * <li>if {@code true} the plain local package is returned, because this conflict will more
+ * appropriately be reported against the package declaration, not its references.</li>
+ * <li>if {@code false} a conflict local vs. foreign will be treated just like any other conflict,
+ * see next.</li>
+ * </ul>
  * In case of multiple accessible foreign packages a SplitPackageBinding is returned
  * to indicate a conflict.
  */
 public PackageBinding getVisibleFor(ModuleBinding module, boolean preferLocal) {
 	return this;
 }
+
+public abstract PlainPackageBinding getIncarnation(ModuleBinding moduleBinding);
+
 public boolean hasCompilationUnit(boolean checkCUs) {
 	if (this.knownTypes != null) {
 		for (ReferenceBinding knownType : this.knownTypes.valueTable) {

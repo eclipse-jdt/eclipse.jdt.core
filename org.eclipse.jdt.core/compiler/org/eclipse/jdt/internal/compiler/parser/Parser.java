@@ -11614,8 +11614,8 @@ public void initializeScanner(){
 		this.options.complianceLevel /*complianceLevel*/,
 		this.options.taskTags/*taskTags*/,
 		this.options.taskPriorities/*taskPriorities*/,
-		this.options.isTaskCaseSensitive/*taskCaseSensitive*/);
-	this.scanner.previewEnabled = this.options.enablePreviewFeatures;
+		this.options.isTaskCaseSensitive/*taskCaseSensitive*/,
+		this.options.enablePreviewFeatures /*isPreviewEnabled*/);
 }
 public void jumpOverMethodBody() {
 	//on diet parsing.....do not buffer method statements

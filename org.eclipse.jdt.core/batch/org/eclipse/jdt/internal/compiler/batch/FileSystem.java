@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -171,6 +172,9 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 	/** Tasks resulting from --add-reads or --add-exports command line options. */
 	Map<String,UpdatesByKind> moduleUpdates = new HashMap<>();
 	static boolean isJRE12Plus = false;
+
+	private boolean hasLimitModules = false;
+
 	static {
 		try {
 			isJRE12Plus = SourceVersion.valueOf("RELEASE_12") != null; //$NON-NLS-1$
@@ -190,6 +194,7 @@ protected FileSystem(String[] classpathNames, String[] initialFileNames, String 
 	final int classpathSize = classpathNames.length;
 	this.classpaths = new Classpath[classpathSize];
 	int counter = 0;
+	this.hasLimitModules = limitModules != null && !limitModules.isEmpty();
 	for (int i = 0; i < classpathSize; i++) {
 		Classpath classpath = getClasspath(classpathNames[i], encoding, null, null, null);
 		try {
@@ -210,6 +215,7 @@ protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annot
 	final int length = paths.length;
 	int counter = 0;
 	this.classpaths = new FileSystem.Classpath[length];
+	this.hasLimitModules = limitedModules != null && !limitedModules.isEmpty();
 	for (int i = 0; i < length; i++) {
 		final Classpath classpath = paths[i];
 		try {
@@ -564,8 +570,8 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, cha
 }
 
 @Override
-public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] packageName, char[] moduleName) {
-	String qualifiedPackageName = new String(CharOperation.concatWith(parentPackageName, packageName, '/'));
+public char[][] getModulesDeclaringPackage(char[][] packageName, char[] moduleName) {
+	String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
 	String moduleNameString = String.valueOf(moduleName);
 
 	LookupStrategy strategy = LookupStrategy.get(moduleName);
@@ -582,6 +588,7 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] pa
 	}
 	// search the entire environment and answer which modules declare that package:
 	char[][] allNames = null;
+	boolean hasUnobserable = false;
 	for (Classpath cp : this.classpaths) {
 		if (strategy.matches(cp, Classpath::hasModule)) {
 			if (strategy == LookupStrategy.Unnamed) {
@@ -591,6 +598,10 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] pa
 			} else {
 				char[][] declaringModules = cp.getModulesDeclaringPackage(qualifiedPackageName, null);
 				if (declaringModules != null) {
+					if (cp instanceof ClasspathJrt && this.hasLimitModules) {
+						declaringModules = filterModules(declaringModules);
+						hasUnobserable |= declaringModules == null;
+					}
 					if (allNames == null)
 						allNames = declaringModules;
 					else
@@ -599,7 +610,15 @@ public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] pa
 			}
 		}
 	}
+	if (allNames == null && hasUnobserable)
+		return new char[][] { ModuleBinding.UNOBSERVABLE };
 	return allNames;
+}
+private char[][] filterModules(char[][] declaringModules) {
+	char[][] filtered = Arrays.stream(declaringModules).filter(m -> this.moduleLocations.containsKey(new String(m))).toArray(char[][]::new);
+	if (filtered.length == 0)
+		return null;
+	return filtered;
 }
 private Parser getParser() {
 	Map<String,String> opts = new HashMap<String, String>();
@@ -680,6 +699,19 @@ public char[][] getAllAutomaticModules() {
 		}
 	}
 	return set.toArray(new char[set.size()][]);
+}
+
+@Override
+public char[][] listPackages(char[] moduleName) {
+	switch (LookupStrategy.get(moduleName)) {
+		case Named:
+			Classpath classpath = this.moduleLocations.get(new String(moduleName));
+			if (classpath != null)
+				return classpath.listPackages();
+			return CharOperation.NO_CHAR_CHAR;
+		default:
+			throw new UnsupportedOperationException("can list packages only of a named module"); //$NON-NLS-1$
+	}
 }
 
 void addModuleUpdate(String moduleName, Consumer<IUpdatableModule> update, UpdateKind kind) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
@@ -546,6 +547,7 @@ public class BuilderTests extends TestCase {
 			TestAttributeBuilderTests.class,
 			Bug530366Test.class,
 			Bug531382Test.class,
+			Bug549457Test.class,
 			LeakTestsBefore9.class,
 		};
 		List<Class<?>> list = new ArrayList<>(Arrays.asList(classes));
@@ -554,6 +556,9 @@ public class BuilderTests extends TestCase {
 			list.add(PackageInfoTest.class);
 			list.add(ParticipantBuildTests.class);
 			list.add(AnnotationDependencyTests.class);
+		}
+		if (matchesCompliance(F_1_8)) {
+			list.add(Bug544921Test.class);
 		}
 		if (matchesCompliance(F_9)) {
 			list.add(LeakTestsAfter9.class);
@@ -631,5 +636,33 @@ public class BuilderTests extends TestCase {
 			jarPath = env.addInternalJar(projectPath, jarName, jarContent);
 		}
 		return jarPath;
+	}
+
+	protected static void expectCompileProblem(IPath project, String expectedProblemMessage) {
+		List<String> actualProblemMessages = new ArrayList<>();
+		Problem[] problems = env.getProblemsFor(project, "org.eclipse.jdt.core.tests.compile.problem");
+		if (problems != null) {
+			for (Problem problem : problems) {
+				actualProblemMessages.add(problem.getMessage());
+			}
+		}
+
+		List<String> expectedProblemMessages = Arrays.asList(expectedProblemMessage);
+		assertEquals("expected compile problem not observed",
+				expectedProblemMessages, actualProblemMessages);
+	}
+
+	protected static void expectNoCompileProblems(IPath project) {
+		List<String> actualProblemMessages = new ArrayList<>();
+		Problem[] problems = env.getProblemsFor(project, "org.eclipse.jdt.core.tests.compile.problem");
+		if (problems != null) {
+			for (Problem problem : problems) {
+				actualProblemMessages.add(problem.getMessage());
+			}
+		}
+
+		List<String> expectedProblemMessages = Collections.EMPTY_LIST;
+		assertEquals("expected no compile problems",
+				expectedProblemMessages, actualProblemMessages);
 	}
 }

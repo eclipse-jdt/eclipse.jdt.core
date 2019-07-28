@@ -121,6 +121,18 @@ public class ModulePathEntry implements IModulePathEntry {
 		return false;
 	}
 
+	@Override
+	public char[][] listPackages() {
+		char[][] packages = CharOperation.NO_CHAR_CHAR;
+		if (this.isAutomaticModule) {
+			for (ClasspathLocation cp : this.locations) {
+				packages = CharOperation.arrayConcat(packages, cp.listPackages());
+			}
+			return packages;
+		}
+		return packages;
+	}
+
 	/**
 	 * Combines an IMultiModuleEntry with further locations in order to support patch-module.
 	 * Implemented by adding IMultiModuleEntry functionality to ModulePathEntry.

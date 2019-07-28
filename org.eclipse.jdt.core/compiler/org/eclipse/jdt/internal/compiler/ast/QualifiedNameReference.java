@@ -1000,7 +1000,12 @@ public StringBuffer printExpression(int indent, StringBuffer output) {
  * Normal field binding did not work, try to bind to a field of the delegate receiver.
  */
 public TypeBinding reportError(BlockScope scope) {
-	if (this.binding instanceof ProblemFieldBinding) {
+	Binding inaccessible = scope.environment().getInaccessibleBinding(this.tokens, scope.module());
+	if (inaccessible instanceof TypeBinding) {
+		this.indexOfFirstFieldBinding = -1;
+		this.binding = inaccessible;
+		scope.problemReporter().invalidType(this, (TypeBinding) this.binding);
+	} else if (this.binding instanceof ProblemFieldBinding) {
 		scope.problemReporter().invalidField(this, (FieldBinding) this.binding);
 	} else if (this.binding instanceof ProblemReferenceBinding || this.binding instanceof MissingTypeBinding) {
 		scope.problemReporter().invalidType(this, (TypeBinding) this.binding);

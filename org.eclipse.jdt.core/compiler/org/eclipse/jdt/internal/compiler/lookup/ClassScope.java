@@ -410,15 +410,9 @@ public class ClassScope extends Scope {
 			char[][] className = CharOperation.deepCopy(enclosingType.compoundName);
 			className[className.length - 1] =
 				CharOperation.concat(className[className.length - 1], this.referenceContext.name, '$');
-			ReferenceBinding existingType = packageBinding.getType0(className[className.length - 1]);
-			if (existingType != null) {
-				if (existingType instanceof UnresolvedReferenceBinding) {
-					// its possible that a BinaryType referenced the member type before its enclosing source type was built
-					// so just replace the unresolved type with a new member type
-				} else {
-					// report the error against the parent - its still safe to answer the member type
-					this.parent.problemReporter().duplicateNestedType(this.referenceContext);
-				}
+			if (packageBinding.hasType0Any(className[className.length - 1])) {
+				// report the error against the parent - its still safe to answer the member type
+				this.parent.problemReporter().duplicateNestedType(this.referenceContext);
 			}
 			this.referenceContext.binding = new MemberTypeBinding(className, this, enclosingType);
 		}

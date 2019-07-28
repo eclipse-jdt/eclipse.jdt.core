@@ -1072,13 +1072,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				}
 				return null;
 			}
-		} catch (CoreException e) {
-			// not a zip file
-			if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-				Util.verbose("Could not read Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
-				e.printStackTrace();
-			}
-		} catch (IOException e) {
+		} catch (CoreException | IOException e) {
 			// not a zip file
 			if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
 				Util.verbose("Could not read Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$

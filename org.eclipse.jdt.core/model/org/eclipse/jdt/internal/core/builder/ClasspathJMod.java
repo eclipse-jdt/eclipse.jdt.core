@@ -101,8 +101,7 @@ public class ClasspathJMod extends ClasspathJar {
 					return new NameEnvironmentAnswer(reader, null, modName);
 				return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), modName);
 			}
-		} catch (IOException e) { // treat as if class file is missing
-		} catch (ClassFormatException e) { // treat as if class file is missing
+		} catch (IOException | ClassFormatException e) { // treat as if class file is missing
 		}
 		return null;
 	}

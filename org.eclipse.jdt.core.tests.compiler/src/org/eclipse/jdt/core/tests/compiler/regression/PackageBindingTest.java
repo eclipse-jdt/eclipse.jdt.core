@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PlainPackageBinding;
 import org.eclipse.jdt.internal.core.INameEnvironmentWithProgress;
 
 public class PackageBindingTest extends AbstractCompilerTest
@@ -36,7 +37,7 @@ public class PackageBindingTest extends AbstractCompilerTest
 	public void _test01() {
 		NameEnvironmentDummy nameEnv = new NameEnvironmentDummy(true);
 
-		PackageBinding packageBinding = new PackageBinding(new LookupEnvironment(null, new CompilerOptions(), null, nameEnv));
+		PlainPackageBinding packageBinding = new PlainPackageBinding(new LookupEnvironment(null, new CompilerOptions(), null, nameEnv));
 		Binding resultBinding = packageBinding.getTypeOrPackage("java.lang".toCharArray(), null, false);
 		assertNotNull(resultBinding);
 
@@ -53,7 +54,7 @@ public class PackageBindingTest extends AbstractCompilerTest
 		NameEnvironmentDummy nameEnv = new NameEnvironmentDummy(false);
 
 		LookupEnvironment environment = new LookupEnvironment(null, new CompilerOptions(), null, nameEnv);
-		PackageBinding packageBinding = new PackageBinding(environment);
+		PlainPackageBinding packageBinding = new PlainPackageBinding(environment);
 		Binding resultBinding = packageBinding.getTypeOrPackage("java.lang.String".toCharArray(), environment.module, false);
 		assertNull(resultBinding); // (not implemented)
 

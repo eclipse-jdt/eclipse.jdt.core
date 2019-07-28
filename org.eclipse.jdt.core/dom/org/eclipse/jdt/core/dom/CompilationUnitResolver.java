@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -293,7 +293,7 @@ class CompilationUnitResolver extends Compiler {
 			IProgressMonitor monitor,
 			boolean fromJavaProject) {
 		BindingResolver resolver = null;
-		AST ast = AST.newAST(apiLevel);
+		AST ast = AST.newAST(apiLevel, JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 		String sourceModeSetting = (String) options.get(JavaCore.COMPILER_SOURCE);
 		long sourceLevel = CompilerOptions.versionToJdkLevel(sourceModeSetting);
 		if (sourceLevel == 0) {
@@ -916,7 +916,7 @@ class CompilationUnitResolver extends Compiler {
 						CompilationResult compilationResult = unit.compilationResult;
 						org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = compilationResult.compilationUnit;
 						char[] contents = sourceUnit.getContents();
-						AST ast = AST.newAST(apiLevel);
+						AST ast = AST.newAST(apiLevel, JavaCore.ENABLED.equals(this.options.getMap().get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 						ast.setFlag(flags | AST.RESOLVED_BINDINGS);
 						ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 						ASTConverter converter = new ASTConverter(compilerOptions, true/*need to resolve bindings*/, this.monitor);
@@ -979,10 +979,7 @@ class CompilationUnitResolver extends Compiler {
 			throw e;
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
-		} catch (Error e) {
-			this.handleInternalException(e, unit, null);
-			throw e; // rethrow
-		} catch (RuntimeException e) {
+		} catch (Error | RuntimeException e) {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
@@ -1054,7 +1051,7 @@ class CompilationUnitResolver extends Compiler {
 						CompilationResult compilationResult = unit.compilationResult;
 						org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = compilationResult.compilationUnit;
 						char[] contents = sourceUnit.getContents();
-						AST ast = AST.newAST(apiLevel);
+						AST ast = AST.newAST(apiLevel, JavaCore.ENABLED.equals(compilerOptions.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 						ast.setFlag(flags | AST.RESOLVED_BINDINGS);
 						ast.setDefaultNodeFlag(ASTNode.ORIGINAL);
 						ASTConverter converter = new ASTConverter(compilerOptions, true/*need to resolve bindings*/, this.monitor);
@@ -1117,10 +1114,7 @@ class CompilationUnitResolver extends Compiler {
 			throw e;
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
-		} catch (Error e) {
-			this.handleInternalException(e, unit, null);
-			throw e; // rethrow
-		} catch (RuntimeException e) {
+		} catch (Error | RuntimeException e) {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {
@@ -1266,10 +1260,7 @@ class CompilationUnitResolver extends Compiler {
 		} catch (AbortCompilation e) {
 			this.handleInternalException(e, unit);
 			return unit == null ? this.unitsToProcess[0] : unit;
-		} catch (Error e) {
-			this.handleInternalException(e, unit, null);
-			throw e; // rethrow
-		} catch (RuntimeException e) {
+		} catch (Error | RuntimeException e) {
 			this.handleInternalException(e, unit, null);
 			throw e; // rethrow
 		} finally {

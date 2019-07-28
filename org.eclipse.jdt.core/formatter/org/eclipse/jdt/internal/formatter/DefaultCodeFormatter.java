@@ -95,6 +95,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 
 	private Object oldCommentFormatOption;
 	private String sourceLevel;
+	public boolean previewEnabled;
 
 	private String sourceString;
 	char[] sourceArray;
@@ -127,6 +128,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			this.oldCommentFormatOption = getOldCommentFormatOption(options);
 			String compilerSource = options.get(CompilerOptions.OPTION_Source);
 			this.sourceLevel = compilerSource != null ? compilerSource : CompilerOptions.VERSION_12;
+			this.previewEnabled = JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES));
 		} else {
 			Map<String, String> settings = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 			this.originalOptions = new DefaultCodeFormatterOptions(settings);
@@ -388,7 +390,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private void tokenizeSource(int kind) {
 		this.tokens.clear();
 		Scanner scanner = new Scanner(true, false, false/* nls */, CompilerOptions.versionToJdkLevel(this.sourceLevel),
-				null/* taskTags */, null/* taskPriorities */, false/* taskCaseSensitive */);
+				null/* taskTags */, null/* taskPriorities */, false/* taskCaseSensitive */, this.previewEnabled);
 		scanner.setSource(this.sourceArray);
 		scanner.fakeInModule = (kind & K_MODULE_INFO) != 0;
 		while (true) {

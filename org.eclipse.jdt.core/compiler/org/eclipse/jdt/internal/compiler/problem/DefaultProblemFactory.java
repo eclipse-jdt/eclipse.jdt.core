@@ -234,9 +234,7 @@ public static HashtableOfInt loadMessageTemplates(Locale loc) {
 	    try {
 	        int messageID = Integer.parseInt(key);
 			templates.put(keyFromID(messageID), bundle.getString(key));
-	    } catch(NumberFormatException e) {
-	        // key ill-formed
-		} catch (MissingResourceException e) {
+	    } catch (NumberFormatException | MissingResourceException e) {
 			// available ID
 	    }
 	}

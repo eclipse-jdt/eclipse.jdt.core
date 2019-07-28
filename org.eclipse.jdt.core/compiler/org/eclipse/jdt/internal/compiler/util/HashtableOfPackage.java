@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,13 +13,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
+import java.util.Arrays;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 
-public final class HashtableOfPackage {
+public final class HashtableOfPackage<P extends PackageBinding> {
 	// to avoid using Enumerations, walk the individual tables skipping nulls
 	public char[] keyTable[];
-	public PackageBinding valueTable[];
+	private PackageBinding valueTable[];
 
 	public int elementSize; // number of elements in the table
 	int threshold;
@@ -35,6 +39,12 @@ public HashtableOfPackage(int size) {
 	this.keyTable = new char[extraRoom][];
 	this.valueTable = new PackageBinding[extraRoom];
 }
+public Iterable<P> values() {
+	return Arrays.stream(this.valueTable)
+			.filter(Objects::nonNull)
+			.map(p -> { @SuppressWarnings("unchecked") P theP = (P)p; return theP; })
+			.collect(Collectors.toList());
+}
 public boolean containsKey(char[] key) {
 	int length = this.keyTable.length,
 		index = CharOperation.hashCode(key) % length;
@@ -49,14 +59,17 @@ public boolean containsKey(char[] key) {
 	}
 	return false;
 }
-public PackageBinding get(char[] key) {
+public P get(char[] key) {
 	int length = this.keyTable.length,
 		index = CharOperation.hashCode(key) % length;
 	int keyLength = key.length;
 	char[] currentKey;
 	while ((currentKey = this.keyTable[index]) != null) {
-		if (currentKey.length == keyLength && CharOperation.equals(currentKey, key))
-			return this.valueTable[index];
+		if (currentKey.length == keyLength && CharOperation.equals(currentKey, key)) {
+			@SuppressWarnings("unchecked")
+			P p = (P) this.valueTable[index];
+			return p;
+		}
 		if (++index == length) {
 			index = 0;
 		}
@@ -84,7 +97,7 @@ public PackageBinding put(char[] key, PackageBinding value) {
 	return value;
 }
 private void rehash() {
-	HashtableOfPackage newHashtable = new HashtableOfPackage(this.elementSize * 2); // double the number of expected elements
+	HashtableOfPackage<P> newHashtable = new HashtableOfPackage<P>(this.elementSize * 2); // double the number of expected elements
 	char[] currentKey;
 	for (int i = this.keyTable.length; --i >= 0;)
 		if ((currentKey = this.keyTable[i]) != null)

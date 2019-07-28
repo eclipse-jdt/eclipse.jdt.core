@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.compiler.env;
 
 import java.util.function.Predicate;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
 
@@ -101,15 +102,15 @@ public interface IModuleAwareNameEnvironment extends INameEnvironment {
 	}
 	@Override
 	default boolean isPackage(char[][] parentPackageName, char[] packageName) {
-		return getModulesDeclaringPackage(parentPackageName, packageName, ModuleBinding.ANY) != null;
+		return getModulesDeclaringPackage(CharOperation.arrayConcat(parentPackageName, packageName), ModuleBinding.ANY) != null;
 	}
 
 	NameEnvironmentAnswer findType(char[][] compoundName, char[] moduleName);
 	/** Answer a type identified by the given names. moduleName may be one of the special names from ModuleBinding (ANY, ANY_NAMED, UNNAMED). */
 	NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName);
-	char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] name, char[] moduleName);
-	default char[][] getUniqueModulesDeclaringPackage(char[][] parentPackageName, char[] name, char[] moduleName) {
-		char[][] allNames = getModulesDeclaringPackage(parentPackageName, name, moduleName);
+	char[][] getModulesDeclaringPackage(char[][] packageName, char[] moduleName);
+	default char[][] getUniqueModulesDeclaringPackage(char[][] packageName, char[] moduleName) {
+		char[][] allNames = getModulesDeclaringPackage(packageName, moduleName);
 		if (allNames != null && allNames.length > 1) {
 			SimpleSetOfCharArray set = new SimpleSetOfCharArray(allNames.length);
 			for (char[] oneName : allNames)
@@ -139,4 +140,12 @@ public interface IModuleAwareNameEnvironment extends INameEnvironment {
 	 * @param kind selects what kind of updates should be performed
 	 */
 	default void applyModuleUpdates(IUpdatableModule module, IUpdatableModule.UpdateKind kind) { /* default: do nothing */ }
+
+	/**
+	 * Lists all packages in the module identified by the given, real module name 
+	 * (i.e., this method is implemented only for {@link LookupStrategy#Named}).
+	 * @param moduleName
+	 * @return array of flat, dot-separated package names
+	 */
+	char[][] listPackages(char[] moduleName);
 }

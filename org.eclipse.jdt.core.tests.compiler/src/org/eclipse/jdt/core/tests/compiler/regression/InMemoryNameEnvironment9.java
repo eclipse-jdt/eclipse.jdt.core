@@ -71,8 +71,13 @@ public class InMemoryNameEnvironment9 extends InMemoryNameEnvironment implements
 	}
 
 	@Override
-	public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] name, char[] moduleName) {
-		return collect(env -> env.getModulesDeclaringPackage(parentPackageName, name, moduleName), char[][]::new);
+	public char[][] getModulesDeclaringPackage(char[][] packageName, char[] moduleName) {
+		return collect(env -> env.getModulesDeclaringPackage(packageName, moduleName), char[][]::new);
+	}
+
+	@Override
+	public char[][] listPackages(char[] moduleName) {
+		return collect(env -> env.listPackages(moduleName), char[][]::new);
 	}
 
 	@Override

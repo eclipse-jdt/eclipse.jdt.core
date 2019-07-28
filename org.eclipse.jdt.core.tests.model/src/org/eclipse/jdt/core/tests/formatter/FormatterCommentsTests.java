@@ -113,7 +113,8 @@ protected void assumeSourceEquals(String message, String expected, String actual
 
 private String expectedFormattedSource(String source) {
 	DefaultCodeFormatter codeFormatter = codeFormatter();
-	Scanner scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_4/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
+	Scanner scanner = new Scanner(true, true, false/*nls*/, ClassFileConstants.JDK1_4/*sourceLevel*/, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/,
+			codeFormatter.previewEnabled);
 	CodeSnippetParsingUtil codeSnippetParsingUtil = new CodeSnippetParsingUtil();
 	CompilationUnitDeclaration compilationUnitDeclaration = codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), getDefaultCompilerOptions(), true);
 	scanner.setSource(source.toCharArray());

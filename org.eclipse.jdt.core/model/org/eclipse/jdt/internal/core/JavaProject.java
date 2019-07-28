@@ -1262,9 +1262,7 @@ public class JavaProject
 		try {
 			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
-		} catch (SAXException e) {
-			throw new IOException(Messages.file_badFormat, e);
-		} catch (ParserConfigurationException e) {
+		} catch (SAXException | ParserConfigurationException e) {
 			throw new IOException(Messages.file_badFormat, e);
 		} finally {
 			reader.close();
@@ -1326,9 +1324,7 @@ public class JavaProject
 				DocumentBuilder parser =
 					DocumentBuilderFactory.newInstance().newDocumentBuilder();
 				node = parser.parse(new InputSource(reader)).getDocumentElement();
-			} catch (SAXException e) {
-				return null;
-			} catch (ParserConfigurationException e) {
+			} catch (SAXException | ParserConfigurationException e) {
 				return null;
 			} finally {
 				reader.close();
@@ -2115,9 +2111,7 @@ public class JavaProject
 				// cache project options
 				perProjectInfo.options = projectOptions;
 			}
-		} catch (JavaModelException jme) {
-			projectOptions = new Hashtable();
-		} catch (BackingStoreException e) {
+		} catch (JavaModelException | BackingStoreException e) {
 			projectOptions = new Hashtable();
 		}
 
@@ -2312,9 +2306,7 @@ public class JavaProject
 			IPackageFragmentRoot root = roots[i];
 			try {
 				IJavaElement[] rootFragments = root.getChildren();
-				for (int j = 0; j < rootFragments.length; j++) {
-					frags.add(rootFragments[j]);
-				}
+				Collections.addAll(frags, rootFragments);
 			} catch (JavaModelException e) {
 				// do nothing
 			}
@@ -2740,8 +2732,7 @@ public class JavaProject
 				try {
 					in = new BufferedInputStream(new FileInputStream(prefFile));
 					preferences = Platform.getPreferencesService().readPreferences(in);
-				} catch (CoreException e) { // problems loading preference store - quietly ignore
-				} catch (IOException e) { // problems loading preference store - quietly ignore
+				} catch (CoreException | IOException e) { // problems loading preference store - quietly ignore
 				} finally {
 					if (in != null) {
 						try {
@@ -2968,13 +2959,7 @@ public class JavaProject
 	private IClasspathEntry[][] readFileEntries(Map unkwownElements) {
 		try {
 			return readFileEntriesWithException(unkwownElements);
-		} catch (CoreException e) {
-			Util.log(e, "Exception while reading " + getPath().append(JavaProject.CLASSPATH_FILENAME)); //$NON-NLS-1$
-			return new IClasspathEntry[][]{JavaProject.INVALID_CLASSPATH, ClasspathEntry.NO_ENTRIES};
-		} catch (IOException e) {
-			Util.log(e, "Exception while reading " + getPath().append(JavaProject.CLASSPATH_FILENAME)); //$NON-NLS-1$
-			return new IClasspathEntry[][]{JavaProject.INVALID_CLASSPATH, ClasspathEntry.NO_ENTRIES};
-		} catch (ClasspathEntry.AssertionFailedException e) {
+		} catch (CoreException | IOException | ClasspathEntry.AssertionFailedException e) {
 			Util.log(e, "Exception while reading " + getPath().append(JavaProject.CLASSPATH_FILENAME)); //$NON-NLS-1$
 			return new IClasspathEntry[][]{JavaProject.INVALID_CLASSPATH, ClasspathEntry.NO_ENTRIES};
 		}

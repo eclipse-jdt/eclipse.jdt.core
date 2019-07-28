@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 GK Software SE, and others.
+ * Copyright (c) 2017, 2019 GK Software SE, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 
 public class SplitPackageBinding extends PackageBinding {
 	Set<ModuleBinding> declaringModules;
-	public Set<PackageBinding> incarnations;
+	public Set<PlainPackageBinding> incarnations;
 	
 	/**
 	 * Combine two potential package bindings, answering either the better of those if the other has a problem,
@@ -71,14 +71,14 @@ public class SplitPackageBinding extends PackageBinding {
 		if (packageBinding instanceof SplitPackageBinding) {
 			SplitPackageBinding split = (SplitPackageBinding) packageBinding;
 			this.declaringModules.addAll(split.declaringModules);
-			for(PackageBinding incarnation: split.incarnations) {
+			for(PlainPackageBinding incarnation: split.incarnations) {
 				if(this.incarnations.add(incarnation)) {
 					incarnation.addWrappingSplitPackageBinding(this);
 				}
 			}
-		} else {
+		} else if (packageBinding instanceof PlainPackageBinding) {
 			this.declaringModules.add(packageBinding.enclosingModule);
-			if(this.incarnations.add(packageBinding)) {
+			if(this.incarnations.add((PlainPackageBinding) packageBinding)) {
 				packageBinding.addWrappingSplitPackageBinding(this);
 			}
 		}
@@ -92,31 +92,32 @@ public class SplitPackageBinding extends PackageBinding {
 		PackageBinding visible = this.knownPackages.get(simpleName);
 		visible = SplitPackageBinding.combine(element, visible, this.enclosingModule);
 		this.knownPackages.put(simpleName, visible);
-		PackageBinding incarnation = getIncarnation(element.enclosingModule);
-		if (incarnation != null)
-			incarnation.addPackage(element, module);
+
+		// also record the PPB's as parent-child:
+		PlainPackageBinding incarnation = getIncarnation(element.enclosingModule);
+		if (incarnation != null) {
+			// avoid adding an SPB as a child of a PPB:
+			PlainPackageBinding elementIncarnation = element.getIncarnation(element.enclosingModule);
+			if (elementIncarnation != null)
+				incarnation.addPackage(elementIncarnation, module);
+		}
 		return element;
 	}
 
 	PackageBinding combineWithSiblings(PackageBinding childPackage, char[] name, ModuleBinding module) {
-		ModuleBinding primaryModule = childPackage != null ? childPackage.enclosingModule : this.enclosingModule;
+		ModuleBinding primaryModule = childPackage.enclosingModule;
 		// see if other incarnations contribute to the child package, too:
-		boolean activeSave = primaryModule.isPackageLookupActive;
-		primaryModule.isPackageLookupActive = true;
-		try {
-			for (PackageBinding incarnation :  this.incarnations) {
-				ModuleBinding moduleBinding = incarnation.enclosingModule;
-				if (moduleBinding == module)
-					continue;
-				if (childPackage.isDeclaredIn(moduleBinding))
-					continue;
-				PackageBinding next = moduleBinding.getVisiblePackage(incarnation, name, false);
-				childPackage = combine(next, childPackage, primaryModule);
-			}
-			return childPackage;
-		} finally {
-			primaryModule.isPackageLookupActive = activeSave;
+		char[] flatName = CharOperation.concatWith(childPackage.compoundName, '.');
+		for (PackageBinding incarnation :  this.incarnations) {
+			ModuleBinding moduleBinding = incarnation.enclosingModule;
+			if (moduleBinding == module)
+				continue;
+			if (childPackage.isDeclaredIn(moduleBinding))
+				continue;
+			PlainPackageBinding next = moduleBinding.getDeclaredPackage(flatName);
+			childPackage = combine(next, childPackage, primaryModule);
 		}
+		return childPackage;
 	}
 	
 	@Override
@@ -162,9 +163,10 @@ public class SplitPackageBinding extends PackageBinding {
 
 	@Override
 	protected PackageBinding findPackage(char[] name, ModuleBinding module) {
+		char[][] subpackageCompoundName = CharOperation.arrayConcat(this.compoundName, name);
 		Set<PackageBinding> candidates = new HashSet<>();
 		for (ModuleBinding candidateModule : this.declaringModules) {
-			PackageBinding candidate = super.findPackage(name, candidateModule);
+			PackageBinding candidate = candidateModule.getVisiblePackage(subpackageCompoundName);
 			if (candidate != null
 					&& candidate != LookupEnvironment.TheNotFoundPackage
 					&& ((candidate.tagBits & TagBits.HasMissingType) == 0))
@@ -190,8 +192,9 @@ public class SplitPackageBinding extends PackageBinding {
 		return result;
 	}
 
-	public PackageBinding getIncarnation(ModuleBinding requestedModule) {
-		for (PackageBinding incarnation : this.incarnations) {
+	@Override
+	public PlainPackageBinding getIncarnation(ModuleBinding requestedModule) {
+		for (PlainPackageBinding incarnation : this.incarnations) {
 			if (incarnation.enclosingModule == requestedModule)
 				return incarnation;
 		}
@@ -209,27 +212,15 @@ public class SplitPackageBinding extends PackageBinding {
 	}
 
 	@Override
-	ReferenceBinding getType0(char[] name) {
-		ReferenceBinding knownType = super.getType0(name);
-		if (knownType != null && !(knownType instanceof UnresolvedReferenceBinding))
-			return knownType;
+	boolean hasType0Any(char[] name) {
+		if (super.hasType0Any(name))
+			return true;
 
-		ReferenceBinding candidate = null;
 		for (PackageBinding incarnation : this.incarnations) {
-			ReferenceBinding next = incarnation.getType0(name);
-			if (next != null) {
-				if (next.isValidBinding() && !(knownType instanceof UnresolvedReferenceBinding)) {
-					if (candidate != null)
-						return null; // unable to disambiguate without a module context
-					candidate = next;
-				}
-			}
+			if (incarnation.hasType0Any(name))
+				return true;
 		}
-		if (candidate != null) {
-			addType(candidate);
-		}
-		
-		return candidate;
+		return false;
 	}
 
 	/** Similar to getType0() but now we have a module and can ask the specific incarnation! */
@@ -268,20 +259,21 @@ public class SplitPackageBinding extends PackageBinding {
 	@Override
 	public PackageBinding getVisibleFor(ModuleBinding clientModule, boolean preferLocal) {
 		int visibleCount = 0;
-		PackageBinding unique = null;
-		for (PackageBinding incarnation : this.incarnations) {
+		PlainPackageBinding unique = null;
+		for (PlainPackageBinding incarnation : this.incarnations) {
 			if (incarnation.hasCompilationUnit(false)) {
 				if (preferLocal && incarnation.enclosingModule == clientModule) {
 					return incarnation;
 				} else {
 					if (clientModule.canAccess(incarnation)) {
-						if (++visibleCount > 1)
-							return this;
+						visibleCount++;
 						unique = incarnation;
 					}
 				}
 			}
 		}
+		if (visibleCount > 1)
+			return this; // conflict, return split
 		return unique;
 	}
 

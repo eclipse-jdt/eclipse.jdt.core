@@ -432,7 +432,7 @@ public class ExternalFoldersManager {
 		return getFolders().get(externalFolderPath);
 	}
 
-	private Map<IPath, IFolder> getFolders() {
+	Map<IPath, IFolder> getFolders() {
 		if (this.folders == null) {
 			Map<IPath, IFolder> tempFolders = new LinkedHashMap<>();
 			IProject project = getExternalFoldersProject();

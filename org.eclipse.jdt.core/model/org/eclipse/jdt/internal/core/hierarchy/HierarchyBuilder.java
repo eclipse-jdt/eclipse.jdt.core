@@ -293,17 +293,7 @@ protected IBinaryType createInfoFromClassFile(Openable handle, IResource file) {
 	IBinaryType info = null;
 	try {
 		info = Util.newClassFileReader(file);
-	} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
-		if (TypeHierarchy.DEBUG) {
-			e.printStackTrace();
-		}
-		return null;
-	} catch (java.io.IOException e) {
-		if (TypeHierarchy.DEBUG) {
-			e.printStackTrace();
-		}
-		return null;
-	} catch (CoreException e) {
+	} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException | java.io.IOException | CoreException e) {
 		if (TypeHierarchy.DEBUG) {
 			e.printStackTrace();
 		}

@@ -734,6 +734,7 @@ public void test012(){
         "                       do not stop at first error, dumping class files with\n" + 
         "                       problem methods\n" + 
         "                       With \":Fatal\", all optional errors are treated as fatal\n" + 
+        "    -failOnWarning     fail compilation if there are warnings\n" +
         "    -verbose           enable verbose output\n" +
         "    -referenceInfo     compute reference info\n" +
         "    -progress          show progress (only in -log mode)\n" +
@@ -13138,5 +13139,47 @@ public void testBug531579() throws Exception {
 		"",
 		"",
 		false);
+}
+
+public void testFailOnWarnings_NoWarning() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"/** */\n" +
+			"public class X {\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -failOnWarning"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
+		"",
+		"",
+		true);
+	
+}
+
+public void testFailOnWarnings_WithWarning() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"/** */\n" +
+			"public class X {\n" +
+			"private int a;\n" +		
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -failOnWarning"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
+		"",
+		"----------\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	private int a;\n" + 
+		"	            ^\n" + 
+		"The value of the field X.a is not used\n" + 
+		"----------\n" + 
+		"1 problem (1 warning)\n" + 
+		"error: warnings found and -failOnWarning specified\n" + 
+		"",
+		true);
 }
 }

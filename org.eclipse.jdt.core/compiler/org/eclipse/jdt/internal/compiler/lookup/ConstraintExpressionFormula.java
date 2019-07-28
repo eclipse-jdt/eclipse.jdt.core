@@ -318,6 +318,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				InferenceContext18 innerContext = null;
 				try {
 					innerContext = reference.getInferenceContext((ParameterizedMethodBinding) compileTimeDecl);
+					if (innerContext != null)
+						innerContext.pushBoundsTo(inferenceContext);
 					int innerInferenceKind = determineInferenceKind(compileTimeDecl, argumentTypes, innerContext);
 					inferInvocationApplicability(inferenceContext, original, argumentTypes, original.isConstructor()/*mimic a diamond?*/, innerInferenceKind);
 					if (!inferenceContext.computeB3(reference, r, original))

@@ -9906,4 +9906,53 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug547807() {
+		runConformTest(
+			new String[] {
+				"DslStep1.java",
+				"public interface DslStep1 {\n" + 
+				"	DslStep2<?> nextStep();\n" + 
+				"}\n",
+				"DslStep2.java",
+				"public interface DslStep2<S extends DslStep2<? extends S>> {\n" + 
+				"	S doSomething();\n" + 
+				"}\n",
+				"CallBug.java",
+				"public class CallBug {\n" + 
+				"	public void doesNotCompileWithEcj(DslStep1 step1) {\n" + 
+				"		// Note we need three chained calls for the problem to show up. Two is not enough.\n" + 
+				"		step1.nextStep().doSomething().doSomething().doSomething();\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
+	public void testBug548589() {
+		runConformTest(
+			new String[] {
+				"InferenceCheck.java",
+				"import java.util.*;\n" + 
+				"import java.util.function.*;\n" + 
+				"\n" + 
+				"public class InferenceCheck {\n" + 
+				"\n" + 
+				"    public interface P<T> {\n" + 
+				"\n" + 
+				"        public boolean apply(T value);        \n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static <T> P<T> compilation_failed(P<T> predicate) {\n" + 
+				"        List<P<T>> list = Collections.emptyList();\n" + 
+				"        list.stream().map(InferenceCheck::compilation_failed);\n" + 
+				"        return null;\n" + 
+				"    }    \n" + 
+				"\n" + 
+				"    public static <T> P<T> compilation_ok(P<T> predicate) {\n" + 
+				"        List<P<T>> list = Collections.emptyList();\n" + 
+				"        Function<P<T>, P<T>> f = InferenceCheck::compilation_ok;\n" + 
+				"        list.stream().map(f);\n" + 
+				"        return null;\n" + 
+				"    }    \n" + 
+				"}\n"
+			});
+	}
 }

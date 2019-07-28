@@ -3827,11 +3827,7 @@ public final class JavaCore extends Plugin {
 					verbose_variable_value_after_initialization(variableName, variablePath);
 				manager.variablesWithInitializer.add(variableName);
 				ok = true;
-			} catch (RuntimeException e) {
-				if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE)
-					e.printStackTrace();
-				throw e;
-			} catch (Error e) {
+			} catch (RuntimeException | Error e) {
 				if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE)
 					e.printStackTrace();
 				throw e;

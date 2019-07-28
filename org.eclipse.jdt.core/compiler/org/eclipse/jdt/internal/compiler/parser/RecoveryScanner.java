@@ -39,7 +39,8 @@ public class RecoveryScanner extends Scanner {
 				scanner.complianceLevel,
 				scanner.taskTags,
 				scanner.taskPriorities,
-				scanner.isTaskCaseSensitive);
+				scanner.isTaskCaseSensitive,
+				scanner.previewEnabled);
 		setData(data);
 	}
 	
@@ -51,6 +52,7 @@ public class RecoveryScanner extends Scanner {
 			char[][] taskTags,
 			char[][] taskPriorities,
 			boolean isTaskCaseSensitive,
+			boolean isPreviewEnabled,
 			RecoveryScannerData data) {
 		super(false,
 				tokenizeWhiteSpace,
@@ -59,7 +61,8 @@ public class RecoveryScanner extends Scanner {
 				complianceLevel,
 				taskTags,
 				taskPriorities,
-				isTaskCaseSensitive);
+				isTaskCaseSensitive,
+				isPreviewEnabled);
 		setData(data);
 	}
 

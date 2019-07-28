@@ -83,12 +83,7 @@ public class UserLibraryManager {
 					UserLibrary library;
 					try {
 						library = UserLibrary.createFromString(reader);
-					} catch (IOException e) {
-						Util.log(e, "Exception while initializing user library " + libName); //$NON-NLS-1$
-						instancePreferences.remove(propertyName);
-						preferencesNeedFlush = true;
-						continue;
-					} catch (ClasspathEntry.AssertionFailedException e) {
+					} catch (IOException | ClasspathEntry.AssertionFailedException e) {
 						Util.log(e, "Exception while initializing user library " + libName); //$NON-NLS-1$
 						instancePreferences.remove(propertyName);
 						preferencesNeedFlush = true;
@@ -153,11 +148,9 @@ public class UserLibraryManager {
 				}
 			}
 			JavaCore.setClasspathContainer(containerPath, projects, containers, null);
-		} catch (IOException e) {
-			Util.log(e, "Exception while decoding user library '"+ libName +"'."); //$NON-NLS-1$ //$NON-NLS-2$
 		} catch (JavaModelException e) {
 			Util.log(e, "Exception while setting user library '"+ libName +"'."); //$NON-NLS-1$ //$NON-NLS-2$
-		} catch (ClasspathEntry.AssertionFailedException ase) {
+		} catch (IOException | ClasspathEntry.AssertionFailedException ase) {
 			Util.log(ase, "Exception while decoding user library '"+ libName +"'."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		

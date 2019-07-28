@@ -49,6 +49,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -207,11 +209,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						Logger.FIELD_TABLE.put(key2, field.getName());
 					}
 				}
-			} catch (SecurityException e) {
-				e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-				e.printStackTrace();
-			} catch (IllegalAccessException e) {
+			} catch (SecurityException | IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
 		}
@@ -982,6 +980,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 				}
 			}
+			if (this.main.failOnWarning && globalWarningsCount > 0) {
+				printErr("\n"); //$NON-NLS-1$
+				printErr(this.main.bind("compile.failOnWarning")); //$NON-NLS-1$
+			}
 			if ((this.tagBits & Logger.XML) == 0) {
 				this.printlnErr();
 			}
@@ -1367,6 +1369,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	protected FileSystem.Classpath[] checkedClasspaths;
 	// For single module mode
 	protected IModule module;
+	private String moduleVersion;
 	// paths to external annotations:
 	protected List<String> annotationPaths;
 	protected boolean annotationsFromClasspath;
@@ -1421,6 +1424,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	protected PrintWriter out;
 	public boolean proceed = true;
 	public boolean proceedOnError = false;
+	public boolean failOnWarning = false;
 	public boolean produceRefInfo = false;
 	public int currentRepetition, maxRepetition;
 	public boolean showProgress = false;
@@ -1440,6 +1444,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	private PrintWriter err;
 
 	protected ArrayList<CategorizedProblem> extraProblems;
+
 	public final static String bundleName = "org.eclipse.jdt.internal.compiler.batch.messages"; //$NON-NLS-1$
 	// two uses: recognize 'none' in options; code the singleton none
 	// for the '-d none' option (wherever it may be found)
@@ -1775,16 +1780,11 @@ public boolean compile(String[] argv) {
 		if (this.systemExitWhenFinished) {
 			this.logger.flush();
 			this.logger.close();
+			if (this.failOnWarning && this.globalWarningsCount > 0) {
+				System.exit(-1);
+			}
 			System.exit(this.globalErrorsCount > 0 ? -1 : 0);
 		}
-	} catch (IllegalArgumentException e) {
-		this.logger.logException(e);
-		if (this.systemExitWhenFinished) {
-			this.logger.flush();
-			this.logger.close();
-			System.exit(-1);
-		}
-		return false;
 	} catch (Exception e) { // internal compiler failure
 		this.logger.logException(e);
 		if (this.systemExitWhenFinished) {
@@ -1799,8 +1799,13 @@ public boolean compile(String[] argv) {
 		if (this.progress != null)
 			this.progress.done();
 	}
-	if (this.globalErrorsCount == 0 && (this.progress == null || !this.progress.isCanceled()))
-		return true;
+	if (this.progress == null || !this.progress.isCanceled()) {
+		if (this.failOnWarning && (this.globalWarningsCount > 0))
+			return false;
+		if (this.globalErrorsCount == 0)
+			return true;
+	}
+
 	return false;
 }
 
@@ -1842,6 +1847,7 @@ public void configure(String[] argv) {
 	final int INSIDE_ADD_MODULES = 29;
 	final int INSIDE_RELEASE = 30;
 	final int INSIDE_LIMIT_MODULES = 31;
+	final int INSIDE_MODULE_VERSION = 32;
 
 	final int DEFAULT = 0;
 	ArrayList<String> bootclasspaths = new ArrayList<>(DEFAULT_SIZE_CLASSPATH);
@@ -2268,6 +2274,10 @@ public void configure(String[] argv) {
 					mode = INSIDE_LIMIT_MODULES;
 					continue;
 				}
+				if (currentArg.equals("--module-version")) { //$NON-NLS-1$
+					mode = INSIDE_MODULE_VERSION;
+					continue;
+				}
 				if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
 					if (sourcepathClasspathArg != null) {
 						StringBuffer errorMessage = new StringBuffer();
@@ -2332,6 +2342,11 @@ public void configure(String[] argv) {
 						this.options.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.DISABLED);
 					}
 					this.proceedOnError = true;
+					continue;
+				}
+				if (currentArg.equals("-failOnWarning")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					this.failOnWarning = true;
 					continue;
 				}
 				if (currentArg.equals("-time")) { //$NON-NLS-1$
@@ -2932,6 +2947,10 @@ public void configure(String[] argv) {
 					this.limitedModules.add(tokenizer.nextToken().trim());
 				}
 				continue;
+			case INSIDE_MODULE_VERSION:
+				mode = DEFAULT;
+				this.moduleVersion = validateModuleVersion(currentArg);
+				continue;
 			case INSIDE_CLASSPATH_start:
 				mode = DEFAULT;
 				index += processPaths(newCommandLineArgs, index, currentArg, classpaths);
@@ -3226,6 +3245,22 @@ public void configure(String[] argv) {
 		this.pendingErrors = null;
 	}
 }
+private String validateModuleVersion(String versionString) {
+	try {
+		Class<?> versionClass = Class.forName("java.lang.module.ModuleDescriptor$Version"); //$NON-NLS-1$
+		Method method = versionClass.getMethod("parse", String.class); //$NON-NLS-1$
+		try {
+			method.invoke(null, versionString);
+		} catch (InvocationTargetException e) {
+			if (e.getCause() instanceof IllegalArgumentException)
+				throw (IllegalArgumentException) e.getCause();
+		}
+	} catch (ClassNotFoundException | NoSuchMethodException | SecurityException | IllegalAccessException e) {
+		this.logger.logWarning(this.bind("configure.no.ModuleDescriptorVersionparse")); //$NON-NLS-1$
+	}
+	return versionString;
+}
+
 private Parser getNewParser() {
 	return new Parser(new ProblemReporter(getHandlingPolicy(), 
 			new CompilerOptions(this.options), getProblemFactory()), false);
@@ -4792,6 +4827,7 @@ private void initRootModules(LookupEnvironment environment, FileSystem fileSyste
 			}
 		}
 	}
+	environment.moduleVersion = this.moduleVersion;
 }
 private ReferenceBinding[] processClassNames(LookupEnvironment environment) {
 	// check for .class file presence in case of apt processing

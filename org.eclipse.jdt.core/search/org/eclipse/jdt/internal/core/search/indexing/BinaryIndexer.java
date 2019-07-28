@@ -836,14 +836,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			}
 			// record all references found inside the .class file
 			extractReferenceFromConstantPool(contents, reader);
-		} catch (ClassFormatException e) {
-			// ignore
-			this.document.removeAllIndexEntries();
-			Util.log(new Status(IStatus.WARNING,
-					JavaCore.PLUGIN_ID,
-					"The Java indexing could not index " + this.document.getPath() + ". This .class file doesn't follow the class file format specification. Please report this issue against the .class file vendor", //$NON-NLS-1$ //$NON-NLS-2$
-					e));
-		} catch (RuntimeException e) {
+		} catch (ClassFormatException | RuntimeException e) {
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=182154
 			// logging the entry that could not be indexed and continue with the next one
 			// we remove all entries relative to the boggus document

@@ -78,9 +78,7 @@ public UndoEdit applyTextEdit(TextEdit edit, IProgressMonitor monitor) throws Ja
 		try {
 			UndoEdit undoEdit= edit.apply(document);
 			return undoEdit;
-		} catch (MalformedTreeException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.BAD_TEXT_EDIT_LOCATION);
-		} catch (BadLocationException e) {
+		} catch (MalformedTreeException | BadLocationException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.BAD_TEXT_EDIT_LOCATION);
 		}
 	}
@@ -634,20 +632,15 @@ public ICompilationUnit findWorkingCopy(WorkingCopyOwner workingCopyOwner) {
 @Override
 public IType[] getAllTypes() throws JavaModelException {
 	IJavaElement[] types = getTypes();
-	int i;
 	ArrayList allTypes = new ArrayList(types.length);
 	ArrayList typesToTraverse = new ArrayList(types.length);
-	for (i = 0; i < types.length; i++) {
-		typesToTraverse.add(types[i]);
-	}
+	Collections.addAll(typesToTraverse, types);
 	while (!typesToTraverse.isEmpty()) {
 		IType type = (IType) typesToTraverse.get(0);
 		typesToTraverse.remove(type);
 		allTypes.add(type);
 		types = type.getTypes();
-		for (i = 0; i < types.length; i++) {
-			typesToTraverse.add(types[i]);
-		}
+		Collections.addAll(typesToTraverse, types);
 	}
 	IType[] arrayOfAllTypes = new IType[allTypes.size()];
 	allTypes.toArray(arrayOfAllTypes);

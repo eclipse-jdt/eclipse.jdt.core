@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2017 IBM Corporation and others.
+ * Copyright (c) 2005, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -45,8 +45,8 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PlainPackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -500,7 +500,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	@Override
 	public void consumePackage(char[] pkgName) {
 		this.compoundName = CharOperation.splitOn('/', pkgName);
-		this.compilerBinding = new PackageBinding(this.compoundName, null, this.environment, this.environment.module); //TODO(SHMOD) enclosingModule
+		this.compilerBinding = new PlainPackageBinding(this.compoundName, null, this.environment, this.environment.module); //TODO(SHMOD) enclosingModule
 	}
 
 	@Override
