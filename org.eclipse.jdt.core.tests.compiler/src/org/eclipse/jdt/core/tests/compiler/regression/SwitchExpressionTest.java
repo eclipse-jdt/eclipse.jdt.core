@@ -14,6 +14,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -2143,8 +2144,8 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	}
 	// see comment 12 in the bug 
 	public void testBug513766_01() {
-		this.runNegativeTest(
-			new String[] {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
 				"X.java",
 				"public class X {\n"+
 				"    @SuppressWarnings(\"preview\")\n"+
@@ -2155,8 +2156,8 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"            System.out.println(\"true, too\");\n"+
 				"    }\n"+
 				"    <T> T magic() { return null; }\n"+
-				"}\n",
-			},
+				"}\n"};
+		runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	if (switch(i) { default -> magic(); })\n" + 
@@ -2167,7 +2168,10 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"	if (magic())\n" + 
 			"	    ^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to boolean\n" + 
-			"----------\n");
+			"----------\n";
+		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.javacTestOptions = JavacHasABug.JavacBug8179483_switchExpression;
+		runner.runNegativeTest();
 	}
 	public void testBug545333() {
 		runNegativeTest(

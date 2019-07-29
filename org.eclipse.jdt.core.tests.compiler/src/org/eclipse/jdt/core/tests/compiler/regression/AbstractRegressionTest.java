@@ -945,7 +945,9 @@ protected static class JavacTestOptions {
 			JavacBug6337964 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=112433
 					new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK1_6, 1045/*guessed*/, true) : null,
 			JavacBug8144832 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8144832
-					new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0000) : null;
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0000) : null,
+			JavacBug8179483_switchExpression = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8179483
+					new JavacBug8179483(" --release 12 --enable-preview -Xlint:-preview") : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -978,6 +980,17 @@ protected static class JavacTestOptions {
 										compiler.minor != 1600 ? null : this;
 							}
 					}: null;
+	}
+	public static class JavacBug8179483 extends JavacHasABug {
+		String extraJavacOptions;
+		public JavacBug8179483(String extraJavacOptions) {
+			super(MismatchType.EclipseErrorsJavacWarnings);
+			this.extraJavacOptions = extraJavacOptions;
+		}
+		@Override
+		String getCompilerOptions() {
+			return super.getCompilerOptions() + this.extraJavacOptions;
+		}
 	}
 }
 
