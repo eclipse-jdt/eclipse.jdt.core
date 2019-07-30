@@ -51,6 +51,7 @@ public static boolean SHOW_STATS = false;
  * specify VM property: {@code -Dorg.eclipse.jdt.core.disableAutoBuildOnSettingsChange=true}
  */
 private static final boolean DISABLE_AUTO_BUILDING_ON_SETTINGS_CHANGE = Boolean.getBoolean("org.eclipse.jdt.core.disableAutoBuildOnSettingsChange"); //$NON-NLS-1$
+private static final IPath JDT_CORE_SETTINGS_PATH = Path.fromPortableString(JavaProject.DEFAULT_PREFERENCES_DIRNAME + IPath.SEPARATOR + JavaProject.JAVA_CORE_PREFS_FILE);
 
 /**
  * A list of project names that have been built.
@@ -542,9 +543,7 @@ private boolean hasJdtCoreSettingsChange(SimpleLookupTable deltas) {
 
 static boolean isJdtCoreSettingsResource(IResource resource) {
 	IPath resourcePath = resource.getProjectRelativePath();
-	String prefs = JavaProject.DEFAULT_PREFERENCES_DIRNAME + IPath.SEPARATOR + JavaProject.JAVA_CORE_PREFS_FILE;
-	IPath expectedPath = Path.fromPortableString(prefs);
-	boolean isJdtCoreSettingsResource = expectedPath.equals(resourcePath);
+	boolean isJdtCoreSettingsResource = JDT_CORE_SETTINGS_PATH.equals(resourcePath);
 	return isJdtCoreSettingsResource;
 }
 
