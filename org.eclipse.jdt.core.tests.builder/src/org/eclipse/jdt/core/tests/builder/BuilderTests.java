@@ -562,6 +562,7 @@ public class BuilderTests extends TestCase {
 		}
 		if (matchesCompliance(F_9)) {
 			list.add(LeakTestsAfter9.class);
+			list.add(Bug549646Test.class);
 		}
 		return list.toArray(new Class[0]);
 	}
