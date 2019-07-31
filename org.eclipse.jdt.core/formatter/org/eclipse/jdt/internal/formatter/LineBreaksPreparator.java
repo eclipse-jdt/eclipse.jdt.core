@@ -149,6 +149,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 		handleBracedCode(node, node.getName(), this.options.brace_position_for_type_declaration,
 				this.options.indent_body_declarations_compare_to_type_header);
+		if (!node.bodyDeclarations().isEmpty())
+			putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_after_last_class_body_declaration);
 
 		this.declarationModifierVisited = false;
 		return true;
@@ -210,6 +212,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 		}
 	}
 
+	private void putBlankLinesBeforeCloseBrace(ASTNode node, int blankLinesSetting) {
+		int closeBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
+		putBlankLinesAfter(this.tm.get(closeBraceIndex - 1), blankLinesSetting);
+	}
+
 	@Override
 	public boolean visit(EnumDeclaration node) {
 		handleBracedCode(node, node.getName(), this.options.brace_position_for_enum_declaration,
@@ -238,6 +245,9 @@ public class LineBreaksPreparator extends ASTVisitor {
 				break;
 		}
 
+		if (!enumConstants.isEmpty() || !node.bodyDeclarations().isEmpty())
+			putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_after_last_class_body_declaration);
+
 		this.declarationModifierVisited = false;
 		return true;
 	}
@@ -250,6 +260,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 		handleBodyDeclarations(node.bodyDeclarations());
 		if (node.getModifiers() == 0)
 			this.tm.firstTokenBefore(node.getName(), TokenNameAT).breakBefore();
+		if (!node.bodyDeclarations().isEmpty())
+			putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_after_last_class_body_declaration);
 
 		this.declarationModifierVisited = false;
 		return true;
@@ -265,6 +277,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 					this.options.indent_body_declarations_compare_to_type_header);
 		}
 		handleBodyDeclarations(node.bodyDeclarations());
+		if (!node.bodyDeclarations().isEmpty())
+			putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_after_last_class_body_declaration);
 		return true;
 	}
 
@@ -648,6 +662,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 			putBlankLinesBefore(statement, blankLines);
 			previous = statement;
 		}
+		if (!statements.isEmpty())
+			putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_after_last_class_body_declaration);
 
 		this.declarationModifierVisited = false;
 		return true;

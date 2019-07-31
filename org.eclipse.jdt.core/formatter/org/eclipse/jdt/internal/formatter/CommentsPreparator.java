@@ -193,6 +193,8 @@ public class CommentsPreparator extends ASTVisitor {
 			// merge previous and current line comment
 			Token previous = this.lastLineComment;
 			Token merged = new Token(previous, previous.originalStart, commentToken.originalEnd, previous.tokenType);
+			merged.putLineBreaksAfter(commentToken.getLineBreaksAfter());
+			merged.setPreserveLineBreaksAfter(commentToken.isPreserveLineBreaksAfter());
 			this.tm.remove(commentIndex - 1);
 			this.tm.insert(commentIndex - 1, merged);
 			this.tm.remove(commentIndex);

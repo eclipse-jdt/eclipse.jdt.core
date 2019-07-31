@@ -15020,4 +15020,58 @@ public void testBug549249l() throws JavaModelException {
 	String input = getCompilationUnit("Formatter", "", "test549249", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test549249", "L_out.java").getSource());
 }
+/**
+ * https://bugs.eclipse.org/169131 - [formatter] Code formatter: blank lines after last declaration
+ */
+public void testBug169131a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 3;
+	this.formatterPrefs.blank_lines_after_last_class_body_declaration = 2;
+	String input = getCompilationUnit("Formatter", "", "test169131", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test169131", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/169131 - [formatter] Code formatter: blank lines after last declaration
+ */
+public void testBug169131b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 3;
+	this.formatterPrefs.blank_lines_after_last_class_body_declaration = ~1;
+	String input = getCompilationUnit("Formatter", "", "test169131", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test169131", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/169131 - [formatter] Code formatter: blank lines after last declaration
+ */
+public void testBug169131c() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_9);
+	this.formatterPrefs.blank_lines_after_last_class_body_declaration = 1;
+	String input =
+		"module aaaaaaaaaa.bbbbbbbbbb {\n" + 
+		"	requires aaaaaaaaaa.cccccccccc; // a comment\n" + 
+		"}";
+	formatSource(input,
+		"module aaaaaaaaaa.bbbbbbbbbb {\n" + 
+		"	requires aaaaaaaaaa.cccccccccc; // a comment\n" + 
+		"\n" + 
+		"}",
+		CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
+}
+/**
+ * https://bugs.eclipse.org/169131 - [formatter] Code formatter: blank lines after last declaration
+ */
+public void testBug169131d() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_9);
+	this.formatterPrefs.blank_lines_after_last_class_body_declaration = ~0;
+	String input =
+		"module aaaaaaaaaa.bbbbbbbbbb {\n" + 
+		"	requires aaaaaaaaaa.cccccccccc;\n" + 
+		"\n" + 
+		"}";
+	formatSource(input,
+		"module aaaaaaaaaa.bbbbbbbbbb {\n" + 
+		"	requires aaaaaaaaaa.cccccccccc;\n" + 
+		"}",
+		CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
+}
 }
