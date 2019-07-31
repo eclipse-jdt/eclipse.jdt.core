@@ -31,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.ServiceLoader;
@@ -132,6 +133,13 @@ public class BatchTestUtils {
 		// create new list containing inputfile
 		List<File> files = new ArrayList<File>();
 		findFilesUnder(targetFolder, files);
+		files.sort(new Comparator<File>() {
+			@Override
+			public int compare(File f1, File f2) {
+				int compareTo = f1.getAbsolutePath().compareTo(f2.getAbsolutePath());
+				return compareTo;
+			}
+		});
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 		StringWriter stringWriter = new StringWriter();
 		PrintWriter printWriter = new PrintWriter(stringWriter);

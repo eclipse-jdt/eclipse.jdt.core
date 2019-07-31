@@ -18,8 +18,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.lang.model.SourceVersion;
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
@@ -32,30 +35,47 @@ public class Java12ElementsTests extends TestCase {
 
 	public void testRootElements1Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements1", null, "modules2");
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements1", null, "modules2", true);
 	}
 	public void testRootElements1() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements1", null, "modules2");
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements1", null, "modules2", true);
 	}
 	public void testRootElements2Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements2", null, "modules3");
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements2", null, "modules3", true);
 	}
 	public void testRootElements2() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements2", null, "modules3");
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements2", null, "modules3", true);
 	}
 	public void testRootElements3Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements3", null, "modules4");
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements3", null, "modules4", true);
 	}
 	public void testRootElements3() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements3", null, "modules4");
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements3", null, "modules4", true);
 	}
-
-	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea) throws IOException {
+	public void testRootElements4Javac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements4", null, "modules5", true);
+	}
+	public void testRootElements4() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements4", null, "modules5", true);
+	}
+	public void testRootElements5Javac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements5", null, "modules5", true);
+	}
+	public void testRootElements5() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements5", null, "modules5", true);
+	}
+	@SuppressWarnings({ "rawtypes", "unchecked" }) 
+	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea,
+				boolean processBinariesAgain) throws IOException {
 		if (!canRunJava12()) {
 			return;
 		}
@@ -80,7 +100,14 @@ public class Java12ElementsTests extends TestCase {
 			options.add("-source");
 			options.add(compliance);
 		}
-		BatchTestUtils.compileInModuleMode(compiler, options, processor, targetFolder, null, true);
+		BatchTestUtils.compileInModuleMode(compiler, options, processor, targetFolder, new DiagnosticListener() {
+			@Override
+			public void report(Diagnostic d) {
+				if (d.getKind() == Diagnostic.Kind.ERROR) {
+					System.out.println("Compilation error: " + d.getMessage(Locale.getDefault()));
+				}
+			}
+		}, true, processBinariesAgain);
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
 		assertEquals("succeeded", System.getProperty(processor));
