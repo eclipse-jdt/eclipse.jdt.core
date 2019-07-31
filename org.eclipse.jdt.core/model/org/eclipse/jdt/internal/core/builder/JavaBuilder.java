@@ -514,37 +514,9 @@ boolean hasBuildpathErrors() throws CoreException {
 private boolean hasJdtCoreSettingsChange(SimpleLookupTable deltas) {
 	Object resourceDelta = deltas.get(this.currentProject);
 	if (resourceDelta instanceof IResourceDelta) {
-		IResourceDelta delta = (IResourceDelta) resourceDelta;
-		class CheckForJdtCoreSettingsFileChange implements IResourceDeltaVisitor {
-
-			boolean hasJdtCoreSettingsChange = false;
-
-			@Override
-			public boolean visit(IResourceDelta childDelta) throws CoreException {
-				IResource resource = childDelta.getResource();
-				boolean isJdtCoreSettingsResource = isJdtCoreSettingsResource(resource);
-				if (isJdtCoreSettingsResource) {
-					this.hasJdtCoreSettingsChange = true;
-					return false; // stop visiting, the JDT core settings file changed
-				}
-				return true;
-			}
-		}
-		try {
-			CheckForJdtCoreSettingsFileChange visitor = new CheckForJdtCoreSettingsFileChange();
-			delta.accept(visitor);
-			return visitor.hasJdtCoreSettingsChange;
-		} catch (CoreException e) {
-			Util.log(e, "Failed to check whether deltas contain JDT preference changes"); //$NON-NLS-1$
-		}
+		return ((IResourceDelta) resourceDelta).findMember(JDT_CORE_SETTINGS_PATH) != null;
 	}
 	return false;
-}
-
-static boolean isJdtCoreSettingsResource(IResource resource) {
-	IPath resourcePath = resource.getProjectRelativePath();
-	boolean isJdtCoreSettingsResource = JDT_CORE_SETTINGS_PATH.equals(resourcePath);
-	return isJdtCoreSettingsResource;
 }
 
 private boolean hasClasspathChanged() {
