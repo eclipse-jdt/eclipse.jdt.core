@@ -589,6 +589,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_BLANK_LINES_AT_BEGINNING_OF_METHOD_BODY = JavaCore.PLUGIN_ID + ".formatter.number_of_blank_lines_at_beginning_of_method_body"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to add or remove blank lines at the end of the method body
+	 *     - option id:         "org.eclipse.jdt.core.formatter.number_of_blank_lines_at_end_of_method_body"
+	 *     - possible values:   "&lt;n&gt;", where n is an integer. If n is negative, the actual number of
+	 *                          blank lines is ~n and any excess blank lines are deleted, overriding the
+	 *                          {@link #FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE} option
+	 *     - default:           "0"
+	 * </pre>
+	 * @since 3.19
+	 */
+	public static final String FORMATTER_BLANK_LINES_AT_END_OF_METHOD_BODY = JavaCore.PLUGIN_ID + ".formatter.number_of_blank_lines_at_end_of_method_body"; //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to add or remove blank lines before a field declaration
 	 *     - option id:         "org.eclipse.jdt.core.formatter.blank_lines_before_field"
 	 *     - possible values:   "&lt;n&gt;", where n is an integer. If n is negative, the actual number of

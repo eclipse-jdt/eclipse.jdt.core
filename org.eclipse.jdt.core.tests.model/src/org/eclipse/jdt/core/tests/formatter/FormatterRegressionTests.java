@@ -15074,4 +15074,24 @@ public void testBug169131d() throws JavaModelException {
 		"}",
 		CodeFormatter.K_MODULE_INFO | CodeFormatter.F_INCLUDE_COMMENTS);
 }
+/**
+ * https://bugs.eclipse.org/522089 - [formatter] Provide support for blank line before end of method
+ */
+public void testBug522089a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 3;
+	this.formatterPrefs.blank_lines_at_end_of_method_body = 2;
+	String input = getCompilationUnit("Formatter", "", "test522089", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test522089", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/522089 - [formatter] Provide support for blank line before end of method
+ */
+public void testBug522089b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 3;
+	this.formatterPrefs.blank_lines_at_end_of_method_body = ~0;
+	String input = getCompilationUnit("Formatter", "", "test522089", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test522089", "B_out.java").getSource());
+}
 }

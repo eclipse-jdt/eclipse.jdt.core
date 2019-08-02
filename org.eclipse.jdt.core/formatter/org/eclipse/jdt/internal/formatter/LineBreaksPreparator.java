@@ -292,8 +292,10 @@ public class LineBreaksPreparator extends ASTVisitor {
 				: this.options.brace_position_for_method_declaration;
 		handleBracedCode(node.getBody(), null, bracePosition, this.options.indent_statements_compare_to_body);
 		Token openBrace = this.tm.firstTokenIn(node.getBody(), TokenNameLBRACE);
-		if (openBrace.getLineBreaksAfter() > 0) // if not, these are empty braces
+		if (openBrace.getLineBreaksAfter() > 0) { // if not, these are empty braces
 			putBlankLinesAfter(openBrace, this.options.blank_lines_at_beginning_of_method_body);
+			putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_method_body);
+		}
 		return true;
 	}
 
