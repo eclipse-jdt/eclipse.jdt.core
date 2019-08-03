@@ -71,6 +71,7 @@ public class Example {
 
 
 
+
 	public Example(LinkedList list) {
 
 

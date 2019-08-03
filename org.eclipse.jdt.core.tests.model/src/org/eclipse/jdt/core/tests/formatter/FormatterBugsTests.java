@@ -11914,19 +11914,16 @@ public void testBug475791() {
 		"	String field2;\r\n" + 
 		"	static {\r\n" + 
 		"	}\r\n" + 
-		"\r\n" + 
 		"	static void staticMethod() {\r\n" + 
 		"	};\r\n" + 
 		"	static {\r\n" + 
 		"	}\r\n" + 
-		"\r\n" + 
 		"	void method() {\r\n" + 
 		"	}\r\n" + 
 		"	static {\r\n" + 
 		"	}\r\n" + 
 		"	{\r\n" + 
 		"	}\r\n" + 
-		"\r\n" + 
 		"	static class staticClass {\r\n" + 
 		"	};\r\n" + 
 		"	{\r\n" + 

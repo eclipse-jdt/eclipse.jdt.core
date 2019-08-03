@@ -15094,4 +15094,34 @@ public void testBug522089b() throws JavaModelException {
 	String input = getCompilationUnit("Formatter", "", "test522089", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test522089", "B_out.java").getSource());
 }
+/**
+ * https://bugs.eclipse.org/549774 - [formatter] Change semantics of Blank lines before member declarations: 'before' -> 'between'
+ */
+public void testBug549774() throws JavaModelException {
+	this.formatterPrefs.blank_lines_before_new_chunk = 1;
+	this.formatterPrefs.blank_lines_before_field = 2;
+	this.formatterPrefs.blank_lines_before_method = 3;
+	String input =
+		"class C {\n" + 
+		"	int a;\n" + 
+		"	String s;\n" + 
+		"	void foo() {}\n" + 
+		"	String bar(int a) {}\n" + 
+		"}";
+	formatSource(input,
+		"class C {\n" + 
+		"	int a;\n" + 
+		"\n" + 
+		"\n" + 
+		"	String s;\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"	String bar(int a) {\n" + 
+		"	}\n" + 
+		"}");
+}
 }

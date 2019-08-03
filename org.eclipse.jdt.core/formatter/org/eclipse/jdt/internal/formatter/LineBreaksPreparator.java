@@ -159,23 +159,20 @@ public class LineBreaksPreparator extends ASTVisitor {
 	private void handleBodyDeclarations(List<BodyDeclaration> bodyDeclarations) {
 		BodyDeclaration previous = null;
 		for (BodyDeclaration bodyDeclaration : bodyDeclarations) {
+			int blankLines = 0;
 			if (previous == null) {
-				putBlankLinesBefore(bodyDeclaration, this.options.blank_lines_before_first_class_body_declaration);
-			} else {
-				int blankLines = 0;
-				if (bodyDeclaration instanceof FieldDeclaration) {
-					blankLines = this.options.blank_lines_before_field;
-				} else if (bodyDeclaration instanceof AbstractTypeDeclaration) {
-					blankLines = this.options.blank_lines_before_member_type;
-				} else if (bodyDeclaration instanceof MethodDeclaration
-						|| bodyDeclaration instanceof AnnotationTypeMemberDeclaration) {
-					blankLines = this.options.blank_lines_before_method;
-				}
-
-				putBlankLinesBefore(bodyDeclaration, blankLines);
-				if (!sameChunk(previous, bodyDeclaration))
-					putBlankLinesBefore(bodyDeclaration, this.options.blank_lines_before_new_chunk);
+				blankLines = this.options.blank_lines_before_first_class_body_declaration;
+			} else if (!sameChunk(previous, bodyDeclaration)) {
+				blankLines = this.options.blank_lines_before_new_chunk;
+			} else if (bodyDeclaration instanceof FieldDeclaration) {
+				blankLines = this.options.blank_lines_before_field;
+			} else if (bodyDeclaration instanceof AbstractTypeDeclaration) {
+				blankLines = this.options.blank_lines_before_member_type;
+			} else if (bodyDeclaration instanceof MethodDeclaration
+					|| bodyDeclaration instanceof AnnotationTypeMemberDeclaration) {
+				blankLines = this.options.blank_lines_before_method;
 			}
+			putBlankLinesBefore(bodyDeclaration, blankLines);
 			previous = bodyDeclaration;
 		}
 	}
@@ -187,7 +184,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 			return true;
 		if ((bd1 instanceof FieldDeclaration || bd1 instanceof Initializer)
 				&& (bd2 instanceof FieldDeclaration || bd2 instanceof Initializer))
-			return true;
+			return true; // special case: initializers are often related to fields, don't separate
 		return false;
 	}
 
