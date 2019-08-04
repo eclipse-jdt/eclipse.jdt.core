@@ -649,6 +649,19 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_BLANK_LINES_BEFORE_IMPORTS = JavaCore.PLUGIN_ID + ".formatter.blank_lines_before_imports";	//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to add or remove blank lines before an abstract method declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.blank_lines_before_abstract_method"
+	 *     - possible values:   "&lt;n&gt;", where n is an integer. If n is negative, the actual number of
+	 *                          blank lines is ~n and any excess blank lines are deleted, overriding the
+	 *                          {@link #FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE} option
+	 *     - default:           "0"
+	 * </pre>
+	 * @since 3.19
+	 */
+	public static final String FORMATTER_BLANK_LINES_BEFORE_ABSTRACT_METHOD = JavaCore.PLUGIN_ID + ".formatter.blank_lines_before_abstract_method"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
 	 * FORMATTER / Option to add or remove blank lines before a member type declaration
 	 *     - option id:         "org.eclipse.jdt.core.formatter.blank_lines_before_member_type"
 	 *     - possible values:   "&lt;n&gt;", where n is an integer. If n is negative, the actual number of
@@ -661,7 +674,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_BLANK_LINES_BEFORE_MEMBER_TYPE = JavaCore.PLUGIN_ID + ".formatter.blank_lines_before_member_type";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to add or remove blank lines before a method declaration
+	 * FORMATTER / Option to add or remove blank lines before a non-abstract method declaration
 	 *     - option id:         "org.eclipse.jdt.core.formatter.blank_lines_before_method"
 	 *     - possible values:   "&lt;n&gt;", where n is an integer. If n is negative, the actual number of
 	 *                          blank lines is ~n and any excess blank lines are deleted, overriding the

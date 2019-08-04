@@ -15124,4 +15124,31 @@ public void testBug549774() throws JavaModelException {
 		"	}\n" + 
 		"}");
 }
+/**
+ * https://bugs.eclipse.org/214283 - [formatter] Blank lines option should consider a virtual/interface method
+ */
+public void testBug214283a() throws JavaModelException {
+	this.formatterPrefs.blank_lines_before_abstract_method= 2;
+	this.formatterPrefs.blank_lines_before_method= 0;
+	String input = getCompilationUnit("Formatter", "", "test214283", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test214283", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/214283 - [formatter] Blank lines option should consider a virtual/interface method
+ */
+public void testBug214283b() throws JavaModelException {
+	this.formatterPrefs.blank_lines_before_abstract_method= ~0;
+	this.formatterPrefs.blank_lines_before_method= 1;
+	String input = getCompilationUnit("Formatter", "", "test214283", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test214283", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/214283 - [formatter] Blank lines option should consider a virtual/interface method
+ */
+public void testBug214283c() throws JavaModelException {
+	this.formatterPrefs.blank_lines_before_abstract_method= 0;
+	this.formatterPrefs.blank_lines_before_method= 2;
+	String input = getCompilationUnit("Formatter", "", "test214283", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test214283", "C_out.java").getSource());
+}
 }

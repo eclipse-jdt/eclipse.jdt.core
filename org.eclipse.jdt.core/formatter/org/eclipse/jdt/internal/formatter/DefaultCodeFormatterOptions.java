@@ -196,6 +196,7 @@ public class DefaultCodeFormatterOptions {
 	public int blank_lines_after_last_class_body_declaration;
 	public int blank_lines_before_imports;
 	public int blank_lines_before_member_type;
+	public int blank_lines_before_abstract_method;
 	public int blank_lines_before_method;
 	public int blank_lines_before_new_chunk;
 	public int blank_lines_before_package;
@@ -604,6 +605,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_AFTER_LAST_CLASS_BODY_DECLARATION, Integer.toString(this.blank_lines_after_last_class_body_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_IMPORTS, Integer.toString(this.blank_lines_before_imports));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_MEMBER_TYPE, Integer.toString(this.blank_lines_before_member_type));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_ABSTRACT_METHOD, Integer.toString(this.blank_lines_before_abstract_method));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD, Integer.toString(this.blank_lines_before_method));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_NEW_CHUNK, Integer.toString(this.blank_lines_before_new_chunk));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_PACKAGE, Integer.toString(this.blank_lines_before_package));
@@ -1327,6 +1329,8 @@ public class DefaultCodeFormatterOptions {
 				this.blank_lines_before_member_type = 0;
 			}
 		}
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_ABSTRACT_METHOD,
+				v -> this.blank_lines_before_abstract_method = v);
 		final Object blankLinesBeforeMethodOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD);
 		if (blankLinesBeforeMethodOption != null) {
 			try {
@@ -2811,6 +2815,7 @@ public class DefaultCodeFormatterOptions {
 		this.blank_lines_after_last_class_body_declaration = 0;
 		this.blank_lines_before_imports = 0;
 		this.blank_lines_before_member_type = 0;
+		this.blank_lines_before_abstract_method = 0;
 		this.blank_lines_before_method = 0;
 		this.blank_lines_before_new_chunk = 0;
 		this.blank_lines_before_package = 0;
@@ -3168,6 +3173,7 @@ public class DefaultCodeFormatterOptions {
 		this.blank_lines_after_last_class_body_declaration = 0;
 		this.blank_lines_before_imports = 1;
 		this.blank_lines_before_member_type = 1;
+		this.blank_lines_before_abstract_method = 1;
 		this.blank_lines_before_method = 1;
 		this.blank_lines_before_new_chunk = 1;
 		this.blank_lines_before_package = 0;

@@ -10991,7 +10991,7 @@ public void testBug471090() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=471364"
  */
 public void testBug471364() throws JavaModelException {
-	this.formatterPrefs.blank_lines_before_method = 0;
+	this.formatterPrefs.blank_lines_before_abstract_method = 0;
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_SPLIT;
 	String source = 
 		"interface Example {\r\n" + 

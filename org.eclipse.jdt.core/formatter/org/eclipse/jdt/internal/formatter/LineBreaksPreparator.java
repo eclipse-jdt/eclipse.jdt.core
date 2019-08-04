@@ -168,8 +168,12 @@ public class LineBreaksPreparator extends ASTVisitor {
 				blankLines = this.options.blank_lines_before_field;
 			} else if (bodyDeclaration instanceof AbstractTypeDeclaration) {
 				blankLines = this.options.blank_lines_before_member_type;
-			} else if (bodyDeclaration instanceof MethodDeclaration
-					|| bodyDeclaration instanceof AnnotationTypeMemberDeclaration) {
+			} else if (bodyDeclaration instanceof MethodDeclaration) {
+				blankLines = ((MethodDeclaration) bodyDeclaration).getBody() == null
+						&& ((MethodDeclaration) previous).getBody() == null
+								? this.options.blank_lines_before_abstract_method
+								: this.options.blank_lines_before_method;
+			} else if (bodyDeclaration instanceof AnnotationTypeMemberDeclaration) {
 				blankLines = this.options.blank_lines_before_method;
 			}
 			putBlankLinesBefore(bodyDeclaration, blankLines);
