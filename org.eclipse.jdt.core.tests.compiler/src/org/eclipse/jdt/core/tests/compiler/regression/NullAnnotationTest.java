@@ -10606,4 +10606,39 @@ public void testBug545715() {
 	    customOptions,
 	    new String[] {"--enable-preview"});
 }
+public void testBug499714() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/X.java",
+			"package test;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"@NonNullByDefault\n" + 
+			"public class X {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Object o = null;\n" + 
+			"        for (final String s : args) {\n" + 
+			"            if (s.equals(\"-x\")) {\n" + 
+			"                if (o != null) { // bogus warning here\n" + 
+			"                    //\n" + 
+			"                }\n" + 
+			"                continue;\n" + 
+			"            }\n" + 
+			"            o = read();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    @Nullable\n" + 
+			"    public static Object read() {\n" + 
+			"        return \"\";\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 }
