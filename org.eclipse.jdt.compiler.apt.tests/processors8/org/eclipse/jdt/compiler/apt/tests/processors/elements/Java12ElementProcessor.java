@@ -120,9 +120,12 @@ public class Java12ElementProcessor extends BaseProcessor {
 	}
 
 	public void testAll() throws AssertionFailedError, IOException {
+		testBug549687();
 		testRootElements1();
 	}
-
+	public void testBug549687() throws IOException {
+		// Nothing required to reproduce the NPE
+	}
 	public void testRootElements1() throws IOException {
 		Set<? extends Element> rootElements = this.roundEnv.getRootElements();
 		List<String> types = new ArrayList<>();

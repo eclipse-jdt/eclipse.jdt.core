@@ -33,6 +33,10 @@ import junit.framework.TestCase;
 public class Java12ElementsTests extends TestCase {
 	private static final String MODULE_PROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.Java12ElementProcessor";
 
+	public void testBug549687() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, MODULE_PROC, "12", "testBug549687", null, "modules6", false);
+	}
 	public void testRootElements1Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestWithBinary(compiler, MODULE_PROC, "12", "testRootElements1", null, "modules2", true);
