@@ -11055,6 +11055,8 @@ public void autoModuleWithUnstableName(ModuleReference moduleReference) {
 			moduleReference.sourceEnd);
 }
 public void switchExpressionIncompatibleResultExpressions(SwitchExpression expression) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	TypeBinding type = expression.resultExpressions.get(0).resolvedType;
 	this.handle(
 		IProblem.SwitchExpressionsIncompatibleResultExpressionTypes,
@@ -11064,6 +11066,8 @@ public void switchExpressionIncompatibleResultExpressions(SwitchExpression expre
 		expression.sourceEnd);
 }
 public void switchExpressionEmptySwitchBlock(SwitchExpression expression) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.SwitchExpressionsEmptySwitchBlock,
 		NoArgument,
@@ -11072,6 +11076,8 @@ public void switchExpressionEmptySwitchBlock(SwitchExpression expression) {
 		expression.sourceEnd);
 }
 public void switchExpressionNoResultExpressions(SwitchExpression expression) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.SwitchExpressionsNoResultExpression,
 		NoArgument,
@@ -11080,6 +11086,8 @@ public void switchExpressionNoResultExpressions(SwitchExpression expression) {
 		expression.sourceEnd);
 }
 public void switchExpressionSwitchLabeledBlockCompletesNormally(Block block) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.SwitchExpressionSwitchLabeledBlockCompletesNormally,
 		NoArgument,
@@ -11088,6 +11096,8 @@ public void switchExpressionSwitchLabeledBlockCompletesNormally(Block block) {
 		block.sourceEnd);
 }
 public void switchExpressionLastStatementCompletesNormally(Statement stmt) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.SwitchExpressionSwitchLabeledBlockCompletesNormally,
 		NoArgument,
@@ -11096,6 +11106,8 @@ public void switchExpressionLastStatementCompletesNormally(Statement stmt) {
 		stmt.sourceEnd);
 }
 public void switchExpressionIllegalLastStatement(Statement stmt) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.SwitchExpressionIllegalLastStatement,
 		NoArgument,
@@ -11104,6 +11116,8 @@ public void switchExpressionIllegalLastStatement(Statement stmt) {
 		stmt.sourceEnd);
 }
 public void switchExpressionTrailingSwitchLabels(Statement stmt) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.SwitchExpressionTrailingSwitchLabels,
 		NoArgument,
@@ -11112,6 +11126,8 @@ public void switchExpressionTrailingSwitchLabels(Statement stmt) {
 		stmt.sourceEnd);
 }
 public void switchExpressionMixedCase(ASTNode statement) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.switchMixedCase,
 		NoArgument,
@@ -11120,6 +11136,8 @@ public void switchExpressionMixedCase(ASTNode statement) {
 		statement.sourceEnd);
 }
 public void switchExpressionBreakMissingValue(ASTNode statement) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.SwitchExpressionBreakMissingValue,
 		NoArgument,
