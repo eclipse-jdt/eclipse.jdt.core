@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  * 
  *******************************************************************************/
@@ -1549,6 +1553,54 @@ public class CompletionTests13 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
 				"_value[LOCAL_VARIABLE_REF]{_value, null, I, _value, null, 52}",
+						requestor.getResults());
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_EnablePreviews, old);
+	}
+	public void testBug545783() throws JavaModelException {
+		String old = COMPLETION_PROJECT.getOption(CompilerOptions.OPTION_EnablePreviews, true);
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/bugs/C.java",
+				"""
+				package bugs;
+				public class C {
+					int foo(String str) {
+						return switch (str) {
+						case "x", "y" -> {
+							yield 0;
+						}
+						default -> {
+							i: for (int i = 0; i < 10; i++) {
+								if (str.) {
+									yield i;
+								}
+							}
+							yield -1;
+						}
+						};
+					}
+				}
+				""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "if (str.";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 55}\n" + 
+				"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 55}\n" + 
+				"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 55}\n" + 
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n" + 
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n" + 
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n" + 
+				"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" + 
+				"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n" + 
+				"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" + 
+				"length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, 60}\n" + 
+				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" + 
+				"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 90}",
 						requestor.getResults());
 		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_EnablePreviews, old);
 	}
