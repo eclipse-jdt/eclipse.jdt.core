@@ -351,6 +351,11 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		}
 	}
 
+	void formatSourceInWorkspace(String packageName, String inputCuName, String outputCuName) throws JavaModelException {
+		String input = getCompilationUnit("Formatter", "", packageName, inputCuName).getSource();
+		formatSource(input, getCompilationUnit("Formatter", "", packageName, outputCuName).getSource());
+	}
+
 
 	private void runTest(String packageName, String compilationUnitName) {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
@@ -15150,5 +15155,37 @@ public void testBug214283c() throws JavaModelException {
 	this.formatterPrefs.blank_lines_before_method= 2;
 	String input = getCompilationUnit("Formatter", "", "test214283", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test214283", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/212867 - [formatter]: Remove blank lines after '{' and before '}'
+ */
+public void testBug212867a() throws JavaModelException {
+	this.formatterPrefs.blank_lines_at_beginning_of_code_block = 2;
+	this.formatterPrefs.blank_lines_at_end_of_code_block = 0;
+	formatSourceInWorkspace("test212867", "in.java", "A_out.java");
+}
+/**
+ * https://bugs.eclipse.org/212867 - [formatter]: Remove blank lines after '{' and before '}'
+ */
+public void testBug212867b() throws JavaModelException {
+	this.formatterPrefs.blank_lines_at_beginning_of_code_block = 0;
+	this.formatterPrefs.blank_lines_at_end_of_code_block = 2;
+	formatSourceInWorkspace("test212867", "in.java", "B_out.java");
+}
+/**
+ * https://bugs.eclipse.org/212867 - [formatter]: Remove blank lines after '{' and before '}'
+ */
+public void testBug212867c() throws JavaModelException {
+	this.formatterPrefs.blank_lines_at_beginning_of_code_block = 2;
+	this.formatterPrefs.blank_lines_at_end_of_code_block = 2;
+	formatSourceInWorkspace("test212867", "in.java", "C_out.java");
+}
+/**
+ * https://bugs.eclipse.org/212867 - [formatter]: Remove blank lines after '{' and before '}'
+ */
+public void testBug212867d() throws JavaModelException {
+	this.formatterPrefs.blank_lines_at_beginning_of_code_block = ~0;
+	this.formatterPrefs.blank_lines_at_end_of_code_block = ~0;
+	formatSourceInWorkspace("test212867", "in.java", "D_out.java");
 }
 }

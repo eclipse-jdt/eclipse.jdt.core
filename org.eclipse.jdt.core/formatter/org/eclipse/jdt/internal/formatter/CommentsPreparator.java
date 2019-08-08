@@ -444,11 +444,15 @@ public class CommentsPreparator extends ASTVisitor {
 
 			if (existingBreaksBefore < existingBreaksAfter && previous != null) {
 				commentToken.putLineBreaksAfter(previous.getLineBreaksAfter());
+				commentToken.setPreserveLineBreaksAfter(previous.isPreserveLineBreaksAfter());
 				previous.clearLineBreaksAfter();
-			} else if (existingBreaksAfter <= existingBreaksBefore && next != null
+				previous.setPreserveLineBreaksAfter(true);
+			} else if (existingBreaksAfter < 2 && existingBreaksAfter <= existingBreaksBefore && next != null
 					&& next.tokenType != TokenNamepackage /* doesn't apply to a comment before the package declaration */) {
 				commentToken.putLineBreaksBefore(next.getLineBreaksBefore());
+				commentToken.setPreserveLineBreaksBefore(next.isPreserveLineBreaksBefore());
 				next.clearLineBreaksBefore();
+				next.setPreserveLineBreaksBefore(true);
 			}
 		}
 

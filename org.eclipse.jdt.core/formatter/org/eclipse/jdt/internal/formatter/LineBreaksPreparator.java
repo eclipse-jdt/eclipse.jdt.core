@@ -196,11 +196,15 @@ public class LineBreaksPreparator extends ASTVisitor {
 		int index = this.tm.firstIndexIn(node, -1);
 		while (index > 0 && this.tm.get(index - 1).tokenType == TokenNameCOMMENT_JAVADOC)
 			index--;
+		putBlankLinesBefore(this.tm.get(index), linesCount);
+	}
+
+	private void putBlankLinesBefore(Token token, int linesCount) {
 		if (linesCount >= 0) {
-			this.tm.get(index).putLineBreaksBefore(linesCount + 1);
+			token.putLineBreaksBefore(linesCount + 1);
 		} else {
-			this.tm.get(index).putLineBreaksBefore(~linesCount + 1);
-			this.tm.get(index).setPreserveLineBreaksBefore(false);
+			token.putLineBreaksBefore(~linesCount + 1);
+			token.setPreserveLineBreaksBefore(false);
 		}
 	}
 
@@ -214,8 +218,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 	}
 
 	private void putBlankLinesBeforeCloseBrace(ASTNode node, int blankLinesSetting) {
-		int closeBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
-		putBlankLinesAfter(this.tm.get(closeBraceIndex - 1), blankLinesSetting);
+		putBlankLinesBefore(this.tm.lastTokenIn(node, TokenNameRBRACE), blankLinesSetting);
 	}
 
 	@Override
@@ -292,11 +295,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 		String bracePosition = node.isConstructor() ? this.options.brace_position_for_constructor_declaration
 				: this.options.brace_position_for_method_declaration;
 		handleBracedCode(node.getBody(), null, bracePosition, this.options.indent_statements_compare_to_body);
-		Token openBrace = this.tm.firstTokenIn(node.getBody(), TokenNameLBRACE);
-		if (openBrace.getLineBreaksAfter() > 0) { // if not, these are empty braces
-			putBlankLinesAfter(openBrace, this.options.blank_lines_at_beginning_of_method_body);
-			putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_method_body);
-		}
+
+		putBlankLinesAfter(this.tm.firstTokenIn(node.getBody(), TokenNameLBRACE),
+				this.options.blank_lines_at_beginning_of_method_body);
+		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_method_body);
+
 		return true;
 	}
 
@@ -324,6 +327,10 @@ public class LineBreaksPreparator extends ASTVisitor {
 			bracePosition = this.options.brace_position_for_lambda_body;
 		}
 		handleBracedCode(node, null, bracePosition, this.options.indent_statements_compare_to_block);
+
+		putBlankLinesAfter(this.tm.firstTokenIn(node, TokenNameLBRACE),
+				this.options.blank_lines_at_beginning_of_code_block);
+		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_code_block);
 
 		return true;
 	}
@@ -376,6 +383,10 @@ public class LineBreaksPreparator extends ASTVisitor {
 				breakLineBefore(statement);
 		}
 
+		putBlankLinesAfter(this.tm.firstTokenAfter(node.getExpression(), TokenNameLBRACE),
+				this.options.blank_lines_at_beginning_of_code_block);
+		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_code_block);
+
 		return true;
 	}
 
@@ -426,6 +437,10 @@ public class LineBreaksPreparator extends ASTVisitor {
 			if (this.options.put_empty_statement_on_new_line || !(statement instanceof EmptyStatement))
 				breakLineBefore(statement);
 		}
+
+		putBlankLinesAfter(this.tm.firstTokenAfter(node.getExpression(), TokenNameLBRACE),
+				this.options.blank_lines_at_beginning_of_code_block);
+		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_code_block);
 
 		return true;
 	}

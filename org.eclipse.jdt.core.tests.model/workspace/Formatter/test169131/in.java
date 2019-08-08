@@ -33,6 +33,13 @@ public class C3 {
 	// comment
 	// comment
 }
+public class C3b {
+	int a;
+	// comment
+	// comment
+	// comment
+
+}
 
 abstract class C4 {
 	int a; /* comment  */
@@ -43,6 +50,13 @@ class C5 {
 	/* comment  */
 	/* comment  */
 	/* comment */
+}
+class C5b {
+	int a;
+	/* comment  */
+	/* comment  */
+	/* comment */
+
 }
 
 enum Enum {

@@ -7,6 +7,10 @@ class C {
 		// with comment
 	}
 
+	protected C(byte a) {
+		// with comment
+	}
+
 	C(String s) {
 		/* with comment */
 	}

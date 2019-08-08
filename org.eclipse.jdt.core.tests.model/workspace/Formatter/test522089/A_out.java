@@ -6,15 +6,21 @@ class C {
 	}
 
 	protected C(int a) {
+
+
+		// with comment
+	}
+
+	protected C(byte a) {
 		// with comment
 
 
 	}
 
 	C(String s) {
+
+
 		/* with comment */
-
-
 	}
 
 	public C(int a, String s) {
@@ -29,9 +35,9 @@ class C {
 	}
 
 	void empty2() {
+
+
 		// with comment
-
-
 	}
 
 	void empty3() {

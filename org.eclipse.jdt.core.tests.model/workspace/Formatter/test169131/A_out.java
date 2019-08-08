@@ -37,6 +37,15 @@ public class C2 {
 
 public class C3 {
 	int a;
+
+
+	// comment
+	// comment
+	// comment
+}
+
+public class C3b {
+	int a;
 	// comment
 	// comment
 	// comment
@@ -52,6 +61,15 @@ abstract class C4 {
 }
 
 class C5 {
+	int a;
+
+
+	/* comment */
+	/* comment */
+	/* comment */
+}
+
+class C5b {
 	int a;
 	/* comment */
 	/* comment */
