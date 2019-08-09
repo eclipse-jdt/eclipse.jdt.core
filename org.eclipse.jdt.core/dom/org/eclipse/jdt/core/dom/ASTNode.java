@@ -970,7 +970,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>YieldStatement</code>.
 	 * @see YieldStatement
-	 * @since 3.18 BETA_JAVA13
+	 * @since 3.19 BETA_JAVA13
 	 */
 	public static final int YIELD_STATEMENT = 10;
 	
@@ -978,7 +978,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>TextBlock</code>.
 	 * @see TextBlock
-	 * @since 3.18 BETA_JAVA13
+	 * @since 3.19 BETA_JAVA13
 	 */
 	public static final int TEXT_BLOCK = 101;
 
