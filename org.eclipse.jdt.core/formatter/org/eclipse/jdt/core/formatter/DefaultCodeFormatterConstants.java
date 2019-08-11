@@ -625,6 +625,30 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_BLANK_LINES_AT_END_OF_CODE_BLOCK = JavaCore.PLUGIN_ID + ".formatter.number_of_blank_lines_at_end_of_code_block"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to add or remove blank lines before a statement containing a code block
+	 *     - option id:         "org.eclipse.jdt.core.formatter.number_of_blank_lines_before_code_block"
+	 *     - possible values:   "&lt;n&gt;", where n is an integer. If n is negative, the actual number of
+	 *                          blank lines is ~n and any excess blank lines are deleted, overriding the
+	 *                          {@link #FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE} option
+	 *     - default:           "0"
+	 * </pre>
+	 * @since 3.19
+	 */
+	public static final String FORMATTER_BLANK_LINES_BEFORE_CODE_BLOCK = JavaCore.PLUGIN_ID + ".formatter.number_of_blank_lines_before_code_block"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to add or remove blank lines after a statement containing a code block
+	 *     - option id:         "org.eclipse.jdt.core.formatter.number_of_blank_lines_after_code_block"
+	 *     - possible values:   "&lt;n&gt;", where n is an integer. If n is negative, the actual number of
+	 *                          blank lines is ~n and any excess blank lines are deleted, overriding the
+	 *                          {@link #FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE} option
+	 *     - default:           "0"
+	 * </pre>
+	 * @since 3.19
+	 */
+	public static final String FORMATTER_BLANK_LINES_AFTER_CODE_BLOCK = JavaCore.PLUGIN_ID + ".formatter.number_of_blank_lines_after_code_block"; //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to add or remove blank lines before a field declaration
 	 *     - option id:         "org.eclipse.jdt.core.formatter.blank_lines_before_field"
 	 *     - possible values:   "&lt;n&gt;", where n is an integer. If n is negative, the actual number of

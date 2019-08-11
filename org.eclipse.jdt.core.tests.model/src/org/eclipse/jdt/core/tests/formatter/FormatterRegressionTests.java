@@ -15188,4 +15188,36 @@ public void testBug212867d() throws JavaModelException {
 	this.formatterPrefs.blank_lines_at_end_of_code_block = ~0;
 	formatSourceInWorkspace("test212867", "in.java", "D_out.java");
 }
+/**
+ * https://bugs.eclipse.org/421492 - [formatter] Allow to add blank line(s) before a statement
+ */
+public void testBug421492a() throws JavaModelException {
+	this.formatterPrefs.blank_lines_before_code_block = 2;
+	this.formatterPrefs.blank_lines_after_code_block = 0;
+	formatSourceInWorkspace("test421492", "in.java", "A_out.java");
+}
+/**
+ * https://bugs.eclipse.org/421492 - [formatter] Allow to add blank line(s) before a statement
+ */
+public void testBug421492b() throws JavaModelException {
+	this.formatterPrefs.blank_lines_before_code_block = 0;
+	this.formatterPrefs.blank_lines_after_code_block = 2;
+	formatSourceInWorkspace("test421492", "in.java", "B_out.java");
+}
+/**
+ * https://bugs.eclipse.org/421492 - [formatter] Allow to add blank line(s) before a statement
+ */
+public void testBug421492c() throws JavaModelException {
+	this.formatterPrefs.blank_lines_before_code_block = 2;
+	this.formatterPrefs.blank_lines_after_code_block = 2;
+	formatSourceInWorkspace("test421492", "in.java", "C_out.java");
+}
+/**
+ * https://bugs.eclipse.org/421492 - [formatter] Allow to add blank line(s) before a statement
+ */
+public void testBug421492d() throws JavaModelException {
+	this.formatterPrefs.blank_lines_before_code_block = ~0;
+	this.formatterPrefs.blank_lines_after_code_block = ~0;
+	formatSourceInWorkspace("test421492", "in.java", "D_out.java");
+}
 }

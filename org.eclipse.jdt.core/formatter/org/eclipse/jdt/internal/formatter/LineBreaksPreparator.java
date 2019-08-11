@@ -332,7 +332,23 @@ public class LineBreaksPreparator extends ASTVisitor {
 				this.options.blank_lines_at_beginning_of_code_block);
 		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_code_block);
 
+		if (parent instanceof Block) {
+			blankLinesAroundBlock(node, ((Block) parent).statements());
+		} else if (parent instanceof Statement && parent.getParent() instanceof Block) {
+			blankLinesAroundBlock(parent, ((Block) parent.getParent()).statements());
+		}
+
 		return true;
+	}
+
+	private void blankLinesAroundBlock(ASTNode blockStatement, List<ASTNode> siblings) {
+		putBlankLinesBefore(blockStatement, this.options.blank_lines_before_code_block);
+		if (!this.options.put_empty_statement_on_new_line) {
+			int blockIndex = siblings.indexOf(blockStatement);
+			if (blockIndex + 1 < siblings.size() && siblings.get(blockIndex + 1) instanceof EmptyStatement)
+				return;
+		}
+		putBlankLinesAfter(this.tm.lastTokenIn(blockStatement, -1), this.options.blank_lines_after_code_block);
 	}
 
 	@Override
@@ -386,6 +402,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 		putBlankLinesAfter(this.tm.firstTokenAfter(node.getExpression(), TokenNameLBRACE),
 				this.options.blank_lines_at_beginning_of_code_block);
 		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_code_block);
+		if (node.getParent() instanceof Block)
+			blankLinesAroundBlock(node, ((Block) node.getParent()).statements());
 
 		return true;
 	}
