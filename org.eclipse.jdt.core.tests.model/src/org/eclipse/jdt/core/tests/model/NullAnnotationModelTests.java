@@ -30,6 +30,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.core.IAnnotation;
@@ -49,6 +50,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.tests.util.Util;
 import org.osgi.framework.Bundle;
 
 @SuppressWarnings("rawtypes")
@@ -1002,5 +1004,61 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			deleteProject(annotations);
 			deleteProject(client);
 		}
+	}
+	public void testBug549764() throws CoreException, IOException {
+		IJavaProject project = null;
+    	try {
+			project = createJavaProject("Bug549764", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", "1.8");
+			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+			
+			IPath libpath = project.getProject().getLocation().append("libann.jar");
+			Util.createJar(new String[] {
+					"lib/MyGenerated.java",
+					"package lib;\n" +
+					"public @interface MyGenerated {\n" +
+					"	String value();\n" +
+					"}"},
+					libpath.toOSString(),
+					"1.8");
+			addLibraryEntry(project, libpath, false);
+
+			createFolder("Bug549764/src/nullAnalysis");
+			createFile("Bug549764/src/nullAnalysis/package-info.java",
+					"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+					"package nullAnalysis;");
+			String testSource =
+					"package nullAnalysis;\n" + 
+					"\n" + 
+					"import org.eclipse.jdt.annotation.NonNull;\n" + 
+					"import lib.MyGenerated;\n" + 
+					"\n" + 
+					"@MyGenerated(Endpoint.COMMENT)\n" + 
+					"public class Endpoint {\n" + 
+					"\n" + 
+					"	public static final String COMMENT = \" comment\";\n" + 
+					"\n" + 
+					"	public void method() {\n" + 
+					"		format(COMMENT, \"\");\n" + 
+					"	}\n" + 
+					"	native void format(@NonNull String comment, String arg);\n" + 
+					"}\n";
+			String testSourcePath = "Bug549764/src/nullAnalysis/Endpoint.java";
+			createFile(testSourcePath, testSource);
+			char[] testSourceChars = testSource.toCharArray();
+			this.problemRequestor.initialize(testSourceChars);
+
+			getCompilationUnit(testSourcePath).getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. WARNING in /Bug549764/src/nullAnalysis/Endpoint.java (at line 14)\n" + 
+					"	native void format(@NonNull String comment, String arg);\n" + 
+					"	                   ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+					"The nullness annotation is redundant with a default that applies to this location\n" + 
+					"----------\n"
+					);
+    	} finally {
+    		deleteProject(project);
+    	}
 	}
 }
