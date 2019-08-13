@@ -686,7 +686,7 @@ public static int tagBitsToNullStatus(long tagBits) {
 	if ((tagBits & TagBits.AnnotationNonNull) != 0)
 		return NON_NULL;
 	if ((tagBits & TagBits.AnnotationNullable) != 0)
-		return POTENTIALLY_NULL;
+		return POTENTIALLY_NULL | FlowInfo.POTENTIALLY_UNKNOWN;
 	return UNKNOWN;
 }
 }

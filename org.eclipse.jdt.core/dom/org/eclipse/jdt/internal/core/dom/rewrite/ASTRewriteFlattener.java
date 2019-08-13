@@ -974,7 +974,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if (node.getAST().apiLevel() == JLS13) {
+		if (node.getAST().apiLevel() == JLS13 && node.getAST().isPreviewEnabled()) {
 			if (node.isDefault()) {
 				this.result.append("default");//$NON-NLS-1$
 				this.result.append(getBooleanAttribute(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY) ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
@@ -985,7 +985,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 						t.accept(this);
 						this.result.append(it.hasNext() ? ", " : ""); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				this.result.append(getBooleanAttribute(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY) ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
+				this.result.append(getBooleanAttribute(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY) ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$ 
 			}
 		} else {
 			ASTNode expression= getChildNode(node, INTERNAL_SWITCH_EXPRESSION_PROPERTY);

@@ -13,7 +13,7 @@ For more information and important links, refer to the [JDT wiki page] [1] or th
 License
 -------
 
-[Eclipse Public License (EPL) v1.0][3]
+[Eclipse Public License (EPL) v2.0][3]
 
 [1]: http://wiki.eclipse.org/JDT_Core
 [2]: http://www.eclipse.org/projects/project.php?id=eclipse.jdt

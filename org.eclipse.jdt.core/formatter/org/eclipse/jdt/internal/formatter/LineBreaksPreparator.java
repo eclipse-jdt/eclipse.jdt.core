@@ -29,7 +29,6 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameR
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameSEMICOLON;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameelse;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamefinally;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamepackage;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamewhile;
 
 import java.util.List;
@@ -103,10 +102,18 @@ public class LineBreaksPreparator extends ASTVisitor {
 	@Override
 	public boolean visit(CompilationUnit node) {
 		List<ImportDeclaration> imports = node.imports();
-		if (!imports.isEmpty()) {
-			int index = this.tm.firstIndexIn(imports.get(0), -1);
-			if (index > 0)
-				this.tm.get(index).putLineBreaksBefore(this.options.blank_lines_before_imports + 1);
+		if (!imports.isEmpty() && this.tm.firstIndexIn(imports.get(0), -1) > 0)
+			putBlankLinesBefore(imports.get(0), this.options.blank_lines_before_imports);
+
+		for (int i = 1; i < imports.size(); i++) {
+			int from = this.tm.lastIndexIn(imports.get(i - 1), -1);
+			int to = this.tm.firstIndexIn(imports.get(i), -1);
+			for (int j = from; j < to; j++) {
+				Token token1 = this.tm.get(j);
+				Token token2 = this.tm.get(j + 1);
+				if (this.tm.countLineBreaksBetween(token1, token2) > 1)
+					putBlankLinesAfter(token1, this.options.blank_lines_between_import_groups);
+			}
 		}
 
 		List<AnnotationTypeDeclaration> types = node.types();
@@ -121,14 +128,13 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(PackageDeclaration node) {
-		int blanks = this.options.blank_lines_before_package;
-		if (blanks > 0) {
-			List<Annotation> annotations = node.annotations();
-			int firstTokenIndex = annotations.isEmpty() ? this.tm.firstIndexBefore(node.getName(), TokenNamepackage)
-					: this.tm.firstIndexIn(annotations.get(0), -1);
-			this.tm.get(firstTokenIndex).putLineBreaksBefore(blanks + 1);
+		if (node.getJavadoc() == null) {
+			putBlankLinesBefore(node, this.options.blank_lines_before_package);
+		} else {
+			putBlankLinesAfter(this.tm.lastTokenIn(node.getJavadoc(), -1), this.options.blank_lines_before_package);
 		}
-		this.tm.lastTokenIn(node, TokenNameSEMICOLON).putLineBreaksAfter(this.options.blank_lines_after_package + 1);
+
+		putBlankLinesAfter(this.tm.lastTokenIn(node, -1), this.options.blank_lines_after_package);
 		this.declarationModifierVisited = false;
 		return true;
 	}
@@ -150,6 +156,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 		handleBracedCode(node, node.getName(), this.options.brace_position_for_type_declaration,
 				this.options.indent_body_declarations_compare_to_type_header);
+		if (!node.bodyDeclarations().isEmpty())
+			putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_after_last_class_body_declaration);
 
 		this.declarationModifierVisited = false;
 		return true;
@@ -158,24 +166,24 @@ public class LineBreaksPreparator extends ASTVisitor {
 	private void handleBodyDeclarations(List<BodyDeclaration> bodyDeclarations) {
 		BodyDeclaration previous = null;
 		for (BodyDeclaration bodyDeclaration : bodyDeclarations) {
+			int blankLines = 0;
 			if (previous == null) {
-				putBlankLinesBefore(bodyDeclaration, this.options.blank_lines_before_first_class_body_declaration);
-			} else {
-				int blankLines = 0;
-				if (bodyDeclaration instanceof FieldDeclaration) {
-					blankLines = this.options.blank_lines_before_field;
-				} else if (bodyDeclaration instanceof AbstractTypeDeclaration) {
-					blankLines = this.options.blank_lines_before_member_type;
-				} else if (bodyDeclaration instanceof MethodDeclaration
-						|| bodyDeclaration instanceof AnnotationTypeMemberDeclaration) {
-					blankLines = this.options.blank_lines_before_method;
-				}
-
-				if (!sameChunk(previous, bodyDeclaration))
-					blankLines = Math.max(blankLines, this.options.blank_lines_before_new_chunk);
-
-				putBlankLinesBefore(bodyDeclaration, blankLines);
+				blankLines = this.options.blank_lines_before_first_class_body_declaration;
+			} else if (!sameChunk(previous, bodyDeclaration)) {
+				blankLines = this.options.blank_lines_before_new_chunk;
+			} else if (bodyDeclaration instanceof FieldDeclaration) {
+				blankLines = this.options.blank_lines_before_field;
+			} else if (bodyDeclaration instanceof AbstractTypeDeclaration) {
+				blankLines = this.options.blank_lines_before_member_type;
+			} else if (bodyDeclaration instanceof MethodDeclaration) {
+				blankLines = ((MethodDeclaration) bodyDeclaration).getBody() == null
+						&& ((MethodDeclaration) previous).getBody() == null
+								? this.options.blank_lines_before_abstract_method
+								: this.options.blank_lines_before_method;
+			} else if (bodyDeclaration instanceof AnnotationTypeMemberDeclaration) {
+				blankLines = this.options.blank_lines_before_method;
 			}
+			putBlankLinesBefore(bodyDeclaration, blankLines);
 			previous = bodyDeclaration;
 		}
 	}
@@ -187,7 +195,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 			return true;
 		if ((bd1 instanceof FieldDeclaration || bd1 instanceof Initializer)
 				&& (bd2 instanceof FieldDeclaration || bd2 instanceof Initializer))
-			return true;
+			return true; // special case: initializers are often related to fields, don't separate
 		return false;
 	}
 
@@ -195,7 +203,29 @@ public class LineBreaksPreparator extends ASTVisitor {
 		int index = this.tm.firstIndexIn(node, -1);
 		while (index > 0 && this.tm.get(index - 1).tokenType == TokenNameCOMMENT_JAVADOC)
 			index--;
-		this.tm.get(index).putLineBreaksBefore(linesCount + 1);
+		putBlankLinesBefore(this.tm.get(index), linesCount);
+	}
+
+	private void putBlankLinesBefore(Token token, int linesCount) {
+		if (linesCount >= 0) {
+			token.putLineBreaksBefore(linesCount + 1);
+		} else {
+			token.putLineBreaksBefore(~linesCount + 1);
+			token.setPreserveLineBreaksBefore(false);
+		}
+	}
+
+	private void putBlankLinesAfter(Token token, int linesCount) {
+		if (linesCount >= 0) {
+			token.putLineBreaksAfter(linesCount + 1);
+		} else {
+			token.putLineBreaksAfter(~linesCount + 1);
+			token.setPreserveLineBreaksAfter(false);
+		}
+	}
+
+	private void putBlankLinesBeforeCloseBrace(ASTNode node, int blankLinesSetting) {
+		putBlankLinesBefore(this.tm.lastTokenIn(node, TokenNameRBRACE), blankLinesSetting);
 	}
 
 	@Override
@@ -226,6 +256,9 @@ public class LineBreaksPreparator extends ASTVisitor {
 				break;
 		}
 
+		if (!enumConstants.isEmpty() || !node.bodyDeclarations().isEmpty())
+			putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_after_last_class_body_declaration);
+
 		this.declarationModifierVisited = false;
 		return true;
 	}
@@ -238,6 +271,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 		handleBodyDeclarations(node.bodyDeclarations());
 		if (node.getModifiers() == 0)
 			this.tm.firstTokenBefore(node.getName(), TokenNameAT).breakBefore();
+		if (!node.bodyDeclarations().isEmpty())
+			putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_after_last_class_body_declaration);
 
 		this.declarationModifierVisited = false;
 		return true;
@@ -253,6 +288,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 					this.options.indent_body_declarations_compare_to_type_header);
 		}
 		handleBodyDeclarations(node.bodyDeclarations());
+		if (!node.bodyDeclarations().isEmpty())
+			putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_after_last_class_body_declaration);
 		return true;
 	}
 
@@ -265,9 +302,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 		String bracePosition = node.isConstructor() ? this.options.brace_position_for_constructor_declaration
 				: this.options.brace_position_for_method_declaration;
 		handleBracedCode(node.getBody(), null, bracePosition, this.options.indent_statements_compare_to_body);
-		Token openBrace = this.tm.firstTokenIn(node.getBody(), TokenNameLBRACE);
-		if (openBrace.getLineBreaksAfter() > 0) // if not, these are empty braces
-			openBrace.putLineBreaksAfter(this.options.blank_lines_at_beginning_of_method_body + 1);
+
+		putBlankLinesAfter(this.tm.firstTokenIn(node.getBody(), TokenNameLBRACE),
+				this.options.blank_lines_at_beginning_of_method_body);
+		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_method_body);
+
 		return true;
 	}
 
@@ -296,7 +335,27 @@ public class LineBreaksPreparator extends ASTVisitor {
 		}
 		handleBracedCode(node, null, bracePosition, this.options.indent_statements_compare_to_block);
 
+		putBlankLinesAfter(this.tm.firstTokenIn(node, TokenNameLBRACE),
+				this.options.blank_lines_at_beginning_of_code_block);
+		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_code_block);
+
+		if (parent instanceof Block) {
+			blankLinesAroundBlock(node, ((Block) parent).statements());
+		} else if (parent instanceof Statement && parent.getParent() instanceof Block) {
+			blankLinesAroundBlock(parent, ((Block) parent.getParent()).statements());
+		}
+
 		return true;
+	}
+
+	private void blankLinesAroundBlock(ASTNode blockStatement, List<ASTNode> siblings) {
+		putBlankLinesBefore(blockStatement, this.options.blank_lines_before_code_block);
+		if (!this.options.put_empty_statement_on_new_line) {
+			int blockIndex = siblings.indexOf(blockStatement);
+			if (blockIndex + 1 < siblings.size() && siblings.get(blockIndex + 1) instanceof EmptyStatement)
+				return;
+		}
+		putBlankLinesAfter(this.tm.lastTokenIn(blockStatement, -1), this.options.blank_lines_after_code_block);
 	}
 
 	@Override
@@ -346,6 +405,12 @@ public class LineBreaksPreparator extends ASTVisitor {
 			if (this.options.put_empty_statement_on_new_line || !(statement instanceof EmptyStatement))
 				breakLineBefore(statement);
 		}
+
+		putBlankLinesAfter(this.tm.firstTokenAfter(node.getExpression(), TokenNameLBRACE),
+				this.options.blank_lines_at_beginning_of_code_block);
+		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_code_block);
+		if (node.getParent() instanceof Block)
+			blankLinesAroundBlock(node, ((Block) node.getParent()).statements());
 
 		return true;
 	}
@@ -397,6 +462,10 @@ public class LineBreaksPreparator extends ASTVisitor {
 			if (this.options.put_empty_statement_on_new_line || !(statement instanceof EmptyStatement))
 				breakLineBefore(statement);
 		}
+
+		putBlankLinesAfter(this.tm.firstTokenAfter(node.getExpression(), TokenNameLBRACE),
+				this.options.blank_lines_at_beginning_of_code_block);
+		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_code_block);
 
 		return true;
 	}
@@ -636,6 +705,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 			putBlankLinesBefore(statement, blankLines);
 			previous = statement;
 		}
+		if (!statements.isEmpty())
+			putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_after_last_class_body_declaration);
 
 		this.declarationModifierVisited = false;
 		return true;

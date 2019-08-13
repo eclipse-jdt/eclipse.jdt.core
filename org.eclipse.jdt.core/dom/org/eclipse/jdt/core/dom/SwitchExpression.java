@@ -98,6 +98,24 @@ public class SwitchExpression extends Expression {
 		} else if (apiLevel == AST.JLS13_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_13_0;
 		}
+		return propertyDescriptors(apiLevel, false);
+	}
+	
+		/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 *
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.JLS*</code> constants
+	 * @param previewEnabled previewEnabled flag
+	 * @return a list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.19
+	 */
+	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
+		if (previewEnabled) {
+			return PROPERTY_DESCRIPTORS_13_0;
+		}
 		return null;
 	}
 
@@ -129,11 +147,17 @@ public class SwitchExpression extends Expression {
 	SwitchExpression(AST ast) {
 		super(ast);
 		supportedOnlyIn13();
+		unsupportedWithoutPreviewError();
 	}
 
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
+	}
+	
+	@Override
+	final List internalStructuralPropertiesForType(int apiLevel, boolean previewEnabled) {
+		return propertyDescriptors(apiLevel, previewEnabled);
 	}
 
 	@Override

@@ -1499,7 +1499,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if (node.getAST().apiLevel() == JLS13) {
+		if (node.getAST().apiLevel() == JLS13 && node.getAST().isPreviewEnabled()) {
 			if (node.isDefault()) {
 				this.buffer.append("default");//$NON-NLS-1$
 				this.buffer.append(node.isSwitchLabeledRule() ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$

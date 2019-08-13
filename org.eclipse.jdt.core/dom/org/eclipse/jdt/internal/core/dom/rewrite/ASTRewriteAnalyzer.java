@@ -3520,7 +3520,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		// dont allow switching from case to default or back. New statements should be created.
-		if (node.getAST().apiLevel() == JLS13_INTERNAL) {
+		if (node.getAST().apiLevel() == JLS13_INTERNAL && node.getAST().isPreviewEnabled()) {
 			int pos = node.expressions().size() == 0 ? node.getStartPosition() :
 					rewriteNodeList(node, SwitchCase.EXPRESSIONS2_PROPERTY, node.getStartPosition(), Util.EMPTY_STRING, ", "); //$NON-NLS-1$
 			if (isChanged(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY)) {
@@ -3744,7 +3744,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					insertIndent++;
 				}
 				ParagraphListRewriter listRewriter;
-				if (node.getAST().apiLevel() == JLS13_INTERNAL) {
+				if (node.getAST().apiLevel() == JLS13_INTERNAL && node.getAST().isPreviewEnabled()) {
 					listRewriter= new SwitchListLabeledRuleRewriter(insertIndent);
 				} else {
 					listRewriter= new SwitchListRewriter(insertIndent);

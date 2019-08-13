@@ -48,9 +48,10 @@ public static boolean SHOW_STATS = false;
 
 /**
  * Bug 549457: In case auto-building on a JDT core settings change (e.g. compiler compliance) is not desired,
- * specify VM property: {@code -Dorg.eclipse.jdt.core.disableAutoBuildOnSettingsChange=true}
+ * specify VM property: {@code -Dorg.eclipse.disableAutoBuildOnSettingsChange=true}
  */
-private static final boolean DISABLE_AUTO_BUILDING_ON_SETTINGS_CHANGE = Boolean.getBoolean("org.eclipse.jdt.core.disableAutoBuildOnSettingsChange"); //$NON-NLS-1$
+private static final boolean DISABLE_AUTO_BUILDING_ON_SETTINGS_CHANGE = Boolean.getBoolean("org.eclipse.disableAutoBuildOnSettingsChange"); //$NON-NLS-1$
+private static final IPath JDT_CORE_SETTINGS_PATH = Path.fromPortableString(JavaProject.DEFAULT_PREFERENCES_DIRNAME + IPath.SEPARATOR + JavaProject.JAVA_CORE_PREFS_FILE);
 
 /**
  * A list of project names that have been built.
@@ -513,39 +514,9 @@ boolean hasBuildpathErrors() throws CoreException {
 private boolean hasJdtCoreSettingsChange(SimpleLookupTable deltas) {
 	Object resourceDelta = deltas.get(this.currentProject);
 	if (resourceDelta instanceof IResourceDelta) {
-		IResourceDelta delta = (IResourceDelta) resourceDelta;
-		class CheckForJdtCoreSettingsFileChange implements IResourceDeltaVisitor {
-
-			boolean hasJdtCoreSettingsChange = false;
-
-			@Override
-			public boolean visit(IResourceDelta childDelta) throws CoreException {
-				IResource resource = childDelta.getResource();
-				boolean isJdtCoreSettingsResource = isJdtCoreSettingsResource(resource);
-				if (isJdtCoreSettingsResource) {
-					this.hasJdtCoreSettingsChange = true;
-					return false; // stop visiting, the JDT core settings file changed
-				}
-				return true;
-			}
-		}
-		try {
-			CheckForJdtCoreSettingsFileChange visitor = new CheckForJdtCoreSettingsFileChange();
-			delta.accept(visitor);
-			return visitor.hasJdtCoreSettingsChange;
-		} catch (CoreException e) {
-			Util.log(e, "Failed to check whether deltas contain JDT preference changes"); //$NON-NLS-1$
-		}
+		return ((IResourceDelta) resourceDelta).findMember(JDT_CORE_SETTINGS_PATH) != null;
 	}
 	return false;
-}
-
-static boolean isJdtCoreSettingsResource(IResource resource) {
-	IPath resourcePath = resource.getProjectRelativePath();
-	String prefs = JavaProject.DEFAULT_PREFERENCES_DIRNAME + IPath.SEPARATOR + JavaProject.JAVA_CORE_PREFS_FILE;
-	IPath expectedPath = Path.fromPortableString(prefs);
-	boolean isJdtCoreSettingsResource = expectedPath.equals(resourcePath);
-	return isJdtCoreSettingsResource;
 }
 
 private boolean hasClasspathChanged() {

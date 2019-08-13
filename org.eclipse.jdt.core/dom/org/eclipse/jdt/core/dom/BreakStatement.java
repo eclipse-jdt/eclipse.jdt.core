@@ -98,9 +98,13 @@ public class BreakStatement extends Statement {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS12_INTERNAL) {
-			return PROPERTY_DESCRIPTORS_12;
-		}
+		return PROPERTY_DESCRIPTORS;
+	}
+	
+	/**
+	 * @since 3.19 BETA_JAVA13
+	 */
+	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
 		return PROPERTY_DESCRIPTORS;
 	}
 
@@ -130,6 +134,11 @@ public class BreakStatement extends Statement {
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
+	}
+	
+	@Override
+	final List internalStructuralPropertiesForType(int apiLevel, boolean isPreviewEnabled) {
+		return propertyDescriptors(apiLevel, isPreviewEnabled);
 	}
 
 	@Override

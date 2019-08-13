@@ -231,7 +231,7 @@ ReferenceBinding getType0(char[] name) {
  */
 boolean hasType0Any(char[] name) {
 	ReferenceBinding type0 = getType0(name);
-	return type0 != null && type0 != LookupEnvironment.TheNotFoundType && !(type0 instanceof UnresolvedReferenceBinding);
+	return type0 != null && type0.isValidBinding() && !(type0 instanceof UnresolvedReferenceBinding);
 }
 
 /* Answer the package or type named name; ask the oracle if it is not in the cache.

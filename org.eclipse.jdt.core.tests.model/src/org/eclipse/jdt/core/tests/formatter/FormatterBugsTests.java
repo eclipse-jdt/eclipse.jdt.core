@@ -10630,7 +10630,7 @@ public void testBug356851() throws Exception {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=437639"
  */
 public void testBug437639() throws Exception {
-	this.formatterPrefs.blank_lines_between_import_groups = 0;
+	this.formatterPrefs.blank_lines_between_import_groups = ~0;
 	String source =
 		"package com.test;\n" +
 		"\n" +
@@ -10991,7 +10991,7 @@ public void testBug471090() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=471364"
  */
 public void testBug471364() throws JavaModelException {
-	this.formatterPrefs.blank_lines_before_method = 0;
+	this.formatterPrefs.blank_lines_before_abstract_method = 0;
 	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_SPLIT;
 	String source = 
 		"interface Example {\r\n" + 
@@ -11914,19 +11914,16 @@ public void testBug475791() {
 		"	String field2;\r\n" + 
 		"	static {\r\n" + 
 		"	}\r\n" + 
-		"\r\n" + 
 		"	static void staticMethod() {\r\n" + 
 		"	};\r\n" + 
 		"	static {\r\n" + 
 		"	}\r\n" + 
-		"\r\n" + 
 		"	void method() {\r\n" + 
 		"	}\r\n" + 
 		"	static {\r\n" + 
 		"	}\r\n" + 
 		"	{\r\n" + 
 		"	}\r\n" + 
-		"\r\n" + 
 		"	static class staticClass {\r\n" + 
 		"	};\r\n" + 
 		"	{\r\n" + 
