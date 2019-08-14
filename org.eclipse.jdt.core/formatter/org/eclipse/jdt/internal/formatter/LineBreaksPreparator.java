@@ -33,7 +33,6 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamew
 
 import java.util.List;
 
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -74,6 +73,7 @@ import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchExpression;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
@@ -364,47 +364,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 				this.options.indent_switchstatements_compare_to_switch);
 
 		List<Statement> statements = node.statements();
-		if (this.options.indent_switchstatements_compare_to_cases) {
-			int nonBreakStatementEnd = -1;
-			for (Statement statement : statements) {
-				boolean isBreaking = statement instanceof BreakStatement || statement instanceof ReturnStatement
-						|| statement instanceof ContinueStatement || statement instanceof Block;
-				if (isBreaking && !(statement instanceof Block))
-					adjustEmptyLineAfter(this.tm.lastIndexIn(statement, -1), -1);
-				if (statement instanceof SwitchCase) {
-					if (nonBreakStatementEnd >= 0) {
-						// indent only comments between previous and current statement
-						this.tm.get(nonBreakStatementEnd + 1).indent();
-						this.tm.firstTokenIn(statement, -1).unindent();
-					}
-				} else if (!(statement instanceof BreakStatement || statement instanceof Block)) {
-					indent(statement);
-				}
-				nonBreakStatementEnd = isBreaking ? -1 : this.tm.lastIndexIn(statement, -1);
-			}
-			if (nonBreakStatementEnd >= 0) {
-				// indent comments between last statement and closing brace 
-				this.tm.get(nonBreakStatementEnd + 1).indent();
-				this.tm.lastTokenIn(node, TokenNameRBRACE).unindent();
-			}
-		}
-		if (this.options.indent_breaks_compare_to_cases) {
-			for (Statement statement : statements) {
-				if (statement instanceof BreakStatement)
-					indent(statement);
-			}
-		}
-
-		boolean arrowMode = statements.stream()
-				.anyMatch(s -> s instanceof SwitchCase && ((node.getAST().apiLevel() == AST.JLS13) && ((SwitchCase) s).isSwitchLabeledRule()));
-		for (Statement statement : statements) {
-			if (statement instanceof Block)
-				continue; // will add break in visit(Block) if necessary
-			if (arrowMode && !(statement instanceof SwitchCase))
-				continue;
-			if (this.options.put_empty_statement_on_new_line || !(statement instanceof EmptyStatement))
-				breakLineBefore(statement);
-		}
+		doSwitchStatementsIndentation(node, statements);
+		doSwitchStatementsLineBreaks(statements);
 
 		putBlankLinesAfter(this.tm.firstTokenAfter(node.getExpression(), TokenNameLBRACE),
 				this.options.blank_lines_at_beginning_of_code_block);
@@ -421,11 +382,21 @@ public class LineBreaksPreparator extends ASTVisitor {
 				this.options.indent_switchstatements_compare_to_switch);
 
 		List<Statement> statements = node.statements();
+		doSwitchStatementsIndentation(node, statements);
+		doSwitchStatementsLineBreaks(statements);
+
+		putBlankLinesAfter(this.tm.firstTokenAfter(node.getExpression(), TokenNameLBRACE),
+				this.options.blank_lines_at_beginning_of_code_block);
+		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_code_block);
+
+		return true;
+	}
+
+	private void doSwitchStatementsIndentation(ASTNode switchNode, List<Statement> statements) {
 		if (this.options.indent_switchstatements_compare_to_cases) {
 			int nonBreakStatementEnd = -1;
 			for (Statement statement : statements) {
-				boolean isBreaking = statement instanceof YieldStatement || statement instanceof ReturnStatement
-						|| statement instanceof ContinueStatement || statement instanceof Block;
+				boolean isBreaking = isSwitchBreakingStatement(statement);
 				if (isBreaking && !(statement instanceof Block))
 					adjustEmptyLineAfter(this.tm.lastIndexIn(statement, -1), -1);
 				if (statement instanceof SwitchCase) {
@@ -434,40 +405,47 @@ public class LineBreaksPreparator extends ASTVisitor {
 						this.tm.get(nonBreakStatementEnd + 1).indent();
 						this.tm.firstTokenIn(statement, -1).unindent();
 					}
-				} else if (!(statement instanceof YieldStatement || statement instanceof Block)) {
+				} else if (!(statement instanceof BreakStatement || statement instanceof YieldStatement
+						|| statement instanceof Block)) {
 					indent(statement);
 				}
 				nonBreakStatementEnd = isBreaking ? -1 : this.tm.lastIndexIn(statement, -1);
 			}
 			if (nonBreakStatementEnd >= 0) {
-				// indent comments between last statement and closing brace 
+				// indent comments between last statement and closing brace
 				this.tm.get(nonBreakStatementEnd + 1).indent();
-				this.tm.lastTokenIn(node, TokenNameRBRACE).unindent();
+				this.tm.lastTokenIn(switchNode, TokenNameRBRACE).unindent();
 			}
 		}
 		if (this.options.indent_breaks_compare_to_cases) {
 			for (Statement statement : statements) {
-				if (statement instanceof YieldStatement)
+				if (statement instanceof BreakStatement || statement instanceof YieldStatement)
 					indent(statement);
 			}
 		}
+	}
 
+	private void doSwitchStatementsLineBreaks(List<Statement> statements) {
 		boolean arrowMode = statements.stream()
 				.anyMatch(s -> s instanceof SwitchCase && ((SwitchCase) s).isSwitchLabeledRule());
+		Statement previous = null;
 		for (Statement statement : statements) {
-			if (statement instanceof Block)
-				continue; // will add break in visit(Block) if necessary
-			if (arrowMode && !(statement instanceof SwitchCase))
-				continue;
-			if (this.options.put_empty_statement_on_new_line || !(statement instanceof EmptyStatement))
-				breakLineBefore(statement);
+			boolean skip = statement instanceof Block // will add break in visit(Block) if necessary
+					|| (arrowMode && !(statement instanceof SwitchCase))
+					|| (statement instanceof EmptyStatement && !this.options.put_empty_statement_on_new_line);
+			if (!skip) {
+				boolean newGroup = !arrowMode && statement instanceof SwitchCase && isSwitchBreakingStatement(previous);
+				int blankLines = newGroup ? this.options.blank_lines_between_statement_groups_in_switch : 0;
+				putBlankLinesBefore(statement, blankLines);
+			}
+			previous = statement;
 		}
+	}
 
-		putBlankLinesAfter(this.tm.firstTokenAfter(node.getExpression(), TokenNameLBRACE),
-				this.options.blank_lines_at_beginning_of_code_block);
-		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_code_block);
-
-		return true;
+	private boolean isSwitchBreakingStatement(Statement statement) {
+		return statement instanceof BreakStatement || statement instanceof ReturnStatement
+				|| statement instanceof ContinueStatement || statement instanceof ThrowStatement
+				|| statement instanceof YieldStatement || statement instanceof Block;
 	}
 
 	@Override

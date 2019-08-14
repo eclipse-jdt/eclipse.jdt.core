@@ -15220,4 +15220,20 @@ public void testBug421492d() throws JavaModelException {
 	this.formatterPrefs.blank_lines_after_code_block = ~0;
 	formatSourceInWorkspace("test421492", "in.java", "D_out.java");
 }
+/**
+ * https://bugs.eclipse.org/390720 - [formatter] Add setting for blank line between case blocks (after break) for switch statement
+ */
+public void testBug390720a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	this.formatterPrefs.blank_lines_between_statement_groups_in_switch = 2;
+	formatSourceInWorkspace("test390720", "in.java", "A_out.java");
+}
+/**
+ * https://bugs.eclipse.org/390720 - [formatter] Add setting for blank line between case blocks (after break) for switch statement
+ */
+public void testBug390720b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	this.formatterPrefs.blank_lines_between_statement_groups_in_switch = ~0;
+	formatSourceInWorkspace("test390720", "in.java", "B_out.java");
+}
 }

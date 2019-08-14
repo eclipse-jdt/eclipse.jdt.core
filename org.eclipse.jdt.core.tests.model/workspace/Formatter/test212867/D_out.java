@@ -43,7 +43,9 @@ class Example {
 		}
 		if (8 == 8) {
 			// comment
+
 			statement();
+
 			// comment
 		}
 		if (33 == 33) {
@@ -65,7 +67,9 @@ class Example {
 		}
 		if (88 == 88) {
 			/* comment */
+
 			statement();
+
 			/* comment */
 		}
 		for (int i = 0; i < 10; i++) {

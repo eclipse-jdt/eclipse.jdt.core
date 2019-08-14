@@ -785,6 +785,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_BLANK_LINES_BETWEEN_TYPE_DECLARATIONS = JavaCore.PLUGIN_ID + ".formatter.blank_lines_between_type_declarations";	//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to add or remove blank lines between statement groups in switch
+	 *     - option id:         "org.eclipse.jdt.core.formatter.blank_lines_between_statement_groups_in_switch"
+	 *     - possible values:   "&lt;n&gt;", where n is an integer. If n is negative, the actual number of
+	 *                          blank lines is ~n and any excess blank lines are deleted, overriding the
+	 *                          {@link #FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE} option
+	 *     - default:           "0"
+	 * </pre>
+	 * @since 3.19
+	 */
+	public static final String FORMATTER_BLANK_LINES_BETWEEN_STATEMENT_GROUPS_IN_SWITCH = JavaCore.PLUGIN_ID + ".formatter.blank_lines_between_statement_group_in_switch";	//$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to position the braces of an annotation type declaration
 	 *     - option id:         "org.eclipse.jdt.core.formatter.brace_position_for_annotation_type_declaration"
 	 *     - possible values:   { END_OF_LINE, NEXT_LINE, NEXT_LINE_SHIFTED, NEXT_LINE_ON_WRAP }
