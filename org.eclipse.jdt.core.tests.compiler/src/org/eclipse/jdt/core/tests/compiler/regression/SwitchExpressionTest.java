@@ -2174,8 +2174,8 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		runner.runNegativeTest();
 	}
 	public void testBug545333() {
-		runNegativeTest(
-			new String[] {
+		Runner runner = new Runner();
+		runner.testFiles = 	new String[] {
 				"X.java",
 				"public class X {\n"+
 				"    @SuppressWarnings(\"preview\")\n"+
@@ -2196,7 +2196,8 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"class MyException extends Exception {\n"+
 				"	private static final long serialVersionUID = 3461899582505930473L;	\n"+
 				"}\n"
-			},
+		};
+		runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	int v = switch (i) {\n" + 
@@ -2204,7 +2205,10 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"    	};\n" + 
 			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"A switch expression should have at least one result expression\n" + 
-			"----------\n");
+			"----------\n";
+		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.javacTestOptions = JavacHasABug.JavacBug8226510_switchExpression;
+		runner.runNegativeTest();
 	}
 	public void testBug545518() {
 		if (this.complianceLevel < ClassFileConstants.JDK12)
@@ -2319,26 +2323,29 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		},
 		"5");
 	}
-	public void testBug545916_01() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"enum X {\n"+
-				"    A, B;\n"+
-				"     \n"+
-				"    @SuppressWarnings(\"preview\")\n"+
-				"    public static void main(String[] args) {\n"+
-				"         X myEnum = X.A;\n"+
-				"         int o;\n"+
-				"         var f = switch(myEnum) {\n"+
-				"             case A -> o = 5;\n"+
-				"             case B -> o = 10;\n"+
-				"         };\n"+
-				"         System.out.println(o);\n"+
-				"     }\n"+
-				"} \n"
-		},
-		"5");
+	public void testBug545716_01() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"X.java",
+			"enum X {\n"+
+			"    A, B;\n"+
+			"     \n"+
+			"    @SuppressWarnings(\"preview\")\n"+
+			"    public static void main(String[] args) {\n"+
+			"         X myEnum = X.A;\n"+
+			"         int o;\n"+
+			"         var f = switch(myEnum) {\n"+
+			"             case A -> o = 5;\n"+
+			"             case B -> o = 10;\n"+
+			"         };\n"+
+			"         System.out.println(o);\n"+
+			"     }\n"+
+			"} \n"
+		};
+		runner.expectedOutputString = "5";
+		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.javacTestOptions = JavacHasABug.JavacBug8221413_switchExpression;
+		runner.runConformTest();
 	}
 	public void testBug545983_01() {
 		this.runNegativeTest(
