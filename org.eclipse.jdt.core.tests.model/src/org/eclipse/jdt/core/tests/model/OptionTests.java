@@ -15,6 +15,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -958,5 +959,14 @@ public void testBug324987_Workspace04() throws CoreException {
 	} finally {
 		deleteProject("P");
 	}
+}
+public void testBug550081() {
+	String latestVersion = JavaCore.latestSupportedJavaVersion();
+	try {
+		Collections.reverse(JavaCore.getAllVersions());
+	} catch (UnsupportedOperationException e) {
+		// ignore
+	}
+	assertEquals("latest should be unchanged", latestVersion, JavaCore.latestSupportedJavaVersion());
 }
 }
