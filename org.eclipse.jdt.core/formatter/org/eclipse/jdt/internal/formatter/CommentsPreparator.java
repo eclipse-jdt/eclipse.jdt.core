@@ -443,8 +443,7 @@ public class CommentsPreparator extends ASTVisitor {
 			}
 
 			if (existingBreaksBefore < existingBreaksAfter && previous != null) {
-				if (previous.isPreserveLineBreaksAfter() || existingBreaksAfter < 2 || next == null
-						|| (next.tokenType != TokenNameCOMMENT_LINE && next.tokenType != TokenNameCOMMENT_BLOCK)) {
+				if (previous.isPreserveLineBreaksAfter() || previous.getLineBreaksAfter() >= 2 || existingBreaksAfter < 2) {
 					commentToken.putLineBreaksAfter(previous.getLineBreaksAfter());
 					commentToken.setPreserveLineBreaksAfter(previous.isPreserveLineBreaksAfter());
 					previous.clearLineBreaksAfter();
@@ -452,8 +451,7 @@ public class CommentsPreparator extends ASTVisitor {
 				}
 			} else if (existingBreaksAfter < 2 && existingBreaksAfter <= existingBreaksBefore && next != null
 					&& next.tokenType != TokenNamepackage /* doesn't apply to a comment before the package declaration */) {
-				if (next.isPreserveLineBreaksBefore() || existingBreaksBefore < 2 || previous == null
-						|| (previous.tokenType != TokenNameCOMMENT_LINE && previous.tokenType != TokenNameCOMMENT_BLOCK)) {
+				if (next.isPreserveLineBreaksBefore() || next.getLineBreaksBefore() >= 2 || existingBreaksBefore < 2) {
 					commentToken.putLineBreaksBefore(next.getLineBreaksBefore());
 					commentToken.setPreserveLineBreaksBefore(next.isPreserveLineBreaksBefore());
 					next.clearLineBreaksBefore();
