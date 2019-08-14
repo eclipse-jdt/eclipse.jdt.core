@@ -2446,6 +2446,8 @@ public class DefaultCodeFormatterOptions {
 		if (wrapWrapOuterExpressionsWhenNestedOption != null) {
 			this.wrap_outer_expressions_when_nested = DefaultCodeFormatterConstants.TRUE.equals(wrapWrapOuterExpressionsWhenNestedOption);
 		}
+
+		setDerivableOptions(settings);
 	}
 
 	private int toInt(Object value, int defaultValue) {
@@ -2737,6 +2739,17 @@ public class DefaultCodeFormatterOptions {
 		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_LOGICAL_OPERATOR) == null) {
 			setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR, JavaCore.INSERT,
 					v -> this.insert_space_after_logical_operator = v);
+		}
+	}
+
+	/**
+	 * Handles new settings which may not be defined in an older profile, but are can be easily derived from other
+	 * settings to keep the behavior consistent with previous versions.
+	 */
+	private void setDerivableOptions(Map<String, String> settings) {
+		if (!settings.containsKey(DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_ABSTRACT_METHOD)) {
+			setInt(settings, DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD,
+					v -> this.blank_lines_before_abstract_method = v);
 		}
 	}
 
