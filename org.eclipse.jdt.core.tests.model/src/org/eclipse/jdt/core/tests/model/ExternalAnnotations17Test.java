@@ -240,8 +240,8 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 				"package libs;\n" + 
 				"\n" +
 				"public interface Lib1 {\n" +
-				"	public static interface Nested {\n" + 
-				"		String one = \"1\";\n" + 
+				"	public static class Nested {\n" + 
+				"		public static String one = \"1\";\n" + 
 				"	}\n" + 
 				"}\n"
 			}, null);
