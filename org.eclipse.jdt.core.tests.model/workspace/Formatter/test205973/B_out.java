@@ -114,6 +114,7 @@ public enum TinyEnum {
 
 public enum SmallEnum {
 	VALUE(0);
+
 	SmallEnum(int val) {
 	};
 }
@@ -128,6 +129,7 @@ public enum EnumConstants {
 
 		int getVal() { return 3; }
 	};
+
 	int getVal() { return 1; }
 }
 

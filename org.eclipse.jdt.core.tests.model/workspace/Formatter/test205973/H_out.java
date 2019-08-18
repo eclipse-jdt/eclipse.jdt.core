@@ -97,6 +97,7 @@ public enum EnumConstants {
 	},
 	TINY { int getVal() { return 2; } },
 	SMALL { int val = 3; int getVal() { return 3; } };
+
 	int getVal() { return 1; }
 }
 

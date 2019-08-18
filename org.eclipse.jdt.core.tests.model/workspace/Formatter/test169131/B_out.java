@@ -70,6 +70,8 @@ class C5b {
 enum Enum {
 	A, B;
 
+
+
 }
 
 enum Enum2 {
