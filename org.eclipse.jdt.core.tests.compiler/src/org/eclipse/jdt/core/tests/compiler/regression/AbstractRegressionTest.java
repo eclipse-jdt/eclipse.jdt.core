@@ -426,6 +426,9 @@ static class JavacCompiler {
 			}
 		}
 		if (version == JavaCore.VERSION_13) {
+			if ("13-ea".equals(rawVersion)) {
+				return 0000;
+			}
 			if ("13".equals(rawVersion)) {
 				return 0000;
 			}
@@ -574,6 +577,20 @@ protected static class JavacTestOptions {
 		JavacTestOptions options = new JavacTestOptions(Long.parseLong(release));
 		if (isJRE9Plus)
 			options.setCompilerOptions("--release "+release+" --enable-preview -Xlint:-preview");
+		else
+			throw new IllegalArgumentException("preview not supported at release "+release);
+		return options;
+	}
+	@java.lang.SuppressWarnings("synthetic-access")
+	static JavacTestOptions forReleaseWithPreview(String release, String additionalOptions) {
+		JavacTestOptions options = new JavacTestOptions(Long.parseLong(release));
+		if (isJRE9Plus) {
+			String result = "--release "+release+" --enable-preview -Xlint:-preview";
+			if (additionalOptions != null)
+				result = result + " " + additionalOptions;
+			options.setCompilerOptions(result);
+			
+		}
 		else
 			throw new IllegalArgumentException("preview not supported at release "+release);
 		return options;
@@ -960,7 +977,7 @@ protected static class JavacTestOptions {
 			JavacBug8144832 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8144832
 					new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0000) : null,
 			JavacBug8179483_switchExpression = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8179483
-					new JavacBug8179483(" --release 12 --enable-preview -Xlint:-preview") : null;
+					new JavacBug8179483(" --release 13 --enable-preview -Xlint:-preview") : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug

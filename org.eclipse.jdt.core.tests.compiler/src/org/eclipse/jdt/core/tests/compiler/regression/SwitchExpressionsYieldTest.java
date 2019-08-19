@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -53,13 +54,42 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	
 	@Override
-	protected void runConformTest(String[] testFiles, Map<String, String> customOptions) {
-		super.runConformTest(testFiles, "", null, true, new String[] {"--enable-preview"}, customOptions, null);
+	protected void runConformTest(String[] testFiles, String expectedOutput) {
+		runConformTest(testFiles, expectedOutput, getCompilerOptions());
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
-		super.runConformTest(testFiles, expectedOutput, null, true, new String[] {"--enable-preview"}, customOptions, null);
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions) {
+		Runner runner = new Runner();
+		runner.testFiles = testFiles;
+		runner.expectedOutputString = expectedOutput;
+		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.customOptions = customOptions;
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("13");
+		runner.runConformTest();
+	}
+	@Override
+	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
+		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("13"));
+	}
+	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
+		runWarningTest(testFiles, expectedCompilerLog, null);
+	}
+	protected void runWarningTest(String[] testFiles, String expectedCompilerLog, Map<String, String> customOptions) {
+		runWarningTest(testFiles, expectedCompilerLog, customOptions, null);
+	}
+	protected void runWarningTest(String[] testFiles, String expectedCompilerLog,
+			Map<String, String> customOptions, String javacAdditionalTestOptions) {
+
+		Runner runner = new Runner();
+		runner.testFiles = testFiles;
+		runner.expectedCompilerLog = expectedCompilerLog;
+		runner.customOptions = customOptions;
+		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("13") :
+			JavacTestOptions.forReleaseWithPreview("13", javacAdditionalTestOptions);
+		runner.runWarningTest();
 	}
 	public void testBug544073_00() {
 		runConformTest(
@@ -83,9 +113,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"	}\n"+
 						"}\n"
 				},
-				"1",
-				null,
-				new String[] {"--enable-preview"});
+				"1");
 	}
 	public void testBug544073_001() {
 		runConformTest(
@@ -105,9 +133,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"	}\n" +
 						"}\n"
 				},
-				"3",
-				null,
-				new String[] {"--enable-preview"});
+				"3");
 	}
 	public void testBug544073_002() {
 		runConformTest(
@@ -139,9 +165,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 								"	}\n"+
 								"}\n"
 				},
-				"Got Exception - expected",
-				null,
-				new String[] {"--enable-preview"});
+				"Got Exception - expected");
 	}
 	public void testBug544073_003() {
 		this.runNegativeTest(
@@ -296,9 +320,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"	}\n"+
 						"}\n"
 				},
-				"100",
-				null,
-				new String[] {"--enable-preview"});
+				"100");
 	}
 	public void testBug544073_008() {
 		Map<String, String> disablePreviewOptions = getCompilerOptions();
@@ -371,10 +393,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}\n"
 			},
-			"hello",
-			null,
-			false,
-			new String[] { "--enable-preview"});
+			"hello");
 	}
 	public void testBug544073_010() {
 		Map<String, String> disablePreviewOptions = getCompilerOptions();
@@ -459,9 +478,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				options);
 	}
 	public void testBug544073_012() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -487,10 +503,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
-				expectedProblemLog,
-				null,
-				true,
-				getCompilerOptions());
+				expectedProblemLog);
 	}
 	public void testBug544073_013() {
 		Map<String, String> options = getCompilerOptions();
@@ -564,10 +577,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"----------\n";
 			this.runNegativeTest(
 					testFiles,
-					expectedProblemLog,
-					null,
-					true,
-					getCompilerOptions());
+					expectedProblemLog);
 	}
 	public void testBug544073_015() {
 		// switch expression is not a Primary
@@ -619,18 +629,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" +
 				"}\n"
 			},
-			"6",
-			null,
-			false,
-			new String[] { "--enable-preview"});
+			"6");
 	}
 	/*
 	 * A simple multi constant case statement, compiled and run as expected
 	 */
 	public void testBug544073_017() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -654,17 +658,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"SUNDAY";
 		this.runConformTest(
 				testFiles,
-				expectedProblemLog,
-				options,
-				new String[] { "--enable-preview"});
+				expectedProblemLog);
 	}
 	/*
 	 * A simple multi constant case statement, compiler reports missing enum constants
 	 */
 	public void testBug544073_018() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -690,21 +689,14 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"	        ^^^\n" + 
 						"The enum constant TUESDAY needs a corresponding case label in this enum switch on Day\n" + 
 						"----------\n";
-		this.runNegativeTest(
+		this.runWarningTest(
 				testFiles,
-				expectedProblemLog,
-				null,
-				true,
-				new String[] { "--enable-preview"},
-				options);
+				expectedProblemLog);
 	}
 	/*
 	 * A simple multi constant case statement with duplicate enums
 	 */
 	public void testBug544073_019() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -738,18 +730,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"----------\n";
 		this.runNegativeTest(
 				testFiles,
-				expectedProblemLog,
-				null,
-				true,
-				options);
+				expectedProblemLog);
 	}
 	/*
 	 * A simple multi constant case statement with duplicate enums
 	 */
 	public void testBug544073_020() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -791,18 +777,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"----------\n";
 		this.runNegativeTest(
 				testFiles,
-				expectedProblemLog,
-				null,
-				true,
-				options);
+				expectedProblemLog);
 	}
 	/*
 	 * 
 	 */
 	public void testBug544073_021() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -829,18 +809,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	        ^^^\n" + 
 				"The enum constant MONDAY needs a corresponding case label in this enum switch on Day\n" + 
 				"----------\n";
-		this.runNegativeTest(
+		this.runWarningTest(
 				testFiles,
-				expectedProblemLog,
-				null,
-				true,
-				new String[] {"--enable-preview"},
-				options);
+				expectedProblemLog);
 	}
 	public void testBug544073_022() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -868,9 +841,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"SUNDAY";
 		this.runConformTest(
 				testFiles,
-				expectedProblemLog,
-				options,
-				new String[] {"--enable-preview"});
+				expectedProblemLog);
 	}
 	/*
 	 * Simple switch case with string literals
@@ -910,14 +881,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"NA";
 		this.runConformTest(
 				testFiles,
-				expectedProblemLog,
-				options,
-				new String[] {"--enable-preview"});
+				expectedProblemLog);
 	}
 	public void testBug544073_024() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -948,18 +914,13 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"NA";
 		this.runConformTest(
 				testFiles,
-				expectedProblemLog,
-				options,
-				new String[] {"--enable-preview"});
+				expectedProblemLog);
 	}
 	/*
 	 * Switch with multi constant case statements with string literals
 	 * two string literals with same hashcode
 	 */
 	public void testBug544073_025() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -990,9 +951,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"NA";
 		this.runConformTest(
 				testFiles,
-				expectedProblemLog,
-				options,
-				new String[] {"--enable-preview"});
+				expectedProblemLog);
 	}
 	/*
 	 * Switch with multi constant case statements with integer constants
@@ -1033,9 +992,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Out of range";
 		this.runConformTest(
 				testFiles,
-				expectedProblemLog,
-				options,
-				new String[] {"--enable-preview"});
+				expectedProblemLog);
 	}
 	/*
 	 * Switch multi-constant with mixed constant types, reported
@@ -1110,13 +1067,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	^^^^^^^^^\n" + 
 				"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
 				"----------\n";
-		this.runNegativeTest(
+		this.runWarningTest(
 				testFiles,
 				expectedProblemLog,
-				null,
-				true,
-				new String[] { "--enable-preview"},
-				options);
+				options,
+				"-Xlint:fallthrough");
 	}
 	/*
 	 * Switch multi-constant without yield statement, reported
@@ -1148,12 +1103,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	        ^\n" + 
 				"The switch statement should have a default case\n" + 
 				"----------\n";
-		this.runNegativeTest(
+		this.runWarningTest(
 				testFiles,
 				expectedProblemLog,
-				null,
-				true,
-				new String[] { "--enable-preview"},
 				options);
 	}
 	/*
@@ -1303,9 +1255,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				options);
 	}
 	public void testBug544073_034() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -1320,13 +1269,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n" + 
 				"}\n",
 		};
-		this.runNegativeTest(
+		this.runConformTest(
 				testFiles,
-				"",
-				null,
-				true,
-				new String[] { "--enable-preview"},
-				options);
+				"");
 	}
 	public void testBug544073_035() {
 		// TODO: Fix me
@@ -1565,9 +1510,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"}"
 			},
 			"inside foo\n"
-			+ "0",
-			null,
-			new String[] {"--enable-preview"});
+			+ "0");
 	}
 	public void testBug544073_043() {
 		runConformTest(
@@ -1593,9 +1536,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"}\n" + 
 					""
 			},
-			"1",
-			null,
-			new String[] {"--enable-preview"});
+			"1");
 	}
 	public void testBug544073_044() {
 		Map<String, String> options = getCompilerOptions();
@@ -1648,9 +1589,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"1",
-			null,
-			new String[] {"--enable-preview"});
+			"1");
 	}
 	public void testBug544073_046() {
 		runConformTest(
@@ -1670,9 +1609,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"10",
-			null,
-			new String[] {"--enable-preview"});
+			"10");
 	}
 	public void testBug544073_047() {
 		runConformTest(
@@ -1696,9 +1633,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"1",
-			null,
-			new String[] {"--enable-preview"});
+			"1");
 	}
 	public void testBug544073_048() {
 		this.runNegativeTest(
@@ -1755,9 +1690,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"    }\n" + 
 					"}"
 			},
-			"false",
-			null,
-			new String[] {"--enable-preview"});
+			"false");
 	}
 	public void testBug544073_050() {
 		runConformTest(
@@ -1779,9 +1712,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"    }\n" + 
 					"}"
 			},
-			"hello",
-			null,
-			new String[] {"--enable-preview"});
+			"hello");
 	}
 	public void testBug544073_051() {
 		Map<String, String> customOptions = getCompilerOptions();
@@ -1805,9 +1736,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"    }\n" + 
 					"}"
 			},
-			"hello",
-			customOptions,
-			new String[] {"--enable-preview"});
+			"hello");
 	}
 	public void testBug544073_052() {
 		Map<String, String> customOptions = getCompilerOptions();
@@ -1831,9 +1760,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"    }\n" + 
 					"}"
 			},
-			"hello",
-			customOptions,
-			new String[] {"--enable-preview"});
+			"hello");
 	}
 	public void testBug544073_053() {
 		Map<String, String> customOptions = getCompilerOptions();
@@ -1855,8 +1782,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"}\n"
 			},
 			"",
-			customOptions,
-			new String[] {"--enable-preview"});
+			customOptions);
 	}
 	public void testBug544073_054() {
 		runConformTest(
@@ -1879,9 +1805,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"i:1",
-			null,
-			new String[] {"--enable-preview"});
+			"i:1");
 	}
 	public void testBug544073_055() {
 		runConformTest(
@@ -1905,9 +1829,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"i:1",
-			null,
-			new String[] {"--enable-preview"});
+			"i:1");
 	}
 	public void testBug544073_056() {
 		Map<String, String> options = getCompilerOptions();
@@ -1964,9 +1886,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"    }\n" +
 					"}"
 			},
-			"0",
-			null,
-			new String[] {"--enable-preview"});
+			"0");
 	}
 	public void testBug544073_058() {
 		runConformTest(
@@ -1988,9 +1908,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"    }\n" +
 					"}\n"
 			},
-			"1",
-			null,
-			new String[] {"--enable-preview"});
+			"1");
 	}
 	public void testBug544073_059() {
 		runConformTest(
@@ -2009,9 +1927,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"1",
-			null,
-			new String[] {"--enable-preview"});
+			"1");
 	}
 	public void testBug544073_060() {
 		runConformTest(
@@ -2030,9 +1946,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"0",
-			null,
-			new String[] {"--enable-preview"});
+			"0");
 	}
 	public void testBug544073_061() {
 		runConformTest(
@@ -2051,9 +1965,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"0",
-			null,
-			new String[] {"--enable-preview"});
+			"0");
 	}
 	public void testBug544073_062() {
 		runConformTest(
@@ -2072,9 +1984,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"0",
-			null,
-			new String[] {"--enable-preview"});
+			"0");
 	}
 	public void testBug544073_063() {
 		runConformTest(
@@ -2093,9 +2003,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"0",
-			null,
-			new String[] {"--enable-preview"});
+			"0");
 	}
 	public void testBug544073_064() {
 		runConformTest(
@@ -2124,9 +2032,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"    }\n" +
 					"}\n"
 			},
-			"1",
-			null,
-			new String[] {"--enable-preview"});
+			"1");
 	}
 	public void testBug544073_065() {
 		runConformTest(
@@ -2150,9 +2056,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n" + 
 				"}"
 		},
-		"1",
-		null,
-		new String[] {"--enable-preview"});
+		"1");
 	}
 	public void testBug544073_066() {
 		runConformTest(
@@ -2174,9 +2078,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"\n" +
 				"}\n"
 		},
-		"Success",
-		null,
-		new String[] {"--enable-preview"});
+		"Success");
 	}
 	public void testBug544073_067() {
 		runConformTest(
@@ -2202,9 +2104,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" +
 				"}\n"
 		},
-		"9",
-		null,
-		new String[] {"--enable-preview"});
+		"9");
 	}
 	public void testBug544073_068() {
 		runConformTest(
@@ -2226,14 +2126,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"
 		},
-		"0",
-		null,
-		new String[] {"--enable-preview"});
+		"0");
 	}
 	// see comment 12 in the bug 
-	public void testBug544073_069() {
-		this.runNegativeTest(
-			new String[] {
+	public void testBug513766_01() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
 				"X.java",
 				"public class X {\n"+
 				"    @SuppressWarnings(\"preview\")\n"+
@@ -2245,7 +2143,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"    }\n"+
 				"    <T> T magic() { return null; }\n"+
 				"}\n",
-			},
+			};
+		runner.expectedCompilerLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	if (switch(i) { default -> magic(); })\n" + 
@@ -2256,7 +2155,10 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"	if (magic())\n" + 
 			"	    ^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to boolean\n" + 
-			"----------\n");
+			"----------\n";
+		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.javacTestOptions = JavacHasABug.JavacBug8179483_switchExpression;
+		runner.runNegativeTest();
 	}
 	public void testBug544073_070() {
 		runNegativeTest(
@@ -2310,7 +2212,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Dead code\n" + 
 				"----------\n";
 		
-		this.runNegativeTest(new String[] {
+		this.runWarningTest(new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  public static void main(String [] args) {\n" +
@@ -2321,18 +2223,13 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"  }\n" +
 				"}\n"
 			},
-			message,
-			null,
-			true,
-			new String[] { "--enable-preview"},
-			options);
+			message, 
+			options,
+			"-Xlint:preview");
 	}
 	public void testBug544073_072() {
 		if (this.complianceLevel < ClassFileConstants.JDK12)
 			return;
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		String message = 
 				"----------\n" + 
 				"1. WARNING in X.java (at line 5)\n" + 
@@ -2341,7 +2238,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"Dead code\n" + 
 				"----------\n";
 		
-		this.runNegativeTest(new String[] {
+		this.runWarningTest(new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  public static void main(String [] args) {\n" +
@@ -2352,11 +2249,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"  }\n" +
 				"}\n"
 			},
-			message,
-			null,
-			true,
-			new String[] { "--enable-preview"},
-			options);
+			message);
 	}
 	public void testBug544073_073() {
 		if (this.complianceLevel < ClassFileConstants.JDK1_8)
@@ -2408,9 +2301,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"     }\n"+
 				"}\n"
 		},
-		"5",
-		null,
-		new String[] {"--enable-preview"});
+		"5");
 	}
 	public void testBug544073_075() {
 		runConformTest(
@@ -2431,9 +2322,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"     }\n"+
 				"} \n"
 		},
-		"5",
-		null,
-		new String[] {"--enable-preview"});
+		"5");
 	}
 	public void testBug544073_076() {
 		this.runNegativeTest(
@@ -2588,9 +2477,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"	}\n"+
 						"}\n"
 				},
-				"2",
-				null,
-				new String[] {"--enable-preview"});
+				"2");
 	}
 	public void testBug544073_81() {
 		this.runNegativeTest(
@@ -3166,9 +3053,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n"+
 					"}"
 			},
-			"99",
-			null,
-			new String[] {"--enable-preview"});
+			"99");
 	}
 	public void testBug547891_18() {
 		runConformTest(
@@ -3192,9 +3077,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n"+
 					"}"
 			},
-			"-1",
-			null,
-			new String[] {"--enable-preview"});
+			"-1");
 	}
 	public void testBug547891_19() {
 		runConformTest(
@@ -3218,9 +3101,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n"+
 					"}"
 			},
-			"99",
-			null,
-			new String[] {"--enable-preview"});
+			"99");
 	}
 	public void testBug547891_20() {
 		runConformTest(
@@ -3244,9 +3125,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n"+
 					"}"
 			},
-			"-1",
-			null,
-			new String[] {"--enable-preview"});
+			"-1");
 	}
 	public void testBug547891_21() {
 		if (this.complianceLevel < ClassFileConstants.JDK12)
@@ -3314,9 +3193,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n"+
 					"}\n"
 			},
-			"256",
-			null,
-			new String[] {"--enable-preview"});
+			"256");
 	}
 	public void testBug547891_23() {
 		runConformTest(
@@ -3345,9 +3222,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	}\n"+
 					"}\n"
 			},
-			"1024",
-			null,
-			new String[] {"--enable-preview"});
+			"1024");
 	}
 	public void testBug547891_24() {
 		runConformTest(
@@ -3368,9 +3243,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}"
 			},
-			"101",
-			null,
-			new String[] {"--enable-preview"});
+			"101");
 	}
 	public void testBug547891_25() {
 		runConformTest(
@@ -3391,9 +3264,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}"
 			},
-			"10200",
-			null,
-			new String[] {"--enable-preview"});
+			"10200");
 	}
 	public void testBug547891_26() {
 		runConformTest(
@@ -3414,9 +3285,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}"
 			},
-			"10200",
-			null,
-			new String[] {"--enable-preview"});
+			"10200");
 	}
 	public void testBug547891_27() {
 		runConformTest(
@@ -3437,9 +3306,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}"
 			},
-			"110",
-			null,
-			new String[] {"--enable-preview"});
+			"110");
 	}
 	public void testBug547891_28() {
 		runConformTest(
@@ -3461,9 +3328,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}"
 			},
-			"100",
-			null,
-			new String[] {"--enable-preview"});
+			"100");
 	}
 	public void testBug547891_29() {
 		runConformTest(
@@ -3485,8 +3350,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}"
 			},
-			"300",
-			null,
-			new String[] {"--enable-preview"});
+			"300");
 	}
 }
