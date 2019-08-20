@@ -354,10 +354,6 @@ public class LineBreaksPreparator extends ASTVisitor {
 		doSwitchStatementsIndentation(node, statements);
 		doSwitchStatementsLineBreaks(statements);
 
-		putBlankLinesAfter(this.tm.firstTokenAfter(node.getExpression(), TokenNameLBRACE),
-				this.options.blank_lines_at_beginning_of_code_block);
-		putBlankLinesBeforeCloseBrace(node, this.options.blank_lines_at_end_of_code_block);
-
 		return true;
 	}
 
@@ -687,10 +683,6 @@ public class LineBreaksPreparator extends ASTVisitor {
 			token.putLineBreaksAfter(~linesCount + 1);
 			token.setPreserveLineBreaksAfter(false);
 		}
-	}
-
-	private void putBlankLinesBeforeCloseBrace(ASTNode node, int blankLinesSetting) {
-		putBlankLinesBefore(this.tm.lastTokenIn(node, TokenNameRBRACE), blankLinesSetting);
 	}
 
 	private void handleBracedCode(ASTNode node, ASTNode nodeBeforeOpenBrace, String bracePosition, boolean indentBody) {
