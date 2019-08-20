@@ -43,7 +43,7 @@ import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 public class CompletionTests extends AbstractJavaModelCompletionTests {
 
 static {
-//	TESTS_NAMES = new String[] { "testCompletionMethodDeclaration17"};
+	TESTS_NAMES = new String[] { "test285379"};
 }
 public static Test suite() {
 	return buildModelTestSuite(CompletionTests.class, BYTECODE_DECLARATION_ORDER);
@@ -20582,6 +20582,66 @@ public void test270437c() throws JavaModelException {
 	assertResults(
 			"", //Empty!
 			requestor.getResults());
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=285379
+ */
+public void test285379a() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "Completion285379.java");
+
+	String str = cu.getSource();
+	String completeBehind = "pkgtest285379.X1.";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	// just not hang...	
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=285379
+ */
+public void test285379b() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "Completion285379.java");
+
+	String str = cu.getSource();
+	String completeBehind = "return ";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	// just not hang...	
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=285379
+ */
+public void test285379c() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "Completion285379.java");
+
+	String str = cu.getSource();
+	String completeBehind = "equals";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	// just not hang...	
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=285379
+ */
+public void test285379d() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "Completion285379.java");
+
+	String str = cu.getSource();
+	String completeBehind = "(var";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	// just not hang...	
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=270436
