@@ -33,6 +33,8 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedSourceVersion;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.ModuleElement;
@@ -48,6 +50,7 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
  * @since 3.14
  */
 @SupportedAnnotationTypes("*")
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class Java12ElementProcessor extends BaseProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
@@ -265,6 +268,65 @@ public class Java12ElementProcessor extends BaseProcessor {
 		assertNotNull("module should not be null in "+ this.mode + " mode", mod2);
 			assertNotNull("module should not be null in "+ this.mode + " mode", mod3);
 			assertEquals("Incorrect enclosed packages in "+ this.mode + " mode", "[my1.mod.samePackage, ]", getElementsAsString(mod3.getEnclosedElements()));
+	}
+	public void testRootElements4() throws IOException {
+		Set<? extends Element> rootElements = this.roundEnv.getRootElements();
+		List<String> names = new ArrayList<>();
+		Set<Element> modules = new HashSet<Element>();
+		for (Element element : rootElements) {
+			Element root = getRoot(element);
+			String modName = null;
+			ModuleElement mod = null;
+			if (element instanceof ModuleElement) {
+				mod = (ModuleElement) element;
+				modName = mod.getQualifiedName().toString();
+				if (!modName.equals("java.base")) {
+					names.add(modName);
+					modules.add(element);
+				}
+				assertNull("module should not have an enclosing element", root);
+				
+			} else {
+				if (root instanceof ModuleElement) {
+					modName = ((ModuleElement) root).getQualifiedName().toString();
+					if (!modName.equals("java.base")) {
+						names.add(modName);
+						modules.add(root);
+					}
+				}
+			}
+		}
+		assertEquals("incorrect no of modules in root elements in "+ this.mode + " mode", 3, modules.size());
+	}
+	public void testRootElements5() throws IOException {
+		Set<? extends Element> rootElements = this.roundEnv.getRootElements();
+		List<String> names = new ArrayList<>();
+		Set<Element> modules = new HashSet<Element>();
+		for (Element element : rootElements) {
+			Element root = getRoot(element);
+			String modName = null;
+			ModuleElement mod = null;
+			if (element instanceof ModuleElement) {
+				mod = (ModuleElement) element;
+				modName = mod.getQualifiedName().toString();
+				if (!modName.equals("java.base")) {
+					names.add(modName);
+					modules.add(element);
+				}
+				assertNull("module should not have an enclosing element", root);
+				
+			} else {
+				if (root instanceof ModuleElement) {
+					modName = ((ModuleElement) root).getQualifiedName().toString();
+					if (!modName.equals("java.base")) {
+						names.add(modName);
+						modules.add(root);
+					}
+				}
+			}
+		}
+		// Deliberately ignoring the extra bogus module to let this pass, so we can test the binary mode in next round
+		assertTrue("incorrect no of modules in root elements in "+ this.mode + " mode", (3 <= modules.size()));
 	}
 	private Element getRoot(Element elem) {
 		Element enclosingElement = elem.getEnclosingElement();

@@ -977,7 +977,11 @@ protected static class JavacTestOptions {
 			JavacBug8144832 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8144832
 					new JavacHasABug(MismatchType.JavacErrorsEclipseNone, ClassFileConstants.JDK9, 0000) : null,
 			JavacBug8179483_switchExpression = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8179483
-					new JavacBug8179483(" --release 13 --enable-preview -Xlint:-preview") : null;
+					new JavacBug8179483(" --release 13 --enable-preview -Xlint:-preview") : null,
+			JavacBug8221413_switchExpression = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8221413
+					new JavacBug8221413(" --release 12 --enable-preview -Xlint:-preview") : null,
+			JavacBug8226510_switchExpression = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8226510
+					new JavacBug8226510(" --release 12 --enable-preview -Xlint:-preview") : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -1014,6 +1018,28 @@ protected static class JavacTestOptions {
 	public static class JavacBug8179483 extends JavacHasABug {
 		String extraJavacOptions;
 		public JavacBug8179483(String extraJavacOptions) {
+			super(MismatchType.EclipseErrorsJavacWarnings);
+			this.extraJavacOptions = extraJavacOptions;
+		}
+		@Override
+		String getCompilerOptions() {
+			return super.getCompilerOptions() + this.extraJavacOptions;
+		}
+	}
+	public static class JavacBug8221413 extends JavacHasABug {
+		String extraJavacOptions;
+		public JavacBug8221413(String extraJavacOptions) {
+			super(MismatchType.JavacErrorsEclipseNone);
+			this.extraJavacOptions = extraJavacOptions;
+		}
+		@Override
+		String getCompilerOptions() {
+			return super.getCompilerOptions() + this.extraJavacOptions;
+		}
+	}
+	public static class JavacBug8226510 extends JavacHasABug {
+		String extraJavacOptions;
+		public JavacBug8226510(String extraJavacOptions) {
 			super(MismatchType.EclipseErrorsJavacWarnings);
 			this.extraJavacOptions = extraJavacOptions;
 		}

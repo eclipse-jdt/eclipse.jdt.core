@@ -11324,6 +11324,7 @@ public void testBug474918() {
 		"\r\n" + 
 		"	private enum E {\r\n" + 
 		"		AAA, BBB;\r\n" + 
+		"\r\n" + 
 		"		int		a		= 55;\r\n" + 
 		"		String	sssss	= \"ssssss\";\r\n" + 
 		"	}\r\n" + 
@@ -11390,6 +11391,7 @@ public void testBug474918b() {
 		"\r\n" + 
 		"    private enum E {\r\n" + 
 		"        AAA, BBB;\r\n" + 
+		"\r\n" + 
 		"        int    a     = 55;\r\n" + 
 		"        String sssss = \"ssssss\";\r\n" + 
 		"    }\r\n" + 
@@ -11456,6 +11458,7 @@ public void testBug474918c() {
 		"\r\n" + 
 		"	private enum E {\r\n" + 
 		"		AAA, BBB;\r\n" + 
+		"\r\n" + 
 		"		int		a		= 55;\r\n" + 
 		"		String	sssss	= \"ssssss\";\r\n" + 
 		"	}\r\n" + 
@@ -12592,6 +12595,7 @@ public void testBug500096a() {
 	String source =
 		"public enum Test {\n" + 
 		"AAA, BBB;\n" + 
+		"\n" + 
 		"Test() {\n" + 
 		"}\n" + 
 		"}";
@@ -12606,6 +12610,7 @@ public void testBug500096b() {
 	String source =
 		"public enum Test {\n" + 
 		"	AAA, BBB;\n" + 
+		"\n" + 
 		"Test() {\n" + 
 		"}\n" + 
 		"}";
@@ -12955,5 +12960,66 @@ public void testBug543780() {
 		"	}\n" + 
 		"}";
 	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/413193 - [formatter] Blank lines before the first declarations and declarations of same kind not respected in enums
+ */
+public void testBug413193a() {
+	this.formatterPrefs.blank_lines_before_first_class_body_declaration = 2;
+	this.formatterPrefs.blank_lines_after_last_class_body_declaration = 3;
+	this.formatterPrefs.blank_lines_before_new_chunk = 4;
+	formatSource(
+		"public enum TestEnum {\n" + 
+		"\n" + 
+		"\n" + 
+		"	ONE, TWO, THREE;\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"	public int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"\n" + 
+		"\n" + 
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/413193 - [formatter] Blank lines before the first declarations and declarations of same kind not respected in enums
+ */
+public void testBug413193b() {
+	this.formatterPrefs.blank_lines_before_first_class_body_declaration = 2;
+	this.formatterPrefs.blank_lines_after_last_class_body_declaration = 3;
+	this.formatterPrefs.blank_lines_before_new_chunk = 4;
+	formatSource(
+		"public enum TestEnum {\n" + 
+		"	ONE, TWO, THREE;\n" + 
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/413193 - [formatter] Blank lines before the first declarations and declarations of same kind not respected in enums
+ */
+public void testBug413193c() {
+	this.formatterPrefs.blank_lines_before_first_class_body_declaration = ~0;
+	this.formatterPrefs.blank_lines_after_last_class_body_declaration = ~0;
+	this.formatterPrefs.blank_lines_before_new_chunk = ~0;
+	String source =
+		"public enum TestEnum {\n" + 
+		"\n" + 
+		"	ONE, TWO, THREE;\n" + 
+		"\n" + 
+		"	public int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"}";
+	formatSource(source,
+		"public enum TestEnum {\n" + 
+		"	ONE, TWO, THREE;\n" + 
+		"	public int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"}");
 }
 }

@@ -10947,6 +10947,7 @@ public void test730() {
 		"enum Fail1 {\n" + 
 		"	A;\n" + 
 		"	;\n" + 
+		"\n" + 
 		"	{\n" + 
 		"	}\n" + 
 		"}"
@@ -10963,6 +10964,7 @@ public void test731() {
 		"enum Fail2 {\n" + 
 		"	A, B;\n" + 
 		"	;\n" + 
+		"\n" + 
 		"	{\n" + 
 		"	}\n" + 
 		"}"
@@ -10979,6 +10981,7 @@ public void test732() {
 		"enum Fail3 {\n" + 
 		"	A;\n" + 
 		"	;\n" + 
+		"\n" + 
 		"	public void foo() {\n" + 
 		"	}\n" + 
 		"}"
@@ -10995,6 +10998,7 @@ public void test733() {
 		"enum Fail4 {\n" + 
 		"	A;\n" + 
 		"	;\n" + 
+		"\n" + 
 		"	public int i = 0;\n" + 
 		"}"
 	);
@@ -15086,6 +15090,7 @@ public void testBug522089a() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
 	this.formatterPrefs.number_of_empty_lines_to_preserve = 3;
 	this.formatterPrefs.blank_lines_at_end_of_method_body = 2;
+	this.formatterPrefs.blank_lines_before_new_chunk = 0;
 	String input = getCompilationUnit("Formatter", "", "test522089", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test522089", "A_out.java").getSource());
 }
@@ -15096,6 +15101,7 @@ public void testBug522089b() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
 	this.formatterPrefs.number_of_empty_lines_to_preserve = 3;
 	this.formatterPrefs.blank_lines_at_end_of_method_body = ~0;
+	this.formatterPrefs.blank_lines_before_new_chunk = 0;
 	String input = getCompilationUnit("Formatter", "", "test522089", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test522089", "B_out.java").getSource());
 }
