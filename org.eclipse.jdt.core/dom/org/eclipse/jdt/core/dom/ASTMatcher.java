@@ -2271,7 +2271,7 @@ public class ASTMatcher {
 			return false;
 		}
 		SwitchCase o = (SwitchCase) other;
-		return ( node.getAST().apiLevel == AST.JLS13_INTERNAL && node.getAST().isPreviewEnabled()
+		return ( node.getAST().isPreviewEnabled()
 				? safeSubtreeListMatch(node.expressions(), o.expressions())
 						: compareDeprecatedSwitchExpression(node, o));
 	}
@@ -2398,7 +2398,7 @@ public class ASTMatcher {
 	 *   different node type or is <code>null</code>
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
-	 * @since 3.18 BETA_JAVA13
+	 * @since 3.19 BETA_JAVA13
 	 */
 	public boolean match(TextBlock node, Object other) {
 		if (!(other instanceof TextBlock)) {
@@ -2859,7 +2859,7 @@ public class ASTMatcher {
 	 *   different node type or is <code>null</code>
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
-	 * @since 3.18 BETA_JAVA13
+	 * @since 3.19 BETA_JAVA13
 	 */
 	public boolean match(YieldStatement node, Object other) {
 		if (!(other instanceof YieldStatement)) {

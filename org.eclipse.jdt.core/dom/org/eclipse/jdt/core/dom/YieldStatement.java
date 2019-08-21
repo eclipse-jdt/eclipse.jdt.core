@@ -29,7 +29,7 @@ import java.util.List;
  *		<b>Yield</b> <b>{ Identifier/Expression }</b>
  * </pre>
  *
- * @since 3.18 BETA_JAVA13
+ * @since 3.19 BETA_JAVA13
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noreference This class is not intended to be referenced by clients as it is a part of Java preview feature.
  */
@@ -72,12 +72,27 @@ public class YieldStatement extends Statement {
 	 * {@link StructuralPropertyDescriptor})
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel >= AST.JLS13_INTERNAL) {
-			return PROPERTY_DESCRIPTORS;
-		}
-		return PROPERTY_DESCRIPTORS;
+		return propertyDescriptors(apiLevel, false);
 	}
 
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 *
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.JLS*</code> constants
+	 * @param previewEnabled the previewEnabled flag
+	 * @return a list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor})
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 3.19 BETA_JAVA13
+	 */
+	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
+		if (apiLevel == AST.JLS13_INTERNAL && previewEnabled) {
+			return PROPERTY_DESCRIPTORS;
+		}
+		return null;
+	}
 	
 	/**
 	 * The expression
@@ -93,10 +108,12 @@ public class YieldStatement extends Statement {
 	 *
 	 * @param ast the AST that is to own this node
 	 * @exception UnsupportedOperationException if this operation is used other than JLS13
+	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 */
 	YieldStatement(AST ast) {
 		super(ast);
 		supportedOnlyIn13();
+		unsupportedWithoutPreviewError();
 	}
 
 	@Override
@@ -104,6 +121,11 @@ public class YieldStatement extends Statement {
 		return propertyDescriptors(apiLevel);
 	}
 
+	@Override
+	final List internalStructuralPropertiesForType(int apiLevel, boolean previewEnabled) {
+		return propertyDescriptors(apiLevel, previewEnabled);
+	}
+	
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == EXPRESSION_PROPERTY) {

@@ -156,7 +156,7 @@ public class SwitchCase extends Statement {
 	 */
 	SwitchCase(AST ast) {
 		super(ast);
-		if (isPreviewEnabled()) {
+		if (ast.isPreviewEnabled()) {
 			this.expressions = new ASTNode.NodeList(EXPRESSIONS2_PROPERTY );
 		}
 	}
@@ -219,7 +219,7 @@ public class SwitchCase extends Statement {
 		SwitchCase result = new SwitchCase(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
-		if (isPreviewEnabled()) {
+		if (this.ast.isPreviewEnabled()) {
 			result.expressions().addAll(
 				ASTNode.copySubtrees(target, expressions()));
 		} else {
@@ -239,7 +239,7 @@ public class SwitchCase extends Statement {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			if (isPreviewEnabled()) {
+			if (this.ast.isPreviewEnabled()) {
 				acceptChildren(visitor, this.expressions);
 			} else {
 				acceptChild(visitor, getExpression());
@@ -360,7 +360,7 @@ public class SwitchCase extends Statement {
 	 *    <code>false</code> if this is a non-default switch case
 	 */
 	public boolean isDefault()  {
-		if (isPreviewEnabled()) {
+		if (this.ast.isPreviewEnabled()) {
 			return expressions().isEmpty();
 		}
 		return getExpression() == null;

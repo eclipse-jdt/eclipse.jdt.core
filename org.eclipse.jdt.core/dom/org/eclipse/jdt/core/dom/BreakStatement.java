@@ -62,13 +62,6 @@ public class BreakStatement extends Statement {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
-	 */
-	private static final List PROPERTY_DESCRIPTORS_12;
-	
-	/**
 	 * <code>true</code> indicates implicit and <code>false</code> indicates not implicit.
 	 */
 	private boolean isImplicit = false;
@@ -78,12 +71,6 @@ public class BreakStatement extends Statement {
 		createPropertyList(BreakStatement.class, properyList);
 		addProperty(LABEL_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
-		
-		List properyList_12 = new ArrayList(2);
-		createPropertyList(BreakStatement.class, properyList_12);
-		addProperty(LABEL_PROPERTY, properyList_12);
-		addProperty(EXPRESSION_PROPERTY, properyList_12);
-		PROPERTY_DESCRIPTORS_12 = reapPropertyList(properyList_12);
 	}
 
 	/**
@@ -102,7 +89,18 @@ public class BreakStatement extends Statement {
 	}
 	
 	/**
-	 * @since 3.19 BETA_JAVA13
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 *
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.JLS*</code> constants
+	 * @param previewEnabled the previewEnabled flag
+
+	 * @return a list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor})
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @deprecated
+	 * @since 3.19
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
 		return PROPERTY_DESCRIPTORS;

@@ -321,7 +321,7 @@ public final class AST {
 	/**
 	 * Internal synonym for {@link #JLS13}. Use to alleviate
 	 * deprecation warnings once JLS13 is deprecated
-	 * @since 3.18 BETA_JAVA13 
+	 * @since 3.19 BETA_JAVA13 
 	 */
 	static final int JLS13_INTERNAL = JLS13;
 
@@ -2791,7 +2791,7 @@ public final class AST {
 	 * label/identifier/expression and is not implicit.
 	 *
 	 * @return a new unparented yield statement node
-	 * @since 3.18 BETA_JAVA13
+	 * @since 3.19 BETA_JAVA13
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public TextBlock newTextBlock() {
@@ -3103,7 +3103,7 @@ public final class AST {
 	 * label/identifier/expression and is not implicit.
 	 *
 	 * @return a new unparented yield statement node
-	 * @since 3.18 BETA_JAVA13
+	 * @since 3.19 BETA_JAVA13
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public YieldStatement newYieldStatement() {
@@ -3606,10 +3606,13 @@ public final class AST {
 
 	/**
 	 * 
-	 * @return previewEnabled
+	 * @return If preview is enabled and apiLevel is latest, return <code>true</code> else <code>false</code>
 	 * @since 3.19
 	 */
 	public boolean isPreviewEnabled() {
-		return this.previewEnabled;
+		if (this.apiLevel == AST.JLS13_INTERNAL && this.previewEnabled) {
+			return true;
+		}
+		return false;
 	}
 }

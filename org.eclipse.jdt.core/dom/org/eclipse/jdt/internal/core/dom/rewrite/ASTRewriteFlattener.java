@@ -98,14 +98,6 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	/** @deprecated using deprecated code */
 	private static final int JLS9_INTERNAL = AST.JLS9;
 	
-	/**
-	 * Internal synonym for {@link AST#JLS13}. Use to alleviate
-	 * deprecation warnings.
-	 * @since 3.18 BETA_JAVA13
-	 */
-	private static final int JLS13 = AST.JLS13;
-
-
 	public static String asString(ASTNode node, RewriteEventStore store) {
 		ASTRewriteFlattener flattener= new ASTRewriteFlattener(store);
 		node.accept(flattener);
@@ -974,7 +966,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if (node.getAST().apiLevel() == JLS13 && node.getAST().isPreviewEnabled()) {
+		if ((node.getAST().isPreviewEnabled())) {
 			if (node.isDefault()) {
 				this.result.append("default");//$NON-NLS-1$
 				this.result.append(getBooleanAttribute(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY) ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
@@ -1509,7 +1501,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	
 	@Override
 	public boolean visit(YieldStatement node) {
-		if (node.getAST().apiLevel() == JLS13 && node.isImplicit()  && node.getExpression() == null) {
+		if (node.getAST().isPreviewEnabled() && node.isImplicit()  && node.getExpression() == null) {
 			return false;
 		}
 		

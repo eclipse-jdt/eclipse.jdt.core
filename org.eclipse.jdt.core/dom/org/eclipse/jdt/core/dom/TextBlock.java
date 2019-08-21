@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  *
  * These are block of String literal nodes. 
  *
- * @since 3.18 BETA_JAVA13
+ * @since 3.19 BETA_JAVA13
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noreference This class is not intended to be referenced by clients as it is a part of Java preview feature.
  */
@@ -71,9 +71,27 @@ public class TextBlock extends Expression {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		return PROPERTY_DESCRIPTORS;
+		return propertyDescriptors(apiLevel, false);
 	}
 
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 *
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.JLS*</code> constants
+	 * @param previewEnabled the previewEnabled flag
+	 * @return a list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor})
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 3.19 BETA_JAVA13
+	 */
+	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
+		if (apiLevel == AST.JLS13_INTERNAL && previewEnabled) {
+			return PROPERTY_DESCRIPTORS;
+		}
+		return null;
+	}
 	/**
 	 * The literal string, including quotes and escapes; defaults to the
 	 * literal for the empty string.
@@ -89,15 +107,22 @@ public class TextBlock extends Expression {
 	 *
 	 * @param ast the AST that is to own this node
 	 * @exception UnsupportedOperationException if this operation is used other than JLS13
+	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 */
 	TextBlock(AST ast) {
 		super(ast);
 		supportedOnlyIn13();
+		unsupportedWithoutPreviewError();
 	}
 
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
+	}
+	
+	@Override
+	final List internalStructuralPropertiesForType(int apiLevel, boolean previewEnabled) {
+		return propertyDescriptors(apiLevel, previewEnabled);
 	}
 
 	@Override

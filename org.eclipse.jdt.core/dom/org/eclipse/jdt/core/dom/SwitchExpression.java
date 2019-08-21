@@ -60,26 +60,14 @@ public class SwitchExpression extends Expression {
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
 	 */
-	private static final List PROPERTY_DESCRIPTORS_12_0;
-	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
-	 */
-	private static final List PROPERTY_DESCRIPTORS_13_0;
+	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
 		List propertyList = new ArrayList(3);
 		createPropertyList(SwitchExpression.class, propertyList);
 		addProperty(EXPRESSION_PROPERTY, propertyList);
 		addProperty(STATEMENTS_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS_12_0 = reapPropertyList(propertyList);
-		
-		propertyList = new ArrayList(3);
-		createPropertyList(SwitchExpression.class, propertyList);
-		addProperty(EXPRESSION_PROPERTY, propertyList);
-		addProperty(STATEMENTS_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS_13_0 = reapPropertyList(propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**
@@ -93,11 +81,6 @@ public class SwitchExpression extends Expression {
 	 * @since 3.16
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel == AST.JLS12_INTERNAL) {
-			return PROPERTY_DESCRIPTORS_12_0;
-		} else if (apiLevel == AST.JLS13_INTERNAL) {
-			return PROPERTY_DESCRIPTORS_13_0;
-		}
 		return propertyDescriptors(apiLevel, false);
 	}
 	
@@ -110,11 +93,12 @@ public class SwitchExpression extends Expression {
 	 * @param previewEnabled previewEnabled flag
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
+	 * @noreference This method is not intended to be referenced by clients.
 	 * @since 3.19
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
-		if (previewEnabled) {
-			return PROPERTY_DESCRIPTORS_13_0;
+		if (apiLevel == AST.JLS13_INTERNAL && previewEnabled) {
+			return PROPERTY_DESCRIPTORS;
 		}
 		return null;
 	}
@@ -143,6 +127,7 @@ public class SwitchExpression extends Expression {
 	 *
 	 * @param ast the AST that is to own this node
 	 * @exception UnsupportedOperationException if this operation is used other than JLS13
+	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 */
 	SwitchExpression(AST ast) {
 		super(ast);

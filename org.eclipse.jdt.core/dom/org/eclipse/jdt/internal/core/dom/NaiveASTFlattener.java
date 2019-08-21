@@ -87,14 +87,6 @@ public class NaiveASTFlattener extends ASTVisitor {
 	private static final int JLS9 = AST.JLS9;
 	
 	/**
-	 * Internal synonym for {@link AST#JLS13}. Use to alleviate
-	 * deprecation warnings.
-	 * @since 3.18 BETA_JAVA13
-	 */
-	private static final int JLS13 = AST.JLS13;
-	
-
-	/**
 	 * The string buffer into which the serialized representation of the AST is
 	 * written.
 	 */
@@ -1499,7 +1491,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if (node.getAST().apiLevel() == JLS13 && node.getAST().isPreviewEnabled()) {
+		if ((node.getAST().isPreviewEnabled())) {
 			if (node.isDefault()) {
 				this.buffer.append("default");//$NON-NLS-1$
 				this.buffer.append(node.isSwitchLabeledRule() ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
@@ -1924,7 +1916,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	
 	@Override
 	public boolean visit(YieldStatement node) {
-		if (node.getAST().apiLevel() == JLS13 && node.isImplicit()  && node.getExpression() == null) {
+		if ((node.getAST().isPreviewEnabled()) && node.isImplicit()  && node.getExpression() == null) {
 			return false;
 		}
 		printIndent();

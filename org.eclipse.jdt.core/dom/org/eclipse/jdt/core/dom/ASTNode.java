@@ -2197,7 +2197,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is is not used in JLS12
-	 * @since 3.18 BETA_JAVA13
+	 * @since 3.19 BETA_JAVA13
      */
 	// In API Javadocs, add: * @deprecated In the JLS13 API, this method is replaced by {@link #replacement()}.
 	final void supportedOnlyIn12() {
@@ -2214,7 +2214,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is not used in JLS13
-	 * @since 3.18 BETA_JAVA13
+	 * @since 3.19 BETA_JAVA13
 	 */
 	final void supportedOnlyIn13() {
 		if (this.ast.apiLevel != AST.JLS13_INTERNAL) {
@@ -3192,11 +3192,4 @@ public abstract class ASTNode {
 	 * @return the size of this node in bytes
 	 */
 	abstract int memSize();
-	
-	boolean isPreviewEnabled() {
-		if (this.ast.apiLevel == AST.JLS13_INTERNAL && this.ast.isPreviewEnabled()) {
-			return true;
-		}
-		return false;
-	}
 }
