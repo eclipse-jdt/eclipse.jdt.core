@@ -21,6 +21,8 @@ package org.eclipse.jdt.core.dom;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -312,7 +314,7 @@ public final class AST {
 	 * up to and including Java SE 13 (aka JDK 13).
 	 * </p>
 	 *
-	 * @since 3.18 BETA_JAVA13
+	 * @since 3.19 BETA_JAVA13
 	 */
 	public static final int JLS13 = 13;
 	
@@ -331,6 +333,10 @@ public final class AST {
 	 * Must not collide with a value for ICompilationUnit constants
 	 */
 	static final int RESOLVED_BINDINGS = 0x80000000;
+
+	private static Map<String, Long> jdkLevelMap = getLevelMapTable();
+
+	private static Map<String, Integer> apiLevelMap = getApiLevelMapTable();
 
 	/**
 	 * Internal method.
@@ -471,6 +477,38 @@ public final class AST {
 		return new AST(level, previewEnabled);
 	}
 
+	/**
+	 * Creates a new Java abstract syntax tree
+	 * <p>
+	 * Following option keys are significant:
+	 * <ul>
+	 * <li><code>"org.eclipse.jdt.core.compiler.source"</code>
+	 *    indicates the api level and source compatibility mode (as per <code>JavaCore</code>) - defaults to 1.3
+	 *    <ul>
+	 *    	<li>
+	 *    	<code>"1.3"</code> means the source code is as per JDK 1.3 and api level {@link #JLS3}.</li>
+	 *    	<li><code>"1.4", "1.5", "1.6", "1.7" "1.8"</code> implies the respective source JDK levels 1.4, 1.5, 1.6, 1.7 and api level {@link #JLS4}.</li>
+	 *    	<li><code>"1.8"</code> implies the respective source JDK level 1.8 and api level {@link #JLS8}.</li>
+	 *    	<li><code>"9", "10", "11" "12"</code> implies the respective JDK levels 9, 10, 11 and 12
+	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11}, and {@link #JLS12}.</li>
+	 *    	Additional legal values may be added later.
+	 *    	</li>
+	 *    </ul>
+	 * <li><code>"org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures"</code> -
+	 *    indicates whether the preview is enabled or disabled
+	 *    legal values are <code>"enabled"</code> and  <code>"disabled"</code> implying preview enabled and disabled respectively.
+	 *    preview enabling has an effect only with the latest ast level.
+	 * </ul>
+	 * <p>
+	 * </p>
+	 *
+	 * @param options the table of options
+	 * @see JavaCore#getDefaultOptions()
+     * @since 3.19 BETA_JAVA13
+	 */
+	public static AST newAST(Map<String, String> options) {
+		return new AST(options);
+	}
 	/**
 	 * Parses the given string as a Java compilation unit and creates and
 	 * returns a corresponding abstract syntax tree.
@@ -975,51 +1013,54 @@ public final class AST {
 	}
 
 	/**
-	 * Creates a new, empty abstract syntax tree using the given options.
+	 * Creates a new Java abstract syntax tree
 	 * <p>
 	 * Following option keys are significant:
 	 * <ul>
-	 * <li><code>"org.eclipse.jdt.core.compiler.source"</code> -
-	 *    indicates source compatibility mode (as per <code>JavaCore</code>);
-	 *    <code>"1.3"</code> means the source code is as per JDK 1.3;
-	 *    <code>"1.4"</code> means the source code is as per JDK 1.4
-	 *    (<code>"assert"</code> is now a keyword);
-	 *    <code>"1.5"</code> means the source code is as per JDK 1.5
-	 *    (<code>"enum"</code> is now a keyword);
-	 *    <code>"1.7"</code> means the source code is as per JDK 1.7;
-	 *    additional legal values may be added later. </li>
+	 * <li><code>"org.eclipse.jdt.core.compiler.source"</code>
+	 *    indicates the api level and source compatibility mode (as per <code>JavaCore</code>) - defaults to 1.3
+	 *    <ul>
+	 *    	<li>
+	 *    	<code>"1.3"</code> means the source code is as per JDK 1.3 and api level {@link #JLS3}.</li>
+	 *    	<li><code>"1.4", "1.5", "1.6", "1.7" "1.8"</code> implies the respective source JDK levels 1.4, 1.5, 1.6, 1.7 and api level {@link #JLS4}.</li>
+	 *    	<li><code>"1.8"</code> implies the respective source JDK level 1.8 and api level {@link #JLS8}.</li>
+	 *    	<li><code>"9", "10", "11" "12"</code> implies the respective JDK levels 9, 10, 11 and 12
+	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11}, and {@link #JLS12}.</li>
+	 *    	Additional legal values may be added later.
+	 *    	</li>
+	 *    </ul>
+	 * <li><code>"org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures"</code> -
+	 *    indicates whether the preview is enabled or disabled
+	 *    legal values are <code>"enabled"</code> and  <code>"disabled"</code> implying preview enabled and disabled respectively.
+	 *    preview enabling has an effect only with the latest ast level.
 	 * </ul>
 	 * <p>
-	 * Options other than the above are ignored.
 	 * </p>
 	 *
 	 * @param options the table of options (key type: <code>String</code>;
 	 *    value type: <code>String</code>)
 	 * @see JavaCore#getDefaultOptions()
-	 * @deprecated Clients should port their code to use the latest JLS* AST API and call
-	 *    {@link #newAST(int, boolean) AST.newAST(AST.JLS12, false)} instead of using this constructor.
 	 */
 	public AST(Map options) {
-		this(JLS2, false);
-		Object sourceLevelOption = options.get(JavaCore.COMPILER_SOURCE);
-		long sourceLevel = ClassFileConstants.JDK1_3;
-		if (JavaCore.VERSION_1_4.equals(sourceLevelOption)) {
-			sourceLevel = ClassFileConstants.JDK1_4;
-		} else if (JavaCore.VERSION_1_5.equals(sourceLevelOption)) {
-			sourceLevel = ClassFileConstants.JDK1_5;
-		} else if (JavaCore.VERSION_1_7.equals(sourceLevelOption)) {
-			sourceLevel = ClassFileConstants.JDK1_7;
+		this(apiLevelMap.get(options.get(JavaCore.COMPILER_SOURCE)),
+				JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
+
+		long sourceLevel;
+		long complianceLevel;
+		switch(this.apiLevel) {
+			case JLS2_INTERNAL :
+			case JLS3_INTERNAL :
+				sourceLevel = ClassFileConstants.JDK1_3;
+				complianceLevel = ClassFileConstants.JDK1_5;
+				break;
+			case JLS4_INTERNAL :
+				sourceLevel = ClassFileConstants.JDK1_7;
+				complianceLevel = ClassFileConstants.JDK1_7;
+				break;
+			default :
+				sourceLevel = AST.jdkLevelMap.get(options.get(JavaCore.COMPILER_SOURCE));
+				complianceLevel = sourceLevel;
 		}
-		Object complianceLevelOption = options.get(JavaCore.COMPILER_COMPLIANCE);
-		long complianceLevel = ClassFileConstants.JDK1_3;
-		if (JavaCore.VERSION_1_4.equals(complianceLevelOption)) {
-			complianceLevel = ClassFileConstants.JDK1_4;
-		} else if (JavaCore.VERSION_1_5.equals(complianceLevelOption)) {
-			complianceLevel = ClassFileConstants.JDK1_5;
-		} else if (JavaCore.VERSION_1_7.equals(complianceLevelOption)) {
-			complianceLevel = ClassFileConstants.JDK1_7;
-		}
-		// override scanner if 1.4 or 1.5 asked for
 		this.scanner = new Scanner(
 			true /*comment*/,
 			true /*whitespace*/,
@@ -1029,9 +1070,43 @@ public final class AST {
 			null/*taskTag*/,
 			null/*taskPriorities*/,
 			true/*taskCaseSensitive*/,
-			JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
+			this.previewEnabled /* isPreviewEnabled*/);
 	}
 
+	private static Map<String, Long> getLevelMapTable() {
+        Map<String, Long> t = new HashMap<>();
+        t.put(null, ClassFileConstants.JDK1_2);
+        t.put(JavaCore.VERSION_1_2, ClassFileConstants.JDK1_2);
+        t.put(JavaCore.VERSION_1_3, ClassFileConstants.JDK1_3);
+        t.put(JavaCore.VERSION_1_4, ClassFileConstants.JDK1_4);
+        t.put(JavaCore.VERSION_1_5, ClassFileConstants.JDK1_5);
+        t.put(JavaCore.VERSION_1_6, ClassFileConstants.JDK1_6);
+        t.put(JavaCore.VERSION_1_7, ClassFileConstants.JDK1_7);
+        t.put(JavaCore.VERSION_1_8, ClassFileConstants.JDK1_8);
+        t.put(JavaCore.VERSION_9, ClassFileConstants.JDK9);
+        t.put(JavaCore.VERSION_10, ClassFileConstants.JDK10);
+        t.put(JavaCore.VERSION_11, ClassFileConstants.JDK11);
+        t.put(JavaCore.VERSION_12, ClassFileConstants.JDK12);
+        t.put(JavaCore.VERSION_13, ClassFileConstants.JDK13);
+        return Collections.unmodifiableMap(t);
+	}
+	private static Map<String, Integer> getApiLevelMapTable() {
+        Map<String, Integer> t = new HashMap<>();
+        t.put(null, JLS2_INTERNAL);
+        t.put(JavaCore.VERSION_1_2, JLS2_INTERNAL);
+        t.put(JavaCore.VERSION_1_3, JLS3_INTERNAL);
+        t.put(JavaCore.VERSION_1_4, JLS4_INTERNAL);
+        t.put(JavaCore.VERSION_1_5, JLS4_INTERNAL);
+        t.put(JavaCore.VERSION_1_6, JLS4_INTERNAL);
+        t.put(JavaCore.VERSION_1_7, JLS4_INTERNAL);
+        t.put(JavaCore.VERSION_1_8, JLS8_INTERNAL);
+        t.put(JavaCore.VERSION_9, JLS9_INTERNAL);
+        t.put(JavaCore.VERSION_10, JLS10_INTERNAL);
+        t.put(JavaCore.VERSION_11, JLS11_INTERNAL);
+        t.put(JavaCore.VERSION_12, JLS12_INTERNAL);
+        t.put(JavaCore.VERSION_13, JLS13_INTERNAL);
+        return Collections.unmodifiableMap(t);
+	}
 	/**
 	 * Return the API level supported by this AST.
 	 *
