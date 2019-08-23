@@ -300,9 +300,7 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 		buf.append(" 				int z = 100;\n");
 		buf.append(" 				break z;\n");
 		buf.append("			}\n");
-		buf.append("			case 100, 200 -> {\n");
-		buf.append("    break 2048;\n");
-		buf.append("}\n");
+		buf.append("			case 100, 200 -> {break 2048;}\n");
 		buf.append("            default -> {\n");
 		buf.append("				break 12;\n");
 		buf.append("			}\n");
