@@ -5019,7 +5019,7 @@ private boolean mayBeAtAnYieldStatement() {
 	switch (this.lookBack[1]) {
 		case TokenNameLBRACE:
 		case TokenNameRBRACE:
-		case TokenNameRBRACKET:
+		case TokenNameRPAREN:
 		case TokenNameSEMICOLON:
 		case TokenNameelse:
 			return true;
