@@ -23,10 +23,16 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 
+import junit.framework.Test;
+
 public class JavaModelManagerTests extends AbstractJavaModelTests {
 
 	private static final IProgressMonitor NULL_MONITOR = new NullProgressMonitor();
 	private static final String PROJECT_NAME = JavaModelManagerTests.class.getSimpleName();
+
+	public static Test suite() {
+		return buildModelTestSuite(JavaModelManagerTests.class);
+	}
 
 	public JavaModelManagerTests(String name) {
 		super(name);
