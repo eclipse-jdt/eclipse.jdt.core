@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.apt.tests; singleton:=true
-Bundle-Version: 3.4.500.qualifier
+Bundle-Version: 3.4.550.qualifier
 Bundle-ClassPath: apt.jar,
  aptext.jar,
  .
