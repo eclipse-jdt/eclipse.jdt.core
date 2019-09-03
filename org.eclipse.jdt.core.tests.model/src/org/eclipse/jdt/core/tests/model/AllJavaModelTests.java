@@ -268,17 +268,17 @@ public static Test suite() {
 			suiteMethod = clazz.getDeclaredMethod("suite", new Class[0]);
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
-			continue;
+			throw new AssertionError("Failed to find suite() method for: " + clazz, e);
 		}
 		Object test;
 		try {
 			test = suiteMethod.invoke(null, new Object[0]);
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
-			continue;
+			throw new AssertionError("Failed to invoke suite() method for: " + clazz, e);
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
-			continue;
+			throw new AssertionError("Failed to invoke suite() method for: " + clazz, e);
 		}
 		suite.addTest((Test) test);
 	}
