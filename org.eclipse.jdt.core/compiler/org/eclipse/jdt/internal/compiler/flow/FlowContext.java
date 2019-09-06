@@ -616,6 +616,24 @@ public FlowContext getTargetContextForDefaultBreak() {
 	// not found
 	return null;
 }
+/*
+ * lookup a default yield through switch expression locations
+ */
+public FlowContext getTargetContextForDefaultYield() {
+	FlowContext current = this, lastNonReturningSubRoutine = null;
+	while (current != null) {
+		if (current.isNonReturningContext()) {
+			lastNonReturningSubRoutine = current;
+		}
+		if (current.isBreakable() && current.labelName() == null && ((SwitchFlowContext) current).isExpression){
+			if (lastNonReturningSubRoutine == null) return current;
+			return lastNonReturningSubRoutine;
+		}
+		current = current.getLocalParent();
+	}
+	// not found
+	return null;
+}
 
 /*
  * lookup a default continue amongst continuable locations

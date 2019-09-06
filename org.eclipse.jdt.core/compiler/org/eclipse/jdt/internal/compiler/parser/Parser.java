@@ -9655,32 +9655,12 @@ protected void consumeDefaultLabelExpr() {
 			return true;
 		}
 		@Override
-		public boolean visit(DoStatement stmt, BlockScope blockScope) {
-			return false;
-		}
-		@Override
-		public boolean visit(ForStatement stmt, BlockScope blockScope) {
-			return false;
-		}
-		@Override
-		public boolean visit(ForeachStatement stmt, BlockScope blockScope) {
-			return false;
-		}
-		@Override
 		public boolean visit(SwitchStatement stmt, BlockScope blockScope) {
 			return false;
 		}
 		@Override
 		public boolean visit(TypeDeclaration stmt, BlockScope blockScope) {
 			return false;
-		}
-		@Override
-		public boolean visit(WhileStatement stmt, BlockScope blockScope) {
-			return false;
-		}
-		@Override
-		public boolean visit(CaseStatement caseStatement, BlockScope blockScope) {
-			return true; // do nothing by default, keep traversing
 		}
 	}
 	s.resultExpressions = new ArrayList<>(0); // indicates processed

@@ -129,6 +129,7 @@ public class SwitchStatement extends Expression {
 			}
 			SwitchFlowContext switchContext =
 				new SwitchFlowContext(flowContext, this, (this.breakLabel = new BranchLabel()), true, true);
+			switchContext.isExpression = this instanceof SwitchExpression;
 
 			// analyse the block by considering specially the case/default statements (need to bind them
 			// to the entry point)
