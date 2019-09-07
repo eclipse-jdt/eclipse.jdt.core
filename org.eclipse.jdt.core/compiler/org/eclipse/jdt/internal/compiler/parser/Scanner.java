@@ -5012,6 +5012,7 @@ private boolean mayBeAtAnYieldStatement() {
 		case TokenNameRPAREN:
 		case TokenNameSEMICOLON:
 		case TokenNameelse:
+		case TokenNamedo:
 			return true;
 		case TokenNameCOLON:
 			return this.lookBack[0] == TokenNamedefault || this.yieldColons == 1;

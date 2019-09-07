@@ -29,7 +29,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug550853_01" };
+//		TESTS_NAMES = new String[] { "testBug550861_01" };
 	}
 	
 	public static Class<?> testClass() {
@@ -3415,5 +3415,25 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"}\n"
 			},
 			"0");
+	}
+	public void testBug550861_01() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"  @SuppressWarnings({ \"preview\" })\n"+
+				"  public static void foo(int i) throws Exception {\n"+
+				"	  System.out.println(switch(0) {\n"+
+				"	  default -> {\n"+
+				"	    do yield 1; while(false);\n"+
+				"	  }\n"+
+				"	  });\n"+
+				"  }\n"+
+				"  public static void main(String argv[]) throws Exception {\n"+
+				"	  X.foo(1);\n"+
+				"  }\n"+
+				"}\n"
+			},
+			"1");
 	}
 }
