@@ -29,7 +29,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug548418_01" };
+//		TESTS_NAMES = new String[] { "testBug550853_01" };
 	}
 	
 	public static Class<?> testClass() {
@@ -91,7 +91,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			JavacTestOptions.forReleaseWithPreview("13", javacAdditionalTestOptions);
 		runner.runWarningTest();
 	}
-	public void testBug544073_00() {
+	public void testBug544073_000() {
 		runConformTest(
 				new String[] {
 						"X.java",
@@ -3393,5 +3393,27 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"}\n"
 			},
 			"99");
+	}
+	public void testBug550853_01() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"  @SuppressWarnings({ \"preview\" })\n"+
+				"  public static int foo(int i) throws Exception {\n"+
+				"    int v = switch (i) {\n"+
+				"        default : {yield switch (i) {\n"+
+				"        		default -> { yield 0; } \n"+
+				"        		};\n"+
+				"        	}\n"+
+				"    };\n"+
+				"    return v;\n"+
+				"  }\n"+
+				"  public static void main(String argv[]) throws Exception {\n"+
+				"    System.out.println(X.foo(1));\n"+
+				"  }\n"+
+				"}\n"
+			},
+			"0");
 	}
 }

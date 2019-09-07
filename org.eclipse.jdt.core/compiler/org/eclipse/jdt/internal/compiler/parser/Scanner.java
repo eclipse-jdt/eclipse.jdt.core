@@ -121,16 +121,10 @@ public class Scanner implements TerminalTokens {
 	 *
 	 */
 	enum ScanContext {
-		EXPECTING_KEYWORD, EXPECTING_IDENTIFIER, AFTER_REQUIRES, EXPECTING_YIELD, INACTIVE
+		EXPECTING_KEYWORD, EXPECTING_IDENTIFIER, AFTER_REQUIRES, INACTIVE
 	}
 	protected ScanContext scanContext = null;
 	protected boolean insideModuleInfo = false;
-
-	enum ScanYieldContext {
-		EXPECTING_YIELD, FLAGGED_YIELD, INACTIVE
-	}
-	protected ScanYieldContext scanYieldContext = null;
-	private int yieldStatementEnd = -1;
 	public static final String END_OF_SOURCE = "End_Of_Source"; //$NON-NLS-1$
 
 	public static final String INVALID_HEXA = "Invalid_Hexa_Literal"; //$NON-NLS-1$
@@ -1354,8 +1348,6 @@ protected int getNextToken0() throws InvalidInputException {
 		return this.currentPosition > this.eofPosition ? TokenNameEOF : TokenNameRBRACE;
 	}
 	int whiteStart = 0;
-	if (this.currentPosition > this.yieldStatementEnd)
-		this.yieldStatementEnd = -1;
 	try {
 		while (true) { //loop for jumping over comments
 			this.withoutUnicodePtr = 0;
@@ -3901,7 +3893,7 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 						&& (data[++index] == 'e')
 						&& (data[++index] == 'l')
 						&& (data[++index] == 'd'))
-						return disambiguatedRestrictedIdentifier(TokenNameRestrictedIdentifierYield);
+						return disambiguatedRestrictedIdentifierYield(TokenNameRestrictedIdentifierYield);
 					//$FALL-THROUGH$
 				default :
 					return TokenNameIdentifier;
@@ -4247,8 +4239,6 @@ public final void setSource(char[] sourceString){
 	this.containsAssertKeyword = false;
 	this.linePtr = -1;
 	this.scanContext = null;
-	this.scanYieldContext = null;
-	this.yieldStatementEnd = -1;
 	this.yieldColons = -1;
 	this.insideModuleInfo = false;
 }
@@ -5031,37 +5021,76 @@ private boolean mayBeAtAnYieldStatement() {
 			return false;
 	}
 }
-int disambiguatedRestrictedIdentifier(int restrictedKeywordToken) {
-	// and here's the kludge
-	if (restrictedKeywordToken != TokenNameRestrictedIdentifierYield)
-		return restrictedKeywordToken; // safety net - only yield processed here!
-	if (!this.previewEnabled)
-		return TokenNameIdentifier;
-	if (this.scanYieldContext == ScanYieldContext.FLAGGED_YIELD) // nested yield implies identifier.
-		return TokenNameIdentifier;		
-	if (this.scanYieldContext == ScanYieldContext.EXPECTING_YIELD) {
-		this.scanYieldContext = ScanYieldContext.FLAGGED_YIELD; // producer/consumer: vanguard scanner
-		return TokenNameRestrictedIdentifierYield;
-	}
-	if (this.currentPosition < this.yieldStatementEnd) //producer/consumer: current scanner [value from vanguard scanner]
-		return TokenNameIdentifier; // don't bother until yieldStatementEnd
-
-	if (this.sourceLevel < ClassFileConstants.JDK13)
-		return TokenNameIdentifier;
-
-	int token = TokenNameIdentifier;
-	
-	// not working - check intermittent parser rule definition possibility.
-	final VanguardParser parser = getVanguardParser();
-	if (restrictedKeywordToken == TokenNameRestrictedIdentifierYield  && mayBeAtAnYieldStatement()) {
-		parser.scanner.resetTo(this.startPosition, this.eofPosition - 1);
-		parser.scanner.scanYieldContext = ScanYieldContext.EXPECTING_YIELD;
-		if (parser.parse(Goal.YieldStatementGoal) == VanguardParser.SUCCESS) {
-			this.yieldStatementEnd = parser.scanner.currentPosition;
-			token = TokenNameRestrictedIdentifierYield;
+private boolean disambiguateYieldWithLookAhead() {
+	getVanguardParser();
+	this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1);
+	try {
+		int lookAhead1 = this.vanguardScanner.getNextToken();
+		switch (lookAhead1) {
+			case TokenNameEQUAL_EQUAL :
+			case TokenNameLESS_EQUAL :
+			case TokenNameGREATER_EQUAL :
+			case TokenNameNOT_EQUAL :
+			case TokenNameLEFT_SHIFT :
+			case TokenNameRIGHT_SHIFT :
+			case TokenNameUNSIGNED_RIGHT_SHIFT :
+			case TokenNamePLUS_EQUAL :
+			case TokenNameMINUS_EQUAL :
+			case TokenNameMULTIPLY_EQUAL :
+			case TokenNameDIVIDE_EQUAL :
+			case TokenNameAND_EQUAL :
+			case TokenNameOR_EQUAL :
+			case TokenNameXOR_EQUAL :
+			case TokenNameREMAINDER_EQUAL :
+			case TokenNameLEFT_SHIFT_EQUAL :
+			case TokenNameRIGHT_SHIFT_EQUAL :
+			case TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL :
+			case TokenNameOR_OR :
+			case TokenNameAND_AND :
+			case TokenNameREMAINDER :
+			case TokenNameXOR :
+			case TokenNameAND :
+			case TokenNameMULTIPLY :
+			case TokenNameOR :
+			case TokenNameTWIDDLE :
+			case TokenNameDIVIDE :
+			case TokenNameGREATER :
+			case TokenNameLESS :
+			case TokenNameLBRACE :
+			case TokenNameRBRACE :
+			case TokenNameLBRACKET :
+			case TokenNameRBRACKET :
+			case TokenNameSEMICOLON :
+			case TokenNameQUESTION :
+			case TokenNameCOLON :
+			case TokenNameCOMMA :
+			case TokenNameDOT :
+			case TokenNameEQUAL :
+			case TokenNameAT :
+			case TokenNameELLIPSIS :
+			case TokenNameARROW :
+			case TokenNameCOLON_COLON :
+				return false;
+			case TokenNameMINUS_MINUS :
+			case TokenNamePLUS_PLUS :
+				int lookAhead2 = this.vanguardScanner.getNextToken();
+				return lookAhead2 == TokenNameIdentifier;
+			default : return true;
 		}
+	} catch (InvalidInputException e) {
+		e.printStackTrace();
 	}
-	return token;
+	return false; // IIE event;
+}
+int disambiguatedRestrictedIdentifierYield(int restrictedIdentifierToken) {
+	// and here's the kludge
+	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierYield)
+		return restrictedIdentifierToken;
+	if (this.sourceLevel < ClassFileConstants.JDK13 || !this.previewEnabled)
+		return TokenNameIdentifier;
+
+	return mayBeAtAnYieldStatement() && disambiguateYieldWithLookAhead() ?
+			restrictedIdentifierToken : TokenNameIdentifier;
 }
 int disambiguatedRestrictedKeyword(int restrictedKeywordToken) {
 	int token = restrictedKeywordToken;
