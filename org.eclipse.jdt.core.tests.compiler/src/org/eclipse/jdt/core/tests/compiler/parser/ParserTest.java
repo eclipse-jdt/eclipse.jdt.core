@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -17,6 +21,7 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -753,6 +758,25 @@ public void test027() {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=239198
  */
 public void test028() {
+	String error = (this.complianceLevel == ClassFileConstants.JDK13) ?
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	Srtring bar = \"\"\"\n" + 
+			"    }\n" + 
+			"	              ^^^^^^^^^\n" + 
+			"Text block is not properly closed with the delimiter\n" + 
+			"----------\n" :
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	Srtring bar = \"\"\"\n" + 
+			"	              ^^\n" + 
+			"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	Srtring bar = \"\"\"\n" + 
+			"	                ^\n" + 
+			"String literal is not properly closed by a double-quote\n" + 
+			"----------\n";
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
 	runNegativeTest(
@@ -765,17 +789,7 @@ public void test028() {
 			"    }\n" +
 			"}"
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	Srtring bar = \"\"\"\n" + 
-		"	              ^^\n" + 
-		"Non-externalized string literal; it should be followed by //$NON-NLS-<n>$\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 4)\n" + 
-		"	Srtring bar = \"\"\"\n" + 
-		"	                ^\n" + 
-		"String literal is not properly closed by a double-quote\n" + 
-		"----------\n",
+		error,
 		null,
 		true,
 		options);

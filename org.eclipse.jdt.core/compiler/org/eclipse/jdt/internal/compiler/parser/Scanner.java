@@ -580,7 +580,7 @@ public char[] getCurrentTokenSourceString() {
 	return result;
 }
 protected final boolean scanForTextBlockBeginning() {
-	if (!this.previewEnabled) {
+	if (this.activeParser != null && !this.activeParser.isParsingJava13()) {
 		return false;
 	}
 	try {

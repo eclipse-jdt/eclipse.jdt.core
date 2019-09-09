@@ -40,14 +40,16 @@ public class TextBlockTest extends AbstractRegressionTest {
 	public TextBlockTest(String testName){
 		super(testName);
 	}
-
-	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
+		return getCompilerOptions(true);
+	}
+	// Enables the tests to run individually
+	protected Map<String, String> getCompilerOptions(boolean previewFlag) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
 		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
 		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
 		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, previewFlag ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
@@ -853,5 +855,29 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"Hello Guru", // output comparison tool strips off all trailing whitespace
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
+	}
+	public void testBug550356() {
+		Map<String, String> options = getCompilerOptions(false);
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" + 
+						"\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(textb);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	public static String textb = \"\"\"\n" + 
+				"\"\"\";\n" + 
+				"	                             ^^^^^^^\n" + 
+				"Text Blocks is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"----------\n",
+				null,
+				true,
+				options);
 	}
 }

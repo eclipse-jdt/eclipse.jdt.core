@@ -9536,12 +9536,12 @@ protected void consumeStaticOnly() {
 }
 protected void consumeTextBlock() {
 	if (!this.parsingJava13Plus) {
-		problemReporter().previewFeatureNotSupported(this.scanner.rawStart, this.scanner.currentPosition - 1, "Text Blocks", CompilerOptions.VERSION_13); //$NON-NLS-1$
+		problemReporter().previewFeatureNotSupported(this.scanner.startPosition, this.scanner.currentPosition - 1, "Text Blocks", CompilerOptions.VERSION_13); //$NON-NLS-1$
 	} else if (!this.options.enablePreviewFeatures){
-		problemReporter().previewFeatureNotEnabled(this.scanner.rawStart, this.scanner.currentPosition - 1, "Text Blocks"); //$NON-NLS-1$
+		problemReporter().previewFeatureNotEnabled(this.scanner.startPosition, this.scanner.currentPosition - 1, "Text Blocks"); //$NON-NLS-1$
 	} else {
 		if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
-			problemReporter().previewFeatureUsed(this.scanner.rawStart, this.scanner.currentPosition - 1);
+			problemReporter().previewFeatureUsed(this.scanner.startPosition, this.scanner.currentPosition - 1);
 		}
 	}
 	char[] textBlock2 = this.scanner.getCurrentTextBlock();
@@ -13581,6 +13581,10 @@ public boolean automatonWillShift(int token, int lastAction) {
 		// Error => false, Shift, Shift/Reduce => true, Accept => impossible. 
 		return lastAction != ERROR_ACTION;
 	}
+}
+@Override
+public boolean isParsingJava13() {
+	return this.parsingJava13Plus;
 }
 @Override
 public boolean isParsingModuleDeclaration() {
