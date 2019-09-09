@@ -23,7 +23,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
-//		TESTS_NAMES = new String[] { "_testBug543240" };
+//		TESTS_NAMES = new String[] { "testBug548476" };
 	}
 	
 	public static Class<?> testClass() {

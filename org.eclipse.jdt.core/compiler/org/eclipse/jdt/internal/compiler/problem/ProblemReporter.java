@@ -1615,13 +1615,12 @@ public int computeSeverity(int problemID){
 
 	switch (problemID) {
 		case IProblem.VarargsConflict :
-			return ProblemSeverities.Warning;
- 		case IProblem.TypeCollidesWithPackage :
-			return ProblemSeverities.Warning;
  		case IProblem.SwitchExpressionsYieldUnqualifiedMethodWarning:
  		case IProblem.SwitchExpressionsYieldRestrictedGeneralWarning:
  		case IProblem.SwitchExpressionsYieldTypeDeclarationWarning:
  			return ProblemSeverities.Warning;
+ 		case IProblem.TypeCollidesWithPackage :
+			return ProblemSeverities.Error;
 
 		/*
 		 * Javadoc tags resolved references errors

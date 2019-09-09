@@ -116,6 +116,7 @@ public class Scanner implements TerminalTokens {
 	public boolean fakeInModule = false;
 	boolean inCase = false;
 	/* package */ int yieldColons = -1;
+	boolean breakPreviewAllowed = false;
 	/**
 	 * The current context of the scanner w.r.t restricted keywords
 	 *
@@ -1305,8 +1306,10 @@ public void ungetToken(int unambiguousToken) {
 	this.nextToken = unambiguousToken;
 }
 private void updateCase(int token) {
-	if (token == TokenNamecase) 
+	if (token == TokenNamecase) {
 		this.inCase = true;
+		this.breakPreviewAllowed = true;
+	}
 	if (token == TokenNameCOLON || token == TokenNameARROW) 
 		this.inCase = false;
 }
@@ -4895,6 +4898,9 @@ private VanguardParser getVanguardParser() {
 	this.vanguardScanner.setSource(this.source);
 	this.vanguardScanner.resetTo(this.startPosition, this.eofPosition - 1, isInModuleDeclaration(), this.scanContext);
 	return this.vanguardParser;
+}
+protected final boolean mayBeAtBreakPreview() {
+	return this.breakPreviewAllowed && this.lookBack[1] != TokenNameARROW;
 }
 
 protected final boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now herald a lambda parameter list or a cast expression ? (the possible locations for both are identical.)

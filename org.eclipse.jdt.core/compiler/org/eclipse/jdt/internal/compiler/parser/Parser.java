@@ -9314,7 +9314,7 @@ private SwitchStatement createSwitchStatementOrExpression(boolean isStmt) {
 	//if some declaration occurs.
 	this.nestedType--;
 	this.switchNestingLevel--;
-
+	this.scanner.breakPreviewAllowed = this.switchNestingLevel > 0;
 	int length;
 	SwitchStatement switchStatement = isStmt ? new SwitchStatement() : new SwitchExpression();
 	this.expressionLengthPtr--;
