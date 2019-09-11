@@ -912,6 +912,14 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	}
 
 	protected void processAnnotations() {
+		try {
+			processAnnotationsInternal();
+		} finally {
+			this.annotationProcessorManager.cleanUp();
+		}
+	}
+
+	private void processAnnotationsInternal() {
 		int newUnitSize = 0;
 		int newClassFilesSize = 0;
 		int bottom = this.annotationProcessorStartIndex;

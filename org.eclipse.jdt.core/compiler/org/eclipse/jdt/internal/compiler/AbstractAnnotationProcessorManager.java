@@ -82,6 +82,13 @@ public abstract class AbstractAnnotationProcessorManager {
 	public abstract void reset();
 
 	/**
+	 * Final cleanup after all rounds have completed.
+	 */
+	protected void cleanUp() {
+		// default: do nothing, because reset() already did the common work
+	}
+
+	/**
 	 * Run a new annotation processing round on the given values.
 	 *
 	 * @param units the given source type

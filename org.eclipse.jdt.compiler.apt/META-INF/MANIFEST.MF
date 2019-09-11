@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %fragmentName
 Bundle-SymbolicName: org.eclipse.jdt.compiler.apt;singleton:=true
-Bundle-Version: 1.3.700.qualifier
+Bundle-Version: 1.3.800.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Vendor: %providerName
 Fragment-Host: org.eclipse.jdt.core;bundle-version="[3.5.0,4.0.0)"
