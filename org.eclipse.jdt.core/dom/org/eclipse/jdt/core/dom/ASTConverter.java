@@ -2926,6 +2926,9 @@ class ASTConverter {
 	}
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.TextBlock expression) {
+		if (!this.ast.isPreviewEnabled()) {
+			return createFakeNullLiteral(expression);		
+		}
 		int length = expression.sourceEnd - expression.sourceStart + 1;
 		int sourceStart = expression.sourceStart;
 		TextBlock literal = new TextBlock(this.ast);

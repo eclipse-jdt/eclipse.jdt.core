@@ -44,6 +44,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.YieldStatement;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 
 @SuppressWarnings("rawtypes")
@@ -529,6 +530,43 @@ public class ASTConverter13Test extends ConverterTestSetup {
 
 			assertTrue("String should not be empty", escapedValue.length() != 0);
 			assertTrue("String should start with \"\"\"", escapedValue.startsWith("\"\"\""));
+
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	public void test0008() throws JavaModelException {
+		String contents =
+				"public class X {\n" +
+						"	public String test001() {\n" + 
+						"		String s = \"\"\"\n" + 
+						"      	<html>\n" + 
+						"        <body>\n" + 
+						"            <p>Hello, world</p>\n" + 
+						"        </body>\n" + 
+						"    	</html>\n" + 
+						"    	\"\"\";\n" + 
+						"    	System.out.println(s);" +
+						"		return s;\n" + 
+						"	}" +
+						"}" ;
+		this.workingCopy = getWorkingCopy("/Converter13/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			try {
+			buildAST(
+					contents,
+					this.workingCopy);
+			} catch(UnsupportedOperationException e) {
+				fail("Should not throw UnsupportedOperationException");
+			} catch(AssertionFailedError e) {
+				e.printStackTrace();
+				return;
+			}
+			fail("Compilation should not succeed");
 
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
