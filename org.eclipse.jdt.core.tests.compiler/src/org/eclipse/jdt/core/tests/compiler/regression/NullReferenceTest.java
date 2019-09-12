@@ -17457,7 +17457,7 @@ public void testBug435528_orig() {
 		"1. ERROR in Test.java (at line 10)\n" + 
 		"	if (a != null) {\n" + 
 		"	    ^\n" + 
-		"Null comparison always yields false: The field a is a nonnull constant\n" + 
+		"Redundant null check: The field a is a nonnull constant\n" + 
 		"----------\n" + 
 		"2. WARNING in Test.java (at line 15)\n" + 
 		"	} else {\n" + 
@@ -18331,5 +18331,56 @@ public void testBug544872() {
 		"Potential null pointer access: The variable string may be null at this location\n" + 
 		"----------\n"
 	);
+}
+public void testBug551012() {
+	runNegativeTest(
+		new String[] {
+			"NullConstants.java",
+			"public class NullConstants {\n" + 
+			"	protected static final String FOO = null;\n" + 
+			"\n" + 
+			"	protected String foo = FOO;\n" + 
+			"\n" + 
+			"	protected static final String BAR = \"\";\n" + 
+			"\n" + 
+			"	protected String bar = BAR;\n" + 
+			"\n" + 
+			"	public boolean notAProblemButWhyNot() {\n" + 
+			"		return FOO == null ? foo != null : !FOO.equals(foo);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public boolean alsoNotAProblemButThisWillAlwaysNPE() {\n" + 
+			"		return FOO != null ? foo != null : !FOO.equals(foo);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public boolean aProblemButHowToAvoid() {\n" + 
+			"		return BAR == null ? bar != null : !BAR.equals(bar);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public boolean wrongpProblemMessage() {\n" + 
+			"		return BAR != null ? !BAR.equals(bar) : bar != null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public boolean howAboutThis() {\n" + 
+			"		return bar == null ? BAR != null : bar.equals(BAR);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in NullConstants.java (at line 19)\n" + 
+		"	return BAR == null ? bar != null : !BAR.equals(bar);\n" + 
+		"	       ^^^\n" + 
+		"Null comparison always yields false: The field BAR is a nonnull constant\n" + 
+		"----------\n" + 
+		"2. ERROR in NullConstants.java (at line 23)\n" + 
+		"	return BAR != null ? !BAR.equals(bar) : bar != null;\n" + 
+		"	       ^^^\n" + 
+		"Redundant null check: The field BAR is a nonnull constant\n" + 
+		"----------\n" + 
+		"3. ERROR in NullConstants.java (at line 27)\n" + 
+		"	return bar == null ? BAR != null : bar.equals(BAR);\n" + 
+		"	                     ^^^\n" + 
+		"Redundant null check: The field BAR is a nonnull constant\n" + 
+		"----------\n");
 }
 }

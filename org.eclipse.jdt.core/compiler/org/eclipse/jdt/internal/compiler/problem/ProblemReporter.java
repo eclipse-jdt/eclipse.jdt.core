@@ -436,6 +436,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.RedundantNullCheckAgainstNonNullType:
 		case IProblem.RedundantNullCheckOnField:
 		case IProblem.RedundantNullCheckOnConstNonNullField:
+		case IProblem.ConstNonNullFieldComparisonYieldsFalse:
 		case IProblem.FieldComparisonYieldsFalse:
 			return CompilerOptions.RedundantNullCheck;
 
@@ -6058,7 +6059,7 @@ public boolean expressionNonNullComparison(Expression expr, boolean checkForNull
 			arguments = new String[] { new String(field.name), 
 									   new String(nonNullName[nonNullName.length-1]) };
 		} else if (field.constant() != Constant.NotAConstant) {
-			problemId = IProblem.RedundantNullCheckOnConstNonNullField;
+			problemId = checkForNull ? IProblem.ConstNonNullFieldComparisonYieldsFalse : IProblem.RedundantNullCheckOnConstNonNullField; 
 			char[][] nonNullName = this.options.nonNullAnnotationName;
 			arguments = new String[] { new String(field.name), 
 									   new String(nonNullName[nonNullName.length-1]) };
