@@ -5085,7 +5085,12 @@ private boolean disambiguateYieldWithLookAhead() {
 			default : return true;
 		}
 	} catch (InvalidInputException e) {
-		e.printStackTrace();
+		if (e.getMessage().equals(INVALID_CHAR_IN_STRING)) {
+			//Ignore
+		} else {
+			// Shouldn't happen, but log the error
+			e.printStackTrace();
+		}
 	}
 	return false; // IIE event;
 }

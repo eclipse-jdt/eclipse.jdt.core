@@ -3436,4 +3436,52 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
+	public void testBug551030a() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@SuppressWarnings(\"nls\")\n" + 
+				"	static final String MONDAY = \"MONDAY\";\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		int num = switch (day) {\n" + 
+				"		case MONDAY: \n" + 
+				"			// Nothing\n" + 
+				"		default:\n" + 
+				"			yield \";     \n" + 
+				"		}; \n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	yield \";     \n" + 
+			"	      ^^^^^^^\n" + 
+			"String literal is not properly closed by a double-quote\n" + 
+			"----------\n");
+	}
+	public void testBug551030b() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@SuppressWarnings(\"nls\")\n" + 
+				"	static final String MONDAY = \"MONDAY\";\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		int num = switch (day) {\n" + 
+				"		case MONDAY: \n" + 
+				"			// Nothing\n" + 
+				"		default:\n" + 
+				"			yield \"\"\";     \n" + 
+				"		}; \n" + 
+				"	}\n" + 
+				"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	yield \"\"\";     \n" + 
+			"	        ^^^^^^^\n" + 
+			"String literal is not properly closed by a double-quote\n" + 
+			"----------\n");
+	}
 }
