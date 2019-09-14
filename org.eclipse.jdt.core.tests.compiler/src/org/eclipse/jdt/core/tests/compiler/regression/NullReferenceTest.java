@@ -18333,7 +18333,7 @@ public void testBug544872() {
 	);
 }
 public void testBug551012() {
-	runNegativeTest(
+	runNegativeNullTest(
 		new String[] {
 			"NullConstants.java",
 			"public class NullConstants {\n" + 
