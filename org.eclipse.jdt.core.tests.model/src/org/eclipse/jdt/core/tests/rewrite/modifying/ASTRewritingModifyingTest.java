@@ -72,6 +72,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		return suite;
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 
@@ -86,6 +87,7 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 
 		waitUntilIndexesReady();
 	}
+	@Override
 	public void tearDownSuite() throws Exception {
 		deleteProject("P");
 		JavaCore.setOptions(this.oldOptions);

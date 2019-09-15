@@ -60,6 +60,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 		/* (non-Javadoc)
 		 * @see java.lang.Comparable#compareTo(java.lang.Object)
 		 */
+		@Override
 		public int compareTo(Object o) {
 			Result result = (Result) o;
 			if (this.time < result.time) {
@@ -196,6 +197,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 			/* (non-Javadoc)
 			 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 			 */
+			@Override
 			public int compare(Object o1, Object o2) {
 				Result r1 = (Result) o1;
 				Result r2 = (Result) o2;
@@ -213,6 +215,7 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 		}
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 

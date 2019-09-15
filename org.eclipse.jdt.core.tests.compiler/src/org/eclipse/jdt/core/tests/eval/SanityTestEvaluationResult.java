@@ -36,9 +36,11 @@ public SanityTestEvaluationResult(String name) {
  * Initializes this test with an evaluation result coming from the
  * evaluation of the following code snippet: "return 1;".
  */
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	IRequestor requestor = new Requestor() {
+		@Override
 		public void acceptResult(EvaluationResult evalResult) {
 			SanityTestEvaluationResult.this.result = evalResult;
 		}

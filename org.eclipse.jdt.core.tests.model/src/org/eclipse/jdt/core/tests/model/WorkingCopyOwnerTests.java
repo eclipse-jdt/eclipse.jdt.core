@@ -65,6 +65,7 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		super(name);
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 
@@ -76,12 +77,14 @@ public class WorkingCopyOwnerTests extends ModifyingResourceTests {
 		);
 	}
 
+	@Override
 	public void tearDownSuite() throws Exception {
 		deleteProject("P");
 
 		super.tearDownSuite();
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		if (this.workingCopy != null) {
 			this.workingCopy.discardWorkingCopy();

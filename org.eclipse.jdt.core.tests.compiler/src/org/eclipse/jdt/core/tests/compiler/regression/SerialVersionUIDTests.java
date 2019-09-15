@@ -46,6 +46,7 @@ public static Test suite() {
 public static Class testClass() {
 	return SerialVersionUIDTests.class;
 }
+@Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.ERROR);

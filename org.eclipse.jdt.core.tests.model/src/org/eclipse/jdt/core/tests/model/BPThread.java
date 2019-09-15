@@ -68,6 +68,7 @@ public class BPThread {
 		this.thread = new Thread(runnable, this.name);
 		this.thread.start();
 	}
+	@Override
 	public String toString() {
 		return this.name;
 	}

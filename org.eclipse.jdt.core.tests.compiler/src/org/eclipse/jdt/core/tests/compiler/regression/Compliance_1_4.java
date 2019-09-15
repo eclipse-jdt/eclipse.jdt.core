@@ -36,6 +36,7 @@ public Compliance_1_4(String name) {
 /*
  * Toggle compiler in mode -1.4
  */
+@Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	if (this.docSupport) {
@@ -61,6 +62,7 @@ static {
 /* (non-Javadoc)
  * @see junit.framework.TestCase#setUp()
  */
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	// Javadoc disabled by default

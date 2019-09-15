@@ -892,6 +892,7 @@ public void testBug167743() throws CoreException {
 
 		// Search all type names with TypeNameMatchRequestor
 		AbstractJavaSearchTests.TypeNameMatchCollector collector = new AbstractJavaSearchTests.TypeNameMatchCollector() {
+			@Override
 			public String toString(){
 				return toFullyQualifiedNamesString();
 			}
@@ -1081,6 +1082,7 @@ public void testBug199392_Jar() throws CoreException {
 
 		// Search all type names with TypeNameMatchRequestor
 		AbstractJavaSearchTests.TypeNameMatchCollector collector = new AbstractJavaSearchTests.TypeNameMatchCollector() {
+			@Override
 			public String toString(){
 				return toFullyQualifiedNamesString();
 			}
@@ -1117,6 +1119,7 @@ public void testBug199392_Jar_SamePartCount() throws CoreException {
 
 		// Search all type names with TypeNameMatchRequestor
 		AbstractJavaSearchTests.TypeNameMatchCollector collector = new AbstractJavaSearchTests.TypeNameMatchCollector() {
+			@Override
 			public String toString(){
 				return toFullyQualifiedNamesString();
 			}
@@ -1153,6 +1156,7 @@ public void testBug199392_Zip() throws CoreException {
 
 		// Search all type names with TypeNameMatchRequestor
 		AbstractJavaSearchTests.TypeNameMatchCollector collector = new AbstractJavaSearchTests.TypeNameMatchCollector() {
+			@Override
 			public String toString(){
 				return toFullyQualifiedNamesString();
 			}
@@ -1189,6 +1193,7 @@ public void testBug199392_Zip_SamePartCount() throws CoreException {
 
 		// Search all type names with TypeNameMatchRequestor
 		AbstractJavaSearchTests.TypeNameMatchCollector collector = new AbstractJavaSearchTests.TypeNameMatchCollector() {
+			@Override
 			public String toString(){
 				return toFullyQualifiedNamesString();
 			}

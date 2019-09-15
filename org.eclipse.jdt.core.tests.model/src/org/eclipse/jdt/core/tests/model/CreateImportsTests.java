@@ -38,6 +38,7 @@ public class CreateImportsTests extends AbstractJavaModelTests {
 	public static Test suite() {
 		return buildModelTestSuite(CreateImportsTests.class);
 	}
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		ICompilationUnit workingCopy = getCompilationUnit("P/X.java");
@@ -48,10 +49,12 @@ public class CreateImportsTests extends AbstractJavaModelTests {
 			"}"
 		);
 	}
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
 	}
+	@Override
 	public void tearDownSuite() throws Exception {
 		deleteProject("P");
 		super.tearDownSuite();

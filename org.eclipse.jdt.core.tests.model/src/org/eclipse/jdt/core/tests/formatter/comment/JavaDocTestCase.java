@@ -42,46 +42,57 @@ public class JavaDocTestCase extends MultiLineTestCase {
 		super(name);
 	}
 
+	@Override
 	protected int getCommentKind() {
 		return CodeFormatter.K_JAVA_DOC;
 	}
 
+	@Override
 	public void testSingleLineComment1() {
 		assertEquals(PREFIX + DELIMITER + INFIX + "test" + DELIMITER + POSTFIX, testFormat(PREFIX + "\t\t" + DELIMITER + "*\t test*/")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Override
 	public void testSingleLineComment2() {
 		assertEquals(PREFIX + DELIMITER + INFIX + "test" + DELIMITER + POSTFIX, testFormat(PREFIX + "test" + DELIMITER + "\t" + POSTFIX)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
+	@Override
 	public void testSingleLineComment3() {
 		assertEquals(PREFIX + DELIMITER + INFIX + "test" + DELIMITER + POSTFIX, testFormat(PREFIX + DELIMITER + "* test\t*/")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
 	public void testSingleLineComment4() {
 		assertEquals(PREFIX + DELIMITER + INFIX + "test" + DELIMITER + POSTFIX, testFormat(PREFIX + "test" + DELIMITER + POSTFIX)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
 	public void testSingleLineCommentSpace1() {
 		assertEquals(PREFIX + " test" + POSTFIX, testFormat(PREFIX + "test*/")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
 	public void testSingleLineCommentSpace2() {
 		assertEquals(PREFIX + " test" + POSTFIX, testFormat(PREFIX + "test" + POSTFIX)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
 	public void testSingleLineCommentSpace3() {
 		assertEquals(PREFIX + " test" + POSTFIX, testFormat(PREFIX + "test*/")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
 	public void testSingleLineCommentSpace4() {
 		assertEquals(PREFIX + " test test" + POSTFIX, testFormat(PREFIX + " test   test*/")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
 	public void testSingleLineCommentTabs1() {
 		assertEquals(PREFIX + " test test" + POSTFIX, testFormat(PREFIX + "\ttest\ttest" + POSTFIX)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	@Override
 	public void testSingleLineCommentTabs2() {
 		assertEquals(PREFIX + " test test" + POSTFIX, testFormat(PREFIX + "\ttest\ttest*/")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -501,11 +512,13 @@ public class JavaDocTestCase extends MultiLineTestCase {
 		assertEquals(expected, result);
 	}
 
+	@Override
 	public void testNoChange1() {
 		String content= PREFIX + DELIMITER + POSTFIX;
 		assertEquals(content, testFormat(content));
 	}
 
+	@Override
 	public void testNoFormat1() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT, DefaultCodeFormatterConstants.FALSE);
 		String content= PREFIX + DELIMITER + INFIX + "test" + DELIMITER + INFIX + "test" + DELIMITER + POSTFIX;
@@ -755,6 +768,7 @@ public class JavaDocTestCase extends MultiLineTestCase {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=75460
+	@Override
 	public void test75460() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "200");

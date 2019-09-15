@@ -25,11 +25,13 @@ public class SnippetCompletionTests_1_5 extends AbstractJavaModelTests implement
 public SnippetCompletionTests_1_5(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
 	setUpJavaProject("SnippetCompletion", "1.5");
 }
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("SnippetCompletion");
 

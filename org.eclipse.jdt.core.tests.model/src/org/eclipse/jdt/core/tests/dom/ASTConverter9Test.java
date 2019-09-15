@@ -46,6 +46,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	private static final String jcl9lib = "CONVERTER_JCL9_LIB";
 
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getAST9(), false);
@@ -83,6 +84,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		return buildModelTestSuite(ASTConverter9Test.class);
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (this.workingCopy != null) {

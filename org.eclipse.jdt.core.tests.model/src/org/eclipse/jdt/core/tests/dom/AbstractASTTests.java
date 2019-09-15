@@ -95,6 +95,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		super(name);
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 
@@ -690,6 +691,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	 * @param problemRequestor The requestor used to report problems
 	 * @return The created working copy owner
 	 */
+	@Override
 	protected WorkingCopyOwner newWorkingCopyOwner(final IProblemRequestor problemRequestor) {
 		return new WorkingCopyOwner() {
 			public IProblemRequestor getProblemRequestor(ICompilationUnit unit) {

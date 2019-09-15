@@ -139,6 +139,7 @@ public void renamePositive(IJavaElement element, String rename, boolean force) t
 /**
  * Setup for the next test.
  */
+@Override
 public void setUp() throws Exception {
 	super.setUp();
 
@@ -163,6 +164,7 @@ public void setUp() throws Exception {
 
 	startDeltas();
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -199,12 +201,14 @@ public static Test suite() {
 /**
  * Cleanup after the previous test.
  */
+@Override
 public void tearDown() throws Exception {
 	stopDeltas();
 	this.deleteProject("P");
 
 	super.tearDown();
 }
+@Override
 public void tearDownSuite() throws Exception {
 	this.deleteProject("BinaryProject");
 	super.tearDownSuite();

@@ -54,6 +54,7 @@ public CompilationUnitTests(String name) {
  */
 /*package*/ static final int JLS3_INTERNAL = AST.JLS3;
 
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -131,11 +132,13 @@ static {
 public static Test suite() {
 	return buildModelTestSuite(CompilationUnitTests.class);
 }
+@Override
 protected void tearDown() throws Exception {
 	if (this.workingCopy != null)
 		this.workingCopy.discardWorkingCopy();
 	super.tearDown();
 }
+@Override
 public void tearDownSuite() throws Exception {
 	this.deleteProject("P");
 	super.tearDownSuite();

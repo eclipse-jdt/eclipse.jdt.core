@@ -73,15 +73,18 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 	/**
 	 * @deprecated indirectly uses deprecated class PackageAdmin
 	 */
+	@Override
 	protected Bundle[] getAnnotationBundles() {
 		return org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[1.1.0,2.0.0)");
 	}
 
+	@Override
 	public String getSourceWorkspacePath() {
 		// we read individual projects from within this folder:
 		return super.getSourceWorkspacePathBase()+"/ExternalAnnotations17";
 	}
 
+	@Override
 	public void test1FullBuild() throws Exception {
 		setupJavaProject("Test1");
 		this.project.setOption(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -100,6 +103,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 	}
 
 	/** Perform full build, annotations are found relative to a variable. */
+	@Override
 	public void test1FullBuildWithVariable() throws Exception {
 		setupJavaProject("Test1");
 		this.project.setOption(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -341,6 +345,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 	}
 
 	/** Reconcile an individual CU. */
+	@Override
 	public void test1Reconcile() throws Exception {
 		setupJavaProject("Test1");
 		this.project.setOption(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
@@ -361,6 +366,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 					new int[]{ 7, 8, 9});
 	}
 
+	@Override
 	public void testLibsWithFields() throws Exception {
 		myCreateJavaProject("TestLibs");
 		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
@@ -472,6 +478,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 	}
 
 
+	@Override
 	public void testAnnotateFieldWithParameterizedType() throws Exception {
 		myCreateJavaProject("TestLibs");
 		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {

@@ -24,9 +24,11 @@ public class CompletionTests3 extends AbstractJavaModelCompletionTests {
 public CompletionTests3(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 }
+@Override
 public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
 }

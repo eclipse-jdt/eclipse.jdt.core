@@ -39,12 +39,14 @@ public static Test suite() {
 protected void setClasspath(String[] sourceFoldersAndInclusionPatterns) throws JavaModelException {
 	this.project.setRawClasspath(createClasspath(sourceFoldersAndInclusionPatterns, true/*inclusion*/, false/*no exclusion*/), null);
 }
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	this.project = createJavaProject( "P", new String[] {"src"}, new String[] {}, new String[] {}, new boolean[] {}, "bin", new String[] {"bin"}, new String[][] {new String[] {}}, new String[][] {new String[] {"**"}}, "1.4");
 	startDeltas();
 }
 
+@Override
 protected void tearDown() throws Exception {
 	stopDeltas();
 	deleteProject("P");

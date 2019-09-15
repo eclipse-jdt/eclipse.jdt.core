@@ -71,6 +71,7 @@ public class EncodingTests extends ModifyingResourceTests {
 //		TESTS_RANGE = new int[] { 16, -1 };
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		wkspEncoding = getWorkspaceRoot().getDefaultCharset();
@@ -80,11 +81,13 @@ public class EncodingTests extends ModifyingResourceTests {
 		this.utf8File = (IFile) this.encodingProject.findMember("src/testUTF8/Test.java");
 	}
 
+	@Override
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
 		getWorkspaceRoot().setDefaultCharset(null, null);
 		deleteProject("Encoding");
 	}
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 	}
@@ -94,6 +97,7 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Reset UTF-8 file and project charset to default.
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 		this.encodingProject.setDefaultCharset(null, null);
 		if (this.utf8File.exists()) this.utf8File.setCharset(null, null);
@@ -130,6 +134,7 @@ public class EncodingTests extends ModifyingResourceTests {
 		}
 	}
 
+	@Override
 	public boolean convertToIndependantLineDelimiter(File file) {
 		return false; // don't convert to independant line delimiter as this make tests fail on linux
 	}
@@ -702,6 +707,7 @@ public class EncodingTests extends ModifyingResourceTests {
 			try {
 				InputStream in = new InputStream() {
 					int current = -1;
+					@Override
 					public int read() throws IOException {
 						int result;
 						if (this.current != -1) {

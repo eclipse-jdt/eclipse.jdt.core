@@ -67,6 +67,7 @@ public static Test suite() {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#setUp()
  */
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	if (TEST_PROJECT == null) {
@@ -120,6 +121,7 @@ protected void setUp() throws Exception {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#tearDown()
  */
+@Override
 protected void tearDown() throws Exception {
 	TESTS_COUNT--;
 	if (TEST_PROJECT != null && TESTS_COUNT == 0) {

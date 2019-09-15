@@ -28,6 +28,7 @@ public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 	public static Class testClass() {
 		return LambdaExpressionSyntaxTest.class;
 	}
+	@Override
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
 	}

@@ -98,6 +98,7 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 	/*
 	 * Toggle compiler in mode -1.5
 	 */
+	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFinalParameterBound, CompilerOptions.WARNING);

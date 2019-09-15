@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 public class ASTConverterTest2 extends ConverterTestSetup {
 
 	/** @deprecated using deprecated code */
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(AST.JLS2, false);
@@ -4323,6 +4324,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		try {
 			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor() {
+				@Override
                 public boolean isActive() {
                     return false;
                 }

@@ -2340,6 +2340,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		SimpleName n2 = this.ast.newSimpleName("b"); //$NON-NLS-1$
 		QualifiedName q = this.ast.newQualifiedName(n1, n2);
 		TestVisitor v1 = new TestVisitor() {
+			@Override
 			public void preVisit(ASTNode node) {
 				ASTVisitorTest.this.b.append("["); //$NON-NLS-1$
 				switch (node.getNodeType()) {
@@ -2352,6 +2353,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 				}
 			}
 
+			@Override
 			public void postVisit(ASTNode node) {
 				switch (node.getNodeType()) {
 					case ASTNode.QUALIFIED_NAME :
@@ -2384,6 +2386,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		typeDeclaration.bodyDeclarations().add(2, methodDeclaration3);
 		// insert a new before the current node during a traverse
 		TestVisitor v1 = new TestVisitor() {
+			@Override
 			public boolean visit(MethodDeclaration node) {
 				if (node == methodDeclaration2) {
 					MethodDeclaration methodDeclaration4 = ASTVisitorTest.this.ast.newMethodDeclaration();
@@ -2412,6 +2415,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		typeDeclaration.bodyDeclarations().add(2, methodDeclaration3);
 		// insert a new after the current node during a traverse
 		TestVisitor v1 = new TestVisitor() {
+			@Override
 			public boolean visit(MethodDeclaration node) {
 				if (node == methodDeclaration2) {
 					MethodDeclaration methodDeclaration4 = ASTVisitorTest.this.ast.newMethodDeclaration();
@@ -2432,6 +2436,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		infixExpression.setOperator(InfixExpression.Operator.PLUS);
 		// insert a new after the current node during a traverse
 		TestVisitor v1 = new TestVisitor() {
+			@Override
 			public boolean visit(SimpleName node) {
 				infixExpression.setRightOperand(ASTVisitorTest.this.ast.newNumberLiteral("22")); //$NON-NLS-1$
 				return super.visit(node);
@@ -2448,6 +2453,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		infixExpression.setOperator(InfixExpression.Operator.PLUS);
 		// insert a new before the current node during a traverse
 		TestVisitor v1 = new TestVisitor() {
+			@Override
 			public boolean visit(NumberLiteral node) {
 				infixExpression.setLeftOperand(ASTVisitorTest.this.ast.newSimpleName("j")); //$NON-NLS-1$
 				return super.visit(node);

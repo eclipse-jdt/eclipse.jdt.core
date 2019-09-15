@@ -317,10 +317,12 @@ public class ExecutableElementImpl extends ElementImpl implements
 		return false;
 	}
 
+	@Override
 	public TypeMirror getReceiverType() {
 		return _env.getFactory().getReceiverType((MethodBinding) _binding);
 	}
 
+	@Override
 	public boolean isDefault() {
 		if (_binding != null) {
 			return ((MethodBinding)_binding).isDefaultMethod();

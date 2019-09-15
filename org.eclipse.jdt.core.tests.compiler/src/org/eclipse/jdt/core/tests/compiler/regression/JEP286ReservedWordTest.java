@@ -26,6 +26,7 @@ public class JEP286ReservedWordTest extends AbstractRegressionTest {
 public static Class testClass() {
 	return JEP286ReservedWordTest.class;
 }
+@Override
 public void initialize(CompilerTestSetup setUp) {
 	super.initialize(setUp);
 }

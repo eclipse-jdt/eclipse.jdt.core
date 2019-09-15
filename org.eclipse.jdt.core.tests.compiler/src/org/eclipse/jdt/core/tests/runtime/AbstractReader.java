@@ -39,6 +39,7 @@ abstract protected void readerLoop();
 public void start() {
 	this.readerThread = new Thread(
 		new Runnable() {
+			@Override
 			public void run () {
 				readerLoop();
 			}

@@ -550,6 +550,7 @@ public void testInitializeAfterLoad2() throws CoreException {
 			public CancellingInitializer(String[] values) {
 				super(values);
 			}
+			@Override
 			public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 				super.initialize(containerPath, project);
 				if (--this.count == 0)

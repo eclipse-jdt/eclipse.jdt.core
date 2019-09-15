@@ -25,6 +25,7 @@ public class AssignmentTest_1_5 extends AbstractRegressionTest {
 public AssignmentTest_1_5(String name) {
 	super(name);
 }
+@Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);

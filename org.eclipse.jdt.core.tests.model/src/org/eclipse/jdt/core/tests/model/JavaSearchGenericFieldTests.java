@@ -31,6 +31,7 @@ public static Test suite() {
 	return buildModelTestSuite(JavaSearchGenericFieldTests.class);
 }
 
+@Override
 protected void setUp () throws Exception {
 	super.setUp();
 	this.resultCollector.showAccuracy(true);

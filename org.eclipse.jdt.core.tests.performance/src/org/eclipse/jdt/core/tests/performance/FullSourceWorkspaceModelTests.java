@@ -125,6 +125,7 @@ private static Class testClass() {
 	return FullSourceWorkspaceModelTests.class;
 }
 
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	setUpBigProject();
@@ -250,6 +251,7 @@ private void setUpBigJars() throws Exception {
 /* (non-Javadoc)
  * @see junit.framework.TestCase#tearDown()
  */
+@Override
 protected void tearDown() throws Exception {
 
 	// End of execution => one test less
@@ -1572,6 +1574,7 @@ public void testResolveClasspath() throws Exception {
  * Overriding getExternalPath() to be on a non-local disk (e.g., NFS) shows the advantages
  * of caching file existence checks in the testJavaModelManagerExternalFilesCache() test.
  */
+@Override
 protected String getExternalPath() {
 	// NOTE: Do something similar to this commented-out code to set up the tests to
 	// use a non-local file system.

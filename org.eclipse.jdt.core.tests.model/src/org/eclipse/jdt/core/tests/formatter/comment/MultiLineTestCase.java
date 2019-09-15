@@ -39,6 +39,7 @@ public class MultiLineTestCase extends CommentTestCase {
 		super(name);
 	}
 
+	@Override
 	protected int getCommentKind() {
 		return CodeFormatter.K_MULTI_LINE_COMMENT;
 	}

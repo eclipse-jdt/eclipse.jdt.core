@@ -30,6 +30,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 	public static Class<?> testClass() {
 		return ModuleDeclarationSyntaxTest.class;
 	}
+	@Override
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
 	}

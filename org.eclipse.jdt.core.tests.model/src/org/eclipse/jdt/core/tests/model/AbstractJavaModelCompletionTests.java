@@ -74,6 +74,7 @@ protected void removeLibrary(String projectName, String jarName) throws CoreExce
 	String projectPath = '/' + project.getName() + '/';
 	removeClasspathEntry(javaProject, new Path(projectPath + jarName));
 }
+@Override
 public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
 	return super.getWorkingCopy(path, source, this.wcOwner);
 }
@@ -159,6 +160,7 @@ protected CompletionResult snippetContextComplete(
 	result.cursorLocation = cursorLocation;
 	return result;
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	this.oldOptions = JavaCore.getOptions();
@@ -168,10 +170,12 @@ public void setUpSuite() throws Exception {
 	JavaCore.setOptions(options);
 	waitUntilIndexesReady();
 }
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	this.wcOwner = new WorkingCopyOwner(){};
 }
+@Override
 public void tearDownSuite() throws Exception {
 	JavaCore.setOptions(this.oldOptions);
 	this.oldOptions = null;
@@ -186,6 +190,7 @@ public void tearDownSuite() throws Exception {
 	}
 	super.tearDownSuite();
 }
+@Override
 protected void tearDown() throws Exception {
 	if(this.wc != null) {
 		this.wc.discardWorkingCopy();

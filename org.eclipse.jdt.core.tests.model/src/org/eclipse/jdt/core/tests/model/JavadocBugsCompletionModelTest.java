@@ -40,6 +40,7 @@ public static Test suite() {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.AbstractJavadocCompletionModelTest#setUp()
  */
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	setUpProjectOptions(CompilerOptions.VERSION_1_4);

@@ -62,6 +62,7 @@ public static Test suite() {
 	return buildModelTestSuite(OptionTests.class);
 }
 
+@Override
 protected void tearDown() throws Exception {
 	// Put back default options
 	JavaCore.setOptions(JavaCore.getDefaultOptions());
@@ -788,9 +789,11 @@ public void testBug346010() throws CoreException {
 			tmp.put(additionalKey, additionalValue);
 			this.additionalEntry = (Map.Entry) tmp.entrySet().iterator().next();
 		}
+		@Override
 		public Set entrySet() {
 			return new HashSet() {
 				private static final long serialVersionUID = 1L;
+				@Override
 				public Iterator iterator() {
 					List orderedEntries;
 					orderedEntries = new ArrayList(ForcedOrderMap.this.original.entrySet());
@@ -799,6 +802,7 @@ public void testBug346010() throws CoreException {
 				}
 			};
 		}
+		@Override
 		public synchronized boolean containsKey(Object key) {
 			return this.original.containsKey(key) || key.equals(this.additionalEntry.getKey());
 		}

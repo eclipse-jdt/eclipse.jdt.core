@@ -48,6 +48,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 	}
 
 	// Enables the tests to run individually
+	@Override
 	protected Map getCompilerOptions() {
 		Map defaultOptions = super.getCompilerOptions();
 		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);

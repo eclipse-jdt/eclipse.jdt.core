@@ -340,6 +340,7 @@ public class NullReferenceImplTests extends NullReferenceTest {
 		}
 		return result.toString();
 	}
+	@Override
 	public int compareTo(Object o) {
 		return this.value - ((State) o).value;
 	}
@@ -490,6 +491,7 @@ public class NullReferenceImplTests extends NullReferenceTest {
 	static Iterator symbolicStates() {
 		return new Iterator() {
 			int nextSymbolic = -1;
+			@Override
 			public boolean hasNext() {
 				if (this.nextSymbolic == -1) {
 					for (this.nextSymbolic = 0; this.nextSymbolic < states.length; this.nextSymbolic++) {
@@ -506,6 +508,7 @@ public class NullReferenceImplTests extends NullReferenceTest {
 				}
 				return this.nextSymbolic < states.length;
 			}
+			@Override
 			public Object next() {
 				State result = null;
 				if (this.nextSymbolic < states.length) {
@@ -514,17 +517,21 @@ public class NullReferenceImplTests extends NullReferenceTest {
 				}
 				return result;
 			}
+			@Override
 			public void remove() {
 				throw new RuntimeException("unimplemented");
 			}
 		};
 	}
+		@Override
 	public String toString() {
 		return this.name;
 	}
+		@Override
 	public boolean equals(Object other) {
 		return (other instanceof State) && ((State)other).value == this.value;
 	}
+		@Override
 	public int hashCode() {
 		return this.value;
 	}
@@ -1562,6 +1569,7 @@ void markAllAsAlreadyKnown() {
 		((Element) i.next()).alreadyKnown = true;
 	}
 }
+@Override
 public String toString() {
 	StringBuffer output = new StringBuffer();
 	output.append("Transitive closure:\n");
@@ -1712,6 +1720,7 @@ private static void reinitializeFromComputedValues(String source, String target)
 	NullReferenceImplTests.State[] transitiveClosure = computeTransitiveClosure(); // need for initialization?
 	transitiveClosure = addSymbolicStates(transitiveClosure); // don't rely on reachibility alone, since we don't cover all operations in these tests.
 	Arrays.sort(transitiveClosure, new Comparator() {
+		@Override
 		public int compare(Object o1, Object o2) {
 			return Integer.valueOf(((State)o1).value).compareTo(Integer.valueOf(((State)o2).value));
 		}

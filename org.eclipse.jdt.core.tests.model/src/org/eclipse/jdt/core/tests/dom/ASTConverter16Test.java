@@ -31,6 +31,7 @@ public class ASTConverter16Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getJLS3(), false);
@@ -49,6 +50,7 @@ public class ASTConverter16Test extends ConverterTestSetup {
 		return buildModelTestSuite(ASTConverter16Test.class);
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (this.workingCopy != null) {

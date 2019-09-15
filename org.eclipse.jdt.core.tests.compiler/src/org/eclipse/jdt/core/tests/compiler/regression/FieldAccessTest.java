@@ -34,6 +34,7 @@ public FieldAccessTest(String name) {
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());
 }
+@Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, CompilerOptions.ERROR);

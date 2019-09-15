@@ -79,6 +79,7 @@ protected String buildBootClassPath() {
 /**
  * @see LocalVMLauncher#execCommandLine
  */
+@Override
 protected Process execCommandLine() throws TargetException {
 	// Check that the internal debug port has been specified if in debug mode
 	if (this.debugPort != -1 && this.internalDebugPort == -1) {
@@ -90,6 +91,7 @@ protected Process execCommandLine() throws TargetException {
 /**
  * @see LocalVMLauncher#getCommandLine
  */
+@Override
 public String[] getCommandLine() {
 	Vector commandLine = new Vector();
 
@@ -214,6 +216,7 @@ public String getSymbolPath() {
 /**
  * @see LocalVMLauncher#launch
  */
+@Override
 public LocalVirtualMachine launch() throws TargetException {
 	// Launch VM
 	LocalVirtualMachine localVM = super.launch();
@@ -251,6 +254,7 @@ public LocalVirtualMachine launch() throws TargetException {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.runtime.LocalVMLauncher#setDebugPort(int)
  */
+@Override
 public void setDebugPort(int debugPort) {
 	super.setDebugPort(debugPort);
 

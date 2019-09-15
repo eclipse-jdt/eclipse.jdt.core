@@ -39,6 +39,7 @@ public CompletionTests18(String name) {
 	super(name);
 }
 
+@Override
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
 		COMPLETION_PROJECT = setUpJavaProject("Completion", "1.8", true);

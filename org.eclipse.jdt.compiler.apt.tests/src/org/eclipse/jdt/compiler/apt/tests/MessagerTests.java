@@ -43,6 +43,7 @@ public class MessagerTests extends TestCase {
 			this.count = 0;
 			this.buffer = new StringBuffer();
 		}
+		@Override
 		public void report(Diagnostic<? extends S> diagnostic) {
 			if (diagnostic.getKind() ==  Diagnostic.Kind.ERROR) {
 				errors.add(diagnostic);
@@ -54,6 +55,7 @@ public class MessagerTests extends TestCase {
 		public Diagnostic<? extends S> getErrorAt(int index) {
 			return errors.get(index);
 		}
+		@Override
 		public String toString() {
 			return this.buffer.toString();
 		}

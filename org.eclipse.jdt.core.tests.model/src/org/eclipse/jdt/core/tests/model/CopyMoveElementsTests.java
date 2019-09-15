@@ -24,6 +24,7 @@ public class CopyMoveElementsTests extends CopyMoveTests {
 public CopyMoveElementsTests(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -42,6 +43,7 @@ public void setUpSuite() throws Exception {
 /**
  * Setup for the next test.
  */
+@Override
 public void setUp() throws Exception {
 	super.setUp();
 
@@ -62,10 +64,12 @@ public static Test suite() {
 /**
  * Cleanup after the previous test.
  */
+@Override
 public void tearDown() throws Exception {
 	this.deleteProject("P");
 	super.tearDown();
 }
+@Override
 public void tearDownSuite() throws Exception {
 	this.deleteProject("BinaryProject");
 	super.tearDownSuite();

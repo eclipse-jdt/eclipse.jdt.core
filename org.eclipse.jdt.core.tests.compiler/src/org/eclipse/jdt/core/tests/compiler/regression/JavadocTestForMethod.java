@@ -44,6 +44,7 @@ public class JavadocTestForMethod extends JavadocTest {
 //		TESTS_RANGE = new int[] { 10, -1 }; // run all tests with a number greater or equals to 10
 	}
 
+	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);

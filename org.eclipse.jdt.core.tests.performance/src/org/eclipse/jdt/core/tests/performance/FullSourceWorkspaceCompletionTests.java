@@ -55,6 +55,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.performance.FullSourceWorkspaceTests#setUp()
 	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		COMPLETIONS_COUNT = 0;
@@ -63,6 +64,7 @@ public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 
 		// End of execution => one test less

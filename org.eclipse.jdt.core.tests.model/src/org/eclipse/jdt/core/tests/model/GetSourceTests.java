@@ -59,6 +59,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 		return field;
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		createJavaProject("P");
@@ -105,6 +106,7 @@ public class GetSourceTests extends ModifyingResourceTests {
 		createFile("/P/p/Constants.java", cuSource);
 	}
 
+	@Override
 	public void tearDownSuite() throws Exception {
 		deleteProject("P");
 		super.tearDownSuite();

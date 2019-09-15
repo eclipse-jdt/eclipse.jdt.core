@@ -88,6 +88,7 @@ protected String getEscapedPath(String path) {
 	}
 	return buffer.toString();
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -110,6 +111,7 @@ public void setUpSuite() throws Exception {
 			},
 			"bin");
 }
+@Override
 public void tearDownSuite() throws Exception {
 	this.deleteProject("P");
 	deleteExternalResource("myLib");

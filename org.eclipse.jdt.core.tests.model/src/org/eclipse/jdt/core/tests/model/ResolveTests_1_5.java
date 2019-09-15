@@ -53,6 +53,7 @@ public static Test suite() {
 public ResolveTests_1_5(String name) {
 	super(name);
 }
+@Override
 public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
 	return super.getWorkingCopy(path, source, this.wcOwner);
 }
@@ -69,6 +70,7 @@ private IJavaElement[] selectAfter(String path, String source, String selection)
 	int start = str.lastIndexOf(selection) + selection.length();
 	return this.wc.codeSelect(start, 0, this.wcOwner);
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -76,16 +78,19 @@ public void setUpSuite() throws Exception {
 
 	waitUntilIndexesReady();
 }
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	this.wcOwner = new WorkingCopyOwner(){};
 }
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("Resolve");
 
 	super.tearDownSuite();
 }
 
+@Override
 protected void tearDown() throws Exception {
 	if (this.wc != null) {
 		this.wc.discardWorkingCopy();

@@ -139,6 +139,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			this.results.addElement(buffer.toString());
 		}
 
+		@Override
 		public String toString(){
 			int length = this.results.size();
 			String[] strings = new String[length];
@@ -255,6 +256,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			System.arraycopy(typeErasurename, 0, typeErasurename = new char[index], 0, index);
 			return typeErasurename;
 		}
+		@Override
 		public String toString(){
 			int length = this.results.size();
 			String[] strings = new String[length];
@@ -745,6 +747,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 	    	List displayedLines = new ArrayList(this.lines);
 	    	if (this.sorted) {
 	    		Collections.sort(displayedLines, new Comparator() {
+					@Override
 					public int compare(Object o1, Object o2) {
 						return o1.toString().compareTo(o2.toString());
 				    }
@@ -948,6 +951,7 @@ protected JavaSearchResultCollector resultCollector;
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#copyDirectory(java.io.File, java.io.File)
 	 */
+	@Override
 	protected void copyDirectory(File sourceDir, File targetDir) throws IOException {
 		if (COPY_DIRS) {
 			super.copyDirectory(sourceDir, targetDir);
@@ -1019,6 +1023,7 @@ protected JavaSearchResultCollector resultCollector;
 	protected void search(IJavaElement element, int limitTo, int matchRule, IJavaSearchScope scope) throws CoreException {
 		search(element, limitTo, matchRule, scope, this.resultCollector);
 	}
+	@Override
 	protected void search(IJavaElement element, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		SearchPattern pattern = SearchPattern.createPattern(element, limitTo, matchRule);
 		assertNotNull("Pattern should not be null", pattern);
@@ -1047,6 +1052,7 @@ protected JavaSearchResultCollector resultCollector;
 	protected void search(String patternString, int searchFor, int limitTo, int matchRule, IJavaSearchScope scope) throws CoreException {
 		search(patternString, searchFor, limitTo, matchRule, scope, this.resultCollector);
 	}
+	@Override
 	protected void search(String patternString, int searchFor, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		if (patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1) {
 			matchRule |= SearchPattern.R_PATTERN_MATCH;
@@ -1232,6 +1238,7 @@ protected JavaSearchResultCollector resultCollector;
 	protected void searchDeclarationsOfSentMessages(IJavaElement enclosingElement, SearchRequestor requestor) throws JavaModelException {
 		new SearchEngine().searchDeclarationsOfSentMessages(enclosingElement, requestor, null);
 	}
+	@Override
 	protected void setUp () throws Exception {
 		super.setUp();
 		this.resultCollector = new JavaSearchResultCollector();

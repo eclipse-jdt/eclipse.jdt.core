@@ -132,6 +132,7 @@ private static void compare(String msg, Object[] types1, Object[] types2) {
 		}
 	}
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -141,6 +142,7 @@ public void setUpSuite() throws Exception {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
  */
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject(PROJECTNAME);
 

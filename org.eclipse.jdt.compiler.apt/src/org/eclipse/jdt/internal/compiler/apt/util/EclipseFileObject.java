@@ -54,6 +54,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileObject#getAccessLevel()
 	 */
+	@Override
 	public Modifier getAccessLevel() {
 		// cannot express multiple modifier
 		if (getKind() != Kind.CLASS) {
@@ -86,6 +87,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileObject#getNestingKind()
 	 */
+	@Override
 	public NestingKind getNestingKind() {
 		switch(kind) {
 			case SOURCE :
@@ -120,10 +122,12 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#delete()
 	 */
+	@Override
 	public boolean delete() {
 		return this.f.delete();
 	}
 
+	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof EclipseFileObject)) {
 			return false;
@@ -135,6 +139,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#getCharContent(boolean)
 	 */
+	@Override
 	public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
 		return Util.getCharContents(this, ignoreEncodingErrors, org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(this.f), this.charset.name());
 	}
@@ -142,14 +147,17 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#getLastModified()
 	 */
+	@Override
 	public long getLastModified() {
 		return this.f.lastModified();
 	}
 
+	@Override
 	public String getName() {
         return this.f.getPath();
     }
 
+	@Override
 	public int hashCode() {
 		return f.hashCode();
 	}
@@ -157,6 +165,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#openInputStream()
 	 */
+	@Override
 	public InputStream openInputStream() throws IOException {
 		// TODO (olivier) should be used buffered input stream
 		return new FileInputStream(this.f);
@@ -165,6 +174,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#openOutputStream()
 	 */
+	@Override
 	public OutputStream openOutputStream() throws IOException {
 		ensureParentDirectoriesExist();
 		return new FileOutputStream(this.f);
@@ -173,6 +183,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#openReader(boolean)
 	 */
+	@Override
 	public Reader openReader(boolean ignoreEncodingErrors) throws IOException {
 		return new FileReader(this.f);
 	}
@@ -180,6 +191,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	/* (non-Javadoc)
 	 * @see javax.tools.FileObject#openWriter()
 	 */
+	@Override
 	public Writer openWriter() throws IOException {
 		ensureParentDirectoriesExist();
 		return new FileWriter(this.f);

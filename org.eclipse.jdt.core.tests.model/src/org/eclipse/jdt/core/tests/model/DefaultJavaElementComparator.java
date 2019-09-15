@@ -224,6 +224,7 @@ class DefaultJavaElementComparator implements Comparator {
 	 * by their original relative positions.
 	 * </p>
 	 */
+	@Override
 	public int compare(Object o1, Object o2) {
 		if (!(o1 instanceof BodyDeclaration) && !(o2 instanceof BodyDeclaration)) {
 			throw new ClassCastException();

@@ -93,6 +93,7 @@ public class AbstractRegressionTest9 extends AbstractRegressionTest {
 	 * javac cannot leverage our internal map  {@code file2module}, so we better
 	 * neatly place each file into a sub directory matching the module name.
 	 */
+	@Override
 	protected String expandFileNameForJavac(String fileName) {
 		String fileNameAsKey = fileName.replace(File.separator, "/");
 		if (this.file2module != null && this.file2module.containsKey(fileNameAsKey)) {

@@ -68,6 +68,7 @@ protected void assertProblems(String message, String expected) {
 /**
  * Setup for the next test.
  */
+@Override
 public void setUp() throws Exception {
 	super.setUp();
 	this.problemRequestor =  new ProblemRequestor();
@@ -80,6 +81,7 @@ public void setUp() throws Exception {
 	this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
 	startDeltas();
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -117,6 +119,7 @@ void setWorkingCopyContents(String contents) throws JavaModelException {
 /**
  * Cleanup after the previous test.
  */
+@Override
 public void tearDown() throws Exception {
 	TestCompilationParticipant.PARTICIPANT = null;
 	if (this.workingCopy != null) {
@@ -125,6 +128,7 @@ public void tearDown() throws Exception {
 	stopDeltas();
 	super.tearDown();
 }
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("Reconciler9");
 	super.tearDownSuite();

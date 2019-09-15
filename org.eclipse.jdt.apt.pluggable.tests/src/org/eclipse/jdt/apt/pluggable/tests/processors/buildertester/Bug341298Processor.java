@@ -39,6 +39,7 @@ public class Bug341298Processor extends AbstractProcessor {
 
 	private static boolean success = false;
 
+	@Override
 	public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment rndEnv) {
 		TypeElement typeElement = processingEnv.getElementUtils().getTypeElement("test341298.Annotation");
 		if (!rndEnv.getElementsAnnotatedWith(typeElement).isEmpty()) {

@@ -49,10 +49,12 @@ public FormatterJavadocDontIndentTagsDescriptionTests(String name) {
 	super(name);
 }
 
+@Override
 protected void setUp() throws Exception {
     super.setUp();
 }
 
+@Override
 DefaultCodeFormatter codeFormatter() {
 	this.formatterPrefs.comment_indent_parameter_description = false; // Eclipse default is true
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.formatterPrefs);
@@ -62,6 +64,7 @@ DefaultCodeFormatter codeFormatter() {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.formatter.FormatterCommentsTests#getOutputFolder()
  */
+@Override
 IPath getOutputFolder() {
 	return OUTPUT_FOLDER;
 }

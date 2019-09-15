@@ -115,6 +115,7 @@ public class ErrorTypeElement extends TypeElementImpl {
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
 		return (A[]) Array.newInstance(annotationType, 0);
 	}

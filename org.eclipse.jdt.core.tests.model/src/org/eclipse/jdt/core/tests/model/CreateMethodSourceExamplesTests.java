@@ -28,6 +28,7 @@ public class CreateMethodSourceExamplesTests extends AbstractJavaModelTests {
 public CreateMethodSourceExamplesTests(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	this.domFactory = new DOMFactory();

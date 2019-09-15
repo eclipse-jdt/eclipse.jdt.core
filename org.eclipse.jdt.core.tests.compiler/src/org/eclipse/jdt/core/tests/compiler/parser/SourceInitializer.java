@@ -22,10 +22,12 @@ public SourceInitializer(
 	super(declarationStart, modifiers, null, null, -1, -1, null);
 }
 
+@Override
 public void setDeclarationSourceEnd(int declarationSourceEnd) {
 	this.declarationEnd = declarationSourceEnd;
 }
 
+@Override
 public String toString(int tab) {
 	if (this.modifiers == ClassFileConstants.AccStatic) {
 		return tabString(tab) + "static {}";

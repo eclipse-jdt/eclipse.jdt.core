@@ -74,6 +74,7 @@ public class NullReferenceImplTransformations {
 					{0x3C,0x3C},
 					// markAsComparedEqualToNonNull INITIALIZER END
 					}) {
+				@Override
 				UnconditionalFlowInfo output(UnconditionalFlowInfo input,
 						TestLocalVariableBinding local) {
 					UnconditionalFlowInfo result = (UnconditionalFlowInfo)input.copy();
@@ -119,6 +120,7 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x38},
 				// markAsComparedEqualToNull INITIALIZER END
 				}) {
+			@Override
 			UnconditionalFlowInfo output(UnconditionalFlowInfo input,
 					TestLocalVariableBinding local) {
 				UnconditionalFlowInfo result = (UnconditionalFlowInfo)input.copy();
@@ -164,6 +166,7 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x28},
 				// markAsDefinitelyNonNull INITIALIZER END
 				}) {
+			@Override
 			UnconditionalFlowInfo output(UnconditionalFlowInfo input,
 					TestLocalVariableBinding local) {
 				UnconditionalFlowInfo result = (UnconditionalFlowInfo)input.copy();
@@ -210,6 +213,7 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x30},
 				// markAsDefinitelyNull INITIALIZER END
 				}) {
+			@Override
 			UnconditionalFlowInfo output(UnconditionalFlowInfo input,
 					TestLocalVariableBinding local) {
 				UnconditionalFlowInfo result = (UnconditionalFlowInfo)input.copy();
@@ -255,6 +259,7 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x24},
 				// markAsDefinitelyUnknown INITIALIZER END
 				}) {
+			@Override
 			UnconditionalFlowInfo output(UnconditionalFlowInfo input,
 					TestLocalVariableBinding local) {
 				UnconditionalFlowInfo result = (UnconditionalFlowInfo)input.copy();
@@ -720,6 +725,7 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x3C,0x3C},
 				// addInitializationsFrom INITIALIZER END
 				}) {
+			@Override
 			UnconditionalFlowInfo output(UnconditionalFlowInfo input1,
 					UnconditionalFlowInfo input2) {
 				return (UnconditionalFlowInfo)
@@ -1184,6 +1190,7 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x3C,0x3C},
 				// addPotentialInitializationsFrom INITIALIZER END
 				}) {
+			@Override
 			UnconditionalFlowInfo output(UnconditionalFlowInfo input1,
 					UnconditionalFlowInfo input2) {
 				return (UnconditionalFlowInfo)
@@ -1438,6 +1445,7 @@ public class NullReferenceImplTransformations {
 				{0x3C,0x3C,0x3C},
 				// mergedWith INITIALIZER END
 				}) {
+			@Override
 			UnconditionalFlowInfo output(UnconditionalFlowInfo input1,
 					UnconditionalFlowInfo input2) {
 				return input1.copy().mergedWith(input2);
@@ -1614,6 +1622,7 @@ TwoDimensionalTransformation(String name, byte[][] transitions) {
 		this.initializedTransitions.put(input1, State.states[transitions[i][1]]);
 	}
 }
+@Override
 State[] computeOutputs(State[] inputs) {
 	Map resultAccumulator = new HashMap(State.stateMaxValue + 1);
 	hydrate(); // pre-compute all possible combinations, then cache them
@@ -1628,6 +1637,7 @@ State[] computeOutputs(State[] inputs) {
 	}
 	return result;
 }
+@Override
 void hydrate() {
 	if (this.computedTransitions == null) {
 		State input, output;
@@ -1647,6 +1657,7 @@ void hydrate() {
 }
 abstract UnconditionalFlowInfo output(UnconditionalFlowInfo input, TestLocalVariableBinding local);
 
+@Override
 void printTruthTables(File outputDirectory) {
 	try {
 		String outputFileName = outputDirectory.getPath() + File.separator + this.name + ".txt";
@@ -1705,6 +1716,7 @@ void printTruthTables(File outputDirectory) {
 	}
 }
 
+@Override
 void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 	String line, tab = "";
 	int cursor;
@@ -1957,6 +1969,7 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 	}
 }
 
+@Override
 void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 		State[] consideredStates) {
 	String line, tab = "";
@@ -2040,6 +2053,7 @@ void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 		throw new RuntimeException(e);
 	}
 }
+@Override
 int test() {
 	Iterator transitions = this.initializedTransitions.entrySet().iterator();
 	State input, expectedOutput, effectiveOutput;
@@ -2138,6 +2152,7 @@ ThreeDimensionalTransformation(String name, byte[][] transitions) {
 		transitionsForInput1.put(input2, State.states[transitions[i][2]]);
 	}
 }
+@Override
 State[] computeOutputs(State[] inputs) {
 	Map resultAccumulator = new HashMap(State.stateMaxValue + 1);
 	hydrate(); // pre-compute all possible combinations, then cache them
@@ -2155,6 +2170,7 @@ State[] computeOutputs(State[] inputs) {
 	}
 	return result;
 }
+@Override
 void hydrate() {
 	if (this.computedTransitions == null) {
 		State input1, input2, output;
@@ -2271,6 +2287,7 @@ void printMissingEntries(BufferedWriter output, String tab) throws IOException {
 		}
 	}
 }
+@Override
 void printTruthTables(File outputDirectory) {
 	for (int bit = 1; bit <= State.stateWidth; bit++) {
 		try {
@@ -2392,6 +2409,7 @@ void mark(char truthValues[][], boolean keepRow[], boolean keepColumn[],
 	keepColumn[column] = true;
 }
 
+@Override
 void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 	String line, tab = "";
 	int cursor;
@@ -2679,6 +2697,7 @@ void reinitializeFromComments(BufferedReader input, BufferedWriter output) {
 		throw new RuntimeException(e);
 	}
 }
+@Override
 void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 		State[] consideredStates) {
 	String line, tab = "";
@@ -2737,6 +2756,7 @@ void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 		throw new RuntimeException(e);
 	}
 }
+@Override
 int test() {
 	return test(1, false);
 }
@@ -2948,6 +2968,7 @@ SymmetricalThreeDimensionalTransformation(String name, byte[][] transitions) {
 		transitionsForInput1.put(input2, State.states[transitions[i][2]]);
 	}
 }
+@Override
 void hydrate() {
 	super.hydrate();
 	checkSymmetry(this.computedTransitions);
@@ -2973,6 +2994,7 @@ private void checkSymmetry(Map map) {
 		}
 	}
 }
+@Override
 void mark(char truthValues[][], boolean keepRow[], boolean keepColumn[],
 		int row, int column, char value) {
 	truthValues[row][column] = truthValues[column][row] = value;
@@ -2981,6 +3003,7 @@ void mark(char truthValues[][], boolean keepRow[], boolean keepColumn[],
 	keepRow[column] = true;
 	keepColumn[row] = true;
 }
+@Override
 void printDefinitions(BufferedWriter output, State[] consideredStates, String tab)
 		throws IOException {
 	// only difference with parent is that we print only half of possible
@@ -3014,12 +3037,14 @@ void printDefinitions(BufferedWriter output, State[] consideredStates, String ta
 		output.write(lines[i]);
 	}
 }
+@Override
 Object getResult(Map transitions, State statei, State statej) {
 	Object r = super.getResult(transitions, statei, statej);
 	if (r == null)
 		r = super.getResult(transitions, statej, statei);
 	return r;
 }
+@Override
 void printInitializers(BufferedWriter output, State[] consideredStates, String tab)
 		throws IOException {
 	// only difference with parent is that we print only half of possible
@@ -3041,6 +3066,7 @@ void printInitializers(BufferedWriter output, State[] consideredStates, String t
 		}
 	}
 }
+@Override
 void printMissingEntries(BufferedWriter output, String tab) throws IOException {
 	Iterator firsts = State.symbolicStates(), seconds;
 	State first, second;
@@ -3085,6 +3111,7 @@ private void addPair(State s1, State s2) {
 	transitions.put(s2, s2); // dummy, non null value
 }
 // PREMATURE factorize upward
+@Override
 int test(int combinationTestsLoopsNb, boolean skipHighOrderBits) {
 	Iterator transitionsSetsIterator, transitionsIterator;
 	State input1, input2, expectedOutput, effectiveOutput;

@@ -356,6 +356,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		fPerProjSettingsEnabled = hasProjectSpecificOptionsNoCache(fProject);
 	}
 
+	@Override
 	protected void initContents() {
 		loadProcessorOptions(fJProj);
 	}
@@ -570,6 +571,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	/**
 	 * Update the values stored in the keys based on the UI.
 	 */
+	@Override
 	protected final void updateModel(DialogField field) {
 
 		if (fAptEnabledField != null && field == fAptEnabledField) {

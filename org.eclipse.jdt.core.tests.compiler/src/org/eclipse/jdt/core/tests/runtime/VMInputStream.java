@@ -26,9 +26,11 @@ public VMInputStream(Process process, InputStream input) {
 	this.process= process;
 	this.input= input;
 }
+@Override
 public int available() throws IOException {
 	return this.input.available();
 }
+@Override
 public void close() throws IOException {
 	this.input.close();
 }
@@ -45,12 +47,15 @@ private boolean isRunning() {
 	}
 	return !hasExited;
 }
+@Override
 public synchronized void mark(int readlimit) {
 	this.input.mark(readlimit);
 }
+@Override
 public boolean markSupported() {
 	return this.input.markSupported();
 }
+@Override
 public int read() throws IOException {
 	try {
 		return this.input.read();
@@ -61,6 +66,7 @@ public int read() throws IOException {
 		throw e;
 	}
 }
+@Override
 public int read(byte b[]) throws IOException {
 	// Make sure the byte array is initialized (value of 0 is used in the workaround below)
 	for (int i=0;i<b.length;i++)
@@ -83,6 +89,7 @@ public int read(byte b[]) throws IOException {
 
 	return read;
 }
+@Override
 public int read(byte b[], int off, int len) throws IOException {
 	// Make sure the byte array is initialized (value of 0 is used in the workaround below)
 	for (int i = off; i < len; i++)
@@ -104,9 +111,11 @@ public int read(byte b[], int off, int len) throws IOException {
 	}
 	return read;
 }
+@Override
 public synchronized void reset() throws IOException {
 	this.input.reset();
 }
+@Override
 public long skip(long n) throws IOException {
 	return this.input.skip(n);
 }

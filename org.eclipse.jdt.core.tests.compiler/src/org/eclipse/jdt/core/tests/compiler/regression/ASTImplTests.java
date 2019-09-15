@@ -171,6 +171,7 @@ public void test0002_combined_binary_expression() {
 		"}\n",
 		defaultParser,
 		new ASTBinaryExpressionCollector() {
+			@Override
 			public void endVisit(BinaryExpression binaryExpression, BlockScope scope) {
 				if (binaryExpression instanceof CombinedBinaryExpression &&
 						((CombinedBinaryExpression) binaryExpression).
@@ -245,6 +246,7 @@ public void test0003_combined_binary_expression() {
 		"}\n",
 		parser,
 		new ASTBinaryExpressionCollector() {
+			@Override
 			public void endVisit(BinaryExpression binaryExpression, BlockScope scope) {
 				if (binaryExpression instanceof CombinedBinaryExpression &&
 						((CombinedBinaryExpression) binaryExpression).
@@ -379,6 +381,7 @@ public void test0006_combined_binary_expression() {
 		"}\n",
 		defaultParser,
 		new ASTBinaryExpressionCollector() {
+			@Override
 			public boolean visit(BinaryExpression binaryExpression, BlockScope scope) {
 				super.visit(binaryExpression, scope);
 				if (binaryExpression.right instanceof StringLiteral) {
@@ -432,6 +435,7 @@ public void test0007_combined_binary_expression() {
 		"}\n",
 		defaultParser,
 		new ASTBinaryExpressionCollector() {
+			@Override
 			public boolean visit(BinaryExpression binaryExpression, BlockScope scope) {
 				super.visit(binaryExpression, scope);
 				return false;
@@ -467,6 +471,7 @@ public void test0008_combined_binary_expression() {
 		"}\n",
 		defaultParser,
 		new ASTBinaryExpressionCollector() {
+			@Override
 			public void endVisit(BinaryExpression binaryExpression, BlockScope scope) {
 				if (binaryExpression instanceof CombinedBinaryExpression) {
 					this.collector.append("[ev CBE " +

@@ -36,6 +36,7 @@ public Compliance_1_5(String name) {
 /*
  * Toggle compiler in mode -1.5
  */
+@Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.IGNORE);
@@ -67,6 +68,7 @@ static {
 /* (non-Javadoc)
  * @see junit.framework.TestCase#setUp()
  */
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	// Javadoc disabled by default

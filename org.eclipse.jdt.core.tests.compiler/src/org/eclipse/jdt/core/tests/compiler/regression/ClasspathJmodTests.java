@@ -32,11 +32,13 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 	public ClasspathJmodTests(String name) {
 		super(name);
 	}
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		System.setProperty("modules.to.load", "java.base");
 	}
 
+	@Override
 	public void tearDown() throws Exception {
 		super.tearDown();
 		System.setProperty("modules.to.load", "");
@@ -53,6 +55,7 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 		String home = Util.getJREDirectory();
 		return home + File.separator + "jmods" + File.separator + "java.sql.jmod" + File.pathSeparator;
 	}
+	@Override
 	public void test001() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -85,6 +88,7 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 				false,
 				"p.X");
 	}
+	@Override
 	public void test002() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -128,6 +132,7 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 				false,
 				"p.X");
 	}
+	@Override
 	public void test003() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -172,6 +177,7 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 				false,
 				"p.X");
 	}
+	@Override
 	public void test004() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);
@@ -209,6 +215,7 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 				false,
 				"p.X");
 	}
+	@Override
 	public void test005() {
 		File outputDirectory = new File(OUTPUT_DIR);
 		Util.flushDirectoryContent(outputDirectory);

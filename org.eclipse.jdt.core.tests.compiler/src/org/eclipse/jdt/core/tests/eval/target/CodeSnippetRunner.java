@@ -219,6 +219,7 @@ public static void main(String[] args) {
 		theRunner.start();
 	} else {
 		Thread server = new Thread() {
+			@Override
 			public void run() {
 				theRunner.start();
 			}
@@ -347,6 +348,7 @@ void processClasses(boolean mustRun, byte[][] classDefinitions) {
  */
 void runCodeSnippet(final Object snippet) {
 	Thread thread = new Thread() {
+		@Override
 		public void run() {
 			try {
 				try {
@@ -382,6 +384,7 @@ void runCodeSnippet(final Object snippet) {
  */
 public void start() {
 	Thread thread = new Thread("Code snippet runner") {
+		@Override
 		public void run() {
 			try {
 				CodeSnippetRunner.this.ide.connect();

@@ -80,12 +80,14 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 		return FullSourceWorkspaceSearchTests.class;
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 	}
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 
 		// End of execution => one test less

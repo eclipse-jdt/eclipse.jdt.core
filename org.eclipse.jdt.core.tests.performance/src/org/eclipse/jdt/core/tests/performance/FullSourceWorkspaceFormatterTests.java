@@ -63,6 +63,7 @@ private static Class testClass() {
 	return FullSourceWorkspaceFormatterTests.class;
 }
 
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 
@@ -76,6 +77,7 @@ protected void setUp() throws Exception {
 /* (non-Javadoc)
  * @see junit.framework.TestCase#tearDown()
  */
+@Override
 protected void tearDown() throws Exception {
 
 	// End of execution => one test less

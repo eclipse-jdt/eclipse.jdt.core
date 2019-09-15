@@ -22,18 +22,22 @@ public NullPrintWriter() {
 	super(new StringWriter());
 }
 
+@Override
 public void flush() {
 	// do nothing
 }
 
+@Override
 public void write(char[] buf, int off, int len) {
 	// do nothing
 }
 
+@Override
 public void write(int c) {
 	// do nothing
 }
 
+@Override
 public void write(String s, int off, int len) {
 	// do nothing
 }

@@ -50,6 +50,7 @@ public class VarargsTest extends AbstractComparableTest {
 	public static Class testClass() {
 		return VarargsTest.class;
 	}
+	@Override
 	protected String intersection(String... types) {
 		if (this.complianceLevel >= ClassFileConstants.JDK1_8)
 			return String.join(" & ", types);

@@ -128,6 +128,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		return parser.createBindings(elements, null);
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		setUpJavaProject();
@@ -209,6 +210,7 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			null/*no progress*/);
 	}
 
+	@Override
 	public void tearDownSuite() throws Exception {
 		tearDownJavaProject();
 		super.tearDownSuite();

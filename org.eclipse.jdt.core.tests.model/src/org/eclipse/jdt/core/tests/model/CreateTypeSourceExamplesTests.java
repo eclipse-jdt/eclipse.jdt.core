@@ -30,6 +30,7 @@ public CreateTypeSourceExamplesTests(String name) {
 public static Test suite() {
 	return buildModelTestSuite(CreateTypeSourceExamplesTests.class);
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	this.domFactory = new DOMFactory();

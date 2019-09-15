@@ -42,6 +42,7 @@ public CodeSnippetTest(String name) {
  */
 private IRequestor getNoResultRequestor() {
 	return new Requestor() {
+		@Override
 		public void acceptResult(EvaluationResult result) {
 			assertTrue("No result", false);
 		}
@@ -53,6 +54,7 @@ static {
 public static Test suite() {
 	return setupSuite(testClass());
 }
+@Override
 public Map getCompilerOptions() {
 	Map defaultOptions = super.getCompilerOptions();
 	defaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);

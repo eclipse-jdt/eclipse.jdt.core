@@ -367,6 +367,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#displayString(java.lang.String, int)
 	 */
+	@Override
 	protected String displayString(String toPrint, int indent) {
 		String toDisplay = super.displayString(toPrint, indent);
 		int openBracket = toDisplay.indexOf(", [");
@@ -419,6 +420,7 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 		}
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		if (COMPLETION_PROJECT == null)  {
@@ -433,11 +435,13 @@ public abstract class AbstractJavadocCompletionModelTest extends AbstractJavaMod
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#tearDown()
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 		this.requestor = null;
 		super.tearDown();
 	}
 
+	@Override
 	public void tearDownSuite() throws Exception {
 		deleteFolder(new Path("/Completion/src/javadoc/tags"));
 		super.tearDownSuite();

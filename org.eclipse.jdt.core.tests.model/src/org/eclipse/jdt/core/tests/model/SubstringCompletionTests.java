@@ -29,6 +29,7 @@ public static Test suite() {
 public SubstringCompletionTests(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
 		COMPLETION_PROJECT = setUpJavaProject("Completion", "1.8", true);
@@ -40,6 +41,7 @@ public void setUpSuite() throws Exception {
 	options.put(JavaCore.CODEASSIST_SUBSTRING_MATCH, JavaCore.ENABLED);
 	JavaCore.setOptions(options);
 }
+@Override
 public void tearDownSuite() throws Exception {
 	if (COMPLETION_SUITES == null) {
 		deleteProject("Completion");

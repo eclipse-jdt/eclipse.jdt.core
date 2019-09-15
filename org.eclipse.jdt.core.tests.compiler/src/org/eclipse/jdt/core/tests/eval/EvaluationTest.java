@@ -434,6 +434,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		class ResultRequestor extends Requestor {
 			ArrayList collectedProblems = new ArrayList();
 			boolean gotDisplayString = false;
+			@Override
 			public void acceptResult(EvaluationResult result) {
 				assertEquals("Evaluation type", EvaluationResult.T_CODE_SNIPPET, result.getEvaluationType());
 				//assertEquals("Evaluation id", codeSnippet, result.getEvaluationID());
@@ -475,6 +476,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		fail(formatted + "expected:<" + expectedString + "> but was:<" + actualString + ">");
 	}
 
+	@Override
 	public Map getCompilerOptions() {
 		Map defaultOptions = super.getCompilerOptions();
 		defaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
@@ -496,6 +498,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		return new DefaultProblemFactory(java.util.Locale.getDefault());
 	}
 
+	@Override
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
 		EvaluationSetup evalSetUp = (EvaluationSetup)setUp;
@@ -517,6 +520,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 	protected void installVariables(final int expectedNumber) {
 		class InstallRequestor extends Requestor {
 			int count = 0;
+			@Override
 			public void acceptResult(EvaluationResult result) {
 				assertTrue("Has problems", !result.hasProblems());
 				assertTrue("Has value", result.hasValue());
@@ -551,6 +555,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 		this.env = new FileSystem(Util.concatWithClassLibs(EvaluationSetup.EVAL_DIRECTORY + File.separator + LocalVMLauncher.REGULAR_CLASSPATH_DIRECTORY, false), new String[0], encoding);
 	}
 
+	@Override
 	public void stop() {
 		if (this.target != null) {
 			this.target.disconnect(); // Close the socket first so that the OS resource has a chance to be freed.

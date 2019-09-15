@@ -55,6 +55,7 @@ protected void deleteBuffer(IBuffer buffer) throws CoreException {
 /**
  * @see AbstractJavaModelTests#setUpSuite()
  */
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	try {
@@ -68,6 +69,7 @@ public void setUpSuite() throws Exception {
 /**
  * @see AbstractJavaModelTests#tearDownSuite()
  */
+@Override
 public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
 	this.deleteProject("P");

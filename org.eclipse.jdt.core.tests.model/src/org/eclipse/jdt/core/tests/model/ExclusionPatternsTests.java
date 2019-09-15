@@ -34,6 +34,7 @@ public ExclusionPatternsTests(String name) {
 protected void setClasspath(String[] sourceFoldersAndExclusionPatterns) throws JavaModelException {
 	this.project.setRawClasspath(createClasspath(sourceFoldersAndExclusionPatterns, false/*no inclusion*/, true/*exclusion*/), null);
 }
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	this.project = createJavaProject("P", new String[] {"src"}, "bin");
@@ -51,6 +52,7 @@ public static Test suite() {
 	return buildModelTestSuite(ExclusionPatternsTests.class);
 }
 
+@Override
 protected void tearDown() throws Exception {
 	stopDeltas();
 	deleteProject("P");

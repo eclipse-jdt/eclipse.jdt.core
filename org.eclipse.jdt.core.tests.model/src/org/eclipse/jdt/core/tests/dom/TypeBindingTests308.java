@@ -79,6 +79,7 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 	public static Test suite() {
 		return buildModelTestSuite(TypeBindingTests308.class);
 	}
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getAST8(), false);

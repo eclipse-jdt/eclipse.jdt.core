@@ -76,9 +76,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	public void thisSuiteRunsOnJRE9plus() {}
 
+	@Override
 	public String getSourceWorkspacePath() {
 		return this.sourceWorkspacePath == null ? super.getSourceWorkspacePath() : this.sourceWorkspacePath;
 	}
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		this.problemRequestor =  new ProblemRequestor();
@@ -88,6 +90,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			}
 		};
 	}
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.currentProject = createJava9Project("P1");
@@ -98,6 +101,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		waitForAutoBuild();
 	}
 
+	@Override
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
 		deleteProject("P1");
@@ -8884,6 +8888,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	// sort by CHAR_START then MESSAGE
+	@Override
 	protected void sortMarkers(IMarker[] markers) {
 		Arrays.sort(markers, Comparator.comparingInt((IMarker a) -> a.getAttribute(IMarker.CHAR_START, 0))
 									   .thenComparing((IMarker a) -> a.getAttribute(IMarker.MESSAGE, "")));

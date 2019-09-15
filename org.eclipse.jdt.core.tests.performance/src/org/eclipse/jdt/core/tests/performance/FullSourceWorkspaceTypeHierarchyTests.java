@@ -61,6 +61,7 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.resultCollector = new JavaSearchResultCollector();
@@ -68,6 +69,7 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 
 		// End of execution => one test less

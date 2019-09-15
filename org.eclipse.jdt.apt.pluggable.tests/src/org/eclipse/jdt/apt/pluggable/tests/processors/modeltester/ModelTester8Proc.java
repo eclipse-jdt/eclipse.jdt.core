@@ -107,6 +107,7 @@ public class ModelTester8Proc extends AbstractProcessor {
 		_processingEnv = processingEnv;
 	}
 
+	@Override
     public SourceVersion getSupportedSourceVersion() {
     	return SourceVersion.latestSupported();
     }

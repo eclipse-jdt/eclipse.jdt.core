@@ -30,6 +30,7 @@ public FormatterBugs18Tests(String name) {
 /**
  * Create project and set the jar placeholder.
  */
+@Override
 public void setUpSuite() throws Exception {
 	if (JAVA_PROJECT == null) {
 		JAVA_PROJECT = setUpJavaProject("FormatterBugs", "1.8"); //$NON-NLS-1$

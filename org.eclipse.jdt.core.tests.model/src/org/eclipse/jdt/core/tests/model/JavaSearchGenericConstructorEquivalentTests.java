@@ -45,6 +45,7 @@ public class JavaSearchGenericConstructorEquivalentTests extends JavaSearchGener
 	/*
 	 * Add line to result only if it is not an erasure match rule.
 	 */
+	@Override
 	void addResultLine(StringBuffer buffer, char[] line) {
 		if (!CharOperation.match(RESULT_ERASURE_MATCH, line, true)) {
 			super.addResultLine(buffer, line);
@@ -54,6 +55,7 @@ public class JavaSearchGenericConstructorEquivalentTests extends JavaSearchGener
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.JavaSearchGenericTypeTests#removeFirstTypeArgument(char[])
 	 */
+	@Override
 	long removeFirstTypeArgument(char[] line) {
 		return -1;
 	}

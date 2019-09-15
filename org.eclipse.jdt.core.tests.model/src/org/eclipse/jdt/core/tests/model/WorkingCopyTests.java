@@ -45,6 +45,7 @@ public class WorkingCopyTests extends ModifyingResourceTests {
 public static Test suite() {
 	return buildModelTestSuite(WorkingCopyTests.class);
 }
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 
@@ -82,6 +83,7 @@ protected void setUp() throws Exception {
 		throw new RuntimeException(e.getMessage());
 	}
 }
+@Override
 protected void tearDown() throws Exception {
 	if (this.copy != null) this.copy.discardWorkingCopy();
 	this.deleteProject("P");

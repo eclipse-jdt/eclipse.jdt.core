@@ -214,6 +214,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#copyDirectory(java.io.File, java.io.File)
 	 */
+	@Override
 	protected void copyDirectory(File sourceDir, File targetDir) throws IOException {
 		if (COPY_DIR) {
 			super.copyDirectory(sourceDir, targetDir);
@@ -232,6 +233,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		TEST_COUNTERS[0]++;
@@ -243,6 +245,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 		int size = this.failures.size();
 		String title = size+" positions/bindings were incorrect in "+getName();
@@ -273,6 +276,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@Override
 	public void tearDownSuite() throws Exception {
 		// put default options on project
 		if (this.currentProject != null && this.savedOptions != null) {
@@ -291,6 +295,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		}
 	}
 
+	@Override
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
 		ASTParser parser = ASTParser.newParser(this.astLevel);
 		parser.setSource(source);
@@ -300,6 +305,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		return parser.createAST(null);
 	}
 
+	@Override
 	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options) {
 		if (project == null) {
 			ASTParser parser = ASTParser.newParser(this.astLevel);

@@ -23,6 +23,7 @@ public class SideCarVMLauncher extends StandardVMLauncher {
 /**
  * @see LocalVMLauncher#getCommandLine
  */
+@Override
 public String[] getCommandLine() {
 	Vector commandLine= new Vector();
 
@@ -112,6 +113,7 @@ public String[] getCommandLine() {
 /**
  * Builds the actual boot class path that is going to be passed to the VM.
  */
+@Override
 protected String buildBootClassPath() {
 	StringBuffer bootPathString = new StringBuffer();
 	char pathSeparator = File.pathSeparatorChar;

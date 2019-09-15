@@ -485,6 +485,7 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 	}
 
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getJLS3(), false);

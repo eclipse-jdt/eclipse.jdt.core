@@ -50,6 +50,7 @@ public static Test suite() {
 	return buildModelTestSuite(ClassFileTests.class);
 }
 
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {"JCL15_LIB", "/P/lib"}, "", JavaCore.VERSION_1_5);
@@ -230,11 +231,13 @@ public void setUpSuite() throws Exception {
 	this.jarRoot = javaProject.getPackageFragmentRoot(getFile("/P/lib.jar"));
 }
 
+@Override
 public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
 	deleteProject("P");
 }
 
+@Override
 protected void tearDown() throws Exception {
 	if (this.workingCopy != null)
 		this.workingCopy.discardWorkingCopy();
@@ -1652,6 +1655,7 @@ public void testGenericFieldGetTypeSignature() throws JavaModelException {
 						  "    void foo()";
 		class GetClassThread extends Thread {
 			public String childString;
+			@Override
 			public void run(){
 				IOrdinaryClassFile clazz = ClassFileTests.this.jarRoot.getPackageFragment("workingcopy").getOrdinaryClassFile("X.class");
 				try {

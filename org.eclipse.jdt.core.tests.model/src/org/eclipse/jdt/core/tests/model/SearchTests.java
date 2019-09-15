@@ -323,6 +323,7 @@ protected void assertValidMatchRule(String pattern, int rule, int expected) {
 		assertEquals(pattern+"' does not match expected match rule!", expectedRule, validatedRule);
 	}
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	createJavaProject("P");
@@ -345,6 +346,7 @@ public void setUpSuite() throws Exception {
 		"}"
 	);
 }
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("P");
 	super.tearDownSuite();
@@ -472,6 +474,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
 		final boolean[] success = new boolean[1];
 		final WaitUntilReadyMonitor monitor = new WaitUntilReadyMonitor();
 		Thread thread = new Thread() {
+			@Override
 			public void run() {
 				try {
 					assertAllTypes(

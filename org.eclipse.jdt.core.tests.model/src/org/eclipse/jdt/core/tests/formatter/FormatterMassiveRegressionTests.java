@@ -347,6 +347,7 @@ public class FormatterMassiveRegressionTests extends FormatterRegressionTests {
 		int size() {
 			return this.failures.size();
 		}
+		@Override
 		public String toString() {
 			switch (this.kind) {
 				case  UNEXPECTED_FAILURE:
@@ -438,6 +439,7 @@ protected static Test suite(File inputDir, String profile, Map directories) {
 
 		// Get files from input dir
 		FileFilter filter = new FileFilter() {
+			@Override
 			public boolean accept(File pathname) {
 				String path = pathname.getPath();
 				if (pathname.isDirectory()) {
@@ -1072,6 +1074,7 @@ public String getName() {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#setUpSuite()
  */
+@Override
 public void setUp() throws Exception {
 	super.setUp();
 
@@ -1144,6 +1147,7 @@ public void setUp() throws Exception {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#setUpSuite()
  */
+@Override
 public void setUpSuite() throws Exception {
 
 	// Init directories
@@ -1285,6 +1289,7 @@ private void print() {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#tearDown()
  */
+@Override
 public void tearDown() throws Exception {
 	// verify whether the max failures has been reached or not
 	if (ASSERT_EQUALS_STRINGS && FAILURES != null) {
@@ -1295,6 +1300,7 @@ public void tearDown() throws Exception {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.formatter.FormatterRegressionTests#tearDownSuite()
  */
+@Override
 public void tearDownSuite() throws Exception {
 
 	// Display time measures
@@ -1383,6 +1389,7 @@ public void tearDownSuite() throws Exception {
  * Note that 'expected' is assumed to have the '\n' line separator.
  * The line separators in 'actual' are converted to '\n' before the comparison.
  */
+@Override
 protected void assertSourceEquals(String message, String expected, String actual) {
 	if (expected == null) {
 		assertNull(message, actual);
@@ -1401,6 +1408,7 @@ protected void assertSourceEquals(String message, String expected, String actual
 	}
 }
 
+@Override
 DefaultCodeFormatter codeFormatter() {
 	DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(this.preferences, getDefaultCompilerOptions());
 	return codeFormatter;
@@ -1590,6 +1598,7 @@ private boolean sourceHasCompilationErrors(String source) {
 	return false;
 }
 
+	@Override
 String runFormatter(CodeFormatter codeFormatter, String source, int kind, int indentationLevel, int offset, int length, String lineSeparator, boolean repeat) {
 	long timeStart = System.currentTimeMillis();
 	TextEdit edit = codeFormatter.format(kind, source, offset, length, indentationLevel, lineSeparator);

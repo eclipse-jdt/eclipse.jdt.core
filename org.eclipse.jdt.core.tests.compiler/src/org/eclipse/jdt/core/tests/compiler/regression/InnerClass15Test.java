@@ -31,6 +31,7 @@ static {
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_5);
 }
+@Override
 protected Map<String, String> getCompilerOptions() {
 	Map<String, String> options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);

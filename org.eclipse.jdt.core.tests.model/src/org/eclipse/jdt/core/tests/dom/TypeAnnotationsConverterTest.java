@@ -24,6 +24,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(AST_INTERNAL_LATEST, false);
@@ -42,6 +43,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 		return buildModelTestSuite(TypeAnnotationsConverterTest.class);
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (this.workingCopy != null) {

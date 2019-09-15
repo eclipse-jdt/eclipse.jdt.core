@@ -37,6 +37,7 @@ public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_1_8);
 }
 
+@Override
 protected Map getCompilerOptions() {
 	Map defaultOptions = super.getCompilerOptions();
 	defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);

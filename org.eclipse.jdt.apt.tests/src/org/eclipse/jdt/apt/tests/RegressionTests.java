@@ -43,6 +43,7 @@ public class RegressionTests extends APTTestBase {
 		return new TestSuite( RegressionTests.class );
 	}
 
+	@Override
 	public void setUp() throws Exception
 	{
 		super.setUp();

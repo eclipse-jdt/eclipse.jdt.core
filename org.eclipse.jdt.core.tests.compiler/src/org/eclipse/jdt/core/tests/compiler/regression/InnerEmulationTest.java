@@ -39,6 +39,7 @@ static {
 public InnerEmulationTest(String name) {
 	super(name);
 }
+@Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);

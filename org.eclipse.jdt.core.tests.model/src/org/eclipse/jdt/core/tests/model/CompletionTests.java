@@ -51,6 +51,7 @@ public static Test suite() {
 public CompletionTests(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
 		COMPLETION_PROJECT = setUpJavaProject("Completion");
@@ -59,6 +60,7 @@ public void setUpSuite() throws Exception {
 	}
 	super.setUpSuite();
 }
+@Override
 public void tearDownSuite() throws Exception {
 	if (COMPLETION_SUITES == null) {
 		deleteProject("Completion");

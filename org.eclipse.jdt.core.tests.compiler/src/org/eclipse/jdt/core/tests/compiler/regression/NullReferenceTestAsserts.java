@@ -118,6 +118,7 @@ public static Class testClass() {
 	return NullReferenceTestAsserts.class;
 }
 
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	if (this.assertLib == null) {
@@ -135,6 +136,7 @@ protected void setUp() throws Exception {
 
 // Conditionally augment problem detection settings
 static boolean setNullRelatedOptions = true;
+@Override
 protected Map getCompilerOptions() {
     Map defaultOptions = super.getCompilerOptions();
     if (setNullRelatedOptions) {

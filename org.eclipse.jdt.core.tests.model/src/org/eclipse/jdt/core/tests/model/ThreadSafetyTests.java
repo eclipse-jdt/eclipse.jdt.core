@@ -63,6 +63,7 @@ public void testDeadlock01() throws CoreException {
 		final Semaphore hasCompleted = new Semaphore(0);
 
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", ""}){
+			@Override
 			public void initialize(IPath containerPath, IJavaProject javaProject) throws CoreException {
 				step2.release();
 				System.out.println(Thread.currentThread() + " initializer has started: attempting to acquire workspace lock");
@@ -73,6 +74,7 @@ public void testDeadlock01() throws CoreException {
 
 		// trigger some delta notification in different thread
 		Thread performJavaOperationInsideWorkspaceLock = new Thread(new Runnable(){
+				@Override
 				public void run() {
 					try {
 						ResourcesPlugin.getWorkspace().run(new IWorkspaceRunnable() {
@@ -94,6 +96,7 @@ public void testDeadlock01() throws CoreException {
 		performJavaOperationInsideWorkspaceLock.start();
 
 		Thread attemptPopulateTheJavaModel = new Thread(new Runnable(){
+				@Override
 				public void run() {
 					try {
 							step1.acquire(); // ensure workspace lock is taken already

@@ -31,6 +31,7 @@ public class CodeCorrectionTestsRequestor implements ICorrectionRequestor {
 	}
 
 	class SuggestionComparator implements Comparator {
+		@Override
 		public int compare(Object o1,Object o2) {
 			Suggestion s1 = (Suggestion)o1;
 			Suggestion s2 = (Suggestion)o2;

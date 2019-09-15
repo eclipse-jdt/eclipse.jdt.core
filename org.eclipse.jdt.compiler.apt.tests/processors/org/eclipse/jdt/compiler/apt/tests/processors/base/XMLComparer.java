@@ -127,6 +127,7 @@ public class XMLComparer implements IXMLNames {
 			os = out;
 		} else {
 			os = new OutputStream() {
+				@Override
 				public void write(int b) throws IOException {
 					// do nothing
 				}

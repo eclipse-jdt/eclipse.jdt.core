@@ -52,6 +52,7 @@ public class PerformanceTests extends TestBase
 		return new TestSuite( PerformanceTests.class );
 	}
 
+	@Override
 	public void setUp() throws Exception
 	{
 		super.setUp();

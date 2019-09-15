@@ -94,6 +94,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			public int getKind() { return 0; }
 		}
 
+		@Override
 		public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 			String[] jars = Util.getJavaClassLibs();
 			IClasspathEntry[] entries = new IClasspathEntry[jars.length];
@@ -112,6 +113,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 					new IClasspathContainer[] { new TestContainer(new Path(TEST_CONTAINER_NAME), entries) },
 					null);
 		}
+		@Override
 		public boolean allowFailureContainer() {
 			return false;
 		}
@@ -163,6 +165,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		return buildModelTestSuite(ExternalAnnotations18Test.class, BYTECODE_DECLARATION_ORDER);
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 
@@ -192,11 +195,13 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		return org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[2.0.0,3.0.0)");
 	}
 
+	@Override
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
 		ContainerInitializer.setInitializer(null);
 	}
 
+	@Override
 	public String getSourceWorkspacePath() {
 		// we read individual projects from within this folder:
 		return super.getSourceWorkspacePath()+"/ExternalAnnotations18";
@@ -258,6 +263,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		assertNotNull("Should not be null", this.root); //$NON-NLS-1$
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		if (this.project != null)
 			this.project.getProject().delete(true, true, null);

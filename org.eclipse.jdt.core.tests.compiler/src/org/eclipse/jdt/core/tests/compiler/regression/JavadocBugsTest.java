@@ -57,6 +57,7 @@ public static Test suite() {
 	return buildAllCompliancesTestSuite(javadocTestClass());
 }
 
+@Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_DocCommentSupport, this.docCommentSupport);
@@ -99,6 +100,7 @@ protected Map getCompilerOptions() {
 /* (non-Javadoc)
  * @see junit.framework.TestCase#setUp()
  */
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	this.docCommentSupport = CompilerOptions.ENABLED;

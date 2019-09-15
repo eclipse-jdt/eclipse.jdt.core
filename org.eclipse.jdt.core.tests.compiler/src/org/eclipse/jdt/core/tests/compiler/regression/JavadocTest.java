@@ -96,6 +96,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	public JavadocTest(String name) {
 		super(name);
 	}
+	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
@@ -111,6 +112,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		return options;
 	}
 
+	@Override
 	protected String[] getDefaultClassPaths() {
 		if (this.useLibrary) {
 			String[] classLibs = super.getDefaultClassPaths();
@@ -328,6 +330,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		if (RUN_JAVAC) {
@@ -341,6 +344,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 //		SHIFT = false;
 //		INDENT = 2;
@@ -412,6 +416,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			generateOutput);
 	}
 	*/
+	@Override
 	protected void writeFiles(String[] testFiles) {
 		String classDirName = getClass().getName().substring(getClass().getName().lastIndexOf('.')+1); //.substring(11);
 		String testName = getName();
@@ -457,6 +462,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 	 * Run Sun compilation using javadoc.
 	 * See implementation in parent for details.
 	 */
+	@Override
 	protected void runJavac(
 			String[] testFiles,
 			final String expectedProblemLog,
@@ -611,6 +617,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 		}
 	}
 
+	@Override
 	protected void	printJavacResultsSummary() {
 		if (RUN_JAVAC) {
 			Integer count = (Integer)TESTS_COUNTERS.get(CURRENT_CLASS_NAME);

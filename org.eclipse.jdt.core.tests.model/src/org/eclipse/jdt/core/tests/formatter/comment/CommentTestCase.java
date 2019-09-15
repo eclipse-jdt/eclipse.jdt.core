@@ -53,6 +53,7 @@ public abstract class CommentTestCase extends SuiteOfTestCases {
 	/*
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 		this.userOptions= null;
 	}

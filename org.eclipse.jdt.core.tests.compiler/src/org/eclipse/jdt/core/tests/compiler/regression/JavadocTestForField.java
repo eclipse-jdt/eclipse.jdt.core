@@ -34,6 +34,7 @@ public class JavadocTestForField extends JavadocTest {
 	static { // Use this static to initialize testNames (String[]) , testRange (int[2]), testNumbers (int[])
 	}
 
+	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);

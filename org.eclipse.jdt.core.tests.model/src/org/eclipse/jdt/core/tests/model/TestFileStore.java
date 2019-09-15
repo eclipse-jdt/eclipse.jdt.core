@@ -69,6 +69,7 @@ public class TestFileStore extends FileStore {
 	public OutputStream openOutputStream(int options, IProgressMonitor monitor)
 			throws CoreException {
 		return new OutputStream() {
+			@Override
 			public void write(int b) throws IOException {
 			}
 		};

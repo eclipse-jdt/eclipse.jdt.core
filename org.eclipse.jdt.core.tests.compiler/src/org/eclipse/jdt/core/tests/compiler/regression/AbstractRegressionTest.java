@@ -582,6 +582,7 @@ static class JavaRuntime {
 protected static class JavacTestOptions {
 	static final JavacTestOptions DEFAULT = new JavacTestOptions();
 	static final JavacTestOptions SKIP = new JavacTestOptions() {
+		@Override
 		boolean skip(JavacCompiler compiler) {
 			return true;
 		}
@@ -629,6 +630,7 @@ protected static class JavacTestOptions {
 	// however, these manipulations are not reflected in the javac output
 	// directory (yet); skipping until we fix this
 	static final JavacTestOptions SKIP_UNTIL_FRAMEWORK_FIX = new JavacTestOptions() {
+		@Override
 		boolean skip(JavacCompiler compiler) {
 			return true;
 		}
@@ -675,6 +677,7 @@ protected static class JavacTestOptions {
 		Excuse(int mismatchType) {
 			this.mismatchType = mismatchType;
 		}
+		@Override
 		Excuse excuseFor(JavacCompiler compiler) {
 			return this;
 		}
@@ -715,12 +718,14 @@ protected static class JavacTestOptions {
 		public static EclipseHasABug
 			EclipseBug159851 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159851
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance < ClassFileConstants.JDK1_7 ? this : null;
 					}
 				} : null,
 			EclipseBug177715 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=177715
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance < ClassFileConstants.JDK1_8 ? this : null; // in 1.8 rejected by both compilers
 					}
@@ -735,30 +740,35 @@ protected static class JavacTestOptions {
 				new EclipseHasABug(MismatchType.StandardOutputMismatch) : null,
 			EclipseBug236217 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236217
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance < ClassFileConstants.JDK1_8 ? this : null; // in 1.8 accepted by both compilers
 					}
 				} : null,
 			EclipseBug236236 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236236
 				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
 					}
 				}: null,
 			EclipseBug236242 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236242
 				new EclipseHasABug(MismatchType.EclipseErrorsJavacWarnings) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance == ClassFileConstants.JDK1_7 ? this : null;
 					}
 				}: null,
 			EclipseBug236243 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236243
 				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance > ClassFileConstants.JDK1_6 ? this : null;
 					}
 				}: null,
 			EclipseBug236379 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236379
 				new EclipseHasABug(MismatchType.EclipseWarningsJavacNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance > ClassFileConstants.JDK1_5 ? null : this;
 					}
@@ -795,6 +805,7 @@ protected static class JavacTestOptions {
 				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) : null,
 			EclipseBug83902 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
 				new EclipseJustification(MismatchType.EclipseWarningsJavacNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
 					}
@@ -803,6 +814,7 @@ protected static class JavacTestOptions {
 				new EclipseJustification(MismatchType.JavacErrorsEclipseWarnings) : null,
 			EclipseBug95021 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance == ClassFileConstants.JDK1_7 ? this : null;
 					}
@@ -810,6 +822,7 @@ protected static class JavacTestOptions {
 				} : null,
 			EclipseBug126712 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126712 & http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6342411
 				new EclipseJustification(MismatchType.StandardOutputMismatch) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
 					}
@@ -819,12 +832,14 @@ protected static class JavacTestOptions {
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug151275 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=151275
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance < ClassFileConstants.JDK1_7 ? this : null;
 					}
 				} : null,
 			EclipseBug159214 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214
 				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance == ClassFileConstants.JDK1_6 ? this : null;
 					}
@@ -832,6 +847,7 @@ protected static class JavacTestOptions {
 				} : null,
 			EclipseBug169017 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=169017
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
 					}
@@ -841,6 +857,7 @@ protected static class JavacTestOptions {
 				new EclipseJustification(MismatchType.EclipseErrorsJavacWarnings) : null,
 			EclipseBug218677 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=218677
 				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance > ClassFileConstants.JDK1_6 ? this : null;
 					}
@@ -848,6 +865,7 @@ protected static class JavacTestOptions {
 				} : null,
 			EclipseBug234815 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=234815
 				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) {
+					@Override
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance < ClassFileConstants.JDK1_7 ? this : null;
 					}
@@ -861,6 +879,7 @@ protected static class JavacTestOptions {
 		public static final EclipseJustification
 			EclipseJustification0001 = RUN_JAVAC ?
 					new EclipseJustification(MismatchType.EclipseErrorsJavacNone) {
+						@Override
 						Excuse excuseFor(JavacCompiler compiler) {
 							return compiler.compliance < ClassFileConstants.JDK1_7 ? this : null;
 						}
@@ -893,6 +912,7 @@ protected static class JavacTestOptions {
 			this(mismatchType, pivotCompliance, pivotMinor);
 			this.isIntermittent = intermittent;
 		}
+		@Override
 		Excuse excuseFor(JavacCompiler compiler) {
 			if (this.minorsFixed != null) {
 				if (compiler.compliance == ClassFileConstants.JDK1_8) {
@@ -955,6 +975,7 @@ protected static class JavacTestOptions {
 			JavacBug6400189 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6400189 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744 & https://bugs.eclipse.org/bugs/show_bug.cgi?id=167952
 				new JavacHasABug(
 					MismatchType.EclipseErrorsJavacNone) {
+						@Override
 						Excuse excuseFor(JavacCompiler compiler) {
 							return compiler.compliance == ClassFileConstants.JDK1_6 ? this : null;
 						}
@@ -970,6 +991,7 @@ protected static class JavacTestOptions {
 			JavacBug6569404 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6569404
 				new JavacHasABug(
 					MismatchType.JavacErrorsEclipseNone) {
+						@Override
 						Excuse excuseFor(JavacCompiler compiler) {
 							// present only in javac6 between 1.6.0_10_b08 and EOL
 							return (compiler.compliance == ClassFileConstants.JDK1_6 && compiler.minor >= 10) ? this : null;
@@ -1032,6 +1054,7 @@ protected static class JavacTestOptions {
 			JavacThrowsAnExceptionForJava_1_5_0_16 = RUN_JAVAC ?
 					new JavacHasABug(
 						MismatchType.JavacErrorsEclipseNone) {
+							@Override
 							Excuse excuseFor(JavacCompiler compiler) {
 								return compiler.compliance != ClassFileConstants.JDK1_5 ||
 										compiler.minor != 1600 ? null : this;
@@ -1093,6 +1116,7 @@ protected static class JavacTestOptions {
 			this.buffer = buffer;
 		}
 
+		@Override
 		public void run() {
 			try {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(this.inputStream));
@@ -1552,6 +1576,7 @@ protected static class JavacTestOptions {
 		);
 		return classLibs;
 	}
+	@Override
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
 		defaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
@@ -1641,6 +1666,7 @@ protected static class JavacTestOptions {
 		return Util.compilationUnits(testFiles);
 	}
 
+	@Override
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
 		if (setUp instanceof RegressionTestSetup) {
@@ -3833,6 +3859,7 @@ protected void runNegativeTest(
 		// javac options
 		javacTestOptions /* javac test options */);
 }
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		if (this.verifier == null) {
@@ -3907,10 +3934,12 @@ protected void runNegativeTest(
 		}
 	}
 
+	@Override
 	public void stop() {
 		this.verifier.shutDown();
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		if (this.createdVerifier) {
 			stop();

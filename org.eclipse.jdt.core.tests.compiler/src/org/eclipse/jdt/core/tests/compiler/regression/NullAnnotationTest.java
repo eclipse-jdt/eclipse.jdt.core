@@ -128,6 +128,7 @@ String cancenNonNullByDefault() {
 /**
  * @deprecated
  */
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	if (this.complianceLevel >= ClassFileConstants.JDK1_8)

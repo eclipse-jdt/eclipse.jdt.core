@@ -41,6 +41,7 @@ public class MixedModeTesting extends APTTestBase{
 		return new TestSuite( MixedModeTesting.class );
 	}
 
+	@Override
 	public void setUp() throws Exception
 	{
 		super.setUp();

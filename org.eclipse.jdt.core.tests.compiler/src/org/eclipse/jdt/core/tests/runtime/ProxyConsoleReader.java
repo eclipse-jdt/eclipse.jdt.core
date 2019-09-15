@@ -45,6 +45,7 @@ public ProxyConsoleReader(String name, InputStream input, String fileName) {
  * Continuously reads from the proxy output and redirect what's read to
  * this reader's file.
  */
+@Override
 protected void readerLoop() {
 	try {
 		byte[] buffer= new byte[1024];
@@ -60,6 +61,7 @@ protected void readerLoop() {
 /**
  * Stop this reader
  */
+@Override
 public void stop() {
 	super.stop();
 	try {

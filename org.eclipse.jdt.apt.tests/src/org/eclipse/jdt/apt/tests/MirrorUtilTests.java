@@ -40,6 +40,7 @@ public class MirrorUtilTests extends APTTestBase {
 		return new TestSuite(MirrorUtilTests.class);
 	}
 
+	@Override
 	public void setUp() throws Exception
 	{
 		super.setUp();

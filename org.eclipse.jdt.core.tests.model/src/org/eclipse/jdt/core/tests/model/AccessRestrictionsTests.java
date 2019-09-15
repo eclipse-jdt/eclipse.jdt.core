@@ -32,6 +32,7 @@ public class AccessRestrictionsTests extends ModifyingResourceTests {
 		}
 		ProblemRequestor() {
 		}
+		@Override
 		public void acceptProblem(IProblem problem) {
 			super.acceptProblem(problem);
 		}
@@ -58,11 +59,13 @@ public class AccessRestrictionsTests extends ModifyingResourceTests {
 		return buildModelTestSuite(AccessRestrictionsTests.class);
 	}
 
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setUpJavaProject("AccessRestrictions");
 }
 
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("AccessRestrictions");
 	super.tearDownSuite();
@@ -72,10 +75,12 @@ public void tearDownSuite() throws Exception {
 		assertProblems(message, expected, this.problemRequestor);
 	}
 
+	@Override
 	public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
 		return getWorkingCopy(path, source, this.wcOwner);
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.wcOwner = new WorkingCopyOwner() {

@@ -45,6 +45,7 @@ public class JavaSearchGenericConstructorExactTests extends JavaSearchGenericCon
 	/*
 	 * Do not add line if this is not an exact match rule.
 	 */
+	@Override
 	void addResultLine(StringBuffer buffer, char[] line) {
 		if (CharOperation.match(RESULT_EXACT_MATCH, line, true)) {
 			super.addResultLine(buffer, line);
@@ -54,6 +55,7 @@ public class JavaSearchGenericConstructorExactTests extends JavaSearchGenericCon
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.JavaSearchGenericTypeTests#removeFirstTypeArgument(char[])
 	 */
+	@Override
 	long removeFirstTypeArgument(char[] line) {
 		return -1;
 	}

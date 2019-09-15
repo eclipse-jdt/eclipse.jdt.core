@@ -68,6 +68,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
         return FullSourceWorkspaceASTTests.class;
     }
 
+	@Override
     protected void setUp() throws Exception {
 		AbstractJavaModelTests.waitUntilIndexesReady();
 		super.setUp();
@@ -76,6 +77,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	/* (non-Javadoc)
      * @see junit.framework.TestCase#tearDown()
      */
+	@Override
     protected void tearDown() throws Exception {
 
 		// End of execution => one test less

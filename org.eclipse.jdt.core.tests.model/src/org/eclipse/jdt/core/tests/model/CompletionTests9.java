@@ -40,6 +40,7 @@ public CompletionTests9(String name) {
 	super(name);
 }
 
+@Override
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
 		COMPLETION_PROJECT = setUpJavaProject("Completion", "9", true);

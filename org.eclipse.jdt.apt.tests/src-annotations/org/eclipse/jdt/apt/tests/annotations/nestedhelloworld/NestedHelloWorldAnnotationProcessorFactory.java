@@ -40,6 +40,7 @@ public class NestedHelloWorldAnnotationProcessorFactory extends BaseFactory
 		return new NestedHelloWorldAnnotationProcessor( env );
 	}
 
+	@Override
 	public Collection<String> supportedOptions() {
 		return Collections.singletonList(AptPreferenceConstants.RTTG_ENABLED_OPTION);
 	}

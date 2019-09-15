@@ -102,6 +102,7 @@ private void reset() {
 	this.hierarchy = null;
 	this.notifications = 0;
 }
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	reset();
@@ -113,6 +114,7 @@ static {
 public static Test suite() {
 	return buildModelTestSuite(TypeHierarchyNotificationTests.class);
 }
+@Override
 protected void tearDown() throws Exception {
 	this.deleteProject("TypeHierarchyNotification");
 	super.tearDown();

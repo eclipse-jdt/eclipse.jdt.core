@@ -90,12 +90,14 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	class TestCollector extends JavaSearchResultCollector {
 		public List matches = new ArrayList();
 
+		@Override
 		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
 			super.acceptSearchMatch(searchMatch);
 			this.matches.add(searchMatch);
 		}
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.resultCollector = new TestCollector();

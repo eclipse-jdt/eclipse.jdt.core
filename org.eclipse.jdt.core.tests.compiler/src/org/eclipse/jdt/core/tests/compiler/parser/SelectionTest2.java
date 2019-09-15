@@ -159,6 +159,7 @@ public void testBug30946() {
 	final SpecialSelectionParser parser = createParser();
 	Thread query = new Thread(
 		new Runnable(){
+			@Override
 			public void run(){
 				String str =
 					"public class A {\n" +

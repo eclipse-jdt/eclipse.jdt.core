@@ -41,6 +41,7 @@ public class JavaLikeExtensionsTests extends ModifyingResourceTests {
 		return buildModelTestSuite(JavaLikeExtensionsTests.class);
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		Util.resetJavaLikeExtensions();

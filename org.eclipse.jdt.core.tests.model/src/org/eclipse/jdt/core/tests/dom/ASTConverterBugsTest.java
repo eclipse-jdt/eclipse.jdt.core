@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.dom.*;
 @SuppressWarnings("rawtypes")
 public class ASTConverterBugsTest extends ConverterTestSetup {
 
+@Override
 public void setUpSuite() throws Exception {
 //	PROJECT_SETUP = true; // do not copy Converter* directories
 	super.setUpSuite();
@@ -66,29 +67,36 @@ protected void checkParameterAnnotations(String message, String expected, IMetho
 	assertEquals(message, expected, buffer.toString());
 }
 
+@Override
 public ASTNode runConversion(ICompilationUnit unit, boolean resolveBindings) {
 	return runConversion(this.testLevel, unit, resolveBindings);
 }
 
+@Override
 public ASTNode runConversion(ICompilationUnit unit, int position, boolean resolveBindings) {
 	return runConversion(this.testLevel, unit, position, resolveBindings);
 }
 
+@Override
 public ASTNode runConversion(IClassFile classFile, int position, boolean resolveBindings) {
 	return runConversion(this.testLevel, classFile, position, resolveBindings);
 }
 
+@Override
 public ASTNode runConversion(char[] source, String unitName, IJavaProject project) {
 	return runConversion(this.testLevel, source, unitName, project);
 }
 
+@Override
 public ASTNode runConversion(char[] source, String unitName, IJavaProject project, boolean resolveBindings) {
 	return runConversion(this.testLevel, source, unitName, project, resolveBindings);
 }
 
+@Override
 public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map<String, String> options, boolean resolveBindings) {
 	return runConversion(this.testLevel, source, unitName, project, options, resolveBindings);
 }
+@Override
 public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map<String, String> options) {
 	return runConversion(this.testLevel, source, unitName, project, options);
 }
@@ -107,6 +115,7 @@ public ASTNode runConversion(
 	return parser.createAST(null);
 }
 
+@Override
 protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequestor requestor, IJavaProject project, WorkingCopyOwner owner) {
 	ASTParser parser = createASTParser();
 	parser.setResolveBindings(true);

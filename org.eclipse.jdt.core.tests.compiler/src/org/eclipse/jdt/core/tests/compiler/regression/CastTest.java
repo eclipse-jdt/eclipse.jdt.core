@@ -33,6 +33,7 @@ public class CastTest extends AbstractRegressionTest {
 public CastTest(String name) {
 	super(name);
 }
+@Override
 protected Map getCompilerOptions() {
 	Map defaultOptions = super.getCompilerOptions();
 	defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);

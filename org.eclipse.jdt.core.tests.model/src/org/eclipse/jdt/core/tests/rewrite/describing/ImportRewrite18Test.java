@@ -71,6 +71,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		return allTests();
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 
@@ -96,6 +97,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 	protected static int getJLS8() {
 		return AST.JLS8;
 	}
+	@Override
 	protected void tearDown() throws Exception {
 		deleteProject(PROJECT);
 		super.tearDown();

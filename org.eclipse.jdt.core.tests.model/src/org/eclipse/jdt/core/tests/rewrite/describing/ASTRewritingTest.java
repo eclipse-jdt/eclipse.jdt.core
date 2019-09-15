@@ -206,6 +206,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		return suite;
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 
@@ -227,6 +228,7 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 		proj.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, complianceVersion);
 		return proj;
 	}
+	@Override
 	protected void tearDown() throws Exception {
 		deleteProject("P");
 		super.tearDown();

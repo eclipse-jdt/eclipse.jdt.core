@@ -30,6 +30,7 @@ public class CompletionWithMissingTypesTests2 extends ModifyingResourceTests imp
 public CompletionWithMissingTypesTests2(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	if (AbstractJavaModelCompletionTests.COMPLETION_PROJECT == null)  {
 		AbstractJavaModelCompletionTests.COMPLETION_PROJECT = setUpJavaProject("Completion");
@@ -39,6 +40,7 @@ public void setUpSuite() throws Exception {
 	}
 	super.setUpSuite();
 }
+@Override
 public void tearDownSuite() throws Exception {
 	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
 		deleteProject("Completion");

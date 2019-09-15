@@ -35,6 +35,7 @@ public class JEP286Test extends AbstractRegressionTest {
 public static Class testClass() {
 	return JEP286Test.class;
 }
+@Override
 public void initialize(CompilerTestSetup setUp) {
 	super.initialize(setUp);
 }
@@ -48,6 +49,7 @@ public JEP286Test(String testName){
 static {
 //	TESTS_NAMES = new String[] { "test0018_project_variable_types" };
 }
+@Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_10);

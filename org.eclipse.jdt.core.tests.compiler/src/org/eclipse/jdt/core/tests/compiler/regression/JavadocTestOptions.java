@@ -1025,6 +1025,7 @@ public class JavadocTestOptions extends JavadocTest {
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
     }
 
+	@Override
     protected void checkCompilerLog(String[] testFiles, Requestor requestor,
     		String[] alternatePlatformIndependantExpectedLogs, Throwable exception) {
     	String platformIndependantExpectedLog = alternatePlatformIndependantExpectedLogs[0];
@@ -1378,6 +1379,7 @@ public class JavadocTestOptions extends JavadocTest {
 	}
 	*/
 
+	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		// Set javadoc options if non null
@@ -1416,6 +1418,7 @@ public class JavadocTestOptions extends JavadocTest {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.reportInvalidJavadoc = null;

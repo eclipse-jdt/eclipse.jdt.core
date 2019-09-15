@@ -381,6 +381,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 			}
 		}
 
+		@Override
 		public String getText(ASTNode node) {
 			StringBuffer buffer = new StringBuffer();
 

@@ -50,10 +50,12 @@ public FormatterCommentsClearBlankLinesTests(String name) {
 	super(name);
 }
 
+@Override
 protected void setUp() throws Exception {
     super.setUp();
 }
 
+@Override
 DefaultCodeFormatter codeFormatter() {
 	this.formatterPrefs.comment_clear_blank_lines_in_block_comment = true;
 	this.formatterPrefs.comment_clear_blank_lines_in_javadoc_comment = true;
@@ -65,6 +67,7 @@ DefaultCodeFormatter codeFormatter() {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.formatter.FormatterCommentsTests#getOutputFolder()
  */
+@Override
 IPath getOutputFolder() {
 	return OUTPUT_FOLDER;
 }

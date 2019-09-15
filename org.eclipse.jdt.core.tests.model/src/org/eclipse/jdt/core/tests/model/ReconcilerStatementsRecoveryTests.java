@@ -48,6 +48,7 @@ public class ReconcilerStatementsRecoveryTests extends ModifyingResourceTests {
 		};
 
 		boolean isCanceling = false;
+		@Override
 		public void acceptProblem(IProblem problem) {
 			if (this.isCanceling) this.progressMonitor.setCanceled(true); // auto-cancel on first problem
 			super.acceptProblem(problem);
@@ -129,6 +130,7 @@ protected void removeClasspathEntries(IClasspathEntry[] entries) throws JavaMode
 /**
  * Setup for the next test.
  */
+@Override
 public void setUp() throws Exception {
 	super.setUp();
 	this.problemRequestor =  new ProblemRequestor();
@@ -136,6 +138,7 @@ public void setUp() throws Exception {
 	this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
 	startDeltas();
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -215,6 +218,7 @@ void setWorkingCopyContents(String contents) throws JavaModelException {
 /**
  * Cleanup after the previous test.
  */
+@Override
 public void tearDown() throws Exception {
 	TestCompilationParticipant.PARTICIPANT = null;
 	if (this.workingCopy != null) {
@@ -223,6 +227,7 @@ public void tearDown() throws Exception {
 	stopDeltas();
 	super.tearDown();
 }
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("Reconciler");
 	deleteProject("Reconciler15");

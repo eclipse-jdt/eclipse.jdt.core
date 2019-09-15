@@ -43,6 +43,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 //		TESTS_NAMES = new String[] { "test069" };
 	}
 	class DebugRequestor extends Requestor {
+		@Override
 		public boolean acceptClassFiles(org.eclipse.jdt.internal.compiler.ClassFile[] classFiles, char[] codeSnippetClassName) {
 			if (DebugEvaluationTest.this.jdiStackFrame == null) {
 				return super.acceptClassFiles(classFiles, codeSnippetClassName);
@@ -165,6 +166,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 	/**
 	 * Generate local variable attribute for these tests.
 	 */
+	@Override
 	public Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
@@ -173,6 +175,7 @@ public class DebugEvaluationTest extends EvaluationTest {
 		options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 		return options;
 	}
+	@Override
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
 		this.jdiVM = ((DebugEvaluationSetup)setUp).vm;

@@ -122,12 +122,14 @@ public static Test suite() {
 }
 class TestCollector extends JavaSearchResultCollector {
 	public List matches = new ArrayList();
+	@Override
 	public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
 		super.acceptSearchMatch(searchMatch);
 		this.matches.add(searchMatch);
 	}
 }
 class ReferenceCollector extends JavaSearchResultCollector {
+	@Override
 	protected void writeLine() throws CoreException {
 		super.writeLine();
 		ReferenceMatch refMatch = (ReferenceMatch) this.match;
@@ -148,6 +150,7 @@ class ReferenceCollector extends JavaSearchResultCollector {
 
 }
 class TypeReferenceCollector extends ReferenceCollector {
+	@Override
 	protected void writeLine() throws CoreException {
 		super.writeLine();
 		TypeReferenceMatch typeRefMatch = (TypeReferenceMatch) this.match;
@@ -172,6 +175,7 @@ class TypeReferenceCollector extends ReferenceCollector {
 	}
 }
 
+@Override
 IJavaSearchScope getJavaSearchScope() {
 	return SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs")});
 }
@@ -179,6 +183,7 @@ IJavaSearchScope getJavaSearchScopeBugs(String packageName, boolean addSubpackag
 	if (packageName == null) return getJavaSearchScope();
 	return getJavaSearchPackageScope("JavaSearchBugs", packageName, addSubpackages);
 }
+@Override
 public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
 	if (this.wcOwner == null) {
 		this.wcOwner = new WorkingCopyOwner() {};
@@ -188,6 +193,7 @@ public ICompilationUnit getWorkingCopy(String path, String source) throws JavaMo
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#setUpSuite()
  */
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	JAVA_PROJECT = setUpJavaProject("JavaSearchBugs", "1.5");
@@ -197,10 +203,12 @@ public void setUpSuite() throws Exception {
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b164791.jar", false);
 	addLibraryEntry(JAVA_PROJECT, "/JavaSearchBugs/lib/b166348.jar", false);
 }
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("JavaSearchBugs");
 	super.tearDownSuite();
 }
+@Override
 protected void setUp () throws Exception {
 	super.setUp();
 	this.resultCollector = new TestCollector();
@@ -6998,6 +7006,7 @@ public void testBug126330() throws CoreException {
  */
 public void testBug127628() throws CoreException {
 	class DeprecatedTypesRequestor extends SearchTests.SearchTypeNameRequestor {
+		@Override
 		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {
 			if ((modifiers & ClassFileConstants.AccDeprecated) != 0) {
 				char[] typeName =
@@ -8213,6 +8222,7 @@ public void testBug160301_Abstract3() throws CoreException {
 public void testBug160323() throws CoreException {
 	// Search all type names with TypeNameMatchRequestor
 	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		@Override
 		public String toString(){
 			return toFullyQualifiedNamesString();
 		}
@@ -8254,6 +8264,7 @@ public void testBug160324a() throws CoreException {
 	boolean debug = false;
 	// Search all type names with new API
 	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		@Override
 		public String toString(){
 			return toFullyQualifiedNamesString();
 		}
@@ -8282,6 +8293,7 @@ public void testBug160324a() throws CoreException {
 public void testBug160324b() throws CoreException {
 	// Search all type names with new API
 	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		@Override
 		public String toString(){
 			return toFullyQualifiedNamesString();
 		}
@@ -8329,6 +8341,7 @@ public void testBug160324c() throws CoreException {
 	};
 	// Search all type names with new API
 	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		@Override
 		public String toString(){
 			return toFullyQualifiedNamesString();
 		}
@@ -8367,6 +8380,7 @@ public void testBug160854() throws CoreException {
 	};
 	// Search all type names with new API
 	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		@Override
 		public String toString(){
 			return toFullyQualifiedNamesString();
 		}
@@ -8437,6 +8451,7 @@ public void testBug161190() throws CoreException {
 	};
 	// Search all type names with new API
 	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		@Override
 		public String toString(){
 			return toFullyQualifiedNamesString();
 		}
@@ -8475,6 +8490,7 @@ public void testBug161190() throws CoreException {
 public void testBug163984() throws CoreException {
 	// Search all type names with TypeNameMatchRequestor
 	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		@Override
 		public String toString(){
 			return toFullyQualifiedNamesString();
 		}
@@ -8555,6 +8571,7 @@ public void testBug164121b() throws CoreException {
 public void testBug164791() throws CoreException {
 	IType type = getClassFile("JavaSearchBugs", "lib/b164791.jar", "pack", "ELPM.class").getType();
 	JavaSearchResultCollector collector = new JavaSearchResultCollector() {
+		@Override
 		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
 			super.acceptSearchMatch(searchMatch);
 			IJavaElement element = (IJavaElement) searchMatch.getElement();
@@ -8612,6 +8629,7 @@ public void testBug167190() throws CoreException, JavaModelException {
 	};
 	// Search all type names with TypeNameMatchRequestor
 	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		@Override
 		public String toString(){
 			return toFullyQualifiedNamesString();
 		}
@@ -8678,6 +8696,7 @@ public void testBug178596() throws CoreException {
 		"}\n"
 	);
 	JavaSearchResultCollector testCollector = new JavaSearchResultCollector() {
+		@Override
 		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
 	        super.acceptSearchMatch(searchMatch);
 	        assertTrue("Method reference match should be super invocation one!", ((MethodReferenceMatch)searchMatch).isSuperInvocation());
@@ -9018,6 +9037,7 @@ public void testBug196339b() throws CoreException {
 
 	final String qualifiedType = "a.b.c.Foo196339";
 	JavaSearchResultCollector collector = new JavaSearchResultCollector() {
+		@Override
 		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
         Object element = searchMatch.getElement();
         if (element instanceof IType) {
@@ -9071,8 +9091,10 @@ public void testBug196339b() throws CoreException {
  */
 public void testBug199004_SystemLibraries() throws CoreException {
 	DefaultContainerInitializer intializer = new DefaultContainerInitializer(new String[] {"JavaSearchBugs", "/JavaSearchBugs/lib/b199004.jar"}) {
+		@Override
 		protected DefaultContainer newContainer(char[][] libPaths) {
 			return new DefaultContainer(libPaths) {
+				@Override
 				public int getKind() {
 					return IClasspathContainer.K_SYSTEM;
 				}
@@ -9095,8 +9117,10 @@ public void testBug199004_SystemLibraries() throws CoreException {
 }
 public void testBug199004_DefaultSystemLibraries() throws CoreException {
 	DefaultContainerInitializer intializer = new DefaultContainerInitializer(new String[] {"JavaSearchBugs", "/JavaSearchBugs/lib/b199004.jar"}) {
+		@Override
 		protected DefaultContainer newContainer(char[][] libPaths) {
 			return new DefaultContainer(libPaths) {
+				@Override
 				public int getKind() {
 					return IClasspathContainer.K_DEFAULT_SYSTEM;
 				}
@@ -9119,8 +9143,10 @@ public void testBug199004_DefaultSystemLibraries() throws CoreException {
 }
 public void testBug199004_ApplicationLibraries() throws CoreException {
 	DefaultContainerInitializer intializer = new DefaultContainerInitializer(new String[] {"JavaSearchBugs", "/JavaSearchBugs/lib/b199004.jar"}) {
+		@Override
 		protected DefaultContainer newContainer(char[][] libPaths) {
 			return new DefaultContainer(libPaths) {
+				@Override
 				public int getKind() {
 					return IClasspathContainer.K_SYSTEM;
 				}
@@ -9145,8 +9171,10 @@ public void testBug199004_ApplicationLibraries() throws CoreException {
 }
 public void testBug199004_NoMask() throws CoreException {
 	DefaultContainerInitializer intializer = new DefaultContainerInitializer(new String[] {"JavaSearchBugs", "/JavaSearchBugs/lib/b199004.jar"}) {
+		@Override
 		protected DefaultContainer newContainer(char[][] libPaths) {
 			return new DefaultContainer(libPaths) {
+				@Override
 				public int getKind() {
 					return IClasspathContainer.K_SYSTEM;
 				}
@@ -10704,6 +10732,7 @@ public void testBug261722() throws Exception {
 		final SearchPattern pattern = SearchPattern.createPattern("X*", IJavaSearchConstants.DECLARATIONS, IJavaSearchConstants.TYPE, SearchPattern.R_PATTERN_MATCH);
 		final IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { javaProject });
 		Runnable search = new Runnable() {
+			@Override
 			public void run() {
 				try {
 					new SearchEngine().search(pattern, new SearchParticipant[] { SearchEngine.getDefaultSearchParticipant() }, scope, requestor, null);

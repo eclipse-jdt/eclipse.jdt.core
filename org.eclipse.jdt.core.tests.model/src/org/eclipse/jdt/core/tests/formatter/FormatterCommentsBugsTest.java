@@ -46,6 +46,7 @@ public FormatterCommentsBugsTest(String name) {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.formatter.FormatterCommentsTests#getOutputFolder()
  */
+@Override
 IPath getOutputFolder() {
 	return OUTPUT_FOLDER;
 }

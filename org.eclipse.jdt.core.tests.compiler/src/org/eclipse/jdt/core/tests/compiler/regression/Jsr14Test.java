@@ -26,6 +26,7 @@ public class Jsr14Test extends AbstractRegressionTest {
 public Jsr14Test(String name) {
 	super(name);
 }
+@Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);

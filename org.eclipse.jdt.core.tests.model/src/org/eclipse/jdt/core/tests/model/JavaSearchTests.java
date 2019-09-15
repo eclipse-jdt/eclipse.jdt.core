@@ -53,6 +53,7 @@ static {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#copyDirectory(java.io.File, java.io.File)
  */
+@Override
 protected void copyDirectory(File sourceDir, File targetDir) throws IOException {
 	if (!targetDir.exists()) {
 		super.copyDirectory(sourceDir, targetDir);
@@ -62,6 +63,7 @@ protected void copyDirectory(File sourceDir, File targetDir) throws IOException 
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#setUpSuite()
  */
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -70,6 +72,7 @@ public void setUpSuite() throws Exception {
 		setUpJavaProject("JavaSearch15", "1.5");
 	}
 }
+@Override
 public void tearDownSuite() throws Exception {
 	if (JAVA_SEARCH_SUITES == null) {
 		deleteProject("JavaSearch");
@@ -2193,6 +2196,7 @@ public void testSearchFieldInBinaryNoResolution() throws CoreException {
 
 		// exact match for a field declaration
 		JavaSearchResultCollector collector = new JavaSearchResultCollector() {
+			@Override
 			public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
 	            IField field = (IField) searchMatch.getElement();
 	            if (field.getDeclaringType().getElementName().equals("MissingFieldType")) {
@@ -2254,6 +2258,7 @@ public void testSearchMethodInBinaryNoResolution() throws CoreException {
 
 		// exact match for a method declaration
 		JavaSearchResultCollector collector = new JavaSearchResultCollector() {
+			@Override
 			public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
 	            IMethod method = (IMethod) searchMatch.getElement();
 	            if (method.getDeclaringType().getElementName().equals("MissingArgumentType")) {
@@ -2612,6 +2617,7 @@ public void testSearchScope15() throws CoreException {
         IType type = cuC.getType("C");
         IJavaSearchScope scope = SearchEngine.createStrictHierarchyScope(null, type, true, false, null);
     	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+			@Override
     		public String toString(){
     			return toFullyQualifiedNamesString();
     		}
@@ -4439,6 +4445,7 @@ public void testCamelCaseTypePattern13_CamelCaseSamePartCount() throws CoreExcep
 public void testBug160323() throws CoreException {
 	// Search all type names with TypeNameMatchRequestor
 	TypeNameMatchCollector collector = new TypeNameMatchCollector() {
+		@Override
 		public String toString(){
 			return toFullyQualifiedNamesString();
 		}

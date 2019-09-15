@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.util.IModifierConstants;
 public class ASTConverterTest extends ConverterTestSetup {
 
 	/** @deprecated using deprecated code */
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(AST.JLS2, false);

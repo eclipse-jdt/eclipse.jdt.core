@@ -352,6 +352,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			return this.stackTraces.toString();
 		}
 
+		@Override
 		public synchronized String toString() {
 			StringBuilder buffer = new StringBuilder();
 			for (int i = 0, length= this.deltas.length; i < length; i++) {
@@ -3396,6 +3397,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 	}
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 
@@ -3406,6 +3408,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			getWorkspace().setDescription(description);
 		}
 	}
+	@Override
 	protected void setUp () throws Exception {
 		super.setUp();
 
@@ -3586,6 +3589,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected String toString(String[] strings) {
 		return org.eclipse.jdt.core.tests.util.Util.toString(strings, false/*don't add extra new line*/);
 	}
+	@Override
 	protected void tearDown() throws Exception {
 
 		super.tearDown();

@@ -53,6 +53,7 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 	public static Class testClass() {
 		return TypeAnnotationSyntaxTest.class;
 	}
+	@Override
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
 	}

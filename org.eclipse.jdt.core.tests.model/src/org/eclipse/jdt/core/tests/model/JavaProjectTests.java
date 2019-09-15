@@ -89,12 +89,14 @@ public static Test suite() {
 
 	return suite;
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setUpJavaProject("JavaProjectTests");
 	setUpJavaProject("JavaProjectSrcTests");
 	setUpJavaProject("JavaProjectLibTests");
 }
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("JavaProjectTests");
 	deleteProject("JavaProjectSrcTests");

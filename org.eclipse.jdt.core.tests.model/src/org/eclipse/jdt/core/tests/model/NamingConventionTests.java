@@ -41,6 +41,7 @@ public static Test suite() {
 /**
  * Setup for the next test.
  */
+@Override
 public void setUp() throws Exception {
 	super.setUp();
 	this.project = createJavaProject("P", new String[]{"src"}, "bin"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -50,6 +51,7 @@ public void setUp() throws Exception {
 /**
  * Cleanup after the previous test.
  */
+@Override
 public void tearDown() throws Exception {
 	JavaCore.setOptions(this.oldOptions);
 

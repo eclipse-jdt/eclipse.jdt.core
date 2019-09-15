@@ -26,6 +26,7 @@ public class JEP323VarLambdaParamsTest extends AbstractRegressionTest {
 public static Class testClass() {
 	return JEP323VarLambdaParamsTest.class;
 }
+@Override
 public void initialize(CompilerTestSetup setUp) {
 	super.initialize(setUp);
 }
@@ -41,6 +42,7 @@ static {
 //	TESTS_RANGE = new int[] { 1, -1 };
 //	TESTS_NAMES = new String[] { "testBug534787_positive_001" };
 }
+@Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_11);

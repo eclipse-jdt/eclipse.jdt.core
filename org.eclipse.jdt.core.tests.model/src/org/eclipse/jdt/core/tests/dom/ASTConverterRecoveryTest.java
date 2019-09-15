@@ -56,6 +56,7 @@ public class ASTConverterRecoveryTest extends ConverterTestSetup {
 		return buildModelTestSuite(ASTConverterRecoveryTest.class);
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getJLS3(), false);

@@ -183,12 +183,14 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		}
 
 		// SUPPORT FOR COMPARISON
+		@Override
 		public boolean equals(Object obj) {
 			if (!(obj instanceof FactoryPathEntry))
 				return false;
 			FactoryPathEntry fpe = (FactoryPathEntry)obj;
 			return _fc.equals(fpe._fc) && _attr.equals(fpe._attr);
 		}
+		@Override
 		public int hashCode() {
 			return _fc.hashCode() ^ _attr.hashCode();
 		}
@@ -362,6 +364,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.ui.internal.preferences.BaseConfigurationBlock#createContents(org.eclipse.swt.widgets.Composite)
 	 */
+	@Override
 	protected Control createContents(Composite parent) {
 		setShell(parent.getShell());
 
@@ -670,6 +673,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.ui.internal.preferences.BaseConfigurationBlock#updateModel(org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField)
 	 */
+	@Override
 	protected void updateModel(DialogField field) {
 		// We don't use IEclipsePreferences for this pane, so no need to do anything.
 	}
@@ -677,10 +681,12 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.apt.ui.internal.preferences.BaseConfigurationBlock#validateSettings(org.eclipse.jdt.internal.ui.preferences.OptionsConfigurationBlock.Key, java.lang.String, java.lang.String)
 	 */
+	@Override
 	protected void validateSettings(Key changedKey, String oldValue, String newValue) {
 		// TODO: validate that all the specified factory containers exist?
 	}
 
+	@Override
 	protected void saveSettings() {
 		FactoryPath fp;
 		if ((fJProj != null) && !fBlockControl.isEnabled()) {
@@ -715,6 +721,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * the per-project settings checkbox will be cleared for us automatically.
 	 * If workspace, restore list contents to factory-default settings.
 	 */
+	@Override
 	public void performDefaults() {
 		IFactoryPath ifp = AptConfig.getDefaultFactoryPath(fJProj);
 		// we'll risk this downcast because we're such good buddies with apt.core.

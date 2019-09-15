@@ -51,6 +51,7 @@ public class ArrayTypeImpl extends TypeMirrorImpl implements ArrayType {
 		return v.visitArray(this, p);
 	}
 
+	@Override
 	protected AnnotationBinding[] getAnnotationBindings() {
 		AnnotationBinding[] oldies = ((ArrayBinding)_binding).getTypeAnnotations();
 		AnnotationBinding[] newbies = Binding.NO_ANNOTATIONS;

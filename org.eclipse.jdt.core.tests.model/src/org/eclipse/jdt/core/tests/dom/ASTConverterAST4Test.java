@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.util.IModifierConstants;
 @SuppressWarnings({"rawtypes"})
 public class ASTConverterAST4Test extends ConverterTestSetup {
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getJLS4(), false);

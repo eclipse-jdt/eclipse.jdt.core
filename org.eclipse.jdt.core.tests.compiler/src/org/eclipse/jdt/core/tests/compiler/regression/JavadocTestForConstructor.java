@@ -34,6 +34,7 @@ public class JavadocTestForConstructor extends JavadocTest {
 	static { // Use this static to initialize TESTS_NAMES (String[]) , TESTS_RANGE (int[2]), TESTS_NUMBERS (int[])
 	}
 
+	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);

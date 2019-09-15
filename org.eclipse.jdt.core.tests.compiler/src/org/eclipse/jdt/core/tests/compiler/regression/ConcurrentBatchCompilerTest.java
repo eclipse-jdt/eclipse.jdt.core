@@ -42,6 +42,7 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 	static int COUNT = 100;
 
 	/* Invoke the compiler COUNT times to increase bug probabililty. */
+	@Override
 	protected boolean invokeCompiler(PrintWriter out, PrintWriter err, Object extraArguments, TestCompilationProgress compilationProgress) {
 		boolean success = true;
 		for (int j=0; j<COUNT; j++) {
@@ -51,6 +52,7 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 	}
 
 	/* Disambiguate file names for concurrent tests in the same directory. */
+	@Override
 	protected String testName() {
 		Thread current = Thread.currentThread();
 		String baseName = super.testName();
@@ -80,6 +82,7 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 			final Throwable[] thrown = new Throwable[2];
 
 			this.runner1 = new Thread(new Runnable() {
+					@Override
 					public void run() {
 						try {
 							runConformTest(new String[] {
@@ -155,6 +158,7 @@ public class ConcurrentBatchCompilerTest extends BatchCompilerTest {
 					}
 			});
 			this.runner2 = new Thread(new Runnable() {
+				@Override
 				public void run() {
 					try {
 						// from ResourceLeakTests.test056e():

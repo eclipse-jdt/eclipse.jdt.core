@@ -33,11 +33,13 @@ public static Test suite() {
 public ResolveTests2(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
 	setUpJavaProject("Resolve");
 }
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("Resolve");
 

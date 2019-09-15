@@ -38,6 +38,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getAST8(), false);
@@ -61,6 +62,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	static int getAST8() {
 		return AST.JLS8;
 	}
+	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (this.workingCopy != null) {

@@ -94,6 +94,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	/**
 	 * Reset the jar placeholder and delete project.
 	 */
+	@Override
 	public void tearDownSuite() throws Exception {
 		this.ast = null;
 		if (TEST_SUITES == null) {
@@ -128,6 +129,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		super.tearDownSuite();
 	}
 
+	@Override
 	public void setUpJCLClasspathVariables(String compliance, boolean useFullJCL) throws JavaModelException, IOException {
 		if (useFullJCL) {
 			 super.setUpJCLClasspathVariables(compliance, useFullJCL);
@@ -218,6 +220,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	/**
 	 * Create project and set the jar placeholder.
 	 */
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 

@@ -99,6 +99,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	/**
 	 * Create project and set the jar placeholder.
 	 */
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 
@@ -129,6 +130,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	/**
 	 * Reset the jar placeholder and delete project.
 	 */
+	@Override
 	public void tearDownSuite() throws Exception {
 		this.deleteProject("AttachedJavadocProject"); //$NON-NLS-1$
 		this.root = null;
@@ -759,6 +761,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			final PerProjectInfo projectInfo = JavaModelManager.getJavaModelManager().getPerProjectInfoCheckExistence(this.project.getProject());
 			final Object varThis = this;
 			Thread thread = new Thread(){
+				@Override
 				public void run() {
 					Object javadocContent = projectInfo.javadocCache.get(type);
 					while(javadocContent == null || javadocContent == BinaryType.EMPTY_JAVADOC) {

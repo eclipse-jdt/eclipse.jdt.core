@@ -32,6 +32,7 @@ public NullConsoleReader(String name, InputStream input) {
 /**
  * Continuously reads events that are coming from the event queue.
  */
+@Override
 protected void readerLoop() {
 	java.io.BufferedReader bufferedInput = new java.io.BufferedReader(new java.io.InputStreamReader(this.input));
 	try {

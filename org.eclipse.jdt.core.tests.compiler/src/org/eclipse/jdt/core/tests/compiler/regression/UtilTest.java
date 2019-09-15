@@ -69,6 +69,7 @@ void assertCamelCase(String pattern, String name, boolean prefixMatch, boolean m
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest#setUp()
  */
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	this.camelCaseErrors = new StringBuffer();

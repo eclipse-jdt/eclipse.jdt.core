@@ -77,9 +77,11 @@ public class DefaultContainerInitializer implements ContainerInitializer.ITestIn
 	protected DefaultContainerInitializer.DefaultContainer newContainer(final char[][] libPaths) {
 		return new DefaultContainer(libPaths);
 	}
+	@Override
 	public boolean allowFailureContainer() {
 		return true;
 	}
+	@Override
 	public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 		if (this.containerValues == null) return;
 		try {

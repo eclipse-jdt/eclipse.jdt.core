@@ -43,6 +43,7 @@ public static Test suite() {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.AbstractJavadocCompletionModelTest#setUp()
  */
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	setUpProjectOptions(CompilerOptions.VERSION_1_5);
@@ -51,6 +52,7 @@ protected void setUp() throws Exception {
 /*
  * Write files for self-hosting debug.
  */
+@Override
 protected void writeFiles(String[] sources) {
 
 	// Get write directory path

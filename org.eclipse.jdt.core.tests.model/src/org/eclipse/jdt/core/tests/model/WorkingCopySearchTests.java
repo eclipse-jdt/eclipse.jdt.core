@@ -45,6 +45,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	/**
 	 * Get a new working copy.
 	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		try {
@@ -57,6 +58,7 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 	/**
 	 * Destroy the working copy.
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 		this.workingCopy.discardWorkingCopy();
 		this.workingCopy = null;

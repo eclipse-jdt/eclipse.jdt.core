@@ -254,6 +254,7 @@ protected void startEvaluationContext() throws TargetException {
 		this.launchedVM = launcher.launch();
 
 		(new Thread() {
+			@Override
 			public void run() {
 				try {
 					java.io.InputStream in = SimpleTest.this.launchedVM.getInputStream();
@@ -274,6 +275,7 @@ protected void startEvaluationContext() throws TargetException {
 		}).start();
 
 		(new Thread() {
+			@Override
 			public void run() {
 				try {
 					java.io.InputStream in = SimpleTest.this.launchedVM.getErrorStream();

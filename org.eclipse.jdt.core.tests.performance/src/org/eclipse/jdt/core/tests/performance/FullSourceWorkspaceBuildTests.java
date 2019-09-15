@@ -570,6 +570,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
+	@Override
 	protected void tearDown() throws Exception {
 
 		// End of execution => one test less

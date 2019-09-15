@@ -45,6 +45,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 	}
 
 	// Needed to run tests individually from JUnit
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.complianceLevel = ClassFileConstants.JDK1_8;

@@ -275,6 +275,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	public String getReversedResults() {
 		if(this.proposalsPtr < 0) return "";
 		Arrays.sort(this.proposals, new Comparator() {
+			@Override
 			public int compare(Object o1, Object o2) {
 				if (o1 == o2)
 					return 0;

@@ -1378,6 +1378,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		MethodDeclaration[] methods= type.getMethods();
 		Arrays.sort(methods, new Comparator() {
+			@Override
 			public int compare(Object o1, Object o2) {
 				return ((MethodDeclaration) o1).getName().getIdentifier().compareTo(((MethodDeclaration) o2).getName().getIdentifier());
 			}

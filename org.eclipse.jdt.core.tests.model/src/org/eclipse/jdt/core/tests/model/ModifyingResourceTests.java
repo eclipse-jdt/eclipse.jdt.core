@@ -98,6 +98,7 @@ protected void createExternalFile(String relativePath, String contents) {
 	Util.writeToFile(contents, getExternalPath() + relativePath);
 }
 
+@Override
 protected IFile createFile(String path, InputStream content) throws CoreException {
 	IFile file = getFile(path);
 	file.create(content, true, null);
@@ -110,10 +111,12 @@ protected IFile createFile(String path, InputStream content) throws CoreExceptio
 	return file;
 }
 
+@Override
 protected IFile createFile(String path, byte[] content) throws CoreException {
 	return createFile(path, new ByteArrayInputStream(content));
 }
 
+@Override
 protected IFile createFile(String path, String content) throws CoreException {
 	return createFile(path, content.getBytes());
 }
@@ -125,6 +128,7 @@ protected File createFolder(File parent, String name) {
 	file.mkdirs();
 	return file;
 }
+@Override
 protected IFolder createFolder(String path) throws CoreException {
 	return createFolder(new Path(path));
 }

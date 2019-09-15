@@ -47,10 +47,12 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 	public static Test suite() {
 		return buildModelTestSuite(ModuleOptionsTests.class, BYTECODE_DECLARATION_ORDER);
 	}
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		ClasspathJrt.resetCaches();
 	}
+	@Override
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
 	}

@@ -33,6 +33,7 @@ public class AbstractJavaSearchGenericTests extends JavaSearchTests {
 		this.matchRule = matchRule;
 	}
 
+	@Override
 	protected void setUp () throws Exception {
 		super.setUp();
 		this.resultCollector.showAccuracy(true);
@@ -63,6 +64,7 @@ public class AbstractJavaSearchGenericTests extends JavaSearchTests {
 	 * Overridden to remove all last type arguments from expected string.
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#assertSearchResults(java.lang.String, java.lang.String, java.lang.Object)
 	 */
+	@Override
 	protected void assertSearchResults(String message, String expected, JavaSearchResultCollector collector) {
 		String actual = collector.toString();
 		String trimmed = cleanResults(expected);
@@ -81,12 +83,14 @@ public class AbstractJavaSearchGenericTests extends JavaSearchTests {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
 	 */
+	@Override
 	protected void search(IJavaElement element, int limitTo) throws CoreException {
 		search(element, limitTo, this.matchRule, getJavaSearchScope15(), this.resultCollector);
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(java.lang.String, int, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
 	 */
+	@Override
 	protected void search(String patternString, int searchFor, int limitTo) throws CoreException {
 		search(patternString, searchFor, limitTo, this.matchRule, getJavaSearchScope15(), this.resultCollector);
 	}
@@ -94,12 +98,14 @@ public class AbstractJavaSearchGenericTests extends JavaSearchTests {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
 	 */
+	@Override
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope) throws CoreException {
 		search(element, limitTo, this.matchRule, scope, this.resultCollector);
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(java.lang.String, int, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
 	 */
+	@Override
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope) throws CoreException {
 		search(patternString, searchFor, limitTo, this.matchRule, scope, this.resultCollector);
 	}
@@ -107,12 +113,14 @@ public class AbstractJavaSearchGenericTests extends JavaSearchTests {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(org.eclipse.jdt.core.IJavaElement, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
 	 */
+	@Override
 	protected void search(IJavaElement element, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		search(element, limitTo, this.matchRule, scope, requestor);
 	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#search(java.lang.String, int, int, org.eclipse.jdt.core.search.IJavaSearchScope, org.eclipse.jdt.core.search.SearchRequestor)
 	 */
+	@Override
 	protected void search(String patternString, int searchFor, int limitTo, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		search(patternString, searchFor, limitTo, this.matchRule, scope, requestor);
 	}

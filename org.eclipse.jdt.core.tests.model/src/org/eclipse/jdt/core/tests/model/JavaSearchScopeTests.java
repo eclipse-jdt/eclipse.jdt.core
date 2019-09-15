@@ -51,6 +51,7 @@ static {
 //	TESTS_RANGE = new int[] { 16, -1 };
 }
 
+@Override
 protected void tearDown() throws Exception {
 	// Cleanup caches
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
@@ -186,8 +187,10 @@ public void testApplicationLibrairiesClasspathContainer() throws CoreException {
 public void testSystemLibraries() throws CoreException {
 	try {
 		DefaultContainerInitializer intializer = new DefaultContainerInitializer(new String[] {"P", "/P/lib.jar"}) {
+			@Override
 			protected DefaultContainer newContainer(char[][] libPaths) {
 				return new DefaultContainer(libPaths) {
+					@Override
 					public int getKind() {
 						return IClasspathContainer.K_SYSTEM;
 					}

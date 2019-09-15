@@ -40,10 +40,12 @@ public class CreateMembersTests extends AbstractJavaModelTests {
 	public static Test suite() {
 		return buildModelTestSuite(CreateMembersTests.class, ALPHABETICAL_SORT);
 	}
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		setUpJavaProject("CreateMembers", "1.5");
 	}
+	@Override
 	public void tearDownSuite() throws Exception {
 		deleteProject("CreateMembers");
 

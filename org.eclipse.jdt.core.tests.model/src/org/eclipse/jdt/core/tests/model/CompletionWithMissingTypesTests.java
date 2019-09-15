@@ -27,6 +27,7 @@ public class CompletionWithMissingTypesTests extends AbstractJavaModelCompletion
 public CompletionWithMissingTypesTests(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
 		COMPLETION_PROJECT = setUpJavaProject("Completion");

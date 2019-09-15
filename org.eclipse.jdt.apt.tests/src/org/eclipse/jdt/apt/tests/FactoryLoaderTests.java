@@ -53,6 +53,7 @@ public class FactoryLoaderTests extends APTTestBase {
 		return new TestSuite( FactoryLoaderTests.class );
 	}
 
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 

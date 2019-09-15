@@ -46,6 +46,7 @@ private static final boolean DEBUG = true;
 public SortCompilationUnitElementsTests(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -170,6 +171,7 @@ void debug(ICompilationUnit unit, String id) throws JavaModelException {
 public static Test suite() {
 	return buildModelTestSuite(SortCompilationUnitElementsTests.class);
 }
+@Override
 public void tearDownSuite() throws Exception {
 	this.deleteProject("P"); //$NON-NLS-1$
 	super.tearDownSuite();
@@ -1877,6 +1879,7 @@ public void test028() throws CoreException {
 			"int j;\n" +
 			"}";
 		oldAPISortUnit(this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
+			@Override
 			public int compare(Object o1, Object o2) {
 				BodyDeclaration bodyDeclaration1 = (BodyDeclaration) o1;
 				BodyDeclaration bodyDeclaration2 = (BodyDeclaration) o2;
@@ -1908,6 +1911,7 @@ public void test029() throws CoreException {
 			"	Z, A, C, B;\n" +
 			"}";
 		sortUnit(JLS3_INTERNAL, this.getCompilationUnit("/P/src/X.java"), expectedResult, false, new Comparator() {
+			@Override
 			public int compare(Object o1, Object o2) {
 				BodyDeclaration bodyDeclaration1 = (BodyDeclaration) o1;
 				BodyDeclaration bodyDeclaration2 = (BodyDeclaration) o2;
@@ -2056,6 +2060,7 @@ public void test033() throws CoreException {
 		org.eclipse.jdt.core.dom.CompilationUnit ast = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
 
 		Comparator comparator = new Comparator() {
+			@Override
 			public int compare(Object o1, Object o2) {
 				switch(((ASTNode) o1).getNodeType()) {
 					case ASTNode.ENUM_CONSTANT_DECLARATION :
@@ -2107,6 +2112,7 @@ public void test034() throws CoreException {
 		org.eclipse.jdt.core.dom.CompilationUnit ast = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
 
 		Comparator comparator = new Comparator() {
+			@Override
 			public int compare(Object o1, Object o2) {
 				BodyDeclaration bodyDeclaration1 = (BodyDeclaration) o1;
 				BodyDeclaration bodyDeclaration2 = (BodyDeclaration) o2;

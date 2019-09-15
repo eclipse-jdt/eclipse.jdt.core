@@ -52,6 +52,7 @@ public J9VirtualMachine(Process vmProcess, int debugPort, String evalTargetPath,
 /**
  * @see LocalVirtualMachine#shutDown
  */
+@Override
 public synchronized void shutDown() throws TargetException {
 	super.shutDown();
 	if (this.proxyConsoleReader != null)

@@ -43,6 +43,7 @@ public TryStatementTest(String name) {
 public static Test suite() {
 	return buildAllCompliancesTestSuite(testClass());
 }
+@Override
 protected Map getCompilerOptions() {
 	Map compilerOptions = super.getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ShareCommonFinallyBlocks, CompilerOptions.ENABLED);

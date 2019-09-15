@@ -40,10 +40,12 @@ public class LocalElementTests extends ModifyingResourceTests {
 		return buildModelTestSuite(LocalElementTests.class);
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		createJavaProject("P");
 	}
 
+	@Override
 	public void tearDownSuite() throws Exception {
 		deleteProject("P");
 	}

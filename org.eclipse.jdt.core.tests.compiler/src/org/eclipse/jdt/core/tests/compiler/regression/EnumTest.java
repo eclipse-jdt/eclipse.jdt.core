@@ -54,6 +54,7 @@ public class EnumTest extends AbstractComparableTest {
 		return EnumTest.class;
 	}
 
+	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
@@ -73,6 +74,7 @@ public class EnumTest extends AbstractComparableTest {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.reportMissingJavadocComments = null;

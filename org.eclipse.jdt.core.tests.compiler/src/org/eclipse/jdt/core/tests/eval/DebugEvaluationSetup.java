@@ -45,6 +45,7 @@ public class DebugEvaluationSetup extends EvaluationSetup {
 		super(complianceLevel);
 	}
 
+	@Override
 	protected void setUp() {
 		if (this.context == null) {
 			// Launch VM in evaluation mode

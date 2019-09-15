@@ -91,6 +91,7 @@ public static Class testClass() {
 
 // Conditionally augment problem detection settings
 static boolean setNullRelatedOptions = true;
+@Override
 protected Map getCompilerOptions() {
     Map defaultOptions = super.getCompilerOptions();
     if (setNullRelatedOptions) {

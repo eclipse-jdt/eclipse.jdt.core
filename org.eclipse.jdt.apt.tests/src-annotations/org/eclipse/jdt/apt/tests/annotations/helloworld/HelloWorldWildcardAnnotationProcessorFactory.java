@@ -27,6 +27,7 @@ public class HelloWorldWildcardAnnotationProcessorFactory extends
 	public static volatile boolean CLAIM_ALL_ANNOTATIONS;
 
 
+	@Override
 	public Collection<String> supportedAnnotationTypes() {
 
 		// We need to swap behavior because always claiming "*" will cause

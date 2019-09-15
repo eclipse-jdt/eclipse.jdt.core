@@ -44,6 +44,7 @@ public class AptBuilderTests extends APTTestBase
 		return new TestSuite( AptBuilderTests.class );
 	}
 
+	@Override
 	public void setUp() throws Exception
 	{
 		super.setUp();

@@ -48,6 +48,7 @@ public class JavadocTestMixed extends JavadocTest {
 		return buildAllCompliancesTestSuite(javadocTestClass());
 	}
 
+	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_DocCommentSupport, this.docCommentSupport);
@@ -70,6 +71,7 @@ public class JavadocTestMixed extends JavadocTest {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.docCommentSupport = CompilerOptions.ENABLED;

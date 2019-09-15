@@ -43,6 +43,7 @@ public class ScalingTests extends TestBase
 		return new TestSuite( ScalingTests.class );
 	}
 
+	@Override
 	public void setUp() throws Exception
 	{
 		super.setUp();

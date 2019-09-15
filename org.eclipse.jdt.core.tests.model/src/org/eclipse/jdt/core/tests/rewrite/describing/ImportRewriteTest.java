@@ -83,6 +83,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		return allTests();
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 
@@ -105,6 +106,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		waitUntilIndexesReady();
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		deleteProject("P");
 		super.tearDown();

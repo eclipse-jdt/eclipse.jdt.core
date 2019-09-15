@@ -225,6 +225,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	// Filter to get only the 3.0 plugins
 	class FullSourceProjectsFilter implements FileFilter {
+		@Override
 		public boolean accept(File project) {
 			if (project.isDirectory()) {
 				StringTokenizer tokenizer = new StringTokenizer(project.getName(), ".");

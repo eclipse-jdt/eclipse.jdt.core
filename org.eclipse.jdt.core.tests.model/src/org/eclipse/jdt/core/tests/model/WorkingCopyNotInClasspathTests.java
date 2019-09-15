@@ -32,6 +32,7 @@ public static Test suite() {
 	return buildModelTestSuite(WorkingCopyNotInClasspathTests.class);
 }
 
+@Override
 public void setUp() throws Exception {
 	super.setUp();
 	try {
@@ -47,6 +48,7 @@ public void setUp() throws Exception {
 	}
 }
 
+@Override
 public void tearDown() throws Exception {
 	try {
 		if (this.workingCopy != null) {

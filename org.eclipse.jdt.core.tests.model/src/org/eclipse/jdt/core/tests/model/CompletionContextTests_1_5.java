@@ -23,6 +23,7 @@ public class CompletionContextTests_1_5 extends AbstractJavaModelCompletionTests
 public CompletionContextTests_1_5(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
 		COMPLETION_PROJECT = setUpJavaProject("Completion", "1.5");

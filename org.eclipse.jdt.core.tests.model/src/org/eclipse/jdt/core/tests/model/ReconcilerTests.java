@@ -73,6 +73,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		};
 
 		boolean isCanceling = false;
+		@Override
 		public void acceptProblem(IProblem problem) {
 			if (this.isCanceling) this.progressMonitor.setCanceled(true); // auto-cancel on first problem
 			super.acceptProblem(problem);
@@ -228,6 +229,7 @@ protected void removeClasspathEntries(IClasspathEntry[] entries) throws JavaMode
 /**
  * Setup for the next test.
  */
+@Override
 public void setUp() throws Exception {
 	super.setUp();
 	this.problemRequestor =  new ProblemRequestor();
@@ -240,6 +242,7 @@ public void setUp() throws Exception {
 	this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
 	startDeltas();
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -322,6 +325,7 @@ void setWorkingCopyContents(String contents) throws JavaModelException {
 /**
  * Cleanup after the previous test.
  */
+@Override
 public void tearDown() throws Exception {
 	TestCompilationParticipant.PARTICIPANT = null;
 	if (this.workingCopy != null) {
@@ -330,6 +334,7 @@ public void tearDown() throws Exception {
 	stopDeltas();
 	super.tearDown();
 }
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("Reconciler");
 	deleteProject("Reconciler15");
@@ -2928,6 +2933,7 @@ public void testReconcileParticipant01() throws CoreException {
  */
 public void testReconcileParticipant02() throws CoreException {
 	ReconcileParticipant participant = new ReconcileParticipant(){
+		@Override
 		public boolean isActive(IJavaProject project) {
 			return false;
 		}
@@ -3003,6 +3009,7 @@ public void testReconcileParticipant05() throws CoreException {
 		/**
 		 * @deprecated
 		 */
+		@Override
 		public void reconcile(ReconcileContext context) {
 			try {
 				setWorkingCopyContents(
@@ -3041,6 +3048,7 @@ public void testReconcileParticipant06() throws CoreException {
 		/**
 		 * @deprecated
 		 */
+		@Override
 		public void reconcile(ReconcileContext context) {
 			try {
 				setWorkingCopyContents(
@@ -3127,6 +3135,7 @@ public void testReconcileParticipant08() throws CoreException {
 		/**
 		 * @deprecated
 		 */
+		@Override
 		public void reconcile(ReconcileContext context) {
 			context.putProblems("test.marker", new CategorizedProblem[] {});
 		}
@@ -3148,6 +3157,7 @@ public void testReconcileParticipant09() throws CoreException {
 		/**
 		 * @deprecated
 		 */
+		@Override
 		public void reconcile(ReconcileContext context) {
 			assertTrue("Participant should not be notified of a reconcile", false);
 		}
@@ -3166,6 +3176,7 @@ public void testReconcileParticipant10() throws CoreException {
 		/**
 		 * @deprecated
 		 */
+		@Override
 		public void reconcile(ReconcileContext context) {
 			participantReconciled[0] = true;
 		}
@@ -3186,6 +3197,7 @@ public void testReconcileParticipant11() throws CoreException {
 		/**
 		 * @deprecated
 		 */
+		@Override
 		public void reconcile(ReconcileContext context) {
 			context.resetAST();
 		}

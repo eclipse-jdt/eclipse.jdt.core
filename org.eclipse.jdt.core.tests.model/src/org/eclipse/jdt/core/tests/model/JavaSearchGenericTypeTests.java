@@ -48,6 +48,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		return buildModelTestSuite(JavaSearchGenericTypeTests.class);
 	}
 
+	@Override
 	protected void setUp () throws Exception {
 		super.setUp();
 		this.resultCollector.showAccuracy(true);
@@ -85,6 +86,7 @@ public class JavaSearchGenericTypeTests extends AbstractJavaSearchGenericTests {
 		return null;
 	}
 
+	@Override
 	void addResultLine(StringBuffer buffer, char[] line) {
 		int[] positions = removeLastTypeArgument(line);
 		if (buffer.length() > 0) buffer.append('\n');

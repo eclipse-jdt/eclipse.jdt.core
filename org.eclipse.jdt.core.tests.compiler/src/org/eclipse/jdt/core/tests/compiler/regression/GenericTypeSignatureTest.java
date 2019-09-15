@@ -51,6 +51,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 			this.buffer = new StringBuffer();
 		}
 
+		@Override
 		public void run() {
 			try {
 				BufferedReader reader = new BufferedReader(new InputStreamReader(this.inputStream));
@@ -928,6 +929,7 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
 	 */
+	@Override
 	protected void writeFiles(String[] testFiles) {
 		// Compute and create specific dir
 		IPath dirFilePath = (IPath) this.dirPath.clone();

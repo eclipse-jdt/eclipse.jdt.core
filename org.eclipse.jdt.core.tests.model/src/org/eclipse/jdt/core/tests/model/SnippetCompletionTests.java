@@ -27,11 +27,13 @@ public class SnippetCompletionTests extends AbstractJavaModelTests implements Re
 public SnippetCompletionTests(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
 	setUpJavaProject("SnippetCompletion");
 }
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("SnippetCompletion");
 

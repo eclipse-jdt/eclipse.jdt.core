@@ -53,9 +53,11 @@ static {
 //	org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
 }
 
+@Override
 IJavaSearchScope getJavaSearchScope() {
 	return super.getJavaSearchScope15();
 }
+@Override
 public ICompilationUnit getWorkingCopy(String path, String source) throws JavaModelException {
 	if (this.wcOwner == null) {
 		this.wcOwner = new WorkingCopyOwner() {};
@@ -63,6 +65,7 @@ public ICompilationUnit getWorkingCopy(String path, String source) throws JavaMo
 	return getWorkingCopy(path, source, this.wcOwner);
 }
 
+@Override
 protected void setUp () throws Exception {
 	super.setUp();
 	this.resultCollector = new JavaSearchResultCollector();

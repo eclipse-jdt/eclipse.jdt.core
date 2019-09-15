@@ -78,6 +78,7 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 		return _env.getFactory().newTypeMirror(((MethodBinding) this._binding).returnType);
 	}
 
+	@Override
 	protected AnnotationBinding[] getAnnotationBindings() {
 		return ((MethodBinding) this._binding).returnType.getTypeAnnotations();
 	}
@@ -128,6 +129,7 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 		return TypeKind.EXECUTABLE;
 	}
 
+	@Override
 	public TypeMirror getReceiverType() {
 		return _env.getFactory().getReceiverType((MethodBinding) _binding);
 	}

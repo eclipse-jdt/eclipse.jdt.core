@@ -40,6 +40,7 @@ public class AptPreferencePage extends BasePreferencePage {
 	/*
 	 * @see org.eclipse.jface.dialogs.IDialogPage#createControl(org.eclipse.swt.widgets.Composite)
 	 */
+	@Override
 	public void createControl(Composite parent) {
 		IWorkbenchPreferenceContainer container= (IWorkbenchPreferenceContainer) getContainer();
 		setConfigurationBlock(new AptConfigurationBlock(getNewStatusChangedListener(), getProject(), container));

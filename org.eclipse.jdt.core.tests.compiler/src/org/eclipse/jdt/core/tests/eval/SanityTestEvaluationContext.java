@@ -101,6 +101,7 @@ public void testEvaluateImports() {
 
 		// Evaluate them
 		IRequestor requestor = new Requestor() {
+			@Override
 			public void acceptResult(EvaluationResult result) {
 				assertTrue("No problems with the imports", !result.hasProblems());
 			}
@@ -122,6 +123,7 @@ public void testEvaluateVariable() {
 
 		// Install it
 		class NoPbRequestor extends Requestor {
+			@Override
 			public void acceptResult(EvaluationResult result) {
 				assertTrue("No problems with the variable", !result.hasProblems());
 			}

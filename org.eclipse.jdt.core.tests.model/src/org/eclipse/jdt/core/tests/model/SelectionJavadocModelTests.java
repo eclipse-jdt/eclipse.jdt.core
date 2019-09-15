@@ -41,10 +41,12 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		return buildModelTestSuite(SelectionJavadocModelTests.class);
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		setUpJavaProject("Tests", "1.5");
 	}
+	@Override
 	public void tearDownSuite() throws Exception {
 		deleteProject("Tests");
 		super.tearDownSuite();
@@ -1591,6 +1593,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 		final IJavaElement[] selection = new IJavaElement[1];
 		final ICompilationUnit[] copy = this.workingCopies;
 		Thread t = new Thread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					selection[0] = selectMethod(copy[2], "componentShown");

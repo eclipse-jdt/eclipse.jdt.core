@@ -48,6 +48,7 @@ public class StarProcessorTests extends APTTestBase
 		return new TestSuite( StarProcessorTests.class );
 	}
 
+	@Override
 	public void setUp() throws Exception
 	{
 		super.setUp();

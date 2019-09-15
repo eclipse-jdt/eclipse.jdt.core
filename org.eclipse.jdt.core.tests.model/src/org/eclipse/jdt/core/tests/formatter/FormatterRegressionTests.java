@@ -208,6 +208,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * Init formatter preferences with Eclipse default settings.
 	 */
+	@Override
 	protected void setUp() throws Exception {
 	    super.setUp();
 		this.formatterPrefs = DefaultCodeFormatterOptions.getEclipseDefaultSettings();
@@ -219,6 +220,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * Create project and set the jar placeholder.
 	 */
+	@Override
 	public void setUpSuite() throws Exception {
 		// ensure autobuilding is turned off
 		IWorkspaceDescription description = getWorkspace().getDescription();
@@ -239,6 +241,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	/**
 	 * Reset the jar placeholder and delete project.
 	 */
+	@Override
 	public void tearDownSuite() throws Exception {
 		deleteProject(JAVA_PROJECT); //$NON-NLS-1$
 		JAVA_PROJECT = null;

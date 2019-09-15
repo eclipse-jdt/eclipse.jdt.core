@@ -66,6 +66,7 @@ private IMarker getMarker(ICompilationUnit unit, String message) throws CoreExce
 public static String[] getProjectNames() {
 	return new String[] {"Compiler", "CodeCorrection"};
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -103,6 +104,7 @@ public void setUpSuite() throws Exception {
 		assertTrue("building failed", false);
 	}
 }
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("CodeCorrection");
 

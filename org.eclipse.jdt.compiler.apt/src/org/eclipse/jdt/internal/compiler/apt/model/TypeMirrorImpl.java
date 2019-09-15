@@ -129,16 +129,19 @@ public class TypeMirrorImpl implements TypeMirror {
 		return ((TypeBinding)_binding).getTypeAnnotations();
 	}
 
+	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		return _env == null ? Factory.EMPTY_ANNOTATION_MIRRORS :
 								_env.getFactory().getAnnotationMirrors(getPackedAnnotationBindings());
 	}
 
+	@Override
 	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
 		return _env == null ? null : _env.getFactory().getAnnotation(getPackedAnnotationBindings(), annotationType);
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
 		if (_env == null)
 			return (A[]) Array.newInstance(annotationType, 0);

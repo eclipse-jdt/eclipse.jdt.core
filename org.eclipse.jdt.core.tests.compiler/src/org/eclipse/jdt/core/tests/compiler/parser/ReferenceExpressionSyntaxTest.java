@@ -28,6 +28,7 @@ public class ReferenceExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 	public static Class testClass() {
 		return ReferenceExpressionSyntaxTest.class;
 	}
+	@Override
 	public void initialize(CompilerTestSetup setUp) {
 		super.initialize(setUp);
 	}

@@ -34,11 +34,13 @@ public class DeleteTests extends ModifyingResourceTests {
 public DeleteTests(String name) {
 	super(name);
 }
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	// ensure that indexing is not going to interfer with deletion
 	waitUntilIndexesReady();
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	createJavaProject("P");
@@ -53,6 +55,7 @@ static {
 //		TESTS_NUMBERS = new int[] { 2, 12 };
 //		TESTS_RANGE = new int[] { 16, -1 };
 }
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("P");
 	super.tearDownSuite();

@@ -66,6 +66,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		public BindingResolver(MarkerInfo[] markerInfos) {
 			this.markerInfos = markerInfos;
 		}
+		@Override
 		public void acceptAST(ICompilationUnit source, CompilationUnit cu) {
 			super.acceptAST(source, cu);
 			ASTNode[] nodes = findNodes(cu, this.markerInfos[++this.index]);
@@ -81,6 +82,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 				this.bindingKeys.add(bindingKey);
 			}
 		}
+		@Override
 		public void acceptBinding(String key, IBinding binding) {
 			super.acceptBinding(key, binding);
 			this.foundKeys.add(binding == null ? "null" : binding.getKey());
@@ -120,11 +122,13 @@ public class BatchASTCreationTests extends AbstractASTTests {
 //		TESTS_RANGE = new int[] { 83304, -1 };
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB"}, "", "1.5");
 	}
 
+	@Override
 	public void tearDownSuite() throws Exception {
 		deleteProject("P");
 		super.tearDownSuite();
@@ -171,6 +175,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 			copies = createWorkingCopies(pathAndSources);
 			class Requestor extends TestASTRequestor {
 				ArrayList createdBindingKeys = new ArrayList();
+				@Override
 				public void acceptAST(ICompilationUnit source, CompilationUnit cu) {
 					super.acceptAST(source, cu);
 					IBinding[] bindings = createBindings(expectedKeys);
@@ -1684,6 +1689,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		this.workingCopies = createWorkingCopies(markerInfos, this.owner);
 		class Requestor extends TestASTRequestor {
 			Object constantValue = null;
+			@Override
 			public void acceptAST(ICompilationUnit source, CompilationUnit ast) {
 				super.acceptAST(source, ast);
 				Type y = (Type) findNode(ast, markerInfos[0]);

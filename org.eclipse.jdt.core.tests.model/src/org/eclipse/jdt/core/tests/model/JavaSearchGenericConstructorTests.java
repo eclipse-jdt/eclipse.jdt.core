@@ -69,6 +69,7 @@ public class JavaSearchGenericConstructorTests extends AbstractJavaSearchGeneric
 		return ((long)start<<32) + idx;
 	}
 
+	@Override
 	void addResultLine(StringBuffer buffer, char[] line) {
 		long positions = removeFirstTypeArgument(line);
 		if (buffer.length() > 0) buffer.append('\n');

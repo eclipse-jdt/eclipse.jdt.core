@@ -61,6 +61,7 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 	}
 
 	@Deprecated // super method is deprecated
+	@Override
 	protected void setUpAnnotationLib() throws IOException {
 		if (this.LIBS == null) {
 			String[] defaultLibs = getDefaultClassPaths();
@@ -142,6 +143,7 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 	Map<String,IModule> moduleMap = new HashMap<>(); // by name
 	Map<String,String> file2module = new HashMap<>();
 
+	@Override
 	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths) {
 		this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
 		INameEnvironment[] classLibs = getClassLibs(classPaths == null);

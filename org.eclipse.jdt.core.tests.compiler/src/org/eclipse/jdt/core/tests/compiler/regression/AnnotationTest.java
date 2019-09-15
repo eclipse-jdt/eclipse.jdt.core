@@ -93,6 +93,7 @@ public class AnnotationTest extends AbstractComparableTest {
 		return AnnotationTest.class;
 	}
 
+	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
@@ -116,6 +117,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#setUp()
 	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.reportMissingJavadocComments = null;

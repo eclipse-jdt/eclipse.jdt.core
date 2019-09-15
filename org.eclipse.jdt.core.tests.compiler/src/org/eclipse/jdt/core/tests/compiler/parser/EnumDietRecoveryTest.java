@@ -43,6 +43,7 @@ public EnumDietRecoveryTest(String testName){
 /*
  * Toggle compiler in mode -1.5
  */
+@Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);

@@ -44,6 +44,7 @@ private Class delegateLoadClass(String name) throws ClassNotFoundException {
  * If only  the class definition is known to this runner, makes it a class and returns it.
  * Otherwise delegates to the real class loader.
  */
+@Override
 protected synchronized Class loadClass(String name, boolean resolve) throws ClassNotFoundException {
 	if (DEVELOPMENT_MODE) {
 		try {

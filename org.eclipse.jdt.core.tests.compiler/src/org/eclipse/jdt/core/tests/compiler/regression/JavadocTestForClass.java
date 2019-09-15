@@ -33,6 +33,7 @@ public class JavadocTestForClass extends JavadocTest {
 		return JavadocTestForClass.class;
 	}
 
+	@Override
 	protected Map getCompilerOptions() {
 		Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.ERROR);

@@ -56,6 +56,7 @@ public static Test suite() {
 public static Class testClass() {
     return ProgrammingProblemsTest.class;
 }
+@Override
 protected Map getCompilerOptions() {
 	Map compilerOptions = super.getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal,  CompilerOptions.OPTIMIZE_OUT);

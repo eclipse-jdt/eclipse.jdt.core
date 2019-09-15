@@ -55,6 +55,7 @@ public class ExternalAnnotations9Test extends ExternalAnnotations18Test {
 		return buildModelTestSuite(ExternalAnnotations9Test.class, BYTECODE_DECLARATION_ORDER);
 	}
 
+	@Override
 	public String getSourceWorkspacePath() {
 		// we read individual projects from within this folder:
 		return super.getSourceWorkspacePathBase()+"/ExternalAnnotations9";

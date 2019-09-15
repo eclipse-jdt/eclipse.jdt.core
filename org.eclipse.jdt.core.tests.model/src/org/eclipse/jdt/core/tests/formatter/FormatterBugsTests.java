@@ -71,6 +71,7 @@ private void setUpBracesPreferences(String braces) {
 /**
  * Create project and set the jar placeholder.
  */
+@Override
 public void setUpSuite() throws Exception {
 	if (JAVA_PROJECT == null) {
 		JAVA_PROJECT = setUpJavaProject("FormatterBugs", "1.5"); //$NON-NLS-1$

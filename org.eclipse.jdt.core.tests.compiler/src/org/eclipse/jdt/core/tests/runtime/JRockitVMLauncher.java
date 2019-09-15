@@ -59,6 +59,7 @@ public String getBatchFileName() {
 /**
  * @see LocalVMLauncher#getCommandLine
  */
+@Override
 public String[] getCommandLine() {
 	Vector commandLine= new Vector();
 

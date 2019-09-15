@@ -57,6 +57,7 @@ public static Test setUpTest(Test test) throws Exception {
 	return suite;
 }
 
+@Override
 protected Map getCompilerOptions() {
 	Map defaultOptions = super.getCompilerOptions();
 	defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);

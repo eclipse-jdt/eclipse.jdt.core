@@ -21,6 +21,7 @@ public class CompletionTests11 extends AbstractJavaModelCompletionTests {
 public CompletionTests11(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
 		COMPLETION_PROJECT = setUpJavaProject("Completion", "11");

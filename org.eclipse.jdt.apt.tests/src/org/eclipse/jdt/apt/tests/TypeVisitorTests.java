@@ -131,6 +131,7 @@ public class TypeVisitorTests extends APTTestBase {
 	class TypeVisitorProc extends AbstractGenericProcessor {
 		boolean called;
 
+		@Override
 		public void _process() {
 			called = true;
 			assertTrue(decls.size() == 1);

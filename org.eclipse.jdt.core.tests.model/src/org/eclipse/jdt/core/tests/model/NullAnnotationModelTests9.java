@@ -51,6 +51,7 @@ public class NullAnnotationModelTests9 extends ReconcilerTests {
 	/**
 	 * @deprecated indirectly uses deprecated class PackageAdmin
 	 */
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 // TODO: switch to bundle, once it updates BREE to 9:

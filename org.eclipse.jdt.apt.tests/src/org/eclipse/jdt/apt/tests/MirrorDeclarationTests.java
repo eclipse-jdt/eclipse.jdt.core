@@ -55,6 +55,7 @@ public class MirrorDeclarationTests extends APTTestBase {
 		return new TestSuite(MirrorDeclarationTests.class);
 	}
 
+	@Override
 	public void setUp() throws Exception
 	{
 		super.setUp();
@@ -295,6 +296,7 @@ public class MirrorDeclarationTests extends APTTestBase {
 
 		boolean called;
 
+		@Override
 		public void _process() {
 			called = true;
 			assertTrue(decls.size() == 1);
@@ -311,6 +313,7 @@ public class MirrorDeclarationTests extends APTTestBase {
 
 		boolean called;
 
+		@Override
 		public void _process() {
 			called = true;
 			TypeDeclaration tdCode = env.getTypeDeclaration(SourceMirrorCodeExample.CODE_PACKAGE + "." + SourceMirrorCodeExample.CODE_CLASS_NAME);
@@ -333,6 +336,7 @@ public class MirrorDeclarationTests extends APTTestBase {
 
 		boolean called;
 
+		@Override
 		public void _process() {
 			called = true;
 			AnnotationTypeDeclaration annoDecl = (AnnotationTypeDeclaration)env.getTypeDeclaration("pkg.PkgAnnotation");

@@ -42,6 +42,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#setUpSuite()
 	 */
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		this.originalOptions = JAVA_PROJECT.getOptions(true);
@@ -52,6 +53,7 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
 	 */
+	@Override
 	public void tearDown() throws Exception {
 		JAVA_PROJECT.setOptions(this.originalOptions);
 		super.tearDown();

@@ -75,6 +75,7 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 		super(name);
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		setUpAnnotationLib();
@@ -102,6 +103,7 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 	// Conditionally augment problem detection settings
 	static boolean setNullRelatedOptions = true;
 
+	@Override
 	protected Map getCompilerOptions() {
 	    Map defaultOptions = super.getCompilerOptions();
 	    if (setNullRelatedOptions) {

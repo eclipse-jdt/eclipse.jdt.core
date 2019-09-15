@@ -113,6 +113,7 @@ static {
 public static Test suite() {
 	return buildModelTestSuite(ClasspathTests.class, BYTECODE_DECLARATION_ORDER);
 }
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setupExternalJCL("jclMin");

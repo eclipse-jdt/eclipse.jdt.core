@@ -133,9 +133,11 @@ public class CompletionTests2 extends AbstractJavaModelCompletionTests {
 		protected DefaultContainer newContainer(final char[][] libPaths, final boolean[] areExperted, final String[] forbiddenRefrences) {
 			return new DefaultContainer(libPaths, areExperted, forbiddenRefrences);
 		}
+		@Override
 		public boolean allowFailureContainer() {
 			return true;
 		}
+		@Override
 		public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 			if (this.containerValues == null) return;
 			try {
@@ -153,6 +155,7 @@ public class CompletionTests2 extends AbstractJavaModelCompletionTests {
 public CompletionTests2(String name) {
 	super(name);
 }
+@Override
 public void setUpSuite() throws Exception {
 	if (AbstractJavaModelCompletionTests.COMPLETION_PROJECT == null)  {
 		AbstractJavaModelCompletionTests.COMPLETION_PROJECT = setUpJavaProject("Completion");
@@ -162,6 +165,7 @@ public void setUpSuite() throws Exception {
 	}
 	super.setUpSuite();
 }
+@Override
 public void tearDownSuite() throws Exception {
 	if (AbstractJavaModelCompletionTests.COMPLETION_SUITES == null) {
 		deleteProject("Completion");

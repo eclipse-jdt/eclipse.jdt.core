@@ -82,6 +82,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	/**
 	 * @deprecated indirectly uses deprecated class PackageAdmin
 	 */
+	@Override
 	public void setUp() throws Exception {
 		super.setUp();
 		Bundle[] bundles = org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[2.0.0,3.0.0)");

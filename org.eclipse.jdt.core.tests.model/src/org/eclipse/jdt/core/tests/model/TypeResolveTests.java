@@ -102,6 +102,7 @@ protected void assertTypesEqual(String expected, String[][] types) {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#setUpSuite()
  */
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	setUpJavaProject("TypeResolve");
@@ -134,6 +135,7 @@ public void setUpSuite() throws Exception {
 /* (non-Javadoc)
  * @see org.eclipse.jdt.core.tests.model.SuiteOfTestCases#tearDownSuite()
  */
+@Override
 public void tearDownSuite() throws Exception {
 	deleteProject("TypeResolve");
 	super.tearDownSuite();

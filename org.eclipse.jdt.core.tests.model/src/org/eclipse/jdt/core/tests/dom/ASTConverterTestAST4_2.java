@@ -115,6 +115,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getJLS4(), false);
@@ -4397,6 +4398,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0538", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		try {
 			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor() {
+				@Override
                 public boolean isActive() {
                     return false;
                 }

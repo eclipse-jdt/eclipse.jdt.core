@@ -39,6 +39,7 @@ public class HelloWorldAnnotationProcessorFactory extends BaseFactory {
 		return new HelloWorldAnnotationProcessor( env );
 	}
 
+	@Override
 	public Collection<String> supportedOptions() {
 		return Collections.singletonList(AptPreferenceConstants.RTTG_ENABLED_OPTION);
 	}

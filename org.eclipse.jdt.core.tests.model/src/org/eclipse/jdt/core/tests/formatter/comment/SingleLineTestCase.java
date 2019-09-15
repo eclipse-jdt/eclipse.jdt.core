@@ -36,6 +36,7 @@ public class SingleLineTestCase extends CommentTestCase {
 		super(name);
 	}
 
+	@Override
 	protected int getCommentKind() {
 		return CodeFormatter.K_SINGLE_LINE_COMMENT;
 	}

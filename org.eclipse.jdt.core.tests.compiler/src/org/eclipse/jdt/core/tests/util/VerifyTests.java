@@ -88,9 +88,11 @@ public class VerifyClassLoader extends ClassLoader {
 		}
 
 	}
+	@Override
 	public java.net.URL getResource(String name) {
 		return ClassLoader.getSystemResource(name);
 	}
+	@Override
 	public InputStream getResourceAsStream(String name) {
 		return ClassLoader.getSystemResourceAsStream(name);
 	}
@@ -108,6 +110,7 @@ public class VerifyClassLoader extends ClassLoader {
 		}
 		return false;
 	}
+	@Override
 	public synchronized Class loadClass(String name, boolean resolve)
 		throws ClassNotFoundException {
 
@@ -209,6 +212,7 @@ public void run() throws IOException {
 	while (true) {
 		final String className = in.readUTF();
 		Thread thread = new Thread() {
+			@Override
 			public void run() {
 				try {
 					loadAndRun(className);

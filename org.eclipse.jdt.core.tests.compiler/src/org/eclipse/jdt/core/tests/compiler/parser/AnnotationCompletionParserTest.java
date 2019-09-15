@@ -35,6 +35,7 @@ public static Test suite() {
 	return buildAllCompliancesTestSuite(AnnotationCompletionParserTest.class);
 }
 
+@Override
 protected Map getCompilerOptions() {
 	Map options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);

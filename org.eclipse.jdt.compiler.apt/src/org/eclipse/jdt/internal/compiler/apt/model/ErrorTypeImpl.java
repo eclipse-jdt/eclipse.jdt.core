@@ -91,15 +91,18 @@ public class ErrorTypeImpl extends DeclaredTypeImpl implements ErrorType {
 		return v.visitError(this, p);
 	}
 
+	@Override
 	public List<? extends AnnotationMirror> getAnnotationMirrors() {
 		return Factory.EMPTY_ANNOTATION_MIRRORS;
 	}
 
+	@Override
 	public <A extends Annotation> A getAnnotation(Class<A> annotationType) {
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	public <A extends Annotation> A[] getAnnotationsByType(Class<A> annotationType) {
 		return (A[]) Array.newInstance(annotationType, 0);
 	}

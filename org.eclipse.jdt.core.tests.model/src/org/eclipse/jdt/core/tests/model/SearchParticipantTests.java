@@ -116,12 +116,14 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 	}
 
 	public class TestResultCollector extends JavaSearchResultCollector {
+		@Override
 		protected char[] getSource(IResource resource, IJavaElement element, ICompilationUnit unit) throws JavaModelException {
 			IPath path = resource.getLocation().removeFileExtension().addFileExtension("test");
 			String fileContent = Util.fileContent(path.toFile().getPath());
 			if (fileContent == null) return null;
 			return fileContent.toCharArray();
 		}
+		@Override
 		protected String getPathString(IResource resource, IJavaElement element) {
 			return super.getPathString(resource, element).replaceAll(".java", ".test");
 		}
@@ -139,11 +141,13 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 		return buildModelTestSuite(SearchParticipantTests.class);
 	}
 
+	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		deleteResource(getIndexLocation().toFile());
 	}
 
+	@Override
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
 		if (this.project != null) {
@@ -151,6 +155,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 		}
 	}
 
+	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		if (this.project == null) {
@@ -163,6 +168,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 		}
 	}
 
+	@Override
 	protected void tearDown() throws Exception {
 		// Do not delete specific index file between tests as corresponding still lives in IndexManager cache
 		// TODO (frederic) Uncomment when bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=116650 will be fixed
@@ -237,6 +243,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 	 */
 	public synchronized void testIndexDocument02() throws CoreException, InterruptedException {
 		TestSearchParticipant participant = new TestSearchParticipant(){
+			@Override
 			public void indexDocument(SearchDocument document, IPath indexLocation) {
 				if (!document.getPath().equals("/P/no")) {
 					for (int i = 0; i < 1000; i++) {

@@ -143,6 +143,7 @@ public class DeclarationVisitorTests extends APTTestBase {
 	class DeclarationVisitorProc extends AbstractGenericProcessor {
 		boolean called;
 
+		@Override
 		public void _process() {
 
 			called = true;

@@ -108,6 +108,7 @@ public ASTNode runConversion(IClassFile classFile, boolean resolveBindings) {
 	parser.setWorkingCopyOwner(null);
 	return parser.createAST(null);
 }
+@Override
 protected void setUp() throws Exception {
 	super.setUp();
 	attachSource(this.pkgFragmentRoot, "/AttachSourceTests/attachsrc.zip", "");
@@ -115,6 +116,7 @@ protected void setUp() throws Exception {
 /**
  * Create project and set the jar placeholder.
  */
+@Override
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 
@@ -223,6 +225,7 @@ private void setUpInnerClassesJar() throws IOException, CoreException {
 	};
 	addLibrary("innerClasses.jar", "innerClassessrc.zip", pathAndContents, JavaCore.VERSION_1_4);
 }
+@Override
 protected void tearDown() throws Exception {
 	IPackageFragmentRoot[] roots = this.currentProject.getAllPackageFragmentRoots();
 	for (int i = 0; i < roots.length; i++) {
@@ -236,6 +239,7 @@ protected void tearDown() throws Exception {
 /**
  * Reset the jar placeholder and delete project.
  */
+@Override
 public void tearDownSuite() throws Exception {
 	org.eclipse.jdt.core.tests.util.Util.flushDirectoryContent(new File(getExternalFolder()));
 	deleteProject(this.currentProject);

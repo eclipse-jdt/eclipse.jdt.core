@@ -41,6 +41,7 @@ public class AnnotationValueConversionTests extends APTTestBase
 	}
 
 
+	@Override
 	public IPath getSourcePath() {
 		IProject project = env.getProject( getProjectName() );
 		IFolder srcFolder = project.getFolder( "src" ); //$NON-NLS-1$
