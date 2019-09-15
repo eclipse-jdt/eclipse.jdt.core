@@ -18,8 +18,9 @@ package org.eclipse.jdt.apt.core.internal.util;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
@@ -135,14 +136,5 @@ public class ScannerUtil {
 		"ISO8859_15", //$NON-NLS-1$
 		"UTF8" //$NON-NLS-1$
 	};
-
-	private static final Set<String> SINGLE_BYTE_ENCODINGS =
-		new HashSet<>(SINGLE_BYTE_ENCODING_ARRAY.length);
-
-	static {
-		for (String encoding : SINGLE_BYTE_ENCODING_ARRAY) {
-			SINGLE_BYTE_ENCODINGS.add(encoding);
-		}
-	}
-
+	private static final Set<String> SINGLE_BYTE_ENCODINGS =Stream.of(SINGLE_BYTE_ENCODING_ARRAY).collect(Collectors.toSet());
 }

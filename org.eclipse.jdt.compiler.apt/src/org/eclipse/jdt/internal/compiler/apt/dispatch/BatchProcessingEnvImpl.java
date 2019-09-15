@@ -17,6 +17,7 @@ package org.eclipse.jdt.internal.compiler.apt.dispatch;
 import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -84,9 +85,7 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 			Charset charset = encoding != null ? Charset.forName(encoding) : null;
 			JavaFileManager manager = new EclipseFileManager(batchCompiler.compilerLocale, charset);
 			ArrayList<String> options = new ArrayList<>();
-			for (String argument : commandLineArguments) {
-				options.add(argument);
-			}
+			options.addAll(Arrays.asList(commandLineArguments));
 			for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
 				manager.handleOption(iterator.next(), iterator);
 			}

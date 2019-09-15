@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import com.sun.mirror.apt.AnnotationProcessorFactory;
+import java.util.Arrays;
 
 /**
  * Base class for annotation factories. Takes care of supported
@@ -39,9 +40,7 @@ public abstract class BaseFactory implements AnnotationProcessorFactory {
 	public BaseFactory(String anno, String... otherAnnos) {
 		_supportedAnnotations = new ArrayList<String>(1 + otherAnnos.length);
 		_supportedAnnotations.add(anno);
-		for (String s : otherAnnos) {
-			_supportedAnnotations.add(s);
-		}
+		_supportedAnnotations.addAll(Arrays.asList(otherAnnos));
 	}
 
 	public Collection<String> supportedOptions() {

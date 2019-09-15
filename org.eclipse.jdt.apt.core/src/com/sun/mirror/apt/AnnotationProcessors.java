@@ -71,8 +71,7 @@ public class AnnotationProcessors {
 	 * @param aps  the component annotation processors
 	 */
 	public CompositeAnnotationProcessor(AnnotationProcessor... aps) {
-	    for(AnnotationProcessor ap: aps)
-		this.aps.add(ap);
+		this.aps.addAll(Arrays.asList(aps));
 	}
 
 	/**

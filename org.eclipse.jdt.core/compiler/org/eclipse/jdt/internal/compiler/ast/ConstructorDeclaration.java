@@ -137,7 +137,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 
 		// anonymous constructor can gain extra thrown exceptions from unhandled ones
 		if (this.binding.declaringClass.isAnonymousType()) {
-			ArrayList computedExceptions = constructorContext.extendedExceptions;
+			List computedExceptions = constructorContext.extendedExceptions;
 			if (computedExceptions != null){
 				int size;
 				if ((size = computedExceptions.size()) > 0){

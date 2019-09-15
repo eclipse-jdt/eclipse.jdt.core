@@ -20,13 +20,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -315,10 +316,7 @@ public class ElementProc extends BaseProcessor {
 	 */
 	private boolean examineRoundEnv(RoundEnvironment roundEnv) {
 		// Verify that we get the root elements we expect
-		Set<String> expectedRootElementNames = new HashSet<String>(ROOT_ELEMENT_NAMES.length);
-		for (String name : ROOT_ELEMENT_NAMES) {
-			expectedRootElementNames.add(name);
-		}
+		Set<String> expectedRootElementNames = Stream.of(ROOT_ELEMENT_NAMES).collect(Collectors.toSet());
 		Set<? extends Element> actualRootElements = roundEnv.getRootElements();
 		if (null == actualRootElements) {
 			reportError("getRootElements() returned null");

@@ -260,9 +260,7 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 	@Override
 	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 		char[][] newArray = new char[packageName.length + 1][];
-		for (int idx = 0; idx < packageName.length; idx++) {
-			newArray[idx] = packageName[idx];
-		}
+		System.arraycopy(packageName, 0, newArray, 0, packageName.length);
 		newArray[packageName.length] = typeName;
 		return findType(newArray);
 	}

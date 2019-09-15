@@ -13,8 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests;
 
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -205,10 +206,7 @@ public abstract class APTTestBase extends BuilderTests{
 	protected void expectingMarkers(String[] messages)
 	{
 		final IMarker[] markers = getAllAPTMarkers(env.getWorkspaceRootPath());
-		final Set<String> expectedMessages = new HashSet<String>();
-		for(String msg : messages ){
-			expectedMessages.add(msg);
-		}
+		final Set<String> expectedMessages = Stream.of(messages).collect(Collectors.toSet());
 		boolean fail = false;
 		try{
 			for( IMarker marker : markers ){

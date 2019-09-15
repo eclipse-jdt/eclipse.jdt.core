@@ -4484,9 +4484,7 @@ public void testCycleDetection() throws CoreException {
 			IClasspathEntry[] oldClasspath = p[i].getRawClasspath();
 			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries[i].length];
 			System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
-			for (int j = 0; j < extraEntries[i].length; j++){
-				newClasspath[oldClasspath.length+j] = extraEntries[i][j];
-			}
+			System.arraycopy(extraEntries[i], 0, newClasspath, oldClasspath.length, extraEntries[i].length);
 			// set classpath
 			p[i].setRawClasspath(newClasspath, null);
 
@@ -4544,9 +4542,7 @@ public void testCycleDetectionThroughVariables() throws CoreException {
 			IClasspathEntry[] oldClasspath = p[i].getRawClasspath();
 			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries[i].length];
 			System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
-			for (int j = 0; j < extraEntries[i].length; j++){
-				newClasspath[oldClasspath.length+j] = extraEntries[i][j];
-			}
+			System.arraycopy(extraEntries[i], 0, newClasspath, oldClasspath.length, extraEntries[i].length);
 			// set classpath
 			p[i].setRawClasspath(newClasspath, null);
 
@@ -4609,9 +4605,7 @@ public void testCycleDetectionThroughContainers() throws CoreException {
 			IClasspathEntry[] oldClasspath = p[i].getRawClasspath();
 			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries[i].length];
 			System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
-			for (int j = 0; j < extraEntries[i].length; j++){
-				newClasspath[oldClasspath.length+j] = extraEntries[i][j];
-			}
+			System.arraycopy(extraEntries[i], 0, newClasspath, oldClasspath.length, extraEntries[i].length);
 			// set classpath
 			p[i].setRawClasspath(newClasspath, null);
 
@@ -4704,9 +4698,7 @@ public void testCycleDetectionThroughContainerVariants() throws CoreException {
 			IClasspathEntry[] oldClasspath = p[i].getRawClasspath();
 			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries[i].length];
 			System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
-			for (int j = 0; j < extraEntries[i].length; j++){
-				newClasspath[oldClasspath.length+j] = extraEntries[i][j];
-			}
+			System.arraycopy(extraEntries[i], 0, newClasspath, oldClasspath.length, extraEntries[i].length);
 			// set classpath
 			p[i].setRawClasspath(newClasspath, null);
 
@@ -4762,9 +4754,7 @@ public void testCycleDetection2() throws CoreException {
 			IClasspathEntry[] oldClasspath = p[i].getRawClasspath();
 			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries[i].length];
 			System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
-			for (int j = 0; j < extraEntries[i].length; j++){
-				newClasspath[oldClasspath.length+j] = extraEntries[i][j];
-			}
+			System.arraycopy(extraEntries[i], 0, newClasspath, oldClasspath.length, extraEntries[i].length);
 			// set classpath
 			p[i].setRawClasspath(newClasspath, null);
 
@@ -4815,9 +4805,7 @@ public void testCycleDetection3() throws CoreException {
 			IClasspathEntry[] oldClasspath = p[i].getRawClasspath();
 			IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries[i].length];
 			System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
-			for (int j = 0; j < extraEntries[i].length; j++){
-				newClasspath[oldClasspath.length+j] = extraEntries[i][j];
-			}
+			System.arraycopy(extraEntries[i], 0, newClasspath, oldClasspath.length, extraEntries[i].length);
 			// set classpath
 			p[i].setRawClasspath(newClasspath, null);
 
@@ -5153,9 +5141,7 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 					IClasspathEntry[] oldClasspath = projects[i].getRawClasspath();
 					IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries.length];
 					System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
-					for (int j = 0; j < extraEntries.length; j++){
-						newClasspath[oldClasspath.length+j] = extraEntries[j];
-					}
+					System.arraycopy(extraEntries, 0, newClasspath, oldClasspath.length, extraEntries.length);
 					// set classpath
 					projects[i].setRawClasspath(newClasspath, null);
 				}
@@ -5221,9 +5207,7 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 					IClasspathEntry[] oldClasspath = projects[i].getRawClasspath();
 					IClasspathEntry[] newClasspath = new IClasspathEntry[oldClasspath.length+extraEntries.length];
 					System.arraycopy(oldClasspath, 0 , newClasspath, 0, oldClasspath.length);
-					for (int j = 0; j < extraEntries.length; j++){
-						newClasspath[oldClasspath.length+j] = extraEntries[j];
-					}
+					System.arraycopy(extraEntries, 0, newClasspath, oldClasspath.length, extraEntries.length);
 					// set classpath
 					long innerStart = System.currentTimeMillis(); // time spent in individual CP setting
 					projects[i].setRawClasspath(newClasspath, null);

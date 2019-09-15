@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -151,9 +152,7 @@ static public List getCompilationUnits(IJavaProject javaProject) throws JavaMode
 		for (int k= 0; k < packages.length; k++) {
 			IPackageFragment pack = (IPackageFragment) packages[k];
 			ICompilationUnit[] units = pack.getCompilationUnits();
-			for (int u=0; u<units.length; u++) {
-				allUnits.add(units[u]);
-			}
+			allUnits.addAll(Arrays.asList(units));
 		}
 	}
 	return allUnits;
@@ -171,9 +170,7 @@ static public List getCompilationUnits(IPackageFragmentRoot root) throws JavaMod
 		for (int k= 0; k < packages.length; k++) {
 			IPackageFragment pack = (IPackageFragment) packages[k];
 			ICompilationUnit[] units = pack.getCompilationUnits();
-			for (int u=0; u<units.length; u++) {
-				allUnits.add(units[u]);
-			}
+			allUnits.addAll(Arrays.asList(units));
 		}
 	}
 	return allUnits;

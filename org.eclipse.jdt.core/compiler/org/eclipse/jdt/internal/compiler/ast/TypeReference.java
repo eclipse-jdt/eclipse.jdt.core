@@ -387,9 +387,7 @@ protected Annotation[][] getMergedAnnotationsOnDimensions(int additionalDimensio
 	final int totalDimensions = dimensions + additionalDimensions;
 	Annotation [][] mergedAnnotations = new Annotation[totalDimensions][];
 	if (annotationsOnDimensions != null) {
-		for (int i = 0; i < dimensions; i++) {
-			mergedAnnotations[i] = annotationsOnDimensions[i];
-		}
+		System.arraycopy(annotationsOnDimensions, 0, mergedAnnotations, 0, dimensions); 
 	}
 	if (additionalAnnotations != null) {
 		for (int i = dimensions, j = 0; i < totalDimensions; i++, j++) {

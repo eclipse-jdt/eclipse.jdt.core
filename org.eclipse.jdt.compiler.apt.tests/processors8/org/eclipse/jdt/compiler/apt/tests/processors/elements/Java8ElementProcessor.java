@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.RoundEnvironment;
@@ -585,10 +587,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		verifyAnnotations(xy, new String[]{});
 		verifyAnnotations(xy.asType(), new String[]{"@Type(value=xy)"});
 
-		Set<String> expectedElementNames = new HashSet<String>(ELEMENT_NAMES.length);
-		for (String name : ELEMENT_NAMES) {
-			expectedElementNames.add(name);
-		}
+		Set<String> expectedElementNames = Stream.of(ELEMENT_NAMES).collect(Collectors.toSet());
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Type.class);
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 
@@ -715,10 +714,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 	}
 
 	public void testTypeAnnotations15() {
-		Set<String> expectedElementNames = new HashSet<String>(TYPE_PARAM_ELEMENTS_Z1.length);
-		for (String name : TYPE_PARAM_ELEMENTS_Z1) {
-			expectedElementNames.add(name);
-		}
+		Set<String> expectedElementNames = Stream.of(TYPE_PARAM_ELEMENTS_Z1).collect(Collectors.toSet());
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Type.class);
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 
@@ -734,10 +730,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 	}
 
 	public void testTypeAnnotations16() {
-		Set<String> expectedElementNames = new HashSet<String>(TYPE_PARAM_ELEMENTS_Z2.length);
-		for (String name : TYPE_PARAM_ELEMENTS_Z2) {
-			expectedElementNames.add(name);
-		}
+		Set<String> expectedElementNames = Stream.of(TYPE_PARAM_ELEMENTS_Z2).collect(Collectors.toSet());
 		Set<? extends Element> actualElments = roundEnv.getElementsAnnotatedWith(Type.class);
 		assertNotNull("RoundEnvironment#getElementsAnnotatedWith returned null", actualElments);
 

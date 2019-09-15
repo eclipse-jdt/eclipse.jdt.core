@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -52,8 +53,7 @@ public class InMemoryNameEnvironment9 extends InMemoryNameEnvironment implements
 			if (env instanceof IModuleAwareNameEnvironment) {
 				T[] someMods = function.apply((IModuleAwareNameEnvironment) env);
 				if (someMods != null) {
-					for (int j = 0; j < someMods.length; j++)
-						mods.add(someMods[j]);
+					mods.addAll(Arrays.asList(someMods));
 				}
 			}
 		}

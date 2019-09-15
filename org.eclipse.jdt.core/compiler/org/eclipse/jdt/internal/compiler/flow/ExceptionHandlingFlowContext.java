@@ -19,6 +19,8 @@
 package org.eclipse.jdt.internal.compiler.flow;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
@@ -58,7 +60,7 @@ public class ExceptionHandlingFlowContext extends FlowContext {
 	public FlowContext initializationParent; // special parent relationship only for initialization purpose
 
 	// for dealing with anonymous constructor thrown exceptions
-	public ArrayList extendedExceptions;
+	public List extendedExceptions;
 
 	private static final Argument[] NO_ARGUMENTS = new Argument[0];
 	public  Argument [] catchArguments;
@@ -251,10 +253,7 @@ public UnconditionalFlowInfo initsOnReturn(){
  */
 public void mergeUnhandledException(TypeBinding newException){
 	if (this.extendedExceptions == null){
-		this.extendedExceptions = new ArrayList(5);
-		for (int i = 0; i < this.handledExceptions.length; i++){
-			this.extendedExceptions.add(this.handledExceptions[i]);
-		}
+		this.extendedExceptions = new ArrayList<>(Arrays.asList(this.handledExceptions));
 	}
 	boolean isRedundant = false;
 

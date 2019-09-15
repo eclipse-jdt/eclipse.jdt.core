@@ -629,8 +629,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		}
 
 		public CompilerBuilder option(String... s) {
-			for(int i = 0; i < s.length; i++)
-				options.add(s[i]);
+			options.addAll(Arrays.asList(s));
 			return this;
 		}
 

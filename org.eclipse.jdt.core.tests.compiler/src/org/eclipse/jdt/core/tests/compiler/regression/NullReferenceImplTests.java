@@ -1763,8 +1763,7 @@ private static void reinitializeFromComputedValues(String source, String target)
 }
 private static State[] addSymbolicStates(State[] transitiveClosure) {
 	Set allStates = new HashSet();
-	for (int i = 0; i < transitiveClosure.length; i++)
-		allStates.add(transitiveClosure[i]);
+	allStates.addAll(Arrays.asList(transitiveClosure));
 	for (int i=0; i < State.statesNb; i++)
 		if (State.states[i].symbolic)
 			allStates.add(State.states[i]);

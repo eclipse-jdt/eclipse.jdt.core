@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.eval;
 import java.io.File;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -445,9 +446,7 @@ public class EvaluationTest extends AbstractCompilerTest implements StopableTest
 				} else {
 					assertTrue("Has problem", result.hasProblems());
 					CategorizedProblem[] problems = result.getProblems();
-					for (int i = 0; i < problems.length; i++) {
-						this.collectedProblems.add(problems[i]);
-					}
+					this.collectedProblems.addAll(Arrays.asList(problems));
 				}
 			}
 		}

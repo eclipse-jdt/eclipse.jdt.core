@@ -870,9 +870,7 @@ protected void offsetRange(int[] range, int offset) {
  */
 protected int[] rangeCopy(int[] range) {
 	int[] copy= new int[range.length];
-	for (int i= 0; i < range.length; i++) {
-		copy[i]= range[i];
-	}
+	System.arraycopy(range, 0, copy, 0, range.length);
 	return copy;
 }
 /**

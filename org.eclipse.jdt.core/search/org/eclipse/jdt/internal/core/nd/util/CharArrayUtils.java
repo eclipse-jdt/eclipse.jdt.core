@@ -460,9 +460,7 @@ public class CharArrayUtils {
     public static void overWrite(char[] buff, int i, char[] charImage) {
         if (buff.length < i + charImage.length)
             return;
-        for (int j = 0; j < charImage.length; j++) {
-            buff[i + j] = charImage[j];
-        }
+		System.arraycopy(charImage, 0, buff, i, charImage.length);
     }
 
     /**

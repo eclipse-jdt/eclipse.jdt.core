@@ -777,9 +777,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 			result = name;
 			return result;
 		}
-		for (int i = 0; i < NT_OFFSET + 1; i++) {
-			result[i] = name[i];
-		}
+		System.arraycopy(name, 0, result, 0, NT_OFFSET + 1);
 		for (int i = NT_OFFSET; i < name.length; i++) {
 			String n = props.getProperty(name[i]);
 			if (n != null && n.length() > 0) {
