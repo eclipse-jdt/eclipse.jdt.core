@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1609,7 +1605,7 @@ public abstract class ASTVisitor {
 	 * be skipped
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
-	 * @since 3.19 BETA_JAVA13
+	 * @since 3.19.50
 	 */
 	public boolean visit(TextBlock node) {
 		return true;
@@ -1891,7 +1887,7 @@ public abstract class ASTVisitor {
 	 * be skipped
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
-	 * @since 3.19 BETA_JAVA13
+	 * @since 3.19.50
 	 */
 	public boolean visit(YieldStatement node) {
 		return true;
@@ -2943,7 +2939,7 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
-	 * @since 3.19 BETA_JAVA13
+	 * @since 3.19.50
 	 */
 	public void endVisit(TextBlock node) {
 		// default implementation: do nothing
@@ -3169,7 +3165,7 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
-	 * @since 3.19 BETA_JAVA13
+	 * @since 3.19.50
 	 */
 	public void endVisit(YieldStatement node) {
 		// default implementation: do nothing

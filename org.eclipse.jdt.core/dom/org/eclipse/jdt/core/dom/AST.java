@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -314,14 +310,14 @@ public final class AST {
 	 * up to and including Java SE 13 (aka JDK 13).
 	 * </p>
 	 *
-	 * @since 3.19 BETA_JAVA13
+	 * @since 3.19.50
 	 */
 	public static final int JLS13 = 13;
 	
 	/**
 	 * Internal synonym for {@link #JLS13}. Use to alleviate
 	 * deprecation warnings once JLS13 is deprecated
-	 * @since 3.19 BETA_JAVA13 
+	 * @since 3.19.50 
 	 */
 	static final int JLS13_INTERNAL = JLS13;
 
@@ -504,7 +500,7 @@ public final class AST {
 	 *
 	 * @param options the table of options
 	 * @see JavaCore#getDefaultOptions()
-     * @since 3.19 BETA_JAVA13
+     * @since 3.19.50
 	 */
 	public static AST newAST(Map<String, String> options) {
 		return new AST(options);
@@ -2791,7 +2787,7 @@ public final class AST {
 	 * label/identifier/expression and is not implicit.
 	 *
 	 * @return a new unparented yield statement node
-	 * @since 3.19 BETA_JAVA13
+	 * @since 3.19.50
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public TextBlock newTextBlock() {
@@ -3103,7 +3099,7 @@ public final class AST {
 	 * label/identifier/expression and is not implicit.
 	 *
 	 * @return a new unparented yield statement node
-	 * @since 3.19 BETA_JAVA13
+	 * @since 3.19.50
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public YieldStatement newYieldStatement() {

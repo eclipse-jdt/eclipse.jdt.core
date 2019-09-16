@@ -7,10 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -970,7 +966,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>YieldStatement</code>.
 	 * @see YieldStatement
-	 * @since 3.19 BETA_JAVA13
+	 * @since 3.19.50
 	 */
 	public static final int YIELD_STATEMENT = 10;
 	
@@ -978,7 +974,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>TextBlock</code>.
 	 * @see TextBlock
-	 * @since 3.19 BETA_JAVA13
+	 * @since 3.19.50
 	 */
 	public static final int TEXT_BLOCK = 101;
 
@@ -2197,7 +2193,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is is not used in JLS12
-	 * @since 3.19 BETA_JAVA13
+	 * @since 3.19.50
      */
 	// In API Javadocs, add: * @deprecated In the JLS13 API, this method is replaced by {@link #replacement()}.
 	final void supportedOnlyIn12() {
@@ -2214,7 +2210,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is not used in JLS13
-	 * @since 3.19 BETA_JAVA13
+	 * @since 3.19.50
 	 */
 	final void supportedOnlyIn13() {
 		if (this.ast.apiLevel != AST.JLS13_INTERNAL) {
