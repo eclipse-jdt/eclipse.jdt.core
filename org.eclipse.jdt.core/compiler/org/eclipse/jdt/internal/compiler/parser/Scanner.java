@@ -2222,10 +2222,13 @@ public final void jumpOverMethodBody() {
 								return;
 							}
 							if (this.currentCharacter == '\r'){
-								if (this.source[this.currentPosition] == '\n') this.currentPosition++;
+								// For text block, we don't want to overlook \n. Hence, don't advance past \n
+								//if (this.source[this.currentPosition] == '\n') this.currentPosition++;
 								break NextToken; // the string cannot go further that the line
 							}
 							if (this.currentCharacter == '\n'){
+								// For text block, we don't want to overlook \n. Hence, go back one char
+								this.currentPosition--;
 								break; // the string cannot go further that the line
 							}
 							if (this.currentCharacter == '\\') {

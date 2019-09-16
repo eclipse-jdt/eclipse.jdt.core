@@ -615,4 +615,41 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
+	public void test0010() throws JavaModelException {
+		String contents =
+				"public class test13 {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		String s = \"\"\"\n" + 
+				"				nadknaks vgvh \n" + 
+				"				\"\"\";\n" + 
+				"\n" + 
+				"		int m = 10;\n" + 
+				"		m = m* 6;\n" + 
+				"		System.out.println(s);\n" + 
+				"	}\n" + 
+				"}" ;
+		this.workingCopy = getWorkingCopy("/Converter13/src/test13.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+					contents,
+					this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = getASTNode(compilationUnit, 0, 0, 0);
+			assertEquals("wrong line number", 3, compilationUnit.getLineNumber(node.getStartPosition()));
+			node = getASTNode(compilationUnit, 0, 0, 1);
+			assertEquals("wrong line number", 7, compilationUnit.getLineNumber(node.getStartPosition()));
+			node = getASTNode(compilationUnit, 0, 0, 2);
+			assertEquals("wrong line number", 8, compilationUnit.getLineNumber(node.getStartPosition()));
+			node = getASTNode(compilationUnit, 0, 0, 3);
+			assertEquals("wrong line number", 9, compilationUnit.getLineNumber(node.getStartPosition()));
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
 }
