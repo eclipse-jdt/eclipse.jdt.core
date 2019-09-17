@@ -1654,6 +1654,28 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_UNSTABLE_AUTO_MODULE_NAME = PLUGIN_ID + ".compiler.problem.unstableAutoModuleName"; //$NON-NLS-1$
 
+	/**
+	 * Compiler option ID: Reporting when a {@code @SuppressWarnings} annotation might be unused, but exact information is not available.
+	 * <p>
+	 * This issue occurs when a suppress warnings token (like, e.g., {@code "unused"}) represents a group of problems,
+	 * and some of the problems in that group are currently disabled (configured as "ignore").
+	 * In this situation the compiler may not know if none of the problems in that group could be found within the
+	 * annotated code section.
+	 * <p>
+	 * When enabled, the compiler will issue an error, warning or info when a {@code @SuppressWarnings} annotation
+	 * was not observed to be necessary, but analysis of the suppressed group of problems was incomplete.
+	 *  
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.suppressWarningsNotFullyAnalysed"</code></dd>
+	 * <dt>Possible values:</dt>
+	 * <dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"info"</code></dd>
+	 * </dl>
+	 * 
+	 * @since 3.20
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_SUPPRESS_WARNINGS_NOT_FULLY_ANALYSED = PLUGIN_ID + ".compiler.problem.suppressWarningsNotFullyAnalysed"; //$NON-NLS-1$
 	
 	/**
 	 * Compiler option ID: Annotation-based Null Analysis.

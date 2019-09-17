@@ -668,6 +668,9 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.UnstableAutoModuleName;
 		case IProblem.PreviewFeatureUsed:
 			return CompilerOptions.PreviewFeatureUsed;
+
+		case IProblem.ProblemNotAnalysed:
+			return CompilerOptions.SuppressWarningsNotAnalysed;
 }
 	return 0;
 }
@@ -1689,8 +1692,6 @@ public int computeSeverity(int problemID){
 			return ProblemSeverities.Warning;
 		case IProblem.IllegalUseOfUnderscoreAsAnIdentifier:
 			return this.underScoreIsError ? ProblemSeverities.Error : ProblemSeverities.Warning;
-		case IProblem.ProblemNotAnalysed:
-			return ProblemSeverities.Info; // Not configurable
 	}
 	int irritant = getIrritant(problemID);
 	if (irritant != 0) {
