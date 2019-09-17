@@ -3480,4 +3480,64 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"String literal is not properly closed by a double-quote\n" + 
 			"----------\n");
 	}
+	public void testBug544943() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@SuppressWarnings(\"preview\")\n" + 
+				"	public static int foo(int i) throws MyException {\n" + 
+				"		int v = -1;\n" + 
+				"		try {\n" + 
+				"			v = switch (i) {\n" + 
+				"				case 0 -> switch(i) {\n" + 
+				"							case 0 -> 1;\n" + 
+				"							default -> throw new MyException();\n" + 
+				"						  };\n" + 
+				"				default -> 1;\n" + 
+				"			};\n" + 
+				"		} finally {\n" + 
+				"			// do nothing\n" + 
+				"		}\n" + 
+				"		return v;\n" + 
+				"	} \n" + 
+				"	public static void main(String argv[]) {\n" + 
+				"		try {\n" + 
+				"			System.out.println(X.foo(0));\n" + 
+				"		} catch (MyException e) {\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"class MyException extends Exception {\n" + 
+				"	private static final long serialVersionUID = 3461899582505930473L;	\n" + 
+				"}"
+			},
+			"1");
+	}
+	public void testBug544943_2() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" + 
+				"	@SuppressWarnings({ \"preview\" })\n" + 
+				"	public static int foo(int i) throws Exception {\n" + 
+				"		int v = switch (i) {\n" + 
+				"			case 0 -> switch (i) {\n" + 
+				"				case 0 -> 0;\n" + 
+				"				default-> throw new Exception();\n" + 
+				"				case 3 -> 3;\n" + 
+				"				case 2 -> throw new Exception();\n" + 
+				"				};\n" + 
+				"			default -> 0;\n" + 
+				"		};\n" + 
+				"		return v;\n" + 
+				"	}\n" + 
+				"	public static void main(String argv[]) throws Exception {\n" + 
+				"		System.out.println(X.foo(1));\n" + 
+				"	}\n" +
+				"}"
+			},
+			"0");
+	}
 }

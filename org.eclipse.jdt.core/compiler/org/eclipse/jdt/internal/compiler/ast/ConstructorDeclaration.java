@@ -456,7 +456,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		codeStream.exitUserScope(this.scope);
 		codeStream.recordPositionsFrom(0, this.bodyEnd > 0 ? this.bodyEnd : this.sourceStart);
 		try {
-			classFile.completeCodeAttribute(codeAttributeOffset);
+			classFile.completeCodeAttribute(codeAttributeOffset, this.scope);
 		} catch(NegativeArraySizeException e) {
 			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 		}

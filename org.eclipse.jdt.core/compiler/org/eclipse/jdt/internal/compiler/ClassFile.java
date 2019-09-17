@@ -86,22 +86,25 @@ import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrame;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.ExceptionMarker;
-import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.StackDepthMarker;
-import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.StackMarker;
 import org.eclipse.jdt.internal.compiler.codegen.TypeAnnotationCodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.VerificationTypeInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
@@ -769,7 +772,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		attributeNumber++; // code attribute
 		completeCodeAttributeForClinit(
 			codeAttributeOffset,
-			problemLine);
+			problemLine,
+			null);
 		if (this.contentsOffset + 2 >= this.contents.length) {
 			resizeContents(2);
 		}
@@ -1377,7 +1381,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 				.scope
 				.referenceCompilationUnit()
 				.compilationResult
-				.getLineSeparatorPositions());
+				.getLineSeparatorPositions(),
+			((SourceTypeBinding) methodBinding.declaringClass)
+				.scope);
 		// update the number of attributes
 		this.contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
 		this.contents[methodAttributeOffset] = (byte) attributeNumber;
@@ -1395,7 +1401,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 *
 	 * @param codeAttributeOffset <CODE>int</CODE>
 	 */
-	public void completeCodeAttribute(int codeAttributeOffset) {
+	public void completeCodeAttribute(int codeAttributeOffset, MethodScope scope) {
 		// reinitialize the localContents with the byte modified by the code stream
 		this.contents = this.codeStream.bCodeStream;
 		int localContentsOffset = this.codeStream.classFileOffset;
@@ -1515,7 +1521,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					code_length,
 					codeAttributeOffset,
 					max_locals,
-					false);
+					false,
+					scope);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
@@ -1524,7 +1531,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					code_length,
 					codeAttributeOffset,
 					max_locals,
-					false);
+					false,
+					scope);
 		}
 		
 		if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
@@ -1603,7 +1611,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 *
 	 * @param codeAttributeOffset <CODE>int</CODE>
 	 */
-	public void completeCodeAttributeForClinit(int codeAttributeOffset) {
+	public void completeCodeAttributeForClinit(int codeAttributeOffset, Scope scope) {
 		// reinitialize the contents with the byte modified by the code stream
 		this.contents = this.codeStream.bCodeStream;
 		int localContentsOffset = this.codeStream.classFileOffset;
@@ -1713,7 +1721,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					code_length,
 					codeAttributeOffset,
 					max_locals,
-					true);
+					true,
+					scope);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
@@ -1722,7 +1731,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					code_length,
 					codeAttributeOffset,
 					max_locals,
-					true);
+					true,
+					scope);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
@@ -1756,7 +1766,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 */
 	public void completeCodeAttributeForClinit(
 			int codeAttributeOffset,
-			int problemLine) {
+			int problemLine,
+			MethodScope scope) {
 		// reinitialize the contents with the byte modified by the code stream
 		this.contents = this.codeStream.bCodeStream;
 		int localContentsOffset = this.codeStream.classFileOffset;
@@ -1827,7 +1838,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					code_length,
 					codeAttributeOffset,
 					max_locals,
-					true);
+					true,
+					scope);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
@@ -1836,7 +1848,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					code_length,
 					codeAttributeOffset,
 					max_locals,
-					true);
+					true,
+					scope);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
@@ -1910,7 +1923,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					code_length,
 					codeAttributeOffset,
 					max_locals,
-					false);
+					false,
+					null);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
@@ -1919,7 +1933,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					code_length,
 					codeAttributeOffset,
 					max_locals,
-					false);
+					false,
+					null);
 		}
 
 		// then we do the local variable attribute
@@ -2006,7 +2021,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					code_length,
 					codeAttributeOffset,
 					max_locals,
-					false);
+					false,
+					null);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
@@ -2015,7 +2031,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					code_length,
 					codeAttributeOffset,
 					max_locals,
-					false);
+					false,
+					null);
 		}
 
 		// update the number of attributes// ensure first that there is enough space available inside the localContents array
@@ -2049,7 +2066,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 			boolean hasExceptionHandlers,
 			SyntheticMethodBinding binding,
 			int codeAttributeOffset,
-			int[] startLineIndexes) {
+			int[] startLineIndexes,
+			Scope scope) {
 		// reinitialize the contents with the byte modified by the code stream
 		this.contents = this.codeStream.bCodeStream;
 		int localContentsOffset = this.codeStream.classFileOffset;
@@ -2162,7 +2180,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			attributesNumber += generateLocalVariableTableAttribute(code_length, methodDeclarationIsStatic, true);
 		}
 		if (addStackMaps) {
-			attributesNumber += generateStackMapTableAttribute(binding, code_length, codeAttributeOffset, max_locals, false);
+			attributesNumber += generateStackMapTableAttribute(binding, code_length, codeAttributeOffset, max_locals, false, scope);
 		}
 
 		if ((this.produceAttributes & ClassFileConstants.ATTR_STACK_MAP) != 0) {
@@ -2171,7 +2189,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					code_length,
 					codeAttributeOffset,
 					max_locals,
-					false);
+					false,
+					scope);
 		}
 
 		// update the number of attributes
@@ -2212,7 +2231,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				false,
 				binding,
 				codeAttributeOffset,
-				startLineIndexes);
+				startLineIndexes,
+				((SourceTypeBinding) binding.declaringClass).scope);
 	}
 
 	private void completeArgumentAnnotationInfo(Argument[] arguments, List allAnnotationContexts) {
@@ -4617,14 +4637,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int code_length,
 			int codeAttributeOffset,
 			int max_locals,
-			boolean isClinit) {
+			boolean isClinit,
+			Scope scope) {
 		int attributesNumber = 0;
 		int localContentsOffset = this.contentsOffset;
 		StackMapFrameCodeStream stackMapFrameCodeStream = (StackMapFrameCodeStream) this.codeStream;
 		stackMapFrameCodeStream.removeFramePosition(code_length);
 		if (stackMapFrameCodeStream.hasFramePositions()) {
 			Map frames = new HashMap();
-			List realFrames = traverse(isClinit ? null : methodBinding, max_locals, this.contents, codeAttributeOffset + 14, code_length, frames, isClinit);
+			List realFrames = traverse(isClinit ? null : methodBinding, max_locals, this.contents, codeAttributeOffset + 14, code_length, frames, isClinit, scope);
 			int numberOfFrames = realFrames.size();
 			if (numberOfFrames > 1) {
 				int stackMapTableAttributeOffset = localContentsOffset;
@@ -4699,17 +4720,17 @@ public class ClassFile implements TypeConstants, TypeIds {
 									break;
 								default:
 									this.contents[localContentsOffset++] = (byte) info.tag;
-								switch (info.tag) {
-									case VerificationTypeInfo.ITEM_UNINITIALIZED :
-										int offset = info.offset;
-										this.contents[localContentsOffset++] = (byte) (offset >> 8);
-										this.contents[localContentsOffset++] = (byte) offset;
-										break;
-									case VerificationTypeInfo.ITEM_OBJECT :
-										int indexForType = this.constantPool.literalIndexForType(info.constantPoolName());
-										this.contents[localContentsOffset++] = (byte) (indexForType >> 8);
-										this.contents[localContentsOffset++] = (byte) indexForType;
-								}
+									switch (info.tag) {
+										case VerificationTypeInfo.ITEM_UNINITIALIZED :
+											int offset = info.offset;
+											this.contents[localContentsOffset++] = (byte) (offset >> 8);
+											this.contents[localContentsOffset++] = (byte) offset;
+											break;
+										case VerificationTypeInfo.ITEM_OBJECT :
+											int indexForType = this.constantPool.literalIndexForType(info.constantPoolName());
+											this.contents[localContentsOffset++] = (byte) (indexForType >> 8);
+											this.contents[localContentsOffset++] = (byte) indexForType;
+									}
 							}
 							numberOfLocalEntries++;
 						}
@@ -4794,14 +4815,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int code_length,
 			int codeAttributeOffset,
 			int max_locals,
-			boolean isClinit) {
+			boolean isClinit,
+			Scope scope) {
 		int attributesNumber = 0;
 		int localContentsOffset = this.contentsOffset;
 		StackMapFrameCodeStream stackMapFrameCodeStream = (StackMapFrameCodeStream) this.codeStream;
 		stackMapFrameCodeStream.removeFramePosition(code_length);
 		if (stackMapFrameCodeStream.hasFramePositions()) {
 			Map frames = new HashMap();
-			List realFrames = traverse(isClinit ? null: methodBinding, max_locals, this.contents, codeAttributeOffset + 14, code_length, frames, isClinit);
+			List realFrames = traverse(isClinit ? null: methodBinding, max_locals, this.contents, codeAttributeOffset + 14, code_length, frames, isClinit, scope);
 			int numberOfFrames = realFrames.size();
 			if (numberOfFrames > 1) {
 				int stackMapTableAttributeOffset = localContentsOffset;
@@ -5340,8 +5362,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// skip type parameters
 		int paren = CharOperation.lastIndexOf(')', methodSignature);
 		// there could be thrown exceptions behind, thus scan one type exactly
-		return CharOperation.subarray(methodSignature, paren + 1,
-				methodSignature.length);
+		return CharOperation.subarray(methodSignature, paren + 1, methodSignature.length);
 	}
 
 	private final int i4At(byte[] reference, int relativeOffset,
@@ -5506,9 +5527,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					localVariableBinding.recordInitializationStartPC(0);
 					localVariableBinding.recordInitializationEndPC(codeLength);
 
-					frame.putLocal(resolvedPosition, new VerificationTypeInfo(
-							TypeIds.T_JavaLangString,
-							ConstantPool.JavaLangStringConstantPoolName));
+					frame.putLocal(resolvedPosition, new VerificationTypeInfo(this.referenceBinding.scope.getJavaLangString()));
 					resolvedPosition++;
 
 					localVariableBinding = new LocalVariableBinding(" ordinal".toCharArray(), TypeBinding.INT, 0, false); //$NON-NLS-1$
@@ -5516,8 +5535,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					this.codeStream.record(localVariableBinding);
 					localVariableBinding.recordInitializationStartPC(0);
 					localVariableBinding.recordInitializationEndPC(codeLength);
-					frame.putLocal(resolvedPosition, new VerificationTypeInfo(
-							TypeBinding.INT));
+					frame.putLocal(resolvedPosition, new VerificationTypeInfo(TypeBinding.INT));
 					resolvedPosition++;
 				}
 
@@ -5839,8 +5857,161 @@ public class ClassFile implements TypeConstants, TypeIds {
 		});
 		return result;
 	}
+	
+	private TypeBinding getTypeBinding(char[] typeConstantPoolName, Scope scope, boolean checkcast) {
+		if (typeConstantPoolName.length == 1) {
+			// base type
+			switch(typeConstantPoolName[0]) {
+				case 'Z':
+					return TypeBinding.BOOLEAN;
+				case 'B':
+					return TypeBinding.BYTE;
+				case 'C':
+					return TypeBinding.CHAR;
+				case 'D':
+					return TypeBinding.DOUBLE;
+				case 'F':
+					return TypeBinding.FLOAT;
+				case 'I':
+					return TypeBinding.INT;
+				case 'J':
+					return TypeBinding.LONG;
+				case 'S':
+					return TypeBinding.SHORT;
+				default:
+					return null;
+			}
+		} else if (typeConstantPoolName[0] == '[') {
+			int dimensions = getDimensions(typeConstantPoolName);
+			if (typeConstantPoolName.length - dimensions == 1) {
+				// array of base types
+				TypeBinding baseType = null;
+				switch(typeConstantPoolName[typeConstantPoolName.length - 1]) {
+					case 'Z':
+						baseType = TypeBinding.BOOLEAN;
+						break;
+					case 'B':
+						baseType = TypeBinding.BYTE;
+						break;
+					case 'C':
+						baseType = TypeBinding.CHAR;
+						break;
+					case 'D':
+						baseType = TypeBinding.DOUBLE;
+						break;
+					case 'F':
+						baseType = TypeBinding.FLOAT;
+						break;
+					case 'I':
+						baseType = TypeBinding.INT;
+						break;
+					case 'J':
+						baseType = TypeBinding.LONG;
+						break;
+					case 'S':
+						baseType = TypeBinding.SHORT;
+						break;
+					case 'V':
+						baseType = TypeBinding.VOID;
+				}
+				return scope.createArrayType(baseType, dimensions);
+			} else {
+				// array of object types
+				TypeBinding type = (TypeBinding) scope.getTypeOrPackage(
+					CharOperation.splitOn('/', CharOperation.subarray(typeConstantPoolName, dimensions + 1, typeConstantPoolName.length - 1)));
+				if (!type.isValidBinding()) {
+					ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
+					if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
+						type = problemReferenceBinding.closestMatch();
+					}
+				}
+				return scope.createArrayType(type, dimensions);
+			}
+		} else {
+			TypeBinding type = checkcast ?
+					(TypeBinding) scope.getTypeOrPackage(
+							CharOperation.splitOn('/', CharOperation.subarray(typeConstantPoolName, 0, typeConstantPoolName.length)))
+				: (TypeBinding) scope.getTypeOrPackage(
+				CharOperation.splitOn('/', CharOperation.subarray(typeConstantPoolName, 1, typeConstantPoolName.length - 1)));
+			if (!type.isValidBinding()) {
+				ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
+				if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
+					type = problemReferenceBinding.closestMatch();
+				}
+			}
+			return type;
+		}
+	}
 
-	public List traverse(MethodBinding methodBinding, int maxLocals, byte[] bytecodes, int codeOffset, int codeLength, Map frames, boolean isClinit) {
+	private TypeBinding getANewArrayTypeBinding(char[] typeConstantPoolName, Scope scope) {
+		if (typeConstantPoolName[0] == '[') {
+			int dimensions = getDimensions(typeConstantPoolName);
+			if (typeConstantPoolName.length - dimensions == 1) {
+				// array of base types
+				TypeBinding baseType = null;
+				switch(typeConstantPoolName[typeConstantPoolName.length - 1]) {
+					case 'Z':
+						baseType = TypeBinding.BOOLEAN;
+						break;
+					case 'B':
+						baseType = TypeBinding.BYTE;
+						break;
+					case 'C':
+						baseType = TypeBinding.CHAR;
+						break;
+					case 'D':
+						baseType = TypeBinding.DOUBLE;
+						break;
+					case 'F':
+						baseType = TypeBinding.FLOAT;
+						break;
+					case 'I':
+						baseType = TypeBinding.INT;
+						break;
+					case 'J':
+						baseType = TypeBinding.LONG;
+						break;
+					case 'S':
+						baseType = TypeBinding.SHORT;
+						break;
+					case 'V':
+						baseType = TypeBinding.VOID;
+				}
+				return scope.createArrayType(baseType, dimensions);
+			} else {
+				// array of object types
+				TypeBinding type = (TypeBinding) scope.getTypeOrPackage(
+					CharOperation.splitOn('/', CharOperation.subarray(typeConstantPoolName, dimensions + 1, typeConstantPoolName.length - 1)));
+				if (!type.isValidBinding()) {
+					ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
+					if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
+						type = problemReferenceBinding.closestMatch();
+					}
+				}
+				return scope.createArrayType(type, dimensions);
+			}
+		} else {
+			TypeBinding type = (TypeBinding) scope.getTypeOrPackage(
+				CharOperation.splitOn('/', CharOperation.subarray(typeConstantPoolName, 0, typeConstantPoolName.length)));
+			if (!type.isValidBinding()) {
+				ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
+				if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
+					type = problemReferenceBinding.closestMatch();
+				}
+			}
+			return type;
+		}
+	}
+
+	public List traverse(
+			MethodBinding methodBinding,
+			int maxLocals,
+			byte[] bytecodes,
+			int codeOffset,
+			int codeLength,
+			Map<Integer, StackMapFrame> frames,
+			boolean isClinit,
+			Scope scope) {
 		Set realJumpTarget = new HashSet(); 
 
 		StackMapFrameCodeStream stackMapFrameCodeStream = (StackMapFrameCodeStream) this.codeStream;
@@ -5854,26 +6025,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int indexInFramePositions = 0;
 		int framePositionsLength = framePositions.length;
 		int currentFramePosition = framePositions[0];
-
-		// set initial values for stack depth markers
-		int indexInStackDepthMarkers = 0;
-		StackDepthMarker[] stackDepthMarkers = stackMapFrameCodeStream.getStackDepthMarkers();
-		int stackDepthMarkersLength = stackDepthMarkers == null ? 0 : stackDepthMarkers.length;
-		boolean hasStackDepthMarkers = stackDepthMarkersLength != 0;
-		StackDepthMarker stackDepthMarker = null;
-		if (hasStackDepthMarkers) {
-			stackDepthMarker = stackDepthMarkers[0];
-		}
-
-		// set initial values for stack markers (used only in cldc mode)
-		int indexInStackMarkers = 0;
-		StackMarker[] stackMarkers = stackMapFrameCodeStream.getStackMarkers();
-		int stackMarkersLength = stackMarkers == null ? 0 : stackMarkers.length;
-		boolean hasStackMarkers = stackMarkersLength != 0;
-		StackMarker stackMarker = null;
-		if (hasStackMarkers) {
-			stackMarker = stackMarkers[0];
-		}
 
 		// set initial values for exception markers
 		int indexInExceptionMarkers = 0;
@@ -5900,43 +6051,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		while (true) {
 			int currentPC = pc - codeOffset;
-			if (hasStackMarkers && stackMarker.pc == currentPC) {
-				VerificationTypeInfo[] infos = frame.stackItems;
-				VerificationTypeInfo[] tempInfos = new VerificationTypeInfo[frame.numberOfStackItems];
-				System.arraycopy(infos, 0, tempInfos, 0, frame.numberOfStackItems);
-				stackMarker.setInfos(tempInfos);
-			} else if (hasStackMarkers && stackMarker.destinationPC == currentPC) {
-				VerificationTypeInfo[] infos = stackMarker.infos;
-				frame.stackItems = infos;
-				frame.numberOfStackItems = infos.length;
-				indexInStackMarkers++;
-				if (indexInStackMarkers < stackMarkersLength) {
-					stackMarker = stackMarkers[indexInStackMarkers];
-				} else {
-					hasStackMarkers = false;
-				}
-			}
-			if (hasStackDepthMarkers && stackDepthMarker.pc == currentPC) {
-				TypeBinding typeBinding = stackDepthMarker.typeBinding;
-				if (typeBinding != null) {
-					if (stackDepthMarker.delta > 0) {
-						frame.addStackItem(new VerificationTypeInfo(typeBinding));
-					} else {
-						frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(typeBinding);
-					}
-				} else {
-					frame.numberOfStackItems--;
-				}
-				indexInStackDepthMarkers++;
-				if (indexInStackDepthMarkers < stackDepthMarkersLength) {
-					stackDepthMarker = stackDepthMarkers[indexInStackDepthMarkers];
-				} else {
-					hasStackDepthMarkers = false;
-				}
-			}
 			if (hasExceptionMarkers && exceptionMarker.pc == currentPC) {
 				frame.numberOfStackItems = 0;
-				frame.addStackItem(new VerificationTypeInfo(0, VerificationTypeInfo.ITEM_OBJECT, exceptionMarker.constantPoolName));
+				frame.addStackItem(new VerificationTypeInfo(exceptionMarker.getBinding()));
 				indexInExceptionMarkers++;
 				if (indexInExceptionMarkers < exceptionsMarkersLength) {
 					exceptionMarker = exceptionMarkers[indexInExceptionMarkers];
@@ -5956,12 +6073,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 			if (currentFramePosition == currentPC) {
 				// need to build a new frame and create a stack map attribute entry
-				StackMapFrame currentFrame = frame.duplicate();
-				currentFrame.pc = currentPC;
-				// initialize locals
-				initializeLocals(isClinit ? true : methodBinding.isStatic(), currentPC, currentFrame);
-				// insert a new frame
-				add(frames, currentFrame);
+				StackMapFrame currentFrame = frames.get(Integer.valueOf(currentPC));
+				if (currentFrame == null) {
+					currentFrame = createNewFrame(currentPC, frame, isClinit, methodBinding);
+					add(frames, currentFrame);
+				} else {
+					frame = currentFrame.merge(frame.duplicate(), scope).duplicate();
+				}
 				indexInFramePositions++;
 				if (indexInFramePositions < framePositionsLength) {
 					currentFramePosition = framePositions[indexInFramePositions];
@@ -5975,7 +6093,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					pc++;
 					break;
 				case Opcodes.OPC_aconst_null:
-					frame.addStackItem(TypeBinding.NULL);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.NULL));
 					pc++;
 					break;
 				case Opcodes.OPC_iconst_m1:
@@ -5985,31 +6103,31 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case Opcodes.OPC_iconst_3:
 				case Opcodes.OPC_iconst_4:
 				case Opcodes.OPC_iconst_5:
-					frame.addStackItem(TypeBinding.INT);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.INT));
 					pc++;
 					break;
 				case Opcodes.OPC_lconst_0:
 				case Opcodes.OPC_lconst_1:
-					frame.addStackItem(TypeBinding.LONG);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.LONG));
 					pc++;
 					break;
 				case Opcodes.OPC_fconst_0:
 				case Opcodes.OPC_fconst_1:
 				case Opcodes.OPC_fconst_2:
-					frame.addStackItem(TypeBinding.FLOAT);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.FLOAT));
 					pc++;
 					break;
 				case Opcodes.OPC_dconst_0:
 				case Opcodes.OPC_dconst_1:
-					frame.addStackItem(TypeBinding.DOUBLE);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.DOUBLE));
 					pc++;
 					break;
 				case Opcodes.OPC_bipush:
-					frame.addStackItem(TypeBinding.BYTE);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.BYTE));
 					pc += 2;
 					break;
 				case Opcodes.OPC_sipush:
-					frame.addStackItem(TypeBinding.SHORT);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.SHORT));
 					pc += 3;
 					break;
 				case Opcodes.OPC_ldc:
@@ -6017,20 +6135,16 @@ public class ClassFile implements TypeConstants, TypeIds {
 					switch (u1At(poolContents, 0, constantPoolOffsets[index])) {
 						case ClassFileConstants.StringTag:
 							frame
-									.addStackItem(new VerificationTypeInfo(
-											TypeIds.T_JavaLangString,
-											ConstantPool.JavaLangStringConstantPoolName));
+									.addStackItem(new VerificationTypeInfo(scope.getJavaLangString()));
 							break;
 						case ClassFileConstants.IntegerTag:
-							frame.addStackItem(TypeBinding.INT);
+							frame.addStackItem(new VerificationTypeInfo(TypeBinding.INT));
 							break;
 						case ClassFileConstants.FloatTag:
-							frame.addStackItem(TypeBinding.FLOAT);
+							frame.addStackItem(new VerificationTypeInfo(TypeBinding.FLOAT));
 							break;
 						case ClassFileConstants.ClassTag:
-							frame.addStackItem(new VerificationTypeInfo(
-									TypeIds.T_JavaLangClass,
-									ConstantPool.JavaLangClassConstantPoolName));
+							frame.addStackItem(new VerificationTypeInfo(scope.getJavaLangClass()));
 					}
 					pc += 2;
 					break;
@@ -6039,20 +6153,16 @@ public class ClassFile implements TypeConstants, TypeIds {
 					switch (u1At(poolContents, 0, constantPoolOffsets[index])) {
 						case ClassFileConstants.StringTag:
 							frame
-									.addStackItem(new VerificationTypeInfo(
-											TypeIds.T_JavaLangString,
-											ConstantPool.JavaLangStringConstantPoolName));
+									.addStackItem(new VerificationTypeInfo(scope.getJavaLangString()));
 							break;
 						case ClassFileConstants.IntegerTag:
-							frame.addStackItem(TypeBinding.INT);
+							frame.addStackItem(new VerificationTypeInfo(TypeBinding.INT));
 							break;
 						case ClassFileConstants.FloatTag:
-							frame.addStackItem(TypeBinding.FLOAT);
+							frame.addStackItem(new VerificationTypeInfo(TypeBinding.FLOAT));
 							break;
 						case ClassFileConstants.ClassTag:
-							frame.addStackItem(new VerificationTypeInfo(
-									TypeIds.T_JavaLangClass,
-									ConstantPool.JavaLangClassConstantPoolName));
+							frame.addStackItem(new VerificationTypeInfo(scope.getJavaLangClass()));
 					}
 					pc += 3;
 					break;
@@ -6060,28 +6170,28 @@ public class ClassFile implements TypeConstants, TypeIds {
 					index = u2At(bytecodes, 1, pc);
 					switch (u1At(poolContents, 0, constantPoolOffsets[index])) {
 						case ClassFileConstants.DoubleTag:
-							frame.addStackItem(TypeBinding.DOUBLE);
+							frame.addStackItem(new VerificationTypeInfo(TypeBinding.DOUBLE));
 							break;
 						case ClassFileConstants.LongTag:
-							frame.addStackItem(TypeBinding.LONG);
+							frame.addStackItem(new VerificationTypeInfo(TypeBinding.LONG));
 							break;
 					}
 					pc += 3;
 					break;
 				case Opcodes.OPC_iload:
-					frame.addStackItem(TypeBinding.INT);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.INT));
 					pc += 2;
 					break;
 				case Opcodes.OPC_lload:
-					frame.addStackItem(TypeBinding.LONG);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.LONG));
 					pc += 2;
 					break;
 				case Opcodes.OPC_fload:
-					frame.addStackItem(TypeBinding.FLOAT);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.FLOAT));
 					pc += 2;
 					break;
 				case Opcodes.OPC_dload:
-					frame.addStackItem(TypeBinding.DOUBLE);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.DOUBLE));
 					pc += 2;
 					break;
 				case Opcodes.OPC_aload:
@@ -6094,28 +6204,28 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case Opcodes.OPC_iload_1:
 				case Opcodes.OPC_iload_2:
 				case Opcodes.OPC_iload_3:
-					frame.addStackItem(TypeBinding.INT);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.INT));
 					pc++;
 					break;
 				case Opcodes.OPC_lload_0:
 				case Opcodes.OPC_lload_1:
 				case Opcodes.OPC_lload_2:
 				case Opcodes.OPC_lload_3:
-					frame.addStackItem(TypeBinding.LONG);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.LONG));
 					pc++;
 					break;
 				case Opcodes.OPC_fload_0:
 				case Opcodes.OPC_fload_1:
 				case Opcodes.OPC_fload_2:
 				case Opcodes.OPC_fload_3:
-					frame.addStackItem(TypeBinding.FLOAT);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.FLOAT));
 					pc++;
 					break;
 				case Opcodes.OPC_dload_0:
 				case Opcodes.OPC_dload_1:
 				case Opcodes.OPC_dload_2:
 				case Opcodes.OPC_dload_3:
-					frame.addStackItem(TypeBinding.DOUBLE);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.DOUBLE));
 					pc++;
 					break;
 				case Opcodes.OPC_aload_0:
@@ -6144,22 +6254,22 @@ public class ClassFile implements TypeConstants, TypeIds {
 					break;
 				case Opcodes.OPC_iaload:
 					frame.numberOfStackItems -=2;
-					frame.addStackItem(TypeBinding.INT);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.INT));
 					pc++;
 					break;
 				case Opcodes.OPC_laload:
 					frame.numberOfStackItems -=2;
-					frame.addStackItem(TypeBinding.LONG);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.LONG));
 					pc++;
 					break;
 				case Opcodes.OPC_faload:
 					frame.numberOfStackItems -=2;
-					frame.addStackItem(TypeBinding.FLOAT);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.FLOAT));
 					pc++;
 					break;
 				case Opcodes.OPC_daload:
 					frame.numberOfStackItems -=2;
-					frame.addStackItem(TypeBinding.DOUBLE);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.DOUBLE));
 					pc++;
 					break;
 				case Opcodes.OPC_aaload:
@@ -6169,17 +6279,17 @@ public class ClassFile implements TypeConstants, TypeIds {
 					break;
 				case Opcodes.OPC_baload:
 					frame.numberOfStackItems -=2;
-					frame.addStackItem(TypeBinding.BYTE);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.BYTE));
 					pc++;
 					break;
 				case Opcodes.OPC_caload:
 					frame.numberOfStackItems -=2;
-					frame.addStackItem(TypeBinding.CHAR);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.CHAR));
 					pc++;
 					break;
 				case Opcodes.OPC_saload:
 					frame.numberOfStackItems -=2;
-					frame.addStackItem(TypeBinding.SHORT);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.SHORT));
 					pc++;
 					break;
 				case Opcodes.OPC_istore:
@@ -6502,7 +6612,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case Opcodes.OPC_dcmpl:
 				case Opcodes.OPC_dcmpg:
 					frame.numberOfStackItems-=2;
-					frame.addStackItem(TypeBinding.INT);
+					frame.addStackItem(new VerificationTypeInfo(TypeBinding.INT));
 					pc++;
 					break;
 				case Opcodes.OPC_ifeq:
@@ -6512,7 +6622,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case Opcodes.OPC_ifgt:
 				case Opcodes.OPC_ifle:
 					frame.numberOfStackItems--;
-					addRealJumpTarget(realJumpTarget, currentPC + i2At(bytecodes, 1, pc));
+					int jumpPC = currentPC + i2At(bytecodes, 1, pc);
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
 					pc += 3;
 					break;
 				case Opcodes.OPC_if_icmpeq:
@@ -6524,21 +6635,25 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case Opcodes.OPC_if_acmpeq:
 				case Opcodes.OPC_if_acmpne:
 					frame.numberOfStackItems -= 2;
-					addRealJumpTarget(realJumpTarget, currentPC + i2At(bytecodes, 1, pc));
+					jumpPC = currentPC + i2At(bytecodes, 1, pc);
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
 					pc += 3;
 					break;
 				case Opcodes.OPC_goto:
-					addRealJumpTarget(realJumpTarget, currentPC + i2At(bytecodes, 1, pc));
+					jumpPC = currentPC + i2At(bytecodes, 1, pc);
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
 					pc += 3;
 					addRealJumpTarget(realJumpTarget, pc - codeOffset);
 					break;
 				case Opcodes.OPC_tableswitch:
+					frame.numberOfStackItems--;
 					pc++;
 					while (((pc - codeOffset) & 0x03) != 0) {
 						pc++;
 					}
 					// default offset
-					addRealJumpTarget(realJumpTarget, currentPC + i4At(bytecodes, 0, pc));
+					jumpPC = currentPC + i4At(bytecodes, 0, pc);
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
 					pc += 4; // default
 					int low = i4At(bytecodes, 0, pc);
 					pc += 4;
@@ -6547,27 +6662,29 @@ public class ClassFile implements TypeConstants, TypeIds {
 					int length = high - low + 1;
 					for (int i = 0; i < length; i++) {
 						// pair offset
-						addRealJumpTarget(realJumpTarget, currentPC + i4At(bytecodes, 0, pc));
+						jumpPC = currentPC + i4At(bytecodes, 0, pc);
+						addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
 						pc += 4;
 					}
-					frame.numberOfStackItems--;
 					break;
 				case Opcodes.OPC_lookupswitch:
+					frame.numberOfStackItems--;
 					pc++;
 					while (((pc - codeOffset) & 0x03) != 0) {
 						pc++;
 					}
-					addRealJumpTarget(realJumpTarget, currentPC + i4At(bytecodes, 0, pc));
+					jumpPC = currentPC + i4At(bytecodes, 0, pc);
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
 					pc += 4; // default offset
 					int npairs = (int) u4At(bytecodes, 0, pc);
 					pc += 4; // npair value
 					for (int i = 0; i < npairs; i++) {
 						pc += 4; // case value
 						// pair offset
-						addRealJumpTarget(realJumpTarget, currentPC + i4At(bytecodes, 0, pc));
+						jumpPC = currentPC + i4At(bytecodes, 0, pc);
+						addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
 						pc += 4;
 					}
-					frame.numberOfStackItems--;
 					break;
 				case Opcodes.OPC_ireturn:
 				case Opcodes.OPC_lreturn:
@@ -6592,38 +6709,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 							constantPoolOffsets[utf8index] + 3, u2At(
 									poolContents, 1,
 									constantPoolOffsets[utf8index]));
-					if (descriptor.length == 1) {
-						// base type
-						switch(descriptor[0]) {
-							case 'Z':
-								frame.addStackItem(TypeBinding.BOOLEAN);
-								break;
-							case 'B':
-								frame.addStackItem(TypeBinding.BYTE);
-								break;
-							case 'C':
-								frame.addStackItem(TypeBinding.CHAR);
-								break;
-							case 'D':
-								frame.addStackItem(TypeBinding.DOUBLE);
-								break;
-							case 'F':
-								frame.addStackItem(TypeBinding.FLOAT);
-								break;
-							case 'I':
-								frame.addStackItem(TypeBinding.INT);
-								break;
-							case 'J':
-								frame.addStackItem(TypeBinding.LONG);
-								break;
-							case 'S':
-								frame.addStackItem(TypeBinding.SHORT);
-								break;
-						}
-					} else if (descriptor[0] == '[') {
-						frame.addStackItem(new VerificationTypeInfo(0, descriptor));
-					} else {
-						frame.addStackItem(new VerificationTypeInfo(0, CharOperation.subarray(descriptor, 1, descriptor.length - 1)));
+					TypeBinding typeBinding = getTypeBinding(descriptor, scope, false);
+					if (typeBinding != null) {
+						frame.addStackItem(new VerificationTypeInfo(typeBinding));
 					}
 					pc += 3;
 					break;
@@ -6642,38 +6730,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 									poolContents, 1,
 									constantPoolOffsets[utf8index]));
 					frame.numberOfStackItems--;
-					if (descriptor.length == 1) {
-						// base type
-						switch(descriptor[0]) {
-							case 'Z':
-								frame.addStackItem(TypeBinding.BOOLEAN);
-								break;
-							case 'B':
-								frame.addStackItem(TypeBinding.BYTE);
-								break;
-							case 'C':
-								frame.addStackItem(TypeBinding.CHAR);
-								break;
-							case 'D':
-								frame.addStackItem(TypeBinding.DOUBLE);
-								break;
-							case 'F':
-								frame.addStackItem(TypeBinding.FLOAT);
-								break;
-							case 'I':
-								frame.addStackItem(TypeBinding.INT);
-								break;
-							case 'J':
-								frame.addStackItem(TypeBinding.LONG);
-								break;
-							case 'S':
-								frame.addStackItem(TypeBinding.SHORT);
-								break;
-						}
-					} else if (descriptor[0] == '[') {
-						frame.addStackItem(new VerificationTypeInfo(0, descriptor));
-					} else {
-						frame.addStackItem(new VerificationTypeInfo(0, CharOperation.subarray(descriptor, 1, descriptor.length - 1)));
+					typeBinding = getTypeBinding(descriptor, scope, false);
+					if (typeBinding != null) {
+						frame.addStackItem(new VerificationTypeInfo(typeBinding));
 					}
 					pc += 3;
 					break;
@@ -6699,40 +6758,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 									constantPoolOffsets[utf8index]));
 					frame.numberOfStackItems -= (getParametersCount(descriptor) + 1);
 					char[] returnType = getReturnType(descriptor);
-					if (returnType.length == 1) {
-						// base type
-						switch(returnType[0]) {
-							case 'Z':
-								frame.addStackItem(TypeBinding.BOOLEAN);
-								break;
-							case 'B':
-								frame.addStackItem(TypeBinding.BYTE);
-								break;
-							case 'C':
-								frame.addStackItem(TypeBinding.CHAR);
-								break;
-							case 'D':
-								frame.addStackItem(TypeBinding.DOUBLE);
-								break;
-							case 'F':
-								frame.addStackItem(TypeBinding.FLOAT);
-								break;
-							case 'I':
-								frame.addStackItem(TypeBinding.INT);
-								break;
-							case 'J':
-								frame.addStackItem(TypeBinding.LONG);
-								break;
-							case 'S':
-								frame.addStackItem(TypeBinding.SHORT);
-								break;
-						}
-					} else {
-						if (returnType[0] == '[') {
-							frame.addStackItem(new VerificationTypeInfo(0, returnType));
-						} else {
-							frame.addStackItem(new VerificationTypeInfo(0, CharOperation.subarray(returnType, 1, returnType.length - 1)));
-						}
+					typeBinding = getTypeBinding(returnType, scope, false);
+					if (typeBinding != null) {
+						frame.addStackItem(new VerificationTypeInfo(typeBinding));
 					}
 					pc += 3;
 					break;
@@ -6748,40 +6776,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 									constantPoolOffsets[utf8index]));
 					frame.numberOfStackItems -= getParametersCount(descriptor);
 					returnType = getReturnType(descriptor);
-					if (returnType.length == 1) {
-						// base type
-						switch(returnType[0]) {
-							case 'Z':
-								frame.addStackItem(TypeBinding.BOOLEAN);
-								break;
-							case 'B':
-								frame.addStackItem(TypeBinding.BYTE);
-								break;
-							case 'C':
-								frame.addStackItem(TypeBinding.CHAR);
-								break;
-							case 'D':
-								frame.addStackItem(TypeBinding.DOUBLE);
-								break;
-							case 'F':
-								frame.addStackItem(TypeBinding.FLOAT);
-								break;
-							case 'I':
-								frame.addStackItem(TypeBinding.INT);
-								break;
-							case 'J':
-								frame.addStackItem(TypeBinding.LONG);
-								break;
-							case 'S':
-								frame.addStackItem(TypeBinding.SHORT);
-								break;
-						}
-					} else {
-						if (returnType[0] == '[') {
-							frame.addStackItem(new VerificationTypeInfo(0, returnType));
-						} else {
-							frame.addStackItem(new VerificationTypeInfo(0, CharOperation.subarray(returnType, 1, returnType.length - 1)));
-						}
+					typeBinding = getTypeBinding(returnType, scope, false);
+					if (typeBinding != null) {
+						frame.addStackItem(new VerificationTypeInfo(typeBinding));
 					}
 					pc += 5;
 					break;
@@ -6808,40 +6805,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 					}
 					frame.numberOfStackItems--;
 					returnType = getReturnType(descriptor);
-					if (returnType.length == 1) {
-						// base type
-						switch(returnType[0]) {
-							case 'Z':
-								frame.addStackItem(TypeBinding.BOOLEAN);
-								break;
-							case 'B':
-								frame.addStackItem(TypeBinding.BYTE);
-								break;
-							case 'C':
-								frame.addStackItem(TypeBinding.CHAR);
-								break;
-							case 'D':
-								frame.addStackItem(TypeBinding.DOUBLE);
-								break;
-							case 'F':
-								frame.addStackItem(TypeBinding.FLOAT);
-								break;
-							case 'I':
-								frame.addStackItem(TypeBinding.INT);
-								break;
-							case 'J':
-								frame.addStackItem(TypeBinding.LONG);
-								break;
-							case 'S':
-								frame.addStackItem(TypeBinding.SHORT);
-								break;
-						}
-					} else {
-						if (returnType[0] == '[') {
-							frame.addStackItem(new VerificationTypeInfo(0, returnType));
-						} else {
-							frame.addStackItem(new VerificationTypeInfo(0, CharOperation.subarray(returnType, 1, returnType.length - 1)));
-						}
+					typeBinding = getTypeBinding(returnType, scope, false);
+					if (typeBinding != null) {
+						frame.addStackItem(new VerificationTypeInfo(typeBinding));
 					}
 					pc += 3;
 					break;
@@ -6863,40 +6829,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 									constantPoolOffsets[utf8index]));
 					frame.numberOfStackItems -= getParametersCount(descriptor);
 					returnType = getReturnType(descriptor);
-					if (returnType.length == 1) {
-						// base type
-						switch(returnType[0]) {
-							case 'Z':
-								frame.addStackItem(TypeBinding.BOOLEAN);
-								break;
-							case 'B':
-								frame.addStackItem(TypeBinding.BYTE);
-								break;
-							case 'C':
-								frame.addStackItem(TypeBinding.CHAR);
-								break;
-							case 'D':
-								frame.addStackItem(TypeBinding.DOUBLE);
-								break;
-							case 'F':
-								frame.addStackItem(TypeBinding.FLOAT);
-								break;
-							case 'I':
-								frame.addStackItem(TypeBinding.INT);
-								break;
-							case 'J':
-								frame.addStackItem(TypeBinding.LONG);
-								break;
-							case 'S':
-								frame.addStackItem(TypeBinding.SHORT);
-								break;
-						}
-					} else {
-						if (returnType[0] == '[') {
-							frame.addStackItem(new VerificationTypeInfo(0, returnType));
-						} else {
-							frame.addStackItem(new VerificationTypeInfo(0, CharOperation.subarray(returnType, 1, returnType.length - 1)));
-						}
+					typeBinding = getTypeBinding(returnType, scope, false);
+					if (typeBinding != null) {
+						frame.addStackItem(new VerificationTypeInfo(typeBinding));
 					}
 					pc += 3;
 					break;
@@ -6921,40 +6856,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 					// u1At(bytecodes, 4, pc); // extra args
 					frame.numberOfStackItems -= (getParametersCount(descriptor) + 1);
 					returnType = getReturnType(descriptor);
-					if (returnType.length == 1) {
-						// base type
-						switch(returnType[0]) {
-							case 'Z':
-								frame.addStackItem(TypeBinding.BOOLEAN);
-								break;
-							case 'B':
-								frame.addStackItem(TypeBinding.BYTE);
-								break;
-							case 'C':
-								frame.addStackItem(TypeBinding.CHAR);
-								break;
-							case 'D':
-								frame.addStackItem(TypeBinding.DOUBLE);
-								break;
-							case 'F':
-								frame.addStackItem(TypeBinding.FLOAT);
-								break;
-							case 'I':
-								frame.addStackItem(TypeBinding.INT);
-								break;
-							case 'J':
-								frame.addStackItem(TypeBinding.LONG);
-								break;
-							case 'S':
-								frame.addStackItem(TypeBinding.SHORT);
-								break;
-						}
-					} else {
-						if (returnType[0] == '[') {
-							frame.addStackItem(new VerificationTypeInfo(0, returnType));
-						} else {
-							frame.addStackItem(new VerificationTypeInfo(0, CharOperation.subarray(returnType, 1, returnType.length - 1)));
-						}
+					typeBinding = getTypeBinding(returnType, scope, false);
+					if (typeBinding != null) {
+						frame.addStackItem(new VerificationTypeInfo(typeBinding));
 					}
 					pc += 5;
 					break;
@@ -6966,40 +6870,47 @@ public class ClassFile implements TypeConstants, TypeIds {
 							constantPoolOffsets[utf8index] + 3, u2At(
 									poolContents, 1,
 									constantPoolOffsets[utf8index]));
-					VerificationTypeInfo verificationTypeInfo = new VerificationTypeInfo(0, VerificationTypeInfo.ITEM_UNINITIALIZED, className);
+					typeBinding =  (TypeBinding) scope.getTypeOrPackage(CharOperation.splitOn('/', className));
+					if (!typeBinding.isValidBinding()) {
+						ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) typeBinding;
+						if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
+							typeBinding = problemReferenceBinding.closestMatch();
+						}
+					}
+					VerificationTypeInfo verificationTypeInfo = new VerificationTypeInfo(VerificationTypeInfo.ITEM_UNINITIALIZED, typeBinding);
 					verificationTypeInfo.offset = currentPC;
 					frame.addStackItem(verificationTypeInfo);
 					pc += 3;
 					break;
 				case Opcodes.OPC_newarray:
-					char[] constantPoolName = null;
+					TypeBinding arrayType = null;
 					switch (u1At(bytecodes, 1, pc)) {
 						case ClassFileConstants.INT_ARRAY :
-							constantPoolName = new char[] { '[', 'I' };
+							arrayType = scope.createArrayType(TypeBinding.INT, 1);
 							break;
 						case ClassFileConstants.BYTE_ARRAY :
-							constantPoolName = new char[] { '[', 'B' };
+							arrayType = scope.createArrayType(TypeBinding.BYTE, 1);
 							break;
 						case ClassFileConstants.BOOLEAN_ARRAY :
-							constantPoolName = new char[] { '[', 'Z' };
+							arrayType = scope.createArrayType(TypeBinding.BOOLEAN, 1);
 							break;
 						case ClassFileConstants.SHORT_ARRAY :
-							constantPoolName = new char[] { '[', 'S' };
+							arrayType = scope.createArrayType(TypeBinding.SHORT, 1);
 							break;
 						case ClassFileConstants.CHAR_ARRAY :
-							constantPoolName = new char[] { '[', 'C' };
+							arrayType = scope.createArrayType(TypeBinding.CHAR, 1);
 							break;
 						case ClassFileConstants.LONG_ARRAY :
-							constantPoolName = new char[] { '[', 'J' };
+							arrayType = scope.createArrayType(TypeBinding.LONG, 1);
 							break;
 						case ClassFileConstants.FLOAT_ARRAY :
-							constantPoolName = new char[] { '[', 'F' };
+							arrayType = scope.createArrayType(TypeBinding.FLOAT, 1);
 							break;
 						case ClassFileConstants.DOUBLE_ARRAY :
-							constantPoolName = new char[] { '[', 'D' };
+							arrayType = scope.createArrayType(TypeBinding.DOUBLE, 1);
 							break;
 					}
-					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(TypeIds.T_JavaLangObject, constantPoolName);
+					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(arrayType);
 					pc += 2;
 					break;
 				case Opcodes.OPC_anewarray:
@@ -7010,19 +6921,16 @@ public class ClassFile implements TypeConstants, TypeIds {
 							constantPoolOffsets[utf8index] + 3, u2At(
 									poolContents, 1,
 									constantPoolOffsets[utf8index]));
-					int classNameLength = className.length;
-					if (className[0] != '[') {
-						// this is a type name (class or interface). So we add appropriate '[', 'L' and ';'.
-						System.arraycopy(className, 0, (constantPoolName = new char[classNameLength + 3]), 2, classNameLength);
-						constantPoolName[0] = '[';
-						constantPoolName[1] = 'L';
-						constantPoolName[classNameLength + 2] = ';';
-					} else {
-						// if class name is already an array, we just need to add one dimension
-						System.arraycopy(className, 0, (constantPoolName = new char[classNameLength + 1]), 1, classNameLength);
-						constantPoolName[0] = '[';
+					frame.numberOfStackItems--;
+					typeBinding = getANewArrayTypeBinding(className, scope);
+					if (typeBinding != null) {
+						if (typeBinding.isArrayType()) {
+							ArrayBinding arrayBinding = (ArrayBinding) typeBinding;
+							frame.addStackItem(new VerificationTypeInfo(scope.createArrayType(arrayBinding.elementsType(), arrayBinding.dimensions + 1)));
+						} else {
+							frame.addStackItem(new VerificationTypeInfo(scope.createArrayType(typeBinding, 1)));
+						}
 					}
-					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(0, constantPoolName);
 					pc += 3;
 					break;
 				case Opcodes.OPC_arraylength:
@@ -7042,7 +6950,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 							constantPoolOffsets[utf8index] + 3, u2At(
 									poolContents, 1,
 									constantPoolOffsets[utf8index]));
-					frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(0, className);
+					typeBinding = getTypeBinding(className, scope, true);
+					if (typeBinding != null) {
+						frame.stackItems[frame.numberOfStackItems - 1] = new VerificationTypeInfo(typeBinding);
+					}
 					pc += 3;
 					break;
 				case Opcodes.OPC_instanceof:
@@ -7067,10 +6978,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 						// need to handle iload, fload, aload, lload, dload, istore, fstore, astore, lstore or dstore
 						switch(opcode) {
 							case Opcodes.OPC_iload :
-								frame.addStackItem(TypeBinding.INT);
+								frame.addStackItem(new VerificationTypeInfo(TypeBinding.INT));
 								break;
 							case Opcodes.OPC_fload :
-								frame.addStackItem(TypeBinding.FLOAT);
+								frame.addStackItem(new VerificationTypeInfo(TypeBinding.FLOAT));
 								break;
 							case Opcodes.OPC_aload :
 								localsN = frame.locals[index];
@@ -7080,10 +6991,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 								frame.addStackItem(localsN);
 								break;
 							case Opcodes.OPC_lload :
-								frame.addStackItem(TypeBinding.LONG);
+								frame.addStackItem(new VerificationTypeInfo(TypeBinding.LONG));
 								break;
 							case Opcodes.OPC_dload :
-								frame.addStackItem(TypeBinding.DOUBLE);
+								frame.addStackItem(new VerificationTypeInfo(TypeBinding.DOUBLE));
 								break;
 							case Opcodes.OPC_istore :
 								frame.numberOfStackItems--;
@@ -7115,21 +7026,23 @@ public class ClassFile implements TypeConstants, TypeIds {
 									constantPoolOffsets[utf8index]));
 					int dimensions = u1At(bytecodes, 3, pc); // dimensions
 					frame.numberOfStackItems -= dimensions;
-					classNameLength = className.length;
 					// class name is already the name of the right array type with all dimensions
-					constantPoolName = new char[classNameLength];
-					System.arraycopy(className, 0, constantPoolName, 0, classNameLength);
-					frame.addStackItem(new VerificationTypeInfo(0, constantPoolName));
+					typeBinding = getTypeBinding(className, scope, false);
+					if (typeBinding != null) {
+						frame.addStackItem(new VerificationTypeInfo(typeBinding));
+					}
 					pc += 4;
 					break;
 				case Opcodes.OPC_ifnull:
 				case Opcodes.OPC_ifnonnull:
 					frame.numberOfStackItems--;
-					addRealJumpTarget(realJumpTarget, currentPC + i2At(bytecodes, 1, pc));
+					jumpPC =  currentPC + i2At(bytecodes, 1, pc);
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
 					pc += 3;
 					break;
 				case Opcodes.OPC_goto_w:
-					addRealJumpTarget(realJumpTarget, currentPC + i4At(bytecodes, 1, pc));
+					jumpPC =  currentPC + i4At(bytecodes, 1, pc);
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
 					pc += 5;
 					addRealJumpTarget(realJumpTarget, pc - codeOffset); // handle infinite loop
 					break;
@@ -7164,12 +7077,38 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return filterFakeFrames(realJumpTarget, frames, codeLength);
 	}
 
+	private StackMapFrame createNewFrame(int currentPC, StackMapFrame frame, boolean isClinit, MethodBinding methodBinding) {
+		StackMapFrame newFrame = frame.duplicate();
+		newFrame.pc = currentPC;
+		// initialize locals
+		initializeLocals(isClinit ? true : methodBinding.isStatic(), currentPC, newFrame);
+		return newFrame;
+	}
+
+	private int getDimensions(char[] returnType) {
+		int dimensions = 0;
+		while (returnType[dimensions] == '[') {
+			dimensions++;
+		}
+		return dimensions;
+	}
+
 	private void addRealJumpTarget(Set realJumpTarget, int pc) {
 		realJumpTarget.add(Integer.valueOf(pc));
 	}
-	private void add(Map frames, StackMapFrame frame) {
-		frames.put(Integer.valueOf(frame.pc), frame);
+
+	private void addRealJumpTarget(Set realJumpTarget, int pc, Map frames, StackMapFrame frame) {
+		realJumpTarget.add(Integer.valueOf(pc));
+		add(frames, frame);
 	}
+
+	private void add(Map frames, StackMapFrame frame) {
+		Integer key = Integer.valueOf(frame.pc);
+		if(!frames.containsKey(key)) {
+			frames.put(Integer.valueOf(frame.pc), frame);
+		}
+	}
+
 	private final int u1At(byte[] reference, int relativeOffset,
 			int structOffset) {
 		return (reference[relativeOffset + structOffset] & 0xFF);
