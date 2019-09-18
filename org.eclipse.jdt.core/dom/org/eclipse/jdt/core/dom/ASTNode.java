@@ -966,17 +966,17 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>YieldStatement</code>.
 	 * @see YieldStatement
-	 * @since 3.19.50
+	 * @since 3.19
 	 */
-	public static final int YIELD_STATEMENT = 10;
+	public static final int YIELD_STATEMENT = 101;
 	
 	/**
 	 * Node type constant indicating a node of type
 	 * <code>TextBlock</code>.
 	 * @see TextBlock
-	 * @since 3.19.50
+	 * @since 3.19
 	 */
-	public static final int TEXT_BLOCK = 101;
+	public static final int TEXT_BLOCK = 102;
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -2193,7 +2193,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is is not used in JLS12
-	 * @since 3.19.50
+	 * @since 3.19
      */
 	// In API Javadocs, add: * @deprecated In the JLS13 API, this method is replaced by {@link #replacement()}.
 	final void supportedOnlyIn12() {
@@ -2210,7 +2210,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is not used in JLS13
-	 * @since 3.19.50
+	 * @since 3.19
 	 */
 	final void supportedOnlyIn13() {
 		if (this.ast.apiLevel != AST.JLS13_INTERNAL) {

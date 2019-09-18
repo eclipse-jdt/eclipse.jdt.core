@@ -375,7 +375,7 @@ void setSourceStart(int sourceStart);
 	int ModuleRelated = 0x00800000;
 	/** @since 3.18 */
 	int Compliance = 0x00400000;
-	/** @since 3.19.50 */
+	/** @since 3.19 */
 	int PreviewRelated = 0x00200000; 
 
 	/**
@@ -776,7 +776,7 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.10 */
 	int MissingTypeInLambda = MethodRelated + 271;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int UnterminatedTextBlock = PreviewRelated + 272;
 	// type related problems
@@ -2065,7 +2065,7 @@ void setSourceStart(int sourceStart);
 	int PreviewFeatureUsed = Compliance + 1104;
 	/** @since 3.18 */
 	int PreviewFeatureNotSupported = Compliance + 1105;
-	/** @since 3.19.50*/
+	/** @since 3.19*/
 	int PreviewFeaturesNotAllowed = PreviewRelated + 1106;
 
 	/** @since 3.13 */
@@ -2144,61 +2144,61 @@ void setSourceStart(int sourceStart);
 	 * @deprecated preview related error - will be removed
 	 * @noreference preview related error */
 	int SwitchExpressionIllegalLastStatement = Internal + 1612;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldIncompatibleResultExpressionTypes = PreviewRelated + 1700;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldEmptySwitchBlock = PreviewRelated + 1701;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldNoResultExpression = PreviewRelated + 1702;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally = PreviewRelated + 1703;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldLastStatementCompletesNormally = PreviewRelated + 1704;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldTrailingSwitchLabels = PreviewRelated + 1705;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchPreviewMixedCase = PreviewRelated + 1706;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldMissingDefaultCase = PreviewRelated + 1707;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldMissingValue = PreviewRelated + 1708;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldMissingEnumConstantCase = PreviewRelated + 1709;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldIllegalLastStatement = PreviewRelated + 1710;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldBreakNotAllowed = PreviewRelated + 1711;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldUnqualifiedMethodWarning = PreviewRelated + 1712;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldUnqualifiedMethodError = PreviewRelated + 1713;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldOutsideSwitchExpression = PreviewRelated + 1714;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldRestrictedGeneralWarning = PreviewRelated + 1715;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldIllegalStatement = PreviewRelated + 1716;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldTypeDeclarationWarning = PreviewRelated + 1717;
-	/** @since 3.19.50
+	/** @since 3.19
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldTypeDeclarationError = PreviewRelated + 1718;
 	}

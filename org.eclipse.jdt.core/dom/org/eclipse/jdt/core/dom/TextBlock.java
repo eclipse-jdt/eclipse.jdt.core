@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
  *
  * These are block of String literal nodes. 
  *
- * @since 3.19.50
+ * @since 3.19
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noreference This class is not intended to be referenced by clients as it is a part of Java preview feature.
  */
@@ -80,7 +80,7 @@ public class TextBlock extends Expression {
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @since 3.19.50
+	 * @since 3.19
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
 		if (apiLevel == AST.JLS13_INTERNAL && previewEnabled) {
