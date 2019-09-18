@@ -1192,6 +1192,8 @@ public abstract class ASTNode {
 				return WhileStatement.class;
 			case WILDCARD_TYPE :
 				return WildcardType.class;
+			case YIELD_STATEMENT :
+				return YieldStatement.class;
 		}
 		throw new IllegalArgumentException();
 	}

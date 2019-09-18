@@ -8891,6 +8891,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.PROVIDES_DIRECTIVE,
 			ASTNode.MODULE_MODIFIER,
 			ASTNode.SWITCH_EXPRESSION,
+			ASTNode.YIELD_STATEMENT,
 			ASTNode.TEXT_BLOCK
 
 		};
