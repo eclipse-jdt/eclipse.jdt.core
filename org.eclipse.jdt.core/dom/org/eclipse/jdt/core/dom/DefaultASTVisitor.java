@@ -353,6 +353,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	@Override
+	public void endVisit(TextBlock node) {
+		endVisitNode(node);
+	}
+	@Override
 	public void endVisit(TextElement node) {
 		endVisitNode(node);
 	}
@@ -411,6 +415,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 	@Override
 	public void endVisit(WildcardType node) {
+		endVisitNode(node);
+	}
+	@Override
+	public void endVisit(YieldStatement node) {
 		endVisitNode(node);
 	}
 	protected void endVisitNode(ASTNode node) {
@@ -756,6 +764,11 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(TextBlock node) {
+		return visitNode(node);
+	}
+	
+	@Override
 	public boolean visit(TextElement node) {
 		return visitNode(node);
 	}
@@ -827,6 +840,11 @@ class DefaultASTVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(WildcardType node) {
+		return visitNode(node);
+	}
+	
+	@Override
+	public boolean visit(YieldStatement node) {
 		return visitNode(node);
 	}
 

@@ -6,12 +6,12 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
- * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] IndexOutOfBoundsException in TokenManager - https://bugs.eclipse.org/462945
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
+ *     IBM Corporation - DOM AST changes for JEP 354
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Annotation;
@@ -38,7 +39,6 @@ import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.AssertStatement;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -103,6 +103,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.WildcardType;
+import org.eclipse.jdt.core.dom.YieldStatement;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
 public class SpacePreparator extends ASTVisitor {
@@ -396,7 +397,7 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if (node.isSwitchLabeledRule()) {
+		if (node.getAST().apiLevel() == AST.JLS13 && node.isSwitchLabeledRule()) {
 			handleToken(this.tm.lastTokenIn(node, TokenNameARROW),
 					node.isDefault() ? this.options.insert_space_before_arrow_in_switch_default
 							: this.options.insert_space_before_arrow_in_switch_case,
@@ -410,16 +411,18 @@ public class SpacePreparator extends ASTVisitor {
 		}
 		if (!node.isDefault()) {
 			handleToken(node, TokenNamecase, false, true);
-			handleCommas(node.expressions(), this.options.insert_space_before_comma_in_switch_case_expressions,
+			if (node.getAST().apiLevel() == AST.JLS13) {
+				handleCommas(node.expressions(), this.options.insert_space_before_comma_in_switch_case_expressions,
 					this.options.insert_space_after_comma_in_switch_case_expressions);
+			}
 		}
 		return true;
 	}
 
 	@Override
-	public boolean visit(BreakStatement node) {
+	public boolean visit(YieldStatement node) {
 		if (node.getExpression() != null && !node.isImplicit()) {
-			this.tm.firstTokenIn(node, TokenNamebreak).spaceAfter();
+			this.tm.firstTokenIn(node, -1).spaceAfter();
 		}
 		return true;
 	}

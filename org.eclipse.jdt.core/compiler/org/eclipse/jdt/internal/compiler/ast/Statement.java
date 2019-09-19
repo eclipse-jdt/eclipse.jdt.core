@@ -305,7 +305,10 @@ public boolean breaksOut(final char[] label) {
 				this.breaksOut = true;
 	    	return false;
 	    }
-		
+		@Override
+		public boolean visit(YieldStatement yieldStatement, BlockScope skope) {
+	    	return false;
+	    }
 		public boolean breaksOut() {
 			Statement.this.traverse(this, null);
 			return this.breaksOut;

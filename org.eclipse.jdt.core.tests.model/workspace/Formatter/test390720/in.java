@@ -13,7 +13,7 @@ public class MyTest {
 			doSomeOtherThing();
 			break;
 		case 4: {
-			// break missing, oh well...
+			// yield missing, oh well...
 		}
 
 		case 5: {
@@ -27,12 +27,12 @@ public class MyTest {
 
 		int c = switch (b) {
 		case 444:
-			break a + b;
+			yield a + b;
 
 		case 555:
 		case 666:
 			doSoemthing();
-			break 777;
+			yield 777;
 		default:
 			doSomeOtherSomething();
 			return;
@@ -43,7 +43,7 @@ public class MyTest {
 		case 1 -> 6;
 		case 2 -> {
 			int f = a + b;
-			break f * f;
+			yield f * f;
 		}
 		default -> 55;
 		};
@@ -66,27 +66,27 @@ public class MyTest {
 				doSomething(switch (a * b * c * d) {
 				case 888:
 					aaa();
-					break bbb();
+					yield bbb();
 				// comment
 				case 999:
 					aaa();
-					break bbb();
+					yield bbb();
 				// comment
 
 				case 101010:
 					aaa();
-					break bbb();
+					yield bbb();
 
 				// comment
 				case 111111:
 					aaa();
-					break bbb();
+					yield bbb();
 
 				// comment
 
 				case 121212:
 					aaa();
-					break bbb();
+					yield bbb();
 
 				// comment
 
@@ -94,12 +94,12 @@ public class MyTest {
 
 				case 131313:
 					aaa();
-					break bbb();
+					yield bbb();
 				// comment
 				// comment
 				default:
 					aaa();
-					break bbb();
+					yield bbb();
 				});
 			}
 		}

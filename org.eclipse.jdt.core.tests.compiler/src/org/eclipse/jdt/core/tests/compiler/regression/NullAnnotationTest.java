@@ -10404,15 +10404,10 @@ public void testBug542707_001() {
 				},
 		options,
 		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	x = null;\n" + 
-		"	    ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 15)\n" + 
-		"	default -> null;\n" + 
-		"	           ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
+		"1. ERROR in X.java (at line 0)\n" + 
+		"	import java.io.IOException;\n" + 
+		"	^\n" + 
+		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
 		"----------\n"
 	);
 }
@@ -10450,10 +10445,10 @@ public void testBug542707_002() {
 				},
 		options,
 		"----------\n" + 
-		"1. ERROR in X.java (at line 13)\n" + 
-		"	Zork();\n" + 
-		"	^^^^\n" + 
-		"The method Zork() is undefined for the type X\n" + 
+		"1. ERROR in X.java (at line 0)\n" + 
+		"	import org.eclipse.jdt.annotation.*;\n" + 
+		"	^\n" + 
+		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
 		"----------\n"
 	);
 }
@@ -10479,12 +10474,18 @@ public void testBug542707_003() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog =
+	runner.expectedCompilerLog = this.complianceLevel == ClassFileConstants.JDK13 ?
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	default -> i == 3 ? maybe() : \"\";\n" + 
 			"	                    ^^^^^^^\n" + 
-			"Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'\n" + 
+			"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+			"----------\n" :
+			"----------\n" + 
+			"1. ERROR in X.java (at line 0)\n" + 
+			"	import org.eclipse.jdt.annotation.*;\n" + 
+			"	^\n" + 
+			"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
 			"----------\n";
 	runner.runNegativeTest();
 }
@@ -10544,12 +10545,18 @@ public void testBug542707_005() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog =
+	runner.expectedCompilerLog = this.complianceLevel == ClassFileConstants.JDK13 ?
 			"----------\n" + 
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	return switch(day) {\n" + 
 			"	              ^^^\n" + 
 			"Potential null pointer access: this expression has a \'@Nullable\' type\n" + 
+			"----------\n" :
+			"----------\n" + 
+			"1. ERROR in X.java (at line 0)\n" + 
+			"	import org.eclipse.jdt.annotation.*;\n" + 
+			"	^\n" + 
+			"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
 			"----------\n";
 	runner.runNegativeTest();
 }
@@ -10575,17 +10582,23 @@ public void testBug542707_006() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog =
+	runner.expectedCompilerLog = this.complianceLevel == ClassFileConstants.JDK13 ?
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	return switch(day) {\n" + 
 			"	              ^^^\n" + 
 			"Potential null pointer access: The variable day may be null at this location\n" + 
+			"----------\n" :
+			"----------\n" +
+			"1. ERROR in X.java (at line 0)\n" + 
+			"	enum SomeDays { Mon, Wed, Fri }\n" + 
+			"	^\n" + 
+			"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
 			"----------\n";
 	runner.runNegativeTest();
 }
 public void testBug545715() {
-	if (this.complianceLevel < ClassFileConstants.JDK12) return; // switch expression
+	if (this.complianceLevel < ClassFileConstants.JDK13) return; // switch expression
 	Map<String, String>  customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -10606,6 +10619,209 @@ public void testBug545715() {
 	    "",
 	    customOptions,
 	    new String[] {"--enable-preview"});
+}
+public void testBug548418_001a() {
+	if (this.complianceLevel < ClassFileConstants.JDK13)
+		return;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	runNegativeTestWithLibs(
+			new String[] {
+			"X.java",
+			"import java.io.IOException;\n"+
+			"\n"+
+			"import org.eclipse.jdt.annotation.NonNull;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	public static int foo(int i) throws IOException {\n"+
+			"		int k = 0;\n"+
+			"		@NonNull\n"+
+			"		X x = new X();\n"+
+			"		x  = switch (i) { \n"+
+			"		case 1  ->   {\n"+
+			"			x = null;\n"+
+			"			break x;\n"+
+			"		}\n"+
+			"		default -> null;\n"+
+			"		};\n"+
+			"\n"+
+			"		return k ;\n"+
+			"	}\n"+
+			"\n"+
+			"	public static void main(String[] args) {\n"+
+			"		try {\n"+
+			"			System.out.println(foo(3));\n"+
+			"		} catch (IOException e) {\n"+
+			"			// do nothing\n"+
+			"		}\n"+
+			"	}\n"+
+			"}\n"
+				},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	x = null;\n" + 
+		"	    ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 13)\n" + 
+		"	break x;\n" + 
+		"	^^^^^^^^\n" + 
+		"The label x is missing\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 15)\n" + 
+		"	default -> null;\n" + 
+		"	           ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
+		"----------\n"
+	);
+}
+public void testBug548418_001b() {
+	if (this.complianceLevel < ClassFileConstants.JDK13)
+		return;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	runNegativeTestWithLibs(
+			new String[] {
+			"X.java",
+			"import java.io.IOException;\n"+
+			"\n"+
+			"import org.eclipse.jdt.annotation.NonNull;\n"+
+			"\n"+
+			"public class X {\n"+
+			"	public static int foo(int i) throws IOException {\n"+
+			"		int k = 0;\n"+
+			"		@NonNull\n"+
+			"		X x = new X();\n"+
+			"		x  = switch (i) { \n"+
+			"		case 1  ->   {\n"+
+			"			x = null;\n"+
+			"			yield x;\n"+
+			"		}\n"+
+			"		default -> null;\n"+
+			"		};\n"+
+			"\n"+
+			"		return k ;\n"+
+			"	}\n"+
+			"\n"+
+			"	public static void main(String[] args) {\n"+
+			"		try {\n"+
+			"			System.out.println(foo(3));\n"+
+			"		} catch (IOException e) {\n"+
+			"			// do nothing\n"+
+			"		}\n"+
+			"	}\n"+
+			"}\n"
+				},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	x = null;\n" + 
+		"	    ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 15)\n" + 
+		"	default -> null;\n" + 
+		"	           ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
+		"----------\n"
+	);
+}
+public void testBug548418_002a() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
+		return;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	runNegativeTestWithLibs(
+			new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    	void m1(@NonNull String a) {}\n" +
+			"		void m2(@Nullable String b, int i) {\n" +
+			"			m1(switch(i) {\n" +
+			"			case 0 : {\n" +
+			"				break \"hello\";\n" +
+			"			}\n" +
+			"			default : break \"world\";\n" +
+			"			});\n" +
+			"		}\n" +
+			"		void m3() {\n" +
+			"			Zork();\n" +
+			"		}\n" +
+			"}\n"
+				},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	break \"hello\";\n" + 
+		"	      ^^^^^^^\n" + 
+		"Syntax error on token \"\"hello\"\", delete this token\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
+		"	default : break \"world\";\n" + 
+		"	                ^^^^^^^\n" + 
+		"Syntax error on token \"\"world\"\", delete this token\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
+		"	Zork();\n" + 
+		"	^^^^\n" + 
+		"The method Zork() is undefined for the type X\n" + 
+		"----------\n"
+	);
+}
+public void testBug548418_002b() {
+	if (this.complianceLevel != ClassFileConstants.JDK13)
+		return;
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
+	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	runNegativeTestWithLibs(
+			new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    	void m1(@NonNull String a) {}\n" +
+			"		void m2(@Nullable String b, int i) {\n" +
+			"			m1(switch(i) {\n" +
+			"			case 0 : {\n" +
+			"				yield \"hello\";\n" +
+			"			}\n" +
+			"			default : yield \"world\";\n" +
+			"			});\n" +
+			"		}\n" +
+			"		void m3() {\n" +
+			"			Zork();\n" +
+			"		}\n" +
+			"}\n"
+				},
+		options,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
+		"	Zork();\n" + 
+		"	^^^^\n" + 
+		"The method Zork() is undefined for the type X\n" + 
+		"----------\n"
+			);
 }
 public void testBug499714() {
 	runConformTestWithLibs(
@@ -10639,8 +10855,7 @@ public void testBug499714() {
 			"",
 		}, 
 		getCompilerOptions(),
-		""
-	);
+		"");
 }
 public void testBug481931_source() {
 	runNegativeTestWithLibs(

@@ -818,6 +818,8 @@ public static int getProblemCategory(int severity, int problemID) {
 				return CategorizedProblem.CAT_MODULE;
 			if ((problemID & IProblem.Compliance) != 0)
 				return CategorizedProblem.CAT_COMPLIANCE;
+			if ((problemID & IProblem.PreviewRelated) != 0)
+				return CategorizedProblem.CAT_PREVIEW_RELATED;
 	}
 	return CategorizedProblem.CAT_INTERNAL;
 }
@@ -833,6 +835,16 @@ public void abortDueToInternalError(String errorMessage, ASTNode location) {
 		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
 		location == null ? 0 : location.sourceStart,
 		location == null ? 0 : location.sourceEnd);
+}
+public void abortDueToPreviewEnablingNotAllowed(String sourceLevel, String expectedSourceLevel) {
+	String[] args = new String[] {sourceLevel, expectedSourceLevel};
+	this.handle(
+			IProblem.PreviewFeaturesNotAllowed,
+			args,
+			args,
+			ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
+			0,
+			0);
 }
 public void abstractMethodCannotBeOverridden(SourceTypeBinding type, MethodBinding concreteMethod) {
 
@@ -1603,7 +1615,10 @@ public int computeSeverity(int problemID){
 
 	switch (problemID) {
 		case IProblem.VarargsConflict :
-			return ProblemSeverities.Warning;
+ 		case IProblem.SwitchExpressionsYieldUnqualifiedMethodWarning:
+ 		case IProblem.SwitchExpressionsYieldRestrictedGeneralWarning:
+ 		case IProblem.SwitchExpressionsYieldTypeDeclarationWarning:
+ 			return ProblemSeverities.Warning;
  		case IProblem.TypeCollidesWithPackage :
 			return ProblemSeverities.Error;
 
@@ -5093,6 +5108,9 @@ private boolean isKeyword(int token) {
 		case TerminalTokens.TokenNamevolatile:
 		case TerminalTokens.TokenNamewhile:
 			return true;
+		case TerminalTokens.TokenNameRestrictedIdentifierYield:
+			// making explicit - yield not a (restricted) keyword but restricted identifier.
+			//$FALL-THROUGH$
 		default:
 			return false;
 	}
@@ -6513,7 +6531,7 @@ public void missingEnumConstantCase(SwitchExpression switchExpression, FieldBind
 }
 private void missingSwitchExpressionEnumConstantCase(CaseStatement defaultCase, FieldBinding enumConstant, ASTNode expression) {
 	this.handle(
-			IProblem.SwitchExpressionMissingEnumConstantCase,
+			IProblem.SwitchExpressionsYieldMissingEnumConstantCase,
 			new String[] {new String(enumConstant.declaringClass.readableName()), new String(enumConstant.name) },
 			new String[] {new String(enumConstant.declaringClass.shortReadableName()), new String(enumConstant.name) },
 			expression.sourceStart,
@@ -6538,7 +6556,7 @@ public void missingDefaultCase(SwitchStatement switchStatement, boolean isEnumSw
 	} else {
 		this.handle(
 				switchStatement instanceof SwitchExpression ?
-						IProblem.SwitchExpressionMissingDefaultCase : IProblem.MissingDefaultCase,
+						IProblem.SwitchExpressionsYieldMissingDefaultCase : IProblem.MissingDefaultCase,
 				NoArgument,
 				NoArgument,
 				switchStatement.expression.sourceStart,
@@ -7906,6 +7924,8 @@ public void scannerError(Parser parser, String errorTokenName) {
 		flag = IProblem.InvalidFloat;
 	else if (errorTokenName.equals(Scanner.UNTERMINATED_STRING))
 		flag = IProblem.UnterminatedString;
+	else if (errorTokenName.equals(Scanner.UNTERMINATED_TEXT_BLOCK))
+		flag = IProblem.UnterminatedTextBlock;
 	else if (errorTokenName.equals(Scanner.UNTERMINATED_COMMENT))
 		flag = IProblem.UnterminatedComment;
 	else if (errorTokenName.equals(Scanner.INVALID_CHAR_IN_STRING))
@@ -8131,6 +8151,8 @@ private String replaceIfSynthetic(String token) {
 		return "."; //$NON-NLS-1$
 	if (token.equals("BeginLambda")) //$NON-NLS-1$
 		return "("; //$NON-NLS-1$
+	if (token.equals("RestrictedIdentifierYield")) //$NON-NLS-1$
+		return "yield"; //$NON-NLS-1$
 	return token;
 }
 public void task(String tag, String message, String priority, int start, int end){
@@ -11068,7 +11090,7 @@ public void switchExpressionIncompatibleResultExpressions(SwitchExpression expre
 		return;
 	TypeBinding type = expression.resultExpressions.get(0).resolvedType;
 	this.handle(
-		IProblem.SwitchExpressionsIncompatibleResultExpressionTypes,
+		IProblem.SwitchExpressionsYieldIncompatibleResultExpressionTypes,
 		new String[] {new String(type.readableName())},
 		new String[] {new String(type.shortReadableName())},
 		expression.sourceStart,
@@ -11078,7 +11100,7 @@ public void switchExpressionEmptySwitchBlock(SwitchExpression expression) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
-		IProblem.SwitchExpressionsEmptySwitchBlock,
+		IProblem.SwitchExpressionsYieldEmptySwitchBlock,
 		NoArgument,
 		NoArgument,
 		expression.sourceStart,
@@ -11088,7 +11110,7 @@ public void switchExpressionNoResultExpressions(SwitchExpression expression) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
-		IProblem.SwitchExpressionsNoResultExpression,
+		IProblem.SwitchExpressionsYieldNoResultExpression,
 		NoArgument,
 		NoArgument,
 		expression.sourceStart,
@@ -11098,7 +11120,7 @@ public void switchExpressionSwitchLabeledBlockCompletesNormally(Block block) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
-		IProblem.SwitchExpressionSwitchLabeledBlockCompletesNormally,
+		IProblem.SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally,
 		NoArgument,
 		NoArgument,
 		block.sourceStart,
@@ -11108,7 +11130,7 @@ public void switchExpressionLastStatementCompletesNormally(Statement stmt) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
-		IProblem.SwitchExpressionSwitchLabeledBlockCompletesNormally,
+		IProblem.SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally,
 		NoArgument,
 		NoArgument,
 		stmt.sourceStart,
@@ -11118,7 +11140,7 @@ public void switchExpressionIllegalLastStatement(Statement stmt) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
-		IProblem.SwitchExpressionIllegalLastStatement,
+		IProblem.SwitchExpressionsYieldIllegalLastStatement,
 		NoArgument,
 		NoArgument,
 		stmt.sourceStart,
@@ -11128,7 +11150,7 @@ public void switchExpressionTrailingSwitchLabels(Statement stmt) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
-		IProblem.SwitchExpressionTrailingSwitchLabels,
+		IProblem.SwitchExpressionsYieldTrailingSwitchLabels,
 		NoArgument,
 		NoArgument,
 		stmt.sourceStart,
@@ -11138,17 +11160,83 @@ public void switchExpressionMixedCase(ASTNode statement) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
-		IProblem.switchMixedCase,
+		IProblem.SwitchPreviewMixedCase,
 		NoArgument,
 		NoArgument,
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-public void switchExpressionBreakMissingValue(ASTNode statement) {
+public void switchExpressionBreakNotAllowed(ASTNode statement) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
-		IProblem.SwitchExpressionBreakMissingValue,
+		IProblem.SwitchExpressionsYieldBreakNotAllowed,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldUnqualifiedMethodWarning(ASTNode statement) {
+	this.handle(
+		IProblem.SwitchExpressionsYieldUnqualifiedMethodWarning,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldUnqualifiedMethodError(ASTNode statement) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.SwitchExpressionsYieldUnqualifiedMethodError,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldOutsideSwitchExpression(ASTNode statement) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.SwitchExpressionsYieldOutsideSwitchExpression,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldRestrictedGeneralWarning(ASTNode statement) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.SwitchExpressionsYieldRestrictedGeneralWarning,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldIllegalStatement(ASTNode statement) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.SwitchExpressionsYieldIllegalStatement,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldTypeDeclarationWarning(ASTNode statement) {
+	this.handle(
+		IProblem.SwitchExpressionsYieldTypeDeclarationWarning,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
+public void switchExpressionsYieldTypeDeclarationError(ASTNode statement) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.SwitchExpressionsYieldTypeDeclarationError,
 		NoArgument,
 		NoArgument,
 		statement.sourceStart,

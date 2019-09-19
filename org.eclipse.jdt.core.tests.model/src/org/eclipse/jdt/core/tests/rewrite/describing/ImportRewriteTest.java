@@ -4959,7 +4959,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 				"}\n";
 		ICompilationUnit cu = pack1.createCompilationUnit("X.java", contents, false, null);
 
-		ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS11);
+		ASTParser parser = ASTParser.newParser(AST_INTERNAL_LATEST);
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
@@ -4984,7 +4984,7 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 				"}\n";
 		ICompilationUnit cu = pack1.createCompilationUnit("X.java", contents, false, null);
 
-		ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS11);
+		ASTParser parser = ASTParser.newParser(AST_INTERNAL_LATEST);
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);

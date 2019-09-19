@@ -803,14 +803,29 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		this.parser = new Parser(this.problemReporter, this.options.parseLiteralExpressionsAsConstants);
 	}
 
+	private  void abortIfPreviewNotAllowed(ICompilationUnit[] sourceUnits, int maxUnits) {
+		if (!this.options.enablePreviewFeatures)
+			return;
+		try {
+			if (this.options.sourceLevel != ClassFileConstants.getLatestJDKLevel()) {
+				this.problemReporter.abortDueToPreviewEnablingNotAllowed(CompilerOptions.versionFromJdkLevel(this.options.sourceLevel), CompilerOptions.getLatestVersion());
+			}
+		} catch (AbortCompilation a) {
+			// best effort to find a way for reporting this problem: report on the first source
+			if (a.compilationResult == null) {
+				a.compilationResult = new CompilationResult(sourceUnits[0], 0, maxUnits, this.options.maxProblemsPerUnit);
+			}
+			throw a;
+		}
+	}
 	/**
 	 * Add the initial set of compilation units into the loop
 	 *  ->  build compilation unit declarations, their bindings and record their results.
 	 */
 	protected void internalBeginToCompile(ICompilationUnit[] sourceUnits, int maxUnits) {
+		abortIfPreviewNotAllowed(sourceUnits,maxUnits);
 		if (!this.useSingleThread && maxUnits >= ReadManager.THRESHOLD)
 			this.parser.readManager = new ReadManager(sourceUnits, maxUnits);
-
 		// Switch the current policy and compilation result for this unit to the requested one.
 		for (int i = 0; i < maxUnits; i++) {
 			CompilationResult unitResult = null;

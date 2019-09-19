@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1475,4 +1475,70 @@ public class ScannerTest extends AbstractRegressionTest {
 					});
 		}
 	}
+	public void testBug531716_001_since_13() {
+		char[] source = ("class X {\n" +
+				"  String  s = \"\"\"This is the new String\"\"\";\n" +
+				"}").toCharArray();
+		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.getLatestJDKLevel(), null, null, false);
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			int token;
+			StringBuffer buffer = new StringBuffer();
+			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				try {
+					switch(token) {
+						case TerminalTokens.TokenNameTextBlock :
+							buffer.append( new String(scanner.getCurrentTextBlock()));
+							break;
+						case TerminalTokens.TokenNameStringLiteral :
+							break;
+						case TerminalTokens.TokenNameEOF :
+							break;
+						default :
+							break;
+					}
+				} catch (ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
+			}
+			assertEquals("Wrong contents", "", String.valueOf(buffer));
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}
+	public void testBug531716_001_since_13_1() {
+		char[] source = ("class X {\n" +
+				"  String  s = \"\"\"\nThis is the new String\"\"\";\n" +
+				"}").toCharArray();
+		Scanner scanner = new Scanner(false, false, false, ClassFileConstants.getLatestJDKLevel(), null, null, false);
+		scanner.previewEnabled = true;
+		scanner.setSource(source);
+		scanner.resetTo(0, source.length - 1);
+		try {
+			int token;
+			StringBuffer buffer = new StringBuffer();
+			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				try {
+					switch(token) {
+						case TerminalTokens.TokenNameTextBlock :
+							buffer.append( new String(scanner.getCurrentTextBlock()));
+							break;
+						case TerminalTokens.TokenNameStringLiteral :
+							break;
+						case TerminalTokens.TokenNameEOF :
+							break;
+						default :
+							break;
+					}
+				} catch (ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
+			}
+			assertEquals("Wrong contents", "This is the new String", String.valueOf(buffer));
+		} catch (InvalidInputException e) {
+			assertTrue(false);
+		}
+	}
+
 }

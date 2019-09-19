@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.tests;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.eclipse.jdt.core.tests.dom.ASTConverter12Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
@@ -35,12 +34,6 @@ public class RunAllJava12Tests extends TestCase {
 		};
 	}
 
-	public static Class[] getConverterTestClasses() {
-		return new Class[] {
-				ASTConverter12Test.class,
-		};
-	}
-
 	public static Class[] getCompilerClasses() {
 		return new Class[] {
 			org.eclipse.jdt.core.tests.eval.TestAll.class,
@@ -52,8 +45,6 @@ public class RunAllJava12Tests extends TestCase {
 		TestSuite ts = new TestSuite(RunAllJava12Tests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
-		addTestsToSuite(ts, testClasses);
-		testClasses = getConverterTestClasses();
 		addTestsToSuite(ts, testClasses);
 
 		AbstractCompilerTest.setpossibleComplianceLevels(AbstractCompilerTest.F_11);

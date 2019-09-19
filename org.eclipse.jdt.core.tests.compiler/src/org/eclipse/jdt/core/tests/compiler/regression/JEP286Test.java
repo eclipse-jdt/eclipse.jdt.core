@@ -69,7 +69,6 @@ static {
 	simpleTypeNames.put("ComparableAny", "Comparable<?>");
 	simpleTypeNames.put("CollectionExt_ComparableAny", "Collection<? extends Comparable<?>>");
 	simpleTypeNames.put("CollectionSuperComparableAny", "Collection<? super Comparable<?>>");
-	isJRE12Plus = isJRELevel(F_12);
 	if (isJRE12Plus)
 		simpleTypeNames.put("IntLongFloat", "java.lang.Number & Comparable<?> & java.lang.constant.Constable & java.lang.constant.ConstantDesc");
 	else 

@@ -34,9 +34,10 @@ public class ASTConverter10Test extends ConverterTestSetup {
 //	private static final String jcl9lib = "CONVERTER_JCL9_LIB";
 	
 
+	@SuppressWarnings("deprecation")
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(AST_INTERNAL_JLS11, true);
+		this.ast = AST.newAST(AST_INTERNAL_JLS10);
 	}
 
 	public ASTConverter10Test(String name) {

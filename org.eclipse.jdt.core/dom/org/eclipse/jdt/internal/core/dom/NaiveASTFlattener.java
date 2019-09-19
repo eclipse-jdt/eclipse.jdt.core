@@ -83,14 +83,6 @@ public class NaiveASTFlattener extends ASTVisitor {
 	private static final int JLS9 = AST.JLS9;
 	
 	/**
-	 * Internal synonym for {@link AST#JLS12}. Use to alleviate
-	 * deprecation warnings.
-	 * @since 3.18
-	 */
-	private static final int JLS12 = AST.JLS12;
-	
-
-	/**
 	 * The string buffer into which the serialized representation of the AST is
 	 * written.
 	 */
@@ -460,20 +452,11 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(BreakStatement node) {
-		if (node.getAST().apiLevel() == JLS12 && node.getAST().isPreviewEnabled() && node.isImplicit()  && node.getExpression() == null) {
-			return false;
-		}
 		printIndent();
-		this.buffer.append("break"); //$NON-NLS-1$
+		this.buffer.append("break");//$NON-NLS-1$
 		if (node.getLabel() != null) {
 			this.buffer.append(" ");//$NON-NLS-1$
 			node.getLabel().accept(this);
-		}
-		if (node.getAST().apiLevel() == JLS12 && node.getAST().isPreviewEnabled()) {
-			if (node.getExpression() != null) {
-				this.buffer.append(" ");//$NON-NLS-1$
-				node.getExpression().accept(this);
-			}
 		}
 		this.buffer.append(";\n");//$NON-NLS-1$
 		return false;
@@ -1504,7 +1487,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if (node.getAST().apiLevel() == JLS12 && node.getAST().isPreviewEnabled()) {
+		if ((node.getAST().isPreviewEnabled())) {
 			if (node.isDefault()) {
 				this.buffer.append("default");//$NON-NLS-1$
 				this.buffer.append(node.isSwitchLabeledRule() ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
@@ -1629,6 +1612,12 @@ public class NaiveASTFlattener extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(TextBlock node) {
+		this.buffer.append(node.getEscapedValue());
+		return false;
+	}
+	
 	@Override
 	public boolean visit(TextElement node) {
 		this.buffer.append(node.getText());
@@ -1918,6 +1907,21 @@ public class NaiveASTFlattener extends ASTVisitor {
 			}
 			bound.accept(this);
 		}
+		return false;
+	}
+	
+	@Override
+	public boolean visit(YieldStatement node) {
+		if ((node.getAST().isPreviewEnabled()) && node.isImplicit()  && node.getExpression() == null) {
+			return false;
+		}
+		printIndent();
+		this.buffer.append("yield"); //$NON-NLS-1$
+		if (node.getExpression() != null) {
+			this.buffer.append(" ");//$NON-NLS-1$
+			node.getExpression().accept(this);
+		}
+		this.buffer.append(";\n");//$NON-NLS-1$
 		return false;
 	}
 

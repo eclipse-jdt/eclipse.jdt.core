@@ -94,14 +94,6 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	/** @deprecated using deprecated code */
 	private static final int JLS9_INTERNAL = AST.JLS9;
 	
-	/**
-	 * Internal synonym for {@link AST#JLS12}. Use to alleviate
-	 * deprecation warnings.
-	 * @since 3.18
-	 */
-	private static final int JLS12 = AST.JLS12;
-
-
 	public static String asString(ASTNode node, RewriteEventStore store) {
 		ASTRewriteFlattener flattener= new ASTRewriteFlattener(store);
 		node.accept(flattener);
@@ -362,22 +354,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(BreakStatement node) {
-		if (node.getAST().apiLevel() == JLS12 && node.getAST().isPreviewEnabled() && node.isImplicit()  && node.getExpression() == null) {
-			return false;
-		}
-		
 		this.result.append("break"); //$NON-NLS-1$
 		ASTNode label= getChildNode(node, BreakStatement.LABEL_PROPERTY);
 		if (label != null) {
 			this.result.append(' ');
 			label.accept(this);
-		}
-		if (node.getAST().apiLevel() == JLS12 && node.getAST().isPreviewEnabled()) {
-			ASTNode expression = getChildNode(node, BreakStatement.EXPRESSION_PROPERTY);
-			if (expression != null ) {
-				this.result.append(' ');
-				expression.accept(this);
-			}
 		}
 		this.result.append(';');
 		return false;
@@ -981,7 +962,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if (node.getAST().apiLevel() == JLS12 && node.getAST().isPreviewEnabled()) {
+		if ((node.getAST().isPreviewEnabled())) {
 			if (node.isDefault()) {
 				this.result.append("default");//$NON-NLS-1$
 				this.result.append(getBooleanAttribute(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY) ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
@@ -1281,6 +1262,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(TextBlock node) {
+		this.result.append(getAttribute(node, TextBlock.ESCAPED_VALUE_PROPERTY));
+		return false;
+	}
+	
+	@Override
 	public boolean visit(TextElement node) {
 		this.result.append(getAttribute(node, TextElement.TEXT_PROPERTY));
 		return false;
@@ -1505,6 +1492,23 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			}
 			bound.accept(this);
 		}
+		return false;
+	}
+	
+	@Override
+	public boolean visit(YieldStatement node) {
+		if (node.getAST().isPreviewEnabled() && node.isImplicit()  && node.getExpression() == null) {
+			return false;
+		}
+		
+		this.result.append("yield"); //$NON-NLS-1$
+
+		ASTNode expression = getChildNode(node, YieldStatement.EXPRESSION_PROPERTY);
+		if (expression != null ) {
+			this.result.append(' ');
+			expression.accept(this);
+		}
+		this.result.append(';');
 		return false;
 	}
 }

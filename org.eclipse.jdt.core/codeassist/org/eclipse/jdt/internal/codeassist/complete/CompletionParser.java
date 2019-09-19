@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *		IBM Corporation - initial API and implementation
  *		Stephan Herrmann - Contribution for
@@ -99,6 +99,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_AFTER_NAME_IN_PROVIDES_STATEMENT = COMPLETION_PARSER + 49;
 	protected static final int K_AFTER_WITH_IN_PROVIDES_STATEMENT = COMPLETION_PARSER + 50;
 	protected static final int K_INSIDE_OPENS_STATEMENT = COMPLETION_PARSER + 51;
+	protected static final int K_YIELD_KEYWORD = COMPLETION_PARSER + 52;
 
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
@@ -1672,6 +1673,14 @@ private boolean checkInstanceofKeyword() {
 				return true;
 			}
 		}
+	}
+	return false;
+}
+private boolean checkYieldKeyword() {
+	// Clients to ensure that we are already inside a method
+	char[] id = this.scanner.getCurrentIdentifierSource();
+	if(id.length > 0 && CharOperation.prefixEquals(id, Keywords.YIELD)) {
+		return true;
 	}
 	return false;
 }
@@ -3798,6 +3807,12 @@ protected void consumePushPosition() {
 	}
 }
 @Override
+protected void consumeSwitchLabeledBlock() {
+	popUntilElement(K_SWITCH_LABEL);
+	popElement(K_SWITCH_LABEL);
+	concatNodeLists();
+}
+@Override
 protected void consumeToken(int token) {
 	if(this.isFirst) {
 		super.consumeToken(token);
@@ -3826,6 +3841,10 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameLBRACE:
 				popElement(K_BETWEEN_NEW_AND_LEFT_BRACKET);
+				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SWITCH_LABEL
+						&& previous == TokenNameARROW) {
+					pushOnElementStack(K_SWITCH_EXPRESSION_DELIMITTER);
+				}
 				break;
 			case TokenNameLBRACKET:
 				if(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_NEW_AND_LEFT_BRACKET) {
@@ -3916,6 +3935,16 @@ protected void consumeToken(int token) {
 			case TokenNameIdentifier:
 				if (this.inReferenceExpression)
 					break;
+				if (this.scanner.previewEnabled && isInsideSwitch() && checkYieldKeyword()) {
+					pushOnElementStack(K_YIELD_KEYWORD);
+					// Take the short cut here.
+					// Instead of injecting the TokenNameRestrictedIdentifierYield, totally ignore it
+					// and let completion take it course. We will not be constructing the 
+					// YieldStatement and thus not producing accurate completion, but completion doesn't have
+					// enough information anyway about the LHS anyway.
+					token = this.currentToken = this.getNextToken();
+					super.consumeToken(this.currentToken);
+				}
 				if (previous == TokenNameDOT) { // e.g. foo().[fred]()
 					if (this.invocationType != SUPER_RECEIVER // e.g. not super.[fred]()
 						&& this.invocationType != NAME_RECEIVER // e.g. not bar.[fred]()
@@ -4321,6 +4350,7 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_BETWEEN_FOR_AND_RIGHT_PAREN, this.bracketDepth);
 				break;
 			case TokenNameswitch:
+				popElement(K_LOCAL_INITIALIZER_DELIMITER);
 				pushOnElementStack(K_BETWEEN_SWITCH_AND_RIGHT_PAREN, this.bracketDepth);
 				break;
 			case TokenNamesynchronized:
@@ -4864,7 +4894,8 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=269493: Keywords are not proposed in a for
 			// loop without block. Completion while at K_CONTROL_STATEMENT_DELIMITER case needs to handled
 			// similar to the K_BLOCK_DELIMITER with minor differences.
-			if(kind == K_BLOCK_DELIMITER || kind == K_CONTROL_STATEMENT_DELIMITER || kind == K_LAMBDA_EXPRESSION_DELIMITER) {
+			if(kind == K_BLOCK_DELIMITER || kind == K_CONTROL_STATEMENT_DELIMITER || kind == K_LAMBDA_EXPRESSION_DELIMITER
+					|| kind == K_SWITCH_EXPRESSION_DELIMITTER) {
 				if(this.canBeExplicitConstructor == YES) {
 					canBeExplicitConstructorCall = true;
 				}
@@ -4906,6 +4937,9 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 				if(isInsideBreakable()) {
 					keywords[count++]= Keywords.BREAK;
 				}
+				if(isInsideSwitch()) {
+					keywords[count++]= Keywords.YIELD;
+				}
 			} else if (kind == K_BETWEEN_FOR_AND_RIGHT_PAREN) {
 				if (this.options.complianceLevel >= ClassFileConstants.JDK10) {
 					keywords[count++]= Keywords.VAR;
@@ -4920,13 +4954,16 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 				keywords[count++]= Keywords.TRUE;
 				keywords[count++]= Keywords.FALSE;
 				keywords[count++]= Keywords.NULL;
-
+				if (kind == K_YIELD_KEYWORD) {
+					keywords[count++]= Keywords.YIELD;
+				}
 				if(kind == K_SWITCH_LABEL) {
 					if(topKnownElementInfo(COMPLETION_OR_ASSIST_PARSER) != DEFAULT) {
 						keywords[count++]= Keywords.DEFAULT;
 					}
 					keywords[count++]= Keywords.BREAK;
 					keywords[count++]= Keywords.CASE;
+					keywords[count++]= Keywords.YIELD;
 					if (this.options.complianceLevel >= ClassFileConstants.JDK1_4) {
 						keywords[count++]= Keywords.ASSERT;
 					}
@@ -5124,9 +5161,7 @@ protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 @Override
 protected void consumePostfixExpression() {
 	// PostfixExpression ::= Name
-	if(this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_INSIDE_BREAK_STATEMENT) {
-		// Do nothing, just let checkLabelStatement() do the job
-	} else {
+	if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_YIELD_KEYWORD) {
 		super.consumePostfixExpression();
 	}
 }
@@ -5231,24 +5266,11 @@ protected boolean isInsideAnnotation() {
 	return false;
 }
 
-protected boolean isIndirectlyInsideBlock(){
-	int i = this.elementPtr;
-	while(i > -1) {
-		if(this.elementKindStack[i] == K_BLOCK_DELIMITER)
-			return true;
-		i--;
-	}
-	return false;
-}
-
-protected boolean isInsideBlock(){
+protected boolean isInsideSwitch(){
 	int i = this.elementPtr;
 	while(i > -1) {
 		switch (this.elementKindStack[i]) {
-			case K_TYPE_DELIMITER : return false;
-			case K_METHOD_DELIMITER : return false;
-			case K_FIELD_INITIALIZER_DELIMITER : return false;
-			case K_BLOCK_DELIMITER : return true;
+			case K_SWITCH_LABEL : return true;
 		}
 		i--;
 	}

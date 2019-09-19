@@ -146,6 +146,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	boolean wasInsideAssert = ((flowContext.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0);
 	flowInfo = this.receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic).unconditionalInits();
 
+	yieldQualifiedCheck(currentScope);
 	// recording the closing of AutoCloseable resources:
 	CompilerOptions compilerOptions = currentScope.compilerOptions();
 	boolean analyseResources = compilerOptions.analyseResourceLeaks;
@@ -242,6 +243,18 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	flowContext.recordAbruptExit();
 	flowContext.expireNullCheckedFieldInfo(); // no longer trust this info after any message send
 	return flowInfo;
+}
+private void yieldQualifiedCheck(BlockScope currentScope) {
+	long sourceLevel = currentScope.compilerOptions().sourceLevel;
+	if (sourceLevel < ClassFileConstants.JDK13 || !this.receiverIsImplicitThis())
+		return;
+	if (this.selector == null || !("yield".equals(new String(this.selector)))) //$NON-NLS-1$
+		return;
+	if (sourceLevel == ClassFileConstants.JDK13 && currentScope.compilerOptions().enablePreviewFeatures) {
+		currentScope.problemReporter().switchExpressionsYieldUnqualifiedMethodError(this);
+	} else {
+		currentScope.problemReporter().switchExpressionsYieldUnqualifiedMethodWarning(this);
+	}
 }
 private void recordCallingClose(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Expression closeTarget) {
 	FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(closeTarget, flowInfo, flowContext);

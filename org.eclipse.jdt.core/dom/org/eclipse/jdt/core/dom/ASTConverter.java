@@ -1287,39 +1287,19 @@ class ASTConverter {
 
 	public BreakStatement convert(org.eclipse.jdt.internal.compiler.ast.BreakStatement statement)  {
 		BreakStatement breakStatement = new BreakStatement(this.ast);
-		if (this.ast.apiLevel == AST.JLS12_INTERNAL && this.ast.isPreviewEnabled()) {
-			breakStatement.setImplicit(statement.isImplicit);
-			if (statement.isImplicit) {
-				breakStatement.setSourceRange(statement.sourceEnd -1, 0);
-			} else {
-				breakStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
-			}
-		}
-		else {
-			breakStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
-		}
+		breakStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
 		if (statement.label != null) {
 			final SimpleName name = new SimpleName(this.ast);
 			name.internalSetIdentifier(new String(statement.label));
 			retrieveIdentifierAndSetPositions(statement.sourceStart, statement.sourceEnd, name);
 			breakStatement.setLabel(name);
 		}
-		else if (statement.expression != null && this.ast.apiLevel == AST.JLS12_INTERNAL && this.ast.isPreviewEnabled()) {
-			final Expression expression= convert(statement.expression);
-			breakStatement.setExpression(expression);
-			int sourceEnd = statement.sourceEnd;
-			if (sourceEnd == -1) {
-				breakStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 2);
-			} else {
-				breakStatement.setSourceRange(statement.sourceStart, sourceEnd - statement.sourceStart + 1);
-			}
-		}
 		return breakStatement;
 	}
 
 	public SwitchCase convert(org.eclipse.jdt.internal.compiler.ast.CaseStatement statement) {
 		SwitchCase switchCase = new SwitchCase(this.ast);
-		if (this.ast.apiLevel == AST.JLS12_INTERNAL && this.ast.isPreviewEnabled()) {
+		if (this.ast.isPreviewEnabled()) {
 			org.eclipse.jdt.internal.compiler.ast.Expression[] expressions = statement.constantExpressions;
 			if (expressions == null || expressions.length == 0) {
 				switchCase.expressions().clear();
@@ -1336,7 +1316,7 @@ class ASTConverter {
 				internalSetExpression(switchCase, convert(constantExpression));
 			}
 		}
-		if (this.ast.apiLevel == AST.JLS12_INTERNAL && this.ast.isPreviewEnabled()) {
+		if (this.ast.isPreviewEnabled()) {
 			switchCase.setSwitchLabeledRule(statement.isExpr);
 		}
 		switchCase.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
@@ -1848,6 +1828,9 @@ class ASTConverter {
 		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral) expression);
+		}
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TextBlock) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.TextBlock) expression);
 		}
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.StringLiteral) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.StringLiteral) expression);
@@ -2850,6 +2833,9 @@ class ASTConverter {
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.WhileStatement) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.WhileStatement) statement);
 		}
+		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.YieldStatement) {
+			return convert((org.eclipse.jdt.internal.compiler.ast.YieldStatement) statement);
+		}
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.Expression &&
 				((org.eclipse.jdt.internal.compiler.ast.Expression) statement).isTrulyExpression()) {
 			org.eclipse.jdt.internal.compiler.ast.Expression statement2 = (org.eclipse.jdt.internal.compiler.ast.Expression) statement;
@@ -2878,9 +2864,9 @@ class ASTConverter {
 		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		return literal;
 	}
-
+	
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.SwitchExpression expression) {
-		if (this.ast.apiLevel < AST.JLS12_INTERNAL || !this.ast.isPreviewEnabled()) {
+		if (!this.ast.isPreviewEnabled()) {
 			return createFakeNullLiteral(expression);		
 		}
 		SwitchExpression switchExpression = new SwitchExpression(this.ast);
@@ -2935,6 +2921,21 @@ class ASTConverter {
 		return synchronizedStatement;
 	}
 
+	public Expression convert(org.eclipse.jdt.internal.compiler.ast.TextBlock expression) {
+		if (!this.ast.isPreviewEnabled()) {
+			return createFakeNullLiteral(expression);		
+		}
+		int length = expression.sourceEnd - expression.sourceStart + 1;
+		int sourceStart = expression.sourceStart;
+		TextBlock literal = new TextBlock(this.ast);
+		if (this.resolveBindings) {
+			this.recordNodes(literal, expression);
+		}
+		literal.internalSetEscapedValue(new String(this.compilationUnitSource, sourceStart, length));
+		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
+		return literal;
+	}
+	
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.ThisReference reference) {
 		if (reference.isImplicitThis()) {
 			// There is no source associated with an implicit this
@@ -3217,6 +3218,18 @@ class ASTConverter {
 		return whileStatement;
 	}
 
+	public Statement convert(org.eclipse.jdt.internal.compiler.ast.YieldStatement statement) {
+		if (this.ast.apiLevel != AST.JLS13_INTERNAL) {
+			return createFakeEmptyStatement(statement);		
+		}
+		YieldStatement yieldStatement = new YieldStatement(this.ast);
+		// We don't need to record Nodes
+		yieldStatement.setExpression(convert(statement.expression));
+		yieldStatement.setImplicit(statement.isImplicit);
+		yieldStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
+		return yieldStatement;
+	}
+	
 	public ImportDeclaration convertImport(org.eclipse.jdt.internal.compiler.ast.ImportReference importReference) {
 		final ImportDeclaration importDeclaration = new ImportDeclaration(this.ast);
 		Name name = getImportName(importReference);
@@ -6136,4 +6149,5 @@ class ASTConverter {
 			}
 		}
 	}
+
 }

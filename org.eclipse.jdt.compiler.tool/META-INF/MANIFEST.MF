@@ -2,13 +2,13 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %fragmentName
 Bundle-SymbolicName: org.eclipse.jdt.compiler.tool;singleton:=true
-Bundle-Version: 1.2.600.qualifier
+Bundle-Version: 1.2.550.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: compiler_tool_fragment
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: META-INF.services,
  org.eclipse.jdt.internal.compiler.tool;x-internal:=true
 Fragment-Host: org.eclipse.jdt.core;bundle-version="[3.3.0,4.0.0)"
-Bundle-ClassPath: lib/java10api.jar,
+Bundle-ClassPath: lib/java13api.jar,
  .
 Automatic-Module-Name: org.eclipse.jdt.compiler.tool

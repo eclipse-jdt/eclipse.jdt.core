@@ -26,6 +26,8 @@
 
   <properties>
     <tycho.scmUrl>scm:git:git://git.eclipse.org/gitroot/jdt/eclipse.jdt.core.git</tycho.scmUrl>
+    <eclipserun-repo>https://download.eclipse.org/eclipse/updates/4.13-Y-builds/</eclipserun-repo>
+    <cbi-ecj-version>3.18.50.v20190628-1803</cbi-ecj-version>
   </properties>
 
   <!-- 

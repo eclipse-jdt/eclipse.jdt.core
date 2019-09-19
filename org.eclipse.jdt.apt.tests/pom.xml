@@ -20,7 +20,7 @@
   </parent>
   <groupId>org.eclipse.jdt</groupId>
   <artifactId>org.eclipse.jdt.apt.tests</artifactId>
-  <version>3.4.500-SNAPSHOT</version>
+  <version>3.4.550-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
   <properties>
   	<testSuite>${project.artifactId}</testSuite>

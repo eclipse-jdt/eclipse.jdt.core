@@ -116,6 +116,7 @@ public final class Messages {
 	public static String ast_missingCode;
 	public static String constant_cannotCastedInto;
 	public static String constant_cannotConvertedTo;
+	public static String abort_againstPreviewNotAllowed;
 
 	static {
 		initializeMessages(BUNDLE_NAME, Messages.class);

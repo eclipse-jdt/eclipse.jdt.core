@@ -32,6 +32,7 @@ import java.util.List;
  *
  * @since 3.18
  * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SwitchExpression extends Expression {
@@ -55,14 +56,14 @@ public class SwitchExpression extends Expression {
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
 	 */
-	private static final List PROPERTY_DESCRIPTORS_12_0;
+	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
 		List propertyList = new ArrayList(3);
 		createPropertyList(SwitchExpression.class, propertyList);
 		addProperty(EXPRESSION_PROPERTY, propertyList);
 		addProperty(STATEMENTS_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS_12_0 = reapPropertyList(propertyList);
+		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**
@@ -88,11 +89,12 @@ public class SwitchExpression extends Expression {
 	 * @param previewEnabled previewEnabled flag
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.19
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 3.20
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
-		if (previewEnabled) {
-			return PROPERTY_DESCRIPTORS_12_0;
+		if (apiLevel == AST.JLS13_INTERNAL && previewEnabled) {
+			return PROPERTY_DESCRIPTORS;
 		}
 		return null;
 	}
@@ -120,11 +122,12 @@ public class SwitchExpression extends Expression {
 	 * </p>
 	 *
 	 * @param ast the AST that is to own this node
-	 * @exception UnsupportedOperationException if this operation is used below JLS12
+	 * @exception UnsupportedOperationException if this operation is used other than JLS13
+	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 */
 	SwitchExpression(AST ast) {
 		super(ast);
-		unsupportedBelow12();
+		supportedOnlyIn13();
 		unsupportedWithoutPreviewError();
 	}
 

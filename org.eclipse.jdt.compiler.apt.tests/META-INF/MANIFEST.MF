@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.compiler.apt.tests;singleton:=true
-Bundle-Version: 1.1.900.qualifier
+Bundle-Version: 1.1.850.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -19,6 +19,6 @@ Export-Package: org.eclipse.jdt.compiler.apt.tests,
  org.eclipse.jdt.compiler.apt.tests.processors.visitors
 Import-Package: org.eclipse.jdt.internal.compiler.tool;resolution:=optional
 Eclipse-BundleShape: dir
-Bundle-ClassPath: lib/java10api.jar,
+Bundle-ClassPath: lib/java13api.jar,
  .
 Automatic-Module-Name: org.eclipse.jdt.compiler.apt.tests

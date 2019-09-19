@@ -40,7 +40,7 @@ import javax.lang.model.element.TypeElement;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 
 /**
- * A processor that explores the java 9 specific elements and validates the lambda and 
+ * A processor that explores the java 12 specific elements and validates the lambda and 
  * type annotated elements. To enable this processor, add 
  * -Aorg.eclipse.jdt.compiler.apt.tests.processors.elements.Java11ElementProcessor to the command line.
  * @since 3.14

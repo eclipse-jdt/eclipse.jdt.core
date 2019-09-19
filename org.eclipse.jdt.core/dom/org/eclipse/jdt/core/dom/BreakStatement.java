@@ -43,6 +43,8 @@ public class BreakStatement extends Statement {
 	
 	/**
 	 * The "expression" structural property of this node type (child type: {@link Expression}). (added in JEP 325).
+	 * @noreference This property is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @deprecated
 	 * @since 3.18
 	 */
 	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
@@ -56,13 +58,6 @@ public class BreakStatement extends Statement {
 	private static final List PROPERTY_DESCRIPTORS;
 	
 	/**
-	 * A list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor}),
-	 * or null if uninitialized.
-	 */
-	private static final List PROPERTY_DESCRIPTORS_12;
-	
-	/**
 	 * <code>true</code> indicates implicit and <code>false</code> indicates not implicit.
 	 */
 	private boolean isImplicit = false;
@@ -72,12 +67,6 @@ public class BreakStatement extends Statement {
 		createPropertyList(BreakStatement.class, properyList);
 		addProperty(LABEL_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
-		
-		List properyList_12 = new ArrayList(2);
-		createPropertyList(BreakStatement.class, properyList_12);
-		addProperty(LABEL_PROPERTY, properyList_12);
-		addProperty(EXPRESSION_PROPERTY, properyList_12);
-		PROPERTY_DESCRIPTORS_12 = reapPropertyList(properyList_12);
 	}
 
 	/**
@@ -96,12 +85,20 @@ public class BreakStatement extends Statement {
 	}
 	
 	/**
-	 * @since 3.19 BETA_JAVA13
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 *
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.JLS*</code> constants
+	 * @param previewEnabled the previewEnabled flag
+
+	 * @return a list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor})
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @deprecated
+	 * @since 3.20
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
-		if (apiLevel == AST.JLS12_INTERNAL && previewEnabled) {
-			return PROPERTY_DESCRIPTORS_12;
-		}
 		return PROPERTY_DESCRIPTORS;
 	}
 
@@ -133,11 +130,6 @@ public class BreakStatement extends Statement {
 		return propertyDescriptors(apiLevel);
 	}
 	
-	@Override
-	final List internalStructuralPropertiesForType(int apiLevel, boolean isPreviewEnabled) {
-		return propertyDescriptors(apiLevel, isPreviewEnabled);
-	}
-
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == LABEL_PROPERTY) {
@@ -171,9 +163,6 @@ public class BreakStatement extends Statement {
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
 		result.setLabel((SimpleName) ASTNode.copySubtree(target, getLabel()));
-		if (isPreviewEnabled()) {
-			result.setExpression((Expression) ASTNode.copySubtree(target, getExpression()));
-		}
 		return result;
 	}
 
@@ -187,9 +176,6 @@ public class BreakStatement extends Statement {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			if (isPreviewEnabled()) {
-				acceptChild(visitor, getExpression());
-			} 
 			acceptChild(visitor, getLabel());
 		}
 		visitor.endVisit(this);
@@ -228,14 +214,15 @@ public class BreakStatement extends Statement {
 	 * there is none.
 	 *
 	 * @return the expression, or <code>null</code> if there is none
-	 * @exception UnsupportedOperationException if this operation is used below JLS12
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @exception UnsupportedOperationException if this operation is used other than JLS12
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
+	 * @deprecated
 	 * @since 3.18
 	 */
 	public Expression getExpression() {
 		// optionalExpression can be null
-		unsupportedBelow12();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn12();
 		return this.optionalExpression;
 	}
 
@@ -249,13 +236,14 @@ public class BreakStatement extends Statement {
 	 * <li>the node belongs to a different AST</li>
 	 * <li>the node already has a parent</li>
 	 * </ul>
-	 * @exception UnsupportedOperationException if this operation is used below JLS12
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @exception UnsupportedOperationException if this operation is used other than JLS12
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
+	 * @deprecated
 	 * @since 3.18
 	 */
 	public void setExpression(Expression expression) {
-		unsupportedBelow12();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn12();
 		ASTNode oldChild = this.optionalExpression;
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.optionalExpression = expression;
@@ -267,13 +255,14 @@ public class BreakStatement extends Statement {
 	 *<code>true</code> indicates implicit and <code>false</code> indicates not implicit.
 	 *
 	 * @return isImplicit <code>true</code> or <code>false</code>
-	 * @exception UnsupportedOperationException if this operation is used below JLS12
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @exception UnsupportedOperationException if this operation is used other than JLS12
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
+	 * @deprecated
 	 * @since 3.18
 	 */
 	public boolean isImplicit() {
-		unsupportedBelow12();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn12();
 		return this.isImplicit;
 	}
 
@@ -283,13 +272,12 @@ public class BreakStatement extends Statement {
 	 * generated by compiler and is not expected to be set by client.
 
 	 * @param isImplicit <code>true</code> or <code>false</code>
-	 * @exception UnsupportedOperationException if this operation is used below JLS12
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @exception UnsupportedOperationException if this operation is used other than JLS12
+	 * @deprecated
 	 * @since 3.18
 	 */
 	void setImplicit(boolean isImplicit) {
-		unsupportedBelow12();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn12();
 		this.isImplicit = isImplicit;
 	}
 

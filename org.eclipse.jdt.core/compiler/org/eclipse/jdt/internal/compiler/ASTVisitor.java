@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -485,6 +485,9 @@ public abstract class ASTVisitor {
 	public void endVisit(
 			UnionTypeReference unionTypeReference,
 			ClassScope scope) {
+		// do nothing by default
+	}
+	public void endVisit(YieldStatement yieldStatement, BlockScope scope) {
 		// do nothing by default
 	}
 	public void endVisit(WhileStatement whileStatement, BlockScope scope) {
@@ -979,6 +982,9 @@ public abstract class ASTVisitor {
 	public boolean visit(
 			UnionTypeReference unionTypeReference,
 			ClassScope scope) {
+		return true; // do nothing by default, keep traversing
+	}
+	public boolean visit(YieldStatement yieldStatement, BlockScope scope) {
 		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(WhileStatement whileStatement, BlockScope scope) {

@@ -170,6 +170,37 @@
 			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,12</tycho.surefire.argLine>
 		</properties>
 	</profile>
+	<profile>
+		<id>test-on-javase-13</id>
+		<build>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-toolchains-plugin</artifactId>
+					<version>1.1</version>
+					<executions>
+						<execution>
+							<phase>validate</phase>
+							<goals>
+								<goal>toolchain</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<toolchains>
+							<jdk>
+								<id>JavaSE-13</id>
+							</jdk>
+						</toolchains>
+					</configuration>
+				</plugin>
+			</plugins>
+		</build>
+		<properties>
+			<!-- Overridden in https://ci.eclipse.org/jdt/job/eclipse.jdt.core-run.javac-13/configure  -->
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,13</tycho.surefire.argLine>
+		</properties>
+	</profile>
   </profiles>
 
 </project>

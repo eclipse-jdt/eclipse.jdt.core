@@ -1172,7 +1172,7 @@ public void testBug545766() throws CoreException {
 		
 		createFolder("/P2/src/p2");
 		createFile("/P2/src/p2/Z.java", src);
-		ASTParser parser = ASTParser.newParser(AST_INTERNAL_JLS12);
+		ASTParser parser = ASTParser.newParser(AST_INTERNAL_LATEST);
 		parser.setProject(p2);
 		parser.setSource((ITypeRoot)p2.findElement(new Path("p2/Z.java")));
 		parser.setResolveBindings(true);

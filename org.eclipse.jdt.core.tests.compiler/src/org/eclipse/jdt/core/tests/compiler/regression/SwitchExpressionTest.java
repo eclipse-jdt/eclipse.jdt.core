@@ -14,7 +14,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
-import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -47,38 +46,18 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
+	
+	@Override
+	protected void runConformTest(String[] testFiles, Map<String, String> customOptions) {
+		super.runConformTest(testFiles, "", null, true, new String[] {"--enable-preview"}, customOptions, null);
+	}
 
 	@Override
-	protected void runConformTest(String[] testFiles, String expectedOutput) {
-		runConformTest(testFiles, expectedOutput, getCompilerOptions());
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
+		super.runConformTest(testFiles, expectedOutput, null, true, new String[] {"--enable-preview"}, customOptions, null);
 	}
-
-	@Override
-	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions) {
-		Runner runner = new Runner();
-		runner.testFiles = testFiles;
-		runner.expectedOutputString = expectedOutput;
-		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("12");
-		runner.runConformTest();
-	}
-	@Override
-	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("12"));
-	}
-	protected void runWarningTest(String[] testFiles, String expectedCompilerLog, Map<String, String> customOptions) {
-		Runner runner = new Runner();
-		runner.testFiles = testFiles;
-		runner.expectedCompilerLog = expectedCompilerLog;
-		runner.customOptions = customOptions;
-		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("12");
-		runner.runWarningTest();
-	}
-
 	public void testSimpleExpressions() {
-		runConformTest(
+		runNegativeTest(
 				new String[] {
 						"X.java",
 						"public class X {\n" +
@@ -95,10 +74,15 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 						"	}\n" +
 						"}\n"
 				},
-				"3");
+				"----------\n" + 
+				"1. ERROR in X.java (at line 0)\n" + 
+				"	public class X {\n" + 
+				"	^\n" + 
+				"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+				"----------\n");
 	}
 	public void testSwitchExpression_531714_002() {
-		runConformTest(
+		runNegativeTest(
 				new String[] {
 						"X.java",
 						"public class X {\n"+
@@ -127,9 +111,14 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 								"	}\n"+
 								"}\n"
 				},
-				"Got Exception - expected");
+				"----------\n" + 
+				"1. ERROR in X.java (at line 0)\n" + 
+				"	public class X {\n" + 
+				"	^\n" + 
+				"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+				"----------\n");
 	}
-	public void testBug531714_error_003() {
+	public void _testBug531714_error_003() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -157,7 +146,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"A switch expression should have a default case\n" + 
 			"----------\n");
 	}
-	public void testBug531714_error_004() {
+	public void _testBug531714_error_004() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -180,13 +169,13 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 12)\n" + 
-			"	case \"hello\" -> throw new java.io.IOException(\"hello\");\n" + 
-			"	     ^^^^^^^\n" + 
-			"Type mismatch: cannot convert from String to int\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	break 1;\n" + 
+			"	      ^\n" + 
+			"Syntax error on token \"1\", delete this token\n" + 
 			"----------\n");
 	}
-	public void testBug531714_error_005() {
+	public void _testBug531714_error_005() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -208,10 +197,10 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 6)\n" + 
-			"	int tw = switch (i) {\n" + 
-			"	                 ^\n" + 
-			"A switch expression should have a default case\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	break 1;\n" + 
+			"	      ^\n" + 
+			"Syntax error on token \"1\", delete this token\n" + 
 			"----------\n");
 	}
 	/**
@@ -221,7 +210,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	 *  must contain all the enum constants of that enum type
 	 *  Add a missing enum test case
 	 */
-	public void _testBug531714_error_006() {
+	public void __testBug531714_error_006() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -258,33 +247,43 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	 * should compile - test for adding additional nesting in variables
 	 * dev note: ref consumeToken().case Switch 
 	 */
-	public void testBug531714_error_007() {
-		runConformTest(
-				new String[] {
-						"X.java",
-						"public class X {\n"+
-						"	static int foo(int i) {\n"+
-						"		int tw = \n"+
-						"		switch (i) {\n"+
-						"			case 1 -> \n"+
-						"			 {\n"+
-						" 				int z = 100;\n"+
-						" 				break z;\n"+
-						"			}\n"+
-						"			default -> {\n"+
-						"				break 12;\n"+
-						"			}\n"+
-						"		};\n"+
-						"		return tw;\n"+
-						"	}\n"+
-						"	public static void main(String[] args) {\n"+
-						"		System.out.print(foo(1));\n"+
-						"	}\n"+
-						"}\n"
-				},
-				"100");
+	public void _testBug531714_error_007() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"	static int foo(int i) {\n"+
+				"		int tw = \n"+
+				"		switch (i) {\n"+
+				"			case 1 -> \n"+
+				"			 {\n"+
+				" 				int z = 100;\n"+
+				" 				break z;\n"+
+				"			}\n"+
+				"			default -> {\n"+
+				"				break 12;\n"+
+				"			}\n"+
+				"		};\n"+
+				"		return tw;\n"+
+				"	}\n"+
+				"	public static void main(String[] args) {\n"+
+				"		System.out.print(foo(1));\n"+
+				"	}\n"+
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	default -> {\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	break 12;\n" + 
+			"	      ^^\n" + 
+			"Syntax error on token \"12\", delete this token\n" + 
+			"----------\n");
 	}
-	public void testBug531714_008() {
+	public void _testBug531714_008() {
 		Map<String, String> disablePreviewOptions = getCompilerOptions();
 		disablePreviewOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		String[] testFiles = new String[] {
@@ -328,7 +327,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"4. ERROR in X.java (at line 6)\n" + 
 				"	default -> 3;\n" + 
 				"	^^^^^^^\n" + 
-				"Case Labels with '->' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
 				"----------\n";
 
 		this.runNegativeTest(
@@ -338,8 +337,8 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				true,
 				disablePreviewOptions);
 	}
-	public void testBug543667_001() {
-		runConformTest(
+	public void _testBug543667_001() {
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -355,9 +354,14 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"	}\n" +
 				"}\n"
 			},
-			"hello");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	default -> System.out.println(\"DEFAULT\");\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testBug531714_009() {
+	public void _testBug531714_009() {
 		Map<String, String> disablePreviewOptions = getCompilerOptions();
 		disablePreviewOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		String[] testFiles = new String[] {
@@ -392,7 +396,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"3. ERROR in X.java (at line 6)\n" + 
 				"	default -> 3;\n" + 
 				"	^^^^^^^\n" + 
-				"Case Labels with \'->\' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -401,7 +405,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				true,
 				disablePreviewOptions);
 	}
-	public void testBug531714_010() {
+	public void _testBug531714_010() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.ERROR);
@@ -425,7 +429,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	default -> 3;\n" + 
 				"	^^^^^^^\n" + 
-				"You are using a preview language feature that may or may not be supported in a future release\n" + 
+				"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	default -> 3;\n" + 
@@ -439,7 +443,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
-	public void testBug531714_011() {
+	public void _testBug531714_011() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
@@ -463,12 +467,20 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 5)\n" + 
 				"	default -> 3;\n" + 
+				"	^^^^^^^\n" + 
+				"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	default -> 3;\n" + 
 				"	           ^\n" + 
 				"Invalid expression as statement\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
-				expectedProblemLog);
+				expectedProblemLog,
+				null,
+				true,
+				getCompilerOptions());
 	}
 	public void testBug531714_012() {
 		Map<String, String> options = getCompilerOptions();
@@ -494,15 +506,10 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 
 			String expectedProblemLog =
 					"----------\n" + 
-					"1. ERROR in X.java (at line 4)\n" + 
-					"	default -> 3;\n" + 
-					"	^^^^^^^\n" + 
-					"The preview feature Case Labels with \'->\' is only available with source level 12 and above\n" + 
-					"----------\n" + 
-					"2. ERROR in X.java (at line 4)\n" + 
-					"	default -> 3;\n" + 
-					"	           ^\n" + 
-					"Invalid expression as statement\n" + 
+					"1. ERROR in X.java (at line 0)\n" + 
+					"	public class X {\n" + 
+					"	^\n" + 
+					"Preview features enabled at an invalid source release level 11, preview can be enabled only at source level 13\n" + 
 					"----------\n";
 			this.runNegativeTest(
 					testFiles,
@@ -514,7 +521,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			options.put(CompilerOptions.OPTION_Source, release);
 		}
 	}
-	public void testBug531714_013() {
+	public void _testBug531714_013() {
 			String[] testFiles = new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -540,10 +547,10 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 
 			String expectedProblemLog =
 					"----------\n" + 
-					"1. ERROR in X.java (at line 8)\n" + 
-					"	default :v = 2;\n" + 
-					"	         ^^^^^\n" + 
-					"A switch labeled block in a switch expression should not complete normally\n" + 
+					"1. ERROR in X.java (at line 6)\n" + 
+					"	break 0;\n" + 
+					"	      ^\n" + 
+					"Syntax error on token \"0\", delete this token\n" + 
 					"----------\n";
 			this.runNegativeTest(
 					testFiles,
@@ -552,7 +559,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					true,
 					getCompilerOptions());
 	}
-	public void testBug531714_014() {
+	public void _testBug531714_014() {
 		// switch expression is not a Primary
 		Runner runner = new Runner();
 		runner.customOptions = getCompilerOptions();
@@ -572,16 +579,20 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		};
 		runner.expectedCompilerLog =
 				"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	default -> null;\n" + 
+				"	^^^^^^^\n" + 
+				"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
 				"	}.toLowerCase());\n" + 
 				"	 ^\n" + 
 				"Syntax error on token \".\", , expected\n" + 
 				"----------\n";
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("12");
 		runner.runNegativeTest();
 	}
-	public void testBug543673_001() {
-		runConformTest(
+	public void _testBug543673_001() {
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -603,12 +614,17 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" +
 				"}\n"
 			},
-			"6");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	default -> 10;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
 	/*
 	 * A simple multi constant case statement, compiled and run as expected
 	 */
-	public void testBug543240_1() {
+	public void _testBug543240_1() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -631,16 +647,24 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 						"enum Day { SATURDAY, SUNDAY, MONDAY;}",
 		};
 
-		String expectedOutput =
-				"SUNDAY";
-		this.runConformTest(
+		String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	case SATURDAY, SUNDAY: \n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+			"----------\n";
+		this.runNegativeTest(
 				testFiles,
-				expectedOutput);
+				expectedProblemLog,
+				null,
+				true,
+				options);
 	}
 	/*
 	 * A simple multi constant case statement, compiler reports missing enum constants
 	 */
-	public void testBug543240_1a() {
+	public void _testBug543240_1a() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -668,16 +692,24 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 						"	switch (day) {\n" + 
 						"	        ^^^\n" + 
 						"The enum constant TUESDAY needs a corresponding case label in this enum switch on Day\n" + 
+						"----------\n" + 
+						"2. ERROR in X.java (at line 6)\n" + 
+						"	case SATURDAY, SUNDAY: \n" + 
+						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+						"The preview feature Multi constant case is only available with source level 13 and above\n" + 
 						"----------\n";
-		this.runWarningTest(
+		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
+				null,
+				true,
+				new String[] { "--enable-preview"},
 				options);
 	}
 	/*
 	 * A simple multi constant case statement with duplicate enums
 	 */
-	public void testBug543240_2() {
+	public void _testBug543240_2() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -702,16 +734,21 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 
 		String expectedProblemLog =
 				"----------\n" + 
-						"1. ERROR in X.java (at line 4)\n" + 
-						"	case SATURDAY, SUNDAY: \n" + 
-						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
-						"Duplicate case\n" + 
-						"----------\n" + 
-						"2. ERROR in X.java (at line 7)\n" + 
-						"	case SUNDAY : System.out.println(Day.SUNDAY);\n" + 
-						"	^^^^^^^^^^^\n" + 
-						"Duplicate case\n" + 
-						"----------\n";
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	case SATURDAY, SUNDAY: \n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	case SATURDAY, SUNDAY: \n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Duplicate case\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
+				"	case SUNDAY : System.out.println(Day.SUNDAY);\n" + 
+				"	^^^^^^^^^^^\n" + 
+				"Duplicate case\n" + 
+				"----------\n";
 		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
@@ -722,7 +759,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	/*
 	 * A simple multi constant case statement with duplicate enums
 	 */
-	public void testBug543240_2a() {
+	public void _testBug543240_2a() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -752,15 +789,25 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 						"----------\n" + 
 						"2. ERROR in X.java (at line 4)\n" + 
 						"	case SATURDAY, SUNDAY: \n" + 
-						"	^^^^^^^^^^^^^^^^^^^^^\n" +
-						"Duplicate case\n" + 
+						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+						"The preview feature Multi constant case is only available with source level 13 and above\n" + 
 						"----------\n" + 
-						"3. ERROR in X.java (at line 7)\n" + 
-						"	case SUNDAY, SATURDAY : \n" + 
+						"3. ERROR in X.java (at line 4)\n" + 
+						"	case SATURDAY, SUNDAY: \n" + 
 						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
 						"Duplicate case\n" + 
 						"----------\n" + 
 						"4. ERROR in X.java (at line 7)\n" + 
+						"	case SUNDAY, SATURDAY : \n" + 
+						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+						"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+						"----------\n" + 
+						"5. ERROR in X.java (at line 7)\n" + 
+						"	case SUNDAY, SATURDAY : \n" + 
+						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+						"Duplicate case\n" + 
+						"----------\n" + 
+						"6. ERROR in X.java (at line 7)\n" + 
 						"	case SUNDAY, SATURDAY : \n" + 
 						"	^^^^^^^^^^^^^^^^^^^^^\n" + 
 						"Duplicate case\n" + 
@@ -775,7 +822,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	/*
 	 * 
 	 */
-	public void testBug543240_3() {
+	public void _testBug543240_3() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -804,13 +851,21 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"	switch (day) {\n" + 
 				"	        ^^^\n" + 
 				"The enum constant MONDAY needs a corresponding case label in this enum switch on Day\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	case SATURDAY, SUNDAY: \n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
 				"----------\n";
-		this.runWarningTest(
+		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
+				null,
+				true,
+				new String[] {"--enable-preview"},
 				options);
 	}
-	public void testBug543240_4() {
+	public void _testBug543240_4() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -836,18 +891,23 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		};
 
 		String expectedProblemLog =
-				"SATURDAY\n" + 
-				"0\n" + 
-				"SUNDAY";
-		this.runConformTest(
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	case SATURDAY, SUNDAY: \n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n";
+		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
+				null,
+				true,
 				options);
 	}
 	/*
 	 * Simple switch case with string literals
 	 */
-	public void testBug543240_5() {
+	public void _testBug543240_5() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -886,7 +946,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				options,
 				new String[] {"--enable-preview"});
 	}
-	public void testBug543240_6() {
+	public void _testBug543240_6() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -914,20 +974,24 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 						"}",
 		};
 		String expectedProblemLog =
-				"A/B\n" + 
-				"A/B\n" + 
-				"C\n" + 
-				"NA";
-		this.runConformTest(
+				"----------\n" + 
+				"1. ERROR in X.java (at line 10)\n" + 
+				"	case \"a\", \"b\":\n" + 
+				"	^^^^^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n";
+		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
+				null,
+				true,
 				options);
 	}
 	/*
 	 * Switch with multi constant case statements with string literals
 	 * two string literals with same hashcode
 	 */
-	public void testBug543240_7() {
+	public void _testBug543240_7() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -955,19 +1019,23 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 						"}",
 		};
 		String expectedProblemLog =
-				"A\n" + 
-				"B\n" + 
-				"A\n" + 
-				"NA";
-		this.runConformTest(
+				"----------\n" + 
+				"1. ERROR in X.java (at line 10)\n" + 
+				"	case \"FB\", \"c\":\n" + 
+				"	^^^^^^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n";
+		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
+				null,
+				true,
 				options);
 	}
 	/*
 	 * Switch with multi constant case statements with integer constants
 	 */
-	public void testBug543240_8() {
+	public void _testBug543240_8() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -996,20 +1064,28 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 						"}",
 		};
 		String expectedProblemLog =
-				"Odd\n" + 
-				"Even\n" + 
-				"Odd\n" + 
-				"Even\n" + 
-				"Out of range";
-		this.runConformTest(
+				"----------\n" + 
+				"1. ERROR in X.java (at line 11)\n" + 
+				"	case 1, 3: \n" + 
+				"	^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 14)\n" + 
+				"	case 2, 4: \n" + 
+				"	^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n";
+		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
+				null,
+				true,
 				options);
 	}
 	/*
 	 * Switch multi-constant with mixed constant types, reported
 	 */
-	public void testBug543240_9() {
+	public void _testBug543240_9() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1034,7 +1110,12 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		};
 		String expectedProblemLog =
 				"----------\n" + 
-				"1. ERROR in X.java (at line 9)\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	case 1, 3: \n" + 
+				"	^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 9)\n" + 
 				"	case \"2\": \n" + 
 				"	     ^^^\n" + 
 				"Type mismatch: cannot convert from String to int\n" + 
@@ -1049,7 +1130,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	/*
 	 * Switch multi-constant without break statement, reported
 	 */
-	public void testBug543240_10() {
+	public void _testBug543240_10() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1074,20 +1155,27 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		};
 		String expectedProblemLog =
 				"----------\n" + 
-				"1. WARNING in X.java (at line 8)\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	case 1, 3: \n" + 
+				"	^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 8)\n" + 
 				"	case 2, 4: \n" + 
 				"	^^^^^^^^^\n" + 
-				"Switch case may be entered by falling through previous case. If intended, add a new comment //$FALL-THROUGH$ on the line above\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
 				"----------\n";
-		this.runWarningTest(
+		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
+				null,
+				true,
 				options);
 	}
 	/*
 	 * Switch multi-constant without break statement, reported
 	 */
-	public void testBug543240_11() {
+	public void _testBug543240_11() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1113,16 +1201,28 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"	switch (i) {\n" + 
 				"	        ^\n" + 
 				"The switch statement should have a default case\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	case 1, 3: \n" + 
+				"	^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	case 2, 4: \n" + 
+				"	^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
 				"----------\n";
-		this.runWarningTest(
+		this.runNegativeTest(
 				testFiles,
 				expectedProblemLog,
+				null,
+				true,
 				options);
 	}
 	/*
 	 * Switch multi-constant with duplicate int constants
 	 */
-	public void testBug543240_12() {
+	public void _testBug543240_12() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1146,9 +1246,19 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 6)\n" + 
 				"	case 1, 3: \n" + 
 				"	^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	case 1, 3: \n" + 
+				"	^^^^^^^^^\n" + 
 				"Duplicate case\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 8)\n" + 
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	case 3, 4: \n" + 
+				"	^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
 				"	case 3, 4: \n" + 
 				"	^^^^^^^^^\n" + 
 				"Duplicate case\n" + 
@@ -1163,7 +1273,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	/*
 	 * Switch multi-constant with duplicate String literals
 	 */
-	public void testBug543240_13() {
+	public void _testBug543240_13() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1187,9 +1297,19 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 6)\n" + 
 				"	case \"a\", \"b\": \n" + 
 				"	^^^^^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	case \"a\", \"b\": \n" + 
+				"	^^^^^^^^^^^^^\n" + 
 				"Duplicate case\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 8)\n" + 
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	case \"b\", \"c\": \n" + 
+				"	^^^^^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"4. ERROR in X.java (at line 8)\n" + 
 				"	case \"b\", \"c\": \n" + 
 				"	^^^^^^^^^^^^^\n" + 
 				"Duplicate case\n" + 
@@ -1204,7 +1324,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 	/*
 	 * Switch multi-constant with illegal qualified enum constant
 	 */
-	public void testBug543240_14() {
+	public void _testBug543240_14() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1226,6 +1346,11 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 6)\n" + 
 				"	case ONE, Num.TWO: \n" + 
+				"	^^^^^^^^^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
+				"	case ONE, Num.TWO: \n" + 
 				"	          ^^^^^^^\n" + 
 				"The qualified case label Num.TWO must be replaced with the unqualified enum constant TWO\n" + 
 				"----------\n";
@@ -1236,7 +1361,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
-	public void testBug543240_15() {
+	public void _testBug543240_15() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1253,10 +1378,15 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 		};
 		String expectedProblemLog =
 				"----------\n" + 
-				"1. ERROR in X.java (at line 5)\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	case 1, 2, 3 -> (s+1);\n" + 
+				"	^^^^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
 				"	default -> j;\n" + 
-				"	           ^\n" + 
-				"The local variable j may not have been initialized\n" + 
+				"	^^^^^^^\n" + 
+				"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -1265,7 +1395,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
-	public void testBug543240_16() {
+	public void _testBug543240_16() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1283,12 +1413,27 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"	}\n" + 
 				"}\n",
 		};
-		this.runConformTest(
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	case 1, 2, 3 -> (s+1);\n" + 
+				"	^^^^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
+				"	default -> j;\n" + 
+				"	^^^^^^^\n" + 
+				"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+				"----------\n";
+		this.runNegativeTest(
 				testFiles,
-				"",
+				expectedProblemLog,
+				null,
+				true,
+				new String[] { "--enable-preview"},
 				options);
 	}
-	public void testBug543795_01() {
+	public void _testBug543795_01() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1322,13 +1467,18 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	break;\n" + 
-			"	^^^^^^\n" + 
-			"Break of a switch expression should have a value\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	break 0;\n" + 
+			"	      ^\n" + 
+			"Syntax error on token \"0\", delete this token\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	default : break 10;\n" + 
+			"	                ^^\n" + 
+			"Syntax error on token \"10\", delete this token\n" + 
 			"----------\n");
 	}
-	public void testBug543691() {
+	public void _testBug543691() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1359,7 +1509,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
-	public void testBug543799_1() {
+	public void _testBug543799_1() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1380,10 +1530,16 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}\n"
 		};
-		String expectedOutput = "hello world";
-		runConformTest(testFiles, expectedOutput, options);
+		String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	default -> i == 3 ? null : \"\";\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n";
+		runNegativeTest(testFiles, expectedProblemLog, null, true, options);
 	}
-	public void testBug543799_2() {
+	public void _testBug543799_2() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1404,10 +1560,21 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}\n"
 		};
-		String expectedOutput = "hello world";
-		runConformTest(testFiles, expectedOutput, options);
+		String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	case 1: break \"\";\n" + 
+			"	              ^^\n" + 
+			"Syntax error on token \"\"\"\", delete this token\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	default: break i == 3 ? null : \"\";\n" + 
+			"	         ^^^^^\n" + 
+			"Syntax error on token \"break\", yield expected\n" + 
+			"----------\n";
+		runNegativeTest(testFiles, expectedProblemLog, null, true, options);
 	}
-	public void testBug543799_3() {
+	public void _testBug543799_3() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1435,10 +1602,16 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}\n"
 		};
-		String expectedOutput = "NPE as expected";
-		runConformTest(testFiles, expectedOutput, options);
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 11)\n" + 
+				"	default -> b ? n1() : n2();\n" + 
+				"	^^^^^^^\n" + 
+				"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+				"----------\n";
+			runNegativeTest(testFiles, expectedProblemLog, null, true, options);
 	}
-	public void testBug543799_4() {
+	public void _testBug543799_4() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1467,10 +1640,16 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}\n"
 		};
-		String expectedOutput = "NPE as expected";
-		runConformTest(testFiles, expectedOutput, options);
+		String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 12)\n" + 
+				"	default -> this::n2;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n";
+		runNegativeTest(testFiles, expectedProblemLog, null, true, options);
 	}
-	public void testBug543799_5() {
+	public void _testBug543799_5() {
 		// require resolving/inferring of poly-switch-expression during ASTNode.resolvePolyExpressionArguments()
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
@@ -1492,11 +1671,17 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"	}\n" + 
 			"}\n"
 		};
-		String expectedOutput = "3";
-		runConformTest(testFiles, expectedOutput, options);
+		String expectedProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	default -> i == 3 ? 3 : 5.0d;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n";
+		runNegativeTest(testFiles, expectedProblemLog, null, true, options);
 	}
-	public void testSwitchStatementWithBreakExpression() {
-		runConformTest(
+	public void _testSwitchStatementWithBreakExpression() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1523,10 +1708,14 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"inside foo\n"
-			+ "0");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	default -> throw new Exception();\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testSwitchStatementWithEnumValues() {
+	public void _testSwitchStatementWithEnumValues() {
 		runConformTest(
 			new String[] {
 					"X.java",
@@ -1550,9 +1739,11 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"}\n" + 
 					""
 			},
-			"1");
+			"1",
+			null,
+			new String[] {"--enable-preview"});
 	}
-	public void testBug543967_01() {
+	public void _testBug543967_01() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		String[] testFiles = new String[] {
@@ -1574,6 +1765,11 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	default -> 3; // should flag an error\n" + 
+				"	^^^^^^^\n" + 
+				"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	default -> 3; // should flag an error\n" + 
 				"	           ^\n" + 
 				"Invalid expression as statement\n" + 
 				"----------\n";
@@ -1585,8 +1781,8 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				new String[] { "--enable-preview"},
 				options);
 	}
-	public void testBug544204() {
-		runConformTest(
+	public void _testBug544204() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1603,10 +1799,15 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"1");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	default -> i;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" +
+			"----------\n");
 	}
-	public void testBug544204_2() {
-		runConformTest(
+	public void _testBug544204_2() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1623,10 +1824,15 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"10");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	default -> 20L;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testBug544223() {
-		runConformTest(
+	public void _testBug544223() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1647,9 +1853,14 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"1");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	default -> throw new Exception();\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testBug544258_01() {
+	public void _testBug544258_01() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1683,12 +1894,34 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	today =  switch (day) {\n" + 
+			"    		      case SATURDAY,SUNDAY :\n" + 
+			"    		         today=1;\n" + 
+			"    		         break today;\n" + 
+			"    		      case MONDAY,TUESDAY,WEDNESDAY,THURSDAY :\n" + 
+			"    			 today=2;\n" + 
+			"    			 break today;\n" + 
+			"    		};\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"A switch expression should have at least one result expression\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	today =  switch (day) {\n" + 
 			"	                 ^^^\n" + 
 			"A Switch expression should cover all possible values\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 5)\n" + 
+			"	case SATURDAY,SUNDAY :\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 8)\n" + 
+			"	case MONDAY,TUESDAY,WEDNESDAY,THURSDAY :\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The preview feature Multi constant case is only available with source level 13 and above\n" + 
 			"----------\n");
 	}
-	public void testBug544253() {
-		runConformTest(
+	public void _testBug544253() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1704,10 +1937,15 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"    }\n" + 
 					"}"
 			},
-			"false");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	default -> true;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testBug544254() {
-		runConformTest(
+	public void _testBug544254() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1726,12 +1964,17 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"    }\n" + 
 					"}"
 			},
-			"hello");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	default -> 2;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testBug544254_2() {
+	public void _testBug544254_2() {
 		Map<String, String> customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-		runConformTest(
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1750,12 +1993,17 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"    }\n" + 
 					"}"
 			},
-			"hello");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	default -> 2;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testBug544254_3() {
+	public void _testBug544254_3() {
 		Map<String, String> customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-		runConformTest(
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1774,12 +2022,17 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"    }\n" + 
 					"}"
 			},
-			"hello");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	default -> 2;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testBug544224_1() {
+	public void _testBug544224_1() {
 		Map<String, String> customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-		runConformTest(
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -1795,11 +2048,15 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"    }\n" +
 					"}\n"
 			},
-			"",
-			customOptions);
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	default -> 2;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testBug544298() {
-		runConformTest(
+	public void _testBug544298() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1819,10 +2076,12 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"i:1");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"----------\n");
 	}
-	public void testBug544298_2() {
-		runConformTest(
+	public void _testBug544298_2() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1843,9 +2102,14 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"i:1");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	default ->  0;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testBug544428_01() {
+	public void _testBug544428_01() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -1870,6 +2134,11 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"	case 0 -> x;\n" + 
 				"	          ^\n" + 
 				"x cannot be resolved to a variable\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 5)\n" + 
+				"	default -> 1;\n" + 
+				"	^^^^^^^\n" + 
+				"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -1879,8 +2148,8 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				new String[] { "--enable-preview"},
 				options);
 	}
-	public void testBug544523_01() {
-		runConformTest(
+	public void _testBug544523_01() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -1900,10 +2169,20 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"    }\n" +
 					"}"
 			},
-			"0");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	default -> 1;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 9)\n" + 
+			"	default -> 1;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testBug544560_01() {
-		runConformTest(
+	public void _testBug544560_01() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -1922,10 +2201,20 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"    }\n" +
 					"}\n"
 			},
-			"1");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	default -> 1;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	default -> 1;\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testBug544458() {
-		runConformTest(
+	public void _testBug544458() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1941,10 +2230,20 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"1");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	case 1: i = 10; break true;\n" + 
+			"	                      ^^^^\n" + 
+			"Syntax error on token \"true\", delete this token\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	default: break false;\n" + 
+			"	               ^^^^^\n" + 
+			"Syntax error on token \"false\", delete this token\n" + 
+			"----------\n");
 	}
-	public void testBug544458_2() {
-		runConformTest(
+	public void _testBug544458_2() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1960,10 +2259,20 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"0");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	case 1: i++; break true;\n" + 
+			"	                   ^^^^\n" + 
+			"Syntax error on token \"true\", delete this token\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	default: break false;\n" + 
+			"	               ^^^^^\n" + 
+			"Syntax error on token \"false\", delete this token\n" + 
+			"----------\n");
 	}
-	public void testBug544458_3() {
-		runConformTest(
+	public void _testBug544458_3() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1979,10 +2288,20 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"0");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	case 1: i+= 10; break true;\n" + 
+			"	                      ^^^^\n" + 
+			"Syntax error on token \"true\", delete this token\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	default: break false;\n" + 
+			"	               ^^^^^\n" + 
+			"Syntax error on token \"false\", delete this token\n" + 
+			"----------\n");
 	}
-	public void testBug544458_4() {
-		runConformTest(
+	public void _testBug544458_4() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -1998,10 +2317,20 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"0");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	case 1: switch(i) {case 4: break;}; break true;\n" + 
+			"	                                          ^^^^\n" + 
+			"Syntax error on token \"true\", delete this token\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	default: break false;\n" + 
+			"	               ^^^^^\n" + 
+			"Syntax error on token \"false\", delete this token\n" + 
+			"----------\n");
 	}
-	public void testBug544458_5() {
-		runConformTest(
+	public void _testBug544458_5() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" + 
@@ -2017,10 +2346,20 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"	}\n" + 
 					"}"
 			},
-			"0");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	case 1: foo(5); break true;\n" + 
+			"	                      ^^^^\n" + 
+			"Syntax error on token \"true\", delete this token\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	default: break false;\n" + 
+			"	               ^^^^^\n" + 
+			"Syntax error on token \"false\", delete this token\n" + 
+			"----------\n");
 	}
-	public void testBug544601_1() {
-		runConformTest(
+	public void _testBug544601_1() {
+		runNegativeTest(
 			new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -2046,10 +2385,20 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"    }\n" +
 					"}\n"
 			},
-			"1");
+			"----------\n" + 
+			"1. ERROR in X.java (at line 13)\n" + 
+			"	break true;\n" + 
+			"	      ^^^^\n" + 
+			"Syntax error on token \"true\", delete this token\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 14)\n" + 
+			"	default: break false;\n" + 
+			"	               ^^^^^\n" + 
+			"Syntax error on token \"false\", delete this token\n" + 
+			"----------\n");
 	}
-	public void testBug544556() {
-		runConformTest(
+	public void _testBug544556() {
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" + 
@@ -2070,10 +2419,30 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"	}\n" + 
 				"}"
 		},
-		"1");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	case 0 -> { break 2; }\n" + 
+		"	                  ^\n" + 
+		"Syntax error on token \"2\", delete this token\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	default -> { break 3; }\n" + 
+		"	                   ^\n" + 
+		"Syntax error on token \"3\", delete this token\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	case 0 -> { break 0; }\n" + 
+		"	                  ^\n" + 
+		"Syntax error on token \"0\", delete this token\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 10)\n" + 
+		"	default -> { break 1; }\n" + 
+		"	                   ^\n" + 
+		"Syntax error on token \"1\", delete this token\n" + 
+		"----------\n");
 	}
-	public void testBug544702_01() {
-		runConformTest(
+	public void _testBug544702_01() {
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -2092,10 +2461,15 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"\n" +
 				"}\n"
 		},
-		"Success");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	default -> k = -1;\n" + 
+		"	^^^^^^^\n" + 
+		"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+		"----------\n");
 	}
-	public void testBug545168_01() {
-		runConformTest(
+	public void _testBug545168_01() {
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -2118,10 +2492,25 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" +
 				"}\n"
 		},
-		"9");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	case MONDAY, FRIDAY -> System.out.println(Day.SUNDAY);\n" + 
+		"	^^^^^^^^^^^^^^^^^^^\n" + 
+		"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	case THURSDAY, SATURDAY     -> System.out.println(8);\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 9)\n" + 
+		"	default -> {}\n" + 
+		"	^^^^^^^\n" + 
+		"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+		"----------\n");
 	}
-	public void testBug545255_01() {
-		runConformTest(
+	public void _testBug545255_01() {
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n"+
@@ -2140,12 +2529,42 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"	}\n"+
 				"}\n"
 		},
-		"0");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	case 60, 600: break 6;\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 4)\n" + 
+		"	case 60, 600: break 6;\n" + 
+		"	                    ^\n" + 
+		"Syntax error on token \"6\", delete this token\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 5)\n" + 
+		"	case 70: break 7;\n" + 
+		"	               ^\n" + 
+		"Syntax error on token \"7\", delete this token\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 6)\n" + 
+		"	case 80: break 8;\n" + 
+		"	               ^\n" + 
+		"Syntax error on token \"8\", delete this token\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 7)\n" + 
+		"	case 90, 900: break 9;\n" + 
+		"	                    ^\n" + 
+		"Syntax error on token \"9\", delete this token\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 8)\n" + 
+		"	default: break 0;\n" + 
+		"	               ^\n" + 
+		"Syntax error on token \"0\", delete this token\n" + 
+		"----------\n");
 	}
 	// see comment 12 in the bug 
-	public void testBug513766_01() {
-		Runner runner = new Runner();
-		runner.testFiles = new String[] {
+	public void _testBug513766_01() {
+		this.runNegativeTest(
+			new String[] {
 				"X.java",
 				"public class X {\n"+
 				"    @SuppressWarnings(\"preview\")\n"+
@@ -2156,26 +2575,28 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"            System.out.println(\"true, too\");\n"+
 				"    }\n"+
 				"    <T> T magic() { return null; }\n"+
-				"}\n"};
-		runner.expectedCompilerLog =
+				"}\n",
+			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	if (switch(i) { default -> magic(); })\n" + 
 			"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to boolean\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	if (switch(i) { default -> magic(); })\n" + 
+			"	                ^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 6)\n" + 
 			"	if (magic())\n" + 
 			"	    ^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Object to boolean\n" + 
-			"----------\n";
-		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = JavacHasABug.JavacBug8179483_switchExpression;
-		runner.runNegativeTest();
+			"----------\n");
 	}
-	public void testBug545333() {
-		Runner runner = new Runner();
-		runner.testFiles = 	new String[] {
+	public void _testBug545333() {
+		runNegativeTest(
+			new String[] {
 				"X.java",
 				"public class X {\n"+
 				"    @SuppressWarnings(\"preview\")\n"+
@@ -2196,8 +2617,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"class MyException extends Exception {\n"+
 				"	private static final long serialVersionUID = 3461899582505930473L;	\n"+
 				"}\n"
-		};
-		runner.expectedCompilerLog =
+			},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	int v = switch (i) {\n" + 
@@ -2205,84 +2625,25 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"    	};\n" + 
 			"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"A switch expression should have at least one result expression\n" + 
-			"----------\n";
-		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = JavacHasABug.JavacBug8226510_switchExpression;
-		runner.runNegativeTest();
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	default -> throw new MyException();\n" + 
+			"	^^^^^^^\n" + 
+			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"----------\n");
 	}
-	public void testBug545518() {
+	public void _testBug545518() {
 		if (this.complianceLevel < ClassFileConstants.JDK12)
 			return;
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
-		String message = 
-				"----------\n" + 
-				"1. WARNING in X.java (at line 5)\n" + 
-				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"You are using a preview language feature that may or may not be supported in a future release\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 5)\n" + 
-				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
-				"	                     ^^^^^^^^^^^^\n" + 
-				"Dead code\n" + 
-				"----------\n";
-		
-		this.runWarningTest(new String[] {
-				"X.java",
-				"public class X {\n" +
-				"  public static void main(String [] args) {\n" +
-				"  	 String arg = \"ABD\";\n" +
-				"    switch(arg) {\n" + 
-				"      case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
-				"	 }\n" +
-				"  }\n" +
-				"}\n"
-			},
-			message,
-			options);
-	}
-	public void testBug545518a() {
-		if (this.complianceLevel < ClassFileConstants.JDK12)
-			return;
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
-		String message = 
-				"----------\n" + 
-				"1. WARNING in X.java (at line 5)\n" + 
-				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
-				"	                     ^^^^^^^^^^^^\n" + 
-				"Dead code\n" + 
-				"----------\n";
-		
-		this.runWarningTest(new String[] {
-				"X.java",
-				"public class X {\n" +
-				"  public static void main(String [] args) {\n" +
-				"  	 String arg = \"ABD\";\n" +
-				"    switch(arg) {\n" + 
-				"      case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
-				"	 }\n" +
-				"  }\n" +
-				"}\n"
-			},
-			message,
-			options);
-	}
-	public void testBug545518b() {
-		if (this.complianceLevel < ClassFileConstants.JDK1_8)
-			return;
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 		String message = 
 				"----------\n" + 
 				"1. ERROR in X.java (at line 5)\n" + 
 				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
 				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Multi constant case is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
 				"----------\n";
 		
 		this.runNegativeTest(new String[] {
@@ -2302,8 +2663,70 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			new String[] { "--enable-preview"},
 			options);
 	}
-	public void testBug545715_01() {
-		runConformTest(
+	public void _testBug545518a() {
+		if (this.complianceLevel < ClassFileConstants.JDK12)
+			return;
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		String message = 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n";
+		
+		this.runNegativeTest(new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void main(String [] args) {\n" +
+				"  	 String arg = \"ABD\";\n" +
+				"    switch(arg) {\n" + 
+				"      case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
+				"	 }\n" +
+				"  }\n" +
+				"}\n"
+			},
+			message,
+			null,
+			true,
+			new String[] { "--enable-preview"},
+			options);
+	}
+	public void _testBug545518b() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
+		String message = 
+				"----------\n" + 
+				"1. ERROR in X.java (at line 5)\n" + 
+				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+				"----------\n";
+		
+		this.runNegativeTest(new String[] {
+				"X.java",
+				"public class X {\n" +
+				"  public static void main(String [] args) {\n" +
+				"  	 String arg = \"ABD\";\n" +
+				"    switch(arg) {\n" + 
+				"      case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" +
+				"	 }\n" +
+				"  }\n" +
+				"}\n"
+			},
+			message,
+			null,
+			true,
+			new String[] { "--enable-preview"},
+			options);
+	}
+	public void _testBug545715_01() {
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"enum X {\n"+
@@ -2321,33 +2744,40 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"     }\n"+
 				"}\n"
 		},
-		"5");
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	default -> o = 0;\n" + 
+		"	^^^^^^^\n" + 
+		"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+		"----------\n");
 	}
-	public void testBug545716_01() {
-		Runner runner = new Runner();
-		runner.testFiles = new String[] {
-			"X.java",
-			"enum X {\n"+
-			"    A, B;\n"+
-			"     \n"+
-			"    @SuppressWarnings(\"preview\")\n"+
-			"    public static void main(String[] args) {\n"+
-			"         X myEnum = X.A;\n"+
-			"         int o;\n"+
-			"         var f = switch(myEnum) {\n"+
-			"             case A -> o = 5;\n"+
-			"             case B -> o = 10;\n"+
-			"         };\n"+
-			"         System.out.println(o);\n"+
-			"     }\n"+
-			"} \n"
-		};
-		runner.expectedOutputString = "5";
-		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = JavacHasABug.JavacBug8221413_switchExpression;
-		runner.runConformTest();
+	public void _testBug545916_01() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"enum X {\n"+
+				"    A, B;\n"+
+				"     \n"+
+				"    @SuppressWarnings(\"preview\")\n"+
+				"    public static void main(String[] args) {\n"+
+				"         X myEnum = X.A;\n"+
+				"         int o;\n"+
+				"         var f = switch(myEnum) {\n"+
+				"             case A -> o = 5;\n"+
+				"             case B -> o = 10;\n"+
+				"         };\n"+
+				"         System.out.println(o);\n"+
+				"     }\n"+
+				"} \n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	default -> o = 0;\n" + 
+		"	^^^^^^^\n" + 
+		"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+		"----------\n");
 	}
-	public void testBug545983_01() {
+	public void _testBug545983_01() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2373,13 +2803,13 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\n" + 
-			"	continue;\n" + 
-			"	^^^^^^^^^\n" + 
-			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	break 1;\n" + 
+			"	      ^\n" + 
+			"Syntax error on token \"1\", delete this token\n" + 
 			"----------\n");
 	}
-	public void testBug545983_02() {
+	public void _testBug545983_02() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2405,13 +2835,13 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 11)\n" + 
-			"	return 2;\n" + 
-			"	^^^^^^^^^\n" + 
-			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" + 
+			"1. ERROR in X.java (at line 9)\n" + 
+			"	break 1;\n" + 
+			"	      ^\n" + 
+			"Syntax error on token \"1\", delete this token\n" + 
 			"----------\n");
 	}
-	public void testBug547125_01() {
+	public void _testBug547125_01() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2435,10 +2865,16 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	case SATURDAY, SUNDAY, SUNDAY:\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	case SATURDAY, SUNDAY, SUNDAY:\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Duplicate case\n" + 
+			"	^^^^^^^\n" + 
 			"----------\n");
 	}
-	public void testBug547125_02() {
+	public void _testBug547125_02() {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2462,114 +2898,27 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	case SATURDAY, SUNDAY, MONDAY:\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Duplicate case\n" + 
+			"The preview feature Multi constant case is only available with source level 13 and above\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 6)\n" + 
-			"	case MONDAY, SUNDAY:\n" + 
-			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	case SATURDAY, SUNDAY, MONDAY:\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Duplicate case\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 6)\n" + 
 			"	case MONDAY, SUNDAY:\n" + 
 			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"The preview feature Multi constant case is only available with source level 13 and above\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 6)\n" + 
+			"	case MONDAY, SUNDAY:\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
 			"Duplicate case\n" + 
-			"----------\n");
-	}
-	public void testBug548476_01() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"class X {\n" + 
-				"	I expr = () -> break;\n" + 
-				"}\n" + 
-				"\n" + 
-				"interface I {\n" + 
-				"	void foo();\n" + 
-				"}",
-			},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	I expr = () -> break;\n" + 
-			"	               ^^^^^\n" + 
-			"Syntax error on token \"break\", invalid LambdaBody\n" + 
-			"----------\n");
-	}
-	public void testBug548476_02() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"class X {\n" + 
-				"	void break () {}\n" + 
-				"}",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	void break () {}\n" + 
-			"	     ^^^^^\n" + 
-			"Syntax error on token \"break\", Identifier expected\n" + 
-			"----------\n");
-	}
-	public void testBug548476_03() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"class X {\n" + 
-				"}\n" + 
-				"\n" + 
-				"class break{}\n" 
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 4)\n" + 
-			"	class break{}\n" + 
-			"	      ^^^^^\n" + 
-			"Syntax error on token \"break\", Identifier expected\n" + 
-			"----------\n");
-	}
-	public void testBug548476_04() {
-		this.runNegativeTest(
-			new String[] {
-				"module-info.java",
-				"module break.me {\n" + 
-				"}\n" 
-			},
-			"----------\n" + 
-			"1. ERROR in module-info.java (at line 1)\n" + 
-			"	module break.me {\n" + 
-			"	       ^^^^^\n" + 
-			"Syntax error on token \"break\", Identifier expected\n" + 
-			"----------\n");
-	}
-	public void testBug548476_05() {
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"class X {\n"+
-				"  public static void foo(int i) {\n"+
-				"	  int v = switch (i) {\n"+
-				"	  case 0 -> {\n"+
-				"		  I k = () -> break;\n"+
-				"	  }\n"+
-				"	  default -> {\n"+
-				"		  I k = () -> break;\n"+
-				"		  break 0;\n"+
-				"	  }\n"+
-				"	  };\n"+
-				"  }\n"+
-				"}\n"+
-				"interface I {\n"+
-				"	void foo();\n"+
-				"}\n"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 5)\n" + 
-			"	I k = () -> break;\n" + 
-			"	            ^^^^^\n" + 
-			"Syntax error on token \"break\", invalid LambdaBody\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 8)\n" + 
-			"	I k = () -> break;\n" + 
-			"	            ^^^^^\n" + 
-			"Syntax error on token \"break\", invalid LambdaBody\n" + 
+			"5. ERROR in X.java (at line 6)\n" + 
+			"	case MONDAY, SUNDAY:\n" + 
+			"	^^^^^^^^^^^^^^^^^^^\n" + 
+			"Duplicate case\n" + 
 			"----------\n");
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -79,7 +79,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		}
 	}
 	
-	/*package*/ static final int JLS_LATEST = AST.JLS11;
+	/*package*/ static final int JLS_LATEST = AST.JLS13;
 
 	static class ReconcileParticipant extends CompilationParticipant {
 		IJavaElementDelta delta;

@@ -57,6 +57,7 @@ static {
 	// org.eclipse.jdt.internal.codeassist.CompletionEngine.DEBUG = true;
 //	TESTS_NUMBERS = new int[] { 8 };
 //	TESTS_RANGE = new int[] { 20, -1 };
+//	TESTS_NAMES = new String[] { "test001" };
 }
 
 public static Test suite() {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2019 BEA Systems, Inc. 
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -129,11 +129,33 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 			return SourceVersion.RELEASE_6;
 		}
 		try {
-			return SourceVersion.valueOf("RELEASE_7"); //$NON-NLS-1$
+			if (this._compiler.options.sourceLevel == ClassFileConstants.JDK1_7) {
+				return SourceVersion.valueOf("RELEASE_7"); //$NON-NLS-1$
+			}
+			if (this._compiler.options.sourceLevel == ClassFileConstants.JDK1_8) {
+				return SourceVersion.valueOf("RELEASE_8"); //$NON-NLS-1$
+			}
+			if (this._compiler.options.sourceLevel == ClassFileConstants.JDK9) {
+				return SourceVersion.valueOf("RELEASE_9"); //$NON-NLS-1$
+			}
+			if (this._compiler.options.sourceLevel == ClassFileConstants.JDK10) {
+				return SourceVersion.valueOf("RELEASE_10"); //$NON-NLS-1$
+			}
+			if (this._compiler.options.sourceLevel == ClassFileConstants.JDK11) {
+				return SourceVersion.valueOf("RELEASE_11"); //$NON-NLS-1$
+			}
+			if (this._compiler.options.sourceLevel == ClassFileConstants.JDK12) {
+				return SourceVersion.valueOf("RELEASE_12"); //$NON-NLS-1$
+			}
+			if (this._compiler.options.sourceLevel == ClassFileConstants.JDK13) {
+				return SourceVersion.valueOf("RELEASE_13"); //$NON-NLS-1$
+			}
 		} catch(IllegalArgumentException e) {
 			// handle call on a JDK 6
 			return SourceVersion.RELEASE_6;
 		}
+		// handle call on a JDK 6 by default
+		return SourceVersion.RELEASE_6;
 	}
 
 	/**
@@ -174,5 +196,12 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 		_addedClassFiles.toArray(result);
 		return result;
 	}
+	/*
+	 * This overrides ProcessingEnvironment, but can't declare so since
+	 * we are still compiling against JDK 8.
+	 */
+    public boolean isPreviewEnabled() {
+        return this._compiler.options.enablePreviewFeatures;
+    }
 
 }

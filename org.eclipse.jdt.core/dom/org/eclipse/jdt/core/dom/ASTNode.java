@@ -961,6 +961,22 @@ public abstract class ASTNode {
 	 * @since 3.18
 	 */
 	public static final int SWITCH_EXPRESSION = 100;
+	
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>YieldStatement</code>.
+	 * @see YieldStatement
+	 * @since 3.20
+	 */
+	public static final int YIELD_STATEMENT = 101;
+	
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>TextBlock</code>.
+	 * @see TextBlock
+	 * @since 3.20
+	 */
+	public static final int TEXT_BLOCK = 102;
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -1142,6 +1158,8 @@ public abstract class ASTNode {
 				return SynchronizedStatement.class;
 			case TAG_ELEMENT :
 				return TagElement.class;
+			case TEXT_BLOCK :
+				return TextBlock.class;
 			case TEXT_ELEMENT :
 				return TextElement.class;
 			case THIS_EXPRESSION :
@@ -1174,6 +1192,8 @@ public abstract class ASTNode {
 				return WhileStatement.class;
 			case WILDCARD_TYPE :
 				return WildcardType.class;
+			case YIELD_STATEMENT :
+				return YieldStatement.class;
 		}
 		throw new IllegalArgumentException();
 	}
@@ -2108,6 +2128,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is used below JLS12
+	 * @deprecated
 	 * @since 3.16 
 	 */
 	final void unsupportedBelow12() {
@@ -2166,6 +2187,38 @@ public abstract class ASTNode {
 	  }
 	}
 	
+	/**
+     * Checks that this AST operation is only used when
+     * building JLS12 level ASTs.
+     * <p>
+     * Use this method to prevent access to properties available only in JLS12.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is is not used in JLS12
+	 * @since 3.20
+     */
+	// In API Javadocs, add: * @deprecated In the JLS13 API, this method is replaced by {@link #replacement()}.
+	final void supportedOnlyIn12() {
+	  if (this.ast.apiLevel != AST.JLS12_INTERNAL) {
+	  	throw new UnsupportedOperationException("Operation only supported in JLS12 AST"); //$NON-NLS-1$
+	  }
+	}
+	
+	/**
+ 	 * Checks that this AST operation is only used when
+     * building JLS13 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties available only in JLS13.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is not used in JLS13
+	 * @since 3.20
+	 */
+	final void supportedOnlyIn13() {
+		if (this.ast.apiLevel != AST.JLS13_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in JLS13 AST"); //$NON-NLS-1$
+		}
+	}
 	/**
 	 * Sets or clears this node's parent node and location.
 	 * <p>
@@ -3137,11 +3190,4 @@ public abstract class ASTNode {
 	 * @return the size of this node in bytes
 	 */
 	abstract int memSize();
-	
-	boolean isPreviewEnabled() {
-		if (this.ast.apiLevel == AST.JLS12_INTERNAL && this.ast.isPreviewEnabled()) {
-			return true;
-		}
-		return false;
-	}
 }

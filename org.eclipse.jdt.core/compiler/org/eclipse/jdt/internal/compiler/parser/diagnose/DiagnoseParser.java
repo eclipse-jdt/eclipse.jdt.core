@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2567,5 +2567,10 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 	public boolean isParsingModuleDeclaration() {
 		//
 		return this.parser.isParsingModuleDeclaration();
+	}
+
+	@Override
+	public boolean isParsingJava13() {
+		return this.parser.isParsingJava13();
 	}
 }

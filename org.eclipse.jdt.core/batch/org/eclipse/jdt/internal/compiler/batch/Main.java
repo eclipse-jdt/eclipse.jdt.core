@@ -2195,6 +2195,16 @@ public void configure(String[] argv) {
 					mode = DEFAULT;
 					continue;
 				}
+				if (currentArg.equals("-13") || currentArg.equals("-13.0")) { //$NON-NLS-1$ //$NON-NLS-2$
+					if (didSpecifyCompliance) {
+						throw new IllegalArgumentException(
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+					}
+					didSpecifyCompliance = true;
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
+					mode = DEFAULT;
+					continue;
+				}
 				if (currentArg.equals("-d")) { //$NON-NLS-1$
 					if (this.destinationPath != null) {
 						StringBuffer errorMessage = new StringBuffer();
@@ -2753,6 +2763,8 @@ public void configure(String[] argv) {
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_11);
 				} else if (currentArg.equals("12") || currentArg.equals("12.0")) { //$NON-NLS-1$//$NON-NLS-2$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_12);
+				} else if (currentArg.equals("13") || currentArg.equals("13.0")) { //$NON-NLS-1$//$NON-NLS-2$
+					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
 				}
 				else if (currentArg.equals("jsr14")) { //$NON-NLS-1$
 					this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_JSR14);
@@ -2844,6 +2856,8 @@ public void configure(String[] argv) {
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_11);
 				} else if (currentArg.equals("12") ||  currentArg.equals("12.0")) { //$NON-NLS-1$//$NON-NLS-2$
 					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_12);
+				} else if (currentArg.equals("13") ||  currentArg.equals("13.0")) { //$NON-NLS-1$//$NON-NLS-2$
+					this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
 				} else {
 					throw new IllegalArgumentException(this.bind("configure.source", currentArg)); //$NON-NLS-1$
 				}

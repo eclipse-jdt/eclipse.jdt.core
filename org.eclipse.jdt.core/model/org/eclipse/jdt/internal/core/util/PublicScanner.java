@@ -106,6 +106,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 	public static final String INVALID_CHARACTER_CONSTANT = "Invalid_Character_Constant";  //$NON-NLS-1$
 	public static final String INVALID_ESCAPE = "Invalid_Escape"; //$NON-NLS-1$
 	public static final String INVALID_INPUT = "Invalid_Input"; //$NON-NLS-1$
+	public static final String INVALID_TEXTBLOCK = "Invalid_Textblock"; //$NON-NLS-1$
 	public static final String INVALID_UNICODE_ESCAPE = "Invalid_Unicode_Escape"; //$NON-NLS-1$
 	public static final String INVALID_FLOAT = "Invalid_Float_Literal"; //$NON-NLS-1$
 	public static final String INVALID_LOW_SURROGATE = "Invalid_Low_Surrogate"; //$NON-NLS-1$

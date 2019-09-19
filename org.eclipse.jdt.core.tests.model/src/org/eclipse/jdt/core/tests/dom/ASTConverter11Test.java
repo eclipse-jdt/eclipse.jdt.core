@@ -24,6 +24,7 @@ public class ASTConverter11Test extends ConverterTestSetup {
 	ICompilationUnit workingCopy;
 	
 
+	@SuppressWarnings("deprecation")
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(AST_INTERNAL_JLS11, true);

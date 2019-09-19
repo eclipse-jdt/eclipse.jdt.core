@@ -755,6 +755,7 @@ class DefaultBindingResolver extends BindingResolver {
 						return this.getTypeBinding(compilerExpression.resolvedType);
 					}
 					break;
+				case ASTNode.TEXT_BLOCK :
 				case ASTNode.STRING_LITERAL :
 					if (this.scope != null) {
 						return this.getTypeBinding(this.scope.getJavaLangString());

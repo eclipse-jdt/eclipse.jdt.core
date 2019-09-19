@@ -235,6 +235,7 @@ public class ASTParser {
 			case AST.JLS10_INTERNAL:
 			case AST.JLS11_INTERNAL:
 			case AST.JLS12_INTERNAL:
+			case AST.JLS13_INTERNAL:
 				break;
 			default:
 				throw new IllegalArgumentException();

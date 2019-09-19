@@ -56,6 +56,7 @@ $Terminals
 	DoubleLiteral
 	CharacterLiteral
 	StringLiteral
+	TextBlock
 
 	PLUS_PLUS
 	MINUS_MINUS
@@ -114,7 +115,7 @@ $Terminals
 	AT308
 	AT308DOTDOTDOT
 	BeginCaseExpr
-	BreakPreviewMarker
+	RestrictedIdentifierYield
 
 --    BodyMarker
 
@@ -217,6 +218,8 @@ Goal ::= '(' ParenthesizedCastNameAndBounds
 Goal ::= '<' ReferenceExpressionTypeArgumentsAndTrunk
 -- JSR 308 Reconnaissance mission.
 Goal ::= '@' TypeAnnotations
+-- JSR 354 Reconnaissance mission.
+Goal ::= '->' YieldStatement
 /:$readableName Goal:/
 
 Literal -> IntegerLiteral
@@ -225,6 +228,7 @@ Literal -> FloatingPointLiteral
 Literal -> DoubleLiteral
 Literal -> CharacterLiteral
 Literal -> StringLiteral
+Literal -> TextBlock
 Literal -> null
 Literal -> BooleanLiteral
 /:$readableName Literal:/
@@ -1207,6 +1211,7 @@ StatementWithoutTrailingSubstatement -> SynchronizedStatement
 StatementWithoutTrailingSubstatement -> ThrowStatement
 StatementWithoutTrailingSubstatement -> TryStatement
 StatementWithoutTrailingSubstatement -> TryStatementWithResources
+StatementWithoutTrailingSubstatement -> YieldStatement
 /:$readableName Statement:/
 
 EmptyStatement ::= ';'
@@ -1327,6 +1332,10 @@ SwitchLabelCaseLhs ::= 'case' ConstantExpressions
 
 -- END SwitchExpression (JEP 325) --
 
+YieldStatement ::= RestrictedIdentifierYield Expression ;
+/.$putCase consumeStatementYield() ; $break ./
+/:$readableName YieldStatement:/
+
 WhileStatement ::= 'while' '(' Expression ')' Statement
 /.$putCase consumeStatementWhile() ; $break ./
 /:$readableName WhileStatement:/
@@ -1377,15 +1386,6 @@ BreakStatement ::= 'break' ';'
 BreakStatement ::= 'break' Identifier ';'
 /.$putCase consumeStatementBreakWithLabel() ; $break ./
 /:$readableName BreakStatement:/
-
-BreakStatement ::= 'break' BreakPreviewMarker ';'
-/.$putCase consumeStatementBreak() ; $break ./
-/:$compliance 12:/
-
-BreakStatement ::= 'break' BreakPreviewMarker Expression ';'
-/.$putCase consumeStatementBreakWithExpressionOrLabel() ; $break ./
-/:$readableName BreakStatement:/
-/:$compliance 12:/
 
 ContinueStatement ::= 'continue' ';'
 /.$putCase consumeStatementContinue() ; $break ./

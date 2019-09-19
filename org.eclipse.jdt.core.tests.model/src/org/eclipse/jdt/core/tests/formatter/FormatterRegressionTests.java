@@ -14850,7 +14850,7 @@ public void testBug541011g() throws JavaModelException {
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
 public void testBug543818a() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_12);
+	setComplianceLevel(CompilerOptions.VERSION_13);
 	this.formatterPrefs.insert_space_before_comma_in_switch_case_expressions = true;
 	this.formatterPrefs.insert_space_before_colon_in_case = true;
 	this.formatterPrefs.indent_switchstatements_compare_to_switch = true;
@@ -14861,7 +14861,7 @@ public void testBug543818a() throws JavaModelException {
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
 public void testBug543818b() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_12);
+	setComplianceLevel(CompilerOptions.VERSION_13);
 	this.formatterPrefs.insert_space_after_comma_in_switch_case_expressions = false;
 	this.formatterPrefs.insert_space_before_closing_paren_in_switch = true;
 	this.formatterPrefs.indent_switchstatements_compare_to_cases = false;
@@ -14872,7 +14872,7 @@ public void testBug543818b() throws JavaModelException {
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
 public void testBug543818c() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_12);
+	setComplianceLevel(CompilerOptions.VERSION_13);
 	this.formatterPrefs.insert_space_before_arrow_in_switch_case = false;
 	this.formatterPrefs.insert_space_before_opening_paren_in_switch = false;
 	this.formatterPrefs.indent_breaks_compare_to_cases = false;
@@ -14883,7 +14883,7 @@ public void testBug543818c() throws JavaModelException {
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
 public void testBug543818d() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_12);
+	setComplianceLevel(CompilerOptions.VERSION_13);
 	this.formatterPrefs.insert_space_after_arrow_in_switch_case = false;
 	this.formatterPrefs.insert_space_after_opening_paren_in_switch = true;
 	this.formatterPrefs.insert_space_before_opening_brace_in_block = false;
@@ -14895,7 +14895,7 @@ public void testBug543818d() throws JavaModelException {
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
 public void testBug543818e() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_12);
+	setComplianceLevel(CompilerOptions.VERSION_13);
 	this.formatterPrefs.insert_space_before_arrow_in_switch_default = false;
 	this.formatterPrefs.insert_space_before_colon_in_default = true;
 	this.formatterPrefs.parenthesis_positions_in_switch_statement = DefaultCodeFormatterConstants.SEPARATE_LINES;
@@ -14906,7 +14906,7 @@ public void testBug543818e() throws JavaModelException {
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
 public void testBug543818f() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_12);
+	setComplianceLevel(CompilerOptions.VERSION_13);
 	this.formatterPrefs.insert_space_after_arrow_in_switch_default = false;
 	this.formatterPrefs.insert_space_before_opening_brace_in_switch = false;
 	this.formatterPrefs.insert_space_before_opening_brace_in_block = false;
@@ -14917,7 +14917,7 @@ public void testBug543818f() throws JavaModelException {
  * https://bugs.eclipse.org/543818 - [12] Formatter Support for Switch Expressions
  */
 public void testBug543818g() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_12);
+	setComplianceLevel(CompilerOptions.VERSION_13);
 	String input = getCompilationUnit("Formatter", "", "test543818", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test543818", "G_out.java").getSource());
 }
@@ -15230,7 +15230,7 @@ public void testBug421492d() throws JavaModelException {
  * https://bugs.eclipse.org/390720 - [formatter] Add setting for blank line between case blocks (after break) for switch statement
  */
 public void testBug390720a() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_12);
+	setComplianceLevel(CompilerOptions.VERSION_13);
 	this.formatterPrefs.blank_lines_between_statement_groups_in_switch = 2;
 	formatSourceInWorkspace("test390720", "in.java", "A_out.java");
 }
@@ -15238,7 +15238,7 @@ public void testBug390720a() throws JavaModelException {
  * https://bugs.eclipse.org/390720 - [formatter] Add setting for blank line between case blocks (after break) for switch statement
  */
 public void testBug390720b() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_12);
+	setComplianceLevel(CompilerOptions.VERSION_13);
 	this.formatterPrefs.blank_lines_between_statement_groups_in_switch = ~0;
 	formatSourceInWorkspace("test390720", "in.java", "B_out.java");
 }

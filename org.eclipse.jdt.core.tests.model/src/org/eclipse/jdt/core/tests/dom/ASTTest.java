@@ -27,6 +27,7 @@ import java.util.Map;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
 
 // testing
@@ -1308,14 +1309,35 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 	}
 
+	@SuppressWarnings("deprecation")
+	private static int getApiLevel(String s) {
+		if (s == null)
+			return AST.JLS12;
+		switch (s) {
+		case JavaCore.VERSION_1_2 : return AST.JLS2; 
+        case JavaCore.VERSION_1_3: return AST.JLS3;
+        case JavaCore.VERSION_1_4: return AST.JLS4;
+        case JavaCore.VERSION_1_5: return AST.JLS4;
+        case JavaCore.VERSION_1_6: return AST.JLS4;
+        case JavaCore.VERSION_1_7: return AST.JLS4;
+        case JavaCore.VERSION_1_8: return AST.JLS8;
+        case JavaCore.VERSION_9: return AST.JLS9;
+        case JavaCore.VERSION_10: return AST.JLS10;
+        case JavaCore.VERSION_11: return AST.JLS11;
+        case JavaCore.VERSION_12: return AST.JLS12;
+        case JavaCore.VERSION_13: return AST.JLS13;
+        default:  return AST.JLS2;
+		}
+	}
 	/** @deprecated using deprecated code */
 	public void testAST() {
 
 		assertSame(AST.JLS2, 2);
 		assertSame(JLS3_INTERNAL, 3);
 
-		AST a0 = new AST(); // deprecated, but still 2.0
-		assertTrue(a0.apiLevel() == AST.JLS2);
+		AST a0 = new AST(); // deprecated, now 3 from JavaCore.defaultOptions
+		int apiLevelCal = ASTTest.getApiLevel(JavaCore.getDefaultOptions().get(JavaCore.COMPILER_SOURCE));
+		assertTrue(a0.apiLevel() == apiLevelCal);
 		AST a1 = new AST(new HashMap()); // deprecated, but still 2.0
 		assertTrue(a1.apiLevel() == AST.JLS2);
 		AST a2 = AST.newAST(AST.JLS2, false);
@@ -8869,6 +8891,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.PROVIDES_DIRECTIVE,
 			ASTNode.MODULE_MODIFIER,
 			ASTNode.SWITCH_EXPRESSION,
+			ASTNode.YIELD_STATEMENT,
+			ASTNode.TEXT_BLOCK
 
 		};
 
