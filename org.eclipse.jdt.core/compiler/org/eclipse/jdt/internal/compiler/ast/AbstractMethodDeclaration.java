@@ -354,7 +354,7 @@ public abstract class AbstractMethodDeclaration
 			codeStream.exitUserScope(this.scope);
 			codeStream.recordPositionsFrom(0, this.declarationSourceEnd);
 			try {
-				classFile.completeCodeAttribute(codeAttributeOffset);
+				classFile.completeCodeAttribute(codeAttributeOffset,this.scope);
 			} catch(NegativeArraySizeException e) {
 				throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 			}

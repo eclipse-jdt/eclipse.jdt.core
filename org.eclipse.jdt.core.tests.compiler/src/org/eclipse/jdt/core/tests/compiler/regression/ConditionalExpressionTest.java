@@ -576,20 +576,39 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 		if (this.complianceLevel < ClassFileConstants.JDK1_8)
 			return;
 		this.runNegativeTest(
-				new String[] {
-						"X.java",
-						"public class X extends Y {\n" +
-						"    public X(Z[] n) {\n" +
-						"        super((n == null) ? null : n.clone());\n" +
-						"    }\n" +
-						"}\n" +
-						"class Y  {\n" +
-						"    public Y(Z[] notifications) {\n" +
-						"    }\n" +
-						"}\n" +
-						"interface Z {}\n",
-				},
-				"");
+			new String[] {
+					"X.java",
+					"public class X extends Y {\n" +
+					"    public X(Z[] n) {\n" +
+					"        super((n == null) ? null : n.clone());\n" +
+					"    }\n" +
+					"}\n" +
+					"class Y  {\n" +
+					"    public Y(Z[] notifications) {\n" +
+					"    }\n" +
+					"}\n" +
+					"interface Z {}\n",
+			},
+			"");
+	}
+	public void test437444_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X extends Y {\n" +
+					"    public X(int[] n) {\n" +
+					"        super((n == null) ? null : n.clone());\n" +
+					"    }\n" +
+					"}\n" +
+					"class Y  {\n" +
+					"    public Y(int[] notifications) {\n" +
+					"    }\n" +
+					"}\n" +
+					"interface Z {}\n",
+			},
+			"");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=484425: [bytecode] Bad type on operand stack - compiler omitted instructions for unboxing null Boolean
 	public void test484425() {
