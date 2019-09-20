@@ -18283,7 +18283,7 @@ public void testBug536408() {
 	runner.runNegativeTest();
 }
 public void testBug542707_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK12) return; // switch expression
+	if (this.complianceLevel < ClassFileConstants.JDK13) return; // switch expression
 	Runner runner = new Runner();
 	runner.customOptions = new HashMap<>();
 	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
