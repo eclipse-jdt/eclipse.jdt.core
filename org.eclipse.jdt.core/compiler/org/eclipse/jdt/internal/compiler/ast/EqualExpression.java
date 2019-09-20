@@ -840,22 +840,6 @@ public class EqualExpression extends BinaryExpression {
 	public boolean isCompactableOperation() {
 		return false;
 	}
-
-	@Override
-	protected Constant optimizedNullComparisonConstant() {
-		int operator = (this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT;
-		if (operator == OperatorIds.EQUAL_EQUAL) {
-			if (this.left instanceof NullLiteral && this.right instanceof NullLiteral) {
-				return BooleanConstant.fromValue(true);
-			}
-		} else if (operator == OperatorIds.NOT_EQUAL) {
-			if (this.left instanceof NullLiteral && this.right instanceof NullLiteral) {
-				return BooleanConstant.fromValue(false);
-			}
-		}
-		return Constant.NotAConstant;
-	}
-
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 

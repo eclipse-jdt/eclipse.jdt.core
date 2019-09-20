@@ -1300,7 +1300,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		codeStream.exitUserScope(this.scope);
 		codeStream.recordPositionsFrom(0, this.sourceEnd); // WAS declarationSourceEnd.
 		try {
-			classFile.completeCodeAttribute(codeAttributeOffset, this.scope);
+			classFile.completeCodeAttribute(codeAttributeOffset);
 		} catch(NegativeArraySizeException e) {
 			throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 		}

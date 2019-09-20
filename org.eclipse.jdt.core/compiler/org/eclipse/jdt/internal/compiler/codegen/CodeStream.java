@@ -1726,7 +1726,7 @@ public void generateBoxingConversion(int unboxedTypeID) {
 /**
  * Macro for building a class descriptor object
  */
-public void generateClassLiteralAccessForType(Scope scope, TypeBinding accessedType, FieldBinding syntheticFieldBinding) {
+public void generateClassLiteralAccessForType(TypeBinding accessedType, FieldBinding syntheticFieldBinding) {
 	if (accessedType.isBaseType() && accessedType != TypeBinding.NULL) {
 		getTYPE(accessedType.id);
 		return;
@@ -1790,7 +1790,7 @@ public void generateClassLiteralAccessForType(Scope scope, TypeBinding accessedT
 		on the stack, which means that the stack may not be empty at this point in the
 		above code gen. So we save its state and restart it from 1. */
 
-		pushExceptionOnStack(scope.getJavaLangClassNotFoundException());
+		pushExceptionOnStack(TypeBinding.NULL);/*represents ClassNotFoundException*/
 		classNotFoundExceptionHandler.place();
 
 		// Transform the current exception, and repush and throw a
@@ -2509,7 +2509,7 @@ public void generateSyntheticBodyForFactoryMethod(SyntheticMethodBinding methodB
 public void generateSyntheticBodyForEnumValueOf(SyntheticMethodBinding methodBinding) {
 	initializeMaxLocals(methodBinding);
 	final ReferenceBinding declaringClass = methodBinding.declaringClass;
-	generateClassLiteralAccessForType(((SourceTypeBinding) methodBinding.declaringClass).scope, declaringClass, null);
+	generateClassLiteralAccessForType(declaringClass, null);
 	aload_0();
 	invokeJavaLangEnumvalueOf(declaringClass);
 	this.checkcast(declaringClass);
@@ -3065,7 +3065,7 @@ public void generateSyntheticBodyForSwitchTable(SyntheticMethodBinding methodBin
 				anyExceptionHandler.placeEnd();
 				goto_(endLabel);
 				// Generate the body of the exception handler
-				pushExceptionOnStack(scope.getJavaLangNoSuchFieldError());
+				pushExceptionOnStack(TypeBinding.LONG /*represents NoSuchFieldError*/);
 				anyExceptionHandler.place();
 				pop(); // we don't use it so we can pop it
 				endLabel.place();

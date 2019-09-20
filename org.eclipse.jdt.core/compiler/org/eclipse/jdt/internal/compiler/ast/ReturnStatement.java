@@ -201,7 +201,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (needValueStore()) {
 		alreadyGeneratedExpression = true;
 		this.expression.generateCode(currentScope, codeStream, needValue()); // no value needed if non-returning subroutine
-		generateStoreSaveValueIfNecessary(currentScope, codeStream);
+		generateStoreSaveValueIfNecessary(codeStream);
 	}
 
 	// generation of code responsible for invoking the finally blocks in sequence
@@ -223,7 +223,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (this.expression != null && !alreadyGeneratedExpression) {
 		this.expression.generateCode(currentScope, codeStream, true);
 		// hook necessary for Code Snippet
-		generateStoreSaveValueIfNecessary(currentScope, codeStream);
+		generateStoreSaveValueIfNecessary(codeStream);
 	}
 	// output the suitable return bytecode or wrap the value inside a descriptor for doits
 	generateReturnBytecode(codeStream);
@@ -246,7 +246,7 @@ public void generateReturnBytecode(CodeStream codeStream) {
 	codeStream.generateReturnBytecode(this.expression);
 }
 
-public void generateStoreSaveValueIfNecessary(Scope scope, CodeStream codeStream){
+public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 	if (this.saveValueVariable != null) {
 		codeStream.store(this.saveValueVariable, false);
 		// the variable is visible as soon as the local is stored
