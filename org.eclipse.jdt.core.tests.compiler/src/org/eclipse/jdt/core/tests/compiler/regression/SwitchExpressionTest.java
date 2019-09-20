@@ -2921,7 +2921,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			"Duplicate case\n" + 
 			"----------\n");
 	}
-	public void _testBug544943() {
+	public void testBug544943() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -2956,7 +2956,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 			},
 			"1");
 	}
-	public void _testBug544943_2() {
+	public void testBug544943_2() {
 		runConformTest(
 			new String[] {
 				"X.java",
