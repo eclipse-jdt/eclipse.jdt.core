@@ -485,15 +485,16 @@ public final class AST {
 	 *    	<code>"1.3"</code> means the source code is as per JDK 1.3 and api level {@link #JLS3}.</li>
 	 *    	<li><code>"1.4", "1.5", "1.6", "1.7" "1.8"</code> implies the respective source JDK levels 1.4, 1.5, 1.6, 1.7 and api level {@link #JLS4}.</li>
 	 *    	<li><code>"1.8"</code> implies the respective source JDK level 1.8 and api level {@link #JLS8}.</li>
-	 *    	<li><code>"9", "10", "11" "12"</code> implies the respective JDK levels 9, 10, 11 and 12
-	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11}, and {@link #JLS12}.</li>
-	 *    	Additional legal values may be added later.
-	 *    	</li>
+	 *    	<li><code>"9", "10", "11", "12" and "13"</code> implies the respective JDK levels 9, 10, 11, 12 and 13
+	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11}, {@link #JLS12} and {@link #JLS13}.</li>
+	 *    	<li>Additional legal values may be added later.</li>
 	 *    </ul>
+	 * </li>
 	 * <li><code>"org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures"</code> -
 	 *    indicates whether the preview is enabled or disabled
 	 *    legal values are <code>"enabled"</code> and  <code>"disabled"</code> implying preview enabled and disabled respectively.
 	 *    preview enabling has an effect only with the latest ast level.
+	 * </li>
 	 * </ul>
 	 * <p>
 	 * </p>
@@ -1020,16 +1021,16 @@ public final class AST {
 	 *    	<code>"1.3"</code> means the source code is as per JDK 1.3 and api level {@link #JLS3}.</li>
 	 *    	<li><code>"1.4", "1.5", "1.6", "1.7" "1.8"</code> implies the respective source JDK levels 1.4, 1.5, 1.6, 1.7 and api level {@link #JLS4}.</li>
 	 *    	<li><code>"1.8"</code> implies the respective source JDK level 1.8 and api level {@link #JLS8}.</li>
-	 *    	<li><code>"9", "10", "11" "12"</code> implies the respective JDK levels 9, 10, 11 and 12
-	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11}, and {@link #JLS12}.</li>
-	 *    	Additional legal values may be added later.
-	 *    	</li>
+	 *    	<li><code>"9", "10", "11", "12" and "13"</code> implies the respective JDK levels 9, 10, 11, 12 and 13
+	 *     	and api levels {@link #JLS9}, {@link #JLS10}, {@link #JLS11}, {@link #JLS12} and {@link #JLS13}.</li>
+	 *    	<li>Additional legal values may be added later.</li>
 	 *    </ul>
-	 * <li><code>"org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures"</code> -
-	 *    indicates whether the preview is enabled or disabled
-	 *    legal values are <code>"enabled"</code> and  <code>"disabled"</code> implying preview enabled and disabled respectively.
-	 *    preview enabling has an effect only with the latest ast level.
-	 * </ul>
+	 * 	<li><code>"org.eclipse.jdt.core.compiler.problem.enablePreviewFeatures"</code> -
+	 *    	indicates whether the preview is enabled or disabled
+	 *    	legal values are <code>"enabled"</code> and  <code>"disabled"</code> implying preview enabled and disabled respectively.
+	 *    	preview enabling has an effect only with the latest ast level.
+	 *  </li>
+	 * 	</ul>
 	 * <p>
 	 * </p>
 	 *
