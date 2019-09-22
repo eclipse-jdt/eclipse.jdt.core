@@ -118,21 +118,22 @@ public void setUpSuite() throws Exception {
 	setupExternalJCL("jclMin");
 	setupExternalJCL("jclMin1.5");
 }
-protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants) throws CoreException {
+protected void assertCycleMarkers(IJavaProject project, IJavaProject[] p, int[] expectedCycleParticipants, boolean includeAffected) throws CoreException {
 	waitForAutoBuild();
 	StringBuffer expected = new StringBuffer("{");
 	int expectedCount = 0;
 	StringBuffer computed = new StringBuffer("{");
 	int computedCount = 0;
+	int mask = includeAffected ? 3 : 1;
 	for (int j = 0; j < p.length; j++){
-		int markerCount = numberOfCycleMarkers(p[j]);
-		if (markerCount > 0){
+		int markerFlags = cycleMarkerFlags(p[j]);
+		if ((markerFlags & mask) > 0){
 			if (computedCount++ > 0) computed.append(", ");
 			computed.append(p[j].getElementName());
 			//computed.append(" (" + markerCount + ")");
 		}
-		markerCount = expectedCycleParticipants[j];
-		if (markerCount > 0){
+		markerFlags = expectedCycleParticipants[j];
+		if ((markerFlags & mask) > 0){
 			if (expectedCount++ > 0) expected.append(", ");
 			expected.append(p[j].getElementName());
 			//expected.append(" (" + markerCount + ")");
@@ -169,14 +170,20 @@ protected File createFile(File parent, String name, String content) throws IOExc
 	file.setLastModified(System.currentTimeMillis() + 2000);
 	return file;
 }
-protected int numberOfCycleMarkers(IJavaProject javaProject) throws CoreException {
+/** @return 1: participates in cycle, 2: affected by cycle (depends on) */
+protected int cycleMarkerFlags(IJavaProject javaProject) throws CoreException {
 	IMarker[] markers = javaProject.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 	int result = 0;
 	for (int i = 0, length = markers.length; i < length; i++) {
 		IMarker marker = markers[i];
 		String cycleAttr = (String)marker.getAttribute(IJavaModelMarker.CYCLE_DETECTED);
 		if (cycleAttr != null && cycleAttr.equals("true")){ //$NON-NLS-1$
-			result++;
+			String message = marker.getAttribute(IMarker.MESSAGE, "");
+			boolean isCycleMember = message.indexOf("\n->{") != -1; // cycle with no prefix
+			if (isCycleMember)
+				result |= 1;
+			else
+				result |= 2;
 		}
 	}
 	return result;
@@ -2572,7 +2579,7 @@ public void testCycleReport() throws CoreException {
 		IJavaProject[] projects = { p1, p2, p3 };
 		int cycleMarkerCount = 0;
 		for (int i = 0; i < projects.length; i++){
-			cycleMarkerCount += numberOfCycleMarkers(projects[i]);
+			cycleMarkerCount += (cycleMarkerFlags(projects[i]) & 1);
 		}
 		assertTrue("Should have no cycle markers", cycleMarkerCount == 0);
 
@@ -2597,7 +2604,7 @@ public void testCycleReport() throws CoreException {
 		waitForAutoBuild(); // wait for cycle markers to be created
 		cycleMarkerCount = 0;
 		for (int i = 0; i < projects.length; i++){
-			cycleMarkerCount += numberOfCycleMarkers(projects[i]);
+			cycleMarkerCount += (cycleMarkerFlags(projects[i]) & 1);
 		}
 		assertEquals("Unexpected number of projects involved in a classpath cycle", 3, cycleMarkerCount);
 
@@ -4183,11 +4190,13 @@ public void testMissingPrereq4() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers for project A",
-			"A cycle was detected in the build path of project 'A'. The cycle consists of projects {A, B}",
+			"One or more cycles were detected in the build path of project 'A'. The paths towards the cycle and cycle are:\n" + 
+			"->{A, B}",
 			projectA);
 		this.assertMarkers(
 			"Unexpected markers for project B",
-			"A cycle was detected in the build path of project 'B'. The cycle consists of projects {A, B}",
+			"One or more cycles were detected in the build path of project 'B'. The paths towards the cycle and cycle are:\n" + 
+			"->{A, B}",
 			projectB);
 
 		// delete project B
@@ -4207,11 +4216,13 @@ public void testMissingPrereq4() throws CoreException {
 				"");
 		this.assertMarkers(
 			"Unexpected markers for project A after adding project B back",
-			"A cycle was detected in the build path of project 'A'. The cycle consists of projects {A, B}",
+			"One or more cycles were detected in the build path of project 'A'. The paths towards the cycle and cycle are:\n" + 
+			"->{A, B}",
 			projectA);
 		this.assertMarkers(
 			"Unexpected markers for project B after adding project B back",
-			"A cycle was detected in the build path of project 'B'. The cycle consists of projects {A, B}",
+			"One or more cycles were detected in the build path of project 'B'. The paths towards the cycle and cycle are:\n" + 
+			"->{A, B}",
 			projectB);
 
 	} finally {
@@ -4458,6 +4469,14 @@ public void testCycleDetection() throws CoreException {
 			{ 1, 1, 1, 1, 1 }, // after setting CP p[4]
 		};
 
+		int[][] expectedAffectedProjects = new int[][] {
+			{ 0, 0, 0, 0, 0 }, // after setting CP p[0]
+			{ 0, 0, 0, 0, 0 }, // after setting CP p[1]
+			{ 1, 1, 1, 0, 0 }, // after setting CP p[2]
+			{ 1, 1, 1, 0, 0 }, // after setting CP p[3]
+			{ 1, 1, 1, 1, 1 }, // after setting CP p[4]
+		};
+
 		for (int i = 0; i < p.length; i++){
 
 			// append project references
@@ -4471,7 +4490,8 @@ public void testCycleDetection() throws CoreException {
 			p[i].setRawClasspath(newClasspath, null);
 
 			// check cycle markers
-			assertCycleMarkers(p[i], p, expectedCycleParticipants[i]);
+			assertCycleMarkers(p[i], p, expectedCycleParticipants[i], false);
+			assertCycleMarkers(p[i], p, expectedAffectedProjects[i], true);
 		}
 		//this.startDeltas();
 
@@ -4533,7 +4553,7 @@ public void testCycleDetectionThroughVariables() throws CoreException {
 			JavaCore.setClasspathVariables(var, variableValues[i], null);
 
 			// check cycle markers
-			assertCycleMarkers(p[i], p, expectedCycleParticipants[i]);
+			assertCycleMarkers(p[i], p, expectedCycleParticipants[i], false);
 		}
 		//this.startDeltas();
 
@@ -4616,7 +4636,7 @@ public void testCycleDetectionThroughContainers() throws CoreException {
 			}
 
 			// check cycle markers
-			assertCycleMarkers(p[i], p, expectedCycleParticipants[i]);
+			assertCycleMarkers(p[i], p, expectedCycleParticipants[i], false);
 		}
 		//this.startDeltas();
 
@@ -4699,7 +4719,7 @@ public void testCycleDetectionThroughContainerVariants() throws CoreException {
 			}
 
 			// check cycle markers
-			assertCycleMarkers(p[i], p, expectedCycleParticipants[i]);
+			assertCycleMarkers(p[i], p, expectedCycleParticipants[i], false);
 		}
 		//this.startDeltas();
 
@@ -4748,7 +4768,8 @@ public void testCycleDetection2() throws CoreException {
 			p[i].setRawClasspath(newClasspath, null);
 
 			// check cycle markers
-			assertCycleMarkers(p[i], p, expectedCycleParticipants[i]);
+			assertCycleMarkers(p[i], p, expectedCycleParticipants[i], false);
+			assertCycleMarkers(p[i], p, expectedCycleParticipants[i], true);
 		}
 		//this.startDeltas();
 
@@ -4784,7 +4805,7 @@ public void testCycleDetection3() throws CoreException {
 			{ 0, 0, 0, 0, 0, 0 }, // after setting CP p[2]
 			{ 1, 1, 1, 1, 0, 0 }, // after setting CP p[3]
 			{ 1, 1, 1, 1, 0, 0 }, // after setting CP p[4]
-			{ 1, 1, 1, 1, 1 , 1}, // after setting CP p[5]
+			{ 1, 1, 1, 1, 1 ,1 }, // after setting CP p[5]
 		};
 
 		for (int i = 0; i < p.length; i++){
@@ -4800,8 +4821,17 @@ public void testCycleDetection3() throws CoreException {
 			p[i].setRawClasspath(newClasspath, null);
 
 			// check cycle markers
-			assertCycleMarkers(p[i], p, expectedCycleParticipants[i]);
+			assertCycleMarkers(p[i], p, expectedCycleParticipants[i], false);
+			assertCycleMarkers(p[i], p, expectedCycleParticipants[i], true);
 		}
+		
+		IMarker[] markers = p[0].getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+		// additionally see that we actually have 2 cycles for P0!
+		assertMarkers("Markers of P0",
+				"One or more cycles were detected in the build path of project 'P0'. The paths towards the cycle and cycle are:\n" +
+				"->{P0, P2, P3, P1}\n" +
+				"->{P0, P4, P5, P1}",
+				markers);
 		//this.startDeltas();
 
 	} finally {
@@ -4840,7 +4870,7 @@ public void testCycleDetection4() throws CoreException {
 		waitForAutoBuild();
 		getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_CHANGE);
 		createFile("/P1/test.txt", "");
-		assertCycleMarkers(p1, new IJavaProject[] {p1, p2}, new int[] {1, 1});
+		assertCycleMarkers(p1, new IJavaProject[] {p1, p2}, new int[] {1, 1}, false);
 	} finally {
 		getWorkspace().removeResourceChangeListener(listener);
 		deleteProjects(new String[] {"P1", "P2"});
@@ -5134,7 +5164,7 @@ private void denseCycleDetection(final int numberOfParticipants) throws CoreExce
 
 		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers
-			assertCycleMarkers(projects[i], projects, allProjectsInCycle);
+			assertCycleMarkers(projects[i], projects, allProjectsInCycle, false);
 		}
 
 	} finally {
@@ -5207,7 +5237,7 @@ private void noCycleDetection(final int numberOfParticipants, final boolean useF
 
 		for (int i = 0; i < numberOfParticipants; i++){
 			// check cycle markers
-			assertCycleMarkers(projects[i], projects, allProjectsInCycle);
+			assertCycleMarkers(projects[i], projects, allProjectsInCycle, false);
 		}
 
 	} finally {
