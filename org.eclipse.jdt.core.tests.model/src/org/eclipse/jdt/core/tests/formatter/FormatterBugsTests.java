@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13021,5 +13021,19 @@ public void testBug413193c() {
 		"		return 0;\n" + 
 		"	}\n" + 
 		"}");
+}
+/**
+ * https://bugs.eclipse.org/551189 - Consistent ArrayIndexOutOfBounds when saving an incorrect Java file when code clean-up is enabled
+ */
+public void testBug551189() {
+	formatSource(
+		"public class AAA {\n" + 
+		"\n" + 
+		"import java.awt.*;\n" + 
+		"\n" + 
+		"public class BBB {\n" + 
+		"    int a;\n" + 
+		"\n" + 
+		"}}");
 }
 }

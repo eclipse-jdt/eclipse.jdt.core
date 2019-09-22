@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 Mateusz Matela and others.
+ * Copyright (c) 2018, 2019 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -56,6 +56,12 @@ public class OneLineEnforcer extends ASTVisitor {
 	public OneLineEnforcer(TokenManager tokenManager, DefaultCodeFormatterOptions options) {
 		this.tm = tokenManager;
 		this.options = options;
+	}
+
+	@Override
+	public boolean preVisit2(ASTNode node) {
+		boolean isMalformed = (node.getFlags() & ASTNode.MALFORMED) != 0;
+		return !isMalformed;
 	}
 
 	@Override
