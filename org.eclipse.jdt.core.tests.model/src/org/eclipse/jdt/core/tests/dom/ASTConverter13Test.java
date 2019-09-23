@@ -48,7 +48,7 @@ import junit.framework.Test;
 public class ASTConverter13Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
-	private static final String jclLib = "CONVERTER_JCL9_LIB";
+	private static final String jclLib = "CONVERTER_JCL13_LIB";
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();

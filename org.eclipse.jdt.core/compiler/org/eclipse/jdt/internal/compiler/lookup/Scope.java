@@ -2839,6 +2839,16 @@ public abstract class Scope {
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_CLONEABLE);
 		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_CLONEABLE, this);
 	}
+	public final ReferenceBinding getJavaLangClassNotFoundException() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_CLASSNOTFOUNDEXCEPTION);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_CLASSNOTFOUNDEXCEPTION, this);
+	}
+	public final ReferenceBinding getJavaLangNoSuchFieldError() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_NOSUCHFIELDERROR);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_NOSUCHFIELDERROR, this);
+	}
 	public final ReferenceBinding getJavaLangEnum() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ENUM);
