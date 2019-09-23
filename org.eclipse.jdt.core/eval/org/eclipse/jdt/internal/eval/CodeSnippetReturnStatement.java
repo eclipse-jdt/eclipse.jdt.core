@@ -62,7 +62,7 @@ public void generateReturnBytecode(CodeStream codeStream) {
 	codeStream.return_();
 }
 @Override
-public void generateStoreSaveValueIfNecessary(Scope scope, CodeStream codeStream){
+public void generateStoreSaveValueIfNecessary(CodeStream codeStream){
 
 	// push receiver
 	codeStream.aload_0();
@@ -73,7 +73,7 @@ public void generateStoreSaveValueIfNecessary(Scope scope, CodeStream codeStream
 		codeStream.aconst_null();
 
 		// void.class
-		codeStream.generateClassLiteralAccessForType(scope, TypeBinding.VOID, null);
+		codeStream.generateClassLiteralAccessForType(TypeBinding.VOID, null);
 	} else {
 		// swap with expression
 		int valueTypeID = this.expression.resolvedType.id;
@@ -90,7 +90,7 @@ public void generateStoreSaveValueIfNecessary(Scope scope, CodeStream codeStream
 		}
 
 		// generate the expression type
-		codeStream.generateClassLiteralAccessForType(scope, this.expression.resolvedType, null);
+		codeStream.generateClassLiteralAccessForType(this.expression.resolvedType, null);
 	}
 
 	// generate the invoke virtual to "setResult(Object,Class)"
