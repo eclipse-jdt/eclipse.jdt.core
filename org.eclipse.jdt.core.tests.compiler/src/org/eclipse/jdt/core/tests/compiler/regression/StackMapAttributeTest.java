@@ -8722,4 +8722,51 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				assertEquals("Wrong contents", expectedOutput, actualOutput);
 			}
 	}
+
+	public void test551368() {
+		this.runConformTest(
+            new String[] {
+        		"X.java",
+        		"interface A {\n" + 
+        		"}\n" + 
+        		"class B implements A {\n" + 
+        		"	public C c;\n" + 
+        		"	\n" + 
+        		"	protected B original() {\n" + 
+        		"		return this;\n" + 
+        		"	}\n" + 
+        		"}\n" + 
+        		"class C {\n" + 
+        		"	C parent;\n" + 
+        		"	A context;\n" + 
+        		"}\n" + 
+        		"class F extends C {\n" + 
+        		"	\n" + 
+        		"}\n" + 
+        		"class G extends C {\n" + 
+        		"	\n" + 
+        		"}\n" + 
+        		"abstract class D implements A {\n" + 
+        		"	public F c;\n" + 
+        		"}\n" + 
+        		"class E implements A {\n" + 
+        		"	public G c;\n" + 
+        		"}\n" + 
+        		"public class X {\n" + 
+        		"	boolean foo(A a) {\n" + 
+        		"		if (a instanceof B && a != ((B) a).original())\n" + 
+        		"			return true;\n" + 
+        		"		C aC = a instanceof D ? ((D) a).c :\n" + 
+        		"			a instanceof E ? ((E) a).c : \n" + 
+        		"			a instanceof B ? ((B) a).c :\n" + 
+        		"				null;\n" + 
+        		"		return aC != null ? foo(aC.parent.context) : false;\n" + 
+        		"	}\n" + 
+        		"	public static void main(String[] args) {\n" + 
+        		"		System.out.println(\"SUCCESS\");\n" + 
+        		"	}\n" + 
+        		"}",
+            },
+			"SUCCESS");
+	}
 }

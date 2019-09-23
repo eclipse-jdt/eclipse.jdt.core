@@ -6041,7 +6041,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			initializeDefaultLocals(frame, methodBinding, maxLocals, codeLength);
 		}
 		frame.pc = -1;
-		add(frames, frame.duplicate());
+		add(frames, frame.duplicate(), scope);
 		addRealJumpTarget(realJumpTarget, -1);
 		for (int i = 0, max = this.codeStream.exceptionLabelsCounter; i < max; i++) {
 			ExceptionLabel exceptionLabel = this.codeStream.exceptionLabels[i];
@@ -6076,7 +6076,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				StackMapFrame currentFrame = frames.get(Integer.valueOf(currentPC));
 				if (currentFrame == null) {
 					currentFrame = createNewFrame(currentPC, frame, isClinit, methodBinding);
-					add(frames, currentFrame);
+					add(frames, currentFrame, scope);
 				} else {
 					frame = currentFrame.merge(frame.duplicate(), scope).duplicate();
 				}
@@ -6623,7 +6623,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case Opcodes.OPC_ifle:
 					frame.numberOfStackItems--;
 					int jumpPC = currentPC + i2At(bytecodes, 1, pc);
-					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 					pc += 3;
 					break;
 				case Opcodes.OPC_if_icmpeq:
@@ -6636,12 +6636,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case Opcodes.OPC_if_acmpne:
 					frame.numberOfStackItems -= 2;
 					jumpPC = currentPC + i2At(bytecodes, 1, pc);
-					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 					pc += 3;
 					break;
 				case Opcodes.OPC_goto:
 					jumpPC = currentPC + i2At(bytecodes, 1, pc);
-					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 					pc += 3;
 					addRealJumpTarget(realJumpTarget, pc - codeOffset);
 					break;
@@ -6653,7 +6653,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					}
 					// default offset
 					jumpPC = currentPC + i4At(bytecodes, 0, pc);
-					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 					pc += 4; // default
 					int low = i4At(bytecodes, 0, pc);
 					pc += 4;
@@ -6663,7 +6663,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					for (int i = 0; i < length; i++) {
 						// pair offset
 						jumpPC = currentPC + i4At(bytecodes, 0, pc);
-						addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
+						addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 						pc += 4;
 					}
 					break;
@@ -6674,7 +6674,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						pc++;
 					}
 					jumpPC = currentPC + i4At(bytecodes, 0, pc);
-					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 					pc += 4; // default offset
 					int npairs = (int) u4At(bytecodes, 0, pc);
 					pc += 4; // npair value
@@ -6682,7 +6682,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						pc += 4; // case value
 						// pair offset
 						jumpPC = currentPC + i4At(bytecodes, 0, pc);
-						addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
+						addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 						pc += 4;
 					}
 					break;
@@ -7037,12 +7037,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case Opcodes.OPC_ifnonnull:
 					frame.numberOfStackItems--;
 					jumpPC =  currentPC + i2At(bytecodes, 1, pc);
-					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 					pc += 3;
 					break;
 				case Opcodes.OPC_goto_w:
 					jumpPC =  currentPC + i4At(bytecodes, 1, pc);
-					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding));
+					addRealJumpTarget(realJumpTarget, jumpPC, frames, createNewFrame(jumpPC, frame, isClinit, methodBinding), scope);
 					pc += 5;
 					addRealJumpTarget(realJumpTarget, pc - codeOffset); // handle infinite loop
 					break;
@@ -7097,15 +7097,19 @@ public class ClassFile implements TypeConstants, TypeIds {
 		realJumpTarget.add(Integer.valueOf(pc));
 	}
 
-	private void addRealJumpTarget(Set realJumpTarget, int pc, Map frames, StackMapFrame frame) {
+	private void addRealJumpTarget(Set realJumpTarget, int pc, Map frames, StackMapFrame frame, Scope scope) {
 		realJumpTarget.add(Integer.valueOf(pc));
-		add(frames, frame);
+		add(frames, frame, scope);
 	}
 
-	private void add(Map frames, StackMapFrame frame) {
+	private void add(Map<Integer, StackMapFrame> frames, StackMapFrame frame, Scope scope) {
 		Integer key = Integer.valueOf(frame.pc);
-		if(!frames.containsKey(key)) {
-			frames.put(Integer.valueOf(frame.pc), frame);
+		StackMapFrame existingFrame = frames.get(key);
+		if(existingFrame == null) {
+			frames.put(key, frame);
+		} else {
+			// we need to merge
+			frames.put(key, existingFrame.merge(frame, scope));
 		}
 	}
 
