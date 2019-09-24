@@ -83,4 +83,12 @@ public interface IModuleDescription extends IMember, IAnnotatable {
 	default boolean isAutoModule() {
 		return false;
 	}
+
+	/**
+	 * @return true if this module is a system module, else false
+	 * @since 3.20
+	 */
+	default boolean isSystemModule() {
+		return false;
+	}
 }

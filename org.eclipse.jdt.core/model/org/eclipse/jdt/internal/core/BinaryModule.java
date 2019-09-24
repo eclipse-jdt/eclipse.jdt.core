@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -63,6 +64,11 @@ public class BinaryModule extends BinaryMember implements AbstractModule {
 	@Override
 	public boolean isBinary() {
 		return true;
+	}
+	@Override
+	public boolean isSystemModule() {
+		IPackageFragmentRoot pfr = (IPackageFragmentRoot) getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+		return pfr instanceof JrtPackageFragmentRoot;
 	}
 	@Override
 	public int getFlags() throws JavaModelException {
