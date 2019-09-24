@@ -869,7 +869,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertTrue("Invalid selection result", (elements[0] instanceof BinaryModule));
 			IModuleDescription mod = (IModuleDescription) elements[0];
 			String id = mod.getHandleIdentifier();
-			assertTrue("incorrect id", id.matches("=Java9Elements/.*"+Pattern.quote("\\/jmods\\/java.base.jmod=/module=/true<'`java.base")));
+			assertTrue("incorrect id", id.matches("=Java9Elements/.*"+Pattern.quote("\\/jmods\\/java.base.jmod=/module=/true=/<'`java.base")));
 			IJavaElement element = JavaCore.create(id);
 			assertEquals("incorrect element type", IJavaElement.JAVA_MODULE, element.getElementType());
 			assertEquals("incorrect module name", "java.base", element.getElementName());
@@ -1604,7 +1604,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertTrue("Invalid selection result", (elements[0] instanceof BinaryModule));
 			IModuleDescription mod = (IModuleDescription) elements[0];
 			String id = mod.getHandleIdentifier();
-			assertEquals("identifier", "=Java9Elements/"+jdkRootPath.toString().replace("/", "\\/")+"\\/jmods\\/java.base.jmod=/module=/true<'`java.base", id);
+			assertEquals("identifier", "=Java9Elements/"+jdkRootPath.toString().replace("/", "\\/")+"\\/jmods\\/java.base.jmod=/module=/true=/<'`java.base", id);
 			ISourceRange ir =mod.getNameRange();
 			assertTrue("positive offset", ir.getOffset() > 0);
 			assertEquals("length", 9, ir.getLength());

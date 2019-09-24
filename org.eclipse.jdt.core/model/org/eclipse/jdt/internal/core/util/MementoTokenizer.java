@@ -152,4 +152,12 @@ public class MementoTokenizer {
 		}
 	}
 
+	public String getStringDelimitedBy(String delimiter) {
+		String token = nextToken();
+		if (token == delimiter)
+			return ""; //$NON-NLS-1$
+		String separator = nextToken();
+		assert separator == delimiter;
+		return token;
+	}
 }

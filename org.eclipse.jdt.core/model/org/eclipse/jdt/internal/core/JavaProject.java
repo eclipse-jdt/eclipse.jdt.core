@@ -2008,12 +2008,11 @@ public class JavaProject
 						}
 						continue;
 					} else if (token == MementoTokenizer.CLASSPATH_ATTRIBUTE) {
-						// PFR memento is optionally trailed by all extra classpath attributes ("=/name=/value"):
-						String name = memento.nextToken();
-						String separator = memento.nextToken();
-						assert separator == MementoTokenizer.CLASSPATH_ATTRIBUTE;
-						String value = memento.nextToken();
+						// PFR memento is optionally trailed by all extra classpath attributes ("=/name=/value=/"):
+						String name = memento.getStringDelimitedBy(MementoTokenizer.CLASSPATH_ATTRIBUTE);
+						String value = memento.getStringDelimitedBy(MementoTokenizer.CLASSPATH_ATTRIBUTE);
 						attributes.add(new ClasspathAttribute(name, value));
+						token = null; // consumed
 						continue;
 					}
 					rootPath += token;
