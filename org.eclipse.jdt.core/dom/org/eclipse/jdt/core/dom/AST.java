@@ -496,7 +496,6 @@ public final class AST {
 	 *    preview enabling has an effect only with the latest ast level.
 	 * </li>
 	 * </ul>
-	 * <p>
 	 * </p>
 	 *
 	 * @param options the table of options
@@ -1031,7 +1030,6 @@ public final class AST {
 	 *    	preview enabling has an effect only with the latest ast level.
 	 *  </li>
 	 * 	</ul>
-	 * <p>
 	 * </p>
 	 *
 	 * @param options the table of options (key type: <code>String</code>;
