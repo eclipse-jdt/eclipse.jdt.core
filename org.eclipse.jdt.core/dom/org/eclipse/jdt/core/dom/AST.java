@@ -475,7 +475,6 @@ public final class AST {
 
 	/**
 	 * Creates a new Java abstract syntax tree
-	 * <p>
 	 * Following option keys are significant:
 	 * <ul>
 	 * <li><code>"org.eclipse.jdt.core.compiler.source"</code>
@@ -496,7 +495,6 @@ public final class AST {
 	 *    preview enabling has an effect only with the latest ast level.
 	 * </li>
 	 * </ul>
-	 * </p>
 	 *
 	 * @param options the table of options
 	 * @see JavaCore#getDefaultOptions()
@@ -1010,7 +1008,6 @@ public final class AST {
 
 	/**
 	 * Creates a new Java abstract syntax tree
-	 * <p>
 	 * Following option keys are significant:
 	 * <ul>
 	 * <li><code>"org.eclipse.jdt.core.compiler.source"</code>
@@ -1030,7 +1027,6 @@ public final class AST {
 	 *    	preview enabling has an effect only with the latest ast level.
 	 *  </li>
 	 * 	</ul>
-	 * </p>
 	 *
 	 * @param options the table of options (key type: <code>String</code>;
 	 *    value type: <code>String</code>)
