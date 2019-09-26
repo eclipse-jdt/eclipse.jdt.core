@@ -1766,14 +1766,14 @@ protected int getNextToken0() throws InvalidInputException {
 						if (isTextBlock) {
 							if (lastQuotePos > 0)
 								this.currentPosition = lastQuotePos;
+							this.currentPosition = (lastQuotePos > 0) ? lastQuotePos : this.startPosition + this.rawStart;
 							throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
 						} else {
 							throw new InvalidInputException(UNTERMINATED_STRING);
 						}
 					} catch (IndexOutOfBoundsException e) {
 						if (isTextBlock) {
-							if (lastQuotePos > 0)
-								this.currentPosition = lastQuotePos;
+							this.currentPosition = (lastQuotePos > 0) ? lastQuotePos : this.startPosition + this.rawStart;
 							throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
 						} else {
 							this.currentPosition--;
@@ -2199,32 +2199,61 @@ public final void jumpOverMethodBody() {
 						break NextToken;
 					}
 				case '"' :
+					boolean isTextBlock = false;
+					int firstClosingBrace = 0;
 					try {
 						try { // consume next character
-							this.unicodeAsBackSlash = false;
-							if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-									&& (this.source[this.currentPosition] == 'u')) {
-								getNextUnicodeChar();
-							} else {
-								if (this.withoutUnicodePtr != 0) {
-									unicodeStore();
+							isTextBlock = scanForTextBlockBeginning();
+							if (!isTextBlock) {
+								this.unicodeAsBackSlash = false;
+								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+										&& (this.source[this.currentPosition] == 'u')) {
+									getNextUnicodeChar();
+								} else {
+									if (this.withoutUnicodePtr != 0) {
+										unicodeStore();
+									}
 								}
 							}
 						} catch (InvalidInputException ex) {
 								// ignore
 						}
-						while (this.currentCharacter != '"') {
-							if (this.currentPosition >= this.eofPosition) {
-								return;
+						
+						Inner: while (this.currentPosition <= this.eofPosition) {
+							if (isTextBlock) {
+								switch (this.currentCharacter) {
+									case '"':
+										// look for text block delimiter
+										if (scanForTextBlockClose()) {
+											this.currentPosition += 2;
+											this.currentCharacter = this.source[this.currentPosition];
+											isTextBlock = false;
+											break Inner;
+										}
+										break;
+									case '}':
+										if (firstClosingBrace == 0)
+											firstClosingBrace = this.currentPosition;
+										break;
+									case '\r' :
+										if (this.source[this.currentPosition] == '\n') 
+											this.currentPosition++;
+										//$FALL-THROUGH$
+									case '\n' :
+										pushLineSeparator();
+										//$FALL-THROUGH$
+									default: 
+										this.currentCharacter = this.source[this.currentPosition++];
+										continue Inner;
+								}
+							} else if (this.currentCharacter == '"') {
+								break Inner;
 							}
 							if (this.currentCharacter == '\r'){
-								// For text block, we don't want to overlook \n. Hence, don't advance past \n
-								//if (this.source[this.currentPosition] == '\n') this.currentPosition++;
+								if (this.source[this.currentPosition] == '\n') this.currentPosition++;
 								break NextToken; // the string cannot go further that the line
 							}
 							if (this.currentCharacter == '\n'){
-								// For text block, we don't want to overlook \n. Hence, go back one char
-								this.currentPosition--;
 								break; // the string cannot go further that the line
 							}
 							if (this.currentCharacter == '\\') {
@@ -2262,7 +2291,13 @@ public final void jumpOverMethodBody() {
 							}
 						}
 					} catch (IndexOutOfBoundsException e) {
-						return;
+						if(isTextBlock) {
+							// Pull it back to the first closing brace after the beginning
+							// of the unclosed text block and let recovery take over.
+							if (firstClosingBrace > 0) {
+								this.currentPosition = firstClosingBrace - 1;
+							}
+						}
 					}
 					break NextToken;
 				case '/' :

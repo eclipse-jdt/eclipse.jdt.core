@@ -115,6 +115,26 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"Text block is not properly closed with the delimiter\n" + 
 				"----------\n");
 	}
+	public void test003a() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" + 
+						"\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(textb);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	public static String textb = \"\"\"\n" + 
+				"\n" + 
+				"	                             ^^^^\n" + 
+				"Text block is not properly closed with the delimiter\n" + 
+				"----------\n");
+	}
 	/*
 	 * negative - unescaped '\' in a text block
 	 */

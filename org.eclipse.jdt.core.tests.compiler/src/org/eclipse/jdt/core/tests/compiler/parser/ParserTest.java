@@ -759,7 +759,7 @@ public void test028() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	Srtring bar = \"\"\"\n" + 
 			"    }\n" + 
-			"	              ^^^^^^^^^\n" + 
+			"	              ^^^^\n" + 
 			"Text block is not properly closed with the delimiter\n" + 
 			"----------\n" :
 			"----------\n" + 
