@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -14,6 +18,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -25,14 +30,14 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug550861_01" };
+//		TESTS_NAMES = new String[] { "testBug547891_03" };
 	}
 	
 	public static Class<?> testClass() {
 		return SwitchExpressionsYieldTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_13);
+		return buildMinimalComplianceTestSuite(testClass(), F_14);
 	}
 	public SwitchExpressionsYieldTest(String testName){
 		super(testName);
@@ -41,9 +46,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); // FIXME
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
@@ -62,12 +67,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runner.expectedOutputString = expectedOutput;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("13");
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(JavaCore.VERSION_14);
 		runner.runConformTest();
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("13"));
+		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview(JavaCore.VERSION_14));
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, null);
@@ -83,8 +88,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runner.expectedCompilerLog = expectedCompilerLog;
 		runner.customOptions = customOptions;
 		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("13") :
-			JavacTestOptions.forReleaseWithPreview("13", javacAdditionalTestOptions);
+		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview(JavaCore.VERSION_14) :
+			JavacTestOptions.forReleaseWithPreview(JavaCore.VERSION_14, javacAdditionalTestOptions);
 		runner.runWarningTest();
 	}
 	public void testBug544073_000() {
@@ -528,7 +533,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"1. ERROR in X.java (at line 0)\n" + 
 					"	public class X {\n" + 
 					"	^\n" + 
-					"Preview features enabled at an invalid source release level 11, preview can be enabled only at source level 13\n" + 
+					"Preview features enabled at an invalid source release level "+CompilerOptions.VERSION_11+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 					"----------\n";
 			this.runNegativeTest(
 					testFiles,

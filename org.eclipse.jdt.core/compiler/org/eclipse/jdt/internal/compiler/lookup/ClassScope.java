@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -643,6 +647,19 @@ public class ClassScope extends Scope {
 					modifiers |= ClassFileConstants.AccFinal;
 				}
 			}
+		} else if ((realModifiers & ClassFileConstants.AccRecord) != 0) {
+			// TODO: BETA_JAVA14
+			/* Section 8.10 http://cr.openjdk.java.net/~gbierman/8222777/8222777-20190823/specs/records-jls.html#jls-8.10
+			 * It is a compile-time error if a record declaration has the modifier abstract.
+
+A record declaration is implicitly final. It is permitted for the declaration of a record type to redundantly specify the final modifier.
+
+A nested record type is implicitly static. It is permitted for the declaration of a nested record type to redundantly specify the static modifier.
+
+This implies that it is impossible to declare a record type in the body of an inner class (8.1.3), because an inner class cannot have static members except for constant variables.
+
+It is a compile-time error if the same keyword appears more than once as a modifier for a record declaration, or if a record declaration has more than one of the access modifiers public, protected, and private (6.6).
+			 */
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types

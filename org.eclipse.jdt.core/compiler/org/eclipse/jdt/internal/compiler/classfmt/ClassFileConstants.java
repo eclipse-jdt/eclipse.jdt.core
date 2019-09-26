@@ -38,6 +38,7 @@ public interface ClassFileConstants {
 	int AccSynchronized = 0x0020;
 	int AccVolatile     = 0x0040;
 	int AccBridge       = 0x0040;
+	int AccRecord       = 0x0040;
 	int AccTransient    = 0x0080;
 	int AccVarargs      = 0x0080;
 	int AccNative       = 0x0100;
@@ -137,7 +138,7 @@ public interface ClassFileConstants {
 	int MAJOR_VERSION_14 = 58;
 
 	int MAJOR_VERSION_0 = 44;
-	int MAJOR_LATEST_VERSION = MAJOR_VERSION_13;
+	int MAJOR_LATEST_VERSION = MAJOR_VERSION_14;
 
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;

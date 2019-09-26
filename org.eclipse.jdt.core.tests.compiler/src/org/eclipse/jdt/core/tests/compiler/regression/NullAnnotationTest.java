@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *     Till Brychcy <register.eclipse@brychcy.de> - Contribution for
@@ -10407,7 +10411,7 @@ public void testBug542707_001() {
 		"1. ERROR in X.java (at line 0)\n" + 
 		"	import java.io.IOException;\n" + 
 		"	^\n" + 
-		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 		"----------\n"
 	);
 }
@@ -10448,7 +10452,7 @@ public void testBug542707_002() {
 		"1. ERROR in X.java (at line 0)\n" + 
 		"	import org.eclipse.jdt.annotation.*;\n" + 
 		"	^\n" + 
-		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 		"----------\n"
 	);
 }
@@ -10474,7 +10478,7 @@ public void testBug542707_003() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog = this.complianceLevel == ClassFileConstants.JDK13 ?
+	runner.expectedCompilerLog = checkPreviewAllowed() ?
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	default -> i == 3 ? maybe() : \"\";\n" + 
@@ -10485,7 +10489,7 @@ public void testBug542707_003() {
 			"1. ERROR in X.java (at line 0)\n" + 
 			"	import org.eclipse.jdt.annotation.*;\n" + 
 			"	^\n" + 
-			"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 			"----------\n";
 	runner.runNegativeTest();
 }
@@ -10545,7 +10549,7 @@ public void testBug542707_005() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog = this.complianceLevel == ClassFileConstants.JDK13 ?
+	runner.expectedCompilerLog = checkPreviewAllowed() ?
 			"----------\n" + 
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	return switch(day) {\n" + 
@@ -10556,7 +10560,7 @@ public void testBug542707_005() {
 			"1. ERROR in X.java (at line 0)\n" + 
 			"	import org.eclipse.jdt.annotation.*;\n" + 
 			"	^\n" + 
-			"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 			"----------\n";
 	runner.runNegativeTest();
 }
@@ -10582,7 +10586,7 @@ public void testBug542707_006() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog = this.complianceLevel == ClassFileConstants.JDK13 ?
+	runner.expectedCompilerLog = checkPreviewAllowed() ?
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	return switch(day) {\n" + 
@@ -10593,12 +10597,12 @@ public void testBug542707_006() {
 			"1. ERROR in X.java (at line 0)\n" + 
 			"	enum SomeDays { Mon, Wed, Fri }\n" + 
 			"	^\n" + 
-			"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 			"----------\n";
 	runner.runNegativeTest();
 }
 public void testBug545715() {
-	if (this.complianceLevel < ClassFileConstants.JDK13) return; // switch expression
+	if (!checkPreviewAllowed()) return; // switch expression
 	Map<String, String>  customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -10621,15 +10625,10 @@ public void testBug545715() {
 	    new String[] {"--enable-preview"});
 }
 public void testBug548418_001a() {
-	if (this.complianceLevel < ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
 		return;
 	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	setPreviewOptions(options);
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10682,15 +10681,10 @@ public void testBug548418_001a() {
 	);
 }
 public void testBug548418_001b() {
-	if (this.complianceLevel < ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
 		return;
 	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	setPreviewOptions(options);
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10737,16 +10731,20 @@ public void testBug548418_001b() {
 		"----------\n"
 	);
 }
-public void testBug548418_002a() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
-		return;
-	Map options = getCompilerOptions();
+
+private void setPreviewOptions(Map options) {
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14); 
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+}
+public void testBug548418_002a() {
+	if (!checkPreviewAllowed())
+		return;
+	Map options = getCompilerOptions();
+	setPreviewOptions(options);
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10786,15 +10784,10 @@ public void testBug548418_002a() {
 	);
 }
 public void testBug548418_002b() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
 		return;
 	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	setPreviewOptions(options);
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",

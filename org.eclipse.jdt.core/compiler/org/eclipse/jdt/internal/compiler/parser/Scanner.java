@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
@@ -3672,14 +3676,19 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 		case 'r' : //return requires
 			switch (length) {
 				case 6:
-					if ((data[++index] == 'e')
-						&& (data[++index] == 't')
-						&& (data[++index] == 'u')
-						&& (data[++index] == 'r')
-						&& (data[++index] == 'n')) {
-						return TokenNamereturn;
-					} else 
-						return TokenNameIdentifier;
+					if (data[++index] == 'e') {
+						if ((data[++index] == 't')
+							&& (data[++index] == 'u')
+							&& (data[++index] == 'r')
+							&& (data[++index] == 'n'))
+								return TokenNamereturn;
+						else if ((data[index] == 'c') 
+							&& (data[++index] == 'o')
+							&& (data[++index] == 'r')
+							&& (data[++index] == 'd'))
+								return disambiguatedRestrictedIdentifierrecord(TokenNameRestrictedIdentifierrecord);
+					}
+					return TokenNameIdentifier;
 				case 8:
 					if (areRestrictedModuleKeywordsActive()
 						&& (data[++index] == 'e')
@@ -4308,6 +4317,8 @@ public String toStringAction(int act) {
 			return "Identifier(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		case TokenNameRestrictedIdentifierYield :
 			return "yield"; //$NON-NLS-1$
+		case TokenNameRestrictedIdentifierrecord :
+			return "record"; //$NON-NLS-1$
 		case TokenNameabstract :
 			return "abstract"; //$NON-NLS-1$
 		case TokenNameboolean :
@@ -4630,7 +4641,8 @@ public static boolean isKeyword(int token) {
 		case TerminalTokens.TokenNamewhile:
 			return true;
 		case TerminalTokens.TokenNameRestrictedIdentifierYield:
-			// making explicit - yield not a (restricted) keyword but restricted identifier.
+		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
+			// making explicit - not a (restricted) keyword but restricted identifier.
 			//$FALL-THROUGH$
 		default:
 			return false;
@@ -5027,6 +5039,35 @@ private boolean mayBeAtAnYieldStatement() {
 			return false;
 	}
 }
+int disambiguatedRestrictedIdentifierrecord(int restrictedIdentifierToken) {
+	// and here's the kludge
+	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierrecord)
+		return restrictedIdentifierToken;
+	if (this.sourceLevel < ClassFileConstants.JDK14 || !this.previewEnabled)
+		return TokenNameIdentifier;
+	
+	return disambiguaterecordWithLookAhead() ?
+			restrictedIdentifierToken : TokenNameIdentifier;
+}
+private boolean disambiguaterecordWithLookAhead() {
+	getVanguardParser();
+	this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1);
+	try {
+		int lookAhead1 = this.vanguardScanner.getNextToken();
+		if (lookAhead1 == TokenNameIdentifier) {
+			int lookAhead2 = this.vanguardScanner.getNextToken();
+			return lookAhead2 == TokenNameLPAREN;
+		}
+	} catch (InvalidInputException e) {
+		if (e.getMessage().equals(INVALID_CHAR_IN_STRING)) {
+			//Ignore
+		} else {
+			// Shouldn't happen, but log the error
+			e.printStackTrace();
+		}
+	}
+	return false; // IIE event;
+}
 private boolean disambiguateYieldWithLookAhead() {
 	getVanguardParser();
 	this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1);
@@ -5097,7 +5138,7 @@ int disambiguatedRestrictedIdentifierYield(int restrictedIdentifierToken) {
 	// and here's the kludge
 	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierYield)
 		return restrictedIdentifierToken;
-	if (this.sourceLevel < ClassFileConstants.JDK13 || !this.previewEnabled)
+	if (this.sourceLevel < ClassFileConstants.JDK14 || !this.previewEnabled)
 		return TokenNameIdentifier;
 
 	return mayBeAtAnYieldStatement() && disambiguateYieldWithLookAhead() ?

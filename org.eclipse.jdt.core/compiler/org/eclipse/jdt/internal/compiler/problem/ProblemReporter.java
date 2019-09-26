@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -5109,7 +5113,8 @@ private boolean isKeyword(int token) {
 		case TerminalTokens.TokenNamewhile:
 			return true;
 		case TerminalTokens.TokenNameRestrictedIdentifierYield:
-			// making explicit - yield not a (restricted) keyword but restricted identifier.
+		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
+			// making explicit - not a (restricted) keyword but restricted identifier.
 			//$FALL-THROUGH$
 		default:
 			return false;
@@ -8153,6 +8158,8 @@ private String replaceIfSynthetic(String token) {
 		return "("; //$NON-NLS-1$
 	if (token.equals("RestrictedIdentifierYield")) //$NON-NLS-1$
 		return "yield"; //$NON-NLS-1$
+	if (token.equals("RestrictedIdentifierrecord")) //$NON-NLS-1$
+		return "record"; //$NON-NLS-1$
 	return token;
 }
 public void task(String tag, String message, String priority, int start, int end){

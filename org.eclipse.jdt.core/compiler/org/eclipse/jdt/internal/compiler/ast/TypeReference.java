@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -354,10 +358,10 @@ private void checkYieldUsage(Scope currentScope) {
 	char [][] qName = getTypeName();
 	String name = qName != null && qName[0] != null ? new String(qName[0]) : null;
 	long sourceLevel = currentScope.compilerOptions().sourceLevel;
-	if (sourceLevel < ClassFileConstants.JDK13 || name == null ||
+	if (sourceLevel < ClassFileConstants.JDK14 || name == null ||
 			!("yield".equals(new String(name)))) //$NON-NLS-1$
 		return;
-	if (sourceLevel == ClassFileConstants.JDK13 && currentScope.compilerOptions().enablePreviewFeatures) {
+	if (sourceLevel == ClassFileConstants.JDK14 && currentScope.compilerOptions().enablePreviewFeatures) {
 		currentScope.problemReporter().switchExpressionsYieldTypeDeclarationError(this);
 	} else {
 		currentScope.problemReporter().switchExpressionsYieldTypeDeclarationWarning(this);

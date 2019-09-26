@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -42,6 +46,7 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public static final int INTERFACE_DECL = 2;
 	public static final int ENUM_DECL = 3;
 	public static final int ANNOTATION_TYPE_DECL = 4;
+	public static final int RECORD_DECL = 5; // java 14 preview - records JLS 14 8.10
 
 	public int modifiers = ClassFileConstants.AccDefault;
 	public int modifiersSourceStart;
@@ -304,6 +309,12 @@ public boolean checkConstructors(Parser parser) {
 						case TypeDeclaration.ANNOTATION_TYPE_DECL :
 							// report the problem and continue the parsing
 							parser.problemReporter().annotationTypeDeclarationCannotHaveConstructor((ConstructorDeclaration) am);
+							break;
+						case TypeDeclaration.RECORD_DECL :
+							//TODO: BETA_JAVA14_RECORD report the problem if not compact constructor and continue the parsing
+							if (!(am instanceof CompactConstructorDeclaration)) {
+							//	parser.problemReporter().recordDeclarationShouldHaveCompactConstructor((ConstructorDeclaration) am);
+							}
 							break;
 
 					}
@@ -783,10 +794,10 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 
 private void checkYieldUsage() {
 	long sourceLevel = this.scope.compilerOptions().sourceLevel;
-	if (sourceLevel < ClassFileConstants.JDK13 || this.name == null ||
+	if (sourceLevel < ClassFileConstants.JDK14 || this.name == null ||
 			!("yield".equals(new String(this.name)))) //$NON-NLS-1$
 		return;
-	if (sourceLevel == ClassFileConstants.JDK13 && this.scope.compilerOptions().enablePreviewFeatures) {
+	if (sourceLevel == ClassFileConstants.JDK14 && this.scope.compilerOptions().enablePreviewFeatures) {
 		this.scope.problemReporter().switchExpressionsYieldTypeDeclarationError(this);
 	} else {
 		this.scope.problemReporter().switchExpressionsYieldTypeDeclarationWarning(this);
@@ -843,6 +854,8 @@ public final static int kind(int flags) {
 			return TypeDeclaration.ANNOTATION_TYPE_DECL;
 		case ClassFileConstants.AccEnum :
 			return TypeDeclaration.ENUM_DECL;
+		case ClassFileConstants.AccRecord :
+			return TypeDeclaration.RECORD_DECL;
 		default :
 			return TypeDeclaration.CLASS_DECL;
 	}
@@ -1040,6 +1053,9 @@ public StringBuffer printHeader(int indent, StringBuffer output) {
 		case TypeDeclaration.ENUM_DECL :
 			output.append("enum "); //$NON-NLS-1$
 			break;
+		case TypeDeclaration.RECORD_DECL :
+			output.append("record "); //$NON-NLS-1$
+			break;
 		case TypeDeclaration.ANNOTATION_TYPE_DECL :
 			output.append("@interface "); //$NON-NLS-1$
 			break;
@@ -1061,6 +1077,7 @@ public StringBuffer printHeader(int indent, StringBuffer output) {
 		switch (kind(this.modifiers)) {
 			case TypeDeclaration.CLASS_DECL :
 			case TypeDeclaration.ENUM_DECL :
+			case TypeDeclaration.RECORD_DECL :
 				output.append(" implements "); //$NON-NLS-1$
 				break;
 			case TypeDeclaration.INTERFACE_DECL :

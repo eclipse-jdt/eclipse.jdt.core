@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *     Nikolay Metchev (nikolaymetchev@gmail.com) - Contributions for
@@ -53,7 +57,7 @@ private static final String APACHE_DBUTILS_CONTENT = "package org.apache.commons
 	"}\n";
 
 static {
-//	TESTS_NAMES = new String[] { "testBug542707" };
+//	TESTS_NAMES = new String[] { "testBug542707_002" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -5497,7 +5501,7 @@ public void testBug541705b() {
 	runner.runConformTest();
 }
 public void testBug542707_001() {
-	if (this.complianceLevel < ClassFileConstants.JDK13) return; // uses switch expression
+	if (!checkPreviewAllowed()) return; // uses switch expression
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -5549,7 +5553,7 @@ public void testBug542707_001() {
 		options);
 }
 public void testBug542707_002() {
-	if (this.complianceLevel < ClassFileConstants.JDK13) return; // uses switch expression
+	if (this.complianceLevel < ClassFileConstants.JDK14) return; // uses switch expression
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -5607,7 +5611,7 @@ public void testBug542707_002() {
 		options);
 }
 public void testBug542707_003() {
-	if (this.complianceLevel < ClassFileConstants.JDK13) return; // uses switch expression
+	if (!checkPreviewAllowed()) return; // uses switch expression
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);

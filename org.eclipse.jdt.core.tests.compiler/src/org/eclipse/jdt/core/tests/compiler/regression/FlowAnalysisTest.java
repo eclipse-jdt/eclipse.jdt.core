@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -2905,14 +2909,9 @@ public void testBug537804_comment5() {
 		"----------\n");
 }
 public void testBug548318_001() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
@@ -2960,14 +2959,11 @@ public void testBug548318_001() {
 
 }
 public void testBug548318_002() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 5)\n" + 
@@ -3017,14 +3013,11 @@ public void testBug548318_002() {
  * k is definitely assigned - no errors on that front.
  */
 public void testBug548318_003() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 23)\n" + 
@@ -3072,14 +3065,11 @@ public void testBug548318_003() {
 			defaultOptions);
 }
 public void testBug548318_004() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
@@ -3142,14 +3132,11 @@ public void testBug548318_004() {
 			defaultOptions);
 }
 public void testBug548318_005() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 11)\n" + 
@@ -3214,14 +3201,11 @@ public void testBug548318_005() {
  * expression e in the switch block that may exit the switch expression, V is definitely assigned after e when false.
  */
 public void testBug548318_006() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 22)\n" + 
@@ -3278,14 +3262,11 @@ public void testBug548318_006() {
  * statement and V is definitely unassigned after e when false.
  */
 public void testBug548318_007() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 18)\n" + 
@@ -3342,14 +3323,11 @@ public void testBug548318_007() {
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
 public void testBug548318_008() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 22)\n" + 
@@ -3401,14 +3379,11 @@ public void testBug548318_008() {
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
 public void testBug548318_009() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
@@ -3466,14 +3441,11 @@ public void testBug548318_009() {
  * iff V is [un]assigned after the selector expression.
  */
 public void testBug548318_010() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 22)\n" + 
@@ -3526,14 +3498,11 @@ public void testBug548318_010() {
  * iff V is [un]assigned after the selector expression.
  */
 public void testBug548318_011() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
@@ -3592,14 +3561,11 @@ public void testBug548318_011() {
  * and V is [un]assigned after the preceding statement
  */
 public void testBug548318_012() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 22)\n" + 
@@ -3653,14 +3619,11 @@ public void testBug548318_012() {
  * and V is [un]assigned after the preceding statement" 
  */
 public void testBug548318_012b() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 15)\n" + 
@@ -3716,14 +3679,11 @@ public void testBug548318_012b() {
  * and V is [un]assigned after the preceding statement" needs to be checked
  */
 public void testBug548318_013() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 9)\n" + 
@@ -3791,14 +3751,11 @@ public void testBug548318_013() {
  * 		It is a switch labeled throw statement.
  */
 public void testBug548318_014() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 23)\n" + 
@@ -3868,14 +3825,11 @@ public void testBug548318_014() {
  * 		It is a switch labeled throw statement.
  */
 public void testBug548318_015() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 17)\n" + 
@@ -3936,14 +3890,11 @@ public void testBug548318_015() {
  * block iff V is [un]assigned after the selector expression.
  */
 public void testBug548318_016() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 14)\n" + 
@@ -3993,14 +3944,11 @@ public void testBug548318_016() {
  * block iff V is [un]assigned after the selector expression.
  */
 public void testBug548318_017() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
@@ -4059,14 +4007,11 @@ public void testBug548318_017() {
  *          expression, block, or throw statement of the switch labeled rule.
  */
 public void testBug548318_018() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 20)\n" + 
@@ -4117,14 +4062,11 @@ public void testBug548318_018() {
  *          expression, block, or throw statement of the switch labeled rule.
  */
 public void testBug548318_019() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 15)\n" + 
@@ -4178,14 +4120,11 @@ public void testBug548318_019() {
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
 public void testBug548318_020() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 19)\n" + 
@@ -4234,14 +4173,11 @@ public void testBug548318_020() {
  * V is [un]assigned before the selector expression iff V is [un]assigned before the switch statement.
  */
 public void testBug548318_021() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
@@ -4299,14 +4235,11 @@ public void testBug548318_021() {
  * V is [un]assigned after the last block statement of the preceding switch labeled statement group. 
  */
 public void testBug548318_022() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 19)\n" + 
@@ -4359,14 +4292,11 @@ public void testBug548318_022() {
  * V is [un]assigned after the last block statement of the preceding switch labeled statement group. 
  */
 public void testBug548318_023() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
@@ -4424,14 +4354,11 @@ public void testBug548318_023() {
  * V is [un]assigned after the last block statement of the preceding switch labeled statement group. 
  */
 public void testBug548318_024() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 9)\n" + 
@@ -4486,14 +4413,11 @@ public void testBug548318_024() {
  *          expression, block, or throw statement of the switch labeled rule.
  */
 public void testBug548318_025() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 20)\n" + 
@@ -4549,14 +4473,11 @@ public void testBug548318_025() {
  *          expression, block, or throw statement of the switch labeled rule.
  */
 public void testBug548318_026() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 16)\n" + 
@@ -4617,14 +4538,11 @@ public void testBug548318_026() {
  * switch expression iff V is [un]assigned after the selector expression of the switch expression.
  */
 public void testBug548318_027() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 20)\n" + 
@@ -4680,14 +4598,11 @@ public void testBug548318_027() {
  * switch expression iff V is [un]assigned after the selector expression of the switch expression.
  */
 public void testBug548318_028() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
@@ -4753,14 +4668,11 @@ public void testBug548318_028() {
  *        followed by }, then V is [un]assigned after the selector expression
  */
 public void testBug548318_029() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 24)\n" + 
@@ -4825,14 +4737,11 @@ public void testBug548318_029() {
  *        followed by }, then V is [un]assigned after the selector expression
  */
 public void testBug548318_030() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
+	if (!checkPreviewAllowed())
+
+
 		return;
-	Map<String, String> defaultOptions = super.getCompilerOptions();
-	defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	Map<String, String> defaultOptions = setPresetPreviewOptions();
 	String expectedProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 20)\n" + 

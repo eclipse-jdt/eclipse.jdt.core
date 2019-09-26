@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *     IBM Corporation
@@ -17750,7 +17754,7 @@ public void testBug540264() {
 	);
 }
 public void testBug542707_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK12) return; // switch expression
+	if (!checkPreviewAllowed()) return; // switch expression
 	// switch expression has a functional type with interesting type inference and various null issues:
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();

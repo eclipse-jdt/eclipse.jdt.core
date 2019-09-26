@@ -116,6 +116,7 @@ $Terminals
 	AT308DOTDOTDOT
 	BeginCaseExpr
 	RestrictedIdentifierYield
+	RestrictedIdentifierrecord
 
 --    BodyMarker
 
@@ -631,6 +632,7 @@ TypeImportOnDemandDeclarationName ::= 'import' Name '.' RejectTypeAnnotations '*
 
 TypeDeclaration -> ClassDeclaration
 TypeDeclaration -> InterfaceDeclaration
+TypeDeclaration -> RecordDeclaration
 -- this declaration in part of a list od declaration and we will
 -- use and optimized list length calculation process 
 -- thus we decrement the number while it will be incremend.....
@@ -1090,6 +1092,101 @@ InterfaceMemberDeclaration -> InterfaceDeclaration
 InterfaceMemberDeclaration -> EnumDeclaration
 InterfaceMemberDeclaration -> AnnotationTypeDeclaration
 /:$readableName InterfaceMemberDeclaration:/
+
+-----------------------------------------------
+-- 14 preview feature : record type
+-----------------------------------------------
+
+RecordDeclaration ::= RecordHeaderPart RecordBody
+/.$putCase consumeRecordDeclaration(); $break ./
+/:$readableName RecordDeclaration:/
+/:$compliance 14:/
+
+RecordHeaderPart ::= RecordHeaderName RecordHeader InterfaceTypeListopt 
+/.$putCase consumeRecordHeaderPart(); $break ./
+/:$readableName RecordHeaderPart:/
+/:$compliance 14:/
+
+RecordHeaderName ::= RecordHeaderName1 TypeParameters
+/.$putCase consumeRecordHeaderNameWithTypeParameters(); $break ./
+/:$compliance 14:/
+
+RecordHeaderName -> RecordHeaderName1 
+/:$readableName RecordHeaderName:/
+/:$compliance 14:/
+
+RecordHeaderName1 ::= Modifiersopt RestrictedIdentifierrecord 'Identifier'
+/.$putCase consumeRecordHeaderName1(); $break ./
+/:$readableName RecordHeaderName:/
+/:$compliance 14:/
+
+InterfaceTypeListopt ::= $empty
+/.$putcase consumeInterfaceTypeListopt(); $break ./
+InterfaceTypeListopt -> InterfaceTypeList
+/:$readableName InterfaceTypeListopt:/
+/:$compliance 14:/
+
+RecordComponentHeaderRightParen ::= ')'
+/.$putCase consumeRecordComponentHeaderRightParen(); $break ./
+/:$readableName ):/
+/:$recovery_template ):/
+/:$compliance 14:/
+
+RecordHeader ::= '(' RecordComponentsopt RecordComponentHeaderRightParen
+/.$putCase consumeRecordHeader(); $break ./
+/:$readableName RecordHeader:/
+/:$compliance 14:/
+
+RecordComponentsopt ::= $empty
+/.$putCase consumeRecordComponentsopt(); $break ./
+RecordComponentsopt -> RecordComponents
+/:$readableName RecordComponentsopt:/
+/:$compliance 14:/
+
+RecordComponents -> RecordComponent
+RecordComponents ::= RecordComponents ',' RecordComponent
+/.$putCase consumeRecordComponents(); $break ./
+/:$readableName RecordComponents:/
+/:$compliance 14:/
+
+RecordComponent ::= Modifiersopt Type 'Identifier'
+/.$putCase consumeRecordComponent(); $break ./
+/:$readableName RecordComponent:/
+/:$compliance 14:/
+
+RecordBody ::= '{' RecordBodyDeclarationopt '}'
+/.$putCase consumeRecordBody(); $break ./
+/:$readableName RecordBody:/
+/:$compliance 14:/
+
+RecordBodyDeclarationopt ::= $empty
+/.$putCase consumeEmptyRecordBodyDeclaration(); $break ./
+RecordBodyDeclarationopt -> RecordBodyDeclaration
+/:$readableName RecordBodyDeclarationopt:/
+/:$compliance 14:/
+
+RecordBodyDeclaration ::=  ClassBodyDeclaration
+/.$putCase consumeRecordBodyDeclaration(); $break ./
+RecordBodyDeclaration ::=  CompactConstructorDeclaration
+/.$putCase consumeRecordBodyDeclaration(); $break ./
+/:$readableName RecordBodyDeclaration:/
+/:$compliance 14:/
+
+CompactConstructorDeclaration ::= CompactConstructorHeaderName MethodHeaderThrowsClauseopt MethodBody
+/.$putCase consumeCompactConstructorDeclaration(); $break ./
+/:$readableName CompactConstructorDeclaration:/
+/:$compliance 14:/
+
+CompactConstructorHeaderName ::= Modifiersopt 'Identifier'
+/.$putCase consumeCompactConstructorHeaderName(); $break ./
+CompactConstructorHeaderName ::= Modifiersopt TypeParameters 'Identifier'
+/.$putCase consumeCompactConstructorHeaderNameWithTypeParameters(); $break ./
+/:$readableName CompactConstructorHeaderName:/
+/:$compliance 14:/
+
+-----------------------------------------------
+-- 14 preview feature : end of record type
+-----------------------------------------------
 
 ConstantDeclaration -> FieldDeclaration
 /:$readableName ConstantDeclaration:/

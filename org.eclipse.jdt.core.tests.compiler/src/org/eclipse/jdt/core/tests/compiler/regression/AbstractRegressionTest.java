@@ -1140,6 +1140,7 @@ protected static class JavacTestOptions {
 	public final static String MODULE_INFO_NAME = new String(TypeConstants.MODULE_INFO_NAME);
 
 	public static boolean SHIFT = false;
+	public static String PREVIEW_ALLOWED_LEVEL = JavaCore.VERSION_14;
 
 	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 
@@ -1150,6 +1151,9 @@ protected static class JavacTestOptions {
 	protected boolean shouldSwallowCaptureId;
 	public AbstractRegressionTest(String name) {
 		super(name);
+	}
+	protected boolean checkPreviewAllowed() {
+		return this.complianceLevel == ClassFileConstants.JDK14;
 	}
 	protected void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
 		this.checkClassFile("", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
@@ -3806,4 +3810,13 @@ protected void runNegativeTest(
 		}
 		return null;
 	}
+	protected Map<String, String> setPresetPreviewOptions() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		return options;
+	}	
 }

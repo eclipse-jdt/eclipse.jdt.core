@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added the following constants
@@ -2203,4 +2207,11 @@ void setSourceStart(int sourceStart);
 	/** @since 3.20
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldTypeDeclarationError = PreviewRelated + 1718;
+	/* Java14 errors - begin */
+	/* records - begin */
+//	/** @since 3.20 BETA_JAVA14
+//	 * @noreference preview feature error */
+//	int IllegalModifierForRecord = PreviewRelated + 1731;
+	/* records - end */
+	/* Java14 errors - end */
 	}

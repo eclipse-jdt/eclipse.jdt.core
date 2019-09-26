@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -19,22 +23,22 @@ public interface ParserBasicInformation {
 
 	public final static int
 
-	ERROR_SYMBOL = 131,
+	ERROR_SYMBOL = 132,
 					MAX_NAME_LENGTH = 41,
-					NUM_STATES = 1168,
+					NUM_STATES = 1192,
 
-					NT_OFFSET = 131,
-					SCOPE_UBOUND = 297,
-					SCOPE_SIZE = 298,
-					LA_STATE_OFFSET = 16962,
+					NT_OFFSET = 132,
+					SCOPE_UBOUND = 307,
+					SCOPE_SIZE = 308,
+					LA_STATE_OFFSET = 17640,
 					MAX_LA = 1,
-					NUM_RULES = 871,
-					NUM_TERMINALS = 131,
-					NUM_NON_TERMINALS = 398,
-					NUM_SYMBOLS = 529,
-					START_STATE = 1026,
+					NUM_RULES = 894,
+					NUM_TERMINALS = 132,
+					NUM_NON_TERMINALS = 413,
+					NUM_SYMBOLS = 545,
+					START_STATE = 940,
 					EOFT_SYMBOL = 62,
 					EOLT_SYMBOL = 62,
-					ACCEPT_ACTION = 16961,
-					ERROR_ACTION = 16962;
+					ACCEPT_ACTION = 17639,
+					ERROR_ACTION = 17640;
 }

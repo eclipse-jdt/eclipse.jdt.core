@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -78,7 +82,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 0)\n" + 
 				"	public class X {\n" + 
 				"	^\n" + 
-				"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+				"Preview features enabled at an invalid source release level "+CompilerOptions.VERSION_12+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 				"----------\n");
 	}
 	public void testSwitchExpression_531714_002() {
@@ -115,7 +119,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 0)\n" + 
 				"	public class X {\n" + 
 				"	^\n" + 
-				"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+				"Preview features enabled at an invalid source release level "+CompilerOptions.VERSION_12+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 				"----------\n");
 	}
 	public void _testBug531714_error_003() {
@@ -509,7 +513,7 @@ public class SwitchExpressionTest extends AbstractRegressionTest {
 					"1. ERROR in X.java (at line 0)\n" + 
 					"	public class X {\n" + 
 					"	^\n" + 
-					"Preview features enabled at an invalid source release level 11, preview can be enabled only at source level 13\n" + 
+					"Preview features enabled at an invalid source release level "+CompilerOptions.VERSION_11+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 					"----------\n";
 			this.runNegativeTest(
 					testFiles,

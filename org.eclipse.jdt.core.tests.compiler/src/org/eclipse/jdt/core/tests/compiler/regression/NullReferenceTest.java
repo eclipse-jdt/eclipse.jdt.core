@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -71,7 +75,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug406160a" };
+//		TESTS_NAMES = new String[] { "testBug542707_1" };
 //		TESTS_NAMES = new String[] { "testBug384380" };
 //		TESTS_NAMES = new String[] { "testBug384380_b" };
 //		TESTS_NAMES = new String[] { "testBug321926a2" };
@@ -18283,7 +18287,7 @@ public void testBug536408() {
 	runner.runNegativeTest();
 }
 public void testBug542707_1() {
-	if (this.complianceLevel < ClassFileConstants.JDK13) return; // switch expression
+	if (!checkPreviewAllowed()) return; // switch expression
 	Runner runner = new Runner();
 	runner.customOptions = new HashMap<>();
 	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
