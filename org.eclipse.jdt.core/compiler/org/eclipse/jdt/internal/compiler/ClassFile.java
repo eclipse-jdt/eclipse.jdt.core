@@ -6926,7 +6926,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					if (typeBinding != null) {
 						if (typeBinding.isArrayType()) {
 							ArrayBinding arrayBinding = (ArrayBinding) typeBinding;
-							frame.addStackItem(new VerificationTypeInfo(scope.createArrayType(arrayBinding.elementsType(), arrayBinding.dimensions + 1)));
+							frame.addStackItem(new VerificationTypeInfo(scope.createArrayType(arrayBinding.leafComponentType(), arrayBinding.dimensions + 1)));
 						} else {
 							frame.addStackItem(new VerificationTypeInfo(scope.createArrayType(typeBinding, 1)));
 						}

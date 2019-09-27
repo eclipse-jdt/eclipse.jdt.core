@@ -8769,4 +8769,32 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 	}
+	public void test551368_2() {
+		this.runConformTest(
+            new String[] {
+        		"X.java",
+        		"public class X {\n" + 
+        		"\n" + 
+        		"	int size;\n" + 
+        		"	char[][][] elements;\n" + 
+        		"\n" + 
+        		"	public X() {\n" + 
+        		"		this.size = 0;\n" + 
+        		"		this.elements = new char[10][][];\n" + 
+        		"	}\n" + 
+        		"\n" + 
+        		"	public void insertIntoArray(char[][][] target) {\n" + 
+        		"	}\n" + 
+        		"\n" + 
+        		"	public void add(char[][] newElement) {\n" + 
+        		"		insertIntoArray(this.size < this.elements.length ? this.elements : new char[this.elements.length * 2][][]);\n" + 
+        		"	}\n" + 
+        		"\n" + 
+        		"	public static void main(String[] args) {\n" + 
+        		"		System.out.println(\"SUCCESS\");\n" + 
+        		"	}\n" + 
+        		"}",
+            },
+			"SUCCESS");
+	}
 }
