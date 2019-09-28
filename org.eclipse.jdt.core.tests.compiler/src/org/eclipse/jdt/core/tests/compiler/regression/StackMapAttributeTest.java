@@ -8797,4 +8797,37 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 	}
+	public void test551368_3() {
+		this.runConformTest(
+            new String[] {
+        		"X.java",
+        		"class B {\n" + 
+        		"	public boolean bar() {\n" + 
+        		"		return false;\n" + 
+        		"	}\n" + 
+        		"	public void foo() {}\n" + 
+        		"}\n" + 
+        		"public class X {\n" + 
+        		"	\n" + 
+        		"	public B foo(boolean test) {\n" + 
+        		"		B b =\n" + 
+        		"			test ?\n" + 
+        		"				new B() {\n" + 
+        		"					@Override\n" + 
+        		"					public boolean bar() {\n" + 
+        		"						return true;\n" + 
+        		"					}\n" + 
+        		"				} :\n" + 
+        		"			new B();\n" + 
+        		"		b.foo();\n" + 
+        		"		return b;\n" + 
+        		"	}\n" + 
+        		"\n" + 
+        		"	public static void main(String[] args) {\n" + 
+        		"		System.out.println(\"SUCCESS\");\n" + 
+        		"	}\n" + 
+        		"}",
+            },
+			"SUCCESS");
+	}
 }

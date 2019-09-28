@@ -5917,30 +5917,66 @@ public class ClassFile implements TypeConstants, TypeIds {
 				return scope.createArrayType(baseType, dimensions);
 			} else {
 				// array of object types
-				TypeBinding type = (TypeBinding) scope.getTypeOrPackage(
-					CharOperation.splitOn('/', CharOperation.subarray(typeConstantPoolName, dimensions + 1, typeConstantPoolName.length - 1)));
+				char[] typeName = CharOperation.subarray(typeConstantPoolName, dimensions + 1, typeConstantPoolName.length - 1);
+				TypeBinding type = (TypeBinding) scope.getTypeOrPackage(CharOperation.splitOn('/', typeName));
 				if (!type.isValidBinding()) {
 					ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
 					if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
 						type = problemReferenceBinding.closestMatch();
+					} else if ((problemReferenceBinding.problemId() & ProblemReasons.NotFound) != 0 && this.innerClassesBindings != null) {
+						// check local inner types to see if this is a anonymous type
+						Set<TypeBinding> innerTypeBindings = this.innerClassesBindings.keySet();
+						for (TypeBinding binding : innerTypeBindings) {
+							if (CharOperation.equals(binding.constantPoolName(), typeName)) {
+								type = binding;
+								break;
+							}
+						}
 					}
 				}
 				return scope.createArrayType(type, dimensions);
 			}
 		} else {
-			TypeBinding type = checkcast ?
-					(TypeBinding) scope.getTypeOrPackage(
-							CharOperation.splitOn('/', CharOperation.subarray(typeConstantPoolName, 0, typeConstantPoolName.length)))
-				: (TypeBinding) scope.getTypeOrPackage(
-				CharOperation.splitOn('/', CharOperation.subarray(typeConstantPoolName, 1, typeConstantPoolName.length - 1)));
+			char[] typeName = checkcast ? typeConstantPoolName : CharOperation.subarray(typeConstantPoolName, 1, typeConstantPoolName.length - 1);
+			TypeBinding type = (TypeBinding) scope.getTypeOrPackage(CharOperation.splitOn('/', typeName));
 			if (!type.isValidBinding()) {
 				ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
 				if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
 					type = problemReferenceBinding.closestMatch();
+				} else if ((problemReferenceBinding.problemId() & ProblemReasons.NotFound) != 0 && this.innerClassesBindings != null) {
+					// check local inner types to see if this is a anonymous type
+					Set<TypeBinding> innerTypeBindings = this.innerClassesBindings.keySet();
+					for (TypeBinding binding : innerTypeBindings) {
+						if (CharOperation.equals(binding.constantPoolName(), typeName)) {
+							type = binding;
+							break;
+						}
+					}
 				}
 			}
 			return type;
 		}
+	}
+
+	private TypeBinding getNewTypeBinding(char[] typeConstantPoolName, Scope scope) {
+		char[] typeName = typeConstantPoolName;
+		TypeBinding type = (TypeBinding) scope.getTypeOrPackage(CharOperation.splitOn('/', typeName));
+		if (!type.isValidBinding()) {
+			ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
+			if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
+				type = problemReferenceBinding.closestMatch();
+			} else if ((problemReferenceBinding.problemId() & ProblemReasons.NotFound) != 0 && this.innerClassesBindings != null) {
+				// check local inner types to see if this is a anonymous type
+				Set<TypeBinding> innerTypeBindings = this.innerClassesBindings.keySet();
+				for (TypeBinding binding : innerTypeBindings) {
+					if (CharOperation.equals(binding.constantPoolName(), typeName)) {
+						type = binding;
+						break;
+					}
+				}
+			}
+		}
+		return type;
 	}
 
 	private TypeBinding getANewArrayTypeBinding(char[] typeConstantPoolName, Scope scope) {
@@ -5980,23 +6016,42 @@ public class ClassFile implements TypeConstants, TypeIds {
 				return scope.createArrayType(baseType, dimensions);
 			} else {
 				// array of object types
+				char[] elementTypeClassName = CharOperation.subarray(typeConstantPoolName, dimensions + 1, typeConstantPoolName.length - 1);
 				TypeBinding type = (TypeBinding) scope.getTypeOrPackage(
-					CharOperation.splitOn('/', CharOperation.subarray(typeConstantPoolName, dimensions + 1, typeConstantPoolName.length - 1)));
+					CharOperation.splitOn('/', elementTypeClassName));
 				if (!type.isValidBinding()) {
 					ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
 					if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
 						type = problemReferenceBinding.closestMatch();
+					} else if ((problemReferenceBinding.problemId() & ProblemReasons.NotFound) != 0 && this.innerClassesBindings != null) {
+						// check local inner types to see if this is a anonymous type
+						Set<TypeBinding> innerTypeBindings = this.innerClassesBindings.keySet();
+						for (TypeBinding binding : innerTypeBindings) {
+							if (CharOperation.equals(binding.constantPoolName(), elementTypeClassName)) {
+								type = binding;
+								break;
+							}
+						}
 					}
 				}
 				return scope.createArrayType(type, dimensions);
 			}
 		} else {
 			TypeBinding type = (TypeBinding) scope.getTypeOrPackage(
-				CharOperation.splitOn('/', CharOperation.subarray(typeConstantPoolName, 0, typeConstantPoolName.length)));
+				CharOperation.splitOn('/', typeConstantPoolName));
 			if (!type.isValidBinding()) {
 				ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
 				if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
 					type = problemReferenceBinding.closestMatch();
+				} else if ((problemReferenceBinding.problemId() & ProblemReasons.NotFound) != 0 && this.innerClassesBindings != null) {
+					// check local inner types to see if this is a anonymous type
+					Set<TypeBinding> innerTypeBindings = this.innerClassesBindings.keySet();
+					for (TypeBinding binding : innerTypeBindings) {
+						if (CharOperation.equals(binding.constantPoolName(), typeConstantPoolName)) {
+							type = binding;
+							break;
+						}
+					}
 				}
 			}
 			return type;
@@ -6870,13 +6925,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 							constantPoolOffsets[utf8index] + 3, u2At(
 									poolContents, 1,
 									constantPoolOffsets[utf8index]));
-					typeBinding =  (TypeBinding) scope.getTypeOrPackage(CharOperation.splitOn('/', className));
-					if (!typeBinding.isValidBinding()) {
-						ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) typeBinding;
-						if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
-							typeBinding = problemReferenceBinding.closestMatch();
-						}
-					}
+					typeBinding =  getNewTypeBinding(className, scope);
 					VerificationTypeInfo verificationTypeInfo = new VerificationTypeInfo(VerificationTypeInfo.ITEM_UNINITIALIZED, typeBinding);
 					verificationTypeInfo.offset = currentPC;
 					frame.addStackItem(verificationTypeInfo);
