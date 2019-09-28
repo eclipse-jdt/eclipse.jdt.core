@@ -104,7 +104,7 @@ import org.osgi.framework.Bundle;
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 
 	static final String[] env = System.getenv().entrySet().stream()
-		.filter(e -> !"JAVA_TOOL_OPTIONS".equals(e.getKey()))
+		.filter(e -> !"JAVA_TOOL_OPTIONS".equals(e.getKey()) && !"_JAVA_OPTIONS".equals(e.getKey()))
 		.map(e -> e.getKey() + "=" + e.getValue())
 		.toArray(String[]::new);
 
