@@ -380,6 +380,12 @@ static class JavacCompiler {
 			if ("1.8.0_182".equals(rawVersion)) {
 				return 2500;
 			}
+			if ("1.8.0_202".equals(rawVersion)) {
+				return 2600;
+			}
+			if ("1.8.0_212".equals(rawVersion)) {
+				return 2700;
+			}
 		}
 		if (version == JavaCore.VERSION_9) {
 			if ("9".equals(rawVersion)) {
@@ -2432,6 +2438,8 @@ protected void runJavac(
 }
 private void deleteSourceFiles(File directory) {
 	try {
+		if (!directory.exists())
+			return;
 		Files.walk(directory.toPath())
 			.filter(f -> f.endsWith(SuffixConstants.SUFFIX_STRING_java))
 			.map(java.nio.file.Path::toFile)
