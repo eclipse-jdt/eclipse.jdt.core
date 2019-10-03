@@ -10709,17 +10709,17 @@ public void test299(){
 		+ " -proceedOnError -err:+unused -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" + 
-		"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
 		"	@SuppressWarnings(\"unused\")\n" + 
 		"	                  ^^^^^^^^\n" + 
-		"At least one of the problems in category 'unused' is not analysed due to a compiler option being ignored\n" + 
+		"Unnecessary @SuppressWarnings(\"unused\")\n" +
 		"----------\n" + 
 		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
 		"	private int i;\n" + 
 		"	            ^\n" + 
 		"The value of the field X.i is not used\n" + 
 		"----------\n" + 
-		"2 problems (1 error, 0 warnings, 1 info)\n",
+		"2 problems (1 error, 1 warning)\n",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
@@ -10800,17 +10800,17 @@ public void test303(){
 		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -warn:+suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" + 
-		"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
 		"	@SuppressWarnings(\"unused\")\n" + 
 		"	                  ^^^^^^^^\n" + 
-		"At least one of the problems in category 'unused' is not analysed due to a compiler option being ignored\n" + 
+		"Unnecessary @SuppressWarnings(\"unused\")\n" +
 		"----------\n" + 
 		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
 		"	private int i;\n" + 
 		"	            ^\n" + 
 		"The value of the field X.i is not used\n" + 
 		"----------\n" + 
-		"2 problems (1 error, 0 warnings, 1 info)\n",
+		"2 problems (1 error, 1 warning)\n",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
@@ -13182,5 +13182,29 @@ public void testFailOnWarnings_WithWarning() {
 		"error: warnings found and -failOnWarning specified\n" + 
 		"",
 		true);
+}
+public void testUnusedObjectAllocation() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		new X();\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+		+ " -err:+unused"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin/\"",
+		"",
+		"----------\n" + 
+		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
+		"	new X();\n" + 
+		"	^^^^^^^\n" + 
+		"The allocated object is never used\n" + 
+		"----------\n" + 
+		"1 problem (1 error)\n",
+		true);
+
 }
 }
