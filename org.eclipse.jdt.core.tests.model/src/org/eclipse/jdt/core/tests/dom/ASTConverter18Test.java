@@ -5424,5 +5424,39 @@ public void testLambdaSynthetic() throws JavaModelException {
 	assertEquals("val$outerArg",synVars[0].getName());
 	assertEquals("val$outerLocal",synVars[1].getName());
 }
+public void testCaptureBinding18() throws CoreException {
+	this.workingCopy = getWorkingCopy("/Converter18/src/xyz/X.java", true/* resolve */);
+	StringBuilder buf= new StringBuilder();
+	buf.append("package xyz;\n");
+	buf.append("\n");
+	buf.append("import java.util.List;\n");
+	buf.append("\n");
+	buf.append("public class X {\n");
+	buf.append("\n");
+	buf.append("	protected <E extends Comparable<E>> List<E> createEmptySet() {\n");
+	buf.append("		return null;\n");
+	buf.append("	}\n");
+	buf.append("\n");
+	buf.append("	public void emptySet() {\n");
+	buf.append("		s = createEmptySet();\n");
+	buf.append("	}\n");
+	buf.append("\n");
+	buf.append("}");
+	String content= buf.toString();
+	CompilationUnit cu = (CompilationUnit) buildAST(content, this.workingCopy, false /*i.e. ignore errors*/);
+	MethodDeclaration method= ((TypeDeclaration)cu.types().get(0)).getMethods()[1];
+	Assignment assignment= (Assignment) ((ExpressionStatement) method.getBody().statements().get(0)).getExpression();
+	ITypeBinding binding = assignment.getRightHandSide().resolveTypeBinding();
+	assertTrue("main type is parameterized", binding.isParameterizedType());
+	binding = binding.getTypeArguments()[0];
+	assertTrue("treat as wildcard", binding.isWildcardType());
+	assertFalse("don't treat as capture", binding.isCapture());
+	assertTrue("has upper bound", binding.isUpperbound());
+	ITypeBinding[] typeBounds = binding.getTypeBounds();
+	assertEquals("number of bounds", 1, typeBounds.length);
+	ITypeBinding bound = typeBounds[0];
+	assertTrue("bound is parameterized", bound.isParameterizedType());
+	assertEquals("bound's type argument is the original type argument", binding, bound.getTypeArguments()[0]);
+}
 
 }
