@@ -875,7 +875,16 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		assertEquals("Unexpected type hierarchy", expected, actual);
 	}
+	/**
+	 * New tests should not use this, to avoid risk of confusion with {@link #assertMarkers(String, String, IMarker[])},
+	 * which considers all given markers, not just build path problems.
+	 * @deprecated use {@link #assertBuildPathMarkers(String, String, IJavaProject)}.
+	 */
+	@Deprecated
 	protected void assertMarkers(String message, String expectedMarkers, IJavaProject project) throws CoreException {
+		assertBuildPathMarkers(message, expectedMarkers, project);
+	}
+	protected void assertBuildPathMarkers(String message, String expectedMarkers, IJavaProject project) throws CoreException {
 		waitForAutoBuild();
 		IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
 		sortMarkers(markers);
