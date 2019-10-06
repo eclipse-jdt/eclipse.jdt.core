@@ -43,7 +43,7 @@ import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 public class CompletionTests extends AbstractJavaModelCompletionTests {
 
 static {
-	TESTS_NAMES = new String[] { "test285379"};
+//	TESTS_NAMES = new String[] { "testCompletionMethodDeclaration17"};
 }
 public static Test suite() {
 	return buildModelTestSuite(CompletionTests.class, BYTECODE_DECLARATION_ORDER);
