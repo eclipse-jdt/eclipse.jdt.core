@@ -325,7 +325,7 @@ public void test232816b() throws Exception {
 		entries[length] = JavaCore.newContainerEntry(containerSuggestion.getPath());
 		p.setRawClasspath(entries, null);
 
-		assertMarkers("Failed to find marker", "The user library 'SomeUserLibrary' references non existing library \'" + getExternalResourcePath("idontexistthereforeiamnot.jar") + "'", p);
+		assertBuildPathMarkers("Failed to find marker", "The user library 'SomeUserLibrary' references non existing library \'" + getExternalResourcePath("idontexistthereforeiamnot.jar") + "'", p);
 	} finally {
 		deleteProject("Project");
 	}
@@ -461,7 +461,7 @@ public void testAddExternalLibFolder1() throws CoreException {
 		IJavaProject p = createJavaProject("P");
 		createExternalFolder("externalLib");
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib")), null, null)});
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteExternalResource("externalLib");
 		deleteProject("P");
@@ -475,7 +475,7 @@ public void testAddExternalLibFolder2() throws CoreException {
 	try {
 		createExternalFolder("externalLib");
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteExternalResource("externalLib");
 		deleteProject("P");
@@ -491,7 +491,7 @@ public void testAddExternalLibFolder3() throws CoreException {
 		IJavaProject p = createJavaProject("P");
 		IPath path = new Path(getExternalResourcePath("externalLib"));
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(path, null, null)});
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib\'",
 			p);
@@ -507,7 +507,7 @@ public void testAddExternalLibFolder4() throws CoreException {
 	try {
 		waitForAutoBuild();
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib\'",
 			p);
@@ -525,7 +525,7 @@ public void testAddExternalLibFolder5() throws CoreException {
 		waitForAutoBuild();
 		createExternalFolder("externalLib");
 		refresh(p);
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteExternalResource("externalLib");
 		deleteProject("P");
@@ -543,7 +543,7 @@ public void testAddExternalLibFolder6() throws CoreException {
 		waitForAutoBuild();
 		createExternalFolder("externalLib");
 		refresh(p);
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteExternalResource("externalLib");
 		deleteProject("P");
@@ -580,7 +580,7 @@ public void testAddZIPArchive1() throws CoreException, IOException {
 				getExternalResourcePath("externalLib.abc"),
 				JavaCore.VERSION_1_4);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
@@ -596,7 +596,7 @@ public void testAddZIPArchive2() throws CoreException, IOException {
 				getExternalResourcePath("externalLib.abc"),
 				JavaCore.VERSION_1_4);
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
@@ -613,7 +613,7 @@ public void testAddZIPArchive3() throws CoreException {
 		waitForAutoBuild();
 
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib.abc\'",
 			p);
@@ -630,7 +630,7 @@ public void testAddZIPArchive4() throws CoreException {
 		waitForAutoBuild();
 
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib.abc")}, "");
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib.abc\'",
 			p);
@@ -651,7 +651,7 @@ public void testAddZIPArchive5() throws CoreException, IOException {
 				getExternalResourcePath("externalLib.abc"),
 				JavaCore.VERSION_1_4);
 		refreshExternalArchives(p);
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
@@ -671,7 +671,7 @@ public void testAddZIPArchive6() throws CoreException, IOException {
 				getExternalResourcePath("externalLib.abc"),
 				JavaCore.VERSION_1_4);
 		refreshExternalArchives(p);
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
@@ -691,7 +691,7 @@ public void testAddZIPArchive7() throws CoreException, IOException {
 					"Manifest-Version: 1.0\n"} , 
 					JavaCore.VERSION_1_4);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P/internalLib.abc"), null, null)});
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteProject("P");
 	}
@@ -768,7 +768,7 @@ public void testAddRoot2() throws CoreException {
 
 		// now create the actual resource for the root
 		project.getProject().getFolder("src").create(false, true, null);
-		assertMarkers("Unexpected markers", "", project);
+		assertBuildPathMarkers("Unexpected markers", "", project);
 	} finally {
 		// cleanup
 		this.deleteProject("P");
@@ -2665,7 +2665,7 @@ public void testDotDotContainerEntry2() throws Exception {
 		IJavaProject p = createJavaProject("P");
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", "../../nonExisting.jar"}));
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newContainerEntry(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"))});
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers", 
 			"The container 'Test container' references non existing library \'" + getExternalPath() + "nonExisting.jar\'",
 			p);
@@ -2784,7 +2784,7 @@ public void testDotDotLibraryEntry5() throws Exception {
 				externalJarPath,
 				JavaCore.VERSION_1_4);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../external.jar"), null, null)});
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers", 
 			"", 
 			p);
@@ -2801,7 +2801,7 @@ public void testDotDotLibraryEntry6() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P");
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../external.jar"), null, null)});
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers", 
 			"Project \'P\' is missing required library: \'"+ getWorkspacePath() + "external.jar\'",
 			p);
@@ -2901,7 +2901,7 @@ public void testDotDotVariableEntry2() throws Exception {
 		JavaCore.setClasspathVariable("TWO_UP", new Path("../.."), null);
 		IJavaProject p = createJavaProject("P");
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newVariableEntry(new Path("TWO_UP/nonExisting.jar"), null, null)});
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers", 
 			"Project \'P\' is missing required library: \'"+ getExternalPath() + "nonExisting.jar\'",
 			p);
@@ -3191,7 +3191,7 @@ public void testExternalJarAdd() throws CoreException, IOException {
 				getExternalResourcePath("test185733.jar"),
 				JavaCore.VERSION_1_4);
 		refreshExternalArchives(p);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			p);
@@ -3215,7 +3215,7 @@ public void testExternalJarRemove() throws CoreException, IOException {
 
 		deleteResource(externalJar);
 		refreshExternalArchives(p);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project \'P\' is missing required library: \'" + externalJar.getPath() + "\'",
 			p);
@@ -3457,7 +3457,7 @@ public void testExtraLibraries05() throws Exception {
 			},
 			JavaCore.VERSION_1_4);
 		createFile("/P/lib2.jar", "");
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			p);
@@ -3479,7 +3479,7 @@ public void testExtraLibraries06() throws Exception {
 				"Class-Path: lib2.jar\n",
 			},
 			JavaCore.VERSION_1_4);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			p);
@@ -3529,7 +3529,7 @@ public void testExtraLibraries08() throws Exception {
 			JavaCore.VERSION_1_4);
 		createExternalFile("lib2.jar", "");
 		refreshExternalArchives(p);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			p);
@@ -3553,7 +3553,7 @@ public void testExtraLibraries09() throws Exception {
 				"Class-Path: lib2.jar\n",
 			},
 			JavaCore.VERSION_1_4);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			p);
@@ -3583,7 +3583,7 @@ public void testExtraLibraries10() throws Exception {
 		
 		deleteExternalResource("lib2.jar");
 		refreshExternalArchives(p);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			p);
@@ -3714,7 +3714,7 @@ public void testExtraLibraries14() throws Exception {
 			JavaCore.VERSION_1_4);
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[] {"P", getExternalResourcePath("lib1.jar")}));
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {"org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "");
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			p);
@@ -3802,7 +3802,7 @@ public void testExtraLibraries17() throws Exception {
 			null/*no classpath*/,
 			JavaCore.VERSION_1_4);
 		refreshExternalArchives(p);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			p);
@@ -3825,7 +3825,7 @@ public void testFixClasspath1() throws CoreException, IOException {
 					"Manifest-Version: 1.0\n"} , 
 					JavaCore.VERSION_1_4);
 		
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			project);
@@ -3849,7 +3849,7 @@ public void testFixClasspath2() throws CoreException, IOException {
 		simulateExitRestart();
 		refreshExternalArchives(p);
 		
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
@@ -3918,7 +3918,7 @@ public void testInvalidClasspath1() throws CoreException {
 			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"XML format error in \'.classpath\' file of project 'P': Bad format",
 			project);
@@ -3940,7 +3940,7 @@ public void testInvalidClasspath2() throws CoreException {
 			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Illegal entry in \'.classpath\' of project 'P' file: Unknown kind: \'src1\'",
 			javaProject);
@@ -3950,7 +3950,7 @@ public void testInvalidClasspath2() throws CoreException {
 		IProject project = javaProject.getProject();
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
 		waitForAutoBuild();
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Illegal entry in \'.classpath\' of project 'P' file: Unknown kind: \'src1\'",
 			javaProject);
@@ -3969,7 +3969,7 @@ public void testInvalidExternalClassFolder() throws CoreException {
 		if (Path.fromOSString(externalPath).segmentCount() > 0)
 			externalPath = externalPath.substring(0, externalPath.length()-1);
 		IJavaProject proj =  createJavaProject("P", new String[] {}, new String[] {externalPath}, "bin");
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project \'P\' is missing required library: \'" + externalPath + "\'",
 			proj);
@@ -3984,7 +3984,7 @@ public void testInvalidExternalJar() throws CoreException {
 	try {
 		String jarPath = getExternalPath() + "nonExisting.jar";
 		IJavaProject proj = createJavaProject("P", new String[] {}, new String[] {jarPath}, "bin");
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project 'P' is missing required library: \'" + jarPath + "\'",
 			proj);
@@ -4036,7 +4036,7 @@ public void testTransitionFromInvalidToValidJar() throws CoreException, IOExcept
 public void testInvalidInternalJar1() throws CoreException {
 	try {
 		IJavaProject proj = createJavaProject("P", new String[] {}, new String[] {"/P/nonExisting.jar"}, "bin");
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project 'P' is missing required library: \'nonExisting.jar\'",
 			proj);
@@ -4057,7 +4057,7 @@ public void testInvalidInternalJar2() throws CoreException, IOException {
 					"Manifest-Version: 1.0\n"} , 
 					JavaCore.VERSION_1_4);
 		proj =  createJavaProject("P2", new String[] {}, new String[] {"/P1/existing.txt"}, "bin");
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			proj);
@@ -4075,7 +4075,7 @@ public void testInvalidSourceFolder() throws CoreException {
 	try {
 		createJavaProject("P1");
 		IJavaProject proj = createJavaProject("P2", new String[] {}, new String[] {}, new String[] {"/P1/src1/src2"}, "bin");
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project 'P2' is missing required source folder: \'/P1/src1/src2\'",
 			proj);
@@ -4102,7 +4102,7 @@ public void _testMissingClasspath() throws CoreException {
 		waitForAutoBuild();
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
 		waitForAutoBuild();
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Unable to read \'.classpath\' file of project 'P'",
 			javaProject);
@@ -4121,7 +4121,7 @@ public void testMissingPrereq1() throws CoreException {
 				JavaCore.newProjectEntry(new Path("/B"))
 			};
 		javaProject.setRawClasspath(classpath, null);
-		this.assertMarkers(
+		this.assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project 'A' is missing required Java project: \'B\'",
 			javaProject);
@@ -4141,7 +4141,7 @@ public void testMissingPrereq2() throws CoreException {
 				new String[] {}, // lib folders
 				new String[] {"/B"}, // projects
 				"");
-		this.assertMarkers(
+		this.assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project 'A' is missing required Java project: \'B\'",
 			javaProject);
@@ -4162,7 +4162,7 @@ public void testMissingPrereq3() throws CoreException {
 				new String[] {"/B"}, // projects
 				"");
 		this.createJavaProject("B", new String[] {}, "");
-		this.assertMarkers("Unexpected markers", "", javaProject);
+		this.assertBuildPathMarkers("Unexpected markers", "", javaProject);
 	} finally {
 		deleteProjects(new String[] {"A", "B"});
 	}
@@ -4188,12 +4188,12 @@ public void testMissingPrereq4() throws CoreException {
 				new String[] {}, // lib folders
 				new String[] {"/A"}, // projects
 				"");
-		this.assertMarkers(
+		this.assertBuildPathMarkers(
 			"Unexpected markers for project A",
 			"One or more cycles were detected in the build path of project 'A'. The paths towards the cycle and cycle are:\n" + 
 			"->{A, B}",
 			projectA);
-		this.assertMarkers(
+		this.assertBuildPathMarkers(
 			"Unexpected markers for project B",
 			"One or more cycles were detected in the build path of project 'B'. The paths towards the cycle and cycle are:\n" + 
 			"->{A, B}",
@@ -4201,7 +4201,7 @@ public void testMissingPrereq4() throws CoreException {
 
 		// delete project B
 		this.deleteProject("B");
-		this.assertMarkers(
+		this.assertBuildPathMarkers(
 			"Unexpected markers for project A after deleting of project B",
 			"Project 'A' is missing required Java project: \'B\'",
 			projectA);
@@ -4214,12 +4214,12 @@ public void testMissingPrereq4() throws CoreException {
 				new String[] {}, // lib folders
 				new String[] {"/A"}, // projects
 				"");
-		this.assertMarkers(
+		this.assertBuildPathMarkers(
 			"Unexpected markers for project A after adding project B back",
 			"One or more cycles were detected in the build path of project 'A'. The paths towards the cycle and cycle are:\n" + 
 			"->{A, B}",
 			projectA);
-		this.assertMarkers(
+		this.assertBuildPathMarkers(
 			"Unexpected markers for project B after adding project B back",
 			"One or more cycles were detected in the build path of project 'B'. The paths towards the cycle and cycle are:\n" + 
 			"->{A, B}",
@@ -5057,7 +5057,7 @@ public void testDuplicateEntries1() throws CoreException {
 			"    <classpathentry kind=\"output\" path=\"bin\"/>\n" +
 			"</classpath>"
 		);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Build path contains duplicate entry: \'src\' for project 'P'",
 			project);
@@ -5088,7 +5088,7 @@ public void testDuplicateEntries2() throws CoreException, IOException {
 			"</classpath>"
 		);
 		waitForAutoBuild();
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			project);
@@ -5299,7 +5299,7 @@ public void testNestedSourceFolders() throws CoreException, IOException {
 		// refresh
 		project.refreshLocal(IResource.DEPTH_INFINITE, null);
 
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Cannot nest \'P/src/src2\' inside \'P/src\'. To enable the nesting exclude \'src2/\' from \'P/src\'",
 			JavaCore.create(project));
@@ -5319,7 +5319,7 @@ public void testOptionalEntry1() throws CoreException {
 				JavaCore.newSourceEntry(new Path("/A/src"), new IPath[0], new IPath[0], new Path("/A/bin"), new IClasspathAttribute[] {attribute})
 			};
 		javaProject.setRawClasspath(classpath, null);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			javaProject);
@@ -5339,7 +5339,7 @@ public void testOptionalEntry2() throws CoreException {
 				JavaCore.newLibraryEntry(new Path("/A/lib"), null, null, null, new IClasspathAttribute[] {attribute}, false)
 			};
 		javaProject.setRawClasspath(classpath, null);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			javaProject);
@@ -5359,7 +5359,7 @@ public void testOptionalEntry3() throws CoreException {
 				JavaCore.newProjectEntry(new Path("/B"), null/*no access rules*/, false/*don't combine access rule*/, new IClasspathAttribute[] {attribute}, false/*not exported*/)
 			};
 		javaProject.setRawClasspath(classpath, null);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			javaProject);
@@ -5420,7 +5420,7 @@ public void testOutputFolder1() throws CoreException, IOException {
 		// refresh
 		project.refreshLocal(IResource.DEPTH_INFINITE,null);
 
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project 'P' is missing required source folder: \'src1\'\n" +
 			"Project 'P' is missing required source folder: \'src2\'",
@@ -5470,7 +5470,7 @@ public void testRemoveExternalLibFolder1() throws CoreException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		waitForAutoBuild();
 		setClasspath(p, new IClasspathEntry[] {});
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteExternalResource("externalLib");
 		deleteProject("P");
@@ -5485,7 +5485,7 @@ public void testRemoveExternalLibFolder2() throws CoreException {
 		IJavaProject p = createJavaProject("P", new String[0], new String[] {getExternalResourcePath("externalLib")}, "");
 		waitForAutoBuild();
 		setClasspath(p, new IClasspathEntry[] {});
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			p);
@@ -5504,7 +5504,7 @@ public void testRemoveExternalLibFolder3() throws CoreException {
 		waitForAutoBuild();
 		deleteExternalResource("externalLib");
 		refresh(p);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib\'",
 			p);
@@ -5526,7 +5526,7 @@ public void testRemoveExternalLibFolder4() throws CoreException {
 		waitForAutoBuild();
 		deleteExternalResource("externalLib");
 		refresh(p);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib\'",
 			p);
@@ -5547,7 +5547,7 @@ public void testRemoveZIPArchive1() throws CoreException {
 		waitForAutoBuild();
 
 		setClasspath(p, new IClasspathEntry[] {});
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteExternalResource("externalLib.abc");
 		deleteProject("P");
@@ -5564,7 +5564,7 @@ public void testRemoveZIPArchive2() throws CoreException {
 		waitForAutoBuild();
 
 		setClasspath(p, new IClasspathEntry[] {});
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"",
 			p);
@@ -5585,7 +5585,7 @@ public void testRemoveZIPArchive3() throws CoreException {
 
 		deleteExternalResource("externalLib.abc");
 		refreshExternalArchives(p);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib.abc\'",
 			p);
@@ -5608,7 +5608,7 @@ public void testRemoveZIPArchive4() throws CoreException {
 
 		deleteExternalResource("externalLib.abc");
 		refreshExternalArchives(p);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project \'P\' is missing required library: \'"+ getExternalPath() + "externalLib.abc\'",
 			p);
@@ -5628,7 +5628,7 @@ public void testRemoveZIPArchive5() throws CoreException {
 		waitForAutoBuild();
 
 		setClasspath(p, new IClasspathEntry[] {});
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		deleteProject("P");
 	}
@@ -5649,7 +5649,7 @@ public void testRemoveZIPArchive6() throws CoreException, IOException {
 
 		deleteFile("/P/internalLib.abc");
 		waitForAutoBuild();
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Project \'P\' is missing required library: \'internalLib.abc\'",
 			p);
@@ -5687,7 +5687,7 @@ public void testRenameJar() throws CoreException, IOException {
 
 		// rename .jar
 		getFile("/P/lib/test1.jar").move(new Path("/P/lib/test2.jar"), false, null);
-		assertMarkers("Unexpected markers", "", p);
+		assertBuildPathMarkers("Unexpected markers", "", p);
 	} finally {
 		if (listener != null)
 			getWorkspace().removeResourceChangeListener(listener);
@@ -5922,7 +5922,7 @@ public void testBug55992b() throws CoreException {
 			"    <classpathentry kind=\"var\" path=\"TEST_LIB\" sourcepath=\"TEST_SRC\"/>\n" +
 			"</classpath>"
 		);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Source attachment path \'tmp.zip\' for IClasspathEntry must be absolute",
 			javaProject);
@@ -6164,7 +6164,7 @@ public void testBug300136() throws Exception {
 			"/P/.classpath",
 			buffer.toString()
 		);
-		assertMarkers(
+		assertBuildPathMarkers(
 				"Unexpected markers",
 				"",
 				project);
@@ -6206,7 +6206,7 @@ public void testBug300136a() throws Exception {
 			"/P/.classpath",
 			buffer.toString()
 		);
-		assertMarkers(
+		assertBuildPathMarkers(
 				"Unexpected markers",
 				"Project \'P\' is missing required library: \'" + libPath.toOSString() + "'\n" + 
 				"Unbound classpath container: \'org.eclipse.jdt.core.tests.model.TEST_CONTAINER\' in project \'P\'\n" + 
@@ -6932,7 +6932,7 @@ public void testBug229042() throws Exception {
 		IJavaProject p = createJavaProject("P");
 		createFile("/P/library.jar", "");
 		setClasspath(p, new IClasspathEntry[] { JavaCore.newLibraryEntry(new Path("/P/library.jar"), null,null)});
-		assertMarkers("Expected marker", 
+		assertBuildPathMarkers("Expected marker", 
 				"Archive for required library: \'library.jar\' in project \'P\' cannot be read or is not a valid ZIP file", p);
 		setClasspath(p, new IClasspathEntry[0]);
 		addLibrary(p, "library.jar", null, new String[0], 
@@ -6948,7 +6948,7 @@ public void testBug229042() throws Exception {
 		assertNotNull(file);
 		file.touch(null);
 		waitForAutoBuild();
-		assertMarkers("Unexpected marker", 
+		assertBuildPathMarkers("Unexpected marker", 
 				"", p);
 		
 	} finally {
@@ -6995,7 +6995,7 @@ public void testBug274737() throws Exception {
 		
 		refresh(javaProject);
 		waitForAutoBuild();
-		assertMarkers("Unexpected markers", "", javaProject);
+		assertBuildPathMarkers("Unexpected markers", "", javaProject);
 		
 	} finally {
 		deleteProject("ExternalProject");
@@ -7113,7 +7113,7 @@ public void testBug287164() throws CoreException {
 			status);
 		
 		proj.setRawClasspath(newCP, null);
-		assertMarkers("Unexpected markers", "", proj);
+		assertBuildPathMarkers("Unexpected markers", "", proj);
 		
 		// Test that with the option set to WARNING, status.isOK() returns true
 		proj.setOption(JavaCore.CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE, JavaCore.WARNING);
@@ -7124,7 +7124,7 @@ public void testBug287164() throws CoreException {
 			"Source folder \'src\' in project \'P\' cannot output to distinct source folder \'src2\'",
 			status);
 
-		assertMarkers("Unexpected markers", 
+		assertBuildPathMarkers("Unexpected markers", 
 				"Source folder \'src\' in project \'P\' cannot output to distinct source folder \'src2\'", proj);
 		
 		// Test that with the option set to WARNING and the presence of a more severe error scenario, the error status
@@ -7250,12 +7250,12 @@ public void testBug396299() throws Exception {
 		eclipsePreferences.addPreferenceChangeListener(prefListener);
 		simulateExitRestart();
 		waitForAutoBuild();
-		assertMarkers("Unexpected markers", "", proj1);
+		assertBuildPathMarkers("Unexpected markers", "", proj1);
 		map = proj1.getOptions(false);
 		map.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
 		proj1.setOptions(map);
 		waitForManualRefresh();
-		assertMarkers("Unexpected markers",
+		assertBuildPathMarkers("Unexpected markers",
 				"Incompatible .class files version in required binaries. Project \'P1\' is targeting a 1.1 runtime, but is compiled against \'P1/abc.jar\' which requires a 1.4 runtime", proj1);
 		 eclipsePreferences.removePreferenceChangeListener(prefListener);
 	} finally {

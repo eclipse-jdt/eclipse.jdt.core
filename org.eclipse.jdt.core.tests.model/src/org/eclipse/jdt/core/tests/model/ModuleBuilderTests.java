@@ -123,7 +123,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				}
 			}
 			assertNotNull("Java.base module should not null", base);
-			assertMarkers("Unexpected markers", "", project);
+			assertProblemMarkers("Unexpected markers", "", project.getProject());
 		} finally {
 			deleteProject("Test01");
 		}
@@ -136,10 +136,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 							"	exports com.greetings;\n" +
 							"	requires java.base;\n" +
 							"}");
+			this.createFile("P1/src/com/greetings/Greet.java", "package com.greetings; public class Greet {}\n");
 			waitForManualRefresh();
 			this.currentProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			assertMarkers("Unexpected markers", "", this.currentProject);
+			assertProblemMarkers("Unexpected markers", "", this.currentProject.getProject());
 		} finally {
+			deleteFile("P1/src/com/greetings/Greet.java");
 		}
 	}
 	// Test that types from java.base module are seen by the compiler
@@ -2613,7 +2615,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				}
 			}
 			assertNotNull("Java.base module should not null", base);
-			assertMarkers("Unexpected markers", "", project);
+			assertProblemMarkers("Unexpected markers", "", project.getProject());
 		} finally {
 			deleteProject("Test01");
 		}
@@ -5288,10 +5290,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					this.problemRequestor);
 
 			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			assertMarkers("markers in mod.one", "", javaProject);
+			assertProblemMarkers("markers in mod.one", "", javaProject.getProject());
 			
 			javaProject2.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			assertMarkers("markers in mod.two", "", javaProject2);
+			assertProblemMarkers("markers in mod.two", "", javaProject2.getProject());
 
 			javaProject.getProject().getWorkspace().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
 			assertNoErrors();
