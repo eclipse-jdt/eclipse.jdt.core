@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 Mateusz Matela and others.
+ * Copyright (c) 2014, 2019 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,6 +18,7 @@ package org.eclipse.jdt.internal.formatter.linewrap;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameWHITESPACE;
 
 import java.util.ArrayDeque;
@@ -28,6 +29,7 @@ import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
 import org.eclipse.jdt.internal.formatter.Token;
 import org.eclipse.jdt.internal.formatter.TokenManager;
 import org.eclipse.jdt.internal.formatter.TokenTraverser;
@@ -99,13 +101,14 @@ public class WrapExecutor {
 
 	private class LineAnalyzer extends TokenTraverser {
 
+		private final TokenManager tm2 = WrapExecutor.this.tm;
 		private final CommentWrapExecutor commentWrapper;
 		private int lineIndent;
 		int firstPotentialWrap;
 		int activeTopPriorityWrap;
 		int minStructureDepth;
 		int extraLines;
-		boolean lineExceeded;
+		int lineWidthExtent;
 		boolean isNextLineWrapped;
 		final List<Integer> extraLinesPerComment = new ArrayList<Integer>();
 		final List<Integer> topPriorityGroupStarts = new ArrayList<Integer>();
@@ -120,25 +123,28 @@ public class WrapExecutor {
 		 * @return index of the last token in line
 		 */
 		public int analyzeLine(int startIndex, int indent) {
-			Token startToken = WrapExecutor.this.tm.get(startIndex);
+			Token startToken = this.tm2.get(startIndex);
 			assert startToken.getLineBreaksBefore() > 0;
-			this.counter = WrapExecutor.this.tm.toIndent(indent, startToken.isWrappable());
+			this.counter = this.tm2.toIndent(indent, startToken.isWrappable());
 			this.lineIndent = indent;
 			this.firstPotentialWrap = -1;
 			this.activeTopPriorityWrap = -1;
 			this.minStructureDepth = Integer.MAX_VALUE;
 			this.extraLines = 0;
+			this.lineWidthExtent = 0;
 			this.isNextLineWrapped = false;
 			this.extraLinesPerComment.clear();
 			this.topPriorityGroupStarts.clear();
 			this.currentTopPriorityGroupEnd = -1;
 			this.isNLSTagInLine = false;
-			int lastIndex = WrapExecutor.this.tm.traverse(startIndex, this);
+			int lastIndex = this.tm2.traverse(startIndex, this);
 			return lastIndex + (this.isNextLineWrapped ? 1 : 0);
 		}
 
 		@Override
 		protected boolean token(Token token, int index) {
+			setIndent(token, this.lineIndent);
+
 			if (token.hasNLSTag())
 				this.isNLSTagInLine = true;
 
@@ -167,19 +173,30 @@ public class WrapExecutor {
 				this.counter++;
 			}
 
-			if (!token.isComment()) {
-				this.counter += WrapExecutor.this.tm.getLength(token, this.counter);
+			if (token.tokenType == TokenNameTextBlock) {
+				List<Token> lines = token.getInternalStructure();
+				if (lines == null) {
+					this.counter = this.tm2.getLength(token, 0);
+				} else {
+					this.lineWidthExtent = Math.max(this.lineWidthExtent,
+							this.counter + this.tm2.getLength(lines.get(0), this.counter));
+					this.counter = this.lineIndent + lines.get(1).getIndent();
+					lines.stream().skip(1).forEach(e -> this.lineWidthExtent = Math.max(this.lineWidthExtent,
+							this.counter + this.tm2.getLength(e, this.counter)));
+					this.counter += this.tm2.getLength(lines.get(lines.size() - 1), this.counter);
+				}
+			} else if (!token.isComment()) {
+				this.counter += this.tm2.getLength(token, this.counter);
 			} else if (token.tokenType != TokenNameCOMMENT_LINE) {
 				this.counter = this.commentWrapper.wrapMultiLineComment(token, this.counter, true, this.isNLSTagInLine);
 				this.extraLines += this.commentWrapper.getLinesCount() - 1;
 				this.extraLinesPerComment.add(this.commentWrapper.getLinesCount() - 1);
 			}
 
-			this.lineExceeded = this.counter > WrapExecutor.this.options.page_width;
-			if (this.lineExceeded && this.firstPotentialWrap >= 0) {
+			this.lineWidthExtent = Math.max(this.lineWidthExtent, this.counter);
+			if (this.lineWidthExtent > WrapExecutor.this.options.page_width && this.firstPotentialWrap >= 0) {
 				return false;
 			}
-			token.setIndent(this.lineIndent);
 
 			if (getNext() != null && getNext().isWrappable() && getLineBreaksAfter() > 0) {
 				this.isNextLineWrapped = true;
@@ -188,9 +205,8 @@ public class WrapExecutor {
 				return false; 
 			}
 
-			boolean isLineEnd = getLineBreaksAfter() > 0 || getNext() == null
-					|| (getNext().isNextLineOnWrap() && WrapExecutor.this.tm
-							.get(WrapExecutor.this.tm.findFirstTokenInLine(index)).isWrappable());
+			boolean isLineEnd = getLineBreaksAfter() > 0 || getNext() == null || (getNext().isNextLineOnWrap()
+					&& this.tm2.get(this.tm2.findFirstTokenInLine(index)).isWrappable());
 			return !isLineEnd;
 		}
 
@@ -199,17 +215,13 @@ public class WrapExecutor {
 				return false;
 
 			for (int i = index - 1; i > wrapPolicy.wrapParentIndex; i--) {
-				Token token = WrapExecutor.this.tm.get(i);
+				Token token = this.tm2.get(i);
 				if (token.isWrappable() && token.getWrapPolicy().wrapParentIndex == wrapPolicy.wrapParentIndex
-					&& (token.getLineBreaksBefore() > 0 || WrapExecutor.this.tm.get(i - 1).getLineBreaksAfter() > 0)) {
+					&& (token.getLineBreaksBefore() > 0 || this.tm2.get(i - 1).getLineBreaksAfter() > 0)) {
 						return true;
 				}
 			}
 			return false;
-		}
-
-		public int getLastPosition() {
-			return this.counter;
 		}
 	}
 
@@ -235,7 +247,7 @@ public class WrapExecutor {
 				token.breakBefore();
 				newLine(token, index);
 			} else {
-				token.setIndent(this.currentIndent);
+				setIndent(token, this.currentIndent);
 			}
 			return true;
 		}
@@ -244,7 +256,7 @@ public class WrapExecutor {
 			while (!this.stack.isEmpty() && index > this.stack.peek().getWrapPolicy().groupEndIndex)
 				this.stack.pop();
 			if (token.getWrapPolicy() != null) {
-				token.setIndent(getWrapIndent(token));
+				setIndent(token, getWrapIndent(token));
 				handleOnColumnIndent(index, token.getWrapPolicy());
 				this.stack.push(token);
 			} else if (this.stack.isEmpty()) {
@@ -253,7 +265,7 @@ public class WrapExecutor {
 			}
 
 			this.currentIndent = this.stack.isEmpty() ? this.initialIndent : this.stack.peek().getIndent();
-			token.setIndent(this.currentIndent);
+			setIndent(token, this.currentIndent);
 			this.nextWrap = findWrapsCached(index, this.currentIndent).nextWrap;
 		}
 	}
@@ -437,8 +449,8 @@ public class WrapExecutor {
 	private WrapResult findWraps(int wrapTokenIndex, int indent) {
 		final int lastIndex = this.lineAnalyzer.analyzeLine(wrapTokenIndex, indent);
 		final boolean nextLineWrapped = this.lineAnalyzer.isNextLineWrapped;
-		final boolean wrapRequired = this.lineAnalyzer.lineExceeded || nextLineWrapped;
-		int lineOverflow = Math.max(0, this.lineAnalyzer.getLastPosition() - this.options.page_width);
+		int lineOverflow = Math.max(0, this.lineAnalyzer.lineWidthExtent - this.options.page_width);
+		final boolean wrapRequired = lineOverflow > 0 || nextLineWrapped;
 		int extraLines = this.lineAnalyzer.extraLines;
 		final int firstPotentialWrap = this.lineAnalyzer.firstPotentialWrap;
 		final int activeTopPriorityWrap = this.lineAnalyzer.activeTopPriorityWrap;
@@ -661,5 +673,26 @@ public class WrapExecutor {
 		}
 		wrapIndent += policy.extraIndent;
 		return this.tm.toIndent(wrapIndent, true);
+	}
+
+	void setIndent(Token token, int indent) {
+		token.setIndent(indent);
+
+		List<Token> structure = token.getInternalStructure();
+		if (token.tokenType == TokenNameTextBlock && structure != null) {
+			int lineIndent;
+			int indentOption = this.options.text_block_indentation;
+			if (indentOption == Alignment.M_INDENT_BY_ONE) {
+				lineIndent = 1 * this.options.indentation_size;
+			} else if (indentOption == Alignment.M_INDENT_DEFAULT) {
+				lineIndent = this.options.continuation_indentation * this.options.indentation_size;
+			} else if (indentOption == Alignment.M_INDENT_ON_COLUMN) {
+				lineIndent = this.tm.toIndent(this.tm.getPositionInLine(this.tm.indexOf(token)), true) - indent;
+			} else {
+				assert false;
+				lineIndent = 0;
+			}
+			structure.stream().skip(1).forEach(t -> t.setIndent(lineIndent));
+		}
 	}
 }

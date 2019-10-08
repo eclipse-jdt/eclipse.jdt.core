@@ -15242,4 +15242,147 @@ public void testBug390720b() throws JavaModelException {
 	this.formatterPrefs.blank_lines_between_statement_groups_in_switch = ~0;
 	formatSourceInWorkspace("test390720", "in.java", "B_out.java");
 }
+/**
+ * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
+ */
+public void testBug549436a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	setPageWidth80();
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
+	this.formatterPrefs.indent_empty_lines = false;
+	this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_PRESERVE;
+	this.formatterPrefs.continuation_indentation = 2;
+	formatSourceInWorkspace("test549436", "in.java", "A_out.java");
+}
+/**
+ * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
+ */
+public void testBug549436b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	setPageWidth80();
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
+	this.formatterPrefs.indent_empty_lines = false;
+	this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_BY_ONE;
+	this.formatterPrefs.continuation_indentation = 2;
+	formatSourceInWorkspace("test549436", "in.java", "B_out.java");
+}
+/**
+ * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
+ */
+public void testBug549436c() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	setPageWidth80();
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
+	this.formatterPrefs.indent_empty_lines = false;
+	this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
+	this.formatterPrefs.continuation_indentation = 2;
+	formatSourceInWorkspace("test549436", "in.java", "C_out.java");
+}
+/**
+ * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
+ */
+public void testBug549436d() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	setPageWidth80();
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
+	this.formatterPrefs.indent_empty_lines = false;
+	this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
+	this.formatterPrefs.continuation_indentation = 3;
+	formatSourceInWorkspace("test549436", "in.java", "D_out.java");
+}
+/**
+ * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
+ */
+public void testBug549436e() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	setPageWidth80();
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
+	this.formatterPrefs.indent_empty_lines = false;
+	this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.continuation_indentation = 2;
+	formatSourceInWorkspace("test549436", "in.java", "E_out.java");
+}
+/**
+ * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
+ */
+public void testBug549436f() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	setPageWidth80();
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
+	this.formatterPrefs.indent_empty_lines = false;
+	this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_BY_ONE;
+	this.formatterPrefs.continuation_indentation = 2;
+	formatSourceInWorkspace("test549436", "in.java", "F_out.java");
+}
+/**
+ * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
+ */
+public void testBug549436g() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	setPageWidth80();
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
+	this.formatterPrefs.indent_empty_lines = true;
+	this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
+	this.formatterPrefs.continuation_indentation = 2;
+	formatSourceInWorkspace("test549436", "in.java", "G_out.java");
+}
+/**
+ * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
+ */
+public void testBug549436h() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	setPageWidth80();
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.indent_empty_lines = false;
+	this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_DEFAULT;
+	this.formatterPrefs.continuation_indentation = 3;
+	formatSourceInWorkspace("test549436", "in.java", "H_out.java");
+}
+/**
+ * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
+ */
+public void testBug549436i() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	setPageWidth80();
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.indent_empty_lines = true;
+	this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.continuation_indentation = 2;
+	formatSourceInWorkspace("test549436", "in.java", "I_out.java");
+}
+/**
+ * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
+ */
+public void testBug549436j() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	setPageWidth80();
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
+	this.formatterPrefs.indent_empty_lines = false;
+	this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.continuation_indentation = 2;
+	formatSourceInWorkspace("test549436", "in.java", "J_out.java");
+}
+/**
+ * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
+ */
+public void testBug549436k() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_13);
+	setPageWidth80();
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
+	this.formatterPrefs.indent_empty_lines = false;
+	this.formatterPrefs.text_block_indentation = Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.continuation_indentation = 2;
+	formatSourceInWorkspace("test549436", "in.java", "K_out.java");
+}
 }
