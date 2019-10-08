@@ -2207,11 +2207,38 @@ void setSourceStart(int sourceStart);
 	/** @since 3.20
 	 * @noreference preview related error */
 	int SwitchExpressionsYieldTypeDeclarationError = PreviewRelated + 1718;
+
 	/* Java14 errors - begin */
+
 	/* records - begin */
-//	/** @since 3.20 BETA_JAVA14
-//	 * @noreference preview feature error */
-//	int IllegalModifierForRecord = PreviewRelated + 1731;
+
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordIllegalModifierAbstractForRecord = PreviewRelated + 1731;
+	/** @since 3.20 BETA_JAVA14
+	 * It is a compile-time error for a record header to declare a record component with the name
+	 * clone, finalize, getClass, hashCode, notify, notifyAll, readObjectNoData, readResolve,
+	 * serialPersistentFields, toString, wait, or writeReplace.
+	 * @noreference preview feature error */
+	int RecordIllegalComponentInRecord = PreviewRelated + 1732;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordContainsNonStaticFieldDeclarations = PreviewRelated + 1733;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordAccessorMethodHasThrowsClause = PreviewRelated + 1734;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordCanonicalConstructorHasThrowsClause = PreviewRelated + 1735;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordCanonicalConstructorNotPublic = PreviewRelated + 1736;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordMultipleCanonicalConstructors = PreviewRelated + 1737;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+
 	/* records - end */
 	/* Java14 errors - end */
 	}
