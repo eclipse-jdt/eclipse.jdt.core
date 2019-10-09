@@ -1892,6 +1892,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INDENTATION_SIZE = JavaCore.PLUGIN_ID + ".formatter.indentation.size"; //$NON-NLS-1$
 
 	/**
+	 * <pre>
 	 * FORMATTER / Option to specify how text blocks are indented
 	 *     - option id:         "org.eclipse.jdt.core.formatter.text_block_indentation"
 	 *     - possible values:   { INDENT_PRESERVE, INDENT_BY_ONE, INDENT_DEFAULT, INDENT_ON_COLUMN }
