@@ -27,7 +27,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug550750_001" };
+//		TESTS_NAMES = new String[] { "testBug550750_007" };
 	}
 	
 	public static Class<?> testClass() {
@@ -100,6 +100,136 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n"+
 						"record Point(int x, int y){\n"+
 						"}\n"
+				},
+			"0");
+	}
+	public void testBug550750_002() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(0);\n" +
+				"  }\n"+
+				"}\n"+
+				"abstract record Point(int x, int y){\n"+
+			"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	abstract record Point(int x, int y){\n" + 
+			"	                ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Illegal modifier for the record Point; abstract not allowed\n" + 
+			"----------\n");
+	}
+	/* A record declaration is implicitly final. It is permitted for the declaration of
+	 * a record type to redundantly specify the final modifier. */
+	public void testBug550750_003() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"final record Point(int x, int y){\n"+
+						"}\n"
+				},
+			"0");
+	}
+	public void testBug550750_004() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(0);\n" +
+				"  }\n"+
+				"}\n"+
+				"final final record Point(int x, int y){\n"+
+			"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	final final record Point(int x, int y){\n" + 
+			"	                   ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Duplicate modifier for the type Point\n" + 
+			"----------\n");
+	}
+	 /* A nested record type is implicitly static. It is permitted for the declaration of a nested record
+	 * type to redundantly specify the static modifier. */
+	public void testBug550750_005() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"final record Point(int x, int y){\n"+
+						"}\n"
+				},
+			"0");
+	}
+	public void testBug550750_006() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public public record X(int x, int y){\n"+
+			"}",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	public public record X(int x, int y){\n" + 
+			"	                     ^^^^^^^^^^^^^^^\n" + 
+			"Duplicate modifier for the type X\n" + 
+			"----------\n");
+	}
+	public void testBug550750_007() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"final record Point(int x, int y){\n"+
+						"  public void foo() {}\n"+
+						"}\n"+
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"
+				},
+			"0");
+	}
+	public void testBug550750_008() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"final record Point(int x, int y){\n"+
+						"  public Point {}\n"+
+						"}\n"+
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"
+				},
+			"0");
+	}
+	public void testBug550750_009() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"final record Point(int x, int y){\n"+
+						"  public Point {}\n"+
+						"  public void foo() {}\n"+
+						"}\n"+
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}"
 				},
 			"0");
 	}

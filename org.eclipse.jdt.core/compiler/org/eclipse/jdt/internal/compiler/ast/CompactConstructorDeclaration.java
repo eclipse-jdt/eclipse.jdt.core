@@ -20,8 +20,9 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 
 public class CompactConstructorDeclaration extends ConstructorDeclaration {
 
+	public boolean isImplicit;
+	
 	public CompactConstructorDeclaration(CompilationResult compilationResult) {
 		super(compilationResult);
-		// TODO Auto-generated constructor stub
 	}
 }

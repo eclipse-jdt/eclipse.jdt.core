@@ -648,17 +648,25 @@ public class ClassScope extends Scope {
 				}
 			}
 		} else if ((realModifiers & ClassFileConstants.AccRecord) != 0) {
+			// JLS 14 8.10 : It is a compile-time error if a record declaration has the modifier abstract.m
+			if ((realModifiers & ClassFileConstants.AccAbstract) != 0) {
+				problemReporter().illegalModifierAbstractForRecord(sourceType);
+			}
 			// TODO: BETA_JAVA14
 			/* Section 8.10 http://cr.openjdk.java.net/~gbierman/8222777/8222777-20190823/specs/records-jls.html#jls-8.10
 			 * It is a compile-time error if a record declaration has the modifier abstract.
-
-A record declaration is implicitly final. It is permitted for the declaration of a record type to redundantly specify the final modifier.
-
-A nested record type is implicitly static. It is permitted for the declaration of a nested record type to redundantly specify the static modifier.
-
-This implies that it is impossible to declare a record type in the body of an inner class (8.1.3), because an inner class cannot have static members except for constant variables.
-
-It is a compile-time error if the same keyword appears more than once as a modifier for a record declaration, or if a record declaration has more than one of the access modifiers public, protected, and private (6.6).
+			 * 
+			 * A record declaration is implicitly final. It is permitted for the declaration of a record type
+			 * to redundantly specify the final modifier.
+			 * 
+			 * A nested record type is implicitly static. It is permitted for the declaration of a nested record
+			 * type to redundantly specify the static modifier.
+			 * 
+			 * This implies that it is impossible to declare a record type in the body of an inner class (8.1.3),
+			 * because an inner class cannot have static members except for constant variables.
+			 * 
+			 * It is a compile-time error if the same keyword appears more than once as a modifier for a record declaration,
+			 * or if a record declaration has more than one of the access modifiers public, protected, and private (6.6).
 			 */
 		} else {
 			// detect abnormal cases for classes

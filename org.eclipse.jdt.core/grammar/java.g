@@ -1161,8 +1161,14 @@ RecordBody ::= '{' RecordBodyDeclarationopt '}'
 
 RecordBodyDeclarationopt ::= $empty
 /.$putCase consumeEmptyRecordBodyDeclaration(); $break ./
-RecordBodyDeclarationopt -> RecordBodyDeclaration
+RecordBodyDeclarationopt -> RecordBodyDeclarations
 /:$readableName RecordBodyDeclarationopt:/
+/:$compliance 14:/
+
+RecordBodyDeclarations ::= RecordBodyDeclaration
+RecordBodyDeclarations ::= RecordBodyDeclarations RecordBodyDeclaration
+/.$putCase consumeRecordBodyDeclarations(); $break ./
+/:$readableName RecordBodyDeclarations:/
 /:$compliance 14:/
 
 RecordBodyDeclaration ::=  ClassBodyDeclaration

@@ -11249,4 +11249,13 @@ public void switchExpressionsYieldTypeDeclarationError(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
+public void illegalModifierAbstractForRecord(SourceTypeBinding type) {
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.RecordIllegalModifierAbstractForRecord,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
 }

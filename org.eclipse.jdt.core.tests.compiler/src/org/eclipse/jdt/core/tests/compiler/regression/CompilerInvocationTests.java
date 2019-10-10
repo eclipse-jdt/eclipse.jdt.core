@@ -1201,6 +1201,13 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIllegalStatement", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SwitchExpressionsYieldTypeDeclarationWarning", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SwitchExpressionsYieldTypeDeclarationError", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordIllegalModifierAbstractForRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordIllegalComponentInRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordContainsNonStaticFieldDeclarations", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordAccessorMethodHasThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordCanonicalConstructorHasThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordCanonicalConstructorNotPublic", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordMultipleCanonicalConstructors", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2172,6 +2179,13 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIllegalStatement", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldTypeDeclarationWarning", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldTypeDeclarationError", SKIP);
+	    expectedProblemAttributes.put("RecordIllegalModifierAbstractForRecord", SKIP);
+	    expectedProblemAttributes.put("RecordIllegalComponentInRecord", SKIP);
+	    expectedProblemAttributes.put("RecordContainsNonStaticFieldDeclarations", SKIP);
+	    expectedProblemAttributes.put("RecordAccessorMethodHasThrowsClause", SKIP);
+	    expectedProblemAttributes.put("RecordCanonicalConstructorHasThrowsClause", SKIP);
+	    expectedProblemAttributes.put("RecordCanonicalConstructorNotPublic", SKIP);
+	    expectedProblemAttributes.put("RecordMultipleCanonicalConstructors", SKIP);
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {

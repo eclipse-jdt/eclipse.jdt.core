@@ -263,6 +263,7 @@ QualifiedName=QualifiedName
 RecordBody=RecordBody
 RecordBodyDeclaration=RecordBodyDeclaration
 RecordBodyDeclarationopt=RecordBodyDeclarationopt
+RecordBodyDeclarations=RecordBodyDeclarations
 RecordComponent=RecordComponent
 RecordComponentHeaderRightParen=)
 RecordComponents=RecordComponents

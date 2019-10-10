@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class RecordDeclaration extends TypeDeclaration {
 
-	public Argument[] recordComponents;
 	public int nRecordComponents;
 
 	public RecordDeclaration(CompilationResult compilationResult) {
@@ -52,6 +51,8 @@ public class RecordDeclaration extends TypeDeclaration {
 		this.allocation = t.allocation;
 		this.enclosingType = t.enclosingType;
 		this.typeParameters = t.typeParameters;
+		this.sourceStart = t.sourceStart;
+		this.sourceEnd = t.sourceEnd;
 	}
 	@Override
 	public StringBuffer printHeader(int indent, StringBuffer output) {
