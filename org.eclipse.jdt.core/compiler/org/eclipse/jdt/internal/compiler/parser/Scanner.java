@@ -2242,6 +2242,11 @@ public final void jumpOverMethodBody() {
 									case '\n' :
 										pushLineSeparator();
 										//$FALL-THROUGH$
+									case '\\':
+										if (this.source[this.currentPosition++] == '"') {
+											this.currentPosition++;
+										}
+										//$FALL-THROUGH$
 									default: 
 										this.currentCharacter = this.source[this.currentPosition++];
 										continue Inner;
