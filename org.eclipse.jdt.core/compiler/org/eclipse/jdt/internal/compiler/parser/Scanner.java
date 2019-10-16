@@ -632,6 +632,10 @@ public char[] getCurrentTextBlock() {
 	List<char[]> list = new ArrayList<>(lines.length);
 	for(int i = 0; i < lines.length; i++) {
 		char[] line = lines[i];
+		if (i + 1 == size && line.length == 0) {
+			list.add(line);
+			break;
+		}
 		char[][] sub = CharOperation.splitOn('\r', line);
 		for (char[] cs : sub) {
 			if (cs.length > 0) {
@@ -658,7 +662,7 @@ public char[] getCurrentTextBlock() {
 				}
 			}
 		}
-		if (!blank) {
+		if (!blank || (i+1 == size)) {
 			if (prefix < 0 || whitespaces < prefix) {
  				prefix = whitespaces;
 			}
