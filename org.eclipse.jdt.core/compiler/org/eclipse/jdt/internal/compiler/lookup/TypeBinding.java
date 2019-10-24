@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1355,7 +1355,7 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 						if (TypeBinding.notEquals(enclosing, otherEnclosing))
 							return false;
 					} else {
-						if (!enclosing.isEquivalentTo(otherParamType.enclosingType()))
+						if (!enclosing.isTypeArgumentContainedBy(otherParamType.enclosingType()))
 							return false;
 					}
 				}
