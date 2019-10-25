@@ -6536,6 +6536,40 @@ public void testBug552388() {
 		"----------\n");
 }
 public void testBug552388b() {
+	String output = this.complianceLevel > ClassFileConstants.JDK1_6 ?
+			"----------\n" + 
+			"1. ERROR in A.java (at line 17)\n" + 
+			"	foo(l);\n" + 
+			"	^^^\n" + 
+			"The method foo(List<A<?>.C>) in the type A<T> is not applicable for the arguments (List<A<T>.C>)\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 33)\n" + 
+			"	foo2(l); \n" + 
+			"	^^^^\n" + 
+			"The method foo2(List<A<?>>) in the type A<T> is not applicable for the arguments (List<A<T>>)\n" + 
+			"----------\n"
+			:
+			"----------\n" + 
+			"1. ERROR in A.java (at line 16)\n" + 
+			"	List<C> l = new ArrayList<>();\n" + 
+			"	                ^^^^^^^^^\n" + 
+			"\'<>\' operator is not allowed for source level below 1.7\n" + 
+			"----------\n" + 
+			"2. ERROR in A.java (at line 17)\n" + 
+			"	foo(l);\n" + 
+			"	^^^\n" + 
+			"The method foo(List<A<?>.C>) in the type A<T> is not applicable for the arguments (List<A<T>.C>)\n" + 
+			"----------\n" + 
+			"3. ERROR in A.java (at line 32)\n" + 
+			"	List<A<T>> l = new ArrayList<>();\n" + 
+			"	                   ^^^^^^^^^\n" + 
+			"\'<>\' operator is not allowed for source level below 1.7\n" + 
+			"----------\n" + 
+			"4. ERROR in A.java (at line 33)\n" + 
+			"	foo2(l); \n" + 
+			"	^^^^\n" + 
+			"The method foo2(List<A<?>>) in the type A<T> is not applicable for the arguments (List<A<T>>)\n" + 
+			"----------\n";
 	runNegativeTest(
 		new String[] {
 			"A.java",
@@ -6577,17 +6611,7 @@ public void testBug552388b() {
 			" \n" + 
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in A.java (at line 17)\n" + 
-		"	foo(l);\n" + 
-		"	^^^\n" + 
-		"The method foo(List<A<?>.C>) in the type A<T> is not applicable for the arguments (List<A<T>.C>)\n" + 
-		"----------\n" + 
-		"2. ERROR in A.java (at line 33)\n" + 
-		"	foo2(l); \n" + 
-		"	^^^^\n" + 
-		"The method foo2(List<A<?>>) in the type A<T> is not applicable for the arguments (List<A<T>>)\n" + 
-		"----------\n");
+		output);
 }
 }
 
