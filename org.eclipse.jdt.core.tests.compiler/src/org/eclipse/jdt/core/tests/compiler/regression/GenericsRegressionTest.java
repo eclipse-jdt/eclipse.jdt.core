@@ -6515,7 +6515,7 @@ public void testBug552388() {
 			"import java.util.List;\n" + 
 			"\n" + 
 			"public class A<T extends B> {\n" + 
-			"    protected List<C> list = new ArrayList<>();\n" + 
+			"    protected List<C> list = new ArrayList<C>();\n" + 
 			"\n" + 
 			"    class C {}\n" + 
 			"\n" + 
