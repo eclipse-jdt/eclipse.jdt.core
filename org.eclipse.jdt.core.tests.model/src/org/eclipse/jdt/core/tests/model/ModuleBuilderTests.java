@@ -1456,6 +1456,45 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("com.greetings");
 		}
 	}
+	public void test_Exports_foreign_package1() throws CoreException {
+		try {
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	exports java.util;\n" +
+				"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src);
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",	
+					"Cannot export the package java.util which belongs to module java.base",  markers);
+		} finally {
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_Exports_foreign_package2() throws CoreException {
+		try {
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	exports java.util;\n" +
+				"}",
+				"src/java/util/Wrong.java",
+				"package java.util;\n" +
+				"public class Wrong {}\n"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src);
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers",	
+					"The package java.util conflicts with a package accessible from another module: java.base",
+					markers);
+		} finally {
+			deleteProject("com.greetings");
+		}
+	}
 	public void test_DuplicateExports() throws CoreException {
 		try {
 			String[] sources = new String[] {
