@@ -13036,4 +13036,23 @@ public void testBug551189() {
 		"\n" + 
 		"}}");
 }
+/**
+ * https://bugs.eclipse.org/220713 - [formatter] Formatting of array initializers in method calls
+ */
+public void testBug220713() {
+	this.formatterPrefs.alignment_for_arguments_in_method_invocation = Alignment.M_NEXT_PER_LINE_SPLIT | Alignment.M_INDENT_ON_COLUMN | Alignment.M_FORCE;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_NEXT_SHIFTED_SPLIT | Alignment.M_INDENT_ON_COLUMN | Alignment.M_FORCE;
+	this.formatterPrefs.insert_new_line_before_closing_brace_in_array_initializer = true;
+	formatSource(
+		"public class A {\n" + 
+		"	void f() {\n" + 
+		"		methodWithArrays(	new Object[] {\n" + 
+		"											null,\n" + 
+		"							},\n" + 
+		"							new Object[] {\n" + 
+		"											null,\n" + 
+		"							});\n" + 
+		"	}\n" + 
+		"}");
+}
 }
