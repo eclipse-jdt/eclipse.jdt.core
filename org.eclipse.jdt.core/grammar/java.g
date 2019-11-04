@@ -632,7 +632,6 @@ TypeImportOnDemandDeclarationName ::= 'import' Name '.' RejectTypeAnnotations '*
 
 TypeDeclaration -> ClassDeclaration
 TypeDeclaration -> InterfaceDeclaration
-TypeDeclaration -> RecordDeclaration
 -- this declaration in part of a list od declaration and we will
 -- use and optimized list length calculation process 
 -- thus we decrement the number while it will be incremend.....
@@ -643,6 +642,8 @@ TypeDeclaration ::= ';'
 -----------------------------------------------
 TypeDeclaration -> EnumDeclaration
 TypeDeclaration -> AnnotationTypeDeclaration
+-- 14 preview feature
+TypeDeclaration -> RecordDeclaration
 /:$readableName TypeDeclaration:/
 
 --18.7 Only in the LALR(1) Grammar
@@ -750,6 +751,8 @@ ClassMemberDeclaration -> InterfaceDeclaration
 -- 1.5 feature
 ClassMemberDeclaration -> EnumDeclaration
 ClassMemberDeclaration -> AnnotationTypeDeclaration
+-- 14 preview feature
+ClassMemberDeclaration -> RecordDeclaration
 /:$readableName ClassMemberDeclaration:/
 
 -- Empty declarations are not valid Java ClassMemberDeclarations.

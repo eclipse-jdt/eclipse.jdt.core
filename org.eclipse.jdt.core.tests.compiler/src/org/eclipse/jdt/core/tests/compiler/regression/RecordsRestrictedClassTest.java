@@ -157,8 +157,6 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Duplicate modifier for the type Point\n" + 
 			"----------\n");
 	}
-	 /* A nested record type is implicitly static. It is permitted for the declaration of a nested record
-	 * type to redundantly specify the static modifier. */
 	public void testBug550750_005() {
 		runConformTest(
 				new String[] {
@@ -230,6 +228,36 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}"
+				},
+			"0");
+	}
+	 /* nested record implicitly static*/
+	public void testBug550750_010() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"  record Point(int x, int y){\n"+
+						"  }\n"+
+						"}\n"
+				},
+			"0");
+	}
+	 /* nested record explicitly static*/
+	public void testBug550750_011() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"  static record Point(int x, int y){\n"+
+						"  }\n"+
+						"}\n"
 				},
 			"0");
 	}
