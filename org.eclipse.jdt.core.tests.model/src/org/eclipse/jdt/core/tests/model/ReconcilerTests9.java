@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *		IBM Corporation - initial API and implementation
  *		Stephan Herrmann - Copy-adjusted structure from ReconcilerTests, filled with new content
@@ -934,7 +938,7 @@ public void testBug547113() throws CoreException {
 		this.problemRequestor.initialize(cSource.toCharArray());
 		this.workingCopy = getCompilationUnit("c/src/com/example/c/C.java").getWorkingCopy(this.wcOwner, null);
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
-		this.workingCopy.reconcile(AST_INTERNAL_JLS13, true, this.wcOwner, null);
+		this.workingCopy.reconcile(AST_INTERNAL_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems",
 				"----------\n" +
 				"----------\n",

@@ -962,7 +962,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if ((node.getAST().isPreviewEnabled())) {
+		if ((node.getAST().apiLevel() >= AST.JLS14)) {
 			if (node.isDefault()) {
 				this.result.append("default");//$NON-NLS-1$
 				this.result.append(getBooleanAttribute(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY) ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
@@ -1497,7 +1497,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	
 	@Override
 	public boolean visit(YieldStatement node) {
-		if (node.getAST().isPreviewEnabled() && node.isImplicit()  && node.getExpression() == null) {
+		if (node.getAST().apiLevel() >= AST.JLS14 && node.isImplicit()  && node.getExpression() == null) {
 			return false;
 		}
 		

@@ -3514,7 +3514,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		// dont allow switching from case to default or back. New statements should be created.
-		if (node.getAST().isPreviewEnabled()) {
+		if (node.getAST().apiLevel() >= AST.JLS14) {
 			int pos = node.expressions().size() == 0 ? node.getStartPosition() :
 					rewriteNodeList(node, SwitchCase.EXPRESSIONS2_PROPERTY, node.getStartPosition(), Util.EMPTY_STRING, ", "); //$NON-NLS-1$
 			if (isChanged(node, SwitchCase.SWITCH_LABELED_RULE_PROPERTY)) {
@@ -3738,7 +3738,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					insertIndent++;
 				}
 				ParagraphListRewriter listRewriter;
-				if ((node.getAST().isPreviewEnabled())) {
+				if ((node.getAST().apiLevel() >= AST.JLS14)) {
 					listRewriter= new SwitchListLabeledRuleRewriter(insertIndent);
 				} else {
 					listRewriter= new SwitchListRewriter(insertIndent);
@@ -4485,7 +4485,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		try {
 			int offset= getScanner().getTokenEndOffset(TerminalTokens.TokenNamebreak, node.getStartPosition());
-			if ((node.getAST().isPreviewEnabled())) {
+			if ((node.getAST().apiLevel() >= AST.JLS14)) {
 				rewriteNode(node, YieldStatement.EXPRESSION_PROPERTY, offset, ASTRewriteFormatter.SPACE); // space between yield and label
 			}
 		} catch (CoreException e) {

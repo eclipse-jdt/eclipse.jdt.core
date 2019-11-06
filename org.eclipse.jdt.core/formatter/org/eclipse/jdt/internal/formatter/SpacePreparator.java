@@ -397,7 +397,7 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if (node.getAST().apiLevel() == AST.JLS13 && node.isSwitchLabeledRule()) {
+		if (node.getAST().apiLevel() > AST.JLS13 && node.isSwitchLabeledRule()) {
 			handleToken(this.tm.lastTokenIn(node, TokenNameARROW),
 					node.isDefault() ? this.options.insert_space_before_arrow_in_switch_default
 							: this.options.insert_space_before_arrow_in_switch_case,
@@ -411,7 +411,7 @@ public class SpacePreparator extends ASTVisitor {
 		}
 		if (!node.isDefault()) {
 			handleToken(node, TokenNamecase, false, true);
-			if (node.getAST().apiLevel() == AST.JLS13) {
+			if (node.getAST().apiLevel() > AST.JLS13) {
 				handleCommas(node.expressions(), this.options.insert_space_before_comma_in_switch_case_expressions,
 					this.options.insert_space_after_comma_in_switch_case_expressions);
 			}

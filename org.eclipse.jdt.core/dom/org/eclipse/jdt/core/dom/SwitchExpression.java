@@ -31,8 +31,6 @@ import java.util.List;
  * <code>Statement</code>.
  *
  * @since 3.18
- * @noinstantiate This class is not intended to be instantiated by clients.
- * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SwitchExpression extends Expression {
@@ -74,31 +72,12 @@ public class SwitchExpression extends Expression {
 	 * <code>AST.JLS*</code> constants
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.16
+	 * @since 3.20 BETA_JAVA
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		return propertyDescriptors(apiLevel, false);
+		return PROPERTY_DESCRIPTORS;
 	}
 	
-		/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-	 * @param previewEnabled previewEnabled flag
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @since 3.20
-	 */
-	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
-		if (apiLevel == AST.JLS13_INTERNAL && previewEnabled) {
-			return PROPERTY_DESCRIPTORS;
-		}
-		return null;
-	}
-
 	/**
 	 * The expression; lazily initialized; defaults to a unspecified, but legal,
 	 * expression.
@@ -122,13 +101,11 @@ public class SwitchExpression extends Expression {
 	 * </p>
 	 *
 	 * @param ast the AST that is to own this node
-	 * @exception UnsupportedOperationException if this operation is used other than JLS13
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @exception UnsupportedOperationException if this operation is used below JLS14
 	 */
 	SwitchExpression(AST ast) {
 		super(ast);
-		supportedOnlyIn13();
-		unsupportedWithoutPreviewError();
+		unsupportedBelow14();
 	}
 
 	@Override
@@ -136,11 +113,6 @@ public class SwitchExpression extends Expression {
 		return propertyDescriptors(apiLevel);
 	}
 	
-	@Override
-	final List internalStructuralPropertiesForType(int apiLevel, boolean previewEnabled) {
-		return propertyDescriptors(apiLevel, previewEnabled);
-	}
-
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
 		if (property == EXPRESSION_PROPERTY) {
@@ -199,6 +171,7 @@ public class SwitchExpression extends Expression {
 	 * Returns the expression of this switch statement.
 	 *
 	 * @return the expression node
+	 * @since 3.20 BETA_JAVA
 	 */
 	public Expression getExpression() {
 		if (this.expression == null) {
@@ -224,6 +197,7 @@ public class SwitchExpression extends Expression {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
+	 * @since 3.20 BETA_JAVA
 	 */
 	public void setExpression(Expression expression) {
 		if (expression == null) {
@@ -242,6 +216,7 @@ public class SwitchExpression extends Expression {
 	 *
 	 * @return the live list of statement nodes
 	 *    (element type: {@link Statement})
+	 * @since 3.20 BETA_JAVA
 	 */
 	public List statements() {
 		return this.statements;

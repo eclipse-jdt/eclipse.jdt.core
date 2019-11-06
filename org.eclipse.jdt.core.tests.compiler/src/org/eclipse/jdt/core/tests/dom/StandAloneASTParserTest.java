@@ -1795,8 +1795,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		assertTrue(problems.length > 0);
 		assertTrue(problems[0].toString().contains("preview"));
 	}	
-	//Disabling till the Standard support for Switch Preview is added
-	public void _testBug547900_01() throws JavaModelException {
+	public void testBug547900_01() throws JavaModelException {
 		String contents =
 				"class X {\n"+
 				"	public static int foo(int i) {\n"+
@@ -1812,7 +1811,10 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		parser.setSource(contents.toCharArray());
 		parser.setEnvironment(null, null, null, true);
 		parser.setResolveBindings(false);
-		Map<String, String> options = setPresetPreviewOptions();
+		Map<String, String> options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
 		parser.setCompilerOptions(options);
 	
 		ASTNode node = parser.createAST(null);

@@ -2267,7 +2267,7 @@ public class ASTMatcher {
 			return false;
 		}
 		SwitchCase o = (SwitchCase) other;
-		return ( node.getAST().isPreviewEnabled()
+		return ( node.getAST().apiLevel >= AST.JLS14
 				? safeSubtreeListMatch(node.expressions(), o.expressions())
 						: compareDeprecatedSwitchExpression(node, o));
 	}

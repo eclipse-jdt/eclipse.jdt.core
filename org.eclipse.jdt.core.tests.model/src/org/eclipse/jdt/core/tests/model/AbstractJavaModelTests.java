@@ -100,9 +100,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		if (jdkLevel >= ClassFileConstants.JDK14) {
 			isJRE14 = true;
 		}
-		if (jdkLevel >= ClassFileConstants.JDK13) {
-			isJRE13 = true;
-		}
 		if (jdkLevel >= ClassFileConstants.JDK12) {
 			isJRE12 = true;
 		}

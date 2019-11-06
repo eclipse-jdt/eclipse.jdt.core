@@ -64,43 +64,5 @@
                 <message_argument value="isSwitchLabeledRule()"/>
             </message_arguments>
         </filter>
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchCase"/>
-                <message_argument value="setSwitchLabeledRule(boolean)"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/SwitchExpression.java" type="org.eclipse.jdt.core.dom.SwitchExpression">
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchExpression"/>
-                <message_argument value="getExpression()"/>
-            </message_arguments>
-        </filter>
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchExpression"/>
-                <message_argument value="propertyDescriptors(int)"/>
-            </message_arguments>
-        </filter>
-        <filter comment="preview feature - transient" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchExpression"/>
-                <message_argument value="propertyDescriptors(int, boolean)"/>
-            </message_arguments>
-        </filter>
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchExpression"/>
-                <message_argument value="setExpression(Expression)"/>
-            </message_arguments>
-        </filter>
-        <filter comment="Only for Java 13" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchExpression"/>
-                <message_argument value="statements()"/>
-            </message_arguments>
-        </filter>
     </resource>
 </component>

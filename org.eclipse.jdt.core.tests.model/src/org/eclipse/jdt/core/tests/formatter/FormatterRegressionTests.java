@@ -1616,6 +1616,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 
 	public void test140() {
+		setComplianceLevel(CompilerOptions.VERSION_14);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
@@ -1623,6 +1624,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	}
 
 	public void test141() {
+		setComplianceLevel(CompilerOptions.VERSION_14);
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.SPACE;
 		preferences.indent_switchstatements_compare_to_cases = false;
@@ -15250,7 +15252,7 @@ public void testBug390720b() throws JavaModelException {
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
 public void testBug549436a() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_13);
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
@@ -15263,7 +15265,7 @@ public void testBug549436a() throws JavaModelException {
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
 public void testBug549436b() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_13);
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
@@ -15276,7 +15278,7 @@ public void testBug549436b() throws JavaModelException {
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
 public void testBug549436c() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_13);
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
@@ -15289,7 +15291,7 @@ public void testBug549436c() throws JavaModelException {
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
 public void testBug549436d() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_13);
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
@@ -15302,7 +15304,7 @@ public void testBug549436d() throws JavaModelException {
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
 public void testBug549436e() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_13);
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
@@ -15315,7 +15317,7 @@ public void testBug549436e() throws JavaModelException {
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
 public void testBug549436f() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_13);
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
@@ -15328,7 +15330,7 @@ public void testBug549436f() throws JavaModelException {
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
 public void testBug549436g() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_13);
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
@@ -15341,7 +15343,7 @@ public void testBug549436g() throws JavaModelException {
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
 public void testBug549436h() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_13);
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
@@ -15354,7 +15356,7 @@ public void testBug549436h() throws JavaModelException {
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
 public void testBug549436i() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_13);
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
@@ -15367,7 +15369,7 @@ public void testBug549436i() throws JavaModelException {
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
 public void testBug549436j() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_13);
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
@@ -15380,7 +15382,7 @@ public void testBug549436j() throws JavaModelException {
  * https://bugs.eclipse.org/549436 - [13] Formatter support for JEP 355 Text Block
  */
 public void testBug549436k() throws JavaModelException {
-	setComplianceLevel(CompilerOptions.VERSION_13);
+	setComplianceLevel(CompilerOptions.VERSION_14);
 	setPageWidth80();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = false;
