@@ -261,4 +261,18 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
+	public void testBug550750_012() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int ... x){\n"+
+						"}\n"
+				},
+			"0");
+	}
 }

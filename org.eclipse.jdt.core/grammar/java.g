@@ -1143,6 +1143,7 @@ RecordHeader ::= '(' RecordComponentsopt RecordComponentHeaderRightParen
 RecordComponentsopt ::= $empty
 /.$putCase consumeRecordComponentsopt(); $break ./
 RecordComponentsopt -> RecordComponents
+RecordComponentsopt -> VariableArityRecordComponent
 /:$readableName RecordComponentsopt:/
 /:$compliance 14:/
 
@@ -1152,10 +1153,21 @@ RecordComponents ::= RecordComponents ',' RecordComponent
 /:$readableName RecordComponents:/
 /:$compliance 14:/
 
-RecordComponent ::= Modifiersopt Type 'Identifier'
-/.$putCase consumeRecordComponent(); $break ./
+RecordComponent ::= Modifiersopt Type VariableDeclaratorId
+/.$putCase consumeRecordComponent(false); $break ./
 /:$readableName RecordComponent:/
 /:$compliance 14:/
+
+VariableArityRecordComponent ::= Modifiersopt Type PushZeroTypeAnnotations '...' VariableDeclaratorId
+/.$putCase consumeRecordComponent(true); $break ./
+/:$readableName VariableArityRecordComponent:/
+/:$compliance 14:/
+
+VariableArityRecordComponent ::= Modifiersopt Type @308... TypeAnnotations '...' VariableDeclaratorId
+/.$putCase consumeRecordComponent(true); $break ./
+/:$readableName VariableArityRecordComponent:/
+/:$compliance 14:/
+/:$recovery_template Identifier Identifier:/
 
 RecordBody ::= '{' RecordBodyDeclarationopt '}'
 /.$putCase consumeRecordBody(); $break ./
