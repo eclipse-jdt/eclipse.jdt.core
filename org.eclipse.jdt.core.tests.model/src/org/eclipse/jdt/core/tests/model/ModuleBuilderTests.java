@@ -123,7 +123,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				}
 			}
 			assertNotNull("Java.base module should not null", base);
-			assertMarkers("Unexpected markers", "", project);
+			assertProblemMarkers("Unexpected markers", "", project.getProject());
 		} finally {
 			deleteProject("Test01");
 		}
@@ -136,10 +136,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 							"	exports com.greetings;\n" +
 							"	requires java.base;\n" +
 							"}");
+			this.createFile("P1/src/com/greetings/Greet.java", "package com.greetings; public class Greet {}\n");
 			waitForManualRefresh();
 			this.currentProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			assertMarkers("Unexpected markers", "", this.currentProject);
+			assertProblemMarkers("Unexpected markers", "", this.currentProject.getProject());
 		} finally {
+			deleteFile("P1/src/com/greetings/Greet.java");
 		}
 	}
 	// Test that types from java.base module are seen by the compiler
@@ -1454,6 +1456,45 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("com.greetings");
 		}
 	}
+	public void test_Exports_foreign_package1() throws CoreException {
+		try {
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	exports java.util;\n" +
+				"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src);
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",	
+					"Cannot export the package java.util which belongs to module java.base",  markers);
+		} finally {
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_Exports_foreign_package2() throws CoreException {
+		try {
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	exports java.util;\n" +
+				"}",
+				"src/java/util/Wrong.java",
+				"package java.util;\n" +
+				"public class Wrong {}\n"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src);
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers",	
+					"The package java.util conflicts with a package accessible from another module: java.base",
+					markers);
+		} finally {
+			deleteProject("com.greetings");
+		}
+	}
 	public void test_DuplicateExports() throws CoreException {
 		try {
 			String[] sources = new String[] {
@@ -2613,7 +2654,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				}
 			}
 			assertNotNull("Java.base module should not null", base);
-			assertMarkers("Unexpected markers", "", project);
+			assertProblemMarkers("Unexpected markers", "", project.getProject());
 		} finally {
 			deleteProject("Test01");
 		}
@@ -5288,10 +5329,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					this.problemRequestor);
 
 			javaProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			assertMarkers("markers in mod.one", "", javaProject);
+			assertProblemMarkers("markers in mod.one", "", javaProject.getProject());
 			
 			javaProject2.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
-			assertMarkers("markers in mod.two", "", javaProject2);
+			assertProblemMarkers("markers in mod.two", "", javaProject2.getProject());
 
 			javaProject.getProject().getWorkspace().build(IncrementalProjectBuilder.CLEAN_BUILD, null);
 			assertNoErrors();

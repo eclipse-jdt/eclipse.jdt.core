@@ -20584,6 +20584,66 @@ public void test270437c() throws JavaModelException {
 			requestor.getResults());
 }
 
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=285379
+ */
+public void test285379a() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "Completion285379.java");
+
+	String str = cu.getSource();
+	String completeBehind = "pkgtest285379.X1.";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	// just not hang...	
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=285379
+ */
+public void test285379b() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "Completion285379.java");
+
+	String str = cu.getSource();
+	String completeBehind = "return ";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	// just not hang...	
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=285379
+ */
+public void test285379c() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "Completion285379.java");
+
+	String str = cu.getSource();
+	String completeBehind = "equals";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	// just not hang...	
+}
+
+/*
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=285379
+ */
+public void test285379d() throws JavaModelException {
+	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "Completion285379.java");
+
+	String str = cu.getSource();
+	String completeBehind = "(var";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	cu.codeComplete(cursorLocation, requestor);
+
+	// just not hang...	
+}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=270436
 public void test270436a() throws JavaModelException {
 	// This test is to ensure that an interface is not offered as a choice when expecting a class.

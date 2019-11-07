@@ -1893,6 +1893,21 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
+	 * FORMATTER / Option to specify how text blocks are indented
+	 *     - option id:         "org.eclipse.jdt.core.formatter.text_block_indentation"
+	 *     - possible values:   { INDENT_PRESERVE, INDENT_BY_ONE, INDENT_DEFAULT, INDENT_ON_COLUMN }
+	 *     - default:           INDENT_DEFAULT
+	 * </pre>
+	 * @see #INDENT_PRESERVE
+	 * @see #INDENT_BY_ONE
+	 * @see #INDENT_DEFAULT
+	 * @see #INDENT_ON_COLUMN
+	 * @since 3.19
+	 */
+	public static final String FORMATTER_TEXT_BLOCK_INDENTATION = JavaCore.PLUGIN_ID + ".formatter.text_block_indentation"; //$NON-NLS-1$
+
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a new line after an annotation
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -5060,6 +5075,13 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final int INDENT_ON_COLUMN = 1;
+	/**
+	 * <pre>
+	 * FORMATTER / Indentation is not touched, it's preserved from original source.
+	 * </pre>
+	 * @since 3.19
+	 */
+	public static final int INDENT_PRESERVE = 3;
 
 	/**
 	 * <pre>

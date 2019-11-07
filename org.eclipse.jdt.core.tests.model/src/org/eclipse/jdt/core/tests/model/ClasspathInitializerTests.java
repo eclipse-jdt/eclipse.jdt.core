@@ -830,7 +830,7 @@ public void testContainerInitializer18() throws CoreException {
 
 		ContainerInitializer.setInitializer(new DefaultContainerInitializer(new String[0]));
 		JavaCore.setClasspathContainer(new Path("org.eclipse.jdt.core.tests.model.TEST_CONTAINER"), new IJavaProject[] {p1}, new IClasspathContainer[] {null}, null);
-		assertMarkers(
+		assertBuildPathMarkers(
 			"Unexpected markers",
 			"Unbound classpath container: \'org.eclipse.jdt.core.tests.model.TEST_CONTAINER\' in project \'P1\'",
 			p1);

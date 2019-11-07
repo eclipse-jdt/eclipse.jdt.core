@@ -1291,6 +1291,13 @@ public class DeltaProcessor {
 					this.projectCachesToReset.add(project);
 
 					break;
+
+				case IJavaElement.COMPILATION_UNIT :
+					if (element.getElementName().equals(new String(TypeConstants.MODULE_INFO_FILE_NAME))) {
+						this.projectCachesToReset.add(element.getJavaProject()); // change unnamed -> named
+					}
+
+					break;
 			}
 		}
 	}
@@ -1385,6 +1392,13 @@ public class DeltaProcessor {
 				// reset package fragment cache
 				project = (JavaProject) element.getJavaProject();
 				this.projectCachesToReset.add(project);
+
+				break;
+
+			case IJavaElement.COMPILATION_UNIT :
+				if (element.getElementName().equals(new String(TypeConstants.MODULE_INFO_FILE_NAME))) {
+					this.projectCachesToReset.add(element.getJavaProject()); // change named -> unnamed
+				}
 
 				break;
 		}

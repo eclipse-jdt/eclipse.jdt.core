@@ -108,7 +108,7 @@ import org.osgi.framework.Bundle;
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 
 	static final String[] env = System.getenv().entrySet().stream()
-		.filter(e -> !"JAVA_TOOL_OPTIONS".equals(e.getKey()))
+		.filter(e -> !"JAVA_TOOL_OPTIONS".equals(e.getKey()) && !"_JAVA_OPTIONS".equals(e.getKey()))
 		.map(e -> e.getKey() + "=" + e.getValue())
 		.toArray(String[]::new);
 
@@ -385,6 +385,12 @@ static class JavacCompiler {
 			}
 			if ("1.8.0_182".equals(rawVersion)) {
 				return 2500;
+			}
+			if ("1.8.0_202".equals(rawVersion)) {
+				return 2600;
+			}
+			if ("1.8.0_212".equals(rawVersion)) {
+				return 2700;
 			}
 		}
 		if (version == JavaCore.VERSION_9) {
@@ -2456,6 +2462,8 @@ protected void runJavac(
 }
 private void deleteSourceFiles(File directory) {
 	try {
+		if (!directory.exists())
+			return;
 		Files.walk(directory.toPath())
 			.filter(f -> f.endsWith(SuffixConstants.SUFFIX_STRING_java))
 			.map(java.nio.file.Path::toFile)

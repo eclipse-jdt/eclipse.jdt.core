@@ -22,6 +22,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.jar.Manifest;
@@ -399,30 +401,35 @@ public class JavaProject
 		HashSet traversed = new HashSet();
 
 		// compute cycle participants
-		ArrayList prereqChain = new ArrayList();
+		List<IPath> prereqChain = new ArrayList<>();
+		Map<IPath,List<CycleInfo>> cyclesPerProject = new HashMap<>();
 		for (int i = 0; i < length; i++){
 			if (hasJavaNature(rscProjects[i])) {
 				JavaProject project = (projects[i] = (JavaProject)JavaCore.create(rscProjects[i]));
 				if (!traversed.contains(project.getPath())){
 					prereqChain.clear();
-					project.updateCycleParticipants(prereqChain, cycleParticipants, workspaceRoot, traversed, preferredClasspaths);
+					project.updateCycleParticipants(prereqChain, cycleParticipants, cyclesPerProject, workspaceRoot, traversed, preferredClasspaths);
 				}
 			}
 		}
 		//System.out.println("updateAllCycleMarkers: " + (System.currentTimeMillis() - start) + " ms");
 
-		String cycleString = cycleParticipants.stream()
-			.map(path -> workspaceRoot.findMember(path))
-			.filter(r -> r != null)
-			.map(r -> JavaCore.create((IProject)r))
-			.filter(p -> p != null)
-			.map(p -> p.getElementName())
-			.collect(Collectors.joining(", ")); //$NON-NLS-1$
-
 		for (int i = 0; i < length; i++){
 			JavaProject project = projects[i];
 			if (project != null) {
-				if (cycleParticipants.contains(project.getPath())) {
+				List<CycleInfo> cycles = cyclesPerProject.get(project.getPath());
+				if (cycles != null) {
+					StringBuilder cycleString = new StringBuilder();
+					boolean first = true;
+					for (CycleInfo cycleInfo : cycles) {
+						if (!first) cycleString.append('\n');
+						cycleString.append(cycleInfo.pathToCycleAsString());
+						cycleString.append("->{"); //$NON-NLS-1$
+						cycleString.append(cycleInfo.cycleAsString());
+						cycleString.append('}');
+						first = false;
+					}
+					
 					IMarker cycleMarker = project.getCycleMarker();
 					String circularCPOption = project.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true);
 					int circularCPSeverity = JavaCore.ERROR.equals(circularCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING;
@@ -435,7 +442,7 @@ public class JavaProject
 							}
 							String existingMessage = cycleMarker.getAttribute(IMarker.MESSAGE, ""); //$NON-NLS-1$
 							String newMessage = new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE,
-									project, cycleString).getMessage();
+									project, cycleString.toString()).getMessage();
 							if (!newMessage.equals(existingMessage)) {
 								cycleMarker.setAttribute(IMarker.MESSAGE, newMessage);
 							}
@@ -445,7 +452,7 @@ public class JavaProject
 					} else {
 						// create new marker
 						project.createClasspathProblemMarker(
-							new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE, project, cycleString));
+							new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE, project, cycleString.toString()));
 					}
 				} else {
 					project.flushClasspathProblemMarkers(true, false, false);
@@ -2001,12 +2008,11 @@ public class JavaProject
 						}
 						continue;
 					} else if (token == MementoTokenizer.CLASSPATH_ATTRIBUTE) {
-						// PFR memento is optionally trailed by all extra classpath attributes ("=/name=/value"):
-						String name = memento.nextToken();
-						String separator = memento.nextToken();
-						assert separator == MementoTokenizer.CLASSPATH_ATTRIBUTE;
-						String value = memento.nextToken();
+						// PFR memento is optionally trailed by all extra classpath attributes ("=/name=/value=/"):
+						String name = memento.getStringDelimitedBy(MementoTokenizer.CLASSPATH_ATTRIBUTE);
+						String value = memento.getStringDelimitedBy(MementoTokenizer.CLASSPATH_ATTRIBUTE);
 						attributes.add(new ClasspathAttribute(name, value));
+						token = null; // consumed
 						continue;
 					}
 					rootPath += token;
@@ -2554,7 +2560,7 @@ public class JavaProject
 		LinkedHashSet cycleParticipants = new LinkedHashSet();
 		HashMap preferredClasspaths = new HashMap(1);
 		preferredClasspaths.put(this, preferredClasspath);
-		updateCycleParticipants(new ArrayList(2), cycleParticipants, ResourcesPlugin.getWorkspace().getRoot(), new HashSet(2), preferredClasspaths);
+		updateCycleParticipants(new ArrayList(2), cycleParticipants, new HashMap<>(), ResourcesPlugin.getWorkspace().getRoot(), new HashSet(2), preferredClasspaths);
 		return !cycleParticipants.isEmpty();
 	}
 
@@ -3625,6 +3631,48 @@ public class JavaProject
 		}
 	}
 
+	/** internal structure for detected build path cycles. */
+	static class CycleInfo {
+
+		private List<IPath> pathToCycle;
+		public final List<IPath> cycle;
+		
+		public CycleInfo(List<IPath> pathToCycle, List<IPath> cycle) {
+			this.pathToCycle = new ArrayList<>(pathToCycle);
+			this.cycle = new ArrayList<>(cycle);
+		}
+		
+		public static Optional<CycleInfo> findCycleContaining(Collection<List<CycleInfo>> infos, IPath path) {
+			return infos.stream().flatMap(l -> l.stream()).filter(c -> c.cycle.contains(path)).findAny();
+		}
+		
+		public static void add(IPath project, List<IPath> prefix, List<IPath> cycle, Map<IPath, List<CycleInfo>> cyclesPerProject) {
+			List<CycleInfo> list = cyclesPerProject.get(project);
+			if (list == null) {
+				cyclesPerProject.put(project, list = new ArrayList<>());
+			} else {
+				for (CycleInfo cycleInfo: list) {
+					if (cycleInfo.cycle.equals(cycle)) {
+						// same cycle: use the shorter prefix:
+						if (cycleInfo.pathToCycle.size() > prefix.size()) {
+							cycleInfo.pathToCycle.clear();
+							cycleInfo.pathToCycle.addAll(prefix);
+						}
+						return;
+					}
+				}
+			}
+			list.add(new CycleInfo(prefix, cycle));
+		}
+		
+		public String pathToCycleAsString() {
+			return this.pathToCycle.stream().map(IPath::lastSegment).collect(Collectors.joining(", ")); //$NON-NLS-1$
+		}
+		
+		public String cycleAsString() {
+			return this.cycle.stream().map(IPath::lastSegment).collect(Collectors.joining(", ")); //$NON-NLS-1$
+		}
+	}
 	/**
 	 * If a cycle is detected, then cycleParticipants contains all the paths of projects involved in this cycle (directly and indirectly),
 	 * no cycle if the set is empty (and started empty)
@@ -3635,8 +3683,9 @@ public class JavaProject
 	 * @param preferredClasspaths Map
 	 */
 	public void updateCycleParticipants(
-			ArrayList prereqChain,
+			List<IPath> prereqChain,
 			LinkedHashSet cycleParticipants,
+			Map<IPath,List<CycleInfo>> cyclesPerProject,
 			IWorkspaceRoot workspaceRoot,
 			HashSet traversed,
 			Map preferredClasspaths){
@@ -3653,19 +3702,60 @@ public class JavaProject
 
 				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT){
 					IPath prereqProjectPath = entry.getPath();
-					int index = cycleParticipants.contains(prereqProjectPath) ? 0 : prereqChain.indexOf(prereqProjectPath);
-					if (index >= 0) { // refer to cycle, or in cycle itself
-						for (int size = prereqChain.size(); index < size; index++) {
-							cycleParticipants.add(prereqChain.get(index));
+					int prereqIndex = prereqChain.indexOf(prereqProjectPath);
+					if (prereqIndex > -1) {
+						// record a new cycle:
+						List<IPath> cycle = prereqChain.subList(prereqIndex, prereqChain.size());
+						// empty-prefix CycleInfo for all members of the cycle:
+						List<IPath> prefix = Collections.emptyList();
+						for (IPath prjInCycle : cycle) {
+							CycleInfo.add(prjInCycle, prefix, cycle, cyclesPerProject);
 						}
+						// also record with all members of the prereqChain with transitive dependency on the cycle:
+						for (int j = 0; j < prereqIndex; j++) {
+							CycleInfo.add(prereqChain.get(j), prereqChain.subList(j, prereqIndex), cycle, cyclesPerProject);
+						}
+					} else if (cycleParticipants.contains(prereqProjectPath)) {
+						// record existing cycle as dependency of each project in prereqChain:
+						Optional<CycleInfo> cycle = CycleInfo.findCycleContaining(cyclesPerProject.values(), prereqProjectPath);
+						if (cycle.isPresent()) {
+							List<IPath> theCycle = cycle.get().cycle;
+							for (int j = 0; j < prereqChain.size(); j++) {
+								IPath prereq = prereqChain.get(j);
+								List<IPath> prereqSubList = prereqChain.subList(j, prereqChain.size());
+								int joinIndex1 = theCycle.indexOf(prereq);
+								if (joinIndex1 != -1) {
+									// prereqSubList -> prereqProjectPath + theCycle create a new cycle
+									List<IPath> newCycle = new ArrayList<>(prereqSubList);
+									int joinIndex2 = theCycle.indexOf(prereqProjectPath); // always != -1 since that's how we found 'cycle'
+									while (joinIndex2 != joinIndex1) {
+										newCycle.add(theCycle.get(joinIndex2++));
+										if (joinIndex2 == theCycle.size())
+											joinIndex2 = 0; // it's a cycle :)
+									}
+									for (IPath newMember : newCycle) {
+										CycleInfo.add(newMember, Collections.emptyList(), newCycle, cyclesPerProject);
+									}
+									break; // the rest of prereqChain is already included via newCycle
+								} else {
+									CycleInfo.add(prereq, prereqSubList, theCycle, cyclesPerProject);
+								}
+							}
+						}
+						prereqIndex = 0;
 					} else {
 						if (!traversed.contains(prereqProjectPath)) {
 							IResource member = workspaceRoot.findMember(prereqProjectPath);
 							if (member != null && member.getType() == IResource.PROJECT){
 								JavaProject javaProject = (JavaProject)JavaCore.create((IProject)member);
-								javaProject.updateCycleParticipants(prereqChain, cycleParticipants, workspaceRoot, traversed, preferredClasspaths);
+								javaProject.updateCycleParticipants(prereqChain, cycleParticipants, cyclesPerProject, workspaceRoot, traversed, preferredClasspaths);
 							}
 						}
+						continue;
+					}
+					// fall through from both positive branches above
+					for (int index = prereqIndex, size = prereqChain.size(); index < size; index++) {
+						cycleParticipants.add(prereqChain.get(index));
 					}
 				}
 			}
@@ -3739,6 +3829,12 @@ public class JavaProject
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public IModuleDescription getOwnModuleDescription() throws JavaModelException {
+		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();
+		return info.getModule();
 	}
 
 	public List<String> getPatchedModules(IClasspathEntry cpEntry) {

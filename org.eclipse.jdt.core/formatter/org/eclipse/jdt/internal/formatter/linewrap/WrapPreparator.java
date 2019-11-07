@@ -1381,7 +1381,7 @@ public class WrapPreparator extends ASTVisitor {
 				isNLSTagInLine = true;
 			}
 			List<Token> structure = token.getInternalStructure();
-			if (structure != null && !structure.isEmpty() && !isNLSTagInLine) {
+			if (token.isComment() && structure != null && !structure.isEmpty() && !isNLSTagInLine) {
 				int startPosition = this.tm.getPositionInLine(i);
 				if (token.tokenType == TokenNameCOMMENT_LINE) {
 					commentWrapper.wrapLineComment(token, startPosition);

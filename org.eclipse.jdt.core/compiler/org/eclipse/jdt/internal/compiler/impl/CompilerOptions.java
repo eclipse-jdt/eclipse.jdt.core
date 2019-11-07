@@ -1078,18 +1078,18 @@ public class CompilerOptions {
 				return "dep-ann"; //$NON-NLS-1$
 			case RawTypeReference :
 				return "rawtypes"; //$NON-NLS-1$
-			case UnusedLabel :
-			case UnusedTypeArguments :
+			case DeadCode :
 			case RedundantSuperinterface :
-			case UnusedLocalVariable :
-			case UnusedArgument :
+			case RedundantSpecificationOfTypeArguments :
+			case UnusedDeclaredThrownException :
 			case UnusedExceptionParameter :
 			case UnusedImport :
-			case UnusedPrivateMember :
-			case UnusedDeclaredThrownException :
-			case DeadCode :
+			case UnusedLabel :
+			case UnusedLocalVariable :
 			case UnusedObjectAllocation :
-			case RedundantSpecificationOfTypeArguments :
+			case UnusedArgument : 		// OPTION_ReportUnusedParameter
+			case UnusedPrivateMember :
+			case UnusedTypeArguments : 	// OPTION_ReportUnusedTypeArgumentsForMethodInvocation
 			case UnusedTypeParameter:
 				return "unused"; //$NON-NLS-1$
 			case DiscouragedReference :

@@ -1608,6 +1608,10 @@ public MethodBinding[] methods() {
 	this.tagBits |= TagBits.AreMethodsComplete;
 	return this.methods;
 }
+@Override
+public void setHierarchyCheckDone() {
+	this.tagBits |= TagBits.BeginHierarchyCheck | TagBits.EndHierarchyCheck;
+}
 
 @Override
 public TypeBinding prototype() {
@@ -2095,8 +2099,60 @@ public ReferenceBinding superclass() {
 	this.typeBits |= (this.superclass.typeBits & TypeIds.InheritableBits);
 	if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()! 
 		this.typeBits |= applyCloseableClassWhitelists();
+	detectCircularHierarchy();
 	return this.superclass;
 }
+
+private void breakLoop() {
+	ReferenceBinding currentSuper = this.superclass;
+	ReferenceBinding prevSuper = null;
+	while (currentSuper != null) {
+		if ((currentSuper.tagBits & TagBits.EndHierarchyCheck) != 0 && prevSuper instanceof BinaryTypeBinding) {
+			((BinaryTypeBinding)prevSuper).superclass = this.environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
+			break;
+		}
+		currentSuper.tagBits |= TagBits.EndHierarchyCheck;
+		prevSuper = currentSuper;
+		currentSuper = currentSuper.superclass();
+	}	
+}
+
+private void detectCircularHierarchy() {
+	ReferenceBinding currentSuper = this.superclass;
+	ReferenceBinding tempSuper = null;
+	int count = 0;
+	int skipCount = 20;
+	while (currentSuper != null) {		
+		if (currentSuper.hasHierarchyCheckStarted())
+			break;
+		if (TypeBinding.equalsEquals(currentSuper, this) || TypeBinding.equalsEquals(currentSuper, tempSuper)) {
+			currentSuper.tagBits |= TagBits.HierarchyHasProblems;
+			if (currentSuper.isBinaryBinding())
+				breakLoop();
+			
+			return;
+		}
+		if (count == skipCount) {
+			tempSuper = currentSuper; // for finding loops that only start after a linear chain
+			skipCount *= 2;
+			count = 0;
+		}
+		//Ignore if the super is not yet resolved..
+		if (!currentSuper.isHierarchyConnected()) 
+			return;
+		currentSuper = currentSuper.superclass();	
+		count++;
+	}
+	/* No loop detected and completely found that there is no loop
+	 * So, set that info for all the classes 
+	 */
+	tempSuper = this;
+	while (TypeBinding.notEquals(currentSuper, tempSuper)) {
+		tempSuper.setHierarchyCheckDone();
+		tempSuper=tempSuper.superclass();
+	}	
+}
+
 // NOTE: superInterfaces of binary types are resolved when needed
 @Override
 public ReferenceBinding[] superInterfaces() {

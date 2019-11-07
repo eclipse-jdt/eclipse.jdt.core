@@ -18,6 +18,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameC
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameWHITESPACE;
 
 import java.util.ArrayList;
@@ -124,7 +125,7 @@ public class TextEditsBuilder extends TokenTraverser {
 		if (token.tokenType == TokenNameCOMMENT_LINE) {
 			handleSingleLineComment(token, index);
 		} else if (structure != null && !structure.isEmpty()) {
-			handleMultiLineComment(token, index);
+			handleStructuredToken(token, index);
 		} else {
 			flushBuffer(token.originalStart);
 			if (token.isToEscape()) {
@@ -187,14 +188,17 @@ public class TextEditsBuilder extends TokenTraverser {
 			return;
 		}
 
+		boolean isTextBlock = token != null && token.tokenType == TokenNameTextBlock;
 		this.parent.counter = this.counter;
 		this.parent.bufferLineSeparator(null, false);
-		this.parent.bufferIndent(this.parent.tm.get(this.parentTokenIndex), this.parentTokenIndex);
+		if (!(isTextBlock && emptyLine && !this.options.indent_empty_lines))
+			this.parent.bufferIndent(this.parent.tm.get(this.parentTokenIndex), this.parentTokenIndex);
 		this.counter = this.parent.counter;
 
+		if (isTextBlock)
+			return;
 		if (token != null && token.tokenType == TokenNameNotAToken)
 			return; // this is an unformatted block comment, don't force asterisk
-
 		if (getNext() == null && !emptyLine)
 			return; // this is the last token of block comment, asterisk is included
 
@@ -511,7 +515,7 @@ public class TextEditsBuilder extends TokenTraverser {
 			flushBuffer(lineComment.originalEnd + 1);
 	}
 
-	private void handleMultiLineComment(Token comment, int index) {
+	private void handleStructuredToken(Token comment, int index) {
 		flushBuffer(comment.originalStart);
 		if (this.childBuilder == null) {
 			this.childBuilder = new TextEditsBuilder(this);
@@ -538,7 +542,7 @@ public class TextEditsBuilder extends TokenTraverser {
 		if (commentToken.tokenType == TokenNameCOMMENT_LINE) {
 			handleSingleLineComment(commentToken, this.tm.indexOf(commentToken));
 		} else {
-			handleMultiLineComment(commentToken, this.tm.indexOf(commentToken));
+			handleStructuredToken(commentToken, this.tm.indexOf(commentToken));
 		}
 	}
 

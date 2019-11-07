@@ -275,6 +275,15 @@ public MethodBinding[] availableMethods() {
 	return methods();
 }
 
+public boolean hasHierarchyCheckStarted() {
+	return  (this.tagBits & TagBits.BeginHierarchyCheck) != 0;
+}
+
+public void setHierarchyCheckDone() {
+	return;
+}
+
+
 /**
  * Answer true if the receiver can be instantiated
  */

@@ -869,7 +869,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertTrue("Invalid selection result", (elements[0] instanceof BinaryModule));
 			IModuleDescription mod = (IModuleDescription) elements[0];
 			String id = mod.getHandleIdentifier();
-			assertTrue("incorrect id", id.matches("=Java9Elements/.*"+Pattern.quote("\\/jmods\\/java.base.jmod=/module=/true<'`java.base")));
+			assertTrue("incorrect id", id.matches("=Java9Elements/.*"+Pattern.quote("\\/jmods\\/java.base.jmod=/module=/true=/<'`java.base")));
 			IJavaElement element = JavaCore.create(id);
 			assertEquals("incorrect element type", IJavaElement.JAVA_MODULE, element.getElementType());
 			assertEquals("incorrect module name", "java.base", element.getElementName());
@@ -1337,6 +1337,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IPackageFragmentRoot fragmentRoot = project2.getPackageFragmentRoot(project1.getResource());
 			IModuleDescription mod2 = JavaCore.getAutomaticModuleDescription(fragmentRoot);
 			assertNotNull("auto module not found via package fragment root", mod2);
+			assertTrue("should be an auto module", mod2.isAutoModule());
 
 			assertEquals("names of module descriptions should be equal", mod1.getElementName(), mod2.getElementName());
 
@@ -1360,8 +1361,35 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertEquals(fragmentRoot, mod2.getParent());
 		}
 		finally {
-			deleteProject("Java9Elements");
-			deleteProject("Java9Elements2");
+			deleteProject("my_mod");
+			deleteProject("your.mod");
+		}	
+	}
+	public void testSystemModule() throws Exception {
+		try {
+			IJavaProject project1 = createJava9Project("my_mod");
+			IModuleDescription mod = project1.findModule("java.base", this.wcOwner);
+			assertTrue("should be a system module", mod.isSystemModule());
+			mod = project1.findModule("java.desktop", this.wcOwner);
+			assertTrue("should be a system module", mod.isSystemModule());
+
+			createFile("/my_mod/src/module-info.java",
+					"module my_mod{\n" +
+					"}");
+			mod = project1.getModuleDescription();
+			assertFalse("should not be a system module", mod.isSystemModule());
+
+			addModularLibrary(project1, "mod.two.jar", "mod.two-sources.zip", 
+					new String[] {
+						"module-info.java",
+						"module mod.two {}\n"
+					}, JavaCore.VERSION_9);
+			
+			mod = project1.findModule("mod.two", this.wcOwner);
+			assertFalse("should not be a system module", mod.isSystemModule());
+			
+		} finally {
+			deleteProject("my_mod");
 		}	
 	}
 	public void test526761a() throws Exception {
@@ -1604,7 +1632,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertTrue("Invalid selection result", (elements[0] instanceof BinaryModule));
 			IModuleDescription mod = (IModuleDescription) elements[0];
 			String id = mod.getHandleIdentifier();
-			assertEquals("identifier", "=Java9Elements/"+jdkRootPath.toString().replace("/", "\\/")+"\\/jmods\\/java.base.jmod=/module=/true<'`java.base", id);
+			assertEquals("identifier", "=Java9Elements/"+jdkRootPath.toString().replace("/", "\\/")+"\\/jmods\\/java.base.jmod=/module=/true=/<'`java.base", id);
 			ISourceRange ir =mod.getNameRange();
 			assertTrue("positive offset", ir.getOffset() > 0);
 			assertEquals("length", 9, ir.getLength());

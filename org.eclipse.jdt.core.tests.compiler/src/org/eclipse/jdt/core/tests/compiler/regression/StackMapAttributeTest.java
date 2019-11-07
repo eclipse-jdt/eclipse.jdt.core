@@ -851,13 +851,9 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"        [pc: 5, pc: 24] local: bar index: 2 type: java.lang.String\n" +
 					"      Stack map table: number of frames 2\n" +
 					"        [pc: 19, full, stack: {java.io.PrintStream}, locals: {java.lang.String[], int, java.lang.String}]\n" +
-					(this.complianceLevel >= ClassFileConstants.JDK1_8 ? // in 1.8 the ternary is resolved to its target type j.l.Object
-					"        [pc: 20, full, stack: {java.io.PrintStream, java.lang.Object}, locals: {java.lang.String[], int, java.lang.String}]\n" :
-					"        [pc: 20, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {java.lang.String[], int, java.lang.String}]\n") +
+					"        [pc: 20, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {java.lang.String[], int, java.lang.String}]\n" +
 					"  \n" +
-					(this.complianceLevel >= ClassFileConstants.JDK1_8 ?
-					"  // Method descriptor #46 (Ljava/lang/Comparable;)V\n" :
-					"  // Method descriptor #48 (Ljava/lang/Comparable;)V\n") +
+					"  // Method descriptor #48 (Ljava/lang/Comparable;)V\n" +
 					"  // Signature: <T::Ljava/lang/Comparable<*>;>(TT;)V\n" +
 					"  // Stack: 2, Locals: 3\n" +
 					"  void foo(java.lang.Comparable foo);\n" +
@@ -884,11 +880,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"        [pc: 2, pc: 18] local: bar index: 2 type: T\n" +
 					"      Stack map table: number of frames 2\n" +
 					"        [pc: 13, full, stack: {java.io.PrintStream}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n" +
-					(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-					"        [pc: 14, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n"
-					: // in 1.8 the ternary is resolved to its target type j.l.Object
-					"        [pc: 14, full, stack: {java.io.PrintStream, java.lang.Object}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n"
-					);
+					"        [pc: 14, full, stack: {java.io.PrintStream, java.lang.Comparable}, locals: {X, java.lang.Comparable, java.lang.Comparable}]\n";
 
 			int index = actualOutput.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {
@@ -2536,17 +2528,16 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 	}
 	public void test032() {
 		this.runConformTest(
-				new String[] {
-						"X.java",
-						"import java.util.*;\n" +
-						"public class X {\n" +
-						"    public static void main(String[] args) {\n" +
-						"		int i = args.length;\n" +
-						"       X[] array = new X[] { i == 0 ? null : null };\n" +
-						"		System.out.print(\"SUCCESS\" + array.length);\n" +
-						"    }\n" +
-						"}",
-				},
+			new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public static void main(String[] args) {\n" +
+					"		int i = args.length;\n" +
+					"       X[] array = new X[] { i == 0 ? null : null };\n" +
+					"		System.out.print(\"SUCCESS\" + array.length);\n" +
+					"    }\n" +
+					"}",
+			},
 		"SUCCESS1");
 	}
 
@@ -8730,5 +8721,113 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			if (index == -1) {
 				assertEquals("Wrong contents", expectedOutput, actualOutput);
 			}
+	}
+
+	public void test551368() {
+		this.runConformTest(
+            new String[] {
+        		"X.java",
+        		"interface A {\n" + 
+        		"}\n" + 
+        		"class B implements A {\n" + 
+        		"	public C c;\n" + 
+        		"	\n" + 
+        		"	protected B original() {\n" + 
+        		"		return this;\n" + 
+        		"	}\n" + 
+        		"}\n" + 
+        		"class C {\n" + 
+        		"	C parent;\n" + 
+        		"	A context;\n" + 
+        		"}\n" + 
+        		"class F extends C {\n" + 
+        		"	\n" + 
+        		"}\n" + 
+        		"class G extends C {\n" + 
+        		"	\n" + 
+        		"}\n" + 
+        		"abstract class D implements A {\n" + 
+        		"	public F c;\n" + 
+        		"}\n" + 
+        		"class E implements A {\n" + 
+        		"	public G c;\n" + 
+        		"}\n" + 
+        		"public class X {\n" + 
+        		"	boolean foo(A a) {\n" + 
+        		"		if (a instanceof B && a != ((B) a).original())\n" + 
+        		"			return true;\n" + 
+        		"		C aC = a instanceof D ? ((D) a).c :\n" + 
+        		"			a instanceof E ? ((E) a).c : \n" + 
+        		"			a instanceof B ? ((B) a).c :\n" + 
+        		"				null;\n" + 
+        		"		return aC != null ? foo(aC.parent.context) : false;\n" + 
+        		"	}\n" + 
+        		"	public static void main(String[] args) {\n" + 
+        		"		System.out.println(\"SUCCESS\");\n" + 
+        		"	}\n" + 
+        		"}",
+            },
+			"SUCCESS");
+	}
+	public void test551368_2() {
+		this.runConformTest(
+            new String[] {
+        		"X.java",
+        		"public class X {\n" + 
+        		"\n" + 
+        		"	int size;\n" + 
+        		"	char[][][] elements;\n" + 
+        		"\n" + 
+        		"	public X() {\n" + 
+        		"		this.size = 0;\n" + 
+        		"		this.elements = new char[10][][];\n" + 
+        		"	}\n" + 
+        		"\n" + 
+        		"	public void insertIntoArray(char[][][] target) {\n" + 
+        		"	}\n" + 
+        		"\n" + 
+        		"	public void add(char[][] newElement) {\n" + 
+        		"		insertIntoArray(this.size < this.elements.length ? this.elements : new char[this.elements.length * 2][][]);\n" + 
+        		"	}\n" + 
+        		"\n" + 
+        		"	public static void main(String[] args) {\n" + 
+        		"		System.out.println(\"SUCCESS\");\n" + 
+        		"	}\n" + 
+        		"}",
+            },
+			"SUCCESS");
+	}
+	public void test551368_3() {
+		this.runConformTest(
+            new String[] {
+        		"X.java",
+        		"class B {\n" + 
+        		"	public boolean bar() {\n" + 
+        		"		return false;\n" + 
+        		"	}\n" + 
+        		"	public void foo() {}\n" + 
+        		"}\n" + 
+        		"public class X {\n" + 
+        		"	\n" + 
+        		"	public B foo(boolean test) {\n" + 
+        		"		B b =\n" + 
+        		"			test ?\n" + 
+        		"				new B() {\n" + 
+        		"					@Override\n" + 
+        		"					public boolean bar() {\n" + 
+        		"						return true;\n" + 
+        		"					}\n" + 
+        		"				} :\n" + 
+        		"			new B();\n" + 
+        		"		b.foo();\n" + 
+        		"		return b;\n" + 
+        		"	}\n" + 
+        		"\n" + 
+        		"	public static void main(String[] args) {\n" + 
+        		"		System.out.println(\"SUCCESS\");\n" + 
+        		"	}\n" + 
+        		"}",
+            },
+			"SUCCESS");
 	}
 }

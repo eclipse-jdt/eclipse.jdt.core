@@ -825,7 +825,7 @@ public void testAnnotationPath18() throws CoreException, IOException {
 				null);
 		String[] expectedIdentifiers = {
 			"=Test/src",
-			"=Test/lib.jar=/annotationpath=/\\/Test\\/annots"	
+			"=Test/lib.jar=/annotationpath=/\\/Test\\/annots=/"
 		};
 		IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
 		boolean archiveSeen = false;
@@ -867,7 +867,7 @@ public void testAnnotationPath9() throws CoreException, IOException {
 			JavaCore.newClasspathAttribute(IClasspathAttribute.ADD_EXPORTS, "jdk.rmic/sun.rmi.rmic=ALL-UNNAMED")
 		};
 		IJavaProject project = createJava9ProjectWithJREAttributes("Test", new String[] {"src"}, annPathAttr);
-		String attributesMemento = "=/annotationpath=/annots=/add-exports=/jdk.rmic\\/sun.rmi.rmic\\=ALL-UNNAMED";
+		String attributesMemento = "=/annotationpath=/annots=/=/add-exports=/jdk.rmic\\/sun.rmi.rmic\\=ALL-UNNAMED=/";
 
 		// Module java.base:
 		String expectedIdentifier = "=Test/"+getEscapedJrtJarPath()+"`java.base"+attributesMemento; // for specific PFR (see below)
@@ -899,6 +899,52 @@ public void testAnnotationPath9() throws CoreException, IOException {
 		assertEquals("ClassFile mementos", expected+"(Object.class", handleIdentifier);
 		element = JavaCore.create(handleIdentifier);
 		assertEquals("ClassFile equivalence", classFile, element);
+	} finally {
+		deleteProject("Test");
+	}
+}
+public void testEmptyAttribute() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("Test", new String[] {"src"}, null, "bin", "1.8", false);
+		org.eclipse.jdt.core.tests.util.Util.createJar(
+				new String[] {"test/Test.java", "package test; public class Test {}\n" },
+				null, project.getProject().getLocation().toString()+"/lib.jar", null, "1.8", null);
+		
+		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		IClasspathAttribute[] attributes = {
+			JavaCore.newClasspathAttribute("foo", "")	
+		};
+		addLibraryEntry(project, new Path("/Test/lib.jar"), null, null, null, null, attributes, false);
+		String[] expectedIdentifiers = {
+			"=Test/src",
+			"=Test/lib.jar=/foo=/=/"	
+		};
+		IPackageFragmentRoot[] roots = project.getAllPackageFragmentRoots();
+		boolean archiveSeen = false;
+		for (int i = 0; i < roots.length; i++) {
+			IPackageFragmentRoot packageRoot = roots[i];
+			String handleIdentifier = packageRoot.getHandleIdentifier();
+			assertEquals("Root mementos", expectedIdentifiers[i], handleIdentifier);
+			IJavaElement element = JavaCore.create(handleIdentifier, null);
+			assertEquals("Root equivalence", packageRoot, element);
+			if (packageRoot.isArchive()) {
+				archiveSeen = true;
+				// PackageFragment
+				IPackageFragment test = packageRoot.getPackageFragment("test");
+				handleIdentifier = test.getHandleIdentifier();
+				String expected = expectedIdentifiers[i]+"<test"; 
+				assertEquals("PackageFragment mementos", expected, handleIdentifier);
+				element = JavaCore.create(handleIdentifier, null);
+				assertEquals("PackageFragment equivalence", test, element);
+				// ClassFile:
+				IClassFile classFile = test.getClassFile("Test.class");
+				handleIdentifier = classFile.getHandleIdentifier();
+				assertEquals("ClassFile mementos", expected+"(Test.class", handleIdentifier);
+				element = JavaCore.create(handleIdentifier);
+				assertEquals("ClassFile equivalence", classFile, element);
+			}
+		}
+		assertTrue("Should have seen an archive", archiveSeen);
 	} finally {
 		deleteProject("Test");
 	}

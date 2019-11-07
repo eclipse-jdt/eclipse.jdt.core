@@ -531,7 +531,7 @@ public void test12() throws CoreException {
 		IJavaProject project = createJavaProject("P", new String[0], new String[] {"TEST"}, "");
 		waitForAutoBuild();
 		preferences.put(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+"TEST", getExternalJCLPathString());
-		assertMarkers("Unexpected markers", "", project);
+		assertBuildPathMarkers("Unexpected markers", "", project);
 	} finally {
 		deleteProject("P");
 		preferences.remove(JavaModelManager.CP_VARIABLE_PREFERENCES_PREFIX+"TEST");

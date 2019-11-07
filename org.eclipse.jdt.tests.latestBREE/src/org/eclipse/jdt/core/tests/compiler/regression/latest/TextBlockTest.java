@@ -115,6 +115,26 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"Text block is not properly closed with the delimiter\n" + 
 				"----------\n");
 	}
+	public void test003a() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" + 
+						"\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(textb);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 2)\n" + 
+				"	public static String textb = \"\"\"\n" + 
+				"\n" + 
+				"	                             ^^^^\n" + 
+				"Text block is not properly closed with the delimiter\n" + 
+				"----------\n");
+	}
 	/*
 	 * negative - unescaped '\' in a text block
 	 */
@@ -215,7 +235,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"    line 1\n" + 
 						"    line 2\r" + 
 						"  \r" + 
-						"  line 3\n\"\"\";\n" +
+						"  line 3\"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
 						"		System.out.println(textb);\n" +
 						"	}\n" +
@@ -225,6 +245,35 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"  line 2\n" + 
 				"\n" + 
 				"line 3", // the trailing whitespace is trimmed by the test framework
+				null,
+				new String[] {"--enable-preview"});
+	}
+	/*
+	 * Positive - Multi line text block with varying indentation
+	 * and \n and \r
+	 */
+	public void test008a() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" + 
+						"    line 1\n" + 
+						"    line 2\r" + 
+						"  \r" + 
+						"  line 3\n\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.print(\"<\");\n" +
+						"		System.out.print(textb);\n" +
+						"		System.out.print(\">\");\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"<    line 1\n" + 
+				"    line 2\n" + 
+				"  \n" + 
+				"  line 3\n" +
+				">", // the trailing whitespace is trimmed by the test framework
 				null,
 				new String[] {"--enable-preview"});
 	}
@@ -448,7 +497,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	 */
 	@SuppressWarnings("removal")
 	public void test016b() {
-		String text = "  <html>\n" + 
+		String text = "<html>\n" + 
 					"    <body>\n" + 
 					"      <p>Hello, world</p>\n" + 
 					"    </body>\n" + 
@@ -703,8 +752,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"									public static void main(String[] args) {\n" + 
 						"										System.out.println(textb);\n" + 
 						"									}\n" + 
-						"								} \n" + 
-						"						\"\"\"\n" + 
+						"								}\"\"\"" + 
 						"				}, \n" + 
 						"				\"\",\n" + 
 						"				null,\n" + 

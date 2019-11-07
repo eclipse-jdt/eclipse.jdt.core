@@ -302,7 +302,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		resultBuilder.setAlignChar(DefaultCodeFormatterOptions.SPACE);
 		for (Token token : this.tokens) {
 			List<Token> structure = token.getInternalStructure();
-			if (structure != null && !structure.isEmpty())
+			if (token.isComment() && structure != null && !structure.isEmpty())
 				resultBuilder.processComment(token);
 		}
 

@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IOrdinaryClassFile;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -556,6 +557,46 @@ public class ResolveTests9 extends AbstractJavaModelTests {
 			deleteProject(model);
 			deleteProject(type);
 			deleteProject(logg);
+		}
+	}
+	public void testModuleCaching() throws Exception {
+		if (!isJRE9 || isJRE11) {
+			System.err.println("Test "+getName()+" requires a JRE [9,11)");
+			return;
+		}
+		IJavaProject prj = createJava9Project("caching");
+		try {
+			IFile file = createFile("caching/src/module-info.java",
+					"module caching {\n" +
+					"	requires java.xml.bind;\n" +
+					"}\n");
+			createFolder("caching/src/p");
+			createFile("caching/src/p/X.java",
+					"package p;\n" +
+					"@javax.xml.bind.annotation.XmlRootElement\n" +
+					"public class X {}\n");
+			prj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = prj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("unexpected markers",
+					"The module java.xml.bind has been deprecated since version 9 and marked for removal",  markers);
+
+			IModuleDescription module = prj.getModuleDescription();
+			assertTrue("module exists", module.exists());
+			assertEquals("module name", "caching", module.getElementName());
+
+			// move module-info away ...
+			createFolder("caching/away");
+			file.move(new Path("/caching/away/module-info.java"), false, null);
+			IModuleDescription mod2 = prj.getModuleDescription();
+			assertNull("no longer a module", mod2);
+
+			// ... and observe javax.xml.bind unobservable:
+			prj.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			markers = prj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("unexpected markers", 
+					"javax.xml.bind cannot be resolved to a type", markers);
+		} finally {
+			deleteProject(prj);
 		}
 	}
 }

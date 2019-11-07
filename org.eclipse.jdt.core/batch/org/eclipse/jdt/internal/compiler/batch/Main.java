@@ -2804,7 +2804,7 @@ public void configure(String[] argv) {
 				mode = DEFAULT;
 				continue;
 			case INSIDE_RELEASE:
-				// If release is < 9, the following are diasllowed:
+				// If release is < 9, the following are disallowed:
 				// bootclasspath, -Xbootclasspath, -Xbootclasspath/a:, -Xbootclasspath/p:, 
 				// -endorseddirs, -Djava.endorsed.dirs, -extdirs, -Djava.ext.dirs
 
@@ -4519,14 +4519,18 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				setSeverity(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, severity, isEnabling);
 				return;
 			} else if (token.equals("unused")) { //$NON-NLS-1$
-				setSeverity(CompilerOptions.OPTION_ReportUnusedLocal, severity, isEnabling);
-				setSeverity(CompilerOptions.OPTION_ReportUnusedParameter, severity, isEnabling);
-				setSeverity(CompilerOptions.OPTION_ReportUnusedImport, severity, isEnabling);
-				setSeverity(CompilerOptions.OPTION_ReportUnusedPrivateMember, severity, isEnabling);
-				setSeverity(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, severity, isEnabling);
-				setSeverity(CompilerOptions.OPTION_ReportUnusedLabel, severity, isEnabling);
-				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportDeadCode, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportRedundantSuperinterface, severity, isEnabling);
 				setSeverity(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedExceptionParameter, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedImport, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedLabel, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedLocal, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedObjectAllocation, severity,isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedParameter, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedPrivateMember, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, severity, isEnabling);
 				setSeverity(CompilerOptions.OPTION_ReportUnusedTypeParameter, severity,isEnabling);
 				return;
 			} else if (token.equals("unusedParam")) { //$NON-NLS-1$

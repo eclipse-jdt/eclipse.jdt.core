@@ -48,7 +48,7 @@ import junit.framework.Test;
 public class ASTConverter13Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
-	private static final String jclLib = "CONVERTER_JCL9_LIB";
+	private static final String jclLib = "CONVERTER_JCL13_LIB";
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
@@ -526,6 +526,16 @@ public class ASTConverter13Test extends ConverterTestSetup {
 
 			assertTrue("String should not be empty", escapedValue.length() != 0);
 			assertTrue("String should start with \"\"\"", escapedValue.startsWith("\"\"\""));
+			
+			String literal = ((TextBlock) initializer).getLiteralValue();
+			assertEquals("literal value not correct", 
+					"      	<html>\n" + 
+					"        <body>\n" + 
+					"            <p>Hello, world</p>\n" + 
+					"        </body>\n" + 
+					"    	</html>\n" + 
+					"    	",
+					literal);
 
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
@@ -607,6 +617,30 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			ITypeBinding binding = initializer.resolveTypeBinding();
 			assertNotNull("No binding", binding);
 			assertEquals("Wrong qualified name", "java.lang.String", binding.getQualifiedName());
+			
+			String escapedValue = ((TextBlock) initializer).getEscapedValue();
+
+			assertTrue("String should not be empty", escapedValue.length() != 0);
+			assertTrue("String should start with \"\"\"", escapedValue.startsWith("\"\"\""));
+			assertEquals("escaped value not correct", 
+					"\"\"\"\n" + 
+					"      	<html>\n" + 
+					"        <body>\n" + 
+					"            <p>Hello, world</p>\n" + 
+					"        </body>\n" + 
+					"    	</html>\n" + 
+					"    	\"\"\"", 
+					escapedValue);
+			
+			String literal = ((TextBlock) initializer).getLiteralValue();
+			assertEquals("literal value not correct", 
+					"      	<html>\n" + 
+					"        <body>\n" + 
+					"            <p>Hello, world</p>\n" + 
+					"        </body>\n" + 
+					"    	</html>\n" + 
+					"    	", 
+					literal);
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
@@ -648,4 +682,51 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
+	
+		public void test0011() throws CoreException {
+			// saw NPE in SwitchExpression.resolveType(SwitchExpression.java:423)
+			if (!isJRE13) {
+				System.err.println("Test "+getName()+" requires a JRE 13");
+				return;
+			}
+			String source =
+				"public class Switch {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		foo(Day.TUESDAY);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	@SuppressWarnings(\"preview\")\n" + 
+				"	private static void foo(Day day) {\n" + 
+				"		switch (day) {\n" + 
+				"		case SUNDAY, MONDAY, FRIDAY -> System.out.println(6);\n" + 
+				"		case TUESDAY -> System.out.println(7);\n" + 
+				"		case THURSDAY, SATURDAY -> System.out.println(8);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"enum Day {\n" + 
+				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" + 
+				"}\n";
+			this.workingCopy = getWorkingCopy("/Converter13/src/Switch.java", true/*resolve*/);
+			IJavaProject javaProject = this.workingCopy.getJavaProject();
+			String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+			try {
+				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
+				javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+				try {
+				buildAST(
+						source,
+						this.workingCopy);
+				} catch(UnsupportedOperationException e) {
+					fail("Should not throw UnsupportedOperationException");
+				} catch(AssertionFailedError e) {
+					e.printStackTrace();
+					return;
+				}
+
+				} finally {
+					javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+				}
+		}
 }
