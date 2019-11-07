@@ -190,11 +190,11 @@ public static Test suite() {
 
 		// add 13 specific test here (check duplicates)
 	 ArrayList since_13 = new ArrayList();
-	 since_13.add(SwitchExpressionsYieldTest.class);
 	 since_13.add(Unicode12_1Test.class);
 
 	 // add 14 specific test here (check duplicates)
 	 ArrayList since_14 = new ArrayList();
+	 since_14.add(SwitchExpressionsYieldTest.class);
 	 since_14.add(RecordsRestrictedClassTest.class);
 
 	// Build final test suite
