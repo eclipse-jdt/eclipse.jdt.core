@@ -27,7 +27,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug550750_007" };
+//		TESTS_NAMES = new String[] { "testBug550750_014" };
 	}
 	
 	public static Class<?> testClass() {
@@ -200,7 +200,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
-	public void testBug550750_008() {
+	public void _testBug550750_008() {
 		runConformTest(
 				new String[] {
 						"X.java",
@@ -215,7 +215,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
-	public void testBug550750_009() {
+	public void _testBug550750_009() {
 		runConformTest(
 				new String[] {
 						"X.java",
@@ -272,6 +272,73 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"}\n"+
 						"record Point(int ... x){\n"+
 						"}\n"
+				},
+			"0");
+	}
+	public void testBug550750_013() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.Target;\n"+
+						"import java.lang.annotation.ElementType;\n"+
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, char myChar) {}\n"+
+						" @Target({ElementType.FIELD, ElementType.TYPE})\n"+
+						" @interface MyAnnotation {}\n"
+				},
+			"0");
+	}
+	public void testBug550750_014() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, char myChar) {\n"+
+						"  public int myInt(){\n"+
+						"     return this.myInt;\n" +
+						"  }\n"+
+						"}\n"
+				},
+			"0");
+	}
+	public void testBug550750_015() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, char myChar) I {\n"+
+						"  public int myInt(){\n"+
+						"     return this.myInt;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"0");
+	}
+	public void testBug550750_016() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, char myChar) I {\n"+
+						"}\n" +
+						"interface I {}\n"
 				},
 			"0");
 	}

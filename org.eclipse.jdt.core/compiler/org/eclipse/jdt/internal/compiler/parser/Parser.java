@@ -10671,11 +10671,40 @@ protected void consumeRecordDeclaration() {
 	if (length == 0 && !containsComment(rd.bodyStart, rd.bodyEnd)) {
 		rd.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
+	rd.createDefaultAccessors(this.problemReporter);
 	rd.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 }
 protected void consumeRecordHeaderPart() {
 	// RecordHeaderPart ::= RecordHeaderName RecordHeader InterfaceTypeListopt 
-	consumeClassHeader();
+	int length = this.astLengthStack[this.astLengthPtr--];
+	//super interfaces
+	this.astPtr -= length;
+	// There is a class declaration on the top of stack
+	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
+	if (length > 0) {
+		System.arraycopy(
+				this.astStack,
+				this.astPtr + 1,
+				typeDecl.superInterfaces = new TypeReference[length],
+				0,
+				length);
+			TypeReference[] superinterfaces = typeDecl.superInterfaces;
+			for (int i = 0, max = superinterfaces.length; i < max; i++) {
+				TypeReference typeReference = superinterfaces[i];
+				typeDecl.bits |= (typeReference.bits & ASTNode.HasTypeAnnotations);
+				typeReference.bits |= ASTNode.IsSuperType;
+			}
+			typeDecl.bodyStart = typeDecl.superInterfaces[length-1].sourceEnd + 1;
+			this.listLength = 0; // reset after having read super-interfaces
+	}
+	if (this.currentToken == TokenNameLBRACE) {
+		typeDecl.bodyStart = this.scanner.currentPosition;
+	}
+	if (this.currentElement != null) {
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton
+	}
+	// flush the comments related to the class header
+	this.scanner.commentPtr = -1;
 }
 protected void consumeRecordHeaderNameWithTypeParameters() {
 	// RecordHeaderName ::= RecordHeaderName1 TypeParameters
@@ -10707,37 +10736,7 @@ protected void consumeRecordComponentHeaderRightParen() {
 				args,
 				0,
 				length);
-		FieldDeclaration[] fields = new FieldDeclaration[length];
-		for (int i = 0, max = args.length; i < max; i++) {
-			Argument arg = args[i];
-			FieldDeclaration f = fields[i] = createFieldDeclaration(arg.name, arg.sourceStart, arg.sourceEnd);
-			f.annotations = arg.annotations;
-			f.bits = arg.bits;
-			f.declarationSourceStart = arg.declarationSourceStart;
-			f.declarationSourceEnd = arg.declarationSourceEnd;
-			f.endPart1Position = arg.sourceEnd; //TODO BETA_JAVA14 - recheck
-			f.endPart2Position = arg.declarationSourceEnd;
-			f.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal;
-			/*
-			 * JLS 14 Sec 8.10.1 Record Header
-			 * The record header declares a number of record components. The record components
-			 * declare the fields of the record class. Each record component in the RecordHeader
-			 * declares one private final field in the record class whose name is same as the
-			 * Identifier in the record component.
-			 */
-			f.modifiers |= ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal;
-			f.modifiersSourceStart = arg.modifiersSourceStart;
-			f.sourceStart = arg.sourceStart;
-			f.sourceEnd = arg.sourceEnd;
-			f.type = arg.type;
-
-			if ((args[i].bits & ASTNode.HasTypeAnnotations) != 0) {
-				rd.bits |= ASTNode.HasTypeAnnotations;
-				break;
-			}
-		}
-		rd.fields = fields;
-		rd.nRecordComponents = length;
+		convertToFields(rd, args);
 	}
 	rd.bodyStart = this.rParenPos+1;
 	this.listLength = 0; // reset this.listLength after having read all parameters
@@ -10746,6 +10745,57 @@ protected void consumeRecordComponentHeaderRightParen() {
 		this.lastCheckPoint = rd.bodyStart;
 		if (this.currentElement.parseTree() == rd) return;
 	}
+}
+private void convertToFields(RecordDeclaration rd, Argument[] args) {
+	int length = args.length;
+	FieldDeclaration[] fields = new FieldDeclaration[length];
+	for (int i = 0, max = args.length; i < max; i++) {
+		Argument arg = args[i];
+		FieldDeclaration f = fields[i] = createFieldDeclaration(arg.name, arg.sourceStart, arg.sourceEnd);
+		f.annotations = arg.annotations;
+		f.bits = arg.bits;
+		f.declarationSourceStart = arg.declarationSourceStart;
+		f.declarationSourceEnd = arg.declarationSourceEnd;
+		f.endPart1Position = arg.sourceEnd; //TODO BETA_JAVA14 - recheck
+		f.endPart2Position = arg.declarationSourceEnd;
+		f.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal;
+		// Note: JVMS 14 S 4.7.8 The Synthetic Attribute mandates do not mark Synthetic for Record compoents.
+		// hence marking this "explicitly" as implicit.
+		f.isImplicit = true;
+		/*
+		 * JLS 14 Sec 8.10.1 Record Header
+		 * The record header declares a number of record components. The record components
+		 * declare the fields of the record class. Each record component in the RecordHeader
+		 * declares one private final field in the record class whose name is same as the
+		 * Identifier in the record component.
+		 * 
+		 * JLS 14 Sec 8.10.3 Record Components
+		 * For each record component appearing in the record component list:
+		 * An implicitly declared private final field with the same name as the record
+		 * component and the type as the declared type of the record component. 
+		 */
+		f.modifiers |= ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal;
+		f.modifiersSourceStart = arg.modifiersSourceStart;
+		f.sourceStart = arg.sourceStart;
+		f.sourceEnd = arg.sourceEnd;
+		f.type = arg.type;
+		/*
+		 * JLS 14 SEC 8.10.3 Item 1 says the following:
+		 *  "This field is annotated with the annotation that appears on the corresponding
+		 *  record component, if this annotation type is applicable to a field declaration
+		 *  or type context."
+		 *  
+		 *  However, at this point there is no sufficient information to conclude the ElementType
+		 *  targeted by the annotation. Hence, do a blanket assignment for now and later (read binding
+		 *  time) weed out the irrelevant ones.
+		 */
+		f.annotations = arg.annotations;
+		if ((args[i].bits & ASTNode.HasTypeAnnotations) != 0) {
+			f.bits |= ASTNode.HasTypeAnnotations;
+		}
+	}
+	rd.fields = fields;
+	rd.nRecordComponents = length;
 }
 protected void consumeRecordHeader() {
 	//RecordHeader ::= '(' RecordComponentsopt RecordComponentHeaderRightParen
@@ -10801,7 +10851,7 @@ protected void consumeRecordComponent(boolean isVarArgs) {
 		if (extendedDimensions == 0) {
 			type.sourceEnd = endOfEllipsis;
 		}
-		type.bits |= ASTNode.IsVarArgs; // set isVarArgs
+//		type.bits |= ASTNode.IsVarArgs; // set isVarArgs
 	}
 	int modifierPositions = this.intStack[this.intPtr--];
 	Argument arg;
@@ -10848,6 +10898,7 @@ protected void consumeRecordBody() {
 protected void consumeEmptyRecordBodyDeclaration() {
 	// RecordBodyDeclarationopt ::= $empty
 	//TODO: Throw an error for empty record?
+	pushOnAstLengthStack(0);
 }
 protected void consumeRecordBodyDeclarations() {
 	//	RecordBodyDeclarations ::= RecordBodyDeclaration
@@ -12747,7 +12798,7 @@ public CompilationUnitDeclaration parse(
 		parse();
 	} finally {
 		unit = this.compilationUnit;
-		this.compilationUnit = null; // reset parser
+ 		this.compilationUnit = null; // reset parser
 		// tag unit has having read bodies
 		if (!this.diet) unit.bits |= ASTNode.HasAllMethodBodies;
 	}

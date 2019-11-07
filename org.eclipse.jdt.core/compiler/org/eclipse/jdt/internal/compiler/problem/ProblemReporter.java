@@ -11262,4 +11262,14 @@ public void illegalModifierAbstractForRecord(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void recordAccessorMethodHasThrowsClause(ASTNode methodDeclaration) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordAccessorMethodHasThrowsClause,
+		NoArgument,
+		NoArgument,
+		methodDeclaration.sourceStart,
+		methodDeclaration.sourceEnd);
+}
 }

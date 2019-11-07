@@ -57,6 +57,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 
 	public TypeReference returnType;
 	public TypeParameter[] typeParameters;
+	public boolean isImplicit; // used in Java 14 Records
 
 	/**
 	 * MethodDeclaration constructor comment.

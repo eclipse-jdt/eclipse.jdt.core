@@ -329,6 +329,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int InsideExpressionStatement = Bit21;
 
 	// for annotation reference, signal if annotation was created from a default:
+	// also used for implicit method creation of records Java 14
 	public static final int IsSynthetic = ASTNode.Bit7;
 	
 	// for all reference context entries.
