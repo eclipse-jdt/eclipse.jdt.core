@@ -1941,7 +1941,8 @@ public void test0041() {
 		expected15ProblemLog
 	);
 }
-public void test0042() {
+//TODO:  Enable after Bug 552769  is fixed
+public void _test0042() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"void ___eval() {\n" +

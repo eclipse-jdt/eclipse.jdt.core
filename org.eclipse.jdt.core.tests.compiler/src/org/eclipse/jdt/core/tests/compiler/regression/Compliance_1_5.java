@@ -2723,7 +2723,8 @@ public void test078() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
  */
-public void test079() {
+// TODO: Enable after Bug 552769 is fixed
+public void _test079() {
 	this.runNegativeTest(
 		new String[] {
 			"Hello.java",
