@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -1184,25 +1188,28 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("PreviewFeatureUsed", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("PreviewFeatureNotSupported", new ProblemAttributes(CategorizedProblem.CAT_COMPLIANCE));
 	    expectedProblemAttributes.put("PreviewFeaturesNotAllowed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldIncompatibleResultExpressionTypes", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldEmptySwitchBlock", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldNoResultExpression", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldLastStatementCompletesNormally", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldTrailingSwitchLabels", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-		expectedProblemAttributes.put("SwitchPreviewMixedCase", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingDefaultCase", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingValue", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingEnumConstantCase", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldIllegalLastStatement", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldBreakNotAllowed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldUnqualifiedMethodWarning", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldUnqualifiedMethodError", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldOutsideSwitchExpression", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldRestrictedGeneralWarning", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldIllegalStatement", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldTypeDeclarationWarning", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("SwitchExpressionsYieldTypeDeclarationError", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldIncompatibleResultExpressionTypes", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldEmptySwitchBlock", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldNoResultExpression", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldLastStatementCompletesNormally", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldTrailingSwitchLabels", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("SwitchPreviewMixedCase", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingDefaultCase", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingValue", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldMissingEnumConstantCase", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldIllegalLastStatement", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldBreakNotAllowed", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldUnqualifiedMethodWarning", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldUnqualifiedMethodError", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldOutsideSwitchExpression", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldRestrictedGeneralWarning", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldIllegalStatement", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldTypeDeclarationWarning", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("SwitchExpressionsYieldTypeDeclarationError", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("MultiConstantCaseLabelsNotSupported", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("ArrowInCaseStatementsNotSupported", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+	    expectedProblemAttributes.put("SwitchExpressionsNotSupported", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 	    expectedProblemAttributes.put("RecordIllegalModifierAbstractForRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordIllegalComponentInRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordContainsNonStaticFieldDeclarations", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
@@ -2182,6 +2189,9 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("SwitchExpressionsYieldIllegalStatement", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldTypeDeclarationWarning", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsYieldTypeDeclarationError", SKIP);
+	    expectedProblemAttributes.put("MultiConstantCaseLabelsNotSupported", SKIP);
+	    expectedProblemAttributes.put("ArrowInCaseStatementsNotSupported", SKIP);
+	    expectedProblemAttributes.put("SwitchExpressionsNotSupported", SKIP);
 	    expectedProblemAttributes.put("RecordIllegalModifierAbstractForRecord", SKIP);
 	    expectedProblemAttributes.put("RecordIllegalComponentInRecord", SKIP);
 	    expectedProblemAttributes.put("RecordContainsNonStaticFieldDeclarations", SKIP);

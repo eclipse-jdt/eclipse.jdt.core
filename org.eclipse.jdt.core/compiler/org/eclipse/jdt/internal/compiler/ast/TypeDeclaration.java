@@ -797,7 +797,7 @@ private void checkYieldUsage() {
 	if (sourceLevel < ClassFileConstants.JDK14 || this.name == null ||
 			!("yield".equals(new String(this.name)))) //$NON-NLS-1$
 		return;
-	if (sourceLevel == ClassFileConstants.JDK14 && this.scope.compilerOptions().enablePreviewFeatures) {
+	if (sourceLevel >= ClassFileConstants.JDK14) {
 		this.scope.problemReporter().switchExpressionsYieldTypeDeclarationError(this);
 	} else {
 		this.scope.problemReporter().switchExpressionsYieldTypeDeclarationWarning(this);

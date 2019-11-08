@@ -3573,22 +3573,22 @@ public void testBug531714_001() {
 			"			default -> 3;\n" + 
 			"		};\n" + 
 			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The preview feature Switch Expressions is only available with source level 13 and above\n" + 
+			"Switch Expressions are supported from Java 14 onwards only\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	case 0 -> i * 0;\n" + 
 			"	^^^^^^\n" + 
-			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"Arrow in case statement supported from Java 14 onwards only\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 5)\n" + 
 			"	case 1 -> 2;\n" + 
 			"	^^^^^^\n" + 
-			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"Arrow in case statement supported from Java 14 onwards only\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 6)\n" + 
 			"	default -> 3;\n" + 
 			"	^^^^^^^\n" + 
-			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"Arrow in case statement supported from Java 14 onwards only\n" + 
 			"----------\n";
 
 	runComplianceParserTest(
@@ -3625,17 +3625,17 @@ public void testBug531714_002() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	case 0 -> i * 0;\n" + 
 			"	^^^^^^\n" + 
-			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"Arrow in case statement supported from Java 14 onwards only\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	case 1 -> 2;\n" + 
 			"	^^^^^^\n" + 
-			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"Arrow in case statement supported from Java 14 onwards only\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 6)\n" + 
 			"	default -> 3;\n" + 
 			"	^^^^^^^\n" + 
-			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"Arrow in case statement supported from Java 14 onwards only\n" + 
 			"----------\n";
 
 	runComplianceParserTest(

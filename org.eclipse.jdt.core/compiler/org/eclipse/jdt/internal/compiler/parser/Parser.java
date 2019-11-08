@@ -2244,16 +2244,8 @@ protected void consumeCaseLabel() {
 	}
 	CaseStatement caseStatement = new CaseStatement(constantExpressions[0], constantExpressions[length - 1].sourceEnd, this.intStack[this.intPtr--]);
 	if (constantExpressions.length > 1) {
-		if (this.parsingJava13Plus) {
-			if (this.options.enablePreviewFeatures) {
-				if (this.options.isAnyEnabled(IrritantSet.PREVIEW) && constantExpressions.length > 1) {
-					problemReporter().previewFeatureUsed(caseStatement.sourceStart, caseStatement.sourceEnd);
-				}
-			} else {
-				problemReporter().previewFeatureNotEnabled(caseStatement.sourceStart, caseStatement.sourceEnd, "Multi constant case"); //$NON-NLS-1$
-			}
-		} else {
-			problemReporter().previewFeatureNotSupported(caseStatement.sourceStart, caseStatement.sourceEnd, "Multi constant case", CompilerOptions.VERSION_13); //$NON-NLS-1$
+		if (!this.parsingJava14Plus) {
+			problemReporter().multiConstantCaseLabelsNotSupported(caseStatement);
 		}
 	}
 	caseStatement.constantExpressions = constantExpressions;
@@ -9684,14 +9676,8 @@ protected void consumeCaseLabelExpr() {
 //	SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
 	consumeCaseLabel();
 	CaseStatement caseStatement = (CaseStatement) this.astStack[this.astPtr];
-	if (!this.parsingJava13Plus) {
-		problemReporter().previewFeatureNotSupported(caseStatement.sourceStart, caseStatement.sourceEnd, "Case Labels with '->'", CompilerOptions.VERSION_13); //$NON-NLS-1$
-	} else if (!this.options.enablePreviewFeatures){
-		problemReporter().previewFeatureNotEnabled(caseStatement.sourceStart, caseStatement.sourceEnd, "Case Labels with '->'"); //$NON-NLS-1$
-	} else {
-		if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
-			problemReporter().previewFeatureUsed(caseStatement.sourceStart, caseStatement.sourceEnd);
-		}
+	if (!this.parsingJava14Plus) {
+		problemReporter().arrowInCaseStatementsNotSupported(caseStatement);
 	}
 	caseStatement.isExpr = true;
 }
@@ -9699,14 +9685,8 @@ protected void consumeDefaultLabelExpr() {
 //	SwitchLabelDefaultExpr ::= 'default' '->'
 	consumeDefaultLabel();
 	CaseStatement defaultStatement = (CaseStatement) this.astStack[this.astPtr];
-	if (!this.parsingJava13Plus) {
-		problemReporter().previewFeatureNotSupported(defaultStatement.sourceStart, defaultStatement.sourceEnd, "Case Labels with '->'", CompilerOptions.VERSION_13); //$NON-NLS-1$
-	} else if (!this.options.enablePreviewFeatures){
-		problemReporter().previewFeatureNotEnabled(defaultStatement.sourceStart, defaultStatement.sourceEnd, "Case Labels with '->'"); //$NON-NLS-1$
-	} else {
-		if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
-			problemReporter().previewFeatureUsed(defaultStatement.sourceStart, defaultStatement.sourceEnd);
-		}
+	if (!this.parsingJava14Plus) {
+		problemReporter().arrowInCaseStatementsNotSupported(defaultStatement);
 	}
 	defaultStatement.isExpr = true;
 }
@@ -9780,14 +9760,8 @@ protected void consumeSwitchExpression() {
 	if (this.astLengthStack[this.astLengthPtr--] != 0) {
 		SwitchExpression s = (SwitchExpression) this.astStack[this.astPtr--];
 
-		if (!this.parsingJava13Plus) {
-			problemReporter().previewFeatureNotSupported(s.sourceStart, s.sourceEnd, "Switch Expressions", CompilerOptions.VERSION_13); //$NON-NLS-1$
-		} else if (!this.options.enablePreviewFeatures) {
-			problemReporter().previewFeatureNotEnabled(s.sourceStart, s.sourceEnd, "Switch Expressions"); //$NON-NLS-1$
-		} else {
-			if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
-				problemReporter().previewFeatureUsed(s.sourceStart, s.sourceEnd);
-			}
+		if (!this.parsingJava14Plus) {
+			problemReporter().switchExpressionsNotSupported(s);
 		}
 		collectResultExpressionsYield(s);
 		pushOnExpressionStack(s);

@@ -2153,65 +2153,52 @@ void setSourceStart(int sourceStart);
 	 * @deprecated preview related error - will be removed
 	 * @noreference preview related error */
 	int SwitchExpressionIllegalLastStatement = Internal + 1612;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldIncompatibleResultExpressionTypes = PreviewRelated + 1700;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldEmptySwitchBlock = PreviewRelated + 1701;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldNoResultExpression = PreviewRelated + 1702;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally = PreviewRelated + 1703;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldLastStatementCompletesNormally = PreviewRelated + 1704;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldTrailingSwitchLabels = PreviewRelated + 1705;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchPreviewMixedCase = PreviewRelated + 1706;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldMissingDefaultCase = PreviewRelated + 1707;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldMissingValue = PreviewRelated + 1708;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldMissingEnumConstantCase = PreviewRelated + 1709;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldIllegalLastStatement = PreviewRelated + 1710;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldBreakNotAllowed = PreviewRelated + 1711;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldUnqualifiedMethodWarning = PreviewRelated + 1712;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldUnqualifiedMethodError = PreviewRelated + 1713;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldOutsideSwitchExpression = PreviewRelated + 1714;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldRestrictedGeneralWarning = PreviewRelated + 1715;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldIllegalStatement = PreviewRelated + 1716;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldTypeDeclarationWarning = PreviewRelated + 1717;
-	/** @since 3.20
-	 * @noreference preview related error */
-	int SwitchExpressionsYieldTypeDeclarationError = PreviewRelated + 1718;
 
 	/* Java14 errors - begin */
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldIncompatibleResultExpressionTypes = TypeRelated + 1700;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldEmptySwitchBlock = Syntax + 1701;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldNoResultExpression = Internal + 1702;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionaYieldSwitchLabeledBlockCompletesNormally = Internal + 1703;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldLastStatementCompletesNormally = Internal + 1704;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldTrailingSwitchLabels = Internal + 1705;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchPreviewMixedCase = Syntax + 1706;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldMissingDefaultCase = Syntax + 1707;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldMissingValue = Syntax + 1708;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldMissingEnumConstantCase = Syntax + 1709;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldIllegalLastStatement = Internal + 1710;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldBreakNotAllowed = Syntax + 1711;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldUnqualifiedMethodWarning = Syntax + 1712;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldUnqualifiedMethodError = Syntax + 1713;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldOutsideSwitchExpression = Syntax + 1714;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldRestrictedGeneralWarning = Internal + 1715;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldIllegalStatement = Internal + 1716;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldTypeDeclarationWarning = Internal + 1717;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsYieldTypeDeclarationError = Internal + 1718;
+	/** @since 3.20 BETA_JAVA14 */
+	int MultiConstantCaseLabelsNotSupported = Syntax + 1719;
+	/** @since 3.20 BETA_JAVA14 */
+	int ArrowInCaseStatementsNotSupported = Syntax + 1720;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsNotSupported = Syntax + 1721;
 
 	/* records - begin */
 

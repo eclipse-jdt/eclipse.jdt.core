@@ -361,7 +361,7 @@ private void checkYieldUsage(Scope currentScope) {
 	if (sourceLevel < ClassFileConstants.JDK14 || name == null ||
 			!("yield".equals(new String(name)))) //$NON-NLS-1$
 		return;
-	if (sourceLevel == ClassFileConstants.JDK14 && currentScope.compilerOptions().enablePreviewFeatures) {
+	if (sourceLevel >= ClassFileConstants.JDK14) {
 		currentScope.problemReporter().switchExpressionsYieldTypeDeclarationError(this);
 	} else {
 		currentScope.problemReporter().switchExpressionsYieldTypeDeclarationWarning(this);

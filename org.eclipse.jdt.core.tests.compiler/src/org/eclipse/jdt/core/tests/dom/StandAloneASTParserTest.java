@@ -1762,8 +1762,9 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			SimpleName simpleName = (SimpleName) name;
 			assertFalse("A var", simpleName.isVar());
 	}
+	// no longer a preview feature, test is not relevant
 	@Deprecated
-	public void testBug545383_01() throws JavaModelException {
+	public void _testBug545383_01() throws JavaModelException {
 		String contents =
 				"class X {\n"+
 				"	public static int foo(int i) {\n"+

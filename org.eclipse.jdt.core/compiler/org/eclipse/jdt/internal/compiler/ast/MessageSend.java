@@ -254,7 +254,7 @@ private void yieldQualifiedCheck(BlockScope currentScope) {
 		return;
 	if (this.selector == null || !("yield".equals(new String(this.selector)))) //$NON-NLS-1$
 		return;
-	if (sourceLevel == ClassFileConstants.JDK14 && currentScope.compilerOptions().enablePreviewFeatures) {
+	if (sourceLevel >= ClassFileConstants.JDK14) {
 		currentScope.problemReporter().switchExpressionsYieldUnqualifiedMethodError(this);
 	} else {
 		currentScope.problemReporter().switchExpressionsYieldUnqualifiedMethodWarning(this);
