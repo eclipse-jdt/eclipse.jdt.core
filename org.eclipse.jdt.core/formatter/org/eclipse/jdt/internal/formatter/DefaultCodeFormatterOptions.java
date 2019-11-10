@@ -229,6 +229,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean comment_align_tags_names_descriptions;
 	public boolean comment_align_tags_descriptions_grouped;
 	public boolean comment_insert_empty_line_before_root_tags;
+	public boolean comment_insert_empty_line_between_different_tags;
 	public boolean comment_insert_new_line_for_parameter;
 	public boolean comment_preserve_white_space_between_code_and_line_comments;
 	public int comment_line_length;
@@ -600,6 +601,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_ALIGN_TAGS_NAMES_DESCRIPTIONS, this.comment_align_tags_names_descriptions ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_ALIGN_TAGS_DESCREIPTIONS_GROUPED, this.comment_align_tags_descriptions_grouped ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS, this.comment_insert_empty_line_before_root_tags ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BETWEEN_DIFFERENT_TAGS, this.comment_insert_empty_line_between_different_tags ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_NEW_LINE_FOR_PARAMETER, this.comment_insert_new_line_for_parameter ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_PRESERVE_WHITE_SPACE_BETWEEN_CODE_AND_LINE_COMMENT, this.comment_preserve_white_space_between_code_and_line_comments ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, Integer.toString(this.comment_line_length));
@@ -1479,6 +1481,8 @@ public class DefaultCodeFormatterOptions {
 		if (commentInsertEmptyLineBeforeRootTagsOption != null) {
 			this.comment_insert_empty_line_before_root_tags = JavaCore.INSERT.equals(commentInsertEmptyLineBeforeRootTagsOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_EMPTY_LINE_BETWEEN_DIFFERENT_TAGS, JavaCore.INSERT,
+				v -> this.comment_insert_empty_line_between_different_tags = v);
 		final Object commentInsertNewLineForParameterOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_INSERT_NEW_LINE_FOR_PARAMETER);
 		if (commentInsertNewLineForParameterOption != null) {
 			this.comment_insert_new_line_for_parameter = JavaCore.INSERT.equals(commentInsertNewLineForParameterOption);
@@ -2869,6 +2873,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_align_tags_names_descriptions = false;
 		this.comment_align_tags_descriptions_grouped = false;
 		this.comment_insert_empty_line_before_root_tags = true;
+		this.comment_insert_empty_line_between_different_tags = false;
 		this.comment_insert_new_line_for_parameter = true;
 		this.comment_new_lines_at_block_boundaries = true;
 		this.comment_new_lines_at_javadoc_boundaries = true;
@@ -3234,6 +3239,7 @@ public class DefaultCodeFormatterOptions {
 		this.comment_align_tags_names_descriptions = false;
 		this.comment_align_tags_descriptions_grouped = true;
 		this.comment_insert_empty_line_before_root_tags = true;
+		this.comment_insert_empty_line_between_different_tags = false;
 		this.comment_insert_new_line_for_parameter = false;
 		this.comment_new_lines_at_block_boundaries = true;
 		this.comment_new_lines_at_javadoc_boundaries = true;

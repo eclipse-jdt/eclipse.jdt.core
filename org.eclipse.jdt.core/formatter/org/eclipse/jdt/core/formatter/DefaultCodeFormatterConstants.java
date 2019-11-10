@@ -1396,6 +1396,18 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.1
 	 */
 	public final static String FORMATTER_COMMENT_INSERT_EMPTY_LINE_BEFORE_ROOT_TAGS = "org.eclipse.jdt.core.formatter.comment.insert_new_line_before_root_tags"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert an empty line between Javadoc tags of different type
+	 *     - option id:         "org.eclipse.jdt.core.formatter.comment.insert_new_line_between_different_tags"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.20
+	 */
+	public final static String FORMATTER_COMMENT_INSERT_EMPTY_LINE_BETWEEN_DIFFERENT_TAGS = "org.eclipse.jdt.core.formatter.comment.insert_new_line_between_different_tags"; //$NON-NLS-1$
 
 	/**
 	 * <pre>

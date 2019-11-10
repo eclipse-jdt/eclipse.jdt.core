@@ -15385,4 +15385,104 @@ public void testBug549436k() throws JavaModelException {
 	this.formatterPrefs.continuation_indentation = 2;
 	formatSourceInWorkspace("test549436", "in.java", "K_out.java");
 }
+/**
+ * https://bugs.eclipse.org/54627 - [formatter] Blank lines between Javadoc tags
+ */
+public void testBug54627a() throws JavaModelException {
+	this.formatterPrefs.comment_insert_empty_line_between_different_tags = true;
+	String input =
+		"public class Test {\n" + 
+		"	/**\n" + 
+		"	 * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.\n" + 
+		"	 * @param a Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n" + 
+		"	 * @param b Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n" + 
+		"	 * @param c Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n" + 
+		"	 * @throws IOException Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium.\n" + 
+		"	 * @throws SQLException Totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.\n" + 
+		"	 * @return Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.\n" + 
+		"	 */\n" + 
+		"	public String f(int a, int b, int c) throws IOException, SQLException {\n" + 
+		"		return \"\";\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(input,
+		"public class Test {\n" + 
+		"	/**\n" + 
+		"	 * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\n" + 
+		"	 * tempor incididunt ut labore et dolore magna aliqua. Neque porro quisquam est,\n" + 
+		"	 * qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia\n" + 
+		"	 * non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam\n" + 
+		"	 * quaerat voluptatem.\n" + 
+		"	 * \n" + 
+		"	 * @param a Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris\n" + 
+		"	 *          nisi ut aliquip ex ea commodo consequat.\n" + 
+		"	 * @param b Duis aute irure dolor in reprehenderit in voluptate velit esse\n" + 
+		"	 *          cillum dolore eu fugiat nulla pariatur.\n" + 
+		"	 * @param c Excepteur sint occaecat cupidatat non proident, sunt in culpa qui\n" + 
+		"	 *          officia deserunt mollit anim id est laborum.\n" + 
+		"	 * \n" + 
+		"	 * @throws IOException  Sed ut perspiciatis unde omnis iste natus error sit\n" + 
+		"	 *                      voluptatem accusantium doloremque laudantium.\n" + 
+		"	 * @throws SQLException Totam rem aperiam, eaque ipsa quae ab illo inventore\n" + 
+		"	 *                      veritatis et quasi architecto beatae vitae dicta sunt\n" + 
+		"	 *                      explicabo.\n" + 
+		"	 * \n" + 
+		"	 * @return Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut\n" + 
+		"	 *         fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem\n" + 
+		"	 *         sequi nesciunt.\n" + 
+		"	 */\n" + 
+		"	public String f(int a, int b, int c) throws IOException, SQLException {\n" + 
+		"		return \"\";\n" + 
+		"	}\n" + 
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/54627 - [formatter] Blank lines between Javadoc tags
+ */
+public void testBug54627b() throws JavaModelException {
+	this.formatterPrefs.comment_insert_empty_line_between_different_tags = true;
+	String input =
+		"public class Test {\n" + 
+		"	\n" + 
+		"	/**\n" + 
+		"	 * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem.\n" + 
+		"	 * @param a Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.\n" + 
+		"	 * @param b Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.\n" + 
+		"	 * @return Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.\n" + 
+		"	 * @@org.example.transaction.interceptor.RuleBasedTransactionAttribute()\n" + 
+		"	 * @@org.example.transaction.interceptor.RollbackRuleAttribute(Exception.class)\n" + 
+		"	 * @@org.example.transaction.interceptor.NoRollbackRuleAttribute(\"ServletException\")\n" + 
+		"	 */\n" + 
+		"	public String f(int a, int b, int c) {\n" + 
+		"		return \"\";\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(input,
+		"public class Test {\n" + 
+		"\n" + 
+		"	/**\n" + 
+		"	 * Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod\n" + 
+		"	 * tempor incididunt ut labore et dolore magna aliqua. Neque porro quisquam est,\n" + 
+		"	 * qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed quia\n" + 
+		"	 * non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam\n" + 
+		"	 * quaerat voluptatem.\n" + 
+		"	 * \n" + 
+		"	 * @param a Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris\n" + 
+		"	 *          nisi ut aliquip ex ea commodo consequat.\n" + 
+		"	 * @param b Duis aute irure dolor in reprehenderit in voluptate velit esse\n" + 
+		"	 *          cillum dolore eu fugiat nulla pariatur.\n" + 
+		"	 * \n" + 
+		"	 * @return Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut\n" + 
+		"	 *         fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem\n" + 
+		"	 *         sequi nesciunt.\n" + 
+		"	 * \n" + 
+		"	 * @@org.example.transaction.interceptor.RuleBasedTransactionAttribute()\n" + 
+		"	 * @@org.example.transaction.interceptor.RollbackRuleAttribute(Exception.class)\n" + 
+		"	 * @@org.example.transaction.interceptor.NoRollbackRuleAttribute(\"ServletException\")\n" + 
+		"	 */\n" + 
+		"	public String f(int a, int b, int c) {\n" + 
+		"		return \"\";\n" + 
+		"	}\n" + 
+		"}");
+}
 }
