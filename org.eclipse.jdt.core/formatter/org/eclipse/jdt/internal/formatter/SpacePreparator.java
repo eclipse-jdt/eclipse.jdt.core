@@ -811,8 +811,13 @@ public class SpacePreparator extends ASTVisitor {
 			handleOperator(operator.toString(), node.getOperand(),
 					this.options.insert_space_before_prefix_operator,
 					this.options.insert_space_after_prefix_operator);
+		} else if (operator.equals(PrefixExpression.Operator.NOT)) {
+			handleOperator(operator.toString(), node.getOperand(),
+					this.options.insert_space_before_unary_operator,
+					this.options.insert_space_after_not_operator);
 		} else {
-			handleOperator(operator.toString(), node.getOperand(), this.options.insert_space_before_unary_operator,
+			handleOperator(operator.toString(), node.getOperand(),
+					this.options.insert_space_before_unary_operator,
 					this.options.insert_space_after_unary_operator);
 		}
 		return true;

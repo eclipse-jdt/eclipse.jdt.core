@@ -327,6 +327,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_after_comma_in_type_parameters;
 	public boolean insert_space_after_ellipsis;
 	public boolean insert_space_after_lambda_arrow;
+	public boolean insert_space_after_not_operator;
 	public boolean insert_space_after_opening_angle_bracket_in_parameterized_type_reference;
 	public boolean insert_space_after_opening_angle_bracket_in_type_arguments;
 	public boolean insert_space_after_opening_angle_bracket_in_type_parameters;
@@ -711,6 +712,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_BRACKET_IN_ARRAY_ALLOCATION_EXPRESSION, this.insert_space_after_opening_bracket_in_array_allocation_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_ELLIPSIS, this.insert_space_after_ellipsis ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_LAMBDA_ARROW, this.insert_space_after_lambda_arrow ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_NOT_OPERATOR, this.insert_space_after_not_operator? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_ANGLE_BRACKET_IN_PARAMETERIZED_TYPE_REFERENCE, this.insert_space_after_opening_angle_bracket_in_parameterized_type_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_ANGLE_BRACKET_IN_TYPE_ARGUMENTS, this.insert_space_after_opening_angle_bracket_in_type_arguments? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_ANGLE_BRACKET_IN_TYPE_PARAMETERS, this.insert_space_after_opening_angle_bracket_in_type_parameters? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -1778,6 +1780,8 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceAfterLambdaArrowOption != null) {
 			this.insert_space_after_lambda_arrow = JavaCore.INSERT.equals(insertSpaceAfterLambdaArrowOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_NOT_OPERATOR, JavaCore.INSERT,
+				v -> this.insert_space_after_not_operator = v);
 		final Object insertSpaceAfterOpeningAngleBracketInParameterizedTypeReferenceOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_ANGLE_BRACKET_IN_PARAMETERIZED_TYPE_REFERENCE);
 		if (insertSpaceAfterOpeningAngleBracketInParameterizedTypeReferenceOption != null) {
 			this.insert_space_after_opening_angle_bracket_in_parameterized_type_reference = JavaCore.INSERT.equals(insertSpaceAfterOpeningAngleBracketInParameterizedTypeReferenceOption);
@@ -2791,6 +2795,10 @@ public class DefaultCodeFormatterOptions {
 			setInt(settings, DefaultCodeFormatterConstants.FORMATTER_BLANK_LINES_BEFORE_METHOD,
 					v -> this.blank_lines_before_abstract_method = v);
 		}
+		if (!settings.containsKey(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_NOT_OPERATOR)) {
+			setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_UNARY_OPERATOR, JavaCore.INSERT,
+					v -> this.insert_space_after_not_operator = v);
+		}
 	}
 
 	public void setDefaultSettings() {
@@ -2983,6 +2991,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_comma_in_type_parameters = true;
 		this.insert_space_after_ellipsis = true;
 		this.insert_space_after_lambda_arrow = true;
+		this.insert_space_after_not_operator = false;
 		this.insert_space_after_opening_angle_bracket_in_parameterized_type_reference = false;
 		this.insert_space_after_opening_angle_bracket_in_type_arguments = false;
 		this.insert_space_after_opening_angle_bracket_in_type_parameters = false;
@@ -3347,6 +3356,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_comma_in_type_parameters = true;
 		this.insert_space_after_ellipsis = true;
 		this.insert_space_after_lambda_arrow = true;
+		this.insert_space_after_not_operator = false;
 		this.insert_space_after_opening_angle_bracket_in_parameterized_type_reference = false;
 		this.insert_space_after_opening_angle_bracket_in_type_arguments = false;
 		this.insert_space_after_opening_angle_bracket_in_type_parameters = false;

@@ -15485,4 +15485,15 @@ public void testBug54627b() throws JavaModelException {
 		"	}\n" + 
 		"}");
 }
+/**
+ * https://bugs.eclipse.org/547261 - [formatter] Separate option for space after not (!) operator 
+ */
+public void testBug547261() throws JavaModelException {
+	this.formatterPrefs.insert_space_after_not_operator = true;
+	String input = "class C {boolean b=!a&&!(c||d)&&(f!=-5);}";
+	formatSource(input,
+		"class C {\n" + 
+		"	boolean b = ! a && ! (c || d) && (f != -5);\n" + 
+		"}");
+}
 }

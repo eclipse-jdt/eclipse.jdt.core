@@ -3131,6 +3131,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_UNARY_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_unary_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a space after 'not' operator
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_not_operator"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           DO_NOT_INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.20
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_NOT_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_not_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space before and in wildcard
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_and_in_type_parameter"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
