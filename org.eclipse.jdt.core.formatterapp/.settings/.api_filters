@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.jdt.core.formatterapp" version="2">
+    <resource path="src/org/eclipse/jdt/core/formatterapp/CodeFormatterApplicationWrapper.java" type="org.eclipse.jdt.core.formatterapp.CodeFormatterApplicationWrapper">
+        <filter comment="See bug 543363" id="572522506">
+            <message_arguments>
+                <message_argument value="CodeFormatterApplication"/>
+                <message_argument value="CodeFormatterApplicationWrapper"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
