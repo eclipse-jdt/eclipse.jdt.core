@@ -62,7 +62,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	static {
 //		TESTS_NUMBERS = new int[] { 19 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] {"test0001"};
+//		TESTS_NAMES = new String[] {"_test0001"};
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverter13Test.class);
@@ -81,7 +81,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	/*
 	 * Test that a simple switch expression's return type holds the correct type
 	 */
-	public void test0001() throws JavaModelException {
+	public void _test0001() throws JavaModelException {
 		String contents =
 			"	public class X {\n" +
 			"   enum Day\n" +
@@ -130,7 +130,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	 * Test that a case statement with multiple cases is resolved correctly
 	 * and has the correct source range
 	 */
-	public void test0002() throws JavaModelException {
+	public void _test0002() throws JavaModelException {
 		String contents =
 			"public class X {\n" + 
 			"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" + 
@@ -186,7 +186,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 	
 	/* test implicit break statement */
 
-	public void test0003() throws JavaModelException {
+	public void _test0003() throws JavaModelException {
 		String contents =
 			"public class X {\n" +
 			"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" +
@@ -237,7 +237,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-	public void test0004() throws JavaModelException {
+	public void _test0004() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
 				"	static enum Day {MONDAY,TUESDAY,WEDNESDAY,THURSDAY,FRIDAY, SATURDAY,SUNDAY}\n" +
@@ -297,10 +297,10 @@ public class ASTConverter13Test extends ConverterTestSetup {
 		}
 	}
 	@Deprecated
-	public void _test0005() throws JavaModelException {
+	public void __test0005() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
-				"	public String test001() {\n" + 
+				"	public String _test001() {\n" + 
 				"		int i = 0;\n" + 
 				"		String ret = switch(i%2) {\n" + 
 				"		case 0 -> \"odd\";\n" + 
@@ -352,10 +352,10 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-	public void test0006() throws JavaModelException {
+	public void _test0006() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
-						"	public String test001() {\n" + 
+						"	public String _test001() {\n" + 
 						"		int i = 0;\n" + 
 						"		String ret = switch(i%2) {\n" + 
 						"		case 0 -> {return \"odd\"; }\n" + 
@@ -398,7 +398,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 		}
 	}
 	// Moved over from ASTConverter9Test
-	public void testBug531714_015() throws CoreException {
+	public void _testBug531714_015() throws CoreException {
 		// saw NPE in SwitchExpression.resolveType(SwitchExpression.java:423)
 		if (!isJRE13) {
 			System.err.println("Test "+getName()+" requires a JRE 13");
@@ -486,10 +486,10 @@ public class ASTConverter13Test extends ConverterTestSetup {
 		}
 	}
 	
-	public void test0007() throws JavaModelException {
+	public void _test0007() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
-						"	public String test001() {\n" + 
+						"	public String _test001() {\n" + 
 						"		String s = \"\"\"\n" + 
 						"      	<html>\n" + 
 						"        <body>\n" + 
@@ -541,10 +541,10 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-	public void test0008() throws JavaModelException {
+	public void _test0008() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
-						"	public String test001() {\n" + 
+						"	public String _test001() {\n" + 
 						"		String s = \"\"\"\n" + 
 						"      	<html>\n" + 
 						"        <body>\n" + 
@@ -578,10 +578,10 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-	public void test0009() throws JavaModelException {
+	public void _test0009() throws JavaModelException {
 		String contents =
 				"public class X {\n" +
-						"	public String test001() {\n" + 
+						"	public String _test001() {\n" + 
 						"		String s = \"\"\"\n" + 
 						"      	<html>\n" + 
 						"        <body>\n" + 
@@ -645,7 +645,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
-	public void test0010() throws JavaModelException {
+	public void _test0010() throws JavaModelException {
 		String contents =
 				"public class test13 {\n" + 
 				"	public static void main(String[] args) {\n" + 
@@ -683,7 +683,7 @@ public class ASTConverter13Test extends ConverterTestSetup {
 		}
 	}
 	
-		public void test0011() throws CoreException {
+		public void _test0011() throws CoreException {
 			// saw NPE in SwitchExpression.resolveType(SwitchExpression.java:423)
 			if (!isJRE13) {
 				System.err.println("Test "+getName()+" requires a JRE 13");
