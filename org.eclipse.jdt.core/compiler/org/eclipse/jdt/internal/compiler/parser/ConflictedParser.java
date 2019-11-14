@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -27,5 +31,5 @@ public interface ConflictedParser {
 	 * appear as terminals in ModuleDeclaration, and are identifiers everywhere else)
 	 */
 	boolean isParsingModuleDeclaration();
-	boolean isParsingJava13();
+	boolean isParsingJava14();
 }

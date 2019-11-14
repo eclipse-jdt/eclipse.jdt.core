@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -24,14 +28,14 @@ public class TextBlockTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
-//		TESTS_NAMES = new String[] { "test007" };
+//		TESTS_NAMES = new String[] { "test018" };
 	}
 	
 	public static Class<?> testClass() {
 		return TextBlockTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_13);
+		return buildMinimalComplianceTestSuite(testClass(), F_14);
 	}
 	public TextBlockTest(String testName){
 		super(testName);
@@ -42,9 +46,9 @@ public class TextBlockTest extends AbstractRegressionTest {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean previewFlag) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, previewFlag ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
@@ -155,7 +159,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	public static String textb = \"\"\"\n" + 
 				"abc\\def\"\"\";\n" + 
-				"	                             ^^^^^^^^^^^^\n" + 
+				"	                             ^^^^^^^^^\n" + 
 				"Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\\'  \\\\ )\n" + 
 				"----------\n");
 	}
@@ -588,10 +592,9 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"                  <body>\\040\\040\\r" + 
 						"                      <p>Hello, world</p>\\040\\040\\040\\r" + 
 						"                  </body>\\040\\040\\r" + 
-						"              </html>\\040\\040\\r" + 
-						"                   \"\"\";\n" +
+						"              </html>\"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
-						"		System.out.println(html);\n" +
+						"		System.out.print(html);\n" +
 						"	}\n" +
 						"}\n"
 				},
@@ -599,7 +602,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"    <body>  \n" + 
 				"        <p>Hello, world</p>   \n" + 
 				"    </body>  \n" + 
-				"</html>  ",
+				"</html>",
 				null,
 				new String[] {"--enable-preview"});
 	}
@@ -717,7 +720,6 @@ public class TextBlockTest extends AbstractRegressionTest {
 	@SuppressWarnings("removal")
 	public void test023() {
 		String text = "abc\\\"\"\"def\"  ";
-		System.out.println(text.translateEscapes().stripIndent());
 		runConformTest(
 				new String[] {
 						"X.java",
@@ -793,7 +795,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 2)\n" + 
 				"	public static String textb = \"\"\"\n" + 
 				"			abc\\def\"\"\";\n" + 
-				"	                             ^^^^^^^^^^^^^^^\n" + 
+				"	                             ^^^^^^^^^^^^\n" + 
 				"Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\\'  \\\\ )\n" + 
 				"----------\n",
 				null,
@@ -923,5 +925,165 @@ public class TextBlockTest extends AbstractRegressionTest {
 				null,
 				true,
 				options);
+	}
+	public void testBug551948_1() {
+		runConformTest(
+				new String[] {
+						"Cls2.java",
+						"public class Cls2 {\n" + 
+						"static String text = \"\"\"\n" + 
+						"            Lorem ipsum dolor sit amet, consectetur adipiscing \\\n" + 
+						"            elit, sed do eiusmod tempor incididunt ut labore \\\n" + 
+						"            et dolore magna aliqua.\\\n" + 
+						"            \"\"\";\n" + 
+						"  public static void main (String[] args) {\n" +
+						"    System.out.print(text);\n" +
+						"  }\n" +
+						"}"
+				}, 
+				"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.", // output comparison tool strips off all trailing whitespace
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testBug551948_2() {
+		runConformTest(
+				new String[] {
+						"Cls2.java",
+						"public class Cls2 {\n" + 
+						"static String noLastLF = \"\"\"\n" + 
+						"    abc\n" + 
+						"        def\\\n" + 
+						"    ghi\"\"\";\n" + 
+						"  public static void main (String[] args) {\n" +
+						"    System.out.print(noLastLF);\n" +
+						"  }\n" +
+						"}"
+				}, 
+				"abc\n    defghi",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testBug551948_3() {
+		runConformTest(
+				new String[] {
+						"Cls2.java",
+						"public class Cls2 {\n" + 
+						"static String python = \"\"\"\n" + 
+						"    if x == True and \\\\\n" + 
+						"        y == False\n" + 
+						"    \"\"\";\n" + 
+						"  public static void main (String[] args) {\n" +
+						"    System.out.print(python);\n" +
+						"  }\n" +
+						"}"
+				}, 
+				"if x == True and \\\n" + 
+				"    y == False",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testBug551948_4() {
+		runConformTest(
+				new String[] {
+						"Cls2.java",
+						"public class Cls2 {\n" + 
+						"static String colors = \"\"\"\n" + 
+						"    red   \\\n" + 
+						"    green \\\n" + 
+						"    blue  \\\n" + 
+						"    orange\"\"\"; \n" + 
+						"  public static void main (String[] args) {\n" +
+						"    System.out.print(colors);\n" +
+						"  }\n" +
+						"}"
+				}, 
+				"red   green blue  orange",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testBug551948_5() {
+		runNegativeTest(
+				new String[] {
+						"Cls2.java",
+						"public class Cls2 {\n" + 
+						"static String colors = \"\"\"\n" + 
+						"    \\red   \n" + 
+						"    \\green \n" + 
+						"    \\blue  \n" + 
+						"    \\orange\"\"\"; \n" + 
+						"  public static void main (String[] args) {\n" +
+						"    System.out.print(colors);\n" +
+						"  }\n" +
+						"}"
+				},
+				"----------\n" + 
+				"1. ERROR in Cls2.java (at line 2)\n" + 
+				"	static String colors = \"\"\"\n" + 
+				"    \\red   \n" + 
+				"    \\green \n" + 
+				"	                       ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Invalid escape sequence (valid ones are  \\b  \\t  \\n  \\f  \\r  \\\"  \\\'  \\\\ )\n" + 
+				"----------\n",
+				null,
+				true,
+				getCompilerOptions(true));
+	}
+	public void testBug551948_6() {
+		runConformTest(
+				new String[] {
+						"Cls2.java",
+						"public class Cls2 {\n" + 
+						"static String str = \"A\\sline\\swith\\sspaces\";\n" + 
+						"  public static void main (String[] args) {\n" +
+						"    System.out.print(str);\n" +
+						"  }\n" +
+						"}"
+				}, 
+				"A line with spaces",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testBug551948_7() {
+		runConformTest(
+				new String[] {
+						"Cls2.java",
+						"public class Cls2 {\n" + 
+						"static String colors = \"\"\"\n" + 
+						"    red  \\s\n" + 
+						"    green\\s\n" + 
+						"    blue \\s\n" + 
+						"    \"\"\";\n" + 
+						"  public static void main (String[] args) {\n" +
+						"    System.out.print(colors);\n" +
+						"  }\n" +
+						"}"
+				}, 
+				"red   \ngreen \nblue", // trailing whitespaces are trimmed
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testBug551948_8() {
+		runConformTest(
+				new String[] {
+						"Cls2.java",
+						"public class Cls2 {\n" + 
+						"static String s = \"\"\"\n" + 
+						"aaa\n" + 
+						"\n" + 
+						"bbb\n" + 
+						"\n" + 
+						"\n" + 
+						"ccc" + 
+						"\"\"\";\n" + 
+						"  public static void main (String[] args) {\n" +
+						"    System.out.print(s);\n" +
+						"  }\n" +
+						"}"
+				}, 
+				"aaa\n\n" + 
+				"bbb\n\n\n" + 
+				"ccc", // trailing whitespaces are trimmed
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
 	}
 }

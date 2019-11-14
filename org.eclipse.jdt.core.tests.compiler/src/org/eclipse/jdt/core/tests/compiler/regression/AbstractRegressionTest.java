@@ -12,6 +12,10 @@
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -39,6 +43,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1844,6 +1849,29 @@ protected static class JavacTestOptions {
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		runConformTest(testFiles, expectedOutput, customOptions, null);
 	}
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments, Charset charset) {
+		runTest(
+				// test directory preparation
+				true /* flush output directory */,
+				testFiles /* test files */,
+				// compiler options
+				null /* no class libraries */,
+				customOptions /* no custom options */,
+				false /* do not perform statements recovery */,
+				null /* no custom requestor */,
+				// compiler results
+				false /* expecting no compiler errors */,
+				null /* do not check compiler log */,
+				// runtime options
+				false /* do not force execution */,
+				vmArguments /* no vm arguments */,
+				// runtime results
+				expectedOutput /* expected output string */,
+				null /* do not check error string */,
+				// javac options
+				JavacTestOptions.DEFAULT /* default javac test options */,
+				charset);
+	}
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments) {
 		runTest(
 			// test directory preparation
@@ -1888,7 +1916,8 @@ protected static class JavacTestOptions {
 				null,
 				null,
 				expectedSuccessOutputString,
-				JavacTestOptions.DEFAULT);
+				JavacTestOptions.DEFAULT,
+				Charset.defaultCharset());
 	}
 
 	protected void runConformTest(
@@ -3045,7 +3074,50 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			expectedErrorString,
 			null,
 			expectedOutputString,
-			javacTestOptions);
+			javacTestOptions,
+			Charset.defaultCharset());
+	}
+	private void runTest(
+			// test directory preparation
+			boolean shouldFlushOutputDirectory,
+			String[] testFiles,
+			// compiler options
+			String[] classLibraries,
+			Map<String, String> customOptions,
+			boolean performStatementsRecovery,
+			ICompilerRequestor customRequestor,
+			// compiler results
+			boolean expectingCompilerErrors,
+			String expectedCompilerLog,
+			// runtime options
+			boolean forceExecution,
+			String[] vmArguments,
+			// runtime results
+			String expectedOutputString,
+			String expectedErrorString,
+			// javac options
+			JavacTestOptions javacTestOptions,
+			Charset charset) {
+		runTest(
+			shouldFlushOutputDirectory,
+			testFiles,
+			new String[] {},
+			classLibraries,
+			false,
+			customOptions,
+			performStatementsRecovery,
+			customRequestor,
+			expectingCompilerErrors,
+			expectedCompilerLog,
+			null, // alternate compile errors
+			forceExecution,
+			vmArguments,
+			expectedOutputString,
+			expectedErrorString,
+			null,
+			expectedOutputString,
+			javacTestOptions,
+			charset);
 	}
 	/** Call this if the compiler randomly produces different error logs. */
 	protected void runNegativeTestMultiResult(String[] testFiles, Map options, String[] alternateCompilerErrorLogs) {
@@ -3071,7 +3143,53 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			null,
 			null,
 			null,
-			JavacTestOptions.DEFAULT);
+			JavacTestOptions.DEFAULT,
+			Charset.defaultCharset());
+	}
+	private void runTest(
+			// test directory preparation
+			boolean shouldFlushOutputDirectory,
+			String[] testFiles,
+			String[] dependantFiles,
+			// compiler options
+			String[] classLibraries,
+			boolean libsOnModulePath,
+			Map<String, String> customOptions,
+			boolean performStatementsRecovery,
+			ICompilerRequestor customRequestor,
+			// compiler results
+			boolean expectingCompilerErrors,
+			String expectedCompilerLog,
+			String[] alternateCompilerLogs,
+			// runtime options
+			boolean forceExecution,
+			String[] vmArguments,
+			// runtime results
+			String expectedOutputString,
+			String expectedErrorString,
+			final ASTVisitor visitor,
+			// javac options
+			String expectedJavacOutputString,
+			JavacTestOptions javacTestOptions) {
+		runTest( shouldFlushOutputDirectory,
+				testFiles,
+				dependantFiles,
+				classLibraries,
+				libsOnModulePath,
+				customOptions,
+				performStatementsRecovery,
+				customRequestor,
+				expectingCompilerErrors,
+				expectedCompilerLog,
+				alternateCompilerLogs,
+				forceExecution,
+				vmArguments,
+				expectedOutputString,
+				expectedErrorString,
+				visitor,
+				expectedJavacOutputString,
+				javacTestOptions,
+				Charset.defaultCharset());
 	}
 // This is a worker method to support regression tests. To ease policy changes,
 // it should not be called directly, but through the runConformTest and
@@ -3169,7 +3287,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			final ASTVisitor visitor,
 			// javac options
 			String expectedJavacOutputString,
-			JavacTestOptions javacTestOptions) {
+			JavacTestOptions javacTestOptions,
+			Charset charset) {
 		// non-javac part
 		if (shouldFlushOutputDirectory)
 			Util.flushDirectoryContent(new File(OUTPUT_DIR));

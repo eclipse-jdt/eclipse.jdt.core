@@ -283,7 +283,6 @@ public class ASTConverter14Test extends ConverterTestSetup {
 				"	}" +
 				"}" ;
 		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
-		IJavaProject javaProject = this.workingCopy.getJavaProject();
 		ASTNode node = buildAST(
 				contents,
 				this.workingCopy);

@@ -957,8 +957,6 @@ protected int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
 protected boolean parsingJava8Plus;
 protected boolean parsingJava9Plus;
-protected boolean parsingJava12Plus;
-protected boolean parsingJava13Plus;
 protected boolean parsingJava14Plus;
 protected boolean parsingJava11Plus;
 protected int unstackedAct = ERROR_ACTION;
@@ -980,8 +978,6 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.parsingJava8Plus = this.options.sourceLevel >= ClassFileConstants.JDK1_8;
 	this.parsingJava9Plus = this.options.sourceLevel >= ClassFileConstants.JDK9;
 	this.parsingJava14Plus = this.options.sourceLevel >= ClassFileConstants.JDK14;
-	this.parsingJava13Plus = this.options.sourceLevel >= ClassFileConstants.JDK13;
-	this.parsingJava12Plus = this.options.sourceLevel >= ClassFileConstants.JDK12;
 	this.parsingJava11Plus = this.options.sourceLevel >= ClassFileConstants.JDK11;
 	this.astLengthStack = new int[50];
 	this.expressionLengthStack = new int[30];
@@ -9659,7 +9655,7 @@ protected void consumeStaticOnly() {
 	}
 }
 protected void consumeTextBlock() {
-	if (!this.parsingJava13Plus) {
+	if (!this.parsingJava14Plus) {
 		problemReporter().previewFeatureNotSupported(this.scanner.startPosition, this.scanner.currentPosition - 1, "Text Blocks", CompilerOptions.VERSION_13); //$NON-NLS-1$
 	} else if (!this.options.enablePreviewFeatures){
 		problemReporter().previewFeatureNotEnabled(this.scanner.startPosition, this.scanner.currentPosition - 1, "Text Blocks"); //$NON-NLS-1$
@@ -14165,8 +14161,8 @@ public boolean automatonWillShift(int token, int lastAction) {
 	}
 }
 @Override
-public boolean isParsingJava13() {
-	return this.parsingJava13Plus;
+public boolean isParsingJava14() {
+	return this.parsingJava14Plus;
 }
 @Override
 public boolean isParsingModuleDeclaration() {
