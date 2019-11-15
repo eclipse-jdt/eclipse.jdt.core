@@ -1071,6 +1071,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	}
 	
 	// was: NPE in SourceTypeBinding.getAnnotationTagBits
+	@SuppressWarnings("deprecation")
 	public void testBug551426() throws CoreException, Exception {
 		ASTParser astParser = ASTParser.newParser(AST.JLS8);
 		Map<String, String> options = new HashMap<>();
