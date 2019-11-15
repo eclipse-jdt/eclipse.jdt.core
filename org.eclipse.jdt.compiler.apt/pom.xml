@@ -99,4 +99,48 @@
       </plugin>
     </plugins>
   </build>
+    <profiles>
+	  <profile>
+	    <id>eclipse-sign</id>
+	    <build>
+		    <plugins>
+			    <plugin>
+			      <artifactId>maven-antrun-plugin</artifactId>
+			      <configuration>
+			        <archive>
+					  <addMavenDescriptor>false</addMavenDescriptor>
+				    </archive>
+			      </configuration>
+			      <executions>
+			        <execution>
+			          <id>sign-ecj</id>
+			          <phase>package</phase>
+			          <configuration>
+						<archive>
+						  <addMavenDescriptor>false</addMavenDescriptor>
+						</archive>
+			            <target>
+			              <exec dir="${basedir}/../org.eclipse.jdt.core/target/" executable="curl">
+			                   <arg value="--output"/>
+			                   <arg value="org.eclipse.jdt.core-3.20.0-SNAPSHOT-batch-compiler.jar"/>
+			                   <arg value="--form"/>
+			                   <arg value="file=@org.eclipse.jdt.core-3.20.0-SNAPSHOT-batch-compiler.jar"/>
+			                   <arg value="--silent"/>
+			                   <arg value="--show-error"/>
+			                   <arg value="--fail"/>
+			                   <arg value="http://build.eclipse.org:31338/sign"/>
+			              </exec>                
+			            </target>
+			          </configuration>
+			          <goals>
+			            <goal>run</goal>
+			          </goals>
+			        </execution>
+			      </executions>
+			    </plugin>
+		    </plugins>
+	    </build>
+	  </profile>
+  </profiles>
+  
 </project>
