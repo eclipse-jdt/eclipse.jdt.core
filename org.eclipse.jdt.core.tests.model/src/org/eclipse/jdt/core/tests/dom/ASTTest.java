@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1326,6 +1330,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
         case JavaCore.VERSION_11: return AST.JLS11;
         case JavaCore.VERSION_12: return AST.JLS12;
         case JavaCore.VERSION_13: return AST.JLS13;
+        case JavaCore.VERSION_14: return AST.JLS14;
         default:  return AST.JLS2;
 		}
 	}

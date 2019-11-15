@@ -68,7 +68,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		super(name);
 	}
 	
-	private static final int AST_JLS_LATEST = AST.JLS13;
+	private static final int AST_JLS_LATEST = AST.JLS14;
 
 	public ASTNode runConversion(
 			int astLevel,
@@ -1795,7 +1795,8 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		assertTrue(problems.length > 0);
 		assertTrue(problems[0].toString().contains("preview"));
 	}	
-	public void testBug547900_01() throws JavaModelException {
+	//Disabling till the Standard support for Switch Preview is added
+	public void _testBug547900_01() throws JavaModelException {
 		String contents =
 				"class X {\n"+
 				"	public static int foo(int i) {\n"+

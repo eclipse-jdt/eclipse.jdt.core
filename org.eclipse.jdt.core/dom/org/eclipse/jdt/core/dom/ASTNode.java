@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -2139,6 +2143,23 @@ public abstract class ASTNode {
 	
 	/**
      * Checks that this AST operation is not used when
+     * building JLS2, JLS3, JLS4, JLS8, JLS9, JLS10, JLS11, JLS12 or JSL13 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties that have been added in JLS14
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is used below JLS14
+	 * @since 3.20 BETA_JAVA
+	 */
+	final void unsupportedBelow14() {
+		if (this.ast.apiLevel < AST.JLS14_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in ASTs with level JLS14 and above"); //$NON-NLS-1$
+		}
+	}
+	
+	
+	/**
+     * Checks that this AST operation is not used when
      * building ASTs without previewEnabled flag.
      * <p>
      * Use this method to prevent access to new properties that have been added with preview feature
@@ -2217,6 +2238,22 @@ public abstract class ASTNode {
 	final void supportedOnlyIn13() {
 		if (this.ast.apiLevel != AST.JLS13_INTERNAL) {
 			throw new UnsupportedOperationException("Operation only supported in JLS13 AST"); //$NON-NLS-1$
+		}
+	}
+	
+	/**
+ 	 * Checks that this AST operation is only used when
+     * building JLS13 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties available only in JLS14.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is not used in JLS14
+	 * @since 3.20
+	 */
+	final void supportedOnlyIn14() {
+		if (this.ast.apiLevel != AST.JLS14_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in JLS14 AST"); //$NON-NLS-1$
 		}
 	}
 	/**
