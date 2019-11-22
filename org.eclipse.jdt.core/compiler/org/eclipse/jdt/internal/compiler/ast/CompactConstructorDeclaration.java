@@ -17,6 +17,8 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
 
 public class CompactConstructorDeclaration extends ConstructorDeclaration {
 
@@ -24,5 +26,29 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 	
 	public CompactConstructorDeclaration(CompilationResult compilationResult) {
 		super(compilationResult);
+	}
+	@Override
+	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
+		if (this.isImplicit && this.constructorCall == null) {
+			this.constructorCall = SuperReference.implicitSuperConstructorCall();
+			this.constructorCall.sourceStart = this.sourceStart;
+			this.constructorCall.sourceEnd = this.sourceEnd;
+			return;
+		}
+		parser.parse(this, unit, false);
+
+	}
+	@Override
+	protected boolean generateFieldAssignment(FieldBinding field, int i) {
+		// TODO : Add Code for missing field assignments
+		/* JLS 14 8.10.5 Compact Record Constructor Declarations
+		 * In addition, at the end of the body of the compact constructor, all the fields
+		 * corresponding to the record components of R that are definitely unassigned
+		 * (16 (Definite Assignment)) are implicitly initialized to the value of the
+		 * corresponding formal parameter. These fields are implicitly initialized in the
+		 * order that they are declared in the record component list.
+		 */
+		return true; //temporary workaround for grammar part - to be addressed in flow analysis
+//		return false; // enable this once flow analysis done
 	}
 }

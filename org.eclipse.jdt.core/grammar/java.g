@@ -1193,8 +1193,13 @@ RecordBodyDeclaration ::=  CompactConstructorDeclaration
 /:$readableName RecordBodyDeclaration:/
 /:$compliance 14:/
 
-CompactConstructorDeclaration ::= CompactConstructorHeaderName MethodHeaderThrowsClauseopt MethodBody
+CompactConstructorDeclaration ::= CompactConstructorHeader MethodBody
 /.$putCase consumeCompactConstructorDeclaration(); $break ./
+/:$readableName CompactConstructorDeclaration:/
+/:$compliance 14:/
+
+CompactConstructorHeader ::= CompactConstructorHeaderName MethodHeaderThrowsClauseopt
+/.$putCase consumeCompactConstructorHeader(); $break ./
 /:$readableName CompactConstructorDeclaration:/
 /:$compliance 14:/
 

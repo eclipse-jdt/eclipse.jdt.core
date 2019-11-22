@@ -76,6 +76,7 @@ ClassType=ClassType
 ClassTypeElt=ClassType
 ClassTypeList=ClassTypeList
 CompactConstructorDeclaration=CompactConstructorDeclaration
+CompactConstructorHeader=CompactConstructorDeclaration
 CompactConstructorHeaderName=CompactConstructorHeaderName
 CompilationUnit=CompilationUnit
 ConditionalAndExpression=Expression

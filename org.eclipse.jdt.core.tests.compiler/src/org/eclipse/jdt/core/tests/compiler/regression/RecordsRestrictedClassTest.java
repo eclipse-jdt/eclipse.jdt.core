@@ -200,7 +200,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
-	public void _testBug550750_008() {
+	public void testBug550750_008() {
 		runConformTest(
 				new String[] {
 						"X.java",
@@ -215,7 +215,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
-	public void _testBug550750_009() {
+	public void testBug550750_009() {
 		runConformTest(
 				new String[] {
 						"X.java",

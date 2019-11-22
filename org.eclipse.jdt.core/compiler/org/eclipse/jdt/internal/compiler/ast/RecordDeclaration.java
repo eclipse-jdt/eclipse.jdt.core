@@ -21,12 +21,16 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class RecordDeclaration extends TypeDeclaration {
 
+	private Argument[] args;
 	public int nRecordComponents;
 
 	public RecordDeclaration(CompilationResult compilationResult) {
@@ -60,6 +64,95 @@ public class RecordDeclaration extends TypeDeclaration {
 		this.sourceStart = t.sourceStart;
 		this.sourceEnd = t.sourceEnd;
 	}
+	public ConstructorDeclaration getConstructor(Parser parser) {
+		ConstructorDeclaration cd = null;
+		//if a constructor has not the name of the type,
+		//convert it into a method with 'null' as its return type
+		boolean hasConstructor = true;
+		if (this.methods != null) {
+			for (int i = this.methods.length; --i >= 0;) {
+				AbstractMethodDeclaration am;
+				if ((am = this.methods[i]).isConstructor()) {
+					if (!CharOperation.equals(am.selector, this.name)) {
+						// the constructor was in fact a method with no return type
+						// unless an explicit constructor call was supplied
+						ConstructorDeclaration c = (ConstructorDeclaration) am;
+						if (c.constructorCall == null || c.constructorCall.isImplicitSuper()) { //changed to a method
+							MethodDeclaration m = parser.convertToMethodDeclaration(c, this.compilationResult);
+							this.methods[i] = m;
+						}
+					} else {
+						if (am instanceof CompactConstructorDeclaration)
+							return (CompactConstructorDeclaration) am;
+						// now we are looking at a "normal" constructor
+						if (this.args == null) {
+							if (am.arguments == null)
+								return (ConstructorDeclaration) am;
+							continue; // else check next one.
+						} else {
+							if (am.arguments == null || am.arguments.length != this.args.length)
+								continue;
+							for (int j = 0; j < this.args.length; j++) {
+								if (!this.args[j].equals(am.arguments[j])) {
+									hasConstructor = false;
+									break;
+								}
+							}
+							if (hasConstructor)
+								return (ConstructorDeclaration) am;
+						}
+						
+					}
+				}
+			}
+		}
+		return cd;
+	}
+	@Override
+	public ConstructorDeclaration createDefaultConstructor(	boolean needExplicitConstructorCall, boolean needToInsert) {
+		//Add to method'set, the default constuctor that just recall the
+		//super constructor with no arguments
+		//The arguments' type will be positionned by the TC so just use
+		//the default int instead of just null (consistency purpose)
+
+		CompactConstructorDeclaration ccd = new CompactConstructorDeclaration(this.compilationResult);
+//		constructor.bits |= ASTNode.IsDefaultConstructor;
+		ccd.selector = this.name;
+		ccd.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
+		ccd.isImplicit = true;
+
+		//if you change this setting, please update the
+		//SourceIndexer2.buildTypeDeclaration(TypeDeclaration,char[]) method
+		ccd.declarationSourceStart = ccd.sourceStart = this.sourceStart;
+		ccd.declarationSourceEnd =
+			ccd.sourceEnd = ccd.bodyEnd = this.sourceEnd;
+
+		//the super call inside the constructor
+		if (needExplicitConstructorCall) {
+			ccd.constructorCall = SuperReference.implicitSuperConstructorCall();
+			ccd.constructorCall.sourceStart = this.sourceStart;
+			ccd.constructorCall.sourceEnd = this.sourceEnd;
+		}
+
+		//adding the constructor in the methods list: rank is not critical since bindings will be sorted
+		if (needToInsert) {
+			if (this.methods == null) {
+				this.methods = new AbstractMethodDeclaration[] { ccd };
+			} else {
+				AbstractMethodDeclaration[] newMethods;
+				System.arraycopy(
+					this.methods,
+					0,
+					newMethods = new AbstractMethodDeclaration[this.methods.length + 1],
+					1,
+					this.methods.length);
+				newMethods[0] = ccd;
+				this.methods = newMethods;
+			}
+		}
+		return ccd;
+	}
+
 	public void createDefaultAccessors(ProblemReporter problemReporter) {
 		// JLS 14 8.10.3 Item 2 create the accessors for the fields if required
 		/* 
@@ -234,5 +327,11 @@ public class RecordDeclaration extends TypeDeclaration {
 		}
 		output.append('\n');
 		return printIndent(indent, output).append('}');
+	}
+	public Argument[] getArgs() {
+		return this.args;
+	}
+	public void setArgs(Argument[] args) {
+		this.args = args;
 	}
 }

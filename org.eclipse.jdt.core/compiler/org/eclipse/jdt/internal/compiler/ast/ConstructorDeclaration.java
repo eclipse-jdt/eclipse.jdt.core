@@ -202,11 +202,12 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 				FieldBinding field = fields[i];
 				if (!field.isStatic() && !flowInfo.isDefinitelyAssigned(field)) {
 					if (field.isFinal()) {
-						this.scope.problemReporter().uninitializedBlankFinalField(
-								field,
-								((this.bits & ASTNode.IsDefaultConstructor) != 0)
-									? (ASTNode) this.scope.referenceType().declarationOf(field.original())
-									: this);
+						if (!generateFieldAssignment(field, i))
+							this.scope.problemReporter().uninitializedBlankFinalField(
+									field,
+									((this.bits & ASTNode.IsDefaultConstructor) != 0)
+										? (ASTNode) this.scope.referenceType().declarationOf(field.original())
+										: this);
 					} else if (field.isNonNull() || field.type.isFreeTypeVariable()) {
 						FieldDeclaration fieldDecl = this.scope.referenceType().declarationOf(field.original());
 						if (!isValueProvidedUsingAnnotation(fieldDecl))
@@ -229,6 +230,9 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 	}
 }
 
+protected boolean generateFieldAssignment(FieldBinding field, int i) {
+	return false;
+}
 boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {
 	// a member field annotated with @Inject is considered to be initialized by the injector 
 	if (fieldDecl.annotations != null) {
