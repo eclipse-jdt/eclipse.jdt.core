@@ -11272,4 +11272,28 @@ public void recordAccessorMethodHasThrowsClause(ASTNode methodDeclaration) {
 		methodDeclaration.sourceStart,
 		methodDeclaration.sourceEnd);
 }
+public void recordCanonicalConstructorNotPublic(AbstractMethodDeclaration methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordCanonicalConstructorNotPublic,
+		new String[] {
+				new String(methodDecl.selector)
+			},
+			new String[] {
+				new String(methodDecl.selector)
+			},
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
+public void recordCompactConstructorHasReturnStatement(ReturnStatement stmt) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordCompactConstructorHasReturnStatement,
+		NoArgument,
+		NoArgument,
+		stmt.sourceStart,
+		stmt.sourceEnd);
+}
 }

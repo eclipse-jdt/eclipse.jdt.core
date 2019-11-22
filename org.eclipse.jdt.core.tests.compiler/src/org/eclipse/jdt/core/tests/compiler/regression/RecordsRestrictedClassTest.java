@@ -27,7 +27,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug550750_014" };
+//		TESTS_NAMES = new String[] { "testBug550750_019" };
 	}
 	
 	public static Class<?> testClass() {
@@ -342,4 +342,141 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"0");
 	}
-}
+	public void testBug550750_017() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, char myChar) I {\n"+
+						"  public Point(int myInt, char myChar){\n"+
+						"     this.myInt = myInt;\n" +
+						"     this.myChar = myChar;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"0");
+	}
+	public void testBug550750_018() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, char myChar) I {\n"+
+						"  public Point(int myInt, char myChar){\n"+
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	public Point(int myInt, char myChar){\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The blank final field myChar may not have been initialized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	public Point(int myInt, char myChar){\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The blank final field myInt may not have been initialized\n" + 
+			"----------\n");
+	}
+	public void testBug550750_019() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, char myChar) I {\n"+
+						"  private Point {\n"+
+						"     this.myInt = myInt;\n" +
+						"     this.myChar = myChar;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	private Point {\n" + 
+			"	        ^^\n" + 
+			"The compact constructor Point must be declared public.\n" + 
+			"----------\n");
+	}
+	public void testBug550750_020() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, char myChar) I {\n"+
+						"  protected Point {\n"+
+						"     this.myInt = myInt;\n" +
+						"     this.myChar = myChar;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	protected Point {\n" + 
+			"	          ^^\n" + 
+			"The compact constructor Point must be declared public.\n" + 
+			"----------\n");
+	}
+	public void testBug550750_021() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, char myChar) I {\n"+
+						"  public Point {\n"+
+						"     this.myInt = myInt;\n" +
+						"     this.myChar = myChar;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"0");
+	}
+	public void testBug550750_022() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, char myChar) I {\n"+
+						"  public Point {\n"+
+						"     this.myInt = myInt;\n" +
+						"     this.myChar = myChar;\n" +
+						"     return;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	return;\n" + 
+			"	^^^^^^^\n" + 
+			"The body of a compact constructor must not contain a return statement\n" + 
+			"----------\n");
+	}}

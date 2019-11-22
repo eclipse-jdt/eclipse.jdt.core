@@ -16,13 +16,17 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 
 public class CompactConstructorDeclaration extends ConstructorDeclaration {
 
 	public boolean isImplicit;
+	public RecordDeclaration recordDeclaration;
 	
 	public CompactConstructorDeclaration(CompilationResult compilationResult) {
 		super(compilationResult);
@@ -36,7 +40,19 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 			return;
 		}
 		parser.parse(this, unit, false);
-
+		ASTVisitor visitor = new ASTVisitor() {
+			@Override
+			public boolean visit(MethodDeclaration methodDeclaration, ClassScope skope) {
+				return false;
+			}
+			@Override
+			public boolean visit(ReturnStatement returnStatement, BlockScope skope) {
+				parser.problemReporter().recordCompactConstructorHasReturnStatement(returnStatement);
+				return false;
+			}
+		};
+		if (!this.isImplicit)
+			unit.traverse(visitor, unit.scope);
 	}
 	@Override
 	protected boolean generateFieldAssignment(FieldBinding field, int i) {
@@ -48,7 +64,33 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 		 * corresponding formal parameter. These fields are implicitly initialized in the
 		 * order that they are declared in the record component list.
 		 */
-		return true; //temporary workaround for grammar part - to be addressed in flow analysis
-//		return false; // enable this once flow analysis done
+		/*
+		FieldReference lhs = new FieldReference(field.name, 0);
+		lhs.receiver = ThisReference.implicitThis();
+		lhs.actualReceiverType = this.recordDeclaration.binding;
+		lhs.binding = field;
+		lhs.resolvedType = field.type;
+		//TODO: set definitelyAssigned to true;
+		//TODO: Check anything to be done for null analysis.
+		SingleNameReference rhs = new SingleNameReference(field.name, 0);
+		rhs.actualReceiverType = this.recordDeclaration.binding;
+ 
+		rhs.resolvedType = field.type;
+		Assignment assignment = new Assignment(lhs, rhs, 0);
+		Statement[] stmts = this.statements;
+		if (this.statements == null) {
+			this.statements = new Statement[] { assignment };
+		} else {
+			int len = this.statements.length;
+			System.arraycopy(
+					this.statements,
+					0,
+					stmts = new Statement[len + 1],
+					0,
+					len);
+			stmts[len] = assignment;
+			this.statements = stmts;
+		}*/
+		return true; // TODO: Enable the code above during flow analysis. 
 	}
 }

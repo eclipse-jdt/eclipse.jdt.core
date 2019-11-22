@@ -82,8 +82,13 @@ public class RecordDeclaration extends TypeDeclaration {
 							this.methods[i] = m;
 						}
 					} else {
-						if (am instanceof CompactConstructorDeclaration)
-							return (CompactConstructorDeclaration) am;
+						if (am instanceof CompactConstructorDeclaration) {
+							CompactConstructorDeclaration ccd = (CompactConstructorDeclaration) am;
+							ccd.recordDeclaration = this;
+							if (ccd.arguments == null)
+								ccd.arguments = this.args;
+							return ccd;
+						}
 						// now we are looking at a "normal" constructor
 						if (this.args == null) {
 							if (am.arguments == null)
@@ -93,10 +98,17 @@ public class RecordDeclaration extends TypeDeclaration {
 							if (am.arguments == null || am.arguments.length != this.args.length)
 								continue;
 							for (int j = 0; j < this.args.length; j++) {
-								if (!this.args[j].equals(am.arguments[j])) {
+								if (!CharOperation.equals(this.args[j].type.getLastToken(),
+										am.arguments[j].type.getLastToken())) {
 									hasConstructor = false;
 									break;
 								}
+								/*TODO: Strictly speaking, at this point we can only say
+								 * that there is high possibility that there is a constructor
+								 * If it is false, then definitely it is false; else we need
+								 * to check the bindings to say that there is a canonical
+								 * constructor. To take care at binding resolution time.
+								 */
 							}
 							if (hasConstructor)
 								return (ConstructorDeclaration) am;
@@ -119,7 +131,10 @@ public class RecordDeclaration extends TypeDeclaration {
 //		constructor.bits |= ASTNode.IsDefaultConstructor;
 		ccd.selector = this.name;
 		ccd.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
+		ccd.modifiers |= ClassFileConstants.AccPublic; // JLS 14 8.10.5
 		ccd.isImplicit = true;
+		ccd.recordDeclaration = this;
+		ccd.arguments = this.args;
 
 		//if you change this setting, please update the
 		//SourceIndexer2.buildTypeDeclaration(TypeDeclaration,char[]) method

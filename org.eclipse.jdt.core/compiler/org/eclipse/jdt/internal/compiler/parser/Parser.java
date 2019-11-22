@@ -10886,8 +10886,8 @@ protected void consumeRecordComponent(boolean isVarArgs) {
 				0,
 				length);
 		} 
-		firstDimensions = this.intStack[this.intPtr--];
 	}
+	firstDimensions = this.intStack[this.intPtr--];
 	TypeReference type = getTypeReference(firstDimensions);
 	if (isVarArgs || extendedDimensions != 0) {
 		if (isVarArgs) {

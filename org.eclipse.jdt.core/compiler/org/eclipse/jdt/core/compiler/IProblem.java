@@ -2228,6 +2228,7 @@ void setSourceStart(int sourceStart);
 	int RecordMultipleCanonicalConstructors = PreviewRelated + 1737;
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
+	int RecordCompactConstructorHasReturnStatement = PreviewRelated + 1738;
 
 	/* records - end */
 	/* Java14 errors - end */

@@ -143,6 +143,10 @@ private void checkAndSetModifiersForConstructor(MethodBinding methodBinding) {
 	} else if ((((AbstractMethodDeclaration) this.referenceContext).modifiers & ClassFileConstants.AccStrictfp) != 0) {
 		// must check the parse node explicitly
 		problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) this.referenceContext);
+	} else if (this.referenceContext instanceof CompactConstructorDeclaration) {
+		if ((((AbstractMethodDeclaration) this.referenceContext).modifiers & ClassFileConstants.AccPublic) == 0) {
+			problemReporter().recordCanonicalConstructorNotPublic((AbstractMethodDeclaration) this.referenceContext);
+		}
 	}
 
 	// check for incompatible modifiers in the visibility bits, isolate the visibility bits
