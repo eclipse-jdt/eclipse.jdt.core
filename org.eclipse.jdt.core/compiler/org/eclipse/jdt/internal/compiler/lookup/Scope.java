@@ -2530,6 +2530,10 @@ public abstract class Scope {
 				MethodScope methodScope = methodScope();
 				if (!methodScope.isInsideInitializer()){
 					// check method modifiers to see if deprecated
+					ReferenceContext ref = methodScope.referenceContext();
+					if (ref instanceof ModuleDeclaration) {
+						return ((ModuleDeclaration)ref).modifiers;
+					}
 					MethodBinding context = ((AbstractMethodDeclaration)methodScope.referenceContext).binding;
 					if (context != null)
 						return context.modifiers;
