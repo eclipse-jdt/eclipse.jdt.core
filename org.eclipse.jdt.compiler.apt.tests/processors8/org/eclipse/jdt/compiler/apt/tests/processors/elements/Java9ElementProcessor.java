@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2018 IBM Corporation.
+ * Copyright (c) 2017, 2019 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -82,8 +82,13 @@ public class Java9ElementProcessor extends BaseProcessor {
 			this.isJre10 = true;
 		} else if (property.equals(CompilerOptions.VERSION_11)) {
 			this.isJre11 = true;
-		} else if (property.equals(CompilerOptions.VERSION_12)) {
-			this.isJre12 = true;
+		} else {
+			char c = '.';
+			if (property.indexOf(c) == -1) {
+				int ver12 = Integer.parseInt(CompilerOptions.VERSION_12);
+				int current = Integer.parseInt(property);
+				if (current >= ver12) this.isJre12 = true;
+			}
 		} 
 	}
 	// Always return false from this processor, because it supports "*".
