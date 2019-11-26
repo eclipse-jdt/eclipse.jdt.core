@@ -33,6 +33,16 @@ public class RecordDeclaration extends TypeDeclaration {
 	private Argument[] args;
 	public int nRecordComponents;
 
+	public static Set<String> disallowedComponentNames;
+	{
+		disallowedComponentNames = new HashSet<>(6);
+		disallowedComponentNames.add("finalize"); //$NON-NLS-1$
+		disallowedComponentNames.add("getClass"); //$NON-NLS-1$
+		disallowedComponentNames.add("hashCode"); //$NON-NLS-1$
+		disallowedComponentNames.add("notify");   //$NON-NLS-1$
+		disallowedComponentNames.add("notifyAll");//$NON-NLS-1$
+		disallowedComponentNames.add("toString"); //$NON-NLS-1$
+	}
 	public RecordDeclaration(CompilationResult compilationResult) {
 		super(compilationResult);
 	}

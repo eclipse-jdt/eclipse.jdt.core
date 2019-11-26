@@ -43,9 +43,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -10799,9 +10801,22 @@ protected void consumeRecordComponentHeaderRightParen() {
 private void convertToFields(RecordDeclaration rd, Argument[] args) {
 	int length = args.length;
 	FieldDeclaration[] fields = new FieldDeclaration[length];
+	int nFields = 0;
+	Set<String> argsSet = new HashSet<>();
 	for (int i = 0, max = args.length; i < max; i++) {
 		Argument arg = args[i];
-		FieldDeclaration f = fields[i] = createFieldDeclaration(arg.name, arg.sourceStart, arg.sourceEnd);
+		arg.bits |= ASTNode.IsRecordComponent;
+		String argName = new String(arg.name);
+		if (RecordDeclaration.disallowedComponentNames.contains(argName)) {
+			problemReporter().recordIllegalComponentNameInRecord(arg, rd);
+			continue;
+		}
+		if (argsSet.contains(argName)) {
+			// flag the error at the place where duplicate params of methods would have been flagged.
+			continue;
+		}
+		argsSet.add(argName);
+		FieldDeclaration f = fields[nFields++] = createFieldDeclaration(arg.name, arg.sourceStart, arg.sourceEnd);
 		f.annotations = arg.annotations;
 		f.bits = arg.bits;
 		f.declarationSourceStart = arg.declarationSourceStart;
@@ -10844,8 +10859,14 @@ private void convertToFields(RecordDeclaration rd, Argument[] args) {
 			f.bits |= ASTNode.HasTypeAnnotations;
 		}
 	}
+	if (nFields < fields.length) {
+		// Note: This happens only if there are errors in the code.
+		FieldDeclaration[] tmp = new FieldDeclaration[nFields];
+		System.arraycopy(fields	, 0, tmp, 0, nFields);
+		fields = tmp;
+	}
 	rd.fields = fields;
-	rd.nRecordComponents = length;
+	rd.nRecordComponents = fields.length;
 }
 protected void consumeRecordHeader() {
 	//RecordHeader ::= '(' RecordComponentsopt RecordComponentHeaderRightParen
@@ -11085,9 +11106,16 @@ protected void dispatchDeclarationIntoRecordDeclaration(int length) {
 
 	//arrays creation
 	RecordDeclaration recordDecl = (RecordDeclaration) this.astStack[this.astPtr];
+	int nCreatedFields = recordDecl.fields != null ? recordDecl.fields.length : 0;
 	if (nFields != 0) {
-		nFields += recordDecl.nRecordComponents;
-		recordDecl.fields = new FieldDeclaration[nFields];
+		FieldDeclaration[] tmp = new FieldDeclaration[recordDecl.fields.length + nFields];
+		System.arraycopy(
+				recordDecl.fields,
+				0,
+				tmp,
+				0,
+				recordDecl.fields.length);
+		recordDecl.fields = tmp;
 	}
 	if (size2 != 0) {
 		recordDecl.methods = new AbstractMethodDeclaration[size2];
@@ -11098,8 +11126,8 @@ protected void dispatchDeclarationIntoRecordDeclaration(int length) {
 	}
 
 	//arrays fill up
+	nFields = nCreatedFields;
 	size2 = size3 = 0;
-	nFields = recordDecl.nRecordComponents;
 	int flagI = flag[0], start = 0;
 	int length2;
 	for (int end = 0; end <= length; end++) //<HERE> the plus one allows to

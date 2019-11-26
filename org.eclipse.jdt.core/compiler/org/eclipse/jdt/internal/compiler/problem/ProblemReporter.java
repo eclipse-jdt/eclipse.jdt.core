@@ -153,6 +153,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Receiver;
+import org.eclipse.jdt.internal.compiler.ast.RecordDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
@@ -11404,5 +11405,29 @@ public void recordCompactConstructorHasReturnStatement(ReturnStatement stmt) {
 		NoArgument,
 		stmt.sourceStart,
 		stmt.sourceEnd);
+}
+public void recordIllegalComponentNameInRecord(Argument arg, RecordDeclaration rd) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordIllegalComponentNameInRecord,
+		new String[] {
+				new String(arg.name), new String(rd.name)
+			},
+			new String[] {
+					new String(arg.name), new String(rd.name)
+			},
+		arg.sourceStart,
+		arg.sourceEnd);
+}
+public void recordDuplicateComponent(Argument arg) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordDuplicateComponent,
+		new String[] { new String(arg.name)},
+		new String[] { new String(arg.name)},
+		arg.sourceStart,
+		arg.sourceEnd);
 }
 }

@@ -2229,11 +2229,10 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature error */
 	int RecordIllegalModifierAbstractForRecord = PreviewRelated + 1731;
 	/** @since 3.20 BETA_JAVA14
-	 * It is a compile-time error for a record header to declare a record component with the name
-	 * clone, finalize, getClass, hashCode, notify, notifyAll, readObjectNoData, readResolve,
-	 * serialPersistentFields, toString, wait, or writeReplace.
-	 * @noreference preview feature error */
-	int RecordIllegalComponentInRecord = PreviewRelated + 1732;
+	 * JLS 14 Sec 8.10.1
+	 * it is always a compile-time error for a record header to declare a record component with the name
+	 * finalize, getClass, hashCode, notify, notifyAll, or toString. */
+	int RecordIllegalComponentNameInRecord = PreviewRelated + 1732;
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordContainsNonStaticFieldDeclarations = PreviewRelated + 1733;
@@ -2252,6 +2251,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordCompactConstructorHasReturnStatement = PreviewRelated + 1738;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordDuplicateComponent = PreviewRelated + 1739;
 
 	/* records - end */
 	/* Java14 errors - end */

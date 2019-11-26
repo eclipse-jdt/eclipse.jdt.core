@@ -479,4 +479,105 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"	^^^^^^^\n" + 
 			"The body of a compact constructor must not contain a return statement\n" + 
 			"----------\n");
-	}}
+	}
+	public void testBug550750_023() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int finalize) I {\n"+
+						"  public Point {\n"+
+						"     this.myInt = myInt;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	record Point(int myInt, int finalize) I {\n" + 
+			"	                            ^^^^^^^^\n" + 
+			"Illegal component name finalize in record Point;\n" + 
+			"----------\n");
+	}
+	public void testBug550750_024() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int finalize, int myZ) I {\n"+
+						"  public Point {\n"+
+						"     this.myInt = myInt;\n" +
+						"     this.myZ = myZ;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	record Point(int myInt, int finalize, int myZ) I {\n" + 
+			"	                            ^^^^^^^^\n" + 
+			"Illegal component name finalize in record Point;\n" + 
+			"----------\n");
+	}
+	public void testBug550750_025() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int myZ, int myZ) I {\n"+
+						"  public Point {\n"+
+						"     this.myInt = myInt;\n" +
+						"     this.myZ = myZ;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	record Point(int myInt, int myZ, int myZ) I {\n" + 
+			"	                                     ^^^\n" + 
+			"Duplicate component myZ in record\n" + 
+			"----------\n");
+	}
+	public void testBug550750_026() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int myInt, int myInt, int myZ) I {\n"+
+						"  public Point {\n"+
+						"     this.myInt = myInt;\n" +
+						"     this.myZ = myZ;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	record Point(int myInt, int myInt, int myInt, int myZ) I {\n" + 
+			"	                            ^^^^^\n" + 
+			"Duplicate component myInt in record\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	record Point(int myInt, int myInt, int myInt, int myZ) I {\n" + 
+			"	                                       ^^^^^\n" + 
+			"Duplicate component myInt in record\n" + 
+			"----------\n");
+	}
+}

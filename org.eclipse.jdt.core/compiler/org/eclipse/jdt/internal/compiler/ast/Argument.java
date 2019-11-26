@@ -98,6 +98,8 @@ public class Argument extends LocalDeclaration {
 			if (localExists && this.hiddenVariableDepth == 0) {
 				if ((this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope()) {
 					scope.problemReporter().lambdaRedeclaresArgument(this);
+				} else if ((this.bits & ASTNode.IsRecordComponent) != 0) {
+					scope.problemReporter().recordDuplicateComponent(this);
 				} else {
 					scope.problemReporter().redefineArgument(this);
 				}
