@@ -1222,13 +1222,15 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("SwitchExpressionsNotSupported", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 	    expectedProblemAttributes.put("RecordIllegalModifierAbstractForRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordIllegalComponentNameInRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("RecordContainsNonStaticFieldDeclarations", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordNonStaticFieldDeclarationInRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordAccessorMethodHasThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordCanonicalConstructorHasThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordCanonicalConstructorNotPublic", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordMultipleCanonicalConstructors", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordCompactConstructorHasReturnStatement", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordDuplicateComponent", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordIllegalNativeModifierInRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordInstanceInitializerBlockInRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2218,13 +2220,15 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("SwitchExpressionsNotSupported", SKIP);
 	    expectedProblemAttributes.put("RecordIllegalModifierAbstractForRecord", SKIP);
 	    expectedProblemAttributes.put("RecordIllegalComponentNameInRecord", SKIP);
-	    expectedProblemAttributes.put("RecordContainsNonStaticFieldDeclarations", SKIP);
+	    expectedProblemAttributes.put("RecordNonStaticFieldDeclarationInRecord", SKIP);
 	    expectedProblemAttributes.put("RecordAccessorMethodHasThrowsClause", SKIP);
 	    expectedProblemAttributes.put("RecordCanonicalConstructorHasThrowsClause", SKIP);
 	    expectedProblemAttributes.put("RecordCanonicalConstructorNotPublic", SKIP);
 	    expectedProblemAttributes.put("RecordMultipleCanonicalConstructors", SKIP);
 	    expectedProblemAttributes.put("RecordCompactConstructorHasReturnStatement", SKIP);
 	    expectedProblemAttributes.put("RecordDuplicateComponent", SKIP);
+	    expectedProblemAttributes.put("RecordIllegalNativeModifierInRecord", SKIP);
+	    expectedProblemAttributes.put("RecordInstanceInitializerBlockInRecord", SKIP);
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {

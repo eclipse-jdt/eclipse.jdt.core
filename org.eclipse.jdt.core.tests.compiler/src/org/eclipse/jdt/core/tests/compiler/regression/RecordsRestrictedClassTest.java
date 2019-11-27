@@ -580,4 +580,122 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Duplicate component myInt in record\n" + 
 			"----------\n");
 	}
+	public void testBug550750_027() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int myZ) I {\n"+
+						"  static final int z;\n"+
+						"  public Point {\n"+
+						"     this.myInt = myInt;\n" +
+						"     this.myZ = myZ;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	static final int z;\n" + 
+			"	                 ^\n" + 
+			"The blank final field z may not have been initialized\n" + 
+			"----------\n");
+	}
+	public void testBug550750_028() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int myZ) I {\n"+
+						"  int z;\n"+
+						"  public Point {\n"+
+						"     this.myInt = myInt;\n" +
+						"     this.myZ = myZ;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	int z;\n" + 
+			"	    ^\n" + 
+			"User declared non-static fields z are not permitted in a record\n" + 
+			"----------\n");
+	}
+	public void testBug550750_029() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int myZ) I {\n"+
+						"  public Point {\n"+
+						"     this.myInt = myInt;\n" +
+						"     this.myZ = myZ;\n" +
+						"  }\n"+
+						"  public native void foo();\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	public native void foo();\n" + 
+			"	                   ^^^^^\n" + 
+			"Illegal modifier native for method foo; native methods are not allowed in record\n" + 
+			"----------\n");
+	}
+	public void testBug550750_030() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int myZ) I {\n"+
+						"  {\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	{\n" + 
+			"     System.out.println(0);\n" + 
+			"  }\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Instance Initializer is not allowed in a record declaration \n" + 
+			"----------\n");
+	}
+	public void testBug550750_031() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int myZ) I {\n"+
+						"  static {\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"0");
+	}
 }

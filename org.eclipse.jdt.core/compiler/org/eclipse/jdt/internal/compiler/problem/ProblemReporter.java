@@ -11372,6 +11372,14 @@ public void illegalModifierAbstractForRecord(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void recordNonStaticFieldDeclarationInRecord(FieldDeclaration field) {
+	this.handle(
+		IProblem.RecordNonStaticFieldDeclarationInRecord,
+		new String[] { new String(field.name) },
+		new String[] { new String(field.name) },
+		field.sourceStart,
+		field.sourceEnd);
+}
 public void recordAccessorMethodHasThrowsClause(ASTNode methodDeclaration) {
 	if (!this.options.enablePreviewFeatures)
 		return;
@@ -11429,5 +11437,25 @@ public void recordDuplicateComponent(Argument arg) {
 		new String[] { new String(arg.name)},
 		arg.sourceStart,
 		arg.sourceEnd);
+}
+public void RecordIllegalNativeModifierInRecord(AbstractMethodDeclaration method) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordIllegalNativeModifierInRecord,
+		new String[] { new String(method.selector)},
+		new String[] { new String(method.selector)},
+		method.sourceStart,
+		method.sourceEnd);
+}
+public void recordInstanceInitializerBlockInRecord(Initializer initializer) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordInstanceInitializerBlockInRecord,
+		NoArgument,
+		NoArgument,
+		initializer.sourceStart,
+		initializer.sourceEnd);
 }
 }

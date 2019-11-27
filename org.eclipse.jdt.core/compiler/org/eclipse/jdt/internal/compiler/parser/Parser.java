@@ -10717,7 +10717,7 @@ protected void consumeRecordDeclaration() {
 	if (this.scanner.containsAssertKeyword) {
 		rd.bits |= ASTNode.ContainsAssertion;
 	}
-//	rd.addClinit();
+	rd.addClinit();
 	rd.bodyEnd = this.endStatementPosition;
 	if (length == 0 && !containsComment(rd.bodyStart, rd.bodyEnd)) {
 		rd.bits |= ASTNode.UndocumentedEmptyBlock;
@@ -11166,10 +11166,30 @@ protected void dispatchDeclarationIntoRecordDeclaration(int length) {
 			flagI = flag[start = end];
 		}
 	}
+	checkForRecordMemberErrors(recordDecl, nCreatedFields);
 
 	if (recordDecl.memberTypes != null) {
 		for (int i = recordDecl.memberTypes.length - 1; i >= 0; i--) {
 			recordDecl.memberTypes[i].enclosingType = recordDecl;
+		}
+	}
+}
+private void checkForRecordMemberErrors(RecordDeclaration recordDecl, int nCreatedFields) {
+	for (int i = nCreatedFields; i < recordDecl.fields.length; i++) {
+		FieldDeclaration f = recordDecl.fields[i];
+		if (f != null && !f.isStatic()) {
+			if (f instanceof Initializer)
+				problemReporter().recordInstanceInitializerBlockInRecord((Initializer) f);
+			else	
+				problemReporter().recordNonStaticFieldDeclarationInRecord(f);
+		}
+	}
+	if (recordDecl.methods != null) {
+		for (int i = 0; i < recordDecl.methods.length; i++) {
+			AbstractMethodDeclaration method = recordDecl.methods[i];
+			if ((method.modifiers & ClassFileConstants.AccNative) != 0) {
+				problemReporter().RecordIllegalNativeModifierInRecord(method);
+			}
 		}
 	}
 }

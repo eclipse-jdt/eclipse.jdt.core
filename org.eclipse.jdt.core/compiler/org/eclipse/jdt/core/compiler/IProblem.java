@@ -2235,7 +2235,7 @@ void setSourceStart(int sourceStart);
 	int RecordIllegalComponentNameInRecord = PreviewRelated + 1732;
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
-	int RecordContainsNonStaticFieldDeclarations = PreviewRelated + 1733;
+	int RecordNonStaticFieldDeclarationInRecord = PreviewRelated + 1733;
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordAccessorMethodHasThrowsClause = PreviewRelated + 1734;
@@ -2254,6 +2254,12 @@ void setSourceStart(int sourceStart);
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordDuplicateComponent = PreviewRelated + 1739;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordIllegalNativeModifierInRecord = PreviewRelated + 1740;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordInstanceInitializerBlockInRecord = PreviewRelated + 1741;
 
 	/* records - end */
 	/* Java14 errors - end */
