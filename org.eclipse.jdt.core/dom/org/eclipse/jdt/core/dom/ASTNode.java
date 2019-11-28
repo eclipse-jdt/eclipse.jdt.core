@@ -981,6 +981,15 @@ public abstract class ASTNode {
 	 * @since 3.20
 	 */
 	public static final int TEXT_BLOCK = 102;
+	
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>RecordDeclaration</code>.
+	 * @see RecordDeclaration
+	 * @since 3.20 BETA_JAVA
+	 */
+	public static final int RECORD_DECLARATION = 103;
+	
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -1130,6 +1139,8 @@ public abstract class ASTNode {
 				return QualifiedName.class;
 			case QUALIFIED_TYPE :
 				return QualifiedType.class;
+			case RECORD_DECLARATION :
+				return RecordDeclaration.class;
 			case REQUIRES_DIRECTIVE :
 				return RequiresDirective.class;
 			case RETURN_STATEMENT :

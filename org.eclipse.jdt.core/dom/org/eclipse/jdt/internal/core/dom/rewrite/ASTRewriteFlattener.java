@@ -850,6 +850,26 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(RecordDeclaration node) {
+		ASTNode javadoc= getChildNode(node, RecordDeclaration.JAVADOC_PROPERTY);
+		if (javadoc != null) {
+			javadoc.accept(this);
+		}
+		visitList(node, RecordDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		this.result.append("enum ");//$NON-NLS-1$
+		getChildNode(node, RecordDeclaration.NAME_PROPERTY).accept(this);
+		this.result.append(' ');
+		visitList(node, RecordDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, String.valueOf(','), "implements ", Util.EMPTY_STRING); //$NON-NLS-1$
+		this.result.append(' ');
+		visitList(node, TypeDeclaration.TYPE_PARAMETERS_PROPERTY, String.valueOf(','), String.valueOf('<'), String.valueOf('>'));
+		
+		this.result.append('{');
+		visitList(node, RecordDeclaration.BODY_DECLARATIONS_PROPERTY, Util.EMPTY_STRING, String.valueOf(';'), Util.EMPTY_STRING);
+		this.result.append('}');
+		return false;
+	}
+	
+	@Override
 	public boolean visit(RequiresDirective node) {
 		this.result.append("requires "); //$NON-NLS-1$
 		visitList(node, RequiresDirective.MODIFIERS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));

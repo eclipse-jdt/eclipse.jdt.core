@@ -818,6 +818,7 @@ public final class AST {
 	int apiLevel;
 
 	private boolean previewEnabled;
+
 	/**
 	 * Tag bit value. This represents internal state of the tree.
 	 */
@@ -3637,6 +3638,17 @@ public final class AST {
 	  if (this.apiLevel == AST.JLS2) {
 	  	throw new UnsupportedOperationException("Operation not supported in JLS2 AST"); //$NON-NLS-1$
 	  }
+	}
+	
+	
+	/**
+	 * 
+	 * @return If previewEnabled flag is set to <code>true</true>, return <code>true</code> else <code>false</code>
+	 * @since 3.20 BETA_JAVA
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public boolean isPreviewEnabledSet() {
+		return this.previewEnabled;
 	}
 
 	/**

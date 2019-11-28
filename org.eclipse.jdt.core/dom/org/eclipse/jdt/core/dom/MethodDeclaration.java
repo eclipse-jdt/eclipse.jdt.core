@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -16,6 +20,8 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 
 /**
  * Method declaration AST node type. A method declaration
@@ -87,6 +93,13 @@ public class MethodDeclaration extends BodyDeclaration {
 	 */
 	public static final SimplePropertyDescriptor CONSTRUCTOR_PROPERTY =
 		new SimplePropertyDescriptor(MethodDeclaration.class, "constructor", boolean.class, MANDATORY); //$NON-NLS-1$
+	
+	/**
+	 * The "compact constructor" structural property of record node type (type: {@link Boolean}).
+	 * @since 3.20 BETA_JAVA
+	 */
+	public static final SimplePropertyDescriptor COMPACT_CONSTRUCTOR_PROPERTY =
+		new SimplePropertyDescriptor(MethodDeclaration.class, "compactConstructor", boolean.class, OPTIONAL); //$NON-NLS-1$
 
 	/**
 	 * The "name" structural property of this node type (child type: {@link SimpleName}).
@@ -199,6 +212,14 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @since 3.10
 	 */
 	private static final List PROPERTY_DESCRIPTORS_8_0;
+	
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.20 BETA_JAVA
+	 */
+	private static final List PROPERTY_DESCRIPTORS_9_0;
 
 	static {
 		List propertyList = new ArrayList(10);
@@ -242,7 +263,24 @@ public class MethodDeclaration extends BodyDeclaration {
 		addProperty(EXTRA_DIMENSIONS2_PROPERTY, propertyList);
 		addProperty(THROWN_EXCEPTION_TYPES_PROPERTY, propertyList);
 		addProperty(BODY_PROPERTY, propertyList);
-		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);	
+		PROPERTY_DESCRIPTORS_8_0 = reapPropertyList(propertyList);
+		
+		propertyList = new ArrayList(14);
+		createPropertyList(MethodDeclaration.class, propertyList);
+		addProperty(JAVADOC_PROPERTY, propertyList);
+		addProperty(MODIFIERS2_PROPERTY, propertyList);
+		addProperty(CONSTRUCTOR_PROPERTY, propertyList);
+		addProperty(TYPE_PARAMETERS_PROPERTY, propertyList);
+		addProperty(RETURN_TYPE2_PROPERTY, propertyList);
+		addProperty(NAME_PROPERTY, propertyList);
+		addProperty(RECEIVER_TYPE_PROPERTY, propertyList);
+		addProperty(RECEIVER_QUALIFIER_PROPERTY, propertyList);
+		addProperty(PARAMETERS_PROPERTY, propertyList);
+		addProperty(EXTRA_DIMENSIONS2_PROPERTY, propertyList);
+		addProperty(THROWN_EXCEPTION_TYPES_PROPERTY, propertyList);
+		addProperty(BODY_PROPERTY, propertyList);
+		addProperty(COMPACT_CONSTRUCTOR_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_9_0 = reapPropertyList(propertyList);
 	}
 
 	/**
@@ -255,10 +293,28 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
+		return propertyDescriptors(apiLevel, false);
+	}
+		
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 *
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.JLS*</code> constants
+	 * @param previewEnabled the previewEnabled flag
+	 * @return a list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor})
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 3.20 BETA_JAVA
+	 */
+	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
 		if (apiLevel == AST.JLS2_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_2_0;
 		} else if (apiLevel < AST.JLS8_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_3_0;
+		} else if (DOMASTUtil.isRecordDeclarationSupported(apiLevel, previewEnabled)) {
+			return PROPERTY_DESCRIPTORS_9_0;
 		} else {
 			return PROPERTY_DESCRIPTORS_8_0;
 		}
@@ -269,6 +325,13 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * Defaults to method.
 	 */
 	private boolean isConstructor = false;
+	
+
+	/**
+	 * <code>true</code> for a compact constructor in a record, <code>false</code> for a method.
+	 * Defaults to method.
+	 */
+	private boolean isCompactConstructor = false;
 
 	/**
 	 * The method name; lazily initialized; defaults to an unspecified,
@@ -400,6 +463,11 @@ public class MethodDeclaration extends BodyDeclaration {
 	}
 
 	@Override
+	final List internalStructuralPropertiesForType(int apiLevel, boolean previewEnabled) {
+		return propertyDescriptors(apiLevel, previewEnabled);
+	}
+	
+	@Override
 	final int internalGetSetIntProperty(SimplePropertyDescriptor property, boolean get, int value) {
 		if (property == MODIFIERS_PROPERTY) {
 			if (get) {
@@ -430,10 +498,19 @@ public class MethodDeclaration extends BodyDeclaration {
 				setConstructor(value);
 				return false;
 			}
+		} else if (property == COMPACT_CONSTRUCTOR_PROPERTY) {
+			if (get) {
+				return isCompactConstructor();
+			} else {
+				setCompactConstructor(value);
+				return false;
+			}
 		}
 		// allow default implementation to flag the error
 		return super.internalGetSetBooleanProperty(property, get, value);
 	}
+	
+	
 
 	@Override
 	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
@@ -577,6 +654,9 @@ public class MethodDeclaration extends BodyDeclaration {
 		} else {
 			result.thrownExceptions().addAll(ASTNode.copySubtrees(target, thrownExceptions()));			
 		}
+		if (DOMASTUtil.isRecordDeclarationSupported(this.ast)) {
+			result.setCompactConstructor(isCompactConstructor());
+		}
 		result.setBody(
 			(Block) ASTNode.copySubtree(target, getBody()));
 		return result;
@@ -639,6 +719,40 @@ public class MethodDeclaration extends BodyDeclaration {
 		preValueChange(CONSTRUCTOR_PROPERTY);
 		this.isConstructor = isConstructor;
 		postValueChange(CONSTRUCTOR_PROPERTY);
+	}
+
+	/**
+	 * Returns whether this declaration declares a constructor or a method.
+	 *
+	 * @return <code>true</code> if this is a compact constructor declaration in a record,
+	 *    and <code>false</code> if this is a method declaration
+	 * @since 3.20 BETA_JAVA
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @exception UnsupportedOperationException if this operation is not used in JLS14
+	 * @exception UnsupportedOperationException if this operation is used with previewEnabled flag as false 
+	 */
+	
+	public boolean isCompactConstructor() {
+		supportedOnlyIn14();
+		unsupportedWithoutPreviewError();
+		return this.isCompactConstructor;
+	}
+
+	/**
+	 * Sets whether this declaration declares a compact constructor in a record or a method.
+	 *
+	 * @param isCompactConstructor <code>true</code> for a constructor declaration,
+	 *    and <code>false</code> for a method declaration
+	 * @since 3.20 BETA_JAVA
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @exception UnsupportedOperationException if this operation is not used in JLS14
+	 * @exception UnsupportedOperationException if this operation is used with previewEnabled flag as false 
+	 */
+	
+	public void setCompactConstructor(boolean isCompactConstructor) {
+		preValueChange(COMPACT_CONSTRUCTOR_PROPERTY);
+		this.isCompactConstructor = isCompactConstructor;
+		postValueChange(COMPACT_CONSTRUCTOR_PROPERTY);
 	}
 
 	/**

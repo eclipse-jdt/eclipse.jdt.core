@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.CompactConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
 import org.eclipse.jdt.internal.compiler.ast.IntersectionCastTypeReference;
@@ -74,6 +75,7 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
+import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -525,6 +527,9 @@ class ASTConverter {
 		setModifiers(methodDecl, methodDeclaration);
 		boolean isConstructor = methodDeclaration.isConstructor();
 		methodDecl.setConstructor(isConstructor);
+		if (DOMASTUtil.isRecordDeclarationSupported(this.ast)) {
+			methodDecl.setCompactConstructor(methodDeclaration instanceof CompactConstructorDeclaration);
+		}
 		final SimpleName methodName = new SimpleName(this.ast);
 		methodName.internalSetIdentifier(new String(methodDeclaration.selector));
 		int start = methodDeclaration.sourceStart;
@@ -3061,6 +3066,12 @@ class ASTConverter {
 				} else {
 					return convertToAnnotationDeclaration(typeDeclaration);
 				}
+			case org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.RECORD_DECL :
+				if (!DOMASTUtil.isRecordDeclarationSupported(this.ast)) {
+					return null;
+				} else {
+					return convertToRecordDeclaration(typeDeclaration);
+				}
 		}
 
 		checkCanceled();
@@ -3374,6 +3385,38 @@ class ASTConverter {
 			enumDeclaration2.resolveBinding();
 		}
 		return enumDeclaration2;
+	}
+	
+	private RecordDeclaration convertToRecordDeclaration(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
+		checkCanceled();
+		// record declaration cannot be built if the source is not >= 14, since record is then seen as an identifier
+		final RecordDeclaration recordDeclaration = new RecordDeclaration(this.ast);
+		setModifiers(recordDeclaration, typeDeclaration);
+		final SimpleName typeName = new SimpleName(this.ast);
+		typeName.internalSetIdentifier(new String(typeDeclaration.name));
+		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
+		recordDeclaration.setName(typeName);
+		recordDeclaration.setSourceRange(typeDeclaration.declarationSourceStart, typeDeclaration.bodyEnd - typeDeclaration.declarationSourceStart + 1);
+
+		org.eclipse.jdt.internal.compiler.ast.TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
+		if (superInterfaces != null) {
+			for (int index = 0, length = superInterfaces.length; index < length; index++) {
+				recordDeclaration.superInterfaceTypes().add(convertType(superInterfaces[index]));
+			}
+		}
+		org.eclipse.jdt.internal.compiler.ast.TypeParameter[] typeParameters = typeDeclaration.typeParameters;
+		if (typeParameters != null) {
+			for (int index = 0, length = typeParameters.length; index < length; index++) {
+				recordDeclaration.typeParameters().add(convert(typeParameters[index]));
+			}
+		}
+		buildBodyDeclarations(typeDeclaration, recordDeclaration, false);
+		if (this.resolveBindings) {
+			recordNodes(recordDeclaration, typeDeclaration);
+			recordNodes(typeName, typeDeclaration);
+			recordDeclaration.resolveBinding();
+		}
+		return recordDeclaration;
 	}
 	public Expression convertToExpression(org.eclipse.jdt.internal.compiler.ast.Statement statement) {
 		if (statement instanceof org.eclipse.jdt.internal.compiler.ast.Expression &&
@@ -5389,6 +5432,11 @@ class ASTConverter {
 	protected void setModifiers(EnumDeclaration enumDeclaration, org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enumDeclaration2) {
 		this.scanner.resetTo(enumDeclaration2.declarationSourceStart, enumDeclaration2.sourceStart);
 		this.setModifiers(enumDeclaration, enumDeclaration2.annotations, enumDeclaration2.sourceStart);
+	}
+	
+	protected void setModifiers(RecordDeclaration recordDeclaration, org.eclipse.jdt.internal.compiler.ast.TypeDeclaration recordDeclaration2) {
+		this.scanner.resetTo(recordDeclaration2.declarationSourceStart, recordDeclaration2.sourceStart);
+		this.setModifiers(recordDeclaration, recordDeclaration2.annotations, recordDeclaration2.sourceStart);
 	}
 
 	protected void setModifiers(EnumConstantDeclaration enumConstantDeclaration, org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration) {
