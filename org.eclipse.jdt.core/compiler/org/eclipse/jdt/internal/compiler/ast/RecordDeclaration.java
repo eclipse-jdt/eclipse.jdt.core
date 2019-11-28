@@ -25,6 +25,8 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -34,7 +36,7 @@ public class RecordDeclaration extends TypeDeclaration {
 	public int nRecordComponents;
 
 	public static Set<String> disallowedComponentNames;
-	{
+	static {
 		disallowedComponentNames = new HashSet<>(6);
 		disallowedComponentNames.add("finalize"); //$NON-NLS-1$
 		disallowedComponentNames.add("getClass"); //$NON-NLS-1$
@@ -358,5 +360,12 @@ public class RecordDeclaration extends TypeDeclaration {
 	}
 	public void setArgs(Argument[] args) {
 		this.args = args;
+	}
+	public static void checkAndFlagRecordNameErrors(char[] typeName, ASTNode node, Scope skope) {
+		if (CharOperation.equals(typeName, TypeConstants.RECORD)) {
+			if (skope.compilerOptions().sourceLevel == ClassFileConstants.JDK14) {
+					skope.problemReporter().recordIsAReservedTypeName(node);
+			}
+		}
 	}
 }

@@ -2260,6 +2260,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordInstanceInitializerBlockInRecord = PreviewRelated + 1741;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordIsAReservedTypeName = PreviewRelated + 1742;
 
 	/* records - end */
 	/* Java14 errors - end */

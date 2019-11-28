@@ -677,7 +677,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"     System.out.println(0);\n" + 
 			"  }\n" + 
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Instance Initializer is not allowed in a record declaration \n" + 
+			"Instance Initializer is not allowed in a record declaration\n" + 
 			"----------\n");
 	}
 	public void testBug550750_031() {
@@ -697,5 +697,111 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"interface I {}\n"
 				},
 			"0");
+	}
+	public void testBug550750_032() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"class record {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	class record {\n" + 
+			"	      ^^^^^^\n" + 
+			"Record is a restricted identifier and hence not a valid type name\n" + 
+			"----------\n");
+	}
+	public void testBug550750_033() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"class X<record> {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	class X<record> {\n" + 
+			"	        ^^^^^^\n" + 
+			"Record is a restricted identifier and hence not a valid type name\n" + 
+			"----------\n");
+	}
+	public void testBug550750_034() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"  public <record> void foo(record args){}\n"+
+						"}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	public <record> void foo(record args){}\n" + 
+			"	        ^^^^^^\n" + 
+			"Record is a restricted identifier and hence not a valid type name\n" + 
+			"----------\n");
+	}
+	public void testBug550750_035() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"  public void foo(record args){}\n"+
+						"}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	public void foo(record args){}\n" + 
+			"	                ^^^^^^\n" + 
+			"record cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 5)\n" + 
+			"	public void foo(record args){}\n" + 
+			"	                ^^^^^^\n" + 
+			"Record is a restricted identifier and hence not a valid type name\n" + 
+			"----------\n");
+	}
+	public void testBug550750_036() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"     I lambda = (record r) -> {};\n"+
+						"  }\n"+
+						"}\n" +
+						"interface I {\n" +
+						"  public void apply(int i);\n" +
+						"}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	I lambda = (record r) -> {};\n" + 
+			"	           ^^^^^^^^^^^^^\n" + 
+			"This lambda expression refers to the missing type record\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 4)\n" + 
+			"	I lambda = (record r) -> {};\n" + 
+			"	            ^^^^^^\n" + 
+			"record cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	I lambda = (record r) -> {};\n" + 
+			"	            ^^^^^^\n" + 
+			"Record is a restricted identifier and hence not a valid type name\n" + 
+			"----------\n");
 	}
 }

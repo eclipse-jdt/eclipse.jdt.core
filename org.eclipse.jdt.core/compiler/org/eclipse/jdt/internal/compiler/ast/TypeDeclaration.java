@@ -1120,6 +1120,7 @@ public void resolve() {
 				this.scope.problemReporter().varIsReservedTypeName(this);
 			}
 		}
+		RecordDeclaration.checkAndFlagRecordNameErrors(this.name, this, this.scope);
 		// resolve annotations and check @Deprecated annotation
 		long annotationTagBits = sourceType.getAnnotationTagBits();
 		if ((annotationTagBits & TagBits.AnnotationDeprecated) == 0

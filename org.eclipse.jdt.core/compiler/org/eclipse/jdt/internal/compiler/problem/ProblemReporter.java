@@ -11458,4 +11458,14 @@ public void recordInstanceInitializerBlockInRecord(Initializer initializer) {
 		initializer.sourceStart,
 		initializer.sourceEnd);
 }
+public void recordIsAReservedTypeName(ASTNode decl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordIsAReservedTypeName,
+		NoArgument,
+		NoArgument,
+		decl.sourceStart,
+		decl.sourceEnd);
+}
 }
