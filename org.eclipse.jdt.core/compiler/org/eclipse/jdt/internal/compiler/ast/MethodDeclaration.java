@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -194,6 +198,27 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	}
 
 	@Override
+	public Argument getRecordComponent() {
+		if (this.arguments != null && this.arguments.length != 0)
+			return null;
+		ClassScope skope = this.scope.classScope();
+		if (!(skope.referenceContext instanceof RecordDeclaration))
+			return null;
+		RecordDeclaration rd = (RecordDeclaration) skope.referenceContext;
+		Argument[] args = rd.getArgs();
+		if (args == null || args.length == 0)
+			return null;
+		for (Argument arg : rd.getArgs()) {
+			if (arg == null || arg.name == null)
+				continue;
+			if (CharOperation.equals(this.selector, arg.name)) {
+				return arg;
+			}
+		}
+		return null;
+	}
+
+	@Override
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		//fill up the method body with statement
 		parser.parse(this, unit);
@@ -212,6 +237,18 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			this.bits |= (this.returnType.bits & ASTNode.HasTypeAnnotations);
 			this.returnType.resolvedType = this.binding.returnType;
 			// record the return type binding
+		}
+		Argument recordComponent = getRecordComponent();
+		if (recordComponent != null) {
+			/* JLS 14 Records Sec 8.10.3 */
+			if (TypeBinding.notEquals(this.returnType.resolvedType, recordComponent.type.resolvedType))
+				this.scope.problemReporter().recordIllegalAccessorReturnType(this.returnType, recordComponent.type.resolvedType);
+			if (this.typeParameters != null)
+				this.scope.problemReporter().recordAccessorMethodShouldNotBeGeneric(this);
+			if ((this.binding.modifiers & ClassFileConstants.AccPublic) == 0)
+				this.scope.problemReporter().recordAccessorMethodShouldBePublic(this);
+			if (this.thrownExceptions != null)
+				this.scope.problemReporter().recordAccessorMethodHasThrowsClause(this);
 		}
 		// check if method with constructor name
 		if (CharOperation.equals(this.scope.enclosingSourceType().sourceName, this.selector)) {

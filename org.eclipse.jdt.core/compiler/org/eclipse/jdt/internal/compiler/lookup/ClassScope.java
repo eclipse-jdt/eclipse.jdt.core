@@ -462,6 +462,10 @@ public class ClassScope extends Scope {
 	private void checkAndSetModifiers() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		int modifiers = sourceType.modifiers;
+		if (sourceType.isRecord()) {
+			/* JLS 14 Records Sec 8.10 - A record declaration is implicitly final. */
+			modifiers |= ClassFileConstants.AccFinal;
+		}
 		if ((modifiers & ExtraCompilerModifiers.AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForType(sourceType);
 		ReferenceBinding enclosingType = sourceType.enclosingType();
@@ -480,6 +484,9 @@ public class ClassScope extends Scope {
 					modifiers |= ClassFileConstants.AccStatic;
 			} else if (sourceType.isInterface()) {
 				modifiers |= ClassFileConstants.AccStatic; // 8.5.1
+			} else if (sourceType.isRecord()) {
+				/* JLS 14 Records Sec 8.10 A nested record type is implicitly static */
+				modifiers |= ClassFileConstants.AccStatic;
 			}
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
@@ -647,8 +654,8 @@ public class ClassScope extends Scope {
 					modifiers |= ClassFileConstants.AccFinal;
 				}
 			}
-		} else if ((realModifiers & ClassFileConstants.AccRecord) != 0) {
-			// JLS 14 8.10 : It is a compile-time error if a record declaration has the modifier abstract.m
+		} else if (sourceType.isRecord()) {
+			// JLS 14 8.10 : It is a compile-time error if a record declaration has the modifier abstract.
 			if ((realModifiers & ClassFileConstants.AccAbstract) != 0) {
 				problemReporter().illegalModifierAbstractForRecord(sourceType);
 			}

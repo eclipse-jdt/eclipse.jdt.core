@@ -804,4 +804,125 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Record is a restricted identifier and hence not a valid type name\n" + 
 			"----------\n");
 	}
+	public void testBug553152_001() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int myZ) I {\n"+
+						"  public char myInt() {;\n" +
+						"     return 'c';\n" +
+						"  }\n"+
+						"  public int getmyInt() {;\n" +
+						"     return this.myInt;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	public char myInt() {;\n" + 
+			"	       ^^^^\n" + 
+			"Illegal return type of accessor; should be the same as the declared type int of the record component\n" + 
+			"----------\n");
+	}
+	public void testBug553152_002() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(Integer myInt, int myZ) I {\n"+
+						"  public java.lang.Integer myInt() {;\n" +
+						"     return this.myInt;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"0");
+	}
+	public void testBug553152_003() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int myZ) I {\n"+
+						"  public <T> int myInt() {;\n" +
+						"     return this.myInt;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	public <T> int myInt() {;\n" + 
+			"	               ^^^^^^^\n" + 
+			"The accessor method must not be generic\n" + 
+			"----------\n");
+	}
+	public void testBug553152_004() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int myZ) I {\n"+
+						"  private int myInt() {;\n" +
+						"     return this.myInt;\n" +
+						"  }\n"+
+						"  /* package */ int myZ() {;\n" +
+						"     return this.myZ;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	private int myInt() {;\n" + 
+			"	            ^^^^^^^\n" + 
+			"The accessor method must be declared public\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 10)\n" + 
+			"	/* package */ int myZ() {;\n" + 
+			"	                  ^^^^^\n" + 
+			"The accessor method must be declared public\n" + 
+			"----------\n");
+	}
+	public void testBug553152_005() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int myZ) I {\n"+
+						"  public int myInt() throws IOException {;\n" +
+						"     return this.myInt;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 0)\n" + 
+			"	public class X {\n" + 
+			"	^\n" + 
+			"Throws clause not allowed for explicitly declared accessor method\n" + 
+			"----------\n");
+	}
 }

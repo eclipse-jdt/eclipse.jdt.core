@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -70,6 +74,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.RecordDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -122,7 +127,8 @@ public class SourceTypeBinding extends ReferenceBinding {
 	
 	private SourceTypeBinding nestHost;
 	public HashSet<SourceTypeBinding> nestMembers;
-	
+
+	private boolean isRecordDeclaration = false;
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
 	this.fPackage = fPackage;
@@ -136,6 +142,7 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.fields = Binding.UNINITIALIZED_FIELDS;
 	this.methods = Binding.UNINITIALIZED_METHODS;
 	this.prototype = this;
+	this.isRecordDeclaration = scope.referenceContext instanceof RecordDeclaration;
 	computeId();
 }
 
@@ -163,6 +170,7 @@ public SourceTypeBinding(SourceTypeBinding prototype) {
 	this.nullnessDefaultInitialized= prototype.nullnessDefaultInitialized;
 	this.containerAnnotationType = prototype.containerAnnotationType;
 	this.tagBits |= TagBits.HasUnresolvedMemberTypes; // see memberTypes()
+	this.isRecordDeclaration = this.prototype.isRecordDeclaration;
 }
 
 private void addDefaultAbstractMethods() {
@@ -1798,6 +1806,11 @@ public TypeBinding prototype() {
 
 public boolean isPrototype() {
 	return this == this.prototype;  //$IDENTITY-COMPARISON$
+}
+
+@Override
+public boolean isRecord() {
+	return this.isRecordDeclaration;
 }
 
 @Override

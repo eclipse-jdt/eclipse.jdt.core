@@ -2263,6 +2263,15 @@ void setSourceStart(int sourceStart);
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordIsAReservedTypeName = PreviewRelated + 1742;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordIllegalAccessorReturnType = PreviewRelated + 1743;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordAccessorMethodShouldNotBeGeneric = PreviewRelated + 1744;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordAccessorMethodShouldBePublic = PreviewRelated + 1745;
 
 	/* records - end */
 	/* Java14 errors - end */

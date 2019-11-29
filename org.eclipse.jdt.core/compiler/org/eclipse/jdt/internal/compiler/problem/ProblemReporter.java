@@ -11468,4 +11468,34 @@ public void recordIsAReservedTypeName(ASTNode decl) {
 		decl.sourceStart,
 		decl.sourceEnd);
 }
+public void recordIllegalAccessorReturnType(ASTNode returnType, TypeBinding type) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordIllegalAccessorReturnType,
+		new String[] {new String(type.readableName())},
+		new String[] {new String(type.shortReadableName())},
+		returnType.sourceStart,
+		returnType.sourceEnd);
+}
+public void recordAccessorMethodShouldNotBeGeneric(ASTNode methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordAccessorMethodShouldNotBeGeneric,
+		NoArgument,
+		NoArgument,
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
+public void recordAccessorMethodShouldBePublic(ASTNode methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordAccessorMethodShouldBePublic,
+		NoArgument,
+		NoArgument,
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
 }
