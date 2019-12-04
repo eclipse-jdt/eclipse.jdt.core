@@ -83,6 +83,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
 import org.eclipse.jdt.internal.formatter.Token.WrapMode;
 import org.eclipse.jdt.internal.formatter.Token.WrapPolicy;
+import org.eclipse.jface.text.IRegion;
 
 public class LineBreaksPreparator extends ASTVisitor {
 	final private TokenManager tm;
@@ -796,13 +797,35 @@ public class LineBreaksPreparator extends ASTVisitor {
 			this.tm.get(lastIndex + 1).unindent();
 	}
 
-	public void finishUp() {
+	public void finishUp(List<IRegion> regions) {
 		// the visits only noted where indents increase and decrease,
-		// now prepare actual indent values
-		int currentIndent = this.options.initial_indentation_level;
+		// now prepare actual indent values, preserving indents outside formatting regions
+		int currentIndent = this.options.initial_indentation_level * this.options.indentation_size;
+		Token previous = null;
 		for (Token token : this.tm) {
-			currentIndent += token.getIndent();
-			token.setIndent(currentIndent * this.options.indentation_size);
+			if (isFixedLineStart(token, previous, regions)) {
+				currentIndent = this.tm.findSourcePositionInLine(token.originalStart);
+			} else {
+				currentIndent = Math.max(currentIndent + token.getIndent() * this.options.indentation_size, 0);
+			}
+			token.setIndent(currentIndent);
+			previous = token;
 		}
+	}
+
+	private boolean isFixedLineStart(Token token, Token previous, List<IRegion> regions) {
+		if (previous == null && this.options.initial_indentation_level >0)
+			return false; // must be handling ast rewrite
+		if (previous != null && this.tm.countLineBreaksBetween(previous, token) == 0)
+			return false;
+		int lineStart = token.originalStart;
+		char c;
+		while (lineStart > 0 && (c = this.tm.charAt(lineStart - 1)) != '\r' && c != '\n')
+			lineStart--;
+		for (IRegion r : regions) {
+			if (token.originalStart >= r.getOffset() && lineStart <= r.getOffset() + r.getLength())
+				return false;
+		}
+		return true;
 	}
 }
