@@ -1225,7 +1225,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("RecordNonStaticFieldDeclarationInRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordAccessorMethodHasThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordCanonicalConstructorHasThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
-	    expectedProblemAttributes.put("RecordCanonicalConstructorNotPublic", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordCanonicalConstructorShouldBePublic", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordMultipleCanonicalConstructors", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordCompactConstructorHasReturnStatement", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordDuplicateComponent", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
@@ -1235,6 +1235,10 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("RecordIllegalAccessorReturnType", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordAccessorMethodShouldNotBeGeneric", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordAccessorMethodShouldBePublic", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordCanonicalConstructorShouldNotBeGeneric", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordCanonicalConstructorHasReturnStatement", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordCanonicalConstructorHasExplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordCompactConstructorHasExplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2227,7 +2231,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("RecordNonStaticFieldDeclarationInRecord", SKIP);
 	    expectedProblemAttributes.put("RecordAccessorMethodHasThrowsClause", SKIP);
 	    expectedProblemAttributes.put("RecordCanonicalConstructorHasThrowsClause", SKIP);
-	    expectedProblemAttributes.put("RecordCanonicalConstructorNotPublic", SKIP);
+	    expectedProblemAttributes.put("RecordCanonicalConstructorShouldBePublic", SKIP);
 	    expectedProblemAttributes.put("RecordMultipleCanonicalConstructors", SKIP);
 	    expectedProblemAttributes.put("RecordCompactConstructorHasReturnStatement", SKIP);
 	    expectedProblemAttributes.put("RecordDuplicateComponent", SKIP);
@@ -2237,6 +2241,10 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("RecordIllegalAccessorReturnType", SKIP);
 	    expectedProblemAttributes.put("RecordAccessorMethodShouldNotBeGeneric", SKIP);
 	    expectedProblemAttributes.put("RecordAccessorMethodShouldBePublic", SKIP);
+	    expectedProblemAttributes.put("RecordCanonicalConstructorShouldNotBeGeneric", SKIP);
+	    expectedProblemAttributes.put("RecordCanonicalConstructorHasReturnStatement", SKIP);
+	    expectedProblemAttributes.put("RecordCanonicalConstructorHasExplicitConstructorCall", SKIP);
+	    expectedProblemAttributes.put("RecordCompactConstructorHasExplicitConstructorCall", SKIP);
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {

@@ -77,10 +77,6 @@ public class RecordDeclaration extends TypeDeclaration {
 		this.sourceEnd = t.sourceEnd;
 	}
 	public ConstructorDeclaration getConstructor(Parser parser) {
-		ConstructorDeclaration cd = null;
-		//if a constructor has not the name of the type,
-		//convert it into a method with 'null' as its return type
-		boolean hasConstructor = true;
 		if (this.methods != null) {
 			for (int i = this.methods.length; --i >= 0;) {
 				AbstractMethodDeclaration am;
@@ -102,69 +98,68 @@ public class RecordDeclaration extends TypeDeclaration {
 							return ccd;
 						}
 						// now we are looking at a "normal" constructor
-						if (this.args == null) {
-							if (am.arguments == null)
-								return (ConstructorDeclaration) am;
-							continue; // else check next one.
-						} else {
-							if (am.arguments == null || am.arguments.length != this.args.length)
-								continue;
-							for (int j = 0; j < this.args.length; j++) {
-								if (!CharOperation.equals(this.args[j].type.getLastToken(),
-										am.arguments[j].type.getLastToken())) {
-									hasConstructor = false;
-									break;
-								}
-								/*TODO: Strictly speaking, at this point we can only say
-								 * that there is high possibility that there is a constructor
-								 * If it is false, then definitely it is false; else we need
-								 * to check the bindings to say that there is a canonical
-								 * constructor. To take care at binding resolution time.
-								 */
-							}
-							if (hasConstructor)
-								return (ConstructorDeclaration) am;
-						}
-						
+						if (this.args == null && am.arguments == null)
+							return (ConstructorDeclaration) am;
 					}
 				}
 			}
 		}
-		return cd;
+		/* At this point we can only say that there is high possibility that there is a constructor
+		 * If it is a CCD, then definitely it is there (except for empty one); else we need to check 
+		 * the bindings to say that there is a canonical constructor. To take care at binding resolution time.
+		 */
+		return null;
+	}
+
+	/** Returns an implicit canonical constructor, if any.
+	 */
+	public static ConstructorDeclaration getImplicitCanonicalConstructor(AbstractMethodDeclaration[] methods) {
+		if (methods == null)
+			return null;
+		for (AbstractMethodDeclaration am : methods) {
+			if (am instanceof ConstructorDeclaration && (am.bits & (ASTNode.IsCanonicalConstructor | ASTNode.IsImplicit)) != 0)
+				return (ConstructorDeclaration) am;
+		}
+		return null;
 	}
 	@Override
-	public ConstructorDeclaration createDefaultConstructor(	boolean needExplicitConstructorCall, boolean needToInsert) {
+	public ConstructorDeclaration createDefaultConstructor(boolean needExplicitConstructorCall, boolean needToInsert) {
 		//Add to method'set, the default constuctor that just recall the
 		//super constructor with no arguments
 		//The arguments' type will be positionned by the TC so just use
 		//the default int instead of just null (consistency purpose)
 
-		CompactConstructorDeclaration ccd = new CompactConstructorDeclaration(this.compilationResult);
-//		constructor.bits |= ASTNode.IsDefaultConstructor;
-		ccd.selector = this.name;
-		ccd.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
-		ccd.modifiers |= ClassFileConstants.AccPublic; // JLS 14 8.10.5
-		ccd.isImplicit = true;
-		ccd.recordDeclaration = this;
-		ccd.arguments = this.args;
+		ConstructorDeclaration constructor = new ConstructorDeclaration(this.compilationResult);
+		constructor.bits |= ASTNode.IsCanonicalConstructor | ASTNode.IsImplicit;
+		constructor.selector = this.name;
+		constructor.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
+		constructor.modifiers |= ClassFileConstants.AccPublic; // JLS 14 8.10.5
+		constructor.arguments = this.args;
 
-		//if you change this setting, please update the
-		//SourceIndexer2.buildTypeDeclaration(TypeDeclaration,char[]) method
-		ccd.declarationSourceStart = ccd.sourceStart = this.sourceStart;
-		ccd.declarationSourceEnd =
-			ccd.sourceEnd = ccd.bodyEnd = this.sourceEnd;
+		constructor.declarationSourceStart = constructor.sourceStart =
+				constructor.bodyStart = this.sourceStart;
+		constructor.declarationSourceEnd =
+			constructor.sourceEnd = constructor.bodyEnd =  this.sourceStart - 1;
 
 		//the super call inside the constructor
-		if (needExplicitConstructorCall) {
-			ccd.constructorCall = SuperReference.implicitSuperConstructorCall();
-			ccd.constructorCall.sourceStart = this.sourceStart;
-			ccd.constructorCall.sourceEnd = this.sourceEnd;
+		// needExplicitConstructorCall is ignored for RecordDeclaration.
+
+		/* The body of the implicitly declared canonical constructor initializes each field corresponding
+		 * to a record component with the corresponding formal parameter in the order that they appear
+		 * in the record component list.*/
+		Statement[] statements = new Statement[this.args.length];
+		for (int i = 0, l = this.args.length; i < l; ++i) {
+			Argument arg = this.args[i];
+			FieldReference lhs = new FieldReference(arg.name, 0);
+			lhs.receiver = ThisReference.implicitThis();
+			statements[i] =  new Assignment(lhs, new SingleNameReference(arg.name, 0), 0);
 		}
+		constructor.statements = statements;
 
 		//adding the constructor in the methods list: rank is not critical since bindings will be sorted
 		if (needToInsert) {
 			if (this.methods == null) {
-				this.methods = new AbstractMethodDeclaration[] { ccd };
+				this.methods = new AbstractMethodDeclaration[] { constructor };
 			} else {
 				AbstractMethodDeclaration[] newMethods;
 				System.arraycopy(
@@ -173,11 +168,11 @@ public class RecordDeclaration extends TypeDeclaration {
 					newMethods = new AbstractMethodDeclaration[this.methods.length + 1],
 					1,
 					this.methods.length);
-				newMethods[0] = ccd;
+				newMethods[0] = constructor;
 				this.methods = newMethods;
 			}
 		}
-		return ccd;
+		return constructor;
 	}
 
 	public void createDefaultAccessors(ProblemReporter problemReporter) {

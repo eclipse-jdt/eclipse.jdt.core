@@ -409,7 +409,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	private Point {\n" + 
 			"	        ^^\n" + 
-			"The compact constructor Point must be declared public.\n" + 
+			"The canonical constructor Point of a record declaration must be declared public.\n" + 
 			"----------\n");
 	}
 	public void testBug550750_020() {
@@ -433,7 +433,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	protected Point {\n" + 
 			"	          ^^\n" + 
-			"The compact constructor Point must be declared public.\n" + 
+			"The canonical constructor Point of a record declaration must be declared public.\n" + 
 			"----------\n");
 	}
 	public void testBug550750_021() {
@@ -923,6 +923,291 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"	public class X {\n" + 
 			"	^\n" + 
 			"Throws clause not allowed for explicitly declared accessor method\n" + 
+			"----------\n");
+	}
+	public void testBug553152_006() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(Integer myInt, int myZ) I {\n"+
+						"  public Point(Integer myInt, int myZ) {\n" +
+						"     this.myInt = 0;\n" +
+						"     this.myZ = 0;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"0");
+	}
+	public void testBug553152_007() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(Integer myInt, int myZ) I {\n"+
+						"  public Point(Integer myInt, int myZ) {\n" +
+						"     this.myInt = 0;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	public Point(Integer myInt, int myZ) {\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The blank final field myZ may not have been initialized\n" + 
+			"----------\n");
+	}
+	public void testBug553152_008() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(Integer myInt, int myZ) I {\n"+
+						"  public Point {\n" +
+						"     this.myInt = 0;\n" +
+						"     this.myZ = 0;\n" +
+						"  }\n"+
+						"  public Point(Integer myInt, int myZ) {\n" +
+						"     this.myInt = 0;\n" +
+						"     this.myZ = 0;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	public Point {\n" + 
+			"	       ^^\n" + 
+			"Duplicate method Point(Integer, int) in type Point\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 11)\n" + 
+			"	public Point(Integer myInt, int myZ) {\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Duplicate method Point(Integer, int) in type Point\n" + 
+			"----------\n");
+	}
+	public void testBug553152_009() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(Integer myInt, int myZ) I {\n"+
+						"  Point(Integer myInt, int myZ) {\n" +
+						"     this.myInt = 0;\n" +
+						"     this.myZ = 0;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	Point(Integer myInt, int myZ) {\n" + 
+			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The canonical constructor Point of a record declaration must be declared public.\n" + 
+			"----------\n");
+	}
+	public void testBug553152_010() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(Integer myInt, int myZ) I {\n"+
+						"  public <T> Point(Integer myInt, int myZ) {\n" +
+						"     this.myInt = 0;\n" +
+						"     this.myZ = 0;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	public <T> Point(Integer myInt, int myZ) {\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Canonical constructor Point of a record declaration should not be generic\n" + 
+			"----------\n");
+	}
+	public void testBug553152_011() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(Integer myInt, int myZ) I {\n"+
+						"  public Point(Integer myInt, int myZ) throws Exception {\n" +
+						"     this.myInt = 0;\n" +
+						"     this.myZ = 0;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	public Point(Integer myInt, int myZ) throws Exception {\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Throws clause not allowed for canonical constructor Point\n" + 
+			"----------\n");
+	}
+	public void testBug553152_012() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(Integer myInt, int myZ) I {\n"+
+						"  public Point(Integer myInt, int myZ) {\n" +
+						"     this.myInt = 0;\n" +
+						"     this.myZ = 0;\n" +
+						"     return;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	return;\n" + 
+			"	^^^^^^^\n" + 
+			"The body of a compact constructor must not contain a return statement\n" + 
+			"----------\n");
+	}
+	public void testBug553152_013() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(Integer myInt, int myZ) I {\n"+
+						"  public Point(Integer myInt, int myZ) {\n" +
+						"     this.myInt = 0;\n" +
+						"     this.myZ = 0;\n" +
+						"     I i = () -> { return;};\n" +
+						"     Zork();\n" +
+						"  }\n"+
+						"  public void apply() {}\n" +
+						"}\n" +
+						"interface I { void apply();}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 11)\n" + 
+			"	Zork();\n" + 
+			"	^^^^\n" + 
+			"The method Zork() is undefined for the type Point\n" + 
+			"----------\n");
+	}
+	public void testBug553152_014() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(Integer myInt, int myZ) I {\n"+
+						"  public Point(Integer myInt, int myZ) {\n" +
+						"     super();\n" +
+						"     this.myInt = 0;\n" +
+						"     this.myZ = 0;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	super();\n" + 
+			"	^^^^^^^^\n" + 
+			"The body of a canonical constructor must not contain an explicit constructor call\n" + 
+			"----------\n");
+	}
+	public void testBug553152_015() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(Integer myInt, int myZ) I {\n"+
+						"  public Point(Integer myInt, int myZ) {\n" +
+						"     this.Point(0);\n" +
+						"     this.myInt = 0;\n" +
+						"     this.myZ = 0;\n" +
+						"  }\n"+
+						"  public Point(Integer myInt) {}\n" +
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	this.Point(0);\n" + 
+			"	     ^^^^^\n" + 
+			"The method Point(int) is undefined for the type Point\n" +
+			"----------\n" + 
+			"2. ERROR in X.java (at line 12)\n" + 
+			"	public Point(Integer myInt) {}\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The blank final field myInt may not have been initialized\n" +
+			"----------\n" + 
+			"3. ERROR in X.java (at line 12)\n" + 
+			"	public Point(Integer myInt) {}\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The blank final field myZ may not have been initialized\n" +
+			"----------\n");
+	}
+	public void testBug553152_016() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(Integer myInt, int myZ) I {\n"+
+						"  public Point {\n" +
+						"     super();\n" +
+						"     this.myInt = 0;\n" +
+						"     this.myZ = 0;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	super();\n" + 
+			"	^^^^^^^^\n" + 
+			"The body of a compact constructor must not contain an explicit constructor call\n" + 
 			"----------\n");
 	}
 }

@@ -10697,23 +10697,14 @@ protected void consumeRecordDeclaration() {
 	RecordDeclaration rd = (RecordDeclaration) this.astStack[this.astPtr];
 
 	//convert constructor that do not have the type's name into methods
-//	boolean hasConstructor = rd.checkConstructors(this);
 	ConstructorDeclaration cd = rd.getConstructor(this);
-	if (cd == null)
+	if (cd == null) {
+		/* create canonical constructor - check for the clash later at binding time */
 		cd = rd.createDefaultConstructor(!(this.diet && this.dietInt == 0), true);
-
-	if (cd instanceof CompactConstructorDeclaration) {
-		// TODO : To decide whether to park it for later
-		// ((CompactConstructorDeclaration) cd).insertDefaultInit(rd);
+	} else {
+		cd.bits |= ASTNode.IsCanonicalConstructor;
 	}
 
-	//add the default constructor when needed
-//	if (!hasConstructor) {
-		// TODO: BETA_JAVA14_RECORD typeDecl.createDefaultCompactConstructor()
-//	}
-	//TODO: BETA_JAVA14_RECORD Make sure that there is only one and only one compact constructor?
-
-	//always add <clinit> (will be remove at code gen time if empty)
 	if (this.scanner.containsAssertKeyword) {
 		rd.bits |= ASTNode.ContainsAssertion;
 	}

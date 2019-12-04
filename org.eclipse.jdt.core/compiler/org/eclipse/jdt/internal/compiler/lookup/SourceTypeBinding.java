@@ -65,17 +65,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.RecordDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
+import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -1572,6 +1575,16 @@ public boolean hasMemberTypes() {
     return this.memberTypes.length > 0;
 }
 
+private int getImplicitCanonicalConstructor() {
+	if (this.methods != null && this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
+		for (int i = 0, l = this.methods.length; i < l; ++i) {
+			MethodBinding method = this.methods[i];
+			if ((method.tagBits & TagBits.IsCanonicalConstructor ) != 0 && (method.tagBits & TagBits.isImplicitConstructor) != 0)
+				return i;
+		}
+	}
+	return -1;
+}
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 @Override
 public MethodBinding[] methods() {
@@ -1603,7 +1616,7 @@ public MethodBinding[] methods() {
 	try {
 		for (int i = 0, length = this.methods.length; i < length; i++) {
 			if ((this.tagBits & TagBits.AreMethodsComplete) != 0) {
-				// recursive call to methods() from resolveTypesFor(..) resolved the methods
+				// recursive c-all to methods() from resolveTypesFor(..) resolved the methods
 				return this.methods;
 			}
 
@@ -1620,7 +1633,8 @@ public MethodBinding[] methods() {
 		// find & report collision cases
 		boolean complyTo15OrAbove = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		boolean compliance16 = this.scope.compilerOptions().complianceLevel == ClassFileConstants.JDK1_6;
-		
+		int recordCanonIndex = getImplicitCanonicalConstructor();
+
 		for (int i = 0, length = this.methods.length; i < length; i++) {
 			int severity = ProblemSeverities.Error;
 			MethodBinding method = resolvedMethods[i];
@@ -1719,6 +1733,18 @@ public MethodBinding[] methods() {
 					// prior to 1.5, parameters identical meant a collision case
 					continue nextSibling;
 				}
+				if (recordCanonIndex == i || recordCanonIndex == j) {
+					// do not alter original method array until resolution is over, due to reentrance (143259)
+					if (resolvedMethods == this.methods)
+						System.arraycopy(this.methods, 0, resolvedMethods = new MethodBinding[length], 0, length);
+					resolvedMethods[recordCanonIndex] = null;
+					failed++;
+					MethodBinding explicitCanonicalConstructor = recordCanonIndex == i ? this.methods[j] : this.methods[i];
+					methodDecl = explicitCanonicalConstructor.sourceMethod();
+					checkRecordCanonicalConstructor(methodDecl, explicitCanonicalConstructor);
+					recordCanonIndex = -1; // reset;
+					continue;
+				}
 				// otherwise duplicates / name clash
 				boolean isEnumSpecialMethod = isEnum() && (CharOperation.equals(selector,TypeConstants.VALUEOF) || CharOperation.equals(selector,TypeConstants.VALUES));
 				// report duplicate
@@ -1797,6 +1823,40 @@ public MethodBinding[] methods() {
 		this.tagBits |= TagBits.AreMethodsComplete;
 	}
 	return this.methods;
+}
+
+private void checkRecordCanonicalConstructor(AbstractMethodDeclaration methodDecl,
+		MethodBinding explicitCanonicalConstructor) {
+	if (!explicitCanonicalConstructor.isPublic())
+		this.scope.problemReporter().recordCanonicalConstructorNotPublic(methodDecl);
+	TypeParameter[] typeParameters = methodDecl.typeParameters();
+	if (typeParameters != null && typeParameters.length > 0)
+		this.scope.problemReporter().recordCanonicalConstructorShouldNotBeGeneric(methodDecl);
+	if (explicitCanonicalConstructor.thrownExceptions != null && explicitCanonicalConstructor.thrownExceptions.length > 0)
+		this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(methodDecl);
+	explicitCanonicalConstructor.tagBits |= TagBits.IsCanonicalConstructor;
+	ASTVisitor visitor = new ASTVisitor() {
+		@Override
+		public boolean visit(ExplicitConstructorCall explicitConstructorCall, BlockScope skope) {
+			if (explicitConstructorCall.accessMode != ExplicitConstructorCall.ImplicitSuper)
+				skope.problemReporter().recordCanonicalConstructorHasExplicitConstructorCall(explicitConstructorCall);
+			return false;
+		}
+		@Override
+		public boolean visit(MethodDeclaration methodDeclaration, ClassScope skope) {
+			return false;
+		}
+		@Override
+		public boolean visit(LambdaExpression lambda, BlockScope skope) {
+			return false;
+		}
+		@Override
+		public boolean visit(ReturnStatement returnStatement, BlockScope skope) {
+			skope.problemReporter().recordCompactConstructorHasReturnStatement(returnStatement);
+			return false;
+		}
+	};
+	methodDecl.traverse(visitor, this.scope);
 }
 
 @Override

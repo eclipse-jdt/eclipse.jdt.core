@@ -11394,7 +11394,7 @@ public void recordCanonicalConstructorNotPublic(AbstractMethodDeclaration method
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(
-		IProblem.RecordCanonicalConstructorNotPublic,
+		IProblem.RecordCanonicalConstructorShouldBePublic,
 		new String[] {
 				new String(methodDecl.selector)
 			},
@@ -11493,6 +11493,66 @@ public void recordAccessorMethodShouldBePublic(ASTNode methodDecl) {
 		return;
 	this.handle(
 		IProblem.RecordAccessorMethodShouldBePublic,
+		NoArgument,
+		NoArgument,
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
+public void recordCanonicalConstructorShouldNotBeGeneric(AbstractMethodDeclaration methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordCanonicalConstructorShouldNotBeGeneric,
+		new String[] { new String(methodDecl.selector)},
+		new String[] { new String(methodDecl.selector)},
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
+public void recordCanonicalConstructorShouldBePublic(MethodDeclaration methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordCanonicalConstructorShouldBePublic,
+		new String[] { new String(methodDecl.selector)},
+		new String[] { new String(methodDecl.selector)},
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
+public void recordCanonicalConstructorHasThrowsClause(AbstractMethodDeclaration methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordCanonicalConstructorHasThrowsClause,
+		new String[] { new String(methodDecl.selector)},
+		new String[] { new String(methodDecl.selector)},
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
+public void recordCanonicalConstructorHasReturnStatement(ASTNode methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordCanonicalConstructorHasReturnStatement,
+		NoArgument,
+		NoArgument,
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
+public void recordCanonicalConstructorHasExplicitConstructorCall(ASTNode methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordCanonicalConstructorHasExplicitConstructorCall,
+		NoArgument,
+		NoArgument,
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
+public void recordCompactConstructorHasExplicitConstructorCall(ASTNode methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordCompactConstructorHasExplicitConstructorCall,
 		NoArgument,
 		NoArgument,
 		methodDecl.sourceStart,

@@ -2244,7 +2244,7 @@ void setSourceStart(int sourceStart);
 	int RecordCanonicalConstructorHasThrowsClause = PreviewRelated + 1735;
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
-	int RecordCanonicalConstructorNotPublic = PreviewRelated + 1736;
+	int RecordCanonicalConstructorShouldBePublic = PreviewRelated + 1736;
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordMultipleCanonicalConstructors = PreviewRelated + 1737;
@@ -2272,6 +2272,18 @@ void setSourceStart(int sourceStart);
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordAccessorMethodShouldBePublic = PreviewRelated + 1745;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordCanonicalConstructorShouldNotBeGeneric = PreviewRelated + 1746;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordCanonicalConstructorHasReturnStatement = PreviewRelated + 1747;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordCanonicalConstructorHasExplicitConstructorCall = PreviewRelated + 1748;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordCompactConstructorHasExplicitConstructorCall = PreviewRelated + 1749;
 
 	/* records - end */
 	/* Java14 errors - end */

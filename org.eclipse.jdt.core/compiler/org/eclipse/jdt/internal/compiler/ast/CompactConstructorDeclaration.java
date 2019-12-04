@@ -42,7 +42,17 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 		parser.parse(this, unit, false);
 		ASTVisitor visitor = new ASTVisitor() {
 			@Override
+			public boolean visit(ExplicitConstructorCall explicitConstructorCall, BlockScope skope) {
+				if (explicitConstructorCall.accessMode != ExplicitConstructorCall.ImplicitSuper)
+					skope.problemReporter().recordCompactConstructorHasExplicitConstructorCall(explicitConstructorCall);
+				return false;
+			}
+			@Override
 			public boolean visit(MethodDeclaration methodDeclaration, ClassScope skope) {
+				return false;
+			}
+			@Override
+			public boolean visit(LambdaExpression lambda, BlockScope skope) {
 				return false;
 			}
 			@Override
