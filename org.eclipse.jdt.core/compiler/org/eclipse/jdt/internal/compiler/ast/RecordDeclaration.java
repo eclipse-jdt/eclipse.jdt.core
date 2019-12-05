@@ -147,8 +147,9 @@ public class RecordDeclaration extends TypeDeclaration {
 		/* The body of the implicitly declared canonical constructor initializes each field corresponding
 		 * to a record component with the corresponding formal parameter in the order that they appear
 		 * in the record component list.*/
-		Statement[] statements = new Statement[this.args.length];
-		for (int i = 0, l = this.args.length; i < l; ++i) {
+		int l = this.args != null ? this.args.length : 0;
+		Statement[] statements = new Statement[l];
+		for (int i = 0; i < l; ++i) {
 			Argument arg = this.args[i];
 			FieldReference lhs = new FieldReference(arg.name, 0);
 			lhs.receiver = ThisReference.implicitThis();

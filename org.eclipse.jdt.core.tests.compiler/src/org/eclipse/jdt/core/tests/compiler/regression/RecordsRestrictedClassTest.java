@@ -804,6 +804,87 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"Record is a restricted identifier and hence not a valid type name\n" + 
 			"----------\n");
 	}
+	public void testBug550750_037() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(){\n"+
+						"}\n"
+				},
+			"0");
+	}
+	public void testBug550750_038() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(){\n"+
+						"   public Point {}\n"+
+						"}\n"
+				},
+			"0");
+	}
+	public void testBug550750_039() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(){\n"+
+						"   public Point() {}\n"+
+						"}\n"
+				},
+			"0");
+	}
+	public void testBug550750_040() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(){\n"+
+						"   private int f;\n"+
+ 						"   public Point() {}\n"+
+						"}\n"
+				},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	private int f;\n" + 
+			"	            ^\n" + 
+			"User declared non-static fields f are not permitted in a record\n" + 
+			"----------\n");
+	}
+	public void testBug550750_041() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(){\n"+
+						"   static int f;\n"+
+						"   public Point() {}\n"+
+						"}\n"
+				},
+			"0");
+	}
 	public void testBug553152_001() {
 		this.runNegativeTest(
 				new String[] {

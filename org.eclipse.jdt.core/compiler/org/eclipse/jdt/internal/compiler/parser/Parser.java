@@ -11099,13 +11099,14 @@ protected void dispatchDeclarationIntoRecordDeclaration(int length) {
 	RecordDeclaration recordDecl = (RecordDeclaration) this.astStack[this.astPtr];
 	int nCreatedFields = recordDecl.fields != null ? recordDecl.fields.length : 0;
 	if (nFields != 0) {
-		FieldDeclaration[] tmp = new FieldDeclaration[recordDecl.fields.length + nFields];
-		System.arraycopy(
-				recordDecl.fields,
-				0,
-				tmp,
-				0,
-				recordDecl.fields.length);
+		FieldDeclaration[] tmp = new FieldDeclaration[(recordDecl.fields != null ? recordDecl.fields.length  : 0) + nFields];
+		if (recordDecl.fields != null)
+			System.arraycopy(
+					recordDecl.fields,
+					0,
+					tmp,
+					0,
+					recordDecl.fields.length);
 		recordDecl.fields = tmp;
 	}
 	if (size2 != 0) {
@@ -11166,6 +11167,8 @@ protected void dispatchDeclarationIntoRecordDeclaration(int length) {
 	}
 }
 private void checkForRecordMemberErrors(RecordDeclaration recordDecl, int nCreatedFields) {
+	if (recordDecl.fields == null)
+		return;
 	for (int i = nCreatedFields; i < recordDecl.fields.length; i++) {
 		FieldDeclaration f = recordDecl.fields[i];
 		if (f != null && !f.isStatic()) {
