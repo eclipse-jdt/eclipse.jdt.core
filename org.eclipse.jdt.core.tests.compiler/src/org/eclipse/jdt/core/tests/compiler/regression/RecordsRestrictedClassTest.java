@@ -1210,4 +1210,89 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The body of a compact constructor must not contain an explicit constructor call\n" + 
 			"----------\n");
 	}
+	public void testBug553153_01() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(0);\n" +
+				"  }\n"+
+				"}\n"+
+				"record Point(int myInt, char myChar) I {\n"+
+				"  public Point {\n"+
+				"     this.myInt = myInt;\n" +
+				"  }\n"+
+				"}\n" +
+				"interface I {}\n"
+			},
+			"0");
+	}
+	public void testBug553153_002() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(0);\n"+
+				"  }\n"+
+				"}\n"+
+				"record Point(int myInt, char myChar) I {\n"+
+				"  public Point {\n"+
+				"	this.myInt = myInt;\n" +
+				"	if (this.myInt > 0)  // conditional assignment\n" +
+				"		this.myChar = myChar;\n" +
+				"  }\n"+
+				"}\n" +
+				"interface I {}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	public Point {\n" + 
+		"	       ^^\n" + 
+		"The blank final field myChar may not have been initialized\n" +
+		"----------\n");
+}
+public void testBug553153_003() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"+
+			"record Point(int myInt, char myChar) I {\n"+
+			"  static int f;\n"+
+			"  public Point {\n"+
+			"     this.myInt = myInt;\n" +
+			"  }\n"+
+			"}\n" + 
+			"interface I {}\n"
+		},
+	 "0");
+}
+public void testBug553153_004() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n"+
+			"  }\n"+
+			"}\n"+
+			"record Point(int myInt, char myChar) I {\n"+
+			"  public Point(int myInt, char myChar) {\n"+
+			"	this.myInt = myInt;\n" +
+			"  }\n"+
+			"}\n" +
+			"interface I {}\n"
+	},
+	"----------\n" +
+	"1. ERROR in X.java (at line 7)\n" + 
+	"	public Point(int myInt, char myChar) {\n" + 
+	"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"The blank final field myChar may not have been initialized\n" + 
+	"----------\n");
+}
 }

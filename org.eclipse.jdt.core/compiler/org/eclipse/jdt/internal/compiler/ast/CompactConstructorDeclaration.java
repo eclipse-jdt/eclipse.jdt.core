@@ -18,6 +18,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -65,8 +67,11 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 			unit.traverse(visitor, unit.scope);
 	}
 	@Override
-	protected boolean generateFieldAssignment(FieldBinding field, int i) {
-		// TODO : Add Code for missing field assignments
+	protected void checkAndGenerateFieldAssignment(FlowContext flowContext, FlowInfo flowInfo, FieldBinding field) {
+		if (field.isStatic() ||
+				flowInfo.isDefinitelyAssigned(field) || flowInfo.isPotentiallyAssigned(field))
+			return;
+		assert field.isFinal();
 		/* JLS 14 8.10.5 Compact Record Constructor Declarations
 		 * In addition, at the end of the body of the compact constructor, all the fields
 		 * corresponding to the record components of R that are definitely unassigned
@@ -74,19 +79,13 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 		 * corresponding formal parameter. These fields are implicitly initialized in the
 		 * order that they are declared in the record component list.
 		 */
-		/*
-		FieldReference lhs = new FieldReference(field.name, 0);
-		lhs.receiver = ThisReference.implicitThis();
-		lhs.actualReceiverType = this.recordDeclaration.binding;
-		lhs.binding = field;
-		lhs.resolvedType = field.type;
-		//TODO: set definitelyAssigned to true;
-		//TODO: Check anything to be done for null analysis.
-		SingleNameReference rhs = new SingleNameReference(field.name, 0);
-		rhs.actualReceiverType = this.recordDeclaration.binding;
- 
-		rhs.resolvedType = field.type;
-		Assignment assignment = new Assignment(lhs, rhs, 0);
+		FieldReference lhs = new FieldReference(field.name,0);
+		lhs.receiver = new ThisReference(0, 0);
+		//TODO: Check whether anything has to be done for null analysis.
+		Assignment assignment = new Assignment(lhs, new SingleNameReference(field.name, 0), 0);
+		assignment.resolveType(this.scope);
+		assignment.analyseCode(this.scope, flowContext, flowInfo);
+		assert flowInfo.isDefinitelyAssigned(field);
 		Statement[] stmts = this.statements;
 		if (this.statements == null) {
 			this.statements = new Statement[] { assignment };
@@ -100,7 +99,6 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 					len);
 			stmts[len] = assignment;
 			this.statements = stmts;
-		}*/
-		return true; // TODO: Enable the code above during flow analysis. 
+		}
 	}
 }
