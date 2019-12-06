@@ -11568,4 +11568,14 @@ public void recordNestedRecordInherentlyStatic(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void recordAccessorMethodShouldNotBeStatic(ASTNode methodDecl) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordAccessorMethodShouldNotBeStatic,
+		NoArgument,
+		NoArgument,
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
 }

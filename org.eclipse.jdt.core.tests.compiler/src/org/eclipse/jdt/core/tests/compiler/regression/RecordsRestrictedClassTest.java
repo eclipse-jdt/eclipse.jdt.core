@@ -27,7 +27,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug550750_019" };
+//		TESTS_NAMES = new String[] { "testBug553152_018" };
 	}
 	
 	public static Class<?> testClass() {
@@ -1311,7 +1311,52 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		"Nested Record is (implicitly) static and hence enclosing type should be static\n" + 
 		"----------\n");
 	}
-	public void testBug553153_01() {
+	public void _testBug553152_018() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"import java.lang.annotation.Target;\n"+
+						"import java.lang.annotation.ElementType;\n"+
+						"class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, char myChar) {}\n"+
+						" @Target({ElementType.FIELD, ElementType.TYPE})\n"+
+						" @interface MyAnnotation {}\n"
+				},
+			"0");
+	}
+	public void testBug553152_019() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"+
+						"  public static void main(String[] args){\n"+
+						"     System.out.println(0);\n" +
+						"  }\n"+
+						"}\n"+
+						"record Point(int myInt, int myZ) I {\n"+
+						"  public static int myInt() {;\n" +
+						"     return 0;\n" +
+						"  }\n"+
+						"}\n" +
+						"interface I {}\n"
+				},
+			"----------\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	record Point(int myInt, int myZ) I {\n" + 
+			"	                 ^^^^^\n" + 
+			"The value of the field Point.myInt is not used\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 7)\n" + 
+			"	public static int myInt() {;\n" + 
+			"	                  ^^^^^^^\n" + 
+			"The accessor method must not be static\n" + 
+			"----------\n");
+	}
+public void testBug553153_01() {
 		runConformTest(
 			new String[] {
 				"X.java",

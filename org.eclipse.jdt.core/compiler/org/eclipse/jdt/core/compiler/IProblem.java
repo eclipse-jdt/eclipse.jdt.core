@@ -2287,6 +2287,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordNestedRecordInherentlyStatic = PreviewRelated + 1750;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordAccessorMethodShouldNotBeStatic= PreviewRelated + 1751;
 
 	/* records - end */
 	/* Java14 errors - end */
