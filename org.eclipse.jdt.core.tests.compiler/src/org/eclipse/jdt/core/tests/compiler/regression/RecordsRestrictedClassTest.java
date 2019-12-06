@@ -1291,6 +1291,26 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"The body of a compact constructor must not contain an explicit constructor call\n" + 
 			"----------\n");
 	}
+	public void testBug553152_017() {
+		this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				"  public class Inner {\n"+
+				"    record Point(int myInt, char myChar) {}\n"+
+				"  }\n"+
+				"  public static void main(String[] args){\n"+
+				"     System.out.println(0);\n"+
+				"  }\n"+
+				"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	record Point(int myInt, char myChar) {}\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Nested Record is (implicitly) static and hence enclosing type should be static\n" + 
+		"----------\n");
+	}
 	public void testBug553153_01() {
 		runConformTest(
 			new String[] {

@@ -2284,6 +2284,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordCompactConstructorHasExplicitConstructorCall = PreviewRelated + 1749;
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordNestedRecordInherentlyStatic = PreviewRelated + 1750;
 
 	/* records - end */
 	/* Java14 errors - end */

@@ -11558,4 +11558,14 @@ public void recordCompactConstructorHasExplicitConstructorCall(ASTNode methodDec
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+public void recordNestedRecordInherentlyStatic(SourceTypeBinding type) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	this.handle(
+		IProblem.RecordNestedRecordInherentlyStatic,
+		NoArgument,
+		NoArgument,
+		type.sourceStart(),
+		type.sourceEnd());
+}
 }

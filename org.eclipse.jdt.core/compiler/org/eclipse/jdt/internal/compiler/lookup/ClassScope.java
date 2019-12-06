@@ -730,8 +730,11 @@ public class ClassScope extends Scope {
 				if (enclosingType.isInterface())
 					modifiers |= ClassFileConstants.AccStatic;
 			} else if (!enclosingType.isStatic()) {
-				// error the enclosing type of a static field must be static or a top-level type
-				problemReporter().illegalStaticModifierForMemberType(sourceType);
+				if (sourceType.isRecord())
+					problemReporter().recordNestedRecordInherentlyStatic(sourceType);
+				else
+					// error the enclosing type of a static field must be static or a top-level type
+					problemReporter().illegalStaticModifierForMemberType(sourceType);
 			}
 		}
 
