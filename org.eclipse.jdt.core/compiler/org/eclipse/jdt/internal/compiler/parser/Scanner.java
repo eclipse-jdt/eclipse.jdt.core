@@ -690,30 +690,41 @@ public char[] getCurrentTextBlock() {
 		// And remove all trailing whitespace
 		// Finally append the \n at the end of the line (except the last line)
 		int length = l.length;
-		int trail = length - 1;
-		for(int j = trail; j > 0; j--) {
-			if (!ScannerHelper.isWhitespace(l[j])) {
-				trail = j;
+		int trail = length;
+		for(;trail > 0;) {
+			if (!ScannerHelper.isWhitespace(l[trail-1])) {
 				break;
 			}
+			trail--;
 		}
 		if (i >= (size -1)) {
 			if (newLine) result.append('\n');
 			if (trail < prefix)
 				continue;
-			newLine = getLineContent(result, l, prefix, trail, false, true);
+			newLine = getLineContent(result, l, prefix, trail-1, false, true);
 		} else {
-			if (trail < prefix)
-				trail = prefix; // To avoid AIOBE
 			if (i > 0 && newLine)
 				result.append('\n');
-			boolean merge = length > 0 && l[length - 1] == '\\';
-			newLine = getLineContent(result, l, prefix, trail, merge, false);
+			if (trail <= prefix) {
+				newLine = true;
+			} else {
+				boolean merge = length > 0 && l[length - 1] == '\\';
+				newLine = getLineContent(result, l, prefix, trail-1, merge, false);
+			}
 		}
 	}
 	//	get rid of all the cached values
 	this.rawStart = -1;
 	return result.toString().toCharArray();
+}
+private int replaceEscapedChar(StringBuilder result, char[] line, int start, int end, int position, int lastPointer, char c) {
+	if (lastPointer == 0) {
+		result.append(CharOperation.subarray(line, start, position));
+	} else {
+		result.append(CharOperation.subarray(line, lastPointer + 1, position));
+	}
+	result.append(c);
+	return ++position;
 }
 // This method is for handling the left over escaped characters during the first
 // scanning (scanForStringLiteral). Admittedly this goes over the text block 
@@ -721,35 +732,35 @@ public char[] getCurrentTextBlock() {
 // treat all the white space and line endings
 private boolean getLineContent(StringBuilder result, char[] line, int start, int end, boolean merge, boolean lastLine) {
 	int lastPointer = 0;
-	for(int i = start; i < line.length; i++) {
+	for(int i = start; i < end; i++) {
 		char c = line[i];
 		if (c == '\\') {
 			if ( i < end) {
 				switch (line[i+1]) {
 					case '\\' :
-						if (lastPointer == 0) {
-							result.append(CharOperation.subarray(line, start, i));
-						} else {
-							result.append(CharOperation.subarray(line, lastPointer + 1, i));
-						}
-						result.append('\\');
+						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, '\\');
 						if (i+1 == end)
 							merge = false;
-						lastPointer = ++i;
 						break;
-					case 's' :
-						if (lastPointer == 0) {
-							result.append(CharOperation.subarray(line, start, i));
-						} else {
-							result.append(CharOperation.subarray(line, lastPointer + 1, i));
-						}
-						result.append(' ');
-						lastPointer = ++i;
+						// Uncomment the following code when the spec allows
+						// the new escape sequences \\ and \s
+//					case 's' :
+//						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, ' ');
+//						break;
+					case 'n' :
+						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, '\n');
+						break;
+					case 'r' :
+						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, '\r');
+						break;
+					case 'f' :
+						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, '\f');
+						break;
 				}
 			}
 		} 
 	}
-	end = merge ? end : end + 1;
+	end = merge ? end : end >= line.length ? end : end + 1;
 	char[] chars = lastPointer == 0 ? 
 			CharOperation.subarray(line, start, end) :
 				CharOperation.subarray(line, lastPointer + 1, end);
@@ -2004,11 +2015,17 @@ private int scanForStringLiteral() throws InvalidInputException {
 				}
 				if (this.currentCharacter == '\\') {
 					switch(this.source[this.currentPosition]) {
-						case '\n' :
-						case '\r' :
-							this.currentCharacter = '\\';
-							this.currentPosition++;
+						case 'n' :
+						case 'r' :
+						case 'f' :
 							break;
+						// Uncomment the following code when the spec allows
+						// the new escape sequences \\ and \s
+//						case '\n' :
+//						case '\r' :
+//							this.currentCharacter = '\\';
+//							this.currentPosition++;
+//							break;
 						case '\\' :
 							this.currentPosition++;
 							break;

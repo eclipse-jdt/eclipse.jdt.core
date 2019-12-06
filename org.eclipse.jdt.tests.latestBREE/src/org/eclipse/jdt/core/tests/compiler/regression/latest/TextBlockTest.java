@@ -53,15 +53,8 @@ public class TextBlockTest extends AbstractRegressionTest {
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
-	
-	@Override
-	protected void runConformTest(String[] testFiles, Map<String, String> customOptions) {
-		super.runConformTest(testFiles, "", null, true, new String[] {"--enable-preview"}, customOptions, null);
-	}
-
-	@Override
-	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
-		super.runConformTest(testFiles, expectedOutput, null, true, new String[] {"--enable-preview"}, customOptions, null);
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments) {
+		runConformTest(testFiles, expectedOutput, customOptions, vmArguments, new JavacTestOptions("-source 14 --enable-preview"));
 	}
 	public void test001() {
 		runNegativeTest(
@@ -189,14 +182,14 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"X.java",
 						"public class X {\n" +
 						"	public static String textb = \"\"\"\n" + 
-						"abc\\\\def\"" + 
+						"abc\\\\def" + 
 						"\"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
-						"		System.out.println(textb);\n" +
+						"		System.out.print(textb);\n" +
 						"	}\n" +
 						"}\n"
 				},
-				"abc\\def\"",
+				"abc\\def",
 				null,
 				new String[] {"--enable-preview"});
 	}
@@ -275,7 +268,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				},
 				"<    line 1\n" + 
 				"    line 2\n" + 
-				"  \n" + 
+				"\n" + 
 				"  line 3\n" +
 				">", // the trailing whitespace is trimmed by the test framework
 				null,
@@ -290,14 +283,14 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"X.java",
 						"public class X {\n" +
 						"	public static String textb = \"\"\"\n" + 
-						"\"abc-def\"" + 
+						"\"abc-def" + 
 						"\"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
 						"		System.out.println(textb);\n" +
 						"	}\n" +
 						"}\n"
 				},
-				"\"abc-def\"",
+				"\"abc-def",
 				null,
 				new String[] {"--enable-preview"});
 	}
@@ -321,7 +314,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				new String[] {"--enable-preview"});
 	}
 	/*
-	 * positive - using escaped escaped \ and escaped " in text block
+	 * positive - using escaped \ and escaped " in text block
 	 */
 	public void test011() {
 		runConformTest(
@@ -329,13 +322,13 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"X.java",
 						"public class X {\n" +
 						"	public static String textb = \"\"\"\n" + 
-						"\"abc\\\"\"\"def\"\"\"\";\n" +
+						"\"abc\\\"\"\"def\"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
 						"		System.out.println(textb);\n" +
 						"	}\n" +
 						"}\n"
 				},
-				"\"abc\"\"\"def\"",
+				"\"abc\"\"\"def",
 				null,
 				new String[] {"--enable-preview"});
 	}
@@ -374,7 +367,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"              }\n" + 
 						"              \"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
-						"		System.out.println(code);\n" +
+						"		System.out.print(code);\n" +
 						"	}\n" +
 						"}\n"
 				},
@@ -398,7 +391,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"              }\n" + 
 						"              \"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
-						"		System.out.println(code);\n" +
+						"		System.out.print(code);\n" +
 						"	}\n" +
 						"}\n"
 				},
@@ -423,9 +416,9 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"    \"The question is,\" said Alice, \"whether you\n" + 
 						"    can make words mean so many different things.\"\n" + 
 						"    \"The question is,\" said Humpty Dumpty,\n" + 
-						"    \"which is to be master - that's all.\"\"\"\";\n" +
+						"    \"which is to be master - that's all.\"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
-						"		System.out.println(story);\n" +
+						"		System.out.print(story);\n" +
 						"	}\n" +
 						"}\n"
 				},
@@ -435,7 +428,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"\"The question is,\" said Alice, \"whether you\n" + 
 				"can make words mean so many different things.\"\n" + 
 				"\"The question is,\" said Humpty Dumpty,\n" + 
-				"\"which is to be master - that's all.\"",
+				"\"which is to be master - that's all.",
 				null,
 				new String[] {"--enable-preview"});
 	}
@@ -448,14 +441,13 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"X.java",
 						"public class X {\n" +
 						"	static String html = \"\"\"\n" + 
-						"              <html>\\r" + 
-						"                  <body>\\r" + 
-						"                      <p>Hello, world</p>\\r" + 
-						"                  </body>\\r" + 
-						"              </html>\\r" + 
-						"              \"\"\";\n" +
+						"              <html>\n" + 
+						"                  <body>\n" + 
+						"                      <p>Hello, world</p>\n" + 
+						"                  </body>\n" + 
+						"              </html>\"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
-						"		System.out.println(html);\n" +
+						"		System.out.print(html);\n" +
 						"	}\n" +
 						"}\n"
 				},
@@ -488,10 +480,10 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"}\n"
 				},
 				"<html>\n" + 
-				"    <body>\n" + 
-				"        <p>Hello, world</p>\n" + 
-				"    </body>\n" + 
-				"</html>",
+				"                  <body>\n" + 
+				"                      <p>Hello, world</p>\n" + 
+				"                  </body>\n" + 
+				"              </html>",
 				null,
 				new String[] {"--enable-preview"});
 	}
@@ -532,11 +524,11 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"X.java",
 						"public class X {\n" +
 						"	static String html = \"\"\"\n" + 
-						"              <html>\\r" + 
-						"                  <body>\\r" + 
-						"                      <p>Hello, world</p>\\r" + 
-						"                  </body>\\r" + 
-						"              </html>\\r" + 
+						"              <html>\n" + 
+						"                  <body>\n" + 
+						"                      <p>Hello, world</p>\n" + 
+						"                  </body>\n" + 
+						"              </html>\n" + 
 						"              \"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
 						"		System.out.println(html);\n" +
@@ -560,11 +552,11 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"X.java",
 						"public class X {\n" +
 						"	static String html = \"\"\"\n" + 
-						"              <html>  \\r" + 
-						"                  <body>    \\r" + 
-						"                      <p>Hello, world</p>      \\r" + 
-						"                  </body>    \\r" + 
-						"              </html>  \\r" + 
+						"              <html>  \n" + 
+						"                  <body>    \n" + 
+						"                      <p>Hello, world</p>      \n" + 
+						"                  </body>    \n" + 
+						"              </html>  \n" + 
 						"                   \"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
 						"		System.out.println(html);\n" +
@@ -582,16 +574,16 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - using octal escape char for trailing whitespace
 	 */
-	public void test018() {
+	public void _test018() {
 		runConformTest(
 				new String[] {
 						"X.java",
 						"public class X {\n" +
 						"	static String html = \"\"\"\n" + 
-						"              <html>\\040\\040\\r" + 
-						"                  <body>\\040\\040\\r" + 
-						"                      <p>Hello, world</p>\\040\\040\\040\\r" + 
-						"                  </body>\\040\\040\\r" + 
+						"              <html>\\040\\040\n" + 
+						"                  <body>\\040\\040\n" + 
+						"                      <p>Hello, world</p>\\040\\040\\040\n" + 
+						"                  </body>\\040\\040\n" + 
 						"              </html>\"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
 						"		System.out.print(html);\n" +
@@ -626,10 +618,10 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"}\n"
 				},
 				"<html>\n" + 
-				"    <body>\n" + 
-				"        <p>Hello, world</p>\n" + 
-				"    </body>\n" + 
-				"</html>",
+				"                  <body>\n" + 
+				"                      <p>Hello, world</p>\n" + 
+				"                  </body>\n" + 
+				"              </html>",
 				null,
 				new String[] {"--enable-preview"});
 	}
@@ -695,7 +687,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	 */
 	@SuppressWarnings("removal")
 	public void test022() {
-		String text = "abc\\\\def\"";
+		String text = "abc\\\\def";
 		runConformTest(
 				new String[] {
 						"X.java",
@@ -704,7 +696,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 						text + 
 						"\"\"\";\n" +
 						"	public static void main(String[] args) {\n" +
-						"		System.out.println(textb);\n" +
+						"		System.out.print(textb);\n" +
 						"	}\n" +
 						"}\n"
 				},
@@ -849,19 +841,19 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"}"
 				}, 
 				"public class Switch {\n" + 
-				"           public static void bar(int arg0) {\n" + 
-				"             int arg1 = 0;\n" + 
-				"             pointer: foo(\n" + 
-				"               switch (0 + arg0) {\n" + 
-				"                 case 1 -> 1;\n" + 
-				"                 default -> {break p;}\n" + 
+				"  public static void bar(int arg0) {\n" + 
+				"    int arg1 = 0;\n" + 
+				"    pointer: foo(\n" + 
+				"      switch (0 + arg0) {\n" + 
+				"        case 1 -> 1;\n" + 
+				"        default -> {break p;}\n" + 
 				"\"\n" + 
-				"               }\n" + 
-				"             });\n" + 
-				"             public static void foo(int arg0) {\n" + 
-				"               bar(MyDay.SUNDAY);\n" + 
-				"               }\n" + 
-				"             }",
+				"      }\n" + 
+				"    });\n" + 
+				"    public static void foo(int arg0) {\n" + 
+				"      bar(MyDay.SUNDAY);\n" + 
+				"      }\n" + 
+				"    }",
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
@@ -926,7 +918,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
-	public void testBug551948_1() {
+	public void _testBug551948_1() {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
@@ -945,7 +937,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
-	public void testBug551948_2() {
+	public void _testBug551948_2() {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
@@ -963,7 +955,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
-	public void testBug551948_3() {
+	public void _testBug551948_3() {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
@@ -982,7 +974,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
-	public void testBug551948_4() {
+	public void _testBug551948_4() {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
@@ -1028,7 +1020,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				true,
 				getCompilerOptions(true));
 	}
-	public void testBug551948_6() {
+	public void _testBug551948_6() {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
@@ -1043,7 +1035,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
-	public void testBug551948_7() {
+	public void _testBug551948_7() {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
