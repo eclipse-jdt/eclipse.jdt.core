@@ -6846,6 +6846,109 @@ public void testBug529199() {
 		"A.m"		
 	);
 }
+public void testBug553885a() {
+	runConformTest(
+			new String[] {
+					"p2/Test.java",
+						"package p2;\n" +
+						"import java.util.Optional;\n" +
+						"import p1.B;\n" +
+						"import p1.BImpl;\n" +
+						"\n" +
+						"public class Test {\n" +
+						"    public static void main(String[] args) {\n" +
+						"        Optional<Integer> map = Optional.of(new BImpl()).map(B::amount);\n" +
+						"        System.out.print(map);\n" +
+						"    }\n" +
+						"}",
+					"p1/A.java",
+							"package p1;\n" +
+							"interface A {\n" +
+							"    default int amount() {\n" +
+							"        return 0;\n" +
+							"    }\n" +
+							"}\n",
+					"p1/B.java",
+							"package p1;\n" +
+							"public interface B extends A {}\n" +
+							"\n",
+					"p1/BImpl.java",
+							"package p1;\n" +
+							"public class BImpl implements B {}\n",
+			},
+			"Optional[0]"
+			);
+}
+public void testBug553885b() {
+	runConformTest(
+			new String[] {
+					"p2/Test.java",
+						"package p2;\n" +
+						"import java.util.Optional;\n" +
+						"import p1.B;\n" +
+						"import p1.BImpl;\n" +
+						"\n" +
+						"public class Test {\n" +
+						"    public static void main(String[] args) {\n" +
+						"        B b = new BImpl();\n" + // lead inference towards Optional<B> instead of Optional<BImpl>
+						"        Optional<Integer> map = Optional.of(b).map(B::amount);\n" +
+						"        System.out.print(map);\n" +
+						"    }\n" +
+						"}",
+					"p1/A.java",
+							"package p1;\n" +
+							"interface A {\n" +
+							"    default int amount() {\n" +
+							"        return 0;\n" +
+							"    }\n" +
+							"}\n",
+					"p1/B.java",
+							"package p1;\n" +
+							"public interface B extends A {}\n" +
+							"\n",
+					"p1/BImpl.java",
+							"package p1;\n" +
+							"public class BImpl implements B {}\n",
+			},
+			"Optional[0]"
+			);
+}
+public void testBug553885c() {
+	// classes instead of interface with default method
+	runConformTest(
+			new String[] {
+					"p2/Test.java",
+						"package p2;\n" +
+						"import java.util.Optional;\n" +
+						"import p1.B;\n" +
+						"import p1.BImpl;\n" +
+						"\n" +
+						"public class Test {\n" +
+						"    public static void main(String[] args) {\n" +
+						"        B b = new BImpl();\n" +
+						"        Optional<Integer> map = Optional.of(b).map(B::amount);\n" +
+						"        System.out.print(map);\n" +
+						"    }\n" +
+						"}",
+					"p1/A.java",
+							"package p1;\n" +
+							"class A {\n" +
+							"    public int amount() {\n" +
+							"        return 0;\n" +
+							"    }\n" +
+							"}\n",
+					"p1/B.java",
+							"package p1;\n" +
+							"public class B extends A {}\n" +
+							"\n",
+					"p1/BImpl.java",
+							"package p1;\n" +
+							"public class BImpl extends B {}\n",
+			},
+			"Optional[0]"
+			);
+}
+
 public void testBug521182() {
 	runConformTest(
 		new String[] {

@@ -287,9 +287,11 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 				if (TypeBinding.notEquals(this.binding.declaringClass, this.lhs.resolvedType.erasure())) {
 					// reference to a method declared by an inaccessible type accessed via a
 					// subtype - normally a bridge method would be present to facilitate
-					// this access, unless the method is final/static, in which case, direct access to
+					// this access, unless the method is final/static/default, in which case, direct access to
 					// the method is not possible, an implicit lambda is needed
 					if (!this.binding.declaringClass.canBeSeenBy(this.enclosingScope)) {
+						if (this.binding.isDefaultMethod())
+							return false; // workaround for bug in MethodHandle lookup, see https://bugs.openjdk.java.net/browse/JDK-8068253
 						return !(this.binding.isFinal() || this.binding.isStatic());
 					}
 				}
