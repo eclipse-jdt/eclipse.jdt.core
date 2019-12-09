@@ -28,7 +28,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
-//		TESTS_NAMES = new String[] { "test018" };
+//		TESTS_NAMES = new String[] { "test016a" };
 	}
 	
 	public static Class<?> testClass() {
@@ -491,7 +491,6 @@ public class TextBlockTest extends AbstractRegressionTest {
 	 * positive - html code with indentation with empty lines
 	 * output compared with String API
 	 */
-	@SuppressWarnings("removal")
 	public void test016b() {
 		String text = "<html>\n" + 
 					"    <body>\n" + 
@@ -574,7 +573,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - using octal escape char for trailing whitespace
 	 */
-	public void _test018() {
+	public void test018() {
 		runConformTest(
 				new String[] {
 						"X.java",
@@ -685,7 +684,6 @@ public class TextBlockTest extends AbstractRegressionTest {
 	/*
 	 * positive - escaped '\', compare with String::translateEscapes
 	 */
-	@SuppressWarnings("removal")
 	public void test022() {
 		String text = "abc\\\\def";
 		runConformTest(
@@ -709,7 +707,6 @@ public class TextBlockTest extends AbstractRegressionTest {
 	 * 							String::translateEscapes
 	 * 							String::stripIndent
 	 */
-	@SuppressWarnings("removal")
 	public void test023() {
 		String text = "abc\\\"\"\"def\"  ";
 		runConformTest(
@@ -794,7 +791,6 @@ public class TextBlockTest extends AbstractRegressionTest {
 				true,
 				getCompilerOptions());
 	}
-	@SuppressWarnings("removal")
 	public void test026() {
 		String text = "abc\\\\def";
 		runConformTest(
@@ -880,6 +876,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
+						"@SuppressWarnings(\"preview\")\n" +
 						"public class Cls2 {\n" + 
 						"	public static String str = \"\"\"\n" + 
 						"			   Hello Guru	\n" + 
@@ -918,10 +915,11 @@ public class TextBlockTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
-	public void _testBug551948_1() {
+	public void testBug551948_1() {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
+						"@SuppressWarnings(\"preview\")\n" +
 						"public class Cls2 {\n" + 
 						"static String text = \"\"\"\n" + 
 						"            Lorem ipsum dolor sit amet, consectetur adipiscing \\\n" + 
@@ -937,10 +935,11 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
-	public void _testBug551948_2() {
+	public void testBug551948_2() {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
+						"@SuppressWarnings(\"preview\")\n" +
 						"public class Cls2 {\n" + 
 						"static String noLastLF = \"\"\"\n" + 
 						"    abc\n" + 
@@ -955,10 +954,11 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
-	public void _testBug551948_3() {
+	public void testBug551948_3() {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
+						"@SuppressWarnings(\"preview\")\n" +
 						"public class Cls2 {\n" + 
 						"static String python = \"\"\"\n" + 
 						"    if x == True and \\\\\n" + 
@@ -974,10 +974,11 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
-	public void _testBug551948_4() {
+	public void testBug551948_4() {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
+						"@SuppressWarnings(\"preview\")\n" +
 						"public class Cls2 {\n" + 
 						"static String colors = \"\"\"\n" + 
 						"    red   \\\n" + 
@@ -997,6 +998,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 		runNegativeTest(
 				new String[] {
 						"Cls2.java",
+						"@SuppressWarnings(\"preview\")\n" +
 						"public class Cls2 {\n" + 
 						"static String colors = \"\"\"\n" + 
 						"    \\red   \n" + 
@@ -1009,7 +1011,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"}"
 				},
 				"----------\n" + 
-				"1. ERROR in Cls2.java (at line 2)\n" + 
+				"1. ERROR in Cls2.java (at line 3)\n" + 
 				"	static String colors = \"\"\"\n" + 
 				"    \\red   \n" + 
 				"    \\green \n" + 
@@ -1020,10 +1022,11 @@ public class TextBlockTest extends AbstractRegressionTest {
 				true,
 				getCompilerOptions(true));
 	}
-	public void _testBug551948_6() {
+	public void testBug551948_6() {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
+						"@SuppressWarnings(\"preview\")\n" +
 						"public class Cls2 {\n" + 
 						"static String str = \"A\\sline\\swith\\sspaces\";\n" + 
 						"  public static void main (String[] args) {\n" +
@@ -1035,10 +1038,11 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}
-	public void _testBug551948_7() {
+	public void testBug551948_7() {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
+						"@SuppressWarnings(\"preview\")\n" +
 						"public class Cls2 {\n" + 
 						"static String colors = \"\"\"\n" + 
 						"    red  \\s\n" + 
@@ -1058,6 +1062,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 		runConformTest(
 				new String[] {
 						"Cls2.java",
+						"@SuppressWarnings(\"preview\")\n" +
 						"public class Cls2 {\n" + 
 						"static String s = \"\"\"\n" + 
 						"aaa\n" + 
@@ -1074,7 +1079,248 @@ public class TextBlockTest extends AbstractRegressionTest {
 				}, 
 				"aaa\n\n" + 
 				"bbb\n\n\n" + 
-				"ccc", // trailing whitespaces are trimmed
+				"ccc",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testCompliances_1() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	String textBlock = \"\"\"\n" + 
+						"\n" + 
+						"    			aa\"\"\";\n" + 
+						"    	 System.out.print(compare(textBlock));\n" + 
+						"    }\n" + 
+						"    private static boolean compare(String textBlock) {\n" + 
+						"    	char LF  = (char) 0x000A;\n" + 
+						"        String str = \"\" + LF + \"aa\";\n" + 
+						"        return textBlock.equals(str);\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"true",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testCompliances_2() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	String textBlock = \"\"\"\n" + 
+						"\\n" + 
+						"\\n" + 
+						"\"\"\";\n" + 
+						"    	 System.out.print(compare(textBlock));\n" + 
+						"    }\n" + 
+						"    private static boolean compare(String textBlock) {\n" + 
+						"    	 char LF  = (char) 0x000A;\n" + 
+						"        String str = \"\" + LF + LF + \"\";\n" + 
+						"        return textBlock.equals(str);\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"true",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testCompliances_3() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	 String textBlock = \"\"\"\n" + 
+						"\f" + 
+						"\"\"\";\n" + 
+						"    	 System.out.print(compare(textBlock));\n" + 
+						"    }\n" + 
+						"    private static boolean compare(String textBlock) {\n" + 
+						"    	 char LF  = (char) 0x000A;\n" + 
+						"        String str = \"\" + LF + '\\u0015' + \"\";\n" + 
+						"        return textBlock.equals(str.stripIndent());\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"true",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testCompliances_4() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	 String textBlock = \"\"\"\n" + 
+						"v\r" + 
+						"\r" + 
+						"vaa\"\"\";\n" + 
+						"	char[] cs = textBlock.toCharArray();\n" + 
+						"    for (char c : cs) {\n" + 
+						"		//System.out.print((int)c);\n" +
+						"		//System.out.print(',');\n" + 
+						"	}\n" + 
+						"    //System.out.println();\n" +
+						"    	 System.out.print(compare(textBlock));\n" + 
+						"    }\n" + 
+						"    private static boolean compare(String textBlock) {\n" + 
+						"    	 char LF  = (char) 0x000A;\n" + 
+						"        String str = \"v\" + LF + LF + '\\u0076' + \"aa\";\n" +
+						"        return textBlock.equals(str.stripIndent());\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"true",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testCompliances_5() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	 String textBlock = \"\"\"\n" + 
+						"aa\f" + 
+						"\f" + 
+						"\"\"\";\n" + 
+						"    	 System.out.print(compare(textBlock));\n" + 
+						"    }\n" + 
+						"    private static boolean compare(String textBlock) {\n" + 
+						"    	 char LF  = (char) 0x000A;\n" + 
+						"        String str = \"aa\" + LF + LF + \"\";\n" + 
+						"        return textBlock.equals(str);\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"false",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testCompliances_6() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	 String textBlock = \"\"\"\n" + 
+						"\n" + 
+						"\"\"\";\n" + 
+						"    	 System.out.print(compare(textBlock));\n" + 
+						"    }\n" + 
+						"    private static boolean compare(String textBlock) {\n" + 
+						"    	 char LF  = (char) 0x000A;\n" + 
+						"        String str = \"\" + '\\u0015' + LF + \"\";\n" + 
+						"        return textBlock.equals(str);\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"true",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testCompliances_7() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	 String textBlock = \"\"\"\n" + 
+						"aav\n" + 
+						"\"\"\";\n" + 
+						"    	 System.out.print(compare(textBlock));\n" + 
+						"    }\n" + 
+						"    private static boolean compare(String textBlock) {\n" + 
+						"    	 char LF  = (char) 0x000A;\n" + 
+						"        String str = \"aa\" + '\\u0076' + LF + \"\";\n" + 
+						"        return textBlock.equals(str.stripIndent());\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"true",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testCompliances_8() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	 String textBlock = \"\"\"\n" + 
+						"\\\"some\\\"\\n \\\"string\\\" \\n \\\"here\\\"\\n\"\"\";\n" + 
+						"    	 System.out.print(textBlock.length());\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"26",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	// Escaped """ with escaping at the first '"'
+	public void testCompliances_9() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	 String textBlock = \"\"\"\n" + 
+						"some string ends with \\\"\"\"\\n\"\"\";\n" + 
+						"    	 System.out.print(textBlock.length());\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"26",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	// Escaped """ with escaping at the second '"'
+	public void testCompliances_10() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	 String textBlock = \"\"\"\n" + 
+						"some string ends with \"\\\"\"\\n\"\"\";\n" + 
+						"    	 System.out.print(textBlock.length());\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"26",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	// Escaped """ with escaping at the third '"'
+	public void testCompliances_11() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	 String textBlock = \"\"\"\n" + 
+						"some string ends with \"\"\\\"\\n\"\"\";\n" + 
+						"    	 System.out.print(textBlock.length());\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"26",
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}

@@ -412,7 +412,7 @@ protected int getNextToken0() throws InvalidInputException {
 						} else {
 							this.currentCharacter = this.source[this.currentPosition++];
 						}
-						scanEscapeCharacter(false);
+						scanEscapeCharacter();
 					} else { // consume next character
 						this.unicodeAsBackSlash = false;
 						boolean checkIfUnicode = false;
@@ -524,7 +524,7 @@ protected int getNextToken0() throws InvalidInputException {
 									this.currentCharacter = this.source[this.currentPosition++];
 								}
 								// we need to compute the escape character in a separate buffer
-								scanEscapeCharacter(false);
+								scanEscapeCharacter();
 								if (this.withoutUnicodePtr != 0) {
 									unicodeStore();
 								}

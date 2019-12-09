@@ -645,9 +645,7 @@ public char[] getCurrentTextBlock() {
 			list.add(line);
 		} else {
 			for (char[] cs : sub) {
-				if (cs.length > 0) {
-					list.add(cs);
-				}
+				list.add(cs);
 			}
 		}
 	}
@@ -738,15 +736,14 @@ private boolean getLineContent(StringBuilder result, char[] line, int start, int
 			if ( i < end) {
 				switch (line[i+1]) {
 					case '\\' :
-						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, '\\');
+						lastPointer = replaceEscapedChar(result, line, start, end, i, lastPointer, '\\');
 						if (i+1 == end)
 							merge = false;
+						i = lastPointer;
 						break;
-						// Uncomment the following code when the spec allows
-						// the new escape sequences \\ and \s
-//					case 's' :
-//						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, ' ');
-//						break;
+					case 's' :
+						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, ' ');
+						break;
 					case 'n' :
 						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, '\n');
 						break;
@@ -1686,7 +1683,7 @@ protected int getNextToken0() throws InvalidInputException {
 						} else {
 							this.currentCharacter = this.source[this.currentPosition++];
 						}
-						scanEscapeCharacter(false);
+						scanEscapeCharacter();
 					} else { // consume next character
 						this.unicodeAsBackSlash = false;
 						checkIfUnicode = false;
@@ -2013,19 +2010,17 @@ private int scanForStringLiteral() throws InvalidInputException {
 				} else {
 					terminators = 0;
 				}
-				if (this.currentCharacter == '\\') {
+				outer: if (this.currentCharacter == '\\') {
 					switch(this.source[this.currentPosition]) {
 						case 'n' :
 						case 'r' :
 						case 'f' :
+							break outer;
+						case '\n' :
+						case '\r' :
+							this.currentCharacter = '\\';
+							this.currentPosition++;
 							break;
-						// Uncomment the following code when the spec allows
-						// the new escape sequences \\ and \s
-//						case '\n' :
-//						case '\r' :
-//							this.currentCharacter = '\\';
-//							this.currentPosition++;
-//							break;
 						case '\\' :
 							this.currentPosition++;
 							break;
@@ -2052,12 +2047,13 @@ private int scanForStringLiteral() throws InvalidInputException {
 								this.withoutUnicodePtr --;
 								this.currentCharacter = this.source[this.currentPosition++];
 							}
-							scanEscapeCharacter(true);
+							scanEscapeCharacter();
 							if (this.currentCharacter == ' ') {
 								if (this.withoutUnicodePtr == 0) {
 									unicodeInitializeBuffer(this.currentPosition - this.startPosition);
 								}
-								// Kludge, retain the backspace and also
+								// Kludge, retain the '\' and also
+								// when scanEscapeCharacters reads space in form of \040 and
 								// set the next character to 's'
 								// so, we get an escaped scape, i.e. \s, which will later be 
 								// replaced by space
@@ -2160,7 +2156,7 @@ private int scanForStringLiteral() throws InvalidInputException {
 						this.currentCharacter = this.source[this.currentPosition++];
 					}
 					// we need to compute the escape character in a separate buffer
-					scanEscapeCharacter(false);
+					scanEscapeCharacter();
 					if (this.withoutUnicodePtr != 0) {
 						unicodeStore();
 					}
@@ -2324,7 +2320,7 @@ public final void jumpOverMethodBody() {
 								} else {
 									this.currentCharacter = this.source[this.currentPosition++];
 								}
-								scanEscapeCharacter(false);
+								scanEscapeCharacter();
 							} catch (InvalidInputException ex) {
 								// ignore
 							}
@@ -2422,7 +2418,7 @@ public final void jumpOverMethodBody() {
 									} else {
 										this.currentCharacter = this.source[this.currentPosition++];
 									}
-									scanEscapeCharacter(false);
+									scanEscapeCharacter();
 								} catch (InvalidInputException ex) {
 									// ignore
 								}
@@ -3235,7 +3231,7 @@ private ScanContext getScanContext(int begin) {
 	return parser.getScanContext(this.source, begin - 1);
 }
 
-protected final void scanEscapeCharacter(boolean isTextblock) throws InvalidInputException {
+protected final void scanEscapeCharacter() throws InvalidInputException {
 	// the string with "\\u" is a legal string of two chars \ and u
 	//thus we use a direct access to the source (for regular cases).
 	switch (this.currentCharacter) {
@@ -3264,8 +3260,7 @@ protected final void scanEscapeCharacter(boolean isTextblock) throws InvalidInpu
 			this.currentCharacter = ' ';
 			break;
 		case '\\' :
-			if (!isTextblock)
-				this.currentCharacter = '\\';
+			this.currentCharacter = '\\';
 			break;
 		default :
 			// -----------octal escape--------------
