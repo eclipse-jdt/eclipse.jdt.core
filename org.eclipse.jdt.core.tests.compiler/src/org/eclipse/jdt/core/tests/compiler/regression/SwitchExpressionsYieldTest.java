@@ -53,6 +53,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
+	protected void runConformTestWithJavac(String[] testFiles, String expectedOutput) {
+		runConformTest(testFiles, expectedOutput, _getCompilerOptions(), new String[] {"--enable-preview"}, new JavacTestOptions("-source 14 --enable-preview"));
+	}
 	
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
@@ -129,7 +132,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"		};\n" +
 						"		return tw;\n" +
 						"	}\n" +
-						"	public static void main(String... args) {\n" +
+						"	public static void main(String[] args) {\n" +
 						"		System.out.print(twice(3));\n" +
 						"	}\n" +
 						"}\n"
@@ -3804,5 +3807,142 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"	^^^^^^^^^^^^^^^\n" + 
 			"Continue out of switch expressions not permitted\n" + 
 			"----------\n");
+	}
+		public void testConversion1() {
+		runConformTestWithJavac(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	 public static int i = 0;\n" +
+						"	 private static String typeName(byte arg){ return \"byte\"; }\n" + 
+						"    private static String typeName(char arg){ return \"char\"; }\n" + 
+						"    private static String typeName(short arg){ return \"short\"; }\n" + 
+						"    private static String typeName(int arg){ return \"int\"; }\n" + 
+						"    private static String typeName(float arg){ return \"float\"; }\n" + 
+						"    private static String typeName(long arg){ return \"long\"; }\n" + 
+						"    private static String typeName(double arg){ return \"double\"; }\n" + 
+						"    private static String typeName(String arg){ return \"String\"; }\n" +
+						"		public static void main(String[] args) {\n" +
+						"		 byte v1 = (byte)0;\n" + 
+						"        char v2 = ' ';\n" + 
+						"        var v = switch(i+1){\n" + 
+						"                    case 1 -> v2;\n" + 
+						"                    case 5 -> v1;\n" + 
+						"                    default -> v2;\n" + 
+						"        };\n" + 
+						"        System.out.print(typeName(v));\n" +
+						"	}\n" +
+						"}\n"
+				}, 
+				"int");
+	}
+	public void testConversion2() {
+		runConformTestWithJavac(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	 public static int i = 0;\n" +
+						"	 private static String typeName(byte arg){ return \"byte\"; }\n" + 
+						"    private static String typeName(char arg){ return \"char\"; }\n" + 
+						"    private static String typeName(short arg){ return \"short\"; }\n" + 
+						"    private static String typeName(int arg){ return \"int\"; }\n" + 
+						"    private static String typeName(float arg){ return \"float\"; }\n" + 
+						"    private static String typeName(long arg){ return \"long\"; }\n" + 
+						"    private static String typeName(double arg){ return \"double\"; }\n" + 
+						"    private static String typeName(String arg){ return \"String\"; }\n" +
+						"		public static void main(String[] args) {\n" +
+						"		 long v1 = 0L;\n" + 
+						"        double v2 = 0.;\n" + 
+						"        var v = switch(i+1){\n" + 
+						"                    case 1 -> v2;\n" + 
+						"                    case 5 -> v1;\n" + 
+						"                    default -> v2;\n" + 
+						"        };\n" + 
+						"        System.out.print(typeName(v));\n" +
+						"	}\n" +
+						"}\n"
+				}, 
+				"double");
+	}
+	public void testConversion3() {
+		runConformTestWithJavac(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	 public static int i = 0;\n" +
+						"	 private static String typeName(byte arg){ return \"byte\"; }\n" + 
+						"    private static String typeName(char arg){ return \"char\"; }\n" + 
+						"    private static String typeName(short arg){ return \"short\"; }\n" + 
+						"    private static String typeName(int arg){ return \"int\"; }\n" + 
+						"    private static String typeName(float arg){ return \"float\"; }\n" + 
+						"    private static String typeName(long arg){ return \"long\"; }\n" + 
+						"    private static String typeName(double arg){ return \"double\"; }\n" + 
+						"    private static String typeName(String arg){ return \"String\"; }\n" +
+						"		public static void main(String[] args) {\n" +
+						"		 long v1 = 0L;\n" + 
+						"        float v2 = 0.f;\n" + 
+						"        var v = switch(i+1){\n" + 
+						"                    case 1 -> v2;\n" + 
+						"                    case 5 -> v1;\n" + 
+						"                    default -> v2;\n" + 
+						"        };\n" + 
+						"        System.out.print(typeName(v));\n" +
+						"	}\n" +
+						"}\n"
+				}, 
+				"float");
+	}
+	public void testConversion4() {
+		runConformTestWithJavac(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	 public static int i = 0;\n" +
+						"	 private static String typeName(byte arg){ return \"byte\"; }\n" + 
+						"    private static String typeName(char arg){ return \"char\"; }\n" + 
+						"    private static String typeName(short arg){ return \"short\"; }\n" + 
+						"    private static String typeName(int arg){ return \"int\"; }\n" + 
+						"    private static String typeName(float arg){ return \"float\"; }\n" + 
+						"    private static String typeName(long arg){ return \"long\"; }\n" + 
+						"    private static String typeName(double arg){ return \"double\"; }\n" + 
+						"    private static String typeName(String arg){ return \"String\"; }\n" +
+						"		public static void main(String[] args) {\n" +
+						"		 short v1 = 0;\n" + 
+						"        char v2 = ' ';\n" + 
+						"        var v = switch(i+1){\n" + 
+						"                    case 1 -> v2;\n" + 
+						"                    case 5 -> v1;\n" + 
+						"                    default -> v2;\n" + 
+						"        };\n" + 
+						"        System.out.print(typeName(v));\n" +
+						"	}\n" +
+						"}\n"
+				}, 
+				"int");
+	}
+	public void testConversion5() {
+		runConformTestWithJavac(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	 public static int i = 0;\n" +
+						"    private static String typeName(char arg){ return \"char\"; }\n" + 
+						"    private static String typeName(int arg){ return \"int\"; }\n" + 
+						"    private static String typeName(float arg){ return \"float\"; }\n" + 
+						"    private static String typeName(long arg){ return \"long\"; }\n" + 
+						"    private static String typeName(double arg){ return \"double\"; }\n" + 
+						"    private static String typeName(String arg){ return \"String\"; }\n" +
+						"		public static void main(String[] args) {\n" +
+						"		 char v1 = 'a';\n" + 
+						"        var v = switch(i+1){\n" + 
+						"                    case 1 -> 200;\n" + 
+						"                    case 5 -> v1;\n" + 
+						"                    default -> v1;\n" + 
+						"        };\n" + 
+						"        System.out.print(typeName(v));\n" +
+						"	}\n" +
+						"}\n"
+				}, 
+				"char");
 	}
 }
