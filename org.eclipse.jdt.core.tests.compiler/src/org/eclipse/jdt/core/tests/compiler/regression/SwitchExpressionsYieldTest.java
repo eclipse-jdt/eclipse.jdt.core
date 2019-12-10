@@ -3640,4 +3640,75 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	public void testBug558067_001() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    public int foo(int i, int e) {\n"+
+				"               LABEL: while (i == 0) {\n"+
+				"            i = switch (e) {\n"+
+				"                case 0 : {\n"+
+				"                    for (;;) {\n"+
+				"                        break LABEL; // NO error flagged\n"+
+				"                    }\n"+
+				"                    yield 1;\n"+
+				"                }\n"+
+				"                default : yield 2;\n"+
+				"            };\n"+
+				"        }\n"+
+				"    return i;\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        new X().foo(0, 1);\n"+
+				"     }\n"+
+				"}\n"
+			},	"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	break LABEL; // NO error flagged\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"Breaking out of switch expressions not permitted\n" + 
+			"----------\n");
+	}
+	public void testBug558067_002() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    public int foo(int i, int e) {\n"+
+				"   TOP:System.out.println(\"hello\");\n"+
+				"          int x = switch(i) {\n"+
+				"       case 0:\n"+
+				"               LABEL: while (i == 0) {\n"+
+				"            i = switch (e) {\n"+
+				"                case 0 : {\n"+
+				"                    for (;;) {\n"+
+				"                        break LABEL;\n"+
+				"                    }\n"+
+				"                    yield 1;\n"+
+				"                }\n"+
+				"                default : yield 2;\n"+
+				"            };\n"+
+				"        }\n"+
+				"       case 2: for(;;) break TOP;\n"+
+				"       default: yield 0;\n"+
+				"       };\n"+
+				"    return i;\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        new X().foo(0, 1);\n"+
+				"     }\n"+
+				"} \n"
+			},	"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	break LABEL;\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"Breaking out of switch expressions not permitted\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 17)\n" + 
+			"	case 2: for(;;) break TOP;\n" + 
+			"	                ^^^^^^^^^^\n" + 
+			"Breaking out of switch expressions not permitted\n" + 
+			"----------\n");
+	}
 }

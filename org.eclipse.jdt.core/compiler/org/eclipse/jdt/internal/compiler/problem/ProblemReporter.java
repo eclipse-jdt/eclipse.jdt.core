@@ -11363,6 +11363,14 @@ public void switchExpressionsNotSupported(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
+public void switchExpressionsBreakOutOfSwitchExpression(ASTNode statement) {
+	this.handle(
+		IProblem.SwitchExpressionsBreakOutOfSwitchExpression,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+}
 public void illegalModifierAbstractForRecord(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(

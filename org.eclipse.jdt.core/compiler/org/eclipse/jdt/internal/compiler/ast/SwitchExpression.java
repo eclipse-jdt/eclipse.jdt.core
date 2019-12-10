@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -18,6 +22,7 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.VANILLA_CO
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -271,6 +276,51 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		}
 		return true;
 	}
+	class OOBLFlagger extends ASTVisitor {
+		Set<String> labelDecls;
+		Set<BreakStatement> referencedLabels;
+		public OOBLFlagger(SwitchExpression se) {
+			this.labelDecls = new HashSet<>();
+			this.referencedLabels = new HashSet<>();
+		}
+		@Override
+		public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
+			return true;
+		}
+		private void checkForOutofBoundLabels(BlockScope blockScope) {
+			try {
+				for (BreakStatement bs : this.referencedLabels) {
+					if (bs.label == null || bs.label.length == 0)
+						continue;
+					if (!this.labelDecls.contains(new String(bs.label)))
+						blockScope.problemReporter().switchExpressionsBreakOutOfSwitchExpression(bs);
+				} 
+			} catch (EmptyStackException e) {
+				// ignore
+			}
+		}
+		
+		@Override
+		public void endVisit(SwitchExpression switchExpression,	BlockScope blockScope) {
+			checkForOutofBoundLabels(blockScope);
+		}
+		@Override
+		public boolean visit(BreakStatement breakStatement, BlockScope blockScope) {
+			if (breakStatement.label != null && breakStatement.label.length != 0)
+				this.referencedLabels.add(breakStatement);
+			return true;
+		}
+		@Override
+		public boolean visit(LabeledStatement stmt, BlockScope blockScope) {
+			if (stmt.label != null && stmt.label.length != 0)
+				this.labelDecls.add(new String(stmt.label));
+			return true;
+		}
+		@Override
+		public boolean visit(TypeDeclaration stmt, BlockScope blockScope) {
+			return false;
+		}
+	}
 	@Override
 	public TypeBinding resolveType(BlockScope upperScope) {
 		try {
@@ -304,6 +354,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 					upperScope.problemReporter().switchExpressionNoResultExpressions(this);
 					return null;
 				}
+				this.traverse(new OOBLFlagger(this), upperScope);
 	
 				if (this.originalValueResultExpressionTypes == null) {
 					this.originalValueResultExpressionTypes = new TypeBinding[resultExpressionsCount];

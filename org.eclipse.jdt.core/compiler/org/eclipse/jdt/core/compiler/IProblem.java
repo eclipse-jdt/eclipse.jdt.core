@@ -2222,7 +2222,8 @@ void setSourceStart(int sourceStart);
 	int ArrowInCaseStatementsNotSupported = Syntax + 1720;
 	/** @since 3.20 BETA_JAVA14 */
 	int SwitchExpressionsNotSupported = Syntax + 1721;
-
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsBreakOutOfSwitchExpression  = Syntax + 1722;
 	/* records - begin */
 
 	/** @since 3.20 BETA_JAVA14
