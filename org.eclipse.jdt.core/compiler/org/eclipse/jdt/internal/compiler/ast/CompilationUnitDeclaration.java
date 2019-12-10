@@ -643,7 +643,7 @@ public void resolve() {
 		startingTypeIndex = 1;
 	} else if (this.moduleDeclaration != null && isModuleInfo) {
 		if (this.javadoc != null) {
-			this.javadoc.resolve((MethodScope)this.moduleDeclaration.scope);
+			this.javadoc.resolve(this.moduleDeclaration.scope);
 		} else if (this.moduleDeclaration.binding != null) {
 			ProblemReporter reporter = this.scope.problemReporter();
 			int severity = reporter.computeSeverity(IProblem.JavadocMissing);

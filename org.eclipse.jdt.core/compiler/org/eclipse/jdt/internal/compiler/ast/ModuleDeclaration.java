@@ -31,12 +31,11 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleScope;
 import org.eclipse.jdt.internal.compiler.lookup.PlainPackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceModuleBinding;
@@ -45,7 +44,6 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
-import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public class ModuleDeclaration extends ASTNode implements ReferenceContext {
@@ -67,7 +65,7 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 	public int bodyStart;
 	public int bodyEnd; // doesn't include the trailing comment if any.
 	public int modifiersSourceStart;
-	public BlockScope scope;
+	public ModuleScope scope;
 	public char[][] tokens;
 	public char[] moduleName;
 	public long[] sourcePositions;
@@ -110,21 +108,7 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 	}
 
 	public void createScope(final Scope parentScope) {
-		this.scope = new MethodScope(parentScope, null, true) {
-			@Override
-			public ProblemReporter problemReporter() {
-				// this method scope has no reference context so we better deletegate to the 'real' cuScope:
-				return parentScope.problemReporter();
-			}
-			@Override
-			public ReferenceContext referenceContext() {
-				return ModuleDeclaration.this;
-			}
-			@Override
-			public boolean isModuleScope() {
-				return true;
-			}
-		};
+		this.scope = new ModuleScope(parentScope, this);
 	}
 
 	public void generateCode() {

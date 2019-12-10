@@ -225,7 +225,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 	if (fieldBinding.isStatic()) {
 		// check if accessing enum static field in initializer
 		ReferenceBinding declaringClass = fieldBinding.declaringClass;
-		if (declaringClass.isEnum() && !scope.isModuleScope()) {
+		if (declaringClass.isEnum() && scope.kind != Scope.MODULE_SCOPE) {
 			SourceTypeBinding sourceType = scope.enclosingSourceType();
 			if (this.constant == Constant.NotAConstant
 					&& !methodScope.isStatic

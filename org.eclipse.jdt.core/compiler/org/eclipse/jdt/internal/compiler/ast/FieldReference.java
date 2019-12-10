@@ -729,7 +729,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().indirectAccessToStaticField(this, fieldBinding);
 		}
 		// check if accessing enum static field in initializer
-		if (declaringClass.isEnum() && !scope.isModuleScope()) {
+		if (declaringClass.isEnum() && scope.kind != Scope.MODULE_SCOPE) {
 			MethodScope methodScope = scope.methodScope();
 			SourceTypeBinding sourceType = scope.enclosingSourceType();
 			if (this.constant == Constant.NotAConstant

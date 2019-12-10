@@ -787,7 +787,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 
 			if (field.isStatic()) {
-				if ((field.modifiers & ClassFileConstants.AccEnum) != 0 && !scope.isModuleScope()) {
+				if ((field.modifiers & ClassFileConstants.AccEnum) != 0 && scope.kind != Scope.MODULE_SCOPE) {
 					// enum constants are checked even when qualified -- modules don't contain field declarations
 					ReferenceBinding declaringClass = field.original().declaringClass;
 					MethodScope methodScope = scope.methodScope();
@@ -1050,11 +1050,15 @@ public TypeBinding resolveType(BlockScope scope) {
 					this.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
 					this.bits |= Binding.FIELD;
 					FieldBinding fieldBinding = (FieldBinding) this.binding;
-					MethodScope methodScope = scope.methodScope();
 					ReferenceBinding declaringClass = fieldBinding.original().declaringClass;
-					SourceTypeBinding sourceType = methodScope.enclosingSourceType();
+					MethodScope methodScope = null;
+					SourceTypeBinding sourceType = null;
+					if (scope.kind != Scope.MODULE_SCOPE) {
+						methodScope = scope.methodScope();
+						sourceType = methodScope.enclosingSourceType();
+					}
 					// check for forward references
-					if (!scope.isModuleScope()) {
+					if (scope.kind != Scope.MODULE_SCOPE) {
 						if ((this.indexOfFirstFieldBinding == 1 || (fieldBinding.modifiers & ClassFileConstants.AccEnum) != 0 || (!fieldBinding.isFinal() && declaringClass.isEnum())) // enum constants are checked even when qualified
 								&& TypeBinding.equalsEquals(sourceType, declaringClass)
 								&& methodScope.lastVisibleFieldID >= 0
@@ -1073,7 +1077,7 @@ public TypeBinding resolveType(BlockScope scope) {
 					if (fieldBinding.isStatic()) {
 						// only last field is actually a write access if any
 						// check if accessing enum static field in initializer
-						if (declaringClass.isEnum() && !scope.isModuleScope()) {
+						if (declaringClass.isEnum() && scope.kind != Scope.MODULE_SCOPE) {
 							if ((TypeBinding.equalsEquals(sourceType, declaringClass) || TypeBinding.equalsEquals(sourceType.superclass, declaringClass)) // enum constant body
 									&& fieldBinding.constant(scope) == Constant.NotAConstant
 									&& !methodScope.isStatic

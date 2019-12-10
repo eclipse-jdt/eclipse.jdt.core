@@ -98,6 +98,7 @@ public abstract class Scope {
 	public final static int CLASS_SCOPE = 3;
 	public final static int COMPILATION_UNIT_SCOPE = 4;
 	public final static int METHOD_SCOPE = 2;
+	public final static int MODULE_SCOPE = 5;
 
 	/* Argument Compatibilities */
 	public final static int NOT_COMPATIBLE = -1;
@@ -774,10 +775,6 @@ public abstract class Scope {
 		return false;
 	}
 
-	public boolean isModuleScope() {
-		return false;
-	}
-
 	/**
 	 * Finds the most specific compiler options
 	 */
@@ -1193,6 +1190,8 @@ public abstract class Scope {
 					return ((MethodScope) current).referenceContext;
 				case CLASS_SCOPE :
 					return ((ClassScope) current).referenceContext;
+				case MODULE_SCOPE :
+					return ((ModuleScope) current).referenceContext;
 				case COMPILATION_UNIT_SCOPE :
 					return ((CompilationUnitScope) current).referenceContext;
 			}
@@ -2194,6 +2193,7 @@ public abstract class Scope {
 							insideConstructorCall = enclosingMethodScope == null ? false : enclosingMethodScope.isConstructorCall;
 							break;
 						case COMPILATION_UNIT_SCOPE :
+						case MODULE_SCOPE :
 							break done;
 					}
 					if (scope.isLambdaScope()) // Not in Kansas anymore ...
@@ -2525,17 +2525,13 @@ public abstract class Scope {
 	 * Returns the modifiers of the innermost enclosing declaration.
 	 * @return modifiers
 	 */
-	public int getDeclarationModifiers(){
+	public int getDeclarationModifiers() {
 		switch(this.kind){
 			case Scope.BLOCK_SCOPE :
 			case Scope.METHOD_SCOPE :
 				MethodScope methodScope = methodScope();
 				if (!methodScope.isInsideInitializer()){
 					// check method modifiers to see if deprecated
-					ReferenceContext ref = methodScope.referenceContext();
-					if (ref instanceof ModuleDeclaration) {
-						return ((ModuleDeclaration)ref).modifiers;
-					}
 					MethodBinding context = ((AbstractMethodDeclaration)methodScope.referenceContext).binding;
 					if (context != null)
 						return context.modifiers;
@@ -2549,6 +2545,8 @@ public abstract class Scope {
 						return type.modifiers;
 				}
 				break;
+			case Scope.MODULE_SCOPE :
+				return ((ModuleScope)this).referenceContext.modifiers;
 			case Scope.CLASS_SCOPE :
 				ReferenceBinding context = ((ClassScope)this).referenceType().binding;
 				if (context != null)
@@ -5022,6 +5020,8 @@ public abstract class Scope {
 					return ((ClassScope) current).referenceContext;
 				case COMPILATION_UNIT_SCOPE :
 					return ((CompilationUnitScope) current).referenceContext;
+				case MODULE_SCOPE :
+					return ((ModuleScope) current).referenceContext;
 			}
 		} while ((current = current.parent) != null);
 		return null;
