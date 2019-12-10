@@ -46,7 +46,6 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public static final int INTERFACE_DECL = 2;
 	public static final int ENUM_DECL = 3;
 	public static final int ANNOTATION_TYPE_DECL = 4;
-	public static final int RECORD_DECL = 5; // java 14 preview - records JLS 14 8.10
 
 	public int modifiers = ClassFileConstants.AccDefault;
 	public int modifiersSourceStart;
@@ -309,12 +308,6 @@ public boolean checkConstructors(Parser parser) {
 						case TypeDeclaration.ANNOTATION_TYPE_DECL :
 							// report the problem and continue the parsing
 							parser.problemReporter().annotationTypeDeclarationCannotHaveConstructor((ConstructorDeclaration) am);
-							break;
-						case TypeDeclaration.RECORD_DECL :
-							//TODO: BETA_JAVA14_RECORD report the problem if not compact constructor and continue the parsing
-							if (!(am instanceof CompactConstructorDeclaration)) {
-							//	parser.problemReporter().recordDeclarationShouldHaveCompactConstructor((ConstructorDeclaration) am);
-							}
 							break;
 
 					}
@@ -854,11 +847,13 @@ public final static int kind(int flags) {
 			return TypeDeclaration.ANNOTATION_TYPE_DECL;
 		case ClassFileConstants.AccEnum :
 			return TypeDeclaration.ENUM_DECL;
-		case ClassFileConstants.AccRecord :
-			return TypeDeclaration.RECORD_DECL;
 		default :
 			return TypeDeclaration.CLASS_DECL;
 	}
+}
+
+public boolean isRecord() {
+	return false;
 }
 
 /*
@@ -1045,16 +1040,13 @@ public StringBuffer printHeader(int indent, StringBuffer output) {
 
 	switch (kind(this.modifiers)) {
 		case TypeDeclaration.CLASS_DECL :
-			output.append("class "); //$NON-NLS-1$
+			output.append(this.isRecord() ? "record " : "class "); //$NON-NLS-1$ //$NON-NLS-2$
 			break;
 		case TypeDeclaration.INTERFACE_DECL :
 			output.append("interface "); //$NON-NLS-1$
 			break;
 		case TypeDeclaration.ENUM_DECL :
 			output.append("enum "); //$NON-NLS-1$
-			break;
-		case TypeDeclaration.RECORD_DECL :
-			output.append("record "); //$NON-NLS-1$
 			break;
 		case TypeDeclaration.ANNOTATION_TYPE_DECL :
 			output.append("@interface "); //$NON-NLS-1$
@@ -1077,8 +1069,7 @@ public StringBuffer printHeader(int indent, StringBuffer output) {
 		switch (kind(this.modifiers)) {
 			case TypeDeclaration.CLASS_DECL :
 			case TypeDeclaration.ENUM_DECL :
-			case TypeDeclaration.RECORD_DECL :
-				output.append(" implements "); //$NON-NLS-1$
+				output.append(isRecord() ? " " : " implements "); //$NON-NLS-1$ //$NON-NLS-2$
 				break;
 			case TypeDeclaration.INTERFACE_DECL :
 			case TypeDeclaration.ANNOTATION_TYPE_DECL :

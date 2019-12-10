@@ -10755,8 +10755,7 @@ protected void consumeRecordHeaderNameWithTypeParameters() {
 protected void consumeRecordHeaderName1() {
 	// Modifiersopt RestrictedIdentifierrecord 'Identifier'
 	consumeClassHeaderName1();
-	TypeDeclaration recordDeclaration = (TypeDeclaration) this.astStack[this.astPtr];
-	recordDeclaration.modifiers |= ClassFileConstants.AccRecord;
+	// do the actual record creation at consumeRecordComponentHeaderRightParen
 }
 protected void consumeInterfaceTypeListopt() {
 	// InterfaceTypeListopt ::= $empty

@@ -280,8 +280,12 @@ public class RecordDeclaration extends TypeDeclaration {
 		return m;
 	}
 	@Override
+	public boolean isRecord() {
+		return true;
+	}
+	@Override
 	public StringBuffer printHeader(int indent, StringBuffer output) {
-		printModifiers(this.modifiers & ~ClassFileConstants.AccRecord, output); // mask record alias volatile
+		printModifiers(this.modifiers, output);
 		if (this.annotations != null) {
 			printAnnotations(this.annotations, output);
 			output.append(' ');

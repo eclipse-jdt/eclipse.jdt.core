@@ -3066,14 +3066,13 @@ class ASTConverter {
 				} else {
 					return convertToAnnotationDeclaration(typeDeclaration);
 				}
-			case org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.RECORD_DECL :
-				if (!DOMASTUtil.isRecordDeclarationSupported(this.ast)) {
-					return null;
-				} else {
-					return convertToRecordDeclaration(typeDeclaration);
-				}
 		}
-
+		if (typeDeclaration.isRecord()) {
+			if (!DOMASTUtil.isRecordDeclarationSupported(this.ast)) {
+				return null;
+			}
+			return convertToRecordDeclaration(typeDeclaration);
+		}
 		checkCanceled();
 		TypeDeclaration typeDecl = new TypeDeclaration(this.ast);
 		ASTNode oldReferenceContext = this.referenceContext;

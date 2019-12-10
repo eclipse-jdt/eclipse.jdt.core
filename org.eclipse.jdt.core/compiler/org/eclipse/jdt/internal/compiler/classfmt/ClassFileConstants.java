@@ -38,7 +38,6 @@ public interface ClassFileConstants {
 	int AccSynchronized = 0x0020;
 	int AccVolatile     = 0x0040;
 	int AccBridge       = 0x0040;
-	int AccRecord       = 0x0040;
 	int AccTransient    = 0x0080;
 	int AccVarargs      = 0x0080;
 	int AccNative       = 0x0100;
