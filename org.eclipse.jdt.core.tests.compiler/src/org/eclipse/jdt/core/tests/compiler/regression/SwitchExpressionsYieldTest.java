@@ -3711,4 +3711,98 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"Breaking out of switch expressions not permitted\n" + 
 			"----------\n");
 	}
+	public void testBug558067_003() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    public int foo(int i, int e) {\n"+
+				"               LABEL: while (i == 0) {\n"+
+				"            i = switch (e) {\n"+
+				"                case 0 : {\n"+
+				"                    for (;;) {\n"+
+				"                        continue LABEL;\n"+
+				"                    }\n"+
+				"                    yield 1;\n"+
+				"                }\n"+
+				"                default : yield 2;\n"+
+				"            };\n"+
+				"        }\n"+
+				"    return i;\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        new X().foo(0, 1);\n"+
+				"     }\n"+
+				"}\n"
+			},	"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	continue LABEL;\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Continue out of switch expressions not permitted\n" + 
+			"----------\n");
+	}
+	public void testBug558067_004() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    public int foo(int i, int e) {\n"+
+				"               LABEL: while (i == 0) {\n"+
+				"            i = switch (e) {\n"+
+				"                case 0 : {\n"+
+				"                    switch(e) {\n"+
+				"                      case 0 : {\n"+
+				"                          break LABEL;\n"+
+				"                      }\n"+
+				"                    }\n"+
+				"                    yield 1;\n"+
+				"                }\n"+
+				"                default : yield 2;\n"+
+				"            };\n"+
+				"        }\n"+
+				"    return i;\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        new X().foo(0, 1);\n"+
+				"     }\n"+
+				"}\n"
+			},	"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	break LABEL;\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"Breaking out of switch expressions not permitted\n" + 
+			"----------\n");
+	}
+	public void testBug558067_005() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    public int foo(int i, int e) {\n"+
+				"               LABEL: while (i == 0) {\n"+
+				"            i = switch (e) {\n"+
+				"                case 0 : {\n"+
+				"                    switch(e) {\n"+
+				"                      case 0 : {\n"+
+				"                          continue LABEL;\n"+
+				"                      }\n"+
+				"                    }\n"+
+				"                    yield 1;\n"+
+				"                }\n"+
+				"                default : yield 2;\n"+
+				"            };\n"+
+				"        }\n"+
+				"    return i;\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        new X().foo(0, 1);\n"+
+				"     }\n"+
+				"}\n"
+			},	"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	continue LABEL;\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Continue out of switch expressions not permitted\n" + 
+			"----------\n");
+	}
 }

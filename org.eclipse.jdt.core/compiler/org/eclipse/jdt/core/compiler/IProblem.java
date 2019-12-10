@@ -2224,6 +2224,8 @@ void setSourceStart(int sourceStart);
 	int SwitchExpressionsNotSupported = Syntax + 1721;
 	/** @since 3.20 BETA_JAVA14 */
 	int SwitchExpressionsBreakOutOfSwitchExpression  = Syntax + 1722;
+	/** @since 3.20 BETA_JAVA14 */
+	int SwitchExpressionsContinueOutOfSwitchExpression  = Syntax + 1723;
 	/* records - begin */
 
 	/** @since 3.20 BETA_JAVA14
