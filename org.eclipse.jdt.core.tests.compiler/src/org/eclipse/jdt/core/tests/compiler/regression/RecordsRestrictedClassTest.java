@@ -1441,4 +1441,46 @@ public void testBug553153_004() {
 	"The blank final field myChar may not have been initialized\n" + 
 	"----------\n");
 }
+public void testBug558069_001() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"+
+			"private record Point(){\n"+
+			"}\n"
+		},
+	 "0");
+}
+public void testBug558069_002() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"private record Point(){\n"+
+			"}\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+	 "0");
+}
+public void testBug558069_003() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"private record Point(int myInt){\n"+
+			"}\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+	 "0");
+}
 }

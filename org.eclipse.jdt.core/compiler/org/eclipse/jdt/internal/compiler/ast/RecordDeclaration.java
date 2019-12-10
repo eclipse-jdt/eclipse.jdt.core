@@ -24,7 +24,6 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -132,7 +131,8 @@ public class RecordDeclaration extends TypeDeclaration {
 		ConstructorDeclaration constructor = new ConstructorDeclaration(this.compilationResult);
 		constructor.bits |= ASTNode.IsCanonicalConstructor | ASTNode.IsImplicit;
 		constructor.selector = this.name;
-		constructor.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
+//		constructor.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
+		constructor.modifiers = this.modifiers & ClassFileConstants.AccPublic;
 		constructor.modifiers |= ClassFileConstants.AccPublic; // JLS 14 8.10.5
 		constructor.arguments = this.args;
 
