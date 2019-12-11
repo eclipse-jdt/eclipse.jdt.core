@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2018 IBM Corporation and others.
+ * Copyright (c) 2014, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -19,6 +19,8 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jdt.core.CompletionProposal;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -3681,5 +3683,38 @@ public void testBug490096a() throws JavaModelException {
 			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1), " + relevance2 + "}\n" + 
 			"applyToEitherAsync[METHOD_REF]{applyToEitherAsync(), Ljava.util.concurrent.CompletableFuture<Ljava.lang.Double;>;, <U:Ljava.lang.Object;>(Ljava.util.concurrent.CompletionStage<+Ljava.lang.Double;>;Ljava.util.function.Function<-Ljava.lang.Double;TU;>;Ljava.util.concurrent.Executor;)Ljava.util.concurrent.CompletableFuture<TU;>;, applyToEitherAsync, (arg0, arg1, arg2), " + relevance2 + "}",
 			requestor.getResults());
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=277691
+ */
+public void testCompletionConstructorRelevance() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+            "/Completion/src/Foo.java",
+            "import java.util.Queue;\n" +
+            "\n" +
+            "public class Foo {\n" +
+            "	public void foo () {\n" +
+            "		Queue<String> res = new LinkedBlockingQueue<>();\n" +
+            "	}\n" +
+            "}");
+
+    CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+    requestor.setAllowsRequiredProposals(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF, true);
+
+    String str = this.workingCopies[0].getSource();
+    String completeBehind = "new LinkedBlocking";
+    int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+    int expectedConstructorRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE + R_EXPECTED_TYPE + R_CONSTRUCTOR;
+    assertResults(
+            "LinkedBlockingDeque[CONSTRUCTOR_INVOCATION]{(), Ljava.util.concurrent.LinkedBlockingDeque;, ()V, LinkedBlockingDeque, null, " + expectedConstructorRelevance + "}\n" +
+            "LinkedBlockingDeque[CONSTRUCTOR_INVOCATION]{(), Ljava.util.concurrent.LinkedBlockingDeque;, (I)V, LinkedBlockingDeque, (arg0), " + expectedConstructorRelevance + "}\n" +
+            "LinkedBlockingDeque[CONSTRUCTOR_INVOCATION]{(), Ljava.util.concurrent.LinkedBlockingDeque;, (Ljava.util.Collection<+TE;>;)V, LinkedBlockingDeque, (arg0), " + expectedConstructorRelevance + "}\n" +
+            "LinkedBlockingQueue[CONSTRUCTOR_INVOCATION]{(), Ljava.util.concurrent.LinkedBlockingQueue;, ()V, LinkedBlockingQueue, null, " + expectedConstructorRelevance + "}\n" +
+            "LinkedBlockingQueue[CONSTRUCTOR_INVOCATION]{(), Ljava.util.concurrent.LinkedBlockingQueue;, (I)V, LinkedBlockingQueue, (arg0), " + expectedConstructorRelevance + "}\n" +
+            "LinkedBlockingQueue[CONSTRUCTOR_INVOCATION]{(), Ljava.util.concurrent.LinkedBlockingQueue;, (Ljava.util.Collection<+TE;>;)V, LinkedBlockingQueue, (arg0), " + expectedConstructorRelevance + "}",
+            requestor.getResults());
 }
 }
