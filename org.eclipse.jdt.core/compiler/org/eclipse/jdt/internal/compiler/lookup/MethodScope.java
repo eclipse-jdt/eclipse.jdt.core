@@ -435,13 +435,13 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 		method.binding.typeVariables = createTypeVariables(typeParameters, method.binding);
 		method.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 	}
-    setRecordCanonicalConstructorTags(method);
+    checkAndSetRecordCanonicalConsAndMethods(method);
 	return method.binding;
 }
-private void setRecordCanonicalConstructorTags(AbstractMethodDeclaration am) {
-	if (am.binding != null) {
+private void checkAndSetRecordCanonicalConsAndMethods(AbstractMethodDeclaration am) {
+	if (am.binding != null && (am.bits & ASTNode.IsImplicit) != 0) {
+		am.binding.tagBits |= TagBits.isImplicit;
 		am.binding.tagBits |= (am.bits & ASTNode.IsCanonicalConstructor) != 0 ? TagBits.IsCanonicalConstructor : 0;
-		am.binding.tagBits |= (am.bits & ASTNode.IsImplicit) != 0 ? TagBits.isImplicitConstructor : 0;
 	}
 }
 

@@ -71,8 +71,8 @@ public interface TagBits {
 
 	// for java 14 Records Canonical constructor (preview)
 	long IsCanonicalConstructor = ASTNode.Bit12; // constructor
-	long isImplicitConstructor  = ASTNode.Bit13; // constructor
-
+	long isImplicit  = ASTNode.Bit13; // constructor and method
+	
 	// have implicit null annotations been collected (inherited(?) & default)?
 	long IsNullnessKnown = ASTNode.Bit13; // method
 

@@ -1345,12 +1345,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"interface I {}\n"
 				},
 			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
-			"	record Point(int myInt, int myZ) I {\n" + 
-			"	                 ^^^^^\n" + 
-			"The value of the field Point.myInt is not used\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 7)\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
 			"	public static int myInt() {;\n" + 
 			"	                  ^^^^^^^\n" + 
 			"The accessor method must not be static\n" + 
@@ -1478,6 +1473,60 @@ public void testBug558069_003() {
 			"}\n" +
 			"  public static void main(String[] args){\n"+
 			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+	 "0");
+}
+public void testBug558343_001() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"private record Point(int myInt){\n"+
+			"  @Override\n"+
+			"  public boolean equals(Object obj){\n"+
+			"     return false;\n" +
+			"  }\n"+
+			"}\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+	 "0");
+}
+public void testBug558343_002() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"private record Point(int myInt){\n"+
+			"  @Override\n"+
+			"  public int hashCode(){\n"+
+			"     return java.util.Arrays.hashCode(new int[]{Integer.valueOf(this.myInt).hashCode()});\n" +
+			"  }\n"+
+			"}\n" +
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"
+		},
+	 "0");
+}
+public void testBug558343_003() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n" +
+			"record Point(int myInt){\n"+
+			"  @Override\n"+
+			"  public String toString(){\n"+
+			"     return \"Point@1\";\n" +
 			"  }\n"+
 			"}\n"
 		},

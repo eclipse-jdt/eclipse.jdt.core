@@ -16,8 +16,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
@@ -33,6 +36,7 @@ public class RecordDeclaration extends TypeDeclaration {
 
 	private Argument[] args;
 	public int nRecordComponents;
+	private static long[] EMPTY_LONG_POS = {-1, -1, -1 };
 
 	public static Set<String> disallowedComponentNames;
 	static {
@@ -176,7 +180,7 @@ public class RecordDeclaration extends TypeDeclaration {
 		return constructor;
 	}
 
-	public void createDefaultAccessors(ProblemReporter problemReporter) {
+	public void createImplicitAccessors(ProblemReporter problemReporter) {
 		// JLS 14 8.10.3 Item 2 create the accessors for the fields if required
 		/* 
 		 * An implicitly declared public accessor method with the same name as the record component,
@@ -367,5 +371,222 @@ public class RecordDeclaration extends TypeDeclaration {
 					skope.problemReporter().recordIsAReservedTypeName(node);
 			}
 		}
+	}
+	public void createImplicitRecordOverrideMethods(ProblemReporter problemReporter) {
+		TypeReference superClass = new QualifiedTypeReference(TypeConstants.JAVA_LANG_OBJECT, new long[] {0});
+		superClass.bits |= ASTNode.IsSuperType;
+		this.superclass = superClass;
+
+		// TODO Auto-generated method stub
+		checkAndCreateImplicitequals(problemReporter);
+		checkAndCreateImplicitHashCode(problemReporter);
+		checkAndCreateImplicitToString(problemReporter);
+	}
+	AbstractMethodDeclaration[] getMethod(char[] name1) {
+		if (name1 == null || name1.length == 0 || this.methods == null)
+			return null;
+		List<AbstractMethodDeclaration> amList = new ArrayList<>(0);
+		for (AbstractMethodDeclaration amd : this.methods) {
+			if (CharOperation.equals(name1, amd.selector))
+				amList.add(amd);
+		}
+		return amList.toArray(new AbstractMethodDeclaration[0]);
+	}
+	private void checkAndCreateImplicitToString(ProblemReporter problemReporter) {
+		if (null != getMethodByName(TypeConstants.TOSTRING))
+			return;
+		QualifiedTypeReference returnType = new QualifiedTypeReference(JAVA_LANG_STRING, RecordDeclaration.EMPTY_LONG_POS);
+		MethodDeclaration md = createMethodDeclaration(TypeConstants.TOSTRING, returnType);
+		MarkerAnnotation overrideAnnotation = new MarkerAnnotation(new SingleTypeReference(TypeConstants.JAVA_LANG_OVERRIDE[2], 0), 0);
+		md.annotations = new Annotation[] { overrideAnnotation };
+		// getClass().getName() + "@" + Integer.toHexString(hashCode())
+		Expression left = new StringLiteral(this.name, -1, -1, -1);
+		Expression right = new StringLiteral(new char[] {'@'}, -1, -1, -1);
+		left = new BinaryExpression(left, right, OperatorIds.PLUS);
+		MessageSend m = new MessageSend();
+		m.receiver = new QualifiedNameReference(
+				TypeConstants.JAVA_LANG_INTEGER,
+				RecordDeclaration.EMPTY_LONG_POS, -1, -1);
+		m.selector = "toHexString".toCharArray(); //$NON-NLS-1$
+		MessageSend hc = new MessageSend();
+		hc.receiver = new ThisReference(-1, -1);
+		hc.selector = TypeConstants.HASHCODE;
+		m.arguments = new Expression[] {hc};
+		right = m;
+		CombinedBinaryExpression cbe = new CombinedBinaryExpression(left, right, OperatorIds.PLUS, 1);
+		md.statements = new Statement[] { new ReturnStatement(cbe, -1, -1) };
+	}
+	private static char[][] getBoxedName(char[] token) {
+		return
+			token == BYTE    ? JAVA_LANG_BYTE :
+			token == SHORT   ? JAVA_LANG_SHORT :
+			token == CHAR    ? JAVA_LANG_CHARACTER :
+			token == INT     ? JAVA_LANG_INTEGER :
+			token == LONG    ? JAVA_LANG_LONG :
+			token == FLOAT   ? JAVA_LANG_FLOAT :
+			token == DOUBLE  ? JAVA_LANG_DOUBLE :
+			token == BOOLEAN ? JAVA_LANG_BOOLEAN : null;
+	}
+	private void checkAndCreateImplicitHashCode(ProblemReporter problemReporter) {
+		if (null != getMethodByName(TypeConstants.HASHCODE))
+			return;
+		MethodDeclaration md = createMethodDeclaration(TypeConstants.HASHCODE, TypeReference.baseTypeReference(TypeIds.T_int, 0));
+		MarkerAnnotation overrideAnnotation = new MarkerAnnotation(new SingleTypeReference(TypeConstants.JAVA_LANG_OVERRIDE[2], 0), 0);
+		md.annotations = new Annotation[] { overrideAnnotation };
+
+		List<Expression> initVals = new ArrayList<>();
+		if (this.args != null) {
+			for (Argument arg : this.args) {
+				if (RecordDeclaration.disallowedComponentNames.contains(new String(arg.name)))
+					continue;
+				FieldReference fr = new FieldReference(arg.name, -1);
+				fr.receiver = new ThisReference(-1, -1);
+				Expression receiver = null;
+				if (arg.type instanceof ArrayTypeReference) {
+					MessageSend arraysHashCode = new MessageSend();
+					arraysHashCode.selector = HASHCODE;
+					arraysHashCode.receiver =
+							new QualifiedNameReference(JAVA_UTIL_ARRAYS,
+							RecordDeclaration.EMPTY_LONG_POS, -1, -1);
+					arraysHashCode.arguments = new Expression[] { fr};
+					initVals.add(arraysHashCode);
+					continue;
+				} else if (arg.type.isBaseTypeReference()) {
+					QualifiedNameReference boxReference = new QualifiedNameReference(
+							RecordDeclaration.getBoxedName(arg.type.getLastToken()),
+							RecordDeclaration.EMPTY_LONG_POS, -1, -1);
+					MessageSend m = new MessageSend();
+					m.receiver = boxReference;
+					m.selector = TypeConstants.VALUEOF;  // Integer.valueOf(int)
+					m.arguments = new Expression[] { fr };
+					receiver = m;
+				} else {
+					receiver = fr; //this.field
+				}
+				MessageSend messageSend = new MessageSend();
+				messageSend.receiver = receiver;
+				messageSend.selector = HASHCODE;
+				initVals.add(messageSend);
+			}
+		}
+		ArrayInitializer ai = new ArrayInitializer();
+		ai.expressions = initVals.toArray(new Expression[0]);
+		ArrayAllocationExpression aae = new ArrayAllocationExpression();
+		aae.dimensions = new Expression[1];
+		aae.dimensions[0] = null;
+		aae.initializer = ai;
+		aae.type = new SingleTypeReference(INT, -1);
+		MessageSend arraysHashCode = new MessageSend();
+		arraysHashCode.selector = HASHCODE;
+		arraysHashCode.receiver =
+				new QualifiedNameReference(JAVA_UTIL_ARRAYS,
+				RecordDeclaration.EMPTY_LONG_POS, -1, -1);
+		arraysHashCode.arguments = new Expression[] { aae };
+		md.statements = new Statement[] { new ReturnStatement(arraysHashCode, -1, -1) };
+	}
+	private AbstractMethodDeclaration getMethodByName(char[] name1) {
+		AbstractMethodDeclaration[] ams = getMethod(name1);
+		for (AbstractMethodDeclaration amd : ams) {
+			Argument[] args1 = amd.arguments;
+			if (args1 == null || args1.length == 0)
+				return amd; // explicit method exists, no need to create an implicit one.
+		}
+		return null;
+	}
+	private void checkAndCreateImplicitequals(ProblemReporter problemReporter) {
+		AbstractMethodDeclaration[] ams = getMethod(TypeConstants.EQUALS);
+		for (AbstractMethodDeclaration amd : ams) {
+			Argument[] args1 = amd.arguments;
+			if (args1 == null || args1.length != 1)
+				continue;
+			char[][] typeRef = args1[0].type != null ? args1[0].type.getTypeName() : null;
+			if (typeRef == null)
+				continue;
+			if (CharOperation.equals(typeRef, JAVA_LANG_OBJECT)) {
+				return; // explicit method exists, no need to create an implicit one.
+			}
+		}
+		// In case of just object, we can never be sure - so create one implicit method 
+		// and at resolution time, remove the implicit one if there is a conflict.
+		// so, at this point we create one anyway.
+		MethodDeclaration md = createMethodDeclaration(TypeConstants.EQUALS, TypeReference.baseTypeReference(TypeIds.T_boolean, 0));
+		MarkerAnnotation overrideAnnotation = new MarkerAnnotation(new SingleTypeReference(TypeConstants.JAVA_LANG_OVERRIDE[2], 0), 0);
+		md.annotations = new Annotation[] { overrideAnnotation };
+		TypeReference objectTypeReference = new QualifiedTypeReference(JAVA_LANG_OBJECT, new long[] {0L, 0L, 0L});
+		char[] objName = new char[] {'o','b','j'};
+		md.arguments = new Argument[] { new Argument(objName, 0, objectTypeReference, 0)};
+
+		List<Statement> stmts = new ArrayList<>();
+		// if (!(obj instanceof recordName))
+		//    return false;
+		InstanceOfExpression ioe = new InstanceOfExpression(new SingleNameReference(objName, 0), new SingleTypeReference(this.name, 0L));
+		Expression condition = new UnaryExpression(ioe, OperatorIds.NOT);
+		Statement thenStatement = new ReturnStatement(new FalseLiteral(-1, -1), -1, -1);
+		IfStatement ifStatement = new IfStatement(condition, thenStatement, -1, -1);
+		stmts.add(ifStatement);
+
+		// recordType o = (recordType) obj;
+		LocalDeclaration ld = new LocalDeclaration(new char[] {'o'}, -1, -1);
+		ld.type = new SingleTypeReference(this.name, -1);
+		ld.initialization = new CastExpression(new SingleNameReference(objName, -1), new SingleTypeReference(this.name, 0L));
+		stmts.add(ld);
+
+		// check each field - ref javadoc of java.lang.Record#equals
+		/*
+		 * Impl Spec: The implicitly provided implementation returns true if and only if the argument is an
+		 * instance of the same record type as this object, and each component of this record is equal to the
+		 * corresponding component of the argument, according to java.util.Objects.equals(Object, Object) for
+		 * components whose types are reference types, and according to the semantics of the equals method on
+		 * the corresponding primitive wrapper type.
+		 */
+		if (this.args != null) {
+			for (Argument arg : this.args) {
+				if (RecordDeclaration.disallowedComponentNames.contains(new String(arg.name)))
+					continue;
+				FieldReference fr = new FieldReference(arg.name, -1);
+				fr.receiver = new ThisReference(-1, -1);
+				char [][] qfrName = new char[][] { {'o'}, arg.name };
+				long [] qfrPos = {-1, -1};
+				QualifiedNameReference ofr = new QualifiedNameReference(qfrName, qfrPos, -1, -1);
+				if (arg.type.isBaseTypeReference()) {
+					condition = new EqualExpression(fr, ofr, OperatorIds.NOT_EQUAL);
+				} else {
+					MessageSend messageSend = new MessageSend();
+					messageSend.selector = TypeConstants.EQUALS;
+					messageSend.arguments = new Expression[] {fr, ofr};
+					messageSend.receiver = new QualifiedNameReference(JAVA_UTIL_OBJECTS, new long[] {-1, -1, -1}, -1, -1);
+					condition = new UnaryExpression(messageSend, OperatorIds.NOT);
+				}
+				thenStatement = new ReturnStatement(new FalseLiteral(-1, -1), -1, -1);
+				ifStatement = new IfStatement(condition, thenStatement, -1, -1);
+				stmts.add(ifStatement);
+			}
+		}
+		stmts.add(new ReturnStatement(new TrueLiteral(-1, -1), -1, -1));
+		md.statements = stmts.toArray(new Statement[0]);
+	}
+	private MethodDeclaration createMethodDeclaration(char[] name1, TypeReference returnType) {
+		MethodDeclaration m = new MethodDeclaration(this.compilationResult);
+		m.selector = name1;
+		m.bits |= ASTNode.IsSynthetic;
+		m.modifiers = ClassFileConstants.AccPublic;
+
+		m.returnType = returnType;
+
+		if (this.methods == null) { // Where is the constructor?
+			this.methods = new AbstractMethodDeclaration[] { m };
+		} else {
+			AbstractMethodDeclaration[] newMethods;
+			System.arraycopy(
+				this.methods,
+				0,
+				newMethods = new AbstractMethodDeclaration[this.methods.length + 1],
+				1,
+				this.methods.length);
+			newMethods[0] = m;
+			this.methods = newMethods;
+		}
+		m.bits |= ASTNode.IsImplicit;
+		return m;
 	}
 }

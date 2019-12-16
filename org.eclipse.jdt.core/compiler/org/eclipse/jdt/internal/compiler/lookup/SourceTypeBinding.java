@@ -1579,7 +1579,19 @@ private int getImplicitCanonicalConstructor() {
 	if (this.methods != null && this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
 		for (int i = 0, l = this.methods.length; i < l; ++i) {
 			MethodBinding method = this.methods[i];
-			if ((method.tagBits & TagBits.IsCanonicalConstructor ) != 0 && (method.tagBits & TagBits.isImplicitConstructor) != 0)
+			if ((method.tagBits & TagBits.IsCanonicalConstructor ) != 0 && (method.tagBits & TagBits.isImplicit) != 0)
+				return i;
+		}
+	}
+	return -1;
+}
+private int getImplicitMethod(char[] name) {
+	if (this.methods != null && this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
+		for (int i = 0, l = this.methods.length; i < l; ++i) {
+			MethodBinding method = this.methods[i];
+			if (!CharOperation.equals(method.selector, name))
+				continue;
+			if ((method.tagBits & TagBits.isImplicit) != 0)
 				return i;
 		}
 	}
@@ -1634,6 +1646,7 @@ public MethodBinding[] methods() {
 		boolean complyTo15OrAbove = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		boolean compliance16 = this.scope.compilerOptions().complianceLevel == ClassFileConstants.JDK1_6;
 		int recordCanonIndex = getImplicitCanonicalConstructor();
+		int recordEqualsIndex = getImplicitMethod(TypeConstants.EQUALS);
 
 		for (int i = 0, length = this.methods.length; i < length; i++) {
 			int severity = ProblemSeverities.Error;
@@ -1734,6 +1747,9 @@ public MethodBinding[] methods() {
 					continue nextSibling;
 				}
 				if (recordCanonIndex == i || recordCanonIndex == j) {
+					methodDecl = this.methods[recordCanonIndex].sourceMethod();
+					assert methodDecl != null;
+					methodDecl.binding = null;
 					// do not alter original method array until resolution is over, due to reentrance (143259)
 					if (resolvedMethods == this.methods)
 						System.arraycopy(this.methods, 0, resolvedMethods = new MethodBinding[length], 0, length);
@@ -1743,6 +1759,17 @@ public MethodBinding[] methods() {
 					methodDecl = explicitCanonicalConstructor.sourceMethod();
 					checkRecordCanonicalConstructor(methodDecl, explicitCanonicalConstructor);
 					recordCanonIndex = -1; // reset;
+					continue;
+				}
+				if (recordEqualsIndex == i || recordEqualsIndex == j) {
+					methodDecl = this.methods[recordEqualsIndex].sourceMethod();
+					assert methodDecl != null;
+					methodDecl.binding = null;
+					// do not alter original method array until resolution is over, due to reentrance (143259)
+					if (resolvedMethods == this.methods)
+						System.arraycopy(this.methods, 0, resolvedMethods = new MethodBinding[length], 0, length);
+					resolvedMethods[recordEqualsIndex] = null;
+					failed++;
 					continue;
 				}
 				// otherwise duplicates / name clash

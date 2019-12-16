@@ -10713,7 +10713,8 @@ protected void consumeRecordDeclaration() {
 	if (length == 0 && !containsComment(rd.bodyStart, rd.bodyEnd)) {
 		rd.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
-	rd.createDefaultAccessors(this.problemReporter);
+	rd.createImplicitAccessors(this.problemReporter);
+	rd.createImplicitRecordOverrideMethods(this.problemReporter);
 	rd.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 }
 protected void consumeRecordHeaderPart() {
