@@ -2516,7 +2516,7 @@ private void deleteSourceFiles(File directory) {
 		if (!directory.exists())
 			return;
 		Files.walk(directory.toPath())
-			.filter(f -> f.endsWith(SuffixConstants.SUFFIX_STRING_java))
+			.filter(f -> f.toString().endsWith(SuffixConstants.SUFFIX_STRING_java))
 			.map(java.nio.file.Path::toFile)
 			.filter(File::isFile)
 			.forEach(File::delete);

@@ -5960,23 +5960,32 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 	private TypeBinding getNewTypeBinding(char[] typeConstantPoolName, Scope scope) {
 		char[] typeName = typeConstantPoolName;
+		if (isLikelyLocalTypeName(typeName)) {
+			// find local type in innerClassesBindings:
+			Set<TypeBinding> innerTypeBindings = this.innerClassesBindings.keySet();
+			for (TypeBinding binding : innerTypeBindings) {
+				if (CharOperation.equals(binding.constantPoolName(), typeName))
+					return binding;
+			}
+		}
 		TypeBinding type = (TypeBinding) scope.getTypeOrPackage(CharOperation.splitOn('/', typeName));
 		if (!type.isValidBinding()) {
 			ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) type;
 			if ((problemReferenceBinding.problemId() & ProblemReasons.InternalNameProvided) != 0) {
 				type = problemReferenceBinding.closestMatch();
-			} else if ((problemReferenceBinding.problemId() & ProblemReasons.NotFound) != 0 && this.innerClassesBindings != null) {
-				// check local inner types to see if this is a anonymous type
-				Set<TypeBinding> innerTypeBindings = this.innerClassesBindings.keySet();
-				for (TypeBinding binding : innerTypeBindings) {
-					if (CharOperation.equals(binding.constantPoolName(), typeName)) {
-						type = binding;
-						break;
-					}
-				}
 			}
 		}
 		return type;
+	}
+	
+	private boolean isLikelyLocalTypeName(char[] typeName) {
+		int dollarPos = CharOperation.lastIndexOf('$', typeName);
+		while (dollarPos != -1) {
+			if (Character.isDigit(typeName[dollarPos+1]))
+				return true; // name segment starts with a digit => likely a local type (but still "$0" etc. could be part of the source name)
+			dollarPos = CharOperation.lastIndexOf('$', typeName, 0, dollarPos-1);
+		}
+		return false;
 	}
 
 	private TypeBinding getANewArrayTypeBinding(char[] typeConstantPoolName, Scope scope) {

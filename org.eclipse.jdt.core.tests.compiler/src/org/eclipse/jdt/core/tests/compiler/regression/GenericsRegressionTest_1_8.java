@@ -10006,4 +10006,39 @@ public void testBug508834_comment0() {
 			"The method define(FuncN, TODO[]) is ambiguous for the type Test\n" + 
 			"----------\n");
 	}
+
+	public void testBug534223() {
+		Runner runner = new Runner();
+		String sourceX =
+				"package p;\n" +
+				"public class X {\n" +
+				"	<S> void m() {\n" +
+				"		Runnable r = () -> {\n" +
+				"			IFC<S> i = new IFC<S>() {\n" +
+				"				public void n(S s) {}\n" +
+				"			};\n" +
+				"			if (i != null)\n" +
+				"				System.out.println(i);\n" +
+				"		};\n" +
+				"		r.run();\n" +
+				"	}\n" +
+				"}\n";
+		runner.testFiles = new String[] {
+				"p/IFC.java",
+				"package p;\n" +
+				"public interface IFC<T> {\n" +
+				"	void n(T t);\n" +
+				"}\n",
+				"p/X.java",
+				sourceX
+			};
+		runner.runConformTest();
+		runner.shouldFlushOutputDirectory = false;
+		runner.testFiles = new String[] {
+				"p/X.java",
+				sourceX			
+			};
+		runner.runConformTest(); // don't use pre-compiled p/X$1.class
+	}
+
 }

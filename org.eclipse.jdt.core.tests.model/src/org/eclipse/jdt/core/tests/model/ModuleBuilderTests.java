@@ -8689,6 +8689,31 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("lib");
 		}
 	}
+
+	public void testBug558004() throws CoreException {
+		IJavaProject prj = createJava9Project("A");
+		try {
+			String moduleinfopath = "A/src/module-info.java";
+			String moduleinfosrc =
+				"/**\n" +
+				" * The {@link java.nio.file.FileSystems#newFileSystem FileSystems.newFileSystem(URI.create(\"jrt:/\"))}\n" +
+				" */\n" +
+				"module modulartest11 {\n" +
+				"}\n";
+			createFile(moduleinfopath, moduleinfosrc);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			assertNoErrors();
+			this.problemRequestor.initialize(moduleinfosrc.toCharArray());
+			getCompilationUnit("A/src/module-info.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems("unexpected problems",
+					"----------\n" +
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject(prj);
+		}
+	}
+
 	public void testBug547479() throws CoreException {
 		int max = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
 

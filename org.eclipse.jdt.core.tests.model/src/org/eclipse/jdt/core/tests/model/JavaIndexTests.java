@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 IBM Corporation and others.
+ * Copyright (c) 2012, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,6 +16,9 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.zip.CRC32;
 
 import junit.framework.Test;
 
@@ -34,6 +37,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.index.*;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
 import org.osgi.service.prefs.BackingStoreException;
@@ -50,6 +54,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 	public static Test suite() {
 		return buildModelTestSuite(JavaIndexTests.class);
 	}
+
 	// Test that the index file is really generated.
 	public void testGenerateIndex() throws IOException {
 		String indexFilePath = getExternalResourcePath("Test.index");
@@ -864,6 +869,58 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 			}
 			new File(jarFilePath).delete();
 			deleteProject("ForIndex");
+		}
+	}
+
+	// Test shared index location functionality
+	public void testSharedIndexLocation() throws CoreException, IOException {
+		// Create temporary testing folder
+		String sharedIndexDir = Files.createTempDirectory("shared_index").toFile().getCanonicalPath();
+		// enable shared index
+		ClasspathEntry.setSharedIndexLocation(sharedIndexDir, getClass());
+		// path of library must be platform neutral
+		String jarFilePath = Path.fromOSString(Paths.get(sharedIndexDir, "Test.jar").toString()).toPortableString();
+		// compute index file
+		CRC32 checksumCalculator = new CRC32();
+		checksumCalculator.update(jarFilePath.getBytes());
+		String fileName = Long.toString(checksumCalculator.getValue()) + ".index";
+		String indexFilePath = Paths.get(sharedIndexDir, fileName).toString();
+		try {
+			createJar(new String[] {
+					"pkg/Test.java",
+					"package pkg;\n" +
+					"public class Test {\n" +
+					"  protected Test(int i) {}\n" +
+					"}"}, jarFilePath);
+
+			JavaIndexer.generateIndexForJar(jarFilePath, indexFilePath);
+			assertTrue(new File(indexFilePath).exists());
+			long modified = new File(indexFilePath).lastModified();
+
+			IJavaProject p = createJavaProject("P");
+			Path libPath = new Path(jarFilePath);
+			IClasspathEntry entry = JavaCore.newLibraryEntry(libPath, null, null, null, null, false);
+			setClasspath(p, new IClasspathEntry[] { entry });
+
+			waitUntilIndexesReady();
+
+			// Test that search works properly
+			search("Test", TYPE, DECLARATIONS, EXACT_RULE,
+					SearchEngine.createJavaSearchScope(new IJavaElement[] { p }));
+			assertSearchResults(Paths.get(sharedIndexDir, "Test.jar").toString() + " pkg.Test");
+
+			// Test that specified index file is really used
+			java.io.File indexFile = JavaModelManager.getIndexManager().getIndex(libPath, false, false).getIndexFile();
+			assertEquals("Specified index file is not being used", indexFilePath, indexFile.toString());
+
+			// Ensure that the index file is not modified
+			assertEquals(modified, new File(indexFilePath).lastModified());
+		} finally {
+			deleteProject("P");
+			new File(indexFilePath).delete();
+			new File(jarFilePath).delete();
+			new File(sharedIndexDir).delete();
+			ClasspathEntry.setSharedIndexLocation(null, getClass());
 		}
 	}
 }

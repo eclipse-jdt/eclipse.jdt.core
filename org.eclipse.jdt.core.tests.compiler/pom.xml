@@ -15,12 +15,12 @@
   <parent>
     <artifactId>tests-pom</artifactId>
     <groupId>eclipse.jdt.core</groupId>
-    <version>4.14.0-SNAPSHOT</version>
+    <version>4.15.0-SNAPSHOT</version>
     <relativePath>../tests-pom/</relativePath>
   </parent>
   <groupId>org.eclipse.jdt</groupId>
   <artifactId>org.eclipse.jdt.core.tests.compiler</artifactId>
-  <version>3.12.1000-SNAPSHOT</version>
+  <version>3.12.1100-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 
   <properties>

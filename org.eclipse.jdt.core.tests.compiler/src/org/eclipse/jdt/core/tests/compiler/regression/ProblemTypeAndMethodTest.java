@@ -4821,7 +4821,9 @@ public void test092() {
 		false,
 		false
 	);
-	this.runConformTest(
+	Runner runner = new Runner();
+	runner.javacTestOptions = JavacTestOptions.SKIP; // javac did not produce p1/p2/X.class which is needed below
+	runner.testFiles =
 		new String[] {
 			"a/b/A.java", // =================
 			"package a.b;\n" + 
@@ -4833,13 +4835,10 @@ public void test092() {
 			"p2/p3/Z.java", // =================
 			"package p2.p3;\n" + 
 			"public class Z {}\n"
-		},
-		"",
-		null,
-		false,
-		null
-	);
-	this.runConformTest(
+		};
+	runner.shouldFlushOutputDirectory = false;
+	runner.runConformTest();
+	runner.testFiles =
 		new String[] {
 			"a/b/A.java", // =================
 			"package a.b;\n" + 
@@ -4848,12 +4847,8 @@ public void test092() {
 			"	void test() { x.z(); }\n" + 
 			"	void foo(p2.p3.Z z) {}\n" + 
 			"}\n"
-		},
-		"",
-		null,
-		false,
-		null
-	);
+		};
+	runner.runConformTest();
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297 - variation
 public void test093() {
@@ -8183,8 +8178,6 @@ public void test376550_11() {
 		"	      ^\n" + 
 		"Read access to enclosing field X.o is emulated by a synthetic accessor method\n" + 
 		"----------\n";
-	runner.javacTestOptions =
-		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 	runner.runWarningTest();
 }
 
@@ -8761,6 +8754,8 @@ public void testBug542829() {
 		"m.Issing cannot be resolved to a type\n" + 
 		"----------\n";
 	runner.runNegativeTest();
+
+	runner.javacTestOptions = JavacTestOptions.SKIP; // javac did not produce b/Roken.class which is needed below
 
 	// restore the class as binary:
 	runner.testFiles = new String[] {

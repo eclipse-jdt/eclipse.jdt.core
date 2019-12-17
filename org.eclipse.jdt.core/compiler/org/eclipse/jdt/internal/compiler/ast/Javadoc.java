@@ -423,7 +423,8 @@ public class Javadoc extends ASTNode {
 					scope.problemReporter().javadocInvalidValueReference(fieldRef.sourceStart, fieldRef.sourceEnd, scopeModifiers);
 				}
 				else if (fieldRef.actualReceiverType != null) {
-					if (scope.enclosingSourceType().isCompatibleWith(fieldRef.actualReceiverType)) {
+					SourceTypeBinding stb = scope.enclosingSourceType();
+					if (stb != null && stb.isCompatibleWith(fieldRef.actualReceiverType)) {
 						fieldRef.bits |= ASTNode.SuperAccess;
 					}
 					ReferenceBinding resolvedType = (ReferenceBinding) fieldRef.actualReceiverType;
@@ -964,8 +965,9 @@ public class Javadoc extends ASTNode {
 
 				ClassScope topLevelScope = scope.classScope();
 				// when scope is not on compilation unit type, then inner class may not be visible...
-				if (topLevelScope.parent.kind != Scope.COMPILATION_UNIT_SCOPE ||
-					!CharOperation.equals(topLevelType.sourceName, topLevelScope.referenceContext.name)) {
+				if (topLevelScope != null &&
+					(topLevelScope.parent.kind != Scope.COMPILATION_UNIT_SCOPE ||
+					!CharOperation.equals(topLevelType.sourceName, topLevelScope.referenceContext.name))) {
 					topLevelScope = topLevelScope.outerMostClassScope();
 					if (typeReference instanceof JavadocSingleTypeReference) {
 						// inner class single reference can only be done in same unit
@@ -1014,7 +1016,7 @@ public class Javadoc extends ASTNode {
 					// partially qualified references from a different CU should be warned
 					char[][] typeRefName = ((JavadocQualifiedTypeReference) typeReference).getTypeName();
 					int skipLength = 0;
-					if (topLevelScope.getCurrentPackage() == resolvedType.getPackage()
+					if (topLevelScope != null && topLevelScope.getCurrentPackage() == resolvedType.getPackage()
 							&& typeRefName.length < computedCompoundName.length) {
 						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=221539: references can be partially qualified
 						// in same package and hence if the package name is not given, ignore package name check
