@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -53,4 +57,6 @@ public interface AttributeNamesConstants {
 	// jep181
 	final char[] NestHost = "NestHost".toCharArray(); //$NON-NLS-1$
 	final char[] NestMembers = "NestMembers".toCharArray(); //$NON-NLS-1$
+	// jep 359 records
+	final char[] RecordClass = "Record".toCharArray(); //$NON-NLS-1$
 }

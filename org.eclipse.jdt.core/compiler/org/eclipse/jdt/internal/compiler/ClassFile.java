@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -461,6 +465,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 			// add nestMember and nestHost attributes
 			attributesNumber += generateNestAttributes();
 		}
+		if (this.targetJDK >= ClassFileConstants.JDK14) {
+			// add record attributes
+			attributesNumber += generateRecordAttributes();
+		}
 		// update the number of attributes
 		if (attributeOffset + 2 >= this.contents.length) {
 			resizeContents(2);
@@ -543,18 +551,26 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 	}
 
+	private int addComponentAttributes(FieldBinding fieldBinding, int fieldAttributeOffset) {
+		// almost mirrors with field_info
+		// TODO: watch out for spec changes once preview to standard of records
+		return addFieldAttributes(fieldBinding, fieldAttributeOffset, true);
+	}
 	private int addFieldAttributes(FieldBinding fieldBinding, int fieldAttributeOffset) {
+		return addFieldAttributes(fieldBinding, fieldAttributeOffset, false);
+	}
+	private int addFieldAttributes(FieldBinding fieldBinding, int fieldAttributeOffset, boolean isComponent) {
 		int attributesNumber = 0;
 		// 4.7.2 only static constant fields get a ConstantAttribute
 		// Generate the constantValueAttribute
 		Constant fieldConstant = fieldBinding.constant();
-		if (fieldConstant != Constant.NotAConstant){
+		if (fieldConstant != Constant.NotAConstant && !isComponent){
 			attributesNumber += generateConstantValueAttribute(fieldConstant, fieldBinding, fieldAttributeOffset);
 		}
-		if (this.targetJDK < ClassFileConstants.JDK1_5 && fieldBinding.isSynthetic()) {
+		if (this.targetJDK < ClassFileConstants.JDK1_5 && fieldBinding.isSynthetic() && !isComponent) {
 			attributesNumber += generateSyntheticAttribute();
 		}
-		if (fieldBinding.isDeprecated()) {
+		if (fieldBinding.isDeprecated() && !isComponent) {
 			attributesNumber += generateDeprecatedAttribute();
 		}
 		// add signature attribute
@@ -609,6 +625,42 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return attributesNumber;
 	}
 
+	/**
+	 * INTERNAL USE-ONLY
+	 * This methods generates the bytes for the given record component given by field binding
+	 * @param fieldBinding the given field binding of the record component
+	 */
+	private void addComponentInfo(FieldBinding fieldBinding) {
+		// check that there is enough space to write all the bytes for the field info corresponding
+		// to the @fieldBinding sans accessflags for component
+		/* component_info {
+    	 *	u2 name_index;
+    	 *	u2 descriptor_index;
+    	 *	u2 attributes_count;
+    	 *	attribute_info attributes[attributes_count];
+		} */
+		if (this.contentsOffset + 6 >= this.contents.length) {
+			resizeContents(6);
+		}
+		// Now we can generate all entries into the byte array
+		int nameIndex = this.constantPool.literalIndex(fieldBinding.name);
+		this.contents[this.contentsOffset++] = (byte) (nameIndex >> 8);
+		this.contents[this.contentsOffset++] = (byte) nameIndex;
+		// Then the descriptorIndex
+		int descriptorIndex = this.constantPool.literalIndex(fieldBinding.type);
+		this.contents[this.contentsOffset++] = (byte) (descriptorIndex >> 8);
+		this.contents[this.contentsOffset++] = (byte) descriptorIndex;
+		int componentAttributeOffset = this.contentsOffset;
+		int attributeNumber = 0;
+		// leave some space for the number of attributes
+		this.contentsOffset += 2;
+		attributeNumber += addComponentAttributes(fieldBinding, componentAttributeOffset);
+		if (this.contentsOffset + 2 >= this.contents.length) {
+			resizeContents(2);
+		}
+		this.contents[componentAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[componentAttributeOffset] = (byte) attributeNumber;
+	}
 	/**
 	 * INTERNAL USE-ONLY
 	 * This methods generates the bytes for the given field binding
@@ -2755,6 +2807,50 @@ public class ClassFile implements TypeConstants, TypeIds {
 		nAttrs += generateNestHostAttribute();
 		return nAttrs;
 	}
+	private int generateRecordAttributes() {
+		SourceTypeBinding record = this.referenceBinding;
+		if (record == null || !record.isRecord())
+			return 0;
+		int localContentsOffset = this.contentsOffset;
+		List<FieldBinding> recordComponents = this.referenceBinding.getRecordComponents();
+		if (recordComponents == null)
+			return 0;
+		// could be an empty record also, account for zero components as well.
+		
+		int numberOfRecordComponents = recordComponents.size() ;
+
+		int exSize = 8 + 2 * numberOfRecordComponents;
+		if (exSize + localContentsOffset >= this.contents.length) {
+			resizeContents(exSize);
+		}
+		/*
+		 * Record_attribute {
+    	 *  u2 attribute_name_index;
+    	 *	u4 attribute_length;
+    	 *	u2 components_count;
+    	 *	component_info components[components_count];
+		 *	}*/
+		int attributeNameIndex =
+			this.constantPool.literalIndex(AttributeNamesConstants.RecordClass);
+		this.contents[localContentsOffset++] = (byte) (attributeNameIndex >> 8);
+		this.contents[localContentsOffset++] = (byte) attributeNameIndex;
+		int attrLengthOffset = localContentsOffset;
+		localContentsOffset += 4;
+		int base = localContentsOffset;
+		this.contents[localContentsOffset++] = (byte) (numberOfRecordComponents >> 8);
+		this.contents[localContentsOffset++] = (byte) numberOfRecordComponents;
+		this.contentsOffset = localContentsOffset;
+		for (int i = 0; i < numberOfRecordComponents; i++) {
+			addComponentInfo(recordComponents.get(i));
+		}
+		int attrLength = this.contentsOffset - base;
+		this.contents[attrLengthOffset++] = (byte) (attrLength >> 24);
+		this.contents[attrLengthOffset++] = (byte) (attrLength >> 16);
+		this.contents[attrLengthOffset++] = (byte) (attrLength >> 8);
+		this.contents[attrLengthOffset++] = (byte) attrLength;
+		return 1;
+	}
+
 	private int generateModuleAttribute(ModuleDeclaration module) {
 		ModuleBinding binding = module.binding;
 		int localContentsOffset = this.contentsOffset;

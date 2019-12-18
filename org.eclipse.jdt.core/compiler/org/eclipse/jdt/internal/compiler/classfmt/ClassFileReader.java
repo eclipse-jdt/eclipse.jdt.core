@@ -80,6 +80,9 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private char[] nestHost;
 	private int nestMembersCount;
 	private char[][] nestMembers;
+	private boolean isRecord;
+	private int recordComponentsCount;
+	private ComponentInfo[] recordComponents;
 
 private static String printTypeModifiers(int modifiers) {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
@@ -417,7 +420,10 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 						decodeTypeAnnotations(readOffset, true);
 					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleTypeAnnotationsName)) {
 						decodeTypeAnnotations(readOffset, false);
+					} 	else if (CharOperation.equals(attributeName, AttributeNamesConstants.RecordClass)) {
+						decodeRecords(readOffset, attributeName);
 					}
+
 					break;
 				case 'M' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.MissingTypesName)) {
@@ -476,6 +482,23 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 			this.classFileName,
 			ClassFormatException.ErrTruncatedInput,
 			readOffset);
+	}
+}
+
+private void decodeRecords(int readOffset, char[] attributeName) {
+	if (CharOperation.equals(attributeName, AttributeNamesConstants.RecordClass)) {
+		this.isRecord = true;
+		int offset = readOffset + 6;
+		this.recordComponentsCount = u2At(offset);
+		if (this.recordComponentsCount != 0) {
+			offset += 2;
+			this.recordComponents = new ComponentInfo[this.recordComponentsCount];
+			for (int j = 0; j < this.recordComponentsCount; j++) {
+				ComponentInfo component = ComponentInfo.createComponent(this.reference, this.constantPoolOffsets, readOffset, this.version);
+				this.recordComponents[j] = component;
+				readOffset += component.sizeInBytes();
+			}
+		}
 	}
 }
 
@@ -1382,5 +1405,9 @@ public String toString() {
 	print.println(" access_flags: " + printTypeModifiers(accessFlags()) + "(" + accessFlags() + ")"); //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
 	print.flush();
 	return out.toString();
+}
+
+public boolean isRecord() {
+	return this.isRecord;
 }
 }

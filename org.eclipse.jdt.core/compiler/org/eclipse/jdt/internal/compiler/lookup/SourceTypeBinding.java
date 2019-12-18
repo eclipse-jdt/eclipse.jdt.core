@@ -57,6 +57,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2787,6 +2788,25 @@ public List<String> getNestMembers() {
 							.map(s -> new String(s.constantPoolName()))
 							.sorted()
 							.collect(Collectors.toList());
+	return list;
+}
+/* Get the field bindings in the order of record component declaration */
+public List<FieldBinding> getRecordComponents() {
+	if (!this.isRecordDeclaration)
+		return null;
+	RecordDeclaration rd = (RecordDeclaration) this.scope.referenceContext;
+	List<FieldBinding> list = new ArrayList<>();
+	Argument[] args = rd.getArgs();
+	if (args != null) {
+		for (Argument arg : args) {
+			for (FieldBinding f : this.fields) {
+				if (CharOperation.equals(f.name, arg.name)) {
+					list.add(f);
+					continue;
+				}
+			}
+		}
+	}
 	return list;
 }
 

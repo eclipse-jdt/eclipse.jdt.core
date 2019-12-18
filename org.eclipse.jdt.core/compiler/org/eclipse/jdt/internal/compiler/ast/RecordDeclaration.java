@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -242,6 +243,10 @@ public class RecordDeclaration extends TypeDeclaration {
 					createNewMethod(f);
 			}
 		}
+	}
+	@Override
+	public void generateCode(ClassFile enclosingClassFile) {
+		super.generateCode(enclosingClassFile);
 	}
 	private AbstractMethodDeclaration createNewMethod(FieldDeclaration f) {
 		MethodDeclaration m = new MethodDeclaration(this.compilationResult);
