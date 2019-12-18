@@ -246,7 +246,7 @@ public class RecordDeclaration extends TypeDeclaration {
 	private AbstractMethodDeclaration createNewMethod(FieldDeclaration f) {
 		MethodDeclaration m = new MethodDeclaration(this.compilationResult);
 		m.selector = f.name;
-		m.bits |= ASTNode.IsSynthetic;
+		m.bits |= ASTNode.IsImplicit;
 		m.modifiers = ClassFileConstants.AccPublic;
 
 		m.returnType = f.type;
@@ -568,7 +568,6 @@ public class RecordDeclaration extends TypeDeclaration {
 	private MethodDeclaration createMethodDeclaration(char[] name1, TypeReference returnType) {
 		MethodDeclaration m = new MethodDeclaration(this.compilationResult);
 		m.selector = name1;
-		m.bits |= ASTNode.IsSynthetic;
 		m.modifiers = ClassFileConstants.AccPublic;
 
 		m.returnType = returnType;

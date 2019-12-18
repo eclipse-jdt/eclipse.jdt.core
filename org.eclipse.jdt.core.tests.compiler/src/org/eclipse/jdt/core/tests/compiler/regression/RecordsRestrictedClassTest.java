@@ -1532,4 +1532,22 @@ public void testBug558343_003() {
 		},
 	 "0");
 }
+public void testBug558343_004() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(new Point(0).myInt());\n" +
+			"  }\n"+
+			"}\n" +
+			"record Point(int myInt){\n"+
+			"  @Override\n"+
+			"  public String toString(){\n"+
+			"     return \"Point@1\";\n" +
+			"  }\n"+
+			"}\n"
+		},
+	 "0");
+}
 }
