@@ -3657,7 +3657,7 @@ public final class AST {
 	 * @since 3.19
 	 */
 	public boolean isPreviewEnabled() {
-		if (this.apiLevel == AST.JLS14_INTERNAL && this.previewEnabled) {
+		if (this.apiLevel == AST.JLS_Latest && this.previewEnabled) {
 				return true;
 		}
 		return false;

@@ -1185,9 +1185,11 @@ public class ASTMatcher {
 			return false;
 		}
 		InstanceofExpression o = (InstanceofExpression) other;
-		return (
-				safeSubtreeMatch(node.getLeftOperand(), o.getLeftOperand())
-				&& safeSubtreeMatch(node.getRightOperand(), o.getRightOperand()));
+		return 
+			safeSubtreeMatch(node.getLeftOperand(), o.getLeftOperand())
+			&& safeSubtreeMatch(node.getRightOperand(), o.getRightOperand()) 
+			&& ((DOMASTUtil.isInstanceofExpressionPatternSupported(node.getAST())) ? safeSubtreeMatch(node.getParameter(), o.getParameter())
+					: true);
 	}
 
 	/**

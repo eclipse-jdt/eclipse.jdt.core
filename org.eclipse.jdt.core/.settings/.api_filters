@@ -143,6 +143,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/InstanceofExpression.java" type="org.eclipse.jdt.core.dom.InstanceofExpression">
+        <filter comment="For Java 14" id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.InstanceofExpression"/>
+                <message_argument value="PARAMETER_PROPERTY"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/MethodDeclaration.java" type="org.eclipse.jdt.core.dom.MethodDeclaration">
         <filter comment="Needed for Java 14" id="336658481">
             <message_arguments>

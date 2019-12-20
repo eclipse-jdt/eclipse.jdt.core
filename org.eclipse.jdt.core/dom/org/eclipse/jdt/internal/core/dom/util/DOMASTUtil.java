@@ -63,6 +63,7 @@ public class DOMASTUtil {
 				return apiLevel >= AST.JLS14;
 			case ASTNode.TEXT_BLOCK:
 			case ASTNode.RECORD_DECLARATION:
+			case ASTNode.INSTANCEOF_EXPRESSION:
 				return isPreviewEnabled(apiLevel, previewEnabled);
 		}
 		return false;
@@ -90,6 +91,14 @@ public class DOMASTUtil {
 
 	public static boolean isRecordDeclarationSupported(int apiLevel, boolean previewEnabled) {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.RECORD_DECLARATION);
+	}
+	
+	public static boolean isInstanceofExpressionPatternSupported(AST ast) {
+		return isNodeTypeSupportedinAST(ast, ASTNode.INSTANCEOF_EXPRESSION);
+	}
+
+	public static boolean isInstanceofExpressionPatternSupported(int apiLevel, boolean previewEnabled) {
+		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.INSTANCEOF_EXPRESSION);
 	}
 
 }
