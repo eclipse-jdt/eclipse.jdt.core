@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -190,6 +194,7 @@ public class WhileStatement extends Statement {
 		if ((this.bits & IsReachable) == 0) {
 			return;
 		}
+		this.condition.initializePatternVariables(currentScope, codeStream);
 		int pc = codeStream.position;
 		Constant cst = this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
@@ -231,6 +236,7 @@ public class WhileStatement extends Statement {
 		// generate the action
 		BranchLabel actionLabel = new BranchLabel(codeStream);
 		if (this.action != null) {
+			this.condition.generatePatternVariable(currentScope, codeStream);
 			actionLabel.tagBits |= BranchLabel.USED;
 			// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
 			if (this.condIfTrueInitStateIndex != -1) {
@@ -269,12 +275,42 @@ public class WhileStatement extends Statement {
 	}
 
 	@Override
-	public void resolve(BlockScope scope) {
+	public void lookForPatternVariables(BlockScope scope) {
+		this.condition.traverse(new ASTVisitor() {
+			@Override
+			public boolean visit(
+		    		InstanceOfExpression instanceOfExpression,
+		    		BlockScope sc) {
+				if (instanceOfExpression.elementVariable != null) {
+					WhileStatement.this.bits |= ASTNode.HasInstancePatternExpression;
+				}
+				return false; // mission finished, exit
+			}
+		}, scope);
+		this.patternScope = new BlockScope(scope);
+	}
 
-		TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+	@Override
+	public void resolve(BlockScope scope) {
+		boolean hasPatternVariable = (this.bits & ASTNode.HasInstancePatternExpression) != 0;
+	 	BlockScope trueScope = null;
+	 	BlockScope falseScope = null;
+	 	if (hasPatternVariable) {
+	 		trueScope = this.patternScope;
+	 	 	this.condition.resolvePatternVariable(trueScope, true);
+	 	}
+		TypeBinding type = this.condition.resolveTypeExpecting(hasPatternVariable ? trueScope : scope, TypeBinding.BOOLEAN);
 		this.condition.computeConversion(scope, type, type);
-		if (this.action != null)
-			this.action.resolve(scope);
+		if (this.action != null) {
+			if (hasPatternVariable) {
+				if (this.action.doesNotCompleteNormally()) {
+					falseScope = (BlockScope) scope.parent;
+				}
+			}
+			this.action.resolve(hasPatternVariable ? trueScope : scope);
+			if (falseScope != null)
+				this.condition.resolvePatternVariable(falseScope, false);
+		}
 	}
 
 	@Override

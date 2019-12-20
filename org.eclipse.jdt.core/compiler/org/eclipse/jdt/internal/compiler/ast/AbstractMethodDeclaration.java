@@ -345,8 +345,11 @@ public abstract class AbstractMethodDeclaration
 				}
 			}
 			if (this.statements != null) {
-				for (int i = 0, max = this.statements.length; i < max; i++)
-					this.statements[i].generateCode(this.scope, codeStream);
+				for (Statement stmt : this.statements) {
+					stmt.generateCode(this.scope, codeStream);
+					if ((stmt.bits & ASTNode.HasInstancePatternExpression) != 0)
+						stmt.exitPatternVariableScope(codeStream);
+				}
 			}
 			// if a problem got reported during code gen, then trigger problem method creation
 			if (this.ignoreFurtherInvestigation) {
@@ -650,8 +653,14 @@ public abstract class AbstractMethodDeclaration
 	public void resolveStatements() {
 
 		if (this.statements != null) {
-			for (int i = 0, length = this.statements.length; i < length; i++) {
-				this.statements[i].resolve(this.scope);
+ 			for (int i = 0, length = this.statements.length; i < length; i++) {
+ 				Statement stmt = this.statements[i];
+ 				stmt.lookForPatternVariables(this.scope);
+ 				if ((stmt.bits & ASTNode.HasInstancePatternExpression) == 0) {
+ 					stmt.resolve(this.scope);
+ 				} else {
+ 					stmt.resolve(stmt.patternScope);
+ 				}
 			}
 		} else if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			if (!this.isConstructor() || this.arguments != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319626

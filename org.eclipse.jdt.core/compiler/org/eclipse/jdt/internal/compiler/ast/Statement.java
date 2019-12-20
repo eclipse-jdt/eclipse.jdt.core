@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -103,6 +107,7 @@ public boolean doesNotCompleteNormally() {
 public boolean completesByContinue() {
 	return false;
 }
+	public BlockScope patternScope;
 
 	public static final int NOT_COMPLAINED = 0;
 	public static final int COMPLAINED_FAKE_REACHABLE = 1;
@@ -422,6 +427,15 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 }
 
 public abstract void generateCode(BlockScope currentScope, CodeStream codeStream);
+public void exitPatternVariableScope(CodeStream stream) {
+	if (this.patternScope != null && (this.bits & ASTNode.HasInstancePatternExpression) != 0) {
+		for (Scope s : this.patternScope.subscopes) {
+		 if (s == null) continue;
+			stream.exitUserScope((BlockScope) s);
+		}
+		stream.exitUserScope(this.patternScope);
+	}
+}
 
 public boolean isBoxingCompatible(TypeBinding expressionType, TypeBinding targetType, Expression expression, Scope scope) {
 	if (scope.isBoxingCompatibleWith(expressionType, targetType))
@@ -463,6 +477,21 @@ public abstract StringBuffer printStatement(int indent, StringBuffer output);
 
 public abstract void resolve(BlockScope scope);
 
+public void lookForPatternVariables(BlockScope scope) {
+	this.traverse(new ASTVisitor() {
+		@Override
+		public boolean visit(
+	    		InstanceOfExpression instanceOfExpression,
+	    		BlockScope sc) {
+			if (instanceOfExpression.elementVariable != null) {
+				Statement.this.bits |= ASTNode.HasInstancePatternExpression;
+			}
+			return false; // mission finished, exit
+		}
+	}, scope);
+	if ((this.bits & ASTNode.HasInstancePatternExpression) != 0)
+		this.patternScope = new BlockScope(scope);
+}
 /**
  * Returns case constant associated to this statement (NotAConstant if none)
  * parameter statement has to be either a SwitchStatement or a SwitchExpression

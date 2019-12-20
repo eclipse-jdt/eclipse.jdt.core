@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -446,6 +450,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	}
 
 	@Override
+	public void initializePatternVariables(BlockScope scope, CodeStream codeStream) {
+		this.condition.initializePatternVariables(this.patternScope, codeStream);
+		this.valueIfTrue.initializePatternVariables(this.patternScope, codeStream);
+		this.valueIfFalse.initializePatternVariables(this.patternScope, codeStream);
+	}
+
+	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 		// JLS3 15.25
 		LookupEnvironment env = scope.environment();
@@ -464,7 +475,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		
 		if (this.constant != Constant.NotAConstant) {
 			this.constant = Constant.NotAConstant;
-
+			this.condition.resolvePatternVariable(scope, true);
 			TypeBinding conditionType = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 			this.condition.computeConversion(scope, TypeBinding.BOOLEAN, conditionType);
 

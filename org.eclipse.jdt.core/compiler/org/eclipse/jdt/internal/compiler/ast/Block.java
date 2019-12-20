@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -79,8 +83,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	int pc = codeStream.position;
 	if (this.statements != null) {
-		for (int i = 0, max = this.statements.length; i < max; i++) {
-			this.statements[i].generateCode(this.scope, codeStream);
+		for (Statement stmt : this.statements) {
+			stmt.generateCode(this.scope, codeStream);
+			if ((stmt.bits & ASTNode.HasInstancePatternExpression) != 0)
+				stmt.exitPatternVariableScope(codeStream);
 		}
 	} // for local variable debug attributes
 	if (this.scope != currentScope) { // was really associated with its own scope
@@ -122,7 +128,13 @@ public void resolve(BlockScope upperScope) {
 				? upperScope
 				: new BlockScope(upperScope, this.explicitDeclarations);
 		for (int i = 0, length = this.statements.length; i < length; i++) {
-			this.statements[i].resolve(this.scope);
+			final Statement stmt = this.statements[i];
+			stmt.lookForPatternVariables(this.scope);
+			if ((stmt.bits & ASTNode.HasInstancePatternExpression) == 0) {
+				stmt.resolve(this.scope);
+			} else {
+				stmt.resolve(stmt.patternScope);
+			}
 		}
 	}
 }

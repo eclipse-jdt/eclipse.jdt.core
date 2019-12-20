@@ -332,7 +332,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			// create a binding from the specified type
 			this.binding = new LocalVariableBinding(this, variableType, this.modifiers, false /*isArgument*/);
 		}
-		scope.addLocalVariable(this.binding);
+		if ((this.bits & ASTNode.HasInstancePatternExpression) == 0) {
+			scope.addLocalVariable(this.binding);
+		} else {
+			((BlockScope)scope.parent).addLocalVariable(this.binding);
+		}
 		this.binding.setConstant(Constant.NotAConstant);
 		// allow to recursivelly target the binding....
 		// the correct constant is harmed if correctly computed at the end of this method

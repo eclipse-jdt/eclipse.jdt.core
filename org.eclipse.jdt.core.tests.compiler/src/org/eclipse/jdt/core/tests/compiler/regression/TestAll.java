@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -196,6 +196,7 @@ public static Test suite() {
 	 ArrayList since_14 = new ArrayList();
 	 since_14.add(SwitchExpressionsYieldTest.class);
 	 since_14.add(RecordsRestrictedClassTest.class);
+	 since_14.add(PatternMatching14Test.class);
 
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
