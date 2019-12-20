@@ -34,14 +34,14 @@
 			<execution>
 				<phase>prepare-package</phase>
 				<configuration>
-					<tasks>
+					<target>
 						<replace token="bundle_qualifier," value="${buildQualifier}," dir="${project.build.directory}/classes">
 							<include name="org/eclipse/jdt/internal/compiler/batch/messages.properties"/>
 						</replace>
 						<replace token="bundle_version" value="${unqualifiedVersion}" dir="${project.build.directory}/classes">
 							<include name="org/eclipse/jdt/internal/compiler/batch/messages.properties"/>
 						</replace>
-					</tasks>
+					</target>
 				</configuration>
 				<goals>
 					<goal>run</goal>
