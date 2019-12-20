@@ -9,21 +9,14 @@
         </filter>
     </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
-        <filter comment="PREVIEW RELATED" id="336658481">
+        <filter comment="Java 14" id="576725006">
             <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.CategorizedProblem"/>
-                <message_argument value="CAT_PREVIEW_RELATED"/>
+                <message_argument value="IProblem"/>
+                <message_argument value="CategorizedProblem"/>
             </message_arguments>
         </filter>
     </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
-        <filter comment="BETA_JAVA13 addition of preview related base" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
-                <message_argument value="IgnoreCategoriesMask"/>
-                <message_argument value="4194303"/>
-            </message_arguments>
-        </filter>
         <filter comment="Needed for Java14" id="388194388">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
@@ -197,20 +190,6 @@
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.dom.MethodDeclaration"/>
                 <message_argument value="COMPACT_CONSTRUCTOR_PROPERTY"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/SwitchCase.java" type="org.eclipse.jdt.core.dom.SwitchCase">
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchCase"/>
-                <message_argument value="expressions()"/>
-            </message_arguments>
-        </filter>
-        <filter comment="No more an API as part of preview feature" id="338944126">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.SwitchCase"/>
-                <message_argument value="isSwitchLabeledRule()"/>
             </message_arguments>
         </filter>
     </resource>
