@@ -123,9 +123,9 @@
 			            <target>
 			              <exec dir="${basedir}/../org.eclipse.jdt.core/target/" executable="curl">
 			                   <arg value="--output"/>
-			                   <arg value="org.eclipse.jdt.core-3.20.0-SNAPSHOT-batch-compiler.jar"/>
+			                   <arg value="org.eclipse.jdt.core-3.20.100-SNAPSHOT-batch-compiler.jar"/>
 			                   <arg value="--form"/>
-			                   <arg value="file=@org.eclipse.jdt.core-3.20.0-SNAPSHOT-batch-compiler.jar"/>
+			                   <arg value="file=@org.eclipse.jdt.core-3.20.100-SNAPSHOT-batch-compiler.jar"/>
 			                   <arg value="--silent"/>
 			                   <arg value="--show-error"/>
 			                   <arg value="--fail"/>
