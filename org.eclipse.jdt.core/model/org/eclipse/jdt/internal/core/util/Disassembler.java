@@ -1031,6 +1031,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 
 		IClassFileAttribute bootstrapMethods = Util.getAttribute(classFileReader, IAttributeNamesConstants.BOOTSTRAP_METHODS);
 		IModuleAttribute moduleAttribute = (IModuleAttribute) Util.getAttribute(classFileReader, IAttributeNamesConstants.MODULE);
+		IRecordAttribute recordAttribute = classFileReader.getRecordAttribute();
 
 		if (checkMode(mode, DETAILED)) {
 			// disassemble compact version of annotations
@@ -1184,6 +1185,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					|| nestMembersAttribute != null
 					|| bootstrapMethods != null
 					|| moduleAttribute != null
+					|| recordAttribute != null
 					|| remainingAttributesLength != 0) {
 				// this test is to ensure we don't insert more than one line separator
 				if (buffer.lastIndexOf(lineSeparator) != buffer.length() - lineSeparator.length()) {
@@ -1201,6 +1203,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			}
 			if (nestMembersAttribute != null) {
 				disassemble(nestMembersAttribute, buffer, lineSeparator, 0);
+			}
+			if (recordAttribute != null) {
+				disassemble(recordAttribute, buffer, lineSeparator, 0, mode);
 			}
 			if (bootstrapMethods != null) {
 				disassemble((IBootstrapMethodsAttribute) bootstrapMethods, buffer, lineSeparator, 0, classFileReader.getConstantPool());
@@ -1224,6 +1229,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 						if (attribute != innerClassesAttribute
 								&& attribute != nestHostAttribute
 								&& attribute != nestMembersAttribute
+								&& attribute != recordAttribute
 								&& attribute != sourceAttribute
 								&& attribute != signatureAttribute
 								&& attribute != enclosingMethodAttribute
@@ -1351,6 +1357,94 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			.append(nestHostAttribute.getNestHostIndex())
 			.append(" ")//$NON-NLS-1$
 			.append(nestHostAttribute.getNestHostName());
+	}
+	private void disassemble(IRecordAttribute recordAttribute, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+		writeNewLine(buffer, lineSeparator, tabNumber);
+		writeNewLine(buffer, lineSeparator, tabNumber); // additional line
+		buffer.append(Messages.disassembler_record);
+		buffer
+			.append(Messages.disassembler_constantpoolindex)
+			.append(recordAttribute.getAttributeName());
+		writeNewLine(buffer, lineSeparator, tabNumber);
+		buffer.append(Messages.disassembler_components);
+		writeNewLine(buffer, lineSeparator, tabNumber + 1);
+		IComponentInfo[] entries = recordAttribute.getComponentInfos();
+		for (IComponentInfo e : entries) {
+			disassemble(e, buffer, lineSeparator, tabNumber, mode);
+		}
+	}
+	private void disassemble(IComponentInfo componentInfo, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+		writeNewLine(buffer, lineSeparator, tabNumber);
+		final char[] descriptor = componentInfo.getDescriptor();
+		final ISignatureAttribute signatureAttribute = (ISignatureAttribute) Util.getAttribute(componentInfo, IAttributeNamesConstants.SIGNATURE);
+		if (checkMode(mode, SYSTEM | DETAILED)) {
+			buffer.append(Messages.bind(Messages.classfileformat_componentdescriptor,
+				new String[] {
+					Integer.toString(componentInfo.getDescriptorIndex()),
+					new String(descriptor)
+				}));
+			writeNewLine(buffer, lineSeparator, tabNumber);
+			if (signatureAttribute != null) {
+				buffer.append(Messages.bind(Messages.disassembler_signatureattributeheader, new String(signatureAttribute.getSignature())));
+				writeNewLine(buffer, lineSeparator, tabNumber);
+			}
+		}
+		final IClassFileAttribute runtimeVisibleAnnotationsAttribute = Util.getAttribute(componentInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_ANNOTATIONS);
+		final IClassFileAttribute runtimeInvisibleAnnotationsAttribute = Util.getAttribute(componentInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_ANNOTATIONS);
+		final IClassFileAttribute runtimeVisibleTypeAnnotationsAttribute = Util.getAttribute(componentInfo, IAttributeNamesConstants.RUNTIME_VISIBLE_TYPE_ANNOTATIONS);
+		final IClassFileAttribute runtimeInvisibleTypeAnnotationsAttribute = Util.getAttribute(componentInfo, IAttributeNamesConstants.RUNTIME_INVISIBLE_TYPE_ANNOTATIONS);
+		if (checkMode(mode, DETAILED)) {
+			// disassemble compact version of annotations
+			if (runtimeInvisibleAnnotationsAttribute != null) {
+				disassembleAsModifier((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
+				writeNewLine(buffer, lineSeparator, tabNumber);
+			}
+			if (runtimeVisibleAnnotationsAttribute != null) {
+				disassembleAsModifier((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
+				writeNewLine(buffer, lineSeparator, tabNumber);
+			}
+		}
+		if (checkMode(mode, WORKING_COPY)) {
+			if (signatureAttribute != null) {
+				buffer.append(returnClassName(getSignatureForComponent(signatureAttribute.getSignature()), '.', mode));
+			} else {
+				buffer.append(returnClassName(getSignatureForComponent(descriptor), '.', mode));
+			}
+		} else {
+			buffer.append(returnClassName(getSignatureForComponent(descriptor), '.', mode));
+		}
+		buffer.append(' ');
+		buffer.append(new String(componentInfo.getName()));
+
+		buffer.append(Messages.disassembler_endofcomponent);
+		if (checkMode(mode, SYSTEM)) {
+			IClassFileAttribute[] attributes = componentInfo.getAttributes();
+			int length = attributes.length;
+			if (length != 0) {
+				for (int i = 0; i < length; i++) {
+					IClassFileAttribute attribute = attributes[i];
+					if (attribute != signatureAttribute
+						&& attribute != runtimeInvisibleAnnotationsAttribute
+						&& attribute != runtimeVisibleAnnotationsAttribute
+						&& attribute != runtimeInvisibleTypeAnnotationsAttribute
+						&& attribute != runtimeVisibleTypeAnnotationsAttribute) {
+						disassemble(attribute, buffer, lineSeparator, tabNumber, mode);
+					}
+				}
+			}
+			if (runtimeVisibleAnnotationsAttribute != null) {
+				disassemble((IRuntimeVisibleAnnotationsAttribute) runtimeVisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
+			}
+			if (runtimeInvisibleAnnotationsAttribute != null) {
+				disassemble((IRuntimeInvisibleAnnotationsAttribute) runtimeInvisibleAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
+			}
+			if (runtimeVisibleTypeAnnotationsAttribute != null) {
+				disassemble((IRuntimeVisibleTypeAnnotationsAttribute) runtimeVisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
+			}
+			if (runtimeInvisibleTypeAnnotationsAttribute != null) {
+				disassemble((IRuntimeInvisibleTypeAnnotationsAttribute) runtimeInvisibleTypeAnnotationsAttribute, buffer, lineSeparator, tabNumber, mode);
+ 			}
+		}
 	}
 
 	private void disassemble(INestMembersAttribute nestMembersAttribute, StringBuffer buffer, String lineSeparator, int tabNumber) {
@@ -2766,6 +2860,13 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		char[] fieldDescriptorSignature = Signature.toCharArray(newFieldDescriptor);
 		CharOperation.replace(fieldDescriptorSignature, '%', '$');
 		return fieldDescriptorSignature;
+	}
+	private char[] getSignatureForComponent(char[] componentDescriptor) {
+		char[] newComponentDescriptor = CharOperation.replaceOnCopy(componentDescriptor, '/', '.');
+		newComponentDescriptor = CharOperation.replaceOnCopy(newComponentDescriptor, '$', '%');
+		char[] componentDescriptorSignature = Signature.toCharArray(newComponentDescriptor);
+		CharOperation.replace(componentDescriptorSignature, '%', '$');
+		return componentDescriptorSignature;
 	}
 
 	private boolean isDeprecated(IClassFileReader classFileReader) {

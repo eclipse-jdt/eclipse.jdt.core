@@ -127,6 +127,16 @@ public interface IClassFileReader {
 	}
 
 	/**
+	 * Answer back the record attribute of this .class file, null if none.
+	 *
+	 * @return the nest record of this .class file, null if none
+	 * @since 3.20 BETA_JAVA14
+	 */
+	default IRecordAttribute getRecordAttribute() {
+		return null;
+	}
+
+	/**
 	 * Answer back the array of method infos of this .class file,
 	 * an empty array if none.
 	 *

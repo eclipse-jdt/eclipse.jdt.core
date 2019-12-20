@@ -16,8 +16,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -89,6 +95,23 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			JavacTestOptions.forReleaseWithPreview("14", javacAdditionalTestOptions);
 		runner.runWarningTest();
 	}
+
+	private static void verifyClassFile(String expectedOutput, String classFileName, int mode)
+			throws IOException, ClassFormatException {
+		File f = new File(OUTPUT_DIR + File.separator + classFileName);
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", mode);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+			System.out.println("...");
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	}
+
 	public void testBug550750_001() {
 		runConformTest(
 				new String[] {
@@ -1549,5 +1572,71 @@ public void testBug558343_004() {
 			"}\n"
 		},
 	 "0");
+}
+public void testBug558494_001() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(new Point(0).heyPinkCity());\n" +
+			"  }\n"+
+			"}\n" +
+			"record Point(int heyPinkCity){\n"+
+			"  @Override\n"+
+			"  public String toString(){\n"+
+			"     return \"Point@1\";\n" +
+			"  }\n"+
+			"}\n"
+		},
+	 "0");
+	String expectedOutput = "Record: #Record\n" + 
+			"Components:\n" + 
+			"  \n" + 
+			"// Component descriptor #6 I\n" + 
+			"int heyPinkCity;\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug558494_002() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(new Point().toString());\n" +
+			"  }\n"+
+			"}\n" +
+			"record Point(){\n"+
+			"  @Override\n"+
+			"  public String toString(){\n"+
+			"     return \"Point@1\";\n" +
+			"  }\n"+
+			"}\n"
+		},
+	 "Point@1");
+	String expectedOutput = "Record: #Record\n" + 
+			"Components:\n" + 
+			"  \n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug558494_003() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"record Forts(String...wonders){\n"+
+			"}\n"+
+			"public class X {\n"+
+			"       public static void main(String[] args) {\n"+
+			"               Forts p = new Forts(new String[] {\"Amber\", \"Nahargarh\", \"Jaigarh\"});\n"+
+			"               System.out.println(p.toString());\n"+
+			"       }\n"+
+			"}\n"
+		},
+	 "Forts@c77c674d");
+	String expectedOutput = "Record: #Record\n" + 
+			"Components:\n" + 
+			"  \n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
+
 }
 }
