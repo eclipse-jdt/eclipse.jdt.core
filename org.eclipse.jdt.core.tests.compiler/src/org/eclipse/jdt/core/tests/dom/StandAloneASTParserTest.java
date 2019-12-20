@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -83,6 +84,13 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		parser.setCompilerOptions(getCompilerOptions());
 		parser.setUnitName(unitName);
 		return parser.createAST(null);
+	}
+	protected File createFile(File dir, String fileName, String contents) throws IOException {
+		File file = new File(dir, fileName);
+		try (Writer writer = new BufferedWriter(new FileWriter(file))) {
+			writer.write(contents);
+		}
+		return file;
 	}
 	public void testBug529654_001() {
 		String contents =
@@ -1825,5 +1833,53 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		SwitchExpression se = (SwitchExpression) fragment.getInitializer();
 		YieldStatement yieldStatement = (YieldStatement) ((Block)se.statements().get(1)).statements().get(0);
 		assertNotNull("Expression null", yieldStatement.getExpression());
-	}	
+	}
+	public void testBug558517() throws IOException {
+		File f1 = null, f2 = null, packDir = null;
+		try {
+			File rootDir = new File(System.getProperty("java.io.tmpdir"));
+			packDir = new File(rootDir, "P/src/x");
+			packDir.mkdirs();
+
+			String fileName1 = "EnsureImpl$1.java";
+			String fileName2 = "C9947f.java";
+			f1 = createFile(
+					packDir, fileName1,
+					"package x;\n" + 
+					"\n" + 
+					"class EnsureImpl$1 {\n" + 
+					"}\n");
+			f2 = createFile(
+					packDir, fileName2,
+					"package x;\n" + 
+					"public final class C9947f {\n" + 
+					"    public C9947f() {\n" + 
+					"        try {\n" + 
+					"            new x.EnsureImpl$1();\n" + 
+					"        } catch (Throwable unused) {\n" + 
+					"        }\n" + 
+					"    }\n" + 
+					"}\n");
+			ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
+			parser.setResolveBindings(true);
+			Map<String, String> options = new HashMap<>();
+			JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
+			parser.setCompilerOptions(options );
+			parser.setEnvironment(null,
+					new String[] { rootDir + "/P/src" },
+					null,
+					true);
+			parser.createASTs(new String[] { packDir + "/" + fileName1, packDir + "/" + fileName2 },
+					null,
+					new String[] { "Lx/C9947f;" },
+					new FileASTRequestor() {
+					},
+					null);
+			// just ensure the above doesn't throw NPE
+		} finally {
+			f1.delete();
+			f2.delete();
+			packDir.delete();
+		}
+	}
 }
