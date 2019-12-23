@@ -5061,7 +5061,7 @@ public void testBug397204() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runLeakTest(
+	runConformTest(
 		new String[] {
 			"HostIdTest.java",
 			"import java.io.*;\n" + 
@@ -5115,13 +5115,6 @@ public void testBug397204() {
 			"    \n" + 
 			"}\n"
 		},
-		// FIXME: should detect that format returns the same formatter
-		"----------\n" + 
-		"1. ERROR in HostIdTest.java (at line 42)\n" + 
-		"	formatter.format(\"%08x\", hostid);\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
-		"----------\n",
 		options);
 }
 public void testBug397204_comment4() {
@@ -5795,6 +5788,39 @@ public void testBug463320_comment8() {
 		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Potential resource leak: \'<unassigned Closeable value from line 7>\' may not be closed\n" + 
 		"----------\n",
+		options);
+}
+public void testBug558574() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses varargs signatures
+
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"public class X {\n" +
+			"	void m1() throws FileNotFoundException {\n" +
+			"		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(\"/tmp/out\")));\n" +
+			"		pw.printf(\"%d\", 42).close();\n" +
+			"	}\n" +
+			"	void m2(PrintWriter pw) throws FileNotFoundException {\n" +
+			"		pw.printf(\"%d\", 42).append(\"end\").close();\n" +
+			"	}\n" +
+			"	void m3() throws FileNotFoundException {\n" +
+			"		new PrintWriter(new OutputStreamWriter(new FileOutputStream(\"/tmp/out\")))\n" +
+			"			.format(\"%d\", 42)\n" +
+			"			.append(\"end\")\n" +
+			"			.close();\n" +
+			"	}\n" +
+			"	void m4(PrintWriter pw) throws FileNotFoundException {\n" +
+			"		pw.printf(\"%d\", 42).append(\"end\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"",
 		options);
 }
 }

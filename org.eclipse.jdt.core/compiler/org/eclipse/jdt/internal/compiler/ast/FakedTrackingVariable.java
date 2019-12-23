@@ -401,6 +401,11 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 * Bug 463320 - [compiler][resource] potential "resource leak" problem disappears when local variable inlined
 	 */
 	public static FlowInfo analyseCloseableAcquisition(BlockScope scope, FlowInfo flowInfo, MessageSend acquisition) {
+		if (isFluentMethod(acquisition.binding)) {
+			// share the existing close tracker of the receiver (if any):
+			acquisition.closeTracker = findCloseTracker(scope, flowInfo, acquisition.receiver);
+			return flowInfo;
+		}
 		// client has checked that the resolvedType is an AutoCloseable, hence the following cast is safe:
 		if (((ReferenceBinding)acquisition.resolvedType).hasTypeBit(TypeIds.BitResourceFreeCloseable)) {
 			// remove unnecessary attempts (closeable is not relevant)
@@ -426,6 +431,19 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			flowInfo.markAsDefinitelyNull(tracker.binding);
 			return FlowInfo.conditional(outsideInfo, flowInfo);
 		}
+	}
+
+	private static boolean isFluentMethod(MethodBinding binding) {
+		if (binding.isStatic())
+			return false;
+		ReferenceBinding declaringClass = binding.declaringClass;
+		if (declaringClass.equals(binding.returnType)) {
+			for (char[][] compoundName : TypeConstants.FLUENT_RESOURCE_CLASSES) {
+				if (CharOperation.equals(compoundName, declaringClass.compoundName))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	private static FakedTrackingVariable pickMoreUnsafe(FakedTrackingVariable tracker1, FakedTrackingVariable tracker2, BlockScope scope, FlowInfo info) {
@@ -488,6 +506,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		} else if (arg instanceof AllocationExpression) {
 			// nested allocation
 			return ((AllocationExpression)arg).closeTracker;
+		} else if (arg instanceof MessageSend) {
+			return ((MessageSend) arg).closeTracker;
 		}
 		return null; // not a tracked expression
 	}
