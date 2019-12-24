@@ -5823,4 +5823,30 @@ public void testBug558574() {
 		"",
 		options);
 }
+public void testBug463320_comment19() {
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+
+	runConformTest(
+		new String[] {
+			"Try17.java",
+			"import java.util.zip.*;\n" +
+			"import java.io.*;\n" +
+			"public class Try17 {\n" + 
+			"	void withLocal() throws IOException {\n" +
+			"		ZipFile zipFile = null;\n" +
+			"		if (zipFile != null)" +
+			"			zipFile = getZipFile();\n" + // not reachable
+			"		String name= zipFile.getName();\n" + 
+			"		System.out.println(name);\n" + 
+			"	 }\n" + 
+			"\n" + 
+			"    ZipFile getZipFile() throws IOException {\n" + 
+			"        return new ZipFile(\"bla.jar\");\n" + 
+			"    }\n" + 
+			"}"
+		},
+		options);
+}
 }

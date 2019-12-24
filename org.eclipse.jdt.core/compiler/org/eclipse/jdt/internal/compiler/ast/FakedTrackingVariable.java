@@ -719,7 +719,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			FakedTrackingVariable tracker = ((MessageSend) expression).closeTracker;
 			if (tracker != null && tracker.originalBinding == null) {
 				tracker.withdraw();
-				((AllocationExpression) expression).closeTracker = null;
+				((MessageSend) expression).closeTracker = null;
 			}
 		} else {
 			// assignment passing a local into a field?
