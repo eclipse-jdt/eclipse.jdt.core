@@ -5849,4 +5849,160 @@ public void testBug463320_comment19() {
 		},
 		options);
 }
+public void testBug552521() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
+
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	runLeakTest(
+		new String[] {
+			"EclipseBug552521getChannel.java",
+			"import java.io.File;\n" + 
+			"import java.io.FileInputStream;\n" + 
+			"import java.io.FileOutputStream;\n" + 
+			"import java.nio.channels.FileChannel;\n" + 
+			"\n" + 
+			"public class EclipseBug552521getChannel {\n" + 
+			"\n" + 
+			"	@SuppressWarnings(\"unused\")\n" + 
+			"	public void copyFile(final File srcFile, final File dstFile) throws Exception {\n" + 
+			"		/*\n" + 
+			"		 * TODO Eclipse Setting: Window/Preferences/Java/Compiler/Errors-Warnings/\n" + 
+			"		 * Resource not managed via try-with-resource = Ignore (default)\n" + 
+			"		 */\n" + 
+			"        try (\n" + 
+			"        		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"        		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 17
+			"        		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok\n" + 
+			"        		)\n" + 
+			"        {\n" + 
+			"    		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        if (srcFile.isFile()) { // \"if\" (resolved at runtime) -> Warning suppressed\n" + 
+			"            try (\n" + 
+			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 28
+			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!\n" + 
+			"            		)\n" + 
+			"            {\n" + 
+			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"            }\n" + 
+			"        } else { // \"else\" (resolved at runtime) -> Warning suppressed\n" + 
+			"            try (\n" + 
+			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 38
+			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!\n" + 
+			"            		)\n" + 
+			"            {\n" + 
+			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        if (true) { // Dummy \"if\" (= constant true) -> Warning\n" + 
+			"            try (\n" + 
+			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 50
+			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok\n" + 
+			"            		)\n" + 
+			"            {\n" + 
+			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"            }\n" + 
+			"        } else { // Dummy \"else\" (= constant false) -> Warning suppressed\n" + 
+			"            try (\n" + 
+			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 60
+			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!\n" + 
+			"            		)\n" + 
+			"            {\n" + 
+			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        if (false) { // Dummy \"if\" (= constant false) -> Warning suppressed\n" + 
+			"            try (\n" + 
+			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 72
+			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!\n" + 
+			"            		)\n" + 
+			"            {\n" + 
+			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"            }\n" + 
+			"        } else { // Dummy \"else\" (= constant true) -> Warning\n" + 
+			"            try (\n" + 
+			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 82
+			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok\n" + 
+			"            		)\n" + 
+			"            {\n" + 
+			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"        /*\n" + 
+			"         * Following test-case differs from all the above as follows:\n" + 
+			"         * FileInputStream is unassigned, instead of FileOutputStream\n" + 
+			"         */\n" + 
+			"        try (\n" + 
+			"        		final FileChannel      srcChannel = new FileInputStream (srcFile) .getChannel();\n" + // line 94
+			"        		//                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok\n" + 
+			"        		final FileOutputStream dstStream  = new FileOutputStream(srcFile);\n" + 
+			"				final FileChannel      dstChannel =                      dstStream.getChannel();\n" + 
+			"        		)\n" + 
+			"        {\n" + 
+			"    		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"        }\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in EclipseBug552521getChannel.java (at line 17)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"2. ERROR in EclipseBug552521getChannel.java (at line 28)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"3. ERROR in EclipseBug552521getChannel.java (at line 38)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"4. ERROR in EclipseBug552521getChannel.java (at line 50)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"5. ERROR in EclipseBug552521getChannel.java (at line 60)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"6. ERROR in EclipseBug552521getChannel.java (at line 72)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"7. ERROR in EclipseBug552521getChannel.java (at line 82)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"8. ERROR in EclipseBug552521getChannel.java (at line 94)\n" + 
+		"	final FileChannel      srcChannel = new FileInputStream (srcFile) .getChannel();\n" + 
+		"	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n",
+		options);
+}
 }

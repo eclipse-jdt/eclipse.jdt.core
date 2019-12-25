@@ -790,8 +790,13 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			if ((status & FlowInfo.POTENTIALLY_NULL) != 0)
 				return FlowInfo.POTENTIALLY_NULL;	// non-null + doubt = pot null
 			return FlowInfo.NON_NULL;
-		} else if ((status & FlowInfo.POTENTIALLY_NULL) != 0)
+		} else if ((status & FlowInfo.POTENTIALLY_NULL) != 0) {
 			return FlowInfo.POTENTIALLY_NULL;
+		} else if (status == FlowInfo.UNKNOWN) {
+			// if unassigned resource (not having an originalBinding) is not withdrawn it is unclosed:
+			if (this.originalBinding == null)
+				return FlowInfo.NULL;
+		}
 		return status;
 	}
 

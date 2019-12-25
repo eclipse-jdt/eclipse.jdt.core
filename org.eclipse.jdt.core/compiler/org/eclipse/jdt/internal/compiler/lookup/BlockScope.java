@@ -1167,8 +1167,19 @@ public void correlateTrackingVarsIfElse(FlowInfo thenFlowInfo, FlowInfo elseFlow
 		int trackVarCount = this.trackingVariables.size();
 		for (int i=0; i<trackVarCount; i++) {
 			FakedTrackingVariable trackingVar = (FakedTrackingVariable) this.trackingVariables.get(i);
-			if (trackingVar.originalBinding == null)
+			if (trackingVar.originalBinding == null) {
+				// avoid problem weakened to 'potential' if unassigned resource exists only in one branch:
+				boolean hasNullInfoInThen = thenFlowInfo.hasNullInfoFor(trackingVar.binding);
+				boolean hasNullInfoInElse = elseFlowInfo.hasNullInfoFor(trackingVar.binding);
+				if (hasNullInfoInThen && !hasNullInfoInElse) {
+					int nullStatus = thenFlowInfo.nullStatus(trackingVar.binding);
+					elseFlowInfo.markNullStatus(trackingVar.binding, nullStatus);
+				} else if (!hasNullInfoInThen && hasNullInfoInElse) {
+					int nullStatus = elseFlowInfo.nullStatus(trackingVar.binding);
+					thenFlowInfo.markNullStatus(trackingVar.binding, nullStatus);					
+				}
 				continue;
+			}
 			if (   thenFlowInfo.isDefinitelyNonNull(trackingVar.binding)			// closed in then branch
 				&& elseFlowInfo.isDefinitelyNull(trackingVar.originalBinding))		// null in else branch
 			{
