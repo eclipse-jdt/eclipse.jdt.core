@@ -6091,4 +6091,56 @@ public void testBug552441() {
 		},
 		options);
 }
+public void testBug400523() {
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+
+	runConformTest(
+		new String[] {
+			"LeakWarning.java",
+			"import java.sql.Connection;\n" + 
+			"import java.sql.PreparedStatement;\n" + 
+			"import java.sql.ResultSet;\n" + 
+			"import java.sql.SQLException;\n" + 
+			"\n" + 
+			"public class LeakWarning {\n" + 
+			"	String value = null;\n" + 
+			"	\n" + 
+			"    public void setValue(Connection conn)\n" + 
+			"	{        \n" + 
+			"        PreparedStatement stmt = null;\n" + 
+			"        ResultSet rs = null;\n" + 
+			"        try {            \n" + 
+			"            stmt = conn.prepareStatement(\"SELECT 'value'\");  /* marked as potential resource leak */\n" + 
+			"            rs = stmt.executeQuery();                        /* marked as potential resource leak */\n" + 
+			"            if (rs.next()) value = rs.getString(1);\n" + 
+			"        } catch(SQLException e) {\n" + 
+			"        }\n" + 
+			"        finally {\n" + 
+			"        	if (null != rs)   try { rs.close();   } catch (SQLException e) {} finally { rs = null;   }\n" + 
+			"        	if (null != stmt) try { stmt.close(); } catch (SQLException e) {} finally { stmt = null; }\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public void setValueReturn(Connection conn)\n" + 
+			"	{        \n" + 
+			"        PreparedStatement stmt = null;\n" + 
+			"        ResultSet rs = null;\n" + 
+			"        try {            \n" + 
+			"            stmt = conn.prepareStatement(\"SELECT 'value'\");\n" + 
+			"            rs = stmt.executeQuery();\n" + 
+			"            if (rs.next()) value = rs.getString(1);\n" + 
+			"        } catch(SQLException e) {\n" + 
+			"        }\n" + 
+			"        finally {\n" + 
+			"        	if (null != rs)   try { rs.close();   } catch (SQLException e) {} finally { rs = null;   }\n" + 
+			"        	if (null != stmt) try { stmt.close(); } catch (SQLException e) {} finally { stmt = null; }\n" + 
+			"        }\n" + 
+			"        return; /* no warning now */\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		options);
+}
 }
