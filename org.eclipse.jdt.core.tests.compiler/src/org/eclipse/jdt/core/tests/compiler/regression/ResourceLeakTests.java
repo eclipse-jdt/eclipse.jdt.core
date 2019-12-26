@@ -6005,4 +6005,25 @@ public void testBug552521() {
 		"----------\n",
 		options);
 }
+public void testBug519740() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
+
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"Snippet.java",
+			"class Snippet {\n" + 
+			"  static void foo() throws Exception {\n" + 
+			"    try (java.util.Scanner scanner = new java.util.Scanner(new java.io.FileInputStream(\"abc\"))) {\n" + 
+			"      while (scanner.hasNext()) \n" + 
+			"        if (scanner.hasNextInt())\n" + 
+			"          throw new RuntimeException();  /* Potential resource leak: 'scanner' may not be closed at this location */\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		options);
+}
 }

@@ -235,7 +235,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 * @param rhs the rhs of the assignment resp. the initialization of the local variable declaration.
 	 * 		<strong>Precondition:</strong> client has already checked that the resolved type of this expression is either a closeable type or NULL.
 	 */
-	public static void preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, Expression rhs, FlowInfo flowInfo) {
+	public static FakedTrackingVariable preConnectTrackerAcrossAssignment(ASTNode location, LocalVariableBinding local, Expression rhs, FlowInfo flowInfo) {
 		FakedTrackingVariable closeTracker = null;
 		if (containsAllocation(rhs)) {
 			closeTracker = local.closeTracker;
@@ -262,6 +262,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				((MessageSend) rhs).closeTracker = closeTracker;
 			}
 		}
+		return closeTracker;
 	}
 
 	private static boolean containsAllocation(SwitchExpression location) {
@@ -316,7 +317,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		allocationExpression.closeTracker = closeTracker;
 		if (allocationExpression.arguments != null && allocationExpression.arguments.length > 0) {
 			// also push into nested allocations, see https://bugs.eclipse.org/368709
-			preConnectTrackerAcrossAssignment(location, local, allocationExpression.arguments[0], flowInfo);
+			FakedTrackingVariable inner = preConnectTrackerAcrossAssignment(location, local, allocationExpression.arguments[0], flowInfo);
+			if (inner != closeTracker && closeTracker.innerTracker == null)
+				closeTracker.innerTracker = inner;
 		}
 	}
 
