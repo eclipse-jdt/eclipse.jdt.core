@@ -6026,4 +6026,69 @@ public void testBug519740() {
 		},
 		options);
 }
+public void testBug552441() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
+
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.io.BufferedOutputStream;\n" + 
+			"import java.io.FileOutputStream;\n" + 
+			"import java.io.IOException;\n" + 
+			"import java.io.OutputStream;\n" + 
+			"import java.util.concurrent.atomic.AtomicLong;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"    public static class CountingBufferedOutputStream extends BufferedOutputStream {\n" + 
+			"        private final AtomicLong bytesWritten;\n" + 
+			"\n" + 
+			"        public CountingBufferedOutputStream(OutputStream out, AtomicLong bytesWritten) throws IOException {\n" + 
+			"            super(out);\n" + 
+			"            this.bytesWritten = bytesWritten;\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        @Override\n" + 
+			"        public void write(byte[] b) throws IOException {\n" + 
+			"            super.write(b);\n" + 
+			"            bytesWritten.addAndGet(b.length);\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        @Override\n" + 
+			"        public void write(byte[] b, int off, int len) throws IOException {\n" + 
+			"            super.write(b, off, len);\n" + 
+			"            bytesWritten.addAndGet(len);\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        @Override\n" + 
+			"        public synchronized void write(int b) throws IOException {\n" + 
+			"            super.write(b);\n" + 
+			"            bytesWritten.incrementAndGet();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static void test(String[] args) throws IOException {\n" + 
+			"        AtomicLong uncompressedBytesOut = new AtomicLong();\n" + 
+			"        int val = 0;\n" + 
+			"        try (CountingBufferedOutputStream out = new CountingBufferedOutputStream(\n" + 
+			"                new FileOutputStream(\"outputfile\"), uncompressedBytesOut)) {\n" + 
+			"\n" + 
+			"            for (int i = 0; i < 1; i++) {\n" + 
+			"                if (val > 2) {\n" + 
+			"                    throw new RuntimeException(\"X\");\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"            if (val > 2) {\n" + 
+			"                throw new RuntimeException(\"Y\");\n" + 
+			"            }\n" + 
+			"            throw new RuntimeException(\"Z\");\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		options);
+}
 }
