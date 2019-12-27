@@ -10972,4 +10972,108 @@ public void testBug481931_binary() {
 	runner.javacTestOptions = Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
+public void testBug459397() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"NonNullBug.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"public class NonNullBug {\n" + 
+			"	public static final String PACKid_$metamodel$ = null;\n" + 
+			"	public static final String PACKid_http_c_s_s_www_eclipse_org_s_qvt_s_examples_s_0_1_s_SimpleRDBMS = null;\n" + 
+			"	public static final String PACKid_http_c_s_s_www_eclipse_org_s_qvt_s_examples_s_0_1_s_UMLtoRDBMS = null;\n" + 
+			"	public static final String PACKid_http_c_s_s_www_eclipse_org_s_qvt_s_examples_s_0_1_s_simpleUML = null;\n" + 
+			"	public static final String CLSSid_Association = null;\n" + 
+			"	public static final String CLSSid_AssociationToForeignKey = null;\n" + 
+			"	public static final String CLSSid_Attribute = null;\n" + 
+			"	public static final String CLSSid_AttributeToColumn = null;\n" + 
+			"	public static final String CLSSid_Class = null;\n" + 
+			"	public static final String CLSSid_ClassToTable = null;\n" + 
+			"	public static final String CLSSid_Class_0 = null;\n" + 
+			"	public static final String CLSSid_Classifier = null;\n" + 
+			"	public static final String CLSSid_Column = null;\n" + 
+			"	public static final String CLSSid_ForeignKey = null;\n" + 
+			"	public static final String CLSSid_FromAttribute = null;\n" + 
+			"	public static final String CLSSid_Key = null;\n" + 
+			"	public static final String CLSSid_NonLeafAttribute = null;\n" + 
+			"	public static final String CLSSid_Package = null;\n" + 
+			"	public static final String CLSSid_PackageElement = null;\n" + 
+			"	public static final String CLSSid_PackageToSchema = null;\n" + 
+			"	public static final String CLSSid_PrimitiveDataType = null;\n" + 
+			"	public static final String CLSSid_PrimitiveToName = null;\n" + 
+			"	public static final String CLSSid_Schema = null;\n" + 
+			"	public static final String CLSSid_Table = null;\n" + 
+			"	public static final String STR_2 = \"2\";\n" + 
+			"	public static final String STR_BOOLEAN = \"BOOLEAN\";\n" + 
+			"	public static final String STR_Boolean = \"Boolean\";\n" + 
+			"	public static final String STR_Integer = \"Integer\";\n" + 
+			"	public static final String STR_NUMBER = \"NUMBER\";\n" + 
+			"	public static final String STR_String = \"String\";\n" + 
+			"	public static final String STR_VARCHAR = \"VARCHAR\";\n" + 
+			"	public static final String STR__ = \"_\";\n" + 
+			"	public static final String STR__pk = \"_pk\";\n" + 
+			"	public static final String STR__tid = \"_tid\";\n" + 
+			"	public static final String STR_base = \"base\";\n" + 
+			"	public static final String STR_persistent = \"persistent\";\n" + 
+			"	public static final String STR_primary = \"primary\";\n" + 
+			"	public static final String BAG_CLSSid_AttributeToColumn = null;\n" + 
+			"	public static final String BAG_CLSSid_FromAttribute = null;\n" + 
+			"	public static final String ORD_CLSSid_AssociationToForeignKey = null;\n" + 
+			"	public static final String ORD_CLSSid_Attribute = null;\n" + 
+			"	public static final String ORD_CLSSid_Column = null;\n" + 
+			"	public static final String ORD_CLSSid_ForeignKey = null;\n" + 
+			"	public static final String ORD_CLSSid_Key = null;\n" + 
+			"	public static final String ORD_CLSSid_PackageElement = null;\n" + 
+			"	public static final String SET_CLSSid_Association = null;\n" + 
+			"	public static final String SET_CLSSid_Attribute = null;\n" + 
+			"	public static final String SET_CLSSid_AttributeToColumn = null;\n" + 
+			"	public static final String SET_CLSSid_Class = null;\n" + 
+			"	public static final String SET_CLSSid_ClassToTable = null;\n" + 
+			"	public static final String SET_CLSSid_FromAttribute = null;\n" + 
+			"	public static final String SET_CLSSid_NonLeafAttribute = null;\n" + 
+			"	public static final String SET_CLSSid_Package = null;\n" + 
+			"	public static final String SET_CLSSid_PrimitiveToName = null;\n" + 
+			"\n" + 
+			"	protected final String OPPOSITE_OF_ClassToTable_table = null;\n" + 
+			"	protected final String OPPOSITE_OF_ClassToTable_umlClass = null;\n" + 
+			"	protected final String OPPOSITE_OF_FromAttribute_attribute = null;\n" + 
+			"	protected final String OPPOSITE_OF_PrimitiveToName_primitive = null;\n" + 
+			"\n" + 
+			"	@SuppressWarnings(\"unused\")\n" + 
+			"	private static final String[] classIndex2classId = new String[] {};\n" + 
+			"	@SuppressWarnings(\"unused\")\n" + 
+			"	private final static int[][] classIndex2allClassIndexes = new int[][] {};\n" + 
+			"\n" + 
+			"	protected String x(final @NonNull Exception a, final @NonNull String p_4, final @Nullable String p2s_9) throws Exception {\n" + 
+			"		final @Nullable Throwable destination = a.getCause();\n" + 
+			"		final @Nullable Throwable dc = a.getCause();\n" + 
+			"		if (dc == null) {\n" + 
+			"			throw new Exception();\n" + 
+			"		}\n" + 
+			"		try {\n" + 
+			"			if (dc instanceof Exception) {\n" + 
+			"				throw (Exception) dc;\n" + 
+			"			}\n" + 
+			"			boolean eq_2 = (destination != null) ? destination.equals(dc) : (dc == null);\n" + 
+			"		} catch (Exception e) {\n" + 
+			"		}\n" + 
+			"		boolean ne = (destination != null) ? !destination.equals(dc) : (dc != null);\n" + 
+			"		return dc.toString();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in NonNullBug.java (at line 80)\n" + 
+		"	boolean eq_2 = (destination != null) ? destination.equals(dc) : (dc == null);\n" + 
+		"	                                                                 ^^\n" + 
+		"Null comparison always yields false: The variable dc cannot be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in NonNullBug.java (at line 83)\n" + 
+		"	boolean ne = (destination != null) ? !destination.equals(dc) : (dc != null);\n" + 
+		"	                                                                ^^\n" + 
+		"Redundant null check: The variable dc cannot be null at this location\n" + 
+		"----------\n");
+}
 }
