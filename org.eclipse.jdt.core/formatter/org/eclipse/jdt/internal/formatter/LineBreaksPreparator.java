@@ -151,8 +151,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 	public boolean visit(TypeDeclaration node) {
 		handleBodyDeclarations(node.bodyDeclarations());
 
-		if (node.getName().getStartPosition() == -1)
-			return true; // this is a fake type created by parsing in class body mode
+		if (this.tm.isFake(node))
+			return true;
 
 		breakLineBefore(node);
 
@@ -187,9 +187,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 			previous = bodyDeclaration;
 		}
 		if (previous != null) {
-			Token lastToken = this.tm.lastTokenIn(previous.getParent(), -1);
-			if (lastToken.tokenType == TokenNameRBRACE) // otherwise it's a fake type
+			ASTNode parent = previous.getParent();
+			if (!(parent instanceof TypeDeclaration && this.tm.isFake((TypeDeclaration) parent))) {
+				Token lastToken = this.tm.lastTokenIn(parent, -1);
 				putBlankLinesBefore(lastToken, this.options.blank_lines_after_last_class_body_declaration);
+			}
 		}
 	}
 

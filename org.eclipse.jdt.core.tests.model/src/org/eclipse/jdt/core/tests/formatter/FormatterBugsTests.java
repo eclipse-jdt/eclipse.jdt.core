@@ -13055,4 +13055,15 @@ public void testBug220713() {
 		"	}\n" + 
 		"}");
 }
+/**
+ * https://bugs.eclipse.org/558421 [formatter] Generate getter/setter creates unnecessary blank line
+ */
+public void testBug() {
+	this.formatterPrefs.blank_lines_after_last_class_body_declaration = 1;
+	String source =
+		"public int getA() {\n" + 
+		"	return a;\n" + 
+		"}";
+	formatSource(source, source, CodeFormatter.K_CLASS_BODY_DECLARATIONS);
+}
 }
