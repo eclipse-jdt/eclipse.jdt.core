@@ -5364,7 +5364,8 @@ public void testBug473317() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // using diamond
 	Map<String, String> compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, JavaCore.IGNORE);
-	runLeakTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"AutoCloseableEnhancedForTest.java",
 			"import java.util.Iterator;\n" + 
@@ -5428,7 +5429,8 @@ public void testBug473317() {
 			"      }\n" + 
 			"   }\n" + 
 			"}\n"
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. WARNING in AutoCloseableEnhancedForTest.java (at line 44)\n" + 
 		"	for (Object value : new MyIterable<>())\n" + 
@@ -5439,8 +5441,9 @@ public void testBug473317() {
 		"	MyIterable<Object> iterable = new MyIterable<>();\n" + 
 		"	                   ^^^^^^^^\n" + 
 		"Resource leak: \'iterable\' is never closed\n" + 
-		"----------\n",
-		compilerOptions);
+		"----------\n";
+	runner.customOptions = compilerOptions;
+	runner.runWarningTest(); // javac warns about exception thrown from close() method
 }
 public void testBug541705() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses diamond
@@ -5797,7 +5800,7 @@ public void testBug558574() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 
-	runLeakTest(
+	runConformTest(
 		new String[] {
 			"X.java",
 			"import java.io.*;\n" +
