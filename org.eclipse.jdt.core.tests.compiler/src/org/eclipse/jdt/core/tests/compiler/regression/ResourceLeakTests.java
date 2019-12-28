@@ -6029,6 +6029,46 @@ public void testBug519740() {
 		},
 		options);
 }
+public void testBug552521_comment14() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach
+
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"import java.util.*;\n" +
+			"public class X {\n" +
+			"	List<String> process(InputStream is) throws IOException {\n" +
+			"		is.close();\n" +
+			"		return Collections.emptyList();\n" +
+			"	}\n" +
+			"	void test(String fileName) throws IOException {\n" +
+			"		for (String string : process(new FileInputStream(fileName))) {\n" + 
+			"			System.out.println(string);\n" + 
+			"		}\n" +
+			"	}\n" +
+			"	void test2(String fileName) throws IOException {\n" +
+			"		for (String string : process(new FileInputStream(fileName)))\n" + 
+			"			System.out.println(string);\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	for (String string : process(new FileInputStream(fileName))) {\n" + 
+		"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	for (String string : process(new FileInputStream(fileName)))\n" + 
+		"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n",
+		options);
+}
 public void testBug552441() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
 
