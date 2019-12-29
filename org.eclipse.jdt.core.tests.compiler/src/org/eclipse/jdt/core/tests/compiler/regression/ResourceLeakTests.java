@@ -6008,27 +6008,6 @@ public void testBug552521() {
 		"----------\n",
 		options);
 }
-public void testBug519740() {
-	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
-
-	Map options = getCompilerOptions(); 
-	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
-			"Snippet.java",
-			"class Snippet {\n" + 
-			"  static void foo() throws Exception {\n" + 
-			"    try (java.util.Scanner scanner = new java.util.Scanner(new java.io.FileInputStream(\"abc\"))) {\n" + 
-			"      while (scanner.hasNext()) \n" + 
-			"        if (scanner.hasNextInt())\n" + 
-			"          throw new RuntimeException();  /* Potential resource leak: 'scanner' may not be closed at this location */\n" + 
-			"    }\n" + 
-			"  }\n" + 
-			"}\n"
-		},
-		options);
-}
 public void testBug552521_comment14() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach
 
@@ -6067,6 +6046,75 @@ public void testBug552521_comment14() {
 		"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
 		"----------\n",
+		options);
+}
+public void testBug552521_comment14b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach
+
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"public class X {\n" +
+			"	boolean check(InputStream is) throws IOException {\n" +
+			"		is.close();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	void test1(String fileName) throws IOException {\n" +
+			"		while (check(new FileInputStream(fileName)))\n" + 
+			"			System.out.println(\"while\");\n" + 
+			"	}\n" +
+			"	void test2(String fileName) throws IOException {\n" +
+			"		do {\n" +
+			"			System.out.println(\"while\");\n" + 
+			"		} while (check(new FileInputStream(fileName)));\n" + 
+			"	}\n" +
+			"	void test3(String fileName) throws IOException {\n" +
+			"		for (int i=0;check(new FileInputStream(fileName));i++)\n" + 
+			"			System.out.println(i);\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	while (check(new FileInputStream(fileName)))\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	} while (check(new FileInputStream(fileName)));\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 17)\n" + 
+		"	for (int i=0;check(new FileInputStream(fileName));i++)\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n",
+		options);
+}
+public void testBug519740() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
+
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"Snippet.java",
+			"class Snippet {\n" + 
+			"  static void foo() throws Exception {\n" + 
+			"    try (java.util.Scanner scanner = new java.util.Scanner(new java.io.FileInputStream(\"abc\"))) {\n" + 
+			"      while (scanner.hasNext()) \n" + 
+			"        if (scanner.hasNextInt())\n" + 
+			"          throw new RuntimeException();  /* Potential resource leak: 'scanner' may not be closed at this location */\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
 		options);
 }
 public void testBug552441() {

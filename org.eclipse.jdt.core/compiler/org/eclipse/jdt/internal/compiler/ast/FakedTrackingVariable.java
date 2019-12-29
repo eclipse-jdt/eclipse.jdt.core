@@ -859,7 +859,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			if (owned) {
 				return infoResourceIsClosed; // don't let downstream signal any problems on this flow
 			} else {
-				return FlowInfo.conditional(flowInfo, infoResourceIsClosed); // only report potential problems on this flow
+				return FlowInfo.conditional(flowInfo, infoResourceIsClosed).unconditionalCopy(); // only report potential problems on this flow
 			}
 		}
 		return flowInfo;
