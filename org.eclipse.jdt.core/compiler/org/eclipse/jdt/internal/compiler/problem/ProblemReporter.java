@@ -10592,6 +10592,12 @@ public void arrayReferencePotentialNullReference(ArrayReference arrayReference) 
 public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding providedType, TypeBinding requiredType, NullAnnotationMatching status) 
 {
 	if (providedType == requiredType) return; //$IDENTITY-COMPARISON$
+	int severity = -1;
+	if (status.isAnnotatedToUnannotated()) {
+		severity = this.options.getSeverity(CompilerOptions.AnnotatedTypeArgumentToUnannotated);
+		if (severity == ProblemSeverities.Ignore)
+			return;
+	}
 	// try to improve nonnull vs. null:
 	if (providedType.id == TypeIds.T_null || status.nullStatus == FlowInfo.NULL) {
 		nullityMismatchIsNull(expression, requiredType);
@@ -10655,7 +10661,9 @@ public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding 
 		arguments 		= new String[] { requiredName, providedName };
 		shortArguments 	= new String[] { requiredNameShort, providedNameShort };
 	}
-	this.handle(problemId, arguments, shortArguments, expression.sourceStart, expression.sourceEnd);
+	if (severity == -1)
+		severity = computeSeverity(problemId);
+	this.handle(problemId, arguments, shortArguments, severity, expression.sourceStart, expression.sourceEnd);
 }
 
 public void nullityMismatchTypeArgument(TypeBinding typeVariable, TypeBinding typeArgument, ASTNode location) {
