@@ -2098,7 +2098,7 @@ public ReferenceBinding superclass() {
 	}
 	this.typeBits |= (this.superclass.typeBits & TypeIds.InheritableBits);
 	if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()! 
-		this.typeBits |= applyCloseableClassWhitelists();
+		this.typeBits |= applyCloseableClassWhitelists(this.environment.globalOptions);
 	detectCircularHierarchy();
 	return this.superclass;
 }

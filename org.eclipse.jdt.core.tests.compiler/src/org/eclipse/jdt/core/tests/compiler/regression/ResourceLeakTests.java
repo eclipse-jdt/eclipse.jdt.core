@@ -4220,13 +4220,13 @@ public void testBug395977() {
 		null);
 }
 
-// Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
-// variant with named local class - don't accept as a secure resource wrapper
+//Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
+//variant with named local class - accept as a secure resource wrapper since no close method
 public void testBug395977_1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runLeakTest(
+	runConformTest(
 		new String[] {
 			"WriterTest.java",
 			"import java.io.*;\n" + 
@@ -4276,8 +4276,68 @@ public void testBug395977_1() {
 			"   }\n" + 
 			"}"
 		},
+		"",
+		options);
+}
+//Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
+//variant with named local class - don't accept as a secure resource wrapper since close() method exist
+public void testBug395977_1a() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"WriterTest.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class WriterTest implements Runnable\n" + 
+			"{\n" + 
+			"   private BufferedWriter m_Writer;\n" + 
+			"   \n" + 
+			"   public void run()\n" + 
+			"   {\n" + 
+			"      try\n" + 
+			"      {\n" + 
+			"         initializeWriter();\n" + 
+			"         \n" + 
+			"         m_Writer.write(\"string\");\n" + 
+			"         m_Writer.newLine();\n" + 
+			"         \n" + 
+			"         closeWriter();\n" + 
+			"      }\n" + 
+			"      catch (IOException ioe)\n" + 
+			"      {\n" + 
+			"         ioe.printStackTrace();\n" + 
+			"      }\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private void initializeWriter()\n" + 
+			"      throws UnsupportedEncodingException, FileNotFoundException\n" + 
+			"   {\n" + 
+			"      class MyBufferedWriter extends BufferedWriter\n" + 
+			"      {\n" +
+			"         MyBufferedWriter(OutputStreamWriter writer) { super(writer); }\n" +
+			"         /**\n" + 
+			"          * Writes an LF character on all platforms, to avoid constantly flipping the line terminator style.\n" + 
+			"          */\n" + 
+			"         public void newLine() throws IOException\n" + 
+			"         {\n" + 
+			"            write('\\n');\n" + 
+			"         }\n" +
+			"         public void close() {}\n" + 
+			"      };" +
+			"      m_Writer = new MyBufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"));\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private void closeWriter()\n" + 
+			"      throws IOException\n" + 
+			"   {\n" + 
+			"      m_Writer.close();\n" + 
+			"   }\n" + 
+			"}"
+		},
 		"----------\n" + 
-		"1. ERROR in WriterTest.java (at line 37)\n" + 
+		"1. ERROR in WriterTest.java (at line 38)\n" + 
 		"	};      m_Writer = new MyBufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"));\n" + 
 		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
@@ -6232,6 +6292,78 @@ public void testBug400523() {
 			"    }\n" + 
 			"}\n"
 		},
+		options);
+}
+public void testBug527761() {
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"class BAOSWrapper extends java.io.ByteArrayOutputStream {}\n" +
+			"public class X {\n" +
+			"	public static void warningCauser() {\n" + 
+			"		BAOSWrapper baos = new BAOSWrapper();\n" + 
+			"		//WARNING HAS BEEN CAUSED\n" + 
+			"		baos.write(0);\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		options);
+}
+public void testBug527761_otherClose() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses generics
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	String xSource =
+			"public class X {\n" +
+			"	public static void warningCauser() {\n" + 
+			"		BAOSWrapper<String> baos = new BAOSWrapper<String>();\n" + 
+			"		//WARNING HAS BEEN CAUSED\n" + 
+			"		baos.write(0);\n" + 
+			"	}\n" +
+			"}\n";
+	runConformTest(
+		new String[] {
+			"BAOSWrapper.java",
+			"class BAOSWrapper<T> extends java.io.ByteArrayOutputStream {\n" +
+			"	public void close(java.util.List<?> l) {}\n" + // not relevant, param challenges treatment of unresolved types
+			"}\n",
+			"X.java",
+			xSource
+		},
+		options);
+	// consume BAOSWrapper from .class:
+	runConformTest(false,
+			new String[] { "X.java", xSource },
+			"", "", "", null);
+}
+public void testBug527761_neg() {
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"class BAOSWrapper extends java.io.ByteArrayOutputStream {\n" +
+			"	public void close() {}\n" + // indicates that resource could be relevant
+			"}\n" +
+			"public class X {\n" +
+			"	public static void warningCauser() {\n" + 
+			"		BAOSWrapper baos = new BAOSWrapper();\n" + 
+			"		//WARNING HAS BEEN CAUSED\n" + 
+			"		baos.write(0);\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	BAOSWrapper baos = new BAOSWrapper();\n" + 
+		"	            ^^^^\n" + 
+		"Resource leak: \'baos\' is never closed\n" + 
+		"----------\n",
 		options);
 }
 }
