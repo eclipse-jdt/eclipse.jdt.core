@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug553152_018" };
+//		TESTS_NAMES = new String[] { "testBug558494" };
 	}
 	
 	public static Class<?> testClass() {
@@ -1637,6 +1637,29 @@ public void testBug558494_003() throws Exception {
 			"Components:\n" + 
 			"  \n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
-
+}
+public void testBug558494_004() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"record Forts(String[] wonders, int x){\n"+
+			"}\n"+
+			"public class X {\n"+
+			"       public static void main(String[] args) {\n"+
+			"               Forts p = new Forts(new String[] {\"Amber\", \"Nahargarh\", \"Jaigarh\"}, 3);\n"+
+			"               System.out.println(p.toString());\n"+
+			"       }\n"+
+			"}\n"
+		},
+	 "Forts@28108256");
+	String expectedOutput = 
+			"Record: #Record\n" + 
+			"Components:\n" + 
+			"  \n" + 
+			"// Component descriptor #6 [Ljava/lang/String;\n" + 
+			"java.lang.String[] wonders;\n" + 
+			"// Component descriptor #8 I\n" + 
+			"int x;\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
 }
 }

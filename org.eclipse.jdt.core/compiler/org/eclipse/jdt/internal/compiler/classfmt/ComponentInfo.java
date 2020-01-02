@@ -192,7 +192,7 @@ public char[] getGenericSignature() {
 public char[] getName() {
 	if (this.name == null) {
 		// read the name
-		int utf8Offset = this.constantPoolOffsets[u2At(2)] - this.structOffset;
+		int utf8Offset = this.constantPoolOffsets[u2At(0)] - this.structOffset;
 		this.name = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 	}
 	return this.name;
@@ -216,7 +216,7 @@ public long getTagBits() {
 public char[] getTypeName() {
 	if (this.descriptor == null) {
 		// read the signature
-		int utf8Offset = this.constantPoolOffsets[u2At(4)] - this.structOffset;
+		int utf8Offset = this.constantPoolOffsets[u2At(2)] - this.structOffset;
 		this.descriptor = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
 	}
 	return this.descriptor;

@@ -494,9 +494,9 @@ private void decodeRecords(int readOffset, char[] attributeName) {
 			offset += 2;
 			this.recordComponents = new ComponentInfo[this.recordComponentsCount];
 			for (int j = 0; j < this.recordComponentsCount; j++) {
-				ComponentInfo component = ComponentInfo.createComponent(this.reference, this.constantPoolOffsets, readOffset, this.version);
+				ComponentInfo component = ComponentInfo.createComponent(this.reference, this.constantPoolOffsets, offset, this.version);
 				this.recordComponents[j] = component;
-				readOffset += component.sizeInBytes();
+				offset += component.sizeInBytes();
 			}
 		}
 	}
