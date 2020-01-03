@@ -2104,18 +2104,23 @@ protected int applyCloseableClassWhitelists(CompilerOptions options) {
 	if (options.analyseResourceLeaks) {
 		ReferenceBinding mySuper = this.superclass();
 		if (mySuper != null && mySuper.id != TypeIds.T_JavaLangObject) {
-			for (MethodBinding methodBinding : unResolvedMethods()) {
-				if (CharOperation.equals(methodBinding.selector, TypeConstants.CLOSE)
-						&& methodBinding.parameters == Binding.NO_PARAMETERS) {
-					return 0;
-				}
-			}
+			if (hasMethodWithNumArgs(TypeConstants.CLOSE, 0))
+				return 0; // close methods indicates: class may need more closing than super
 			return mySuper.applyCloseableClassWhitelists(options);
 		}
 	}
 	return 0;
 }
 
+protected boolean hasMethodWithNumArgs(char[] selector, int numArgs) {
+	for (MethodBinding methodBinding : unResolvedMethods()) {
+		if (CharOperation.equals(methodBinding.selector, TypeConstants.CLOSE)
+				&& methodBinding.parameters.length == numArgs) {
+			return true;
+		}
+	}
+	return false;
+}
 
 /*
  * If a type - known to be a Closeable - is mentioned in one of our white lists

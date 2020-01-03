@@ -6366,4 +6366,38 @@ public void testBug527761_neg() {
 		"----------\n",
 		options);
 }
+// regression caused by Bug 527761
+public void testBug558759() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses generics
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	String ySource =
+		"public class Y {\n" +
+		"	class YInner extends X<I> {}\n" +
+		"}\n";
+	runConformTest(
+		new String[] {
+			"I.java",
+			"import java.io.Closeable;\n" +
+			"public interface I extends Closeable {\n" +
+			"	interface Location {}\n" +
+			"	void m(Location l);\n" +
+			"}\n",
+			"X0.java",
+			"public abstract class X0<T extends I> implements I {\n" +
+			"	public void close() {}\n" +
+			"}\n",
+			"X.java",
+			"public class X<T extends I> extends X0<T> implements I {\n" +
+			"	public void m(Location l) {}\n" +
+			"}\n",
+			"Y.java",
+			ySource
+		},
+		options);
+	runConformTest(false,
+			new String[] { "Y.java", ySource },
+			"", "", "", null);
+}
 }
