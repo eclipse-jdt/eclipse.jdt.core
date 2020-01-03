@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -166,6 +166,8 @@ public interface TagBits {
 
 	/** From Java 9 */
 	long AnnotationTerminallyDeprecated = ASTNode.Bit63L;
+	/** From Java 14 */
+	long AnnotationForRecordComponent = ASTNode.Bit31;
 
 	long AllStandardAnnotationsMask =
 				  AnnotationTargetMASK

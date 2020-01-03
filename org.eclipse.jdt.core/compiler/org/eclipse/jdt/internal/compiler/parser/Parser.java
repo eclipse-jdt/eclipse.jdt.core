@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10808,7 +10808,6 @@ private void convertToFields(RecordDeclaration rd, Argument[] args) {
 		}
 		argsSet.add(argName);
 		FieldDeclaration f = fields[nFields++] = createFieldDeclaration(arg.name, arg.sourceStart, arg.sourceEnd);
-		f.annotations = arg.annotations;
 		f.bits = arg.bits;
 		f.declarationSourceStart = arg.declarationSourceStart;
 		f.declarationSourceEnd = arg.declarationSourceEnd;
@@ -10817,7 +10816,7 @@ private void convertToFields(RecordDeclaration rd, Argument[] args) {
 		f.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccFinal;
 		// Note: JVMS 14 S 4.7.8 The Synthetic Attribute mandates do not mark Synthetic for Record compoents.
 		// hence marking this "explicitly" as implicit.
-		f.isImplicit = true;
+		f.isARecordComponent = true;
 		/*
 		 * JLS 14 Sec 8.10.1 Record Header
 		 * The record header declares a number of record components. The record components
@@ -10846,6 +10845,7 @@ private void convertToFields(RecordDeclaration rd, Argument[] args) {
 		 *  time) weed out the irrelevant ones.
 		 */
 		f.annotations = arg.annotations;
+		arg.annotations = null;
 		if ((args[i].bits & ASTNode.HasTypeAnnotations) != 0) {
 			f.bits |= ASTNode.HasTypeAnnotations;
 		}

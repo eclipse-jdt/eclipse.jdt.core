@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -306,6 +310,10 @@ public abstract class Annotation extends Expression {
 					return TagBits.AnnotationForParameter;
 				else if (CharOperation.equals(elementName, TypeConstants.UPPER_PACKAGE))
 					return TagBits.AnnotationForPackage;
+				break;
+			case 'R' :
+				if (CharOperation.equals(elementName, TypeConstants.UPPER_RECORD_COMPONENT))
+					return TagBits.AnnotationForRecordComponent;
 				break;
 			case 'T' :
 				if (CharOperation.equals(elementName, TypeConstants.TYPE))
@@ -708,6 +716,7 @@ public abstract class Annotation extends Expression {
 			builder.check(TagBits.AnnotationForTypeParameter, TypeConstants.TYPE_PARAMETER_TARGET);
 			builder.check(TagBits.AnnotationForTypeUse, TypeConstants.TYPE_USE_TARGET);
 			builder.check(TagBits.AnnotationForModule, TypeConstants.UPPER_MODULE);
+			builder.check(TagBits.AnnotationForRecordComponent, TypeConstants.UPPER_RECORD_COMPONENT);
 			if (builder.hasError()) {
 				repeatableAnnotationType.tagAsHavingDefectiveContainerType();
 				scope.problemReporter().repeatableAnnotationTypeTargetMismatch(culpritNode, repeatableAnnotationType, containerType, builder.toString());
@@ -1176,6 +1185,9 @@ public abstract class Annotation extends Expression {
 			case Binding.FIELD :
 				if ((metaTagBits & TagBits.AnnotationForField) != 0) {
 					return AnnotationTargetAllowed.YES;
+				} else if ((metaTagBits & TagBits.AnnotationForRecordComponent) != 0) {
+					FieldBinding sourceField = (FieldBinding) recipient;
+					return sourceField.isRecordComponent() ? AnnotationTargetAllowed.YES : AnnotationTargetAllowed.NO;
 				} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
 					FieldBinding sourceField = (FieldBinding) recipient;
 					SourceTypeBinding sourceType = (SourceTypeBinding) sourceField.declaringClass;

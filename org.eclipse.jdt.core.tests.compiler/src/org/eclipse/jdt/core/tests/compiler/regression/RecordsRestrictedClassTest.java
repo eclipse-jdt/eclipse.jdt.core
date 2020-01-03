@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
+ * Copyright (c) 2019, 2020 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug558494" };
+//		TESTS_NAMES = new String[] { "testBug558764" };
 	}
 	
 	public static Class<?> testClass() {
@@ -304,14 +304,14 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"X.java",
 						"import java.lang.annotation.Target;\n"+
 						"import java.lang.annotation.ElementType;\n"+
+						"record Point(@MyAnnotation int myInt, char myChar) {}\n"+
+						" @Target({ElementType.FIELD, ElementType.TYPE})\n"+
+						" @interface MyAnnotation {}\n" +
 						"class X {\n"+
 						"  public static void main(String[] args){\n"+
 						"     System.out.println(0);\n" +
 						"  }\n"+
-						"}\n"+
-						"record Point(int myInt, char myChar) {}\n"+
-						" @Target({ElementType.FIELD, ElementType.TYPE})\n"+
-						" @interface MyAnnotation {}\n"
+						"}\n"
 				},
 			"0");
 	}
@@ -1661,5 +1661,84 @@ public void testBug558494_004() throws Exception {
 			"// Component descriptor #8 I\n" + 
 			"int x;\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug558764_001() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"import java.lang.annotation.Target;\n"+
+					"import java.lang.annotation.ElementType;\n"+
+					"record Point(@MyAnnotation int myInt, char myChar) {}\n"+
+					" @Target({ElementType.FIELD})\n"+
+					" @interface MyAnnotation {}\n" +
+					"class X {\n"+
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n"
+			},
+		"0");
+}
+public void testBug558764_002() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.lang.annotation.Target;\n"+
+					"import java.lang.annotation.ElementType;\n"+
+					"record Point(@MyAnnotation int myInt, char myChar) {}\n"+
+					" @Target({ElementType.TYPE})\n"+
+					" @interface MyAnnotation {}\n" +
+					"class X {\n"+
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	record Point(@MyAnnotation int myInt, char myChar) {}\n" + 
+			"	             ^^^^^^^^^^^^^\n" + 
+			"The annotation @MyAnnotation is disallowed for this location\n" + 
+			"----------\n");
+}
+public void testBug558764_003() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"import java.lang.annotation.Target;\n"+
+					"import java.lang.annotation.ElementType;\n"+
+					"record Point(@MyAnnotation int myInt, char myChar) {}\n"+
+					" @Target({ElementType.RECORD_COMPONENT})\n"+
+					" @interface MyAnnotation {}\n" +
+					"class X {\n"+
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n"
+			},
+		"0");
+}
+public void testBug558764_004() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.lang.annotation.Target;\n"+
+					"import java.lang.annotation.ElementType;\n"+
+					"record Point(@MyAnnotation int myInt, char myChar) {}\n"+
+					" @Target({ElementType.RECORD_COMPONENT})\n"+
+					" @interface MyAnnotation {}\n" +
+					"class X {\n"+
+					"  public @MyAnnotation String f = \"hello\";\n" + 
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	public @MyAnnotation String f = \"hello\";\n" + 
+			"	       ^^^^^^^^^^^^^\n" + 
+			"The annotation @MyAnnotation is disallowed for this location\n" + 
+			"----------\n");
 }
 }

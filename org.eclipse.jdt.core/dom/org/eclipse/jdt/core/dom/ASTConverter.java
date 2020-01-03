@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3434,7 +3434,7 @@ class ASTConverter {
 			recordNodes(variableDeclarationFragment, fieldDecl);
 			variableDeclarationFragment.resolveBinding();
 		}
-		if (!fieldDecl.isImplicit)
+		if (!fieldDecl.isARecordComponent)
 		fieldDeclaration.setSourceRange(fieldDecl.declarationSourceStart, fieldDecl.declarationEnd - fieldDecl.declarationSourceStart + 1);
 		Type type = convertType(fieldDecl.type);
 		setTypeForField(fieldDeclaration, type, variableDeclarationFragment.getExtraDimensions());
