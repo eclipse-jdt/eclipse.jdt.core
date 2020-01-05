@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -194,7 +194,6 @@ public class CompilerOptions {
 	public static final String OPTION_ReportNonnullParameterAnnotationDropped = "org.eclipse.jdt.core.compiler.problem.nonnullParameterAnnotationDropped";  //$NON-NLS-1$
 	public static final String OPTION_PessimisticNullAnalysisForFreeTypeVariables = "org.eclipse.jdt.core.compiler.problem.pessimisticNullAnalysisForFreeTypeVariables";  //$NON-NLS-1$
 	public static final String OPTION_ReportNonNullTypeVariableFromLegacyInvocation = "org.eclipse.jdt.core.compiler.problem.nonnullTypeVariableFromLegacyInvocation"; //$NON-NLS-1$
-	public static final String OPTION_ReportMissingNullAnnotationImplicitlyUsed = "org.eclipse.jdt.core.compiler.problem.missingNullAnnotationImplicitlyUsed";  //$NON-NLS-1$
 	
 	public static final String OPTION_ReportUnlikelyCollectionMethodArgumentType = "org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentType"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnlikelyCollectionMethodArgumentTypeStrict = "org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentTypeStrict"; //$NON-NLS-1$
@@ -348,7 +347,6 @@ public class CompilerOptions {
 	public static final int UnstableAutoModuleName = IrritantSet.GROUP2 | ASTNode.Bit26;
 	public static final int PreviewFeatureUsed = IrritantSet.GROUP2 | ASTNode.Bit27;
 	public static final int SuppressWarningsNotAnalysed = IrritantSet.GROUP2 | ASTNode.Bit28;
-	public static final int MissingNullAnnotationImplicitlyUsed = IrritantSet.GROUP2 | ASTNode.Bit29;
 
 
 	// Severity level for handlers
@@ -785,8 +783,6 @@ public class CompilerOptions {
 				return OPTION_ReportPreviewFeatures;
 			case SuppressWarningsNotAnalysed:
 				return OPTION_ReportSuppressWarningNotFullyAnalysed;
-			case MissingNullAnnotationImplicitlyUsed:
-				return OPTION_ReportMissingNullAnnotationImplicitlyUsed;
 		}
 		return null;
 	}
@@ -1028,8 +1024,7 @@ public class CompilerOptions {
 			OPTION_ReportUnlikelyEqualsArgumentType,
 			OPTION_ReportAPILeak,
 			OPTION_ReportPreviewFeatures,
-			OPTION_ReportSuppressWarningNotFullyAnalysed,
-			OPTION_ReportMissingNullAnnotationImplicitlyUsed
+			OPTION_ReportSuppressWarningNotFullyAnalysed
 		};
 		return result;
 	}
@@ -1106,7 +1101,6 @@ public class CompilerOptions {
 			case NonnullParameterAnnotationDropped:
 			case PessimisticNullAnalysisForFreeTypeVariables:
 			case NonNullTypeVariableFromLegacyInvocation:
-			case MissingNullAnnotationImplicitlyUsed:
 				return "null"; //$NON-NLS-1$
 			case FallthroughCase :
 				return "fallthrough"; //$NON-NLS-1$
@@ -1386,7 +1380,6 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_EnablePreviews, this.enablePreviewFeatures ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportPreviewFeatures, getSeverityString(PreviewFeatureUsed));
 		optionsMap.put(OPTION_ReportSuppressWarningNotFullyAnalysed, getSeverityString(SuppressWarningsNotAnalysed));
-		optionsMap.put(OPTION_ReportMissingNullAnnotationImplicitlyUsed, getSeverityString(MissingNullAnnotationImplicitlyUsed));
 		return optionsMap;
 	}
 
@@ -1963,7 +1956,6 @@ public class CompilerOptions {
 				this.pessimisticNullAnalysisForFreeTypeVariablesEnabled = true;
 			}
 			if ((optionValue = optionsMap.get(OPTION_ReportNonNullTypeVariableFromLegacyInvocation)) != null) updateSeverity(NonNullTypeVariableFromLegacyInvocation, optionValue);
-			if ((optionValue = optionsMap.get(OPTION_ReportMissingNullAnnotationImplicitlyUsed)) != null) updateSeverity(MissingNullAnnotationImplicitlyUsed, optionValue);
 		}
 
 		// Javadoc options
@@ -2256,7 +2248,6 @@ public class CompilerOptions {
 		buf.append("\n\t- Unused Type Parameter: ").append(getSeverityString(UnusedTypeParameter)); //$NON-NLS-1$
 		buf.append("\n\t- pessimistic null analysis for free type variables: ").append(getSeverityString(PessimisticNullAnalysisForFreeTypeVariables)); //$NON-NLS-1$
 		buf.append("\n\t- report unsafe nonnull return from legacy method: ").append(getSeverityString(NonNullTypeVariableFromLegacyInvocation)); //$NON-NLS-1$
-		buf.append("\n\t- report missing null annotation, which is implicitly used: ").append(getSeverityString(MissingNullAnnotationImplicitlyUsed)); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument type for collection methods: ").append(getSeverityString(UnlikelyCollectionMethodArgumentType)); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument type for collection methods, strict check against expected type: ").append(this.reportUnlikelyCollectionMethodArgumentTypeStrict ? ENABLED : DISABLED); //$NON-NLS-1$
 		buf.append("\n\t- unlikely argument types for equals(): ").append(getSeverityString(UnlikelyEqualsArgumentType)); //$NON-NLS-1$

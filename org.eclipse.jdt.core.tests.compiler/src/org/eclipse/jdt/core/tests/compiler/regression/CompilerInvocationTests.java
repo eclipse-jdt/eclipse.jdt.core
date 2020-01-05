@@ -1795,7 +1795,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MissingEnumDefaultCase", new ProblemAttributes(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE));
 		expectedProblemAttributes.put("MissingNonNullByDefaultAnnotationOnPackage", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION));
 		expectedProblemAttributes.put("MissingNonNullByDefaultAnnotationOnType", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION));
-		expectedProblemAttributes.put("MissingNullAnnotationImplicitlyUsed", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_NULL_ANNOTATION_IMPLICITLY_USED));
+		expectedProblemAttributes.put("MissingNullAnnotationImplicitlyUsed", SKIP);
 		expectedProblemAttributes.put("MissingOverrideAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION));
 		expectedProblemAttributes.put("MissingOverrideAnnotationForInterfaceMethodImplementation", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION));
 		expectedProblemAttributes.put("MissingRequiresTransitiveForTypeInAPI", new ProblemAttributes(JavaCore.COMPILER_PB_API_LEAKS));

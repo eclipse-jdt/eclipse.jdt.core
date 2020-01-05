@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -141,8 +141,7 @@ public class IrritantSet {
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation
-				|CompilerOptions.NullAnnotationInferenceConflict
-				|CompilerOptions.MissingNullAnnotationImplicitlyUsed);
+				|CompilerOptions.NullAnnotationInferenceConflict);
 
 		ALL.setAll();
 		HIDING
@@ -159,8 +158,7 @@ public class IrritantSet {
 			.set(CompilerOptions.NonnullParameterAnnotationDropped)
 			.set(CompilerOptions.MissingNonNullByDefaultAnnotation)
 			.set(CompilerOptions.PessimisticNullAnalysisForFreeTypeVariables)
-			.set(CompilerOptions.NonNullTypeVariableFromLegacyInvocation)
-			.set(CompilerOptions.MissingNullAnnotationImplicitlyUsed);
+			.set(CompilerOptions.NonNullTypeVariableFromLegacyInvocation);
 
 		RESTRICTION.set(CompilerOptions.DiscouragedReference);
 		STATIC_ACCESS.set(CompilerOptions.NonStaticAccessToStatic);

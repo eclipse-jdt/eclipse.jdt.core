@@ -498,8 +498,6 @@ public static int getIrritant(int problemID) {
 		case IProblem.RedundantNullDefaultAnnotationLocal:
 		case IProblem.RedundantNullDefaultAnnotationField:
 			return CompilerOptions.RedundantNullAnnotation;
-		case IProblem.MissingNullAnnotationImplicitlyUsed:
-			return CompilerOptions.MissingNullAnnotationImplicitlyUsed;
 
 		case IProblem.BoxingConversion :
 		case IProblem.UnboxingConversion :

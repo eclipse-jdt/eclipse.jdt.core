@@ -1096,7 +1096,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	}
 	public void testBug479389() throws CoreException, IOException {
 		IJavaProject project = null;
-    	try {
+		try {
 			project = createJavaProject("Bug479389", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
 			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 			
@@ -1132,51 +1132,8 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 					"Annotation type \'org.eclipse.jdt.annotation.NonNull\' cannot be found on the build path, which is implicitly needed for null analysis\n" + 
 					"----------\n"					);
-    	} finally {
-    		deleteProject(project);
-    	}
-	}
-	public void testBug479389_warning() throws CoreException, IOException {
-		IJavaProject project = null;
-    	try {
-			project = createJavaProject("Bug479389", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
-			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-			project.setOption(JavaCore.COMPILER_PB_MISSING_NULL_ANNOTATION_IMPLICITLY_USED, JavaCore.WARNING);
-
-			createFolder("Bug479389/src/nullAnalysis");
-			String testSource =
-					"package nullAnalysis;\n" + 
-					"interface MyList<T> {\n" +
-					"	public Stream<T> stream();\n" +
-					"}\n" +
-					"interface Stream<T> {\n" +
-					"	T[] toArray(IntFunction<T[]> supplier);" +
-					"}\n" +
-					"interface IntFunction<T> {\n" +
-					"	T apply(int i);\n" +
-					"}\n" + 
-					"public class X {\n" + 
-					"\n" + 
-					"	public String[] method(MyList<String> in) {\n" + 
-					"		return in.stream().toArray(String[]::new);\n" + 
-					"	}\n" + 
-					"}\n";
-			String testSourcePath = "Bug479389/src/nullAnalysis/X.java";
-			createFile(testSourcePath, testSource);
-			char[] testSourceChars = testSource.toCharArray();
-			this.problemRequestor.initialize(testSourceChars);
-
-			getCompilationUnit(testSourcePath).getWorkingCopy(this.wcOwner, null);
-			assertProblems(
-					"Unexpected problems",
-					"----------\n" + 
-					"1. WARNING in /Bug479389/src/nullAnalysis/X.java (at line 13)\n" + 
-					"	return in.stream().toArray(String[]::new);\n" + 
-					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"Annotation type \'org.eclipse.jdt.annotation.NonNull\' cannot be found on the build path, which is implicitly needed for null analysis\n" + 
-					"----------\n"					);
-    	} finally {
-    		deleteProject(project);
-    	}
+		} finally {
+			deleteProject(project);
+		}
 	}
 }
