@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1515,7 +1515,7 @@ public AnnotationBinding getNonNullAnnotation() {
 	if (this.root != this) {
 		return this.nonNullAnnotation = this.root.getNonNullAnnotation();
 	}
-	ReferenceBinding nonNull = getResolvedType(this.globalOptions.nonNullAnnotationName, null);
+	ReferenceBinding nonNull = getResolvedType(this.globalOptions.nonNullAnnotationName, this.UnNamedModule, null, true);
 	return this.nonNullAnnotation = this.typeSystem.getAnnotationType(nonNull, true);
 }
 
@@ -1623,11 +1623,11 @@ PackageBinding getPackage0(char[] name) {
 * Fail with a classpath error if the type cannot be found.
 */
 public ReferenceBinding getResolvedType(char[][] compoundName, Scope scope) {
-	return getResolvedType(compoundName, scope == null ? this.UnNamedModule : scope.module(), scope);
+	return getResolvedType(compoundName, scope == null ? this.UnNamedModule : scope.module(), scope, false);
 }
-public ReferenceBinding getResolvedType(char[][] compoundName, ModuleBinding moduleBinding, Scope scope) {
+public ReferenceBinding getResolvedType(char[][] compoundName, ModuleBinding moduleBinding, Scope scope, boolean implicitAnnotationUse) {
 	if (this.module != moduleBinding)
-		return moduleBinding.environment.getResolvedType(compoundName, moduleBinding, scope);
+		return moduleBinding.environment.getResolvedType(compoundName, moduleBinding, scope, implicitAnnotationUse);
 	ReferenceBinding type = getType(compoundName, moduleBinding);
 	if (type != null) return type;
 
@@ -1636,11 +1636,11 @@ public ReferenceBinding getResolvedType(char[][] compoundName, ModuleBinding mod
 	this.problemReporter.isClassPathCorrect(
 		compoundName,
 		scope == null ? this.root.unitBeingCompleted : scope.referenceCompilationUnit(),
-		this.missingClassFileLocation);
+		this.missingClassFileLocation, implicitAnnotationUse);
 	return createMissingType(null, compoundName);
 }
 public ReferenceBinding getResolvedJavaBaseType(char[][] compoundName, Scope scope) {
-	return getResolvedType(compoundName, javaBaseModule(), scope);
+	return getResolvedType(compoundName, javaBaseModule(), scope, false);
 }
 
 /* Answer the top level package named name.
@@ -1757,7 +1757,7 @@ private ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean 
 			 * misconfiguration now that did not also exist in some equivalent form while producing the class files which encode 
 			 * these missing types. So no need to bark again. Note that wasMissingType == true signals a type referenced in a .class 
 			 * file which could not be found when the binary was produced. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=364450 */
-			this.problemReporter.isClassPathCorrect(compoundName, this.root.unitBeingCompleted, this.missingClassFileLocation);
+			this.problemReporter.isClassPathCorrect(compoundName, this.root.unitBeingCompleted, this.missingClassFileLocation, false);
 		}
 		// create a proxy for the missing BinaryType
 		binding = createMissingType(null, compoundName);

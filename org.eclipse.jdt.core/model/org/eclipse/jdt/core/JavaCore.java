@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2070,7 +2070,20 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_NONNULL_TYPEVAR_FROM_LEGACY_INVOCATION = JavaCore.PLUGIN_ID+".compiler.problem.nonnullTypeVariableFromLegacyInvocation"; //$NON-NLS-1$
-
+	
+	/**
+	 * Compiler option ID: Reporting when annotation based null analysis misses an annotation type.
+	 * <p>When enabled, the compiler will issue an error or warning against some Java expressions with
+	 * known nullness, if a corresponding null annotation cannot be found on the build path.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingNullAnnotationImplicitlyUsed"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"error"</code></dd>
+	 * </dl>
+	 * @since 3.21
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_MISSING_NULL_ANNOTATION_IMPLICITLY_USED = JavaCore.PLUGIN_ID+".compiler.problem.missingNullAnnotationImplicitlyUsed"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Setting Source Compatibility Mode.
 	 * <p>Specify whether which source level compatibility is used. From 1.4 on, <code>'assert'</code> is a keyword

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1896,6 +1896,8 @@ void setSourceStart(int sourceStart);
 	int NonNullTypeVariableFromLegacyMethod = TypeRelated + 980;
 	/** @since 3.12 */
 	int NonNullMethodTypeVariableFromLegacyMethod = TypeRelated + 981;
+	/** @since 3.21 */
+	int MissingNullAnnotationImplicitlyUsed = Internal + 982;
 
 
 	// Java 8 work

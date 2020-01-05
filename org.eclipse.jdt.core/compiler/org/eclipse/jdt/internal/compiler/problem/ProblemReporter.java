@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -498,6 +498,8 @@ public static int getIrritant(int problemID) {
 		case IProblem.RedundantNullDefaultAnnotationLocal:
 		case IProblem.RedundantNullDefaultAnnotationField:
 			return CompilerOptions.RedundantNullAnnotation;
+		case IProblem.MissingNullAnnotationImplicitlyUsed:
+			return CompilerOptions.MissingNullAnnotationImplicitlyUsed;
 
 		case IProblem.BoxingConversion :
 		case IProblem.UnboxingConversion :
@@ -812,6 +814,7 @@ public static int getProblemCategory(int severity, int problemID) {
 		case IProblem.IsClassPathCorrect :
 		case IProblem.CorruptedSignature :
 		case IProblem.UndefinedModuleAddReads :
+		case IProblem.MissingNullAnnotationImplicitlyUsed :
 			return CategorizedProblem.CAT_BUILDPATH;
 		case IProblem.ProblemNotAnalysed :
 			return CategorizedProblem.CAT_UNNECESSARY_CODE;
@@ -5032,7 +5035,7 @@ public void illegalTypeAnnotationsInStaticMemberAccess(Annotation first, Annotat
 			first.sourceStart,
 			last.sourceEnd);
 }
-public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location) {
+public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location, boolean implicitAnnotationUse) {
 	// ProblemReporter is not designed to be reentrant. Just in case, we discovered a build path problem while we are already 
 	// in the midst of reporting some other problem, save and restore reference context thereby mimicking a stack.
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=442755.
@@ -5053,7 +5056,7 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 	}
 	try {
 		this.handle(
-				IProblem.IsClassPathCorrect,
+				implicitAnnotationUse ? IProblem.MissingNullAnnotationImplicitlyUsed : IProblem.IsClassPathCorrect,
 				arguments,
 				arguments,
 				start,
