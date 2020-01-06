@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug558764" };
+//		TESTS_NAMES = new String[] { "testBug550750_001" };
 	}
 	
 	public static Class<?> testClass() {

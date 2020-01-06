@@ -120,7 +120,8 @@ public interface TypeConstants {
     // JEP 286
 	char[] VAR = "var".toCharArray(); //$NON-NLS-1$
     // JEP 359 Records
-	char[] RECORD = "record".toCharArray(); //$NON-NLS-1$
+	char[] RECORD_RESTRICTED_IDENTIFIER = "record".toCharArray(); //$NON-NLS-1$
+	char[] RECORD_CLASS = "Record".toCharArray(); //$NON-NLS-1$
 
     // jsr308
 	char[] TYPE_USE_TARGET  = "TYPE_USE".toCharArray(); //$NON-NLS-1$
@@ -162,7 +163,7 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_ITERABLE = {JAVA, LANG, "Iterable".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_NOCLASSDEFERROR = {JAVA, LANG, "NoClassDefError".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_OBJECT = {JAVA, LANG, OBJECT};
-	char[][] JAVA_LANG_RECORD = {JAVA, LANG, RECORD};
+	char[][] JAVA_LANG_RECORD = {JAVA, LANG, RECORD_CLASS};
 	char[][] JAVA_LANG_STRING = {JAVA, LANG, "String".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_STRINGBUFFER = {JAVA, LANG, "StringBuffer".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_STRINGBUILDER = {JAVA, LANG, "StringBuilder".toCharArray()}; //$NON-NLS-1$

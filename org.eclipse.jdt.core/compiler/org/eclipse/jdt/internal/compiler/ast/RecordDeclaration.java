@@ -371,14 +371,14 @@ public class RecordDeclaration extends TypeDeclaration {
 		this.args = args;
 	}
 	public static void checkAndFlagRecordNameErrors(char[] typeName, ASTNode node, Scope skope) {
-		if (CharOperation.equals(typeName, TypeConstants.RECORD)) {
+		if (CharOperation.equals(typeName, TypeConstants.RECORD_RESTRICTED_IDENTIFIER)) {
 			if (skope.compilerOptions().sourceLevel == ClassFileConstants.JDK14) {
 					skope.problemReporter().recordIsAReservedTypeName(node);
 			}
 		}
 	}
 	public void createImplicitRecordOverrideMethods(ProblemReporter problemReporter) {
-		TypeReference superClass = new QualifiedTypeReference(TypeConstants.JAVA_LANG_OBJECT, new long[] {0});
+		TypeReference superClass = new QualifiedTypeReference(TypeConstants.JAVA_LANG_RECORD, new long[] {0});
 		superClass.bits |= ASTNode.IsSuperType;
 		this.superclass = superClass;
 
