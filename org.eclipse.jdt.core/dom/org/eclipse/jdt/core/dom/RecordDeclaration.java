@@ -67,13 +67,6 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		internalModifiers2PropertyFactory(RecordDeclaration.class);
 
 	/**
-	 * The "interface" structural property of this node type (type: {@link Boolean}).
-	 * @since 3.20 BETA_JAVA
-	 */
-	public static final SimplePropertyDescriptor INTERFACE_PROPERTY =
-		new SimplePropertyDescriptor(RecordDeclaration.class, "interface", boolean.class, MANDATORY); //$NON-NLS-1$
-
-	/**
 	 * The "name" structural property of this node type (child type: {@link SimpleName}).
 	 * @since 3.20 BETA_JAVA
 	 */
@@ -116,7 +109,6 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		createPropertyList(RecordDeclaration.class, propertyList);
 		addProperty(JAVADOC_PROPERTY, propertyList);
 		addProperty(MODIFIERS2_PROPERTY, propertyList);
-		addProperty(INTERFACE_PROPERTY, propertyList);
 		addProperty(NAME_PROPERTY, propertyList);
 		addProperty(TYPE_PARAMETERS_PROPERTY, propertyList);
 		addProperty(SUPER_INTERFACE_TYPES_PROPERTY, propertyList);
