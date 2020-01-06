@@ -628,6 +628,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InheritedIncompatibleReturnType", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("InheritedMethodHidesEnclosingName", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("InheritedMethodReducesVisibility", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("InheritedParameterLackingNonNullAnnotation", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("InheritedTypeHidesEnclosingName", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InitializerMustCompleteNormally", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InstanceFieldDuringConstructorInvocation", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1610,6 +1611,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InheritedIncompatibleReturnType", SKIP);
 		expectedProblemAttributes.put("InheritedMethodHidesEnclosingName", SKIP);
 		expectedProblemAttributes.put("InheritedMethodReducesVisibility", SKIP);
+		expectedProblemAttributes.put("InheritedParameterLackingNonNullAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED));
 		expectedProblemAttributes.put("InheritedTypeHidesEnclosingName", SKIP);
 		expectedProblemAttributes.put("InitializerMustCompleteNormally", SKIP);
 		expectedProblemAttributes.put("InstanceFieldDuringConstructorInvocation", SKIP);

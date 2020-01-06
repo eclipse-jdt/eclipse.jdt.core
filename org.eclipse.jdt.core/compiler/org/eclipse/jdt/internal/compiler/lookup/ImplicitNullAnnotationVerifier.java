@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2018 GK Software AG, IBM Corporation and others.
+ * Copyright (c) 2012, 2020 GK Software SE, IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching.CheckMode;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
@@ -436,10 +437,13 @@ public class ImplicitNullAnnotationVerifier {
 								if (TypeBinding.equalsEquals(inheritedMethod.declaringClass, one.declaringClass) && getParameterNonNullness(one, i, useTypeAnnotations) != Boolean.TRUE)
 									continue parameterLoop;
 						}
-						scope.problemReporter().parameterLackingNonnullAnnotation(
-								currentArgument,
-								inheritedMethod.declaringClass,
-								annotationName);
+						if (currentArgument != null) {
+							scope.problemReporter().parameterLackingNonnullAnnotation(currentArgument, inheritedMethod.declaringClass, annotationName);
+						} else {
+							TypeDeclaration type = scope.classScope().referenceContext;
+							ASTNode location = type.superclass != null ? type.superclass : type; 
+							scope.problemReporter().inheritedParameterLackingNonnullAnnotation(currentMethod, i+1, inheritedMethod.declaringClass, location, annotationName);
+						}
 						continue;
 					}
 				} 

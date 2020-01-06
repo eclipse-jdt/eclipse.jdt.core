@@ -1833,6 +1833,8 @@ void setSourceStart(int sourceStart);
 	int RedundantNullCheckOnConstNonNullField = Internal + 944;
 	/** @since 3.20 */
 	int ConstNonNullFieldComparisonYieldsFalse = Internal + 945;
+	/** @since 3.21 */
+	int InheritedParameterLackingNonNullAnnotation = MethodRelated + 946;
 
 	/** @since 3.10 */
 	int ArrayReferencePotentialNullReference = Internal + 951;

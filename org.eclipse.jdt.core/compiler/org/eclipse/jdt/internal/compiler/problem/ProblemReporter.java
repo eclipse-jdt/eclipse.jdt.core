@@ -478,6 +478,7 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.NonNullTypeVariableFromLegacyInvocation;
 
 		case IProblem.ParameterLackingNonNullAnnotation:
+		case IProblem.InheritedParameterLackingNonNullAnnotation:
 			return CompilerOptions.NonnullParameterAnnotationDropped;
 
 		case IProblem.RequiredNonNullButProvidedPotentialNull:
@@ -10089,20 +10090,26 @@ public void parameterLackingNullableAnnotation(Argument argument, ReferenceBindi
 		argument.type.sourceEnd);
 }
 public void parameterLackingNonnullAnnotation(Argument argument, ReferenceBinding declaringClass, char[][] inheritedAnnotationName) {
-	int sourceStart = 0, sourceEnd = 0;
-	if (argument != null) {
-		sourceStart = argument.type.sourceStart;
-		sourceEnd = argument.type.sourceEnd;
-	} else if (this.referenceContext instanceof TypeDeclaration) {
-		sourceStart = ((TypeDeclaration) this.referenceContext).sourceStart;
-		sourceEnd =   ((TypeDeclaration) this.referenceContext).sourceEnd;
-	}
 	this.handle(
 		IProblem.ParameterLackingNonNullAnnotation, 
 		new String[] { new String(declaringClass.readableName()), CharOperation.toString(inheritedAnnotationName)},
 		new String[] { new String(declaringClass.shortReadableName()), new String(inheritedAnnotationName[inheritedAnnotationName.length-1])},
-		sourceStart,
-		sourceEnd);
+		argument.type.sourceStart,
+		argument.type.sourceEnd);
+}
+public void inheritedParameterLackingNonnullAnnotation(MethodBinding currentMethod, int paramRank, ReferenceBinding specificationType,
+		ASTNode location, char[][] annotationName) {
+	this.handle(IProblem.InheritedParameterLackingNonNullAnnotation,
+		new String[] {
+			String.valueOf(paramRank), new String(currentMethod.readableName()),
+			new String(specificationType.readableName()), CharOperation.toString(annotationName)
+		},
+		new String[] {
+			String.valueOf(paramRank), new String(currentMethod.shortReadableName()),
+			new String(specificationType.shortReadableName()), new String(annotationName[annotationName.length-1])
+		},
+		location.sourceStart, location.sourceEnd
+		);
 }
 public void illegalParameterRedefinition(Argument argument, ReferenceBinding declaringClass, TypeBinding inheritedParameter) {
 	int sourceStart = argument.type.sourceStart;
@@ -10260,8 +10267,14 @@ public void expressionPotentialNullReference(ASTNode location) {
 public void cannotImplementIncompatibleNullness(ReferenceContext context, MethodBinding currentMethod, MethodBinding inheritedMethod, boolean showReturn) {
 	int sourceStart = 0, sourceEnd = 0;
 	if (context instanceof TypeDeclaration) {
-		sourceStart = ((TypeDeclaration) context).sourceStart;
-		sourceEnd =   ((TypeDeclaration) context).sourceEnd;
+		TypeDeclaration type = (TypeDeclaration) context;
+		if (type.superclass != null) {
+			sourceStart = type.superclass.sourceStart;
+			sourceEnd =   type.superclass.sourceEnd;
+		} else {
+			sourceStart = type.sourceStart;
+			sourceEnd =   type.sourceEnd;
+		}
 	}
 	String[] problemArguments = {
 			showReturn 

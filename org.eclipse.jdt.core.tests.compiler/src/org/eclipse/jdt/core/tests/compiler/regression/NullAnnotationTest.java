@@ -1286,44 +1286,44 @@ public void test_parameter_specification_inheritance_014() {
 		"----------\n" +
 		"1. ERROR in p1\\Y.java (at line 2)\n" +
 		"	public class Y extends X implements IY {\n" +
-		"	             ^\n" +
+		"	                       ^\n" +
 		"The method getString1(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
 		"----------\n" +
 		"2. ERROR in p1\\Y.java (at line 2)\n" +
 		"	public class Y extends X implements IY {\n" +
-		"	             ^\n" +
+		"	                       ^\n" +
 		"The method getString2(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
 		"----------\n" +
 		"3. ERROR in p1\\Y.java (at line 2)\n" +
 		"	public class Y extends X implements IY {\n" +
-		"	             ^\n" +
+		"	                       ^\n" +
 		"The method getString5(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
 		"----------\n" +
 		"4. ERROR in p1\\Y.java (at line 2)\n" +
 		"	public class Y extends X implements IY {\n" +
-		"	             ^\n" +
+		"	                       ^\n" +
 		"The method getString3(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
 		"----------\n"
 		: // at 1.8 we show null type annotations in the message:
 		"----------\n" + 
 		"1. ERROR in p1\\Y.java (at line 2)\n" + 
 		"	public class Y extends X implements IY {\n" + 
-		"	             ^\n" + 
+		"	                       ^\n" + 
 		"The method @Nullable String getString1(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\Y.java (at line 2)\n" + 
 		"	public class Y extends X implements IY {\n" + 
-		"	             ^\n" + 
+		"	                       ^\n" + 
 		"The method String getString2(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"3. ERROR in p1\\Y.java (at line 2)\n" + 
 		"	public class Y extends X implements IY {\n" + 
-		"	             ^\n" + 
+		"	                       ^\n" + 
 		"The method getString5(@NonNull String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"4. ERROR in p1\\Y.java (at line 2)\n" + 
 		"	public class Y extends X implements IY {\n" + 
-		"	             ^\n" + 
+		"	                       ^\n" + 
 		"The method getString3(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
 		"----------\n"));
 }
@@ -1411,8 +1411,8 @@ public void test_parameter_specification_inheritance_017() {
 		"----------\n" + 
 		"1. WARNING in XSub.java (at line 1)\n" + 
 		"	public class XSub extends X implements IX {\n" + 
-		"	             ^^^^\n" + 
-		"Missing non-null annotation: inherited method from IX specifies this parameter as @NonNull\n" + 
+		"	                          ^\n" + 
+		"Parameter 1 of method foo(String) lacks a @NonNull annotation as specified in type IX\n" + 
 		"----------\n");
 }
 
@@ -6123,24 +6123,24 @@ public void testBug388281_06() {
 		"----------\n" + 
 		"1. ERROR in ctest\\C.java (at line 2)\n" + 
 		"	public class C extends c.C2 implements i2.I2A {\n" + 
-		"	             ^\n" + 
+		"	                       ^^^^\n" + 
 		"The method m2(Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"2. ERROR in ctest\\C.java (at line 2)\n" + 
 		"	public class C extends c.C2 implements i2.I2A {\n" + 
-		"	             ^\n" + 
+		"	                       ^^^^\n" + 
 		"The method m1(Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
 		"----------\n"
 		: // at 1.8 we show null type annotations:
 		"----------\n" + 
 		"1. ERROR in ctest\\C.java (at line 2)\n" + 
 		"	public class C extends c.C2 implements i2.I2A {\n" + 
-		"	             ^\n" + 
+		"	                       ^^^^\n" + 
 		"The method m2(@NonNull Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"2. ERROR in ctest\\C.java (at line 2)\n" + 
 		"	public class C extends c.C2 implements i2.I2A {\n" + 
-		"	             ^\n" + 
+		"	                       ^^^^\n" + 
 		"The method m1(@NonNull Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
 		"----------\n"),
 		libs,		
@@ -9138,24 +9138,24 @@ public void testBug502214() {
 		"----------\n" + 
 		"1. ERROR in test\\X.java (at line 22)\n" + 
 		"	class Y extends A implements I {\n" + 
-		"	      ^\n" + 
+		"	                ^\n" + 
 		"The method m2() from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"2. ERROR in test\\X.java (at line 22)\n" + 
 		"	class Y extends A implements I {\n" + 
-		"	      ^\n" + 
+		"	                ^\n" + 
 		"The method m1(Object) from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
 		"----------\n"		
 		:
 		"----------\n" + 
 		"1. ERROR in test\\X.java (at line 22)\n" + 
 		"	class Y extends A implements I {\n" + 
-		"	      ^\n" + 
+		"	                ^\n" + 
 		"The method @Nullable String m2() from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"2. ERROR in test\\X.java (at line 22)\n" + 
 		"	class Y extends A implements I {\n" + 
-		"	      ^\n" + 
+		"	                ^\n" + 
 		"The method m1(Object) from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
 		"----------\n"
 		)
@@ -11074,6 +11074,37 @@ public void testBug459397() {
 		"	boolean ne = (destination != null) ? !destination.equals(dc) : (dc != null);\n" + 
 		"	                                                                ^^\n" + 
 		"Redundant null check: The variable dc cannot be null at this location\n" + 
+		"----------\n");
+}
+public void testBug466477() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"SuperI.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public interface SuperI {\n" + 
+			"  void testNN(@NonNull String s);\n" + 
+			"  void testNu(@Nullable String s);\n" + 
+			"}\n",
+			"Base.java",
+			"public class Base {\n" + 
+			"  public void testNN(String s) { }\n" + 
+			"  public void testNu(String s) { }\n" + 
+			"}\n",
+			"Custom.java",
+			"public class Custom extends Base implements SuperI {\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in Custom.java (at line 1)\n" + 
+		"	public class Custom extends Base implements SuperI {\n" + 
+		"	                            ^^^^\n" + 
+		"The method testNu(String) from Base cannot implement the corresponding method from SuperI due to incompatible nullness constraints\n" + 
+		"----------\n" + 
+		"2. WARNING in Custom.java (at line 1)\n" + 
+		"	public class Custom extends Base implements SuperI {\n" + 
+		"	                            ^^^^\n" + 
+		"Parameter 1 of method testNN(String) lacks a @NonNull annotation as specified in type SuperI\n" + 
 		"----------\n");
 }
 }
