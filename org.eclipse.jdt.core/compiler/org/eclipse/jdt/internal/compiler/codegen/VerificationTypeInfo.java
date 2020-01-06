@@ -195,14 +195,16 @@ public class VerificationTypeInfo {
 	public boolean equals(Object obj) {
 		if (obj instanceof VerificationTypeInfo) {
 			VerificationTypeInfo info1 = (VerificationTypeInfo) obj;
-			return info1.tag == this.tag && CharOperation.equals(info1.constantPoolName(), constantPoolName());
+			return info1.tag == this.tag
+					&& info1.offset == this.offset
+					&& CharOperation.equals(info1.constantPoolName(), constantPoolName());
 		}
 		return false;
 	}
 
 	@Override
 	public int hashCode() {
-		return this.tag + this.id + this.binding.constantPoolName().length;
+		return this.tag + this.offset + CharOperation.hashCode(constantPoolName());
 	}
 
 	public char[] constantPoolName() {

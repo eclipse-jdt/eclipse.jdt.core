@@ -129,7 +129,7 @@ public class StackMapFrame {
 		return result;
 	}
 
-	private VerificationTypeInfo getCachedValue(Map<VerificationTypeInfo, VerificationTypeInfo> cache, VerificationTypeInfo value) {
+	private static VerificationTypeInfo getCachedValue(Map<VerificationTypeInfo, VerificationTypeInfo> cache, VerificationTypeInfo value) {
 		VerificationTypeInfo cachedValue = value;
 		if (value != null) {
 			if (value.tag == VerificationTypeInfo.ITEM_UNINITIALIZED || value.tag == VerificationTypeInfo.ITEM_UNINITIALIZED_THIS) {
@@ -393,7 +393,7 @@ public class StackMapFrame {
 		return 0;
 	}
 
-	private boolean equals(VerificationTypeInfo info, VerificationTypeInfo info2) {
+	private static boolean equals(VerificationTypeInfo info, VerificationTypeInfo info2) {
 		if (info == null) {
 			return info2 == null;
 		}
