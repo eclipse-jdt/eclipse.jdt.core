@@ -37,7 +37,8 @@ public class RecordDeclaration extends TypeDeclaration {
 
 	private Argument[] args;
 	public int nRecordComponents;
-	private static long[] EMPTY_LONG_POS = {-1, -1, -1 };
+	private long defaultPosition = 0L;
+	private long[] default_long_pos = {0L, 0L, 0L};
 
 	public static Set<String> disallowedComponentNames;
 	static {
@@ -79,6 +80,8 @@ public class RecordDeclaration extends TypeDeclaration {
 		this.typeParameters = t.typeParameters;
 		this.sourceStart = t.sourceStart;
 		this.sourceEnd = t.sourceEnd;
+		this.defaultPosition =  this.sourceStart << 32 + (this.sourceStart + 1);
+		this.default_long_pos = new long[]{this.defaultPosition, this.defaultPosition, this.defaultPosition};
 	}
 	public ConstructorDeclaration getConstructor(Parser parser) {
 		if (this.methods != null) {
@@ -400,7 +403,7 @@ public class RecordDeclaration extends TypeDeclaration {
 	private void checkAndCreateImplicitToString(ProblemReporter problemReporter) {
 		if (null != getMethodByName(TypeConstants.TOSTRING))
 			return;
-		QualifiedTypeReference returnType = new QualifiedTypeReference(JAVA_LANG_STRING, RecordDeclaration.EMPTY_LONG_POS);
+		QualifiedTypeReference returnType = new QualifiedTypeReference(JAVA_LANG_STRING, this.default_long_pos);
 		MethodDeclaration md = createMethodDeclaration(TypeConstants.TOSTRING, returnType);
 		MarkerAnnotation overrideAnnotation = new MarkerAnnotation(new SingleTypeReference(TypeConstants.JAVA_LANG_OVERRIDE[2], 0), 0);
 		md.annotations = new Annotation[] { overrideAnnotation };
@@ -411,7 +414,7 @@ public class RecordDeclaration extends TypeDeclaration {
 		MessageSend m = new MessageSend();
 		m.receiver = new QualifiedNameReference(
 				TypeConstants.JAVA_LANG_INTEGER,
-				RecordDeclaration.EMPTY_LONG_POS, -1, -1);
+				this.default_long_pos, -1, -1);
 		m.selector = "toHexString".toCharArray(); //$NON-NLS-1$
 		MessageSend hc = new MessageSend();
 		hc.receiver = new ThisReference(-1, -1);
@@ -452,14 +455,14 @@ public class RecordDeclaration extends TypeDeclaration {
 					arraysHashCode.selector = HASHCODE;
 					arraysHashCode.receiver =
 							new QualifiedNameReference(JAVA_UTIL_ARRAYS,
-							RecordDeclaration.EMPTY_LONG_POS, -1, -1);
+							this.default_long_pos, -1, -1);
 					arraysHashCode.arguments = new Expression[] { fr};
 					initVals.add(arraysHashCode);
 					continue;
 				} else if (arg.type.isBaseTypeReference()) {
 					QualifiedNameReference boxReference = new QualifiedNameReference(
 							RecordDeclaration.getBoxedName(arg.type.getLastToken()),
-							RecordDeclaration.EMPTY_LONG_POS, -1, -1);
+							this.default_long_pos, -1, -1);
 					MessageSend m = new MessageSend();
 					m.receiver = boxReference;
 					m.selector = TypeConstants.VALUEOF;  // Integer.valueOf(int)
@@ -485,7 +488,7 @@ public class RecordDeclaration extends TypeDeclaration {
 		arraysHashCode.selector = HASHCODE;
 		arraysHashCode.receiver =
 				new QualifiedNameReference(JAVA_UTIL_ARRAYS,
-				RecordDeclaration.EMPTY_LONG_POS, -1, -1);
+				this.default_long_pos, -1, -1);
 		arraysHashCode.arguments = new Expression[] { aae };
 		md.statements = new Statement[] { new ReturnStatement(arraysHashCode, -1, -1) };
 	}
