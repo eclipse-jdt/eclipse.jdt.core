@@ -4600,6 +4600,8 @@ public final class CompletionEngine
 				return R_CAMEL_CASE;
 		} else if (this.options.substringMatch && CharOperation.substringMatch(token, proposalName)) {
 			return R_SUBSTRING;
+		} else if (this.options.subwordMatch && CharOperation.subWordMatch(token, proposalName)) {
+			return R_SUBWORD;
 		}
 		return 0;
 	}
@@ -12934,7 +12936,8 @@ public final class CompletionEngine
 	private boolean isFailedMatch(char[] token, char[] name) {
 		if ((this.options.substringMatch && CharOperation.substringMatch(token, name))
 				|| (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, name))
-				|| CharOperation.prefixEquals(token, name, false)) {
+				|| CharOperation.prefixEquals(token, name, false)
+				|| (this.options.subwordMatch && CharOperation.subWordMatch(token, name))) {
 			return false;
 		}
 

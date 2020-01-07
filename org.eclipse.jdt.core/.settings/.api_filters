@@ -8,4 +8,12 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="search/org/eclipse/jdt/core/search/SearchPattern.java" type="org.eclipse.jdt.core.search.SearchPattern">
+        <filter id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.search.SearchPattern"/>
+                <message_argument value="R_SUBWORD_MATCH"/>
+            </message_arguments>
+        </filter>
+    </resource>
 </component>
