@@ -423,6 +423,7 @@ public class RecordDeclaration extends TypeDeclaration {
 		right = m;
 		CombinedBinaryExpression cbe = new CombinedBinaryExpression(left, right, OperatorIds.PLUS, 1);
 		md.statements = new Statement[] { new ReturnStatement(cbe, -1, -1) };
+		md.isImplicit = true;
 	}
 	private static char[][] getBoxedName(char[] token) {
 		return
@@ -491,6 +492,7 @@ public class RecordDeclaration extends TypeDeclaration {
 				this.default_long_pos, -1, -1);
 		arraysHashCode.arguments = new Expression[] { aae };
 		md.statements = new Statement[] { new ReturnStatement(arraysHashCode, -1, -1) };
+		md.isImplicit = true;
 	}
 	private AbstractMethodDeclaration getMethodByName(char[] name1) {
 		AbstractMethodDeclaration[] ams = getMethod(name1);
@@ -572,6 +574,7 @@ public class RecordDeclaration extends TypeDeclaration {
 		}
 		stmts.add(new ReturnStatement(new TrueLiteral(-1, -1), -1, -1));
 		md.statements = stmts.toArray(new Statement[0]);
+		md.isImplicit = true;
 	}
 	private MethodDeclaration createMethodDeclaration(char[] name1, TypeReference returnType) {
 		MethodDeclaration m = new MethodDeclaration(this.compilationResult);
