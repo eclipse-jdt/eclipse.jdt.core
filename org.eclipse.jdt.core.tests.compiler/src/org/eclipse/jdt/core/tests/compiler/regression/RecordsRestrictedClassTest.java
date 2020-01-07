@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug550750_001" };
+//		TESTS_NAMES = new String[] { "testBug553567" };
 	}
 	
 	public static Class<?> testClass() {
@@ -1740,5 +1740,36 @@ public void testBug558764_004() {
 			"	       ^^^^^^^^^^^^^\n" + 
 			"The annotation @MyAnnotation is disallowed for this location\n" + 
 			"----------\n");
+}
+public void testBug553567_001() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"class X extends Record{\n"+
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	class X extends Record{\n" + 
+			"	                ^^^^^^\n" + 
+			"The type X may not subclass Record explicitly\n" + 
+			"----------\n");
+}
+public void testBug553567_002() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"class X {\n"+
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n" +
+					"class Record {\n"+
+					"}\n"
+			},
+		"0");
 }
 }

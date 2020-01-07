@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -46,7 +46,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;import org.eclipse.jdt.internal.compiler.ast.RecordDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -108,6 +108,12 @@ public class ClassScope extends Scope {
 					problemReporter().cannotExtendEnum(anonymousType, typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperClass(getJavaLangObject());
+				} else if (supertype.erasure().id == TypeIds.T_JavaLangRecord) {
+					if (!(this.referenceContext instanceof RecordDeclaration)) {
+						problemReporter().recordCannotExtendRecord(anonymousType, typeReference, supertype);
+						anonymousType.tagBits |= TagBits.HierarchyHasProblems;
+						anonymousType.setSuperClass(getJavaLangObject());
+					}
 				} else if (supertype.isFinal()) {
 					problemReporter().anonymousClassCannotExtendFinalClass(typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
@@ -998,6 +1004,10 @@ public class ClassScope extends Scope {
 				problemReporter().superTypeCannotUseWildcard(sourceType, superclassRef, superclass);
 			} else if (superclass.erasure().id == TypeIds.T_JavaLangEnum) {
 				problemReporter().cannotExtendEnum(sourceType, superclassRef, superclass);
+			} else if (superclass.erasure().id == TypeIds.T_JavaLangRecord) {
+				if (!(this.referenceContext instanceof RecordDeclaration)) {
+					problemReporter().recordCannotExtendRecord(sourceType, superclassRef, superclass);
+				}
 			} else if ((superclass.tagBits & TagBits.HierarchyHasProblems) != 0
 					|| !superclassRef.resolvedType.isValidBinding()) {
 				sourceType.setSuperClass(superclass);

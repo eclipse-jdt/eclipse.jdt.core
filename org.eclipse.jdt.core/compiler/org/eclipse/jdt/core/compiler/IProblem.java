@@ -2293,7 +2293,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.20 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordAccessorMethodShouldNotBeStatic= PreviewRelated + 1751;
-
+	/** @since 3.20 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordCannotExtendRecord= PreviewRelated + 1752;
 	/* records - end */
 	/* Java14 errors - end */
 	}
