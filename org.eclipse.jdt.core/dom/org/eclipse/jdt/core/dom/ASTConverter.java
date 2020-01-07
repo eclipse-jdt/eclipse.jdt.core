@@ -224,6 +224,88 @@ class ASTConverter {
 		// Convert javadoc
 		convert(typeDeclaration.javadoc, typeDecl);
 	}
+	
+	protected void buildBodyDeclarations(
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration,
+			RecordDeclaration recordDeclaration,
+			boolean isInterface) {
+		// add body declaration in the lexical order
+		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] members = typeDeclaration.memberTypes;
+		org.eclipse.jdt.internal.compiler.ast.FieldDeclaration[] fields = typeDeclaration.fields;
+		org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration[] methods = typeDeclaration.methods;
+
+		int fieldsLength = fields == null? 0 : fields.length;
+		int methodsLength = methods == null? 0 : methods.length;
+		int membersLength = members == null ? 0 : members.length;
+		int fieldsIndex = 0;
+		int methodsIndex = 0;
+		int membersIndex = 0;
+
+		while ((fieldsIndex < fieldsLength)
+			|| (membersIndex < membersLength)
+			|| (methodsIndex < methodsLength)) {
+			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration nextFieldDeclaration = null;
+			org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration nextMethodDeclaration = null;
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration nextMemberDeclaration = null;
+
+			int position = Integer.MAX_VALUE;
+			int nextDeclarationType = -1;
+			if (fieldsIndex < fieldsLength) {
+				nextFieldDeclaration = fields[fieldsIndex];
+				if (!nextFieldDeclaration.isARecordComponent) {
+					if (nextFieldDeclaration.declarationSourceStart < position) {
+						position = nextFieldDeclaration.declarationSourceStart;
+						nextDeclarationType = 0; // FIELD
+					}
+			  } else { 
+				  fieldsIndex++;
+			  }
+				 
+			}
+			if (methodsIndex < methodsLength) {
+				nextMethodDeclaration = methods[methodsIndex];
+				if (!nextMethodDeclaration.isImplicit()) {
+					if (nextMethodDeclaration.declarationSourceStart < position) {
+						position = nextMethodDeclaration.declarationSourceStart;
+						nextDeclarationType = 1; // METHOD
+					}
+				
+			  } else { 
+				  methodsIndex++; 
+			  }
+				 
+			}
+			if (membersIndex < membersLength) {
+				nextMemberDeclaration = members[membersIndex];
+				if (nextMemberDeclaration.declarationSourceStart < position) {
+					position = nextMemberDeclaration.declarationSourceStart;
+					nextDeclarationType = 2; // MEMBER
+				}
+			}
+			switch (nextDeclarationType) {
+				case 0 :
+					checkAndAddMultipleFieldDeclaration(fields, fieldsIndex, recordDeclaration.bodyDeclarations());
+					fieldsIndex++;
+					break;
+				case 1 :
+					methodsIndex++;
+					if (!nextMethodDeclaration.isDefaultConstructor() && !nextMethodDeclaration.isClinit()) {
+						recordDeclaration.bodyDeclarations().add(convert(isInterface, nextMethodDeclaration));
+					}
+					break;
+				case 2 :
+					membersIndex++;
+					ASTNode node = convert(nextMemberDeclaration);
+					if (node == null) {
+						recordDeclaration.setFlags(recordDeclaration.getFlags() | ASTNode.MALFORMED);
+					} else {
+						recordDeclaration.bodyDeclarations().add(node);
+					}
+			}
+		}
+		// Convert javadoc
+		convert(typeDeclaration.javadoc, recordDeclaration);
+	}
 
 	protected void buildBodyDeclarations(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration enumDeclaration2, EnumDeclaration enumDeclaration) {
 		// add body declaration in the lexical order
