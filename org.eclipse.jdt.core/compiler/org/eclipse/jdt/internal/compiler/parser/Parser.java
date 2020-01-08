@@ -10710,8 +10710,9 @@ protected void consumeRecordDeclaration() {
 	if (length == 0 && !containsComment(rd.bodyStart, rd.bodyEnd)) {
 		rd.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
-	rd.createImplicitAccessors(this.problemReporter);
-	rd.createImplicitRecordOverrideMethods(this.problemReporter);
+	TypeReference superClass = new QualifiedTypeReference(TypeConstants.JAVA_LANG_RECORD, new long[] {0});
+	superClass.bits |= ASTNode.IsSuperType;
+	rd.superclass = superClass;
 	rd.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
 }
 protected void consumeRecordHeaderPart() {
@@ -10747,6 +10748,8 @@ protected void consumeRecordComponentHeaderRightParen() {
 				length);
 		rd.setArgs(args);
 		convertToFields(rd, args);
+	} else {
+		rd.setArgs(ASTNode.NO_ARGUMENTS);
 	}
 	rd.bodyStart = this.rParenPos+1;
 	this.listLength = 0; // reset this.listLength after having read all parameters

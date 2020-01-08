@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -58,6 +58,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -133,6 +134,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public HashSet<SourceTypeBinding> nestMembers;
 
 	private boolean isRecordDeclaration = false;
+	private FieldBinding[] recordComponents; // cache
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
 	this.fPackage = fPackage;
@@ -844,6 +846,110 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	}
 	return accessMethod;
 }
+/* JLS 14 Record - Preview - begin */
+public MethodBinding[] checkAndAddSyntheticRecordMethods(MethodBinding[] methodBindings, int count) {
+	if (!this.isRecordDeclaration)
+		return methodBindings;
+	List<MethodBinding> implicitMethods = checkAndAddSyntheticRecordComponentAccessors(methodBindings);
+	implicitMethods = checkAndAddSyntheticRecordOverrideMethods(methodBindings, implicitMethods);
+	for (int i = 0; i < count; ++i)
+		implicitMethods.add(methodBindings[i]);
+	return implicitMethods.toArray(new MethodBinding[0]);
+}
+public List<MethodBinding> checkAndAddSyntheticRecordOverrideMethods(MethodBinding[] methodBindings, List<MethodBinding> implicitMethods) {
+	if (!hasMethodWithNumArgs(TypeConstants.TOSTRING, 0)) {
+		MethodBinding m = addSyntheticRecordOverrideMethod(TypeConstants.TOSTRING, implicitMethods.size());
+		implicitMethods.add(m);
+	}
+	if (!hasMethodWithNumArgs(TypeConstants.HASHCODE, 0)) {
+		MethodBinding m = addSyntheticRecordOverrideMethod(TypeConstants.HASHCODE, implicitMethods.size());
+		implicitMethods.add(m);
+	}
+	boolean isEqualsPresent = Arrays.stream(methodBindings)
+			.filter(m -> CharOperation.equals(TypeConstants.EQUALS, m.selector))
+			.anyMatch(m -> m.parameters != null || m.parameters.length == 1 &&
+				m.parameters[0].equals(this.scope.getJavaLangObject()));
+	if (!isEqualsPresent) {
+		MethodBinding m = addSyntheticRecordOverrideMethod(TypeConstants.EQUALS, implicitMethods.size());
+		implicitMethods.add(m);
+	}
+	return implicitMethods;
+}
+public List<MethodBinding> checkAndAddSyntheticRecordComponentAccessors(MethodBinding[] methodBindings) {
+	List<MethodBinding> implicitMethods = new ArrayList<>(0);
+	if (this.fields == null)
+		return implicitMethods;
+	// JLS 14 8.10.3 Item 2 create the accessors for the fields if required
+	/*
+	 * An implicitly declared public accessor method with the same name as the record component,
+	 * whose return type is the declared type of the record component,
+	 * unless a public method with the same signature is explicitly declared in the body of the declaration of R.
+	 */
+
+	List<String> missingNames = Arrays.stream(this.fields) // initialize with all the record components
+			.filter(f -> f.isRecordComponent())
+			.map(f -> new String(f.name))
+			.collect(Collectors.toList());
+
+	if (this.methods != null) {
+		List<String> candidates =
+			Arrays.stream(methodBindings)
+			.filter(m -> m.selector != null && m.selector.length > 0)
+			.filter(m -> missingNames.contains(new String(m.selector)))
+			.filter(m -> m.parameters == null || m.parameters.length == 0)
+			.map(m -> new String(m.selector))
+			.collect(Collectors.toList());
+		missingNames.removeAll(candidates);
+	}
+	int missingCount = missingNames.size();
+	for (int i = 0; i < missingCount; ++i) {
+		implicitMethods.add(addSyntheticRecordComponentAccessor(missingNames.get(i).toCharArray(), i));
+	}
+	return implicitMethods;
+}
+/* Add a new synthetic component accessor for the recordtype. Selector should be identical to component name.
+ * char[] component name of the record
+*/
+public SyntheticMethodBinding addSyntheticRecordComponentAccessor(char[] selector, int index) {
+	if (!isPrototype()) throw new IllegalStateException();
+	if (this.synthetics == null)
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
+	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+
+	SyntheticMethodBinding accessMethod = null;
+	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(selector);
+	accessMethod = new SyntheticMethodBinding(this, getField(selector, true), index);
+	if (accessors == null) {
+		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(selector, accessors = new SyntheticMethodBinding[2]);
+		accessors[0] = accessMethod;
+	} else {
+		if ((accessMethod = accessors[0]) == null) {
+			accessors[0] = accessMethod;
+		}
+	}
+	return accessMethod;
+}
+public SyntheticMethodBinding addSyntheticRecordOverrideMethod(char[] selector, int index) {
+	if (this.synthetics == null)
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
+	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+
+	SyntheticMethodBinding accessMethod = null;
+	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(selector);
+	accessMethod = new SyntheticMethodBinding(this, selector, index);
+	if (accessors == null) {
+		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(selector, accessors = new SyntheticMethodBinding[2]);
+		accessors[0] = accessMethod;
+	} else {
+		if ((accessMethod = accessors[0]) == null) {
+			accessors[0] = accessMethod;
+		}
+	}
+	return accessMethod;
+}
+/* JLS 14 Record - Preview - end */
 boolean areFieldsInitialized() {
 	if (!isPrototype())
 		return this.prototype.areFieldsInitialized();
@@ -987,6 +1093,7 @@ public FieldBinding[] fields() {
 		}
 	}
 	this.tagBits |= TagBits.AreFieldsComplete;
+	computeRecordComponents();
 	return this.fields;
 }
 /**
@@ -2375,7 +2482,7 @@ protected boolean hasMethodWithNumArgs(char[] selector, int numArgs) {
 	// otherwise don't trigger unResolvedMethods() which would actually resolve!
 	if (this.scope != null) {
 		for (AbstractMethodDeclaration method : this.scope.referenceContext.methods) {
-			if (CharOperation.equals(method.selector, TypeConstants.CLOSE)) {
+			if (CharOperation.equals(method.selector, selector)) {
 				if (numArgs == 0) {
 					if (method.arguments == null)
 						return true;
@@ -2811,24 +2918,26 @@ public List<String> getNestMembers() {
 							.collect(Collectors.toList());
 	return list;
 }
-/* Get the field bindings in the order of record component declaration */
-public List<FieldBinding> getRecordComponents() {
-	if (!this.isRecordDeclaration)
-		return null;
-	RecordDeclaration rd = (RecordDeclaration) this.scope.referenceContext;
+/* Get the field bindings in the order of record component declaration 
+ * should be called only after a called to fields() */
+public FieldBinding[] getRecordComponents() {
+	return this.recordComponents;
+}
+public void computeRecordComponents() {
+	if (!this.isRecordDeclaration || this.recordComponents != null)
+		return;
+	List<String> recordComponentNames = Arrays.stream(((RecordDeclaration) this.scope.referenceContext).getArgs())
+			.map(arg -> new String(arg.name))
+			.collect(Collectors.toList());
 	List<FieldBinding> list = new ArrayList<>();
-	Argument[] args = rd.getArgs();
-	if (args != null) {
-		for (Argument arg : args) {
-			for (FieldBinding f : this.fields) {
-				if (CharOperation.equals(f.name, arg.name)) {
-					list.add(f);
-					continue;
-				}
+	for (String rc : recordComponentNames) {
+		for (FieldBinding f : this.fields) {
+			if (rc.equals(new String(f.name))) {
+				list.add(f);
 			}
 		}
 	}
-	return list;
+	this.recordComponents = list.toArray(new FieldBinding[0]);
 }
 
 public void cleanUp() {

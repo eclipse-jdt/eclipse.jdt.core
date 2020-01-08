@@ -2120,7 +2120,7 @@ protected int applyCloseableClassWhitelists(CompilerOptions options) {
 
 protected boolean hasMethodWithNumArgs(char[] selector, int numArgs) {
 	for (MethodBinding methodBinding : unResolvedMethods()) {
-		if (CharOperation.equals(methodBinding.selector, TypeConstants.CLOSE)
+		if (CharOperation.equals(methodBinding.selector, selector)
 				&& methodBinding.parameters.length == numArgs) {
 			return true;
 		}

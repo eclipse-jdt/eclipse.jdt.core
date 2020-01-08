@@ -331,7 +331,7 @@ public class ClassScope extends Scope {
 		if (sourceType.areMethodsInitialized()) return;
 
 		boolean isEnum = TypeDeclaration.kind(this.referenceContext.modifiers) == TypeDeclaration.ENUM_DECL;
-		if (this.referenceContext.methods == null && !isEnum) {
+		if (this.referenceContext.methods == null && !(isEnum || sourceType.isRecord())) {
 			this.referenceContext.binding.setMethods(Binding.NO_METHODS);
 			return;
 		}
@@ -383,6 +383,11 @@ public class ClassScope extends Scope {
 			}
 			if (hasAbstractMethods)
 				problemReporter().abstractMethodInConcreteClass(sourceType);
+		}
+		if (sourceType.isRecord()) {
+			assert this.referenceContext instanceof RecordDeclaration;
+			methodBindings = sourceType.checkAndAddSyntheticRecordMethods(methodBindings, count);
+			count = methodBindings.length;
 		}
 		if (count != methodBindings.length)
 			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[count], 0, count);
@@ -1007,6 +1012,8 @@ public class ClassScope extends Scope {
 			} else if (superclass.erasure().id == TypeIds.T_JavaLangRecord) {
 				if (!(this.referenceContext instanceof RecordDeclaration)) {
 					problemReporter().recordCannotExtendRecord(sourceType, superclassRef, superclass);
+				} else {
+					return connectRecordSuperclass();
 				}
 			} else if ((superclass.tagBits & TagBits.HierarchyHasProblems) != 0
 					|| !superclassRef.resolvedType.isValidBinding()) {
@@ -1024,7 +1031,7 @@ public class ClassScope extends Scope {
 			}
 		}
 		sourceType.tagBits |= TagBits.HierarchyHasProblems;
-		sourceType.setSuperClass(getJavaLangObject());
+		sourceType.setSuperClass(sourceType.isRecord() ? getJavaLangRecord() : getJavaLangObject());
 		if ((sourceType.superclass.tagBits & TagBits.BeginHierarchyCheck) == 0)
 			detectHierarchyCycle(sourceType, sourceType.superclass, null);
 		return false; // reported some error against the source type
@@ -1067,6 +1074,16 @@ public class ClassScope extends Scope {
 		return !foundCycle;
 	}
 
+	private boolean connectRecordSuperclass() {
+		SourceTypeBinding sourceType = this.referenceContext.binding;
+		ReferenceBinding rootRecordType = getJavaLangRecord();
+		sourceType.setSuperClass(rootRecordType);
+		if ((rootRecordType.tagBits & TagBits.HasMissingType) != 0) {
+			sourceType.tagBits |= TagBits.HierarchyHasProblems; // mark missing supertpye
+			return false;
+		}
+		return !detectHierarchyCycle(sourceType, rootRecordType, null);
+	}
 	/*
 		Our current belief based on available JCK 1.3 tests is:
 			inherited member types are visible as a potential superclass.

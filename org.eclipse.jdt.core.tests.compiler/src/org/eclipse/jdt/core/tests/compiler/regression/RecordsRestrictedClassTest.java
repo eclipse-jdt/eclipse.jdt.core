@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug553567" };
+//		TESTS_NAMES = new String[] { "testBug550750_037" };
 	}
 	
 	public static Class<?> testClass() {
@@ -1016,16 +1016,16 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"  }\n"+
 						"}\n"+
 						"record Point(int myInt, int myZ) implements I {\n"+
-						"  public int myInt() throws IOException {;\n" +
+						"  public int myInt() throws Exception {;\n" +
 						"     return this.myInt;\n" +
 						"  }\n"+
 						"}\n" +
 						"interface I {}\n"
 				},
 			"----------\n" + 
-			"1. ERROR in X.java (at line 0)\n" + 
-			"	public class X {\n" + 
-			"	^\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	public int myInt() throws Exception {;\n" + 
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Throws clause not allowed for explicitly declared accessor method\n" + 
 			"----------\n");
 	}
@@ -1628,11 +1628,12 @@ public void testBug558494_003() throws Exception {
 			"public class X {\n"+
 			"       public static void main(String[] args) {\n"+
 			"               Forts p = new Forts(new String[] {\"Amber\", \"Nahargarh\", \"Jaigarh\"});\n"+
-			"               System.out.println(p.toString());\n"+
+			"               if (!p.toString().startsWith(\"Forts[wonders=[Ljava.lang.String;@\"))\n"+
+			"                   System.out.println(\"Error\");\n"+
 			"       }\n"+
 			"}\n"
 		},
-	 "Forts@c77c674d");
+		"");
 	String expectedOutput = "Record: #Record\n" + 
 			"Components:\n" + 
 			"  \n";
@@ -1642,24 +1643,25 @@ public void testBug558494_004() throws Exception {
 	runConformTest(
 		new String[] {
 			"X.java",
-			"record Forts(String[] wonders, int x){\n"+
+			"record Forts(int x, String[] wonders){\n"+
 			"}\n"+
 			"public class X {\n"+
 			"       public static void main(String[] args) {\n"+
-			"               Forts p = new Forts(new String[] {\"Amber\", \"Nahargarh\", \"Jaigarh\"}, 3);\n"+
-			"               System.out.println(p.toString());\n"+
+			"               Forts p = new Forts(3, new String[] {\"Amber\", \"Nahargarh\", \"Jaigarh\"});\n"+
+			"               if (!p.toString().startsWith(\"Forts[x=3, wonders=[Ljava.lang.String;@\"))\n"+
+			"                   System.out.println(\"Error\");\n"+
 			"       }\n"+
 			"}\n"
 		},
-	 "Forts@28108256");
+		"");
 	String expectedOutput = 
-			"Record: #Record\n" + 
-			"Components:\n" + 
-			"  \n" + 
-			"// Component descriptor #6 [Ljava/lang/String;\n" + 
-			"java.lang.String[] wonders;\n" + 
-			"// Component descriptor #8 I\n" + 
-			"int x;\n";
+			"Record: #Record\n" +
+			"Components:\n" +
+			"  \n" +
+			"// Component descriptor #6 I\n" +
+			"int x;\n" +
+			"// Component descriptor #8 [Ljava/lang/String;\n" +
+			"java.lang.String[] wonders;\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Forts.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug558764_001() {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -1972,7 +1976,6 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 	iconst_1();
 	invokeAccessibleObjectSetAccessible();
 }
-
 /**
  * Generates the sequence of instructions which will perform the conversion of the expression
  * on the stack into a different type (e.g. long l = someInt; --> i2l must be inserted).
@@ -3170,6 +3173,31 @@ public void generateSyntheticOuterArgumentValues(BlockScope currentScope, Refere
 			generateOuterAccess(emulationPath, invocationSite, targetVariable, currentScope);
 		}
 	}
+}
+public void generateSyntheticBodyForRecordEquals(SyntheticMethodBinding methodBinding, int index) {
+	initializeMaxLocals(methodBinding);
+	aload_0();
+	aload_1();
+	String sig = new String(methodBinding.signature());
+	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
+	invokeDynamic(index, methodBinding.parameters.length, 1, methodBinding.selector, sig.toCharArray());
+	ireturn();
+}
+public void generateSyntheticBodyForRecordHashCode(SyntheticMethodBinding methodBinding, int index) {
+	initializeMaxLocals(methodBinding);
+	aload_0();
+	String sig = new String(methodBinding.signature());
+	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
+	invokeDynamic(index, methodBinding.parameters.length, 4, methodBinding.selector, sig.toCharArray());
+	ireturn();
+}
+public void generateSyntheticBodyForRecordToString(SyntheticMethodBinding methodBinding, int index) {
+	initializeMaxLocals(methodBinding);
+	aload_0();
+	String sig = new String(methodBinding.signature());
+	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
+	invokeDynamic(index, methodBinding.parameters.length, 8, methodBinding.selector, sig.toCharArray());
+	areturn();
 }
 
 public void generateUnboxingConversion(int unboxedTypeID) {

@@ -17,10 +17,8 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -29,17 +27,12 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
-import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class RecordDeclaration extends TypeDeclaration {
 
 	private Argument[] args;
 	public int nRecordComponents;
-	private long defaultPosition = 0L;
-	private long[] default_long_pos = {0L, 0L, 0L};
-
 	public static Set<String> disallowedComponentNames;
 	static {
 		disallowedComponentNames = new HashSet<>(6);
@@ -80,10 +73,7 @@ public class RecordDeclaration extends TypeDeclaration {
 		this.typeParameters = t.typeParameters;
 		this.sourceStart = t.sourceStart;
 		this.sourceEnd = t.sourceEnd;
-		this.restrictedIdentifierStart = t.restrictedIdentifierStart;
-		this.defaultPosition =  this.sourceStart << 32 + (this.sourceStart + 1);
-		this.default_long_pos = new long[]{this.defaultPosition, this.defaultPosition, this.defaultPosition};
-	}
+}
 	public ConstructorDeclaration getConstructor(Parser parser) {
 		if (this.methods != null) {
 			for (int i = this.methods.length; --i >= 0;) {
@@ -156,7 +146,7 @@ public class RecordDeclaration extends TypeDeclaration {
 		/* The body of the implicitly declared canonical constructor initializes each field corresponding
 		 * to a record component with the corresponding formal parameter in the order that they appear
 		 * in the record component list.*/
-		int l = this.args != null ? this.args.length : 0;
+		int l = this.args.length;
 		Statement[] statements = new Statement[l];
 		for (int i = 0; i < l; ++i) {
 			Argument arg = this.args[i];
@@ -185,112 +175,9 @@ public class RecordDeclaration extends TypeDeclaration {
 		return constructor;
 	}
 
-	public void createImplicitAccessors(ProblemReporter problemReporter) {
-		// JLS 14 8.10.3 Item 2 create the accessors for the fields if required
-		/* 
-		 * An implicitly declared public accessor method with the same name as the record component,
-		 * whose return type is the declared type of the record component,
-		 * unless a public method with the same signature is explicitly declared in the body of the declaration of R. 
-		 */
-
-		if (this.fields == null)
-			return;
-		Map<String, Set<AbstractMethodDeclaration>> accessors = new HashMap<>();
-		for (int i = 0; i < this.nRecordComponents; i++) {
-			FieldDeclaration f = this.fields[i] ;
-			if (f != null && f.name != null && f.name.length > 0) {
-				accessors.put(new String(f.name), new HashSet<>());
-			}
-		}
-		if (this.methods != null) {
-			for (int i = 0; i < this.methods.length; i++) {
-				AbstractMethodDeclaration m = this.methods[i]; 
-				if (m != null && m.selector != null & m.selector.length > 0) {
-					String name1 = new String(m.selector);
-					Set<AbstractMethodDeclaration> acc = accessors.get(name1);
-					if (acc != null)
-						acc.add(m);
-				}
-			}
-		}
-		for (int i = this.nRecordComponents - 1; i >= 0; i--) {
-			FieldDeclaration f = this.fields[i] ;
-			if (f != null && f.name != null && f.name.length > 0) {
-				String name1 = new String(f.name);
-				Set<AbstractMethodDeclaration> acc = accessors.get(name1);
-				MethodDeclaration m = null;
-				if (acc.size() > 0) {
-					for (AbstractMethodDeclaration amd : acc) {
-						m = (MethodDeclaration) amd;
-						/* JLS 14 Sec 8.10.3 Item 1, Subitem 2
-						 * An implicitly declared public accessor method with the same name as the record component, whose return
-						 * type is the declared type of the record component, unless a public method with the same signature is
-						 * explicitly declared in the body of the declaration of R
-						 */
-						// Here the assumption is method signature implies the method signature in source ie the return type
-						// is not being considered - Given this, type resolution is not required and hence its a simple name and
-						// parameter number check.
-						if (m.arguments == null || m.arguments.length == 0) {
-							// found the explicitly declared accessor.
-							/*
-							 *  JLS 14 Sec 8.10.3 Item 1 Sub-item 2 Para 3
-							 *  It is a compile-time error if an explicitly declared accessor method has a throws clause.
-							 */
-							if (m.thrownExceptions != null && m.thrownExceptions.length > 0)
-								problemReporter.recordAccessorMethodHasThrowsClause(m);
-							break; // found
-						}
-						m = null;
-					}
-				}
-				if (m == null) // no explicit accessor method found - declare one.
-					createNewMethod(f);
-			}
-		}
-	}
 	@Override
 	public void generateCode(ClassFile enclosingClassFile) {
 		super.generateCode(enclosingClassFile);
-	}
-	private AbstractMethodDeclaration createNewMethod(FieldDeclaration f) {
-		MethodDeclaration m = new MethodDeclaration(this.compilationResult);
-		m.selector = f.name;
-		m.bits |= ASTNode.IsImplicit;
-		m.modifiers = ClassFileConstants.AccPublic;
-
-		m.returnType = f.type;
-		FieldReference fr = new FieldReference(f.name, -1);
-		fr.receiver = new ThisReference(-1, -1);
-		ReturnStatement ret = new ReturnStatement(fr, -1, -1);
-		m.statements = new Statement[] { ret };
-		m.isImplicit = true;
-		/*
-		 * JLS 14 Sec 8.10.3 Item 2 states that:
-		 * "The implicitly declared accessor method is annotated with the annotation
-		 * that appears on the corresponding record component, if this annotation type
-		 * is applicable to a method declaration or type context."
-		 * 
-		 * However, at this point in compilation, sufficient information to determine
-		 * the ElementType targeted by the annotation doesn't exist and hence a blanket 
-		 * copy of annotation is done for now, and later (binding stage) irrelevant ones
-		 * are weeded out.
-		 */
-		m.annotations = f.annotations;
-
-		if (this.methods == null) { // Where is the constructor?
-			this.methods = new AbstractMethodDeclaration[] { m };
-		} else {
-			AbstractMethodDeclaration[] newMethods;
-			System.arraycopy(
-				this.methods,
-				0,
-				newMethods = new AbstractMethodDeclaration[this.methods.length + 1],
-				1,
-				this.methods.length);
-			newMethods[0] = m;
-			this.methods = newMethods;
-		}
-		return m;
 	}
 	@Override
 	public boolean isRecord() {
@@ -381,16 +268,6 @@ public class RecordDeclaration extends TypeDeclaration {
 			}
 		}
 	}
-	public void createImplicitRecordOverrideMethods(ProblemReporter problemReporter) {
-		TypeReference superClass = new QualifiedTypeReference(TypeConstants.JAVA_LANG_RECORD, new long[] {0});
-		superClass.bits |= ASTNode.IsSuperType;
-		this.superclass = superClass;
-
-		// TODO Auto-generated method stub
-		checkAndCreateImplicitequals(problemReporter);
-		checkAndCreateImplicitHashCode(problemReporter);
-		checkAndCreateImplicitToString(problemReporter);
-	}
 	AbstractMethodDeclaration[] getMethod(char[] name1) {
 		if (name1 == null || name1.length == 0 || this.methods == null)
 			return null;
@@ -400,204 +277,5 @@ public class RecordDeclaration extends TypeDeclaration {
 				amList.add(amd);
 		}
 		return amList.toArray(new AbstractMethodDeclaration[0]);
-	}
-	private void checkAndCreateImplicitToString(ProblemReporter problemReporter) {
-		if (null != getMethodByName(TypeConstants.TOSTRING))
-			return;
-		QualifiedTypeReference returnType = new QualifiedTypeReference(JAVA_LANG_STRING, this.default_long_pos);
-		MethodDeclaration md = createMethodDeclaration(TypeConstants.TOSTRING, returnType);
-		MarkerAnnotation overrideAnnotation = new MarkerAnnotation(new SingleTypeReference(TypeConstants.JAVA_LANG_OVERRIDE[2], 0), 0);
-		md.annotations = new Annotation[] { overrideAnnotation };
-		// getClass().getName() + "@" + Integer.toHexString(hashCode())
-		Expression left = new StringLiteral(this.name, -1, -1, -1);
-		Expression right = new StringLiteral(new char[] {'@'}, -1, -1, -1);
-		left = new BinaryExpression(left, right, OperatorIds.PLUS);
-		MessageSend m = new MessageSend();
-		m.receiver = new QualifiedNameReference(
-				TypeConstants.JAVA_LANG_INTEGER,
-				this.default_long_pos, -1, -1);
-		m.selector = "toHexString".toCharArray(); //$NON-NLS-1$
-		MessageSend hc = new MessageSend();
-		hc.receiver = new ThisReference(-1, -1);
-		hc.selector = TypeConstants.HASHCODE;
-		m.arguments = new Expression[] {hc};
-		right = m;
-		CombinedBinaryExpression cbe = new CombinedBinaryExpression(left, right, OperatorIds.PLUS, 1);
-		md.statements = new Statement[] { new ReturnStatement(cbe, -1, -1) };
-		md.isImplicit = true;
-	}
-	private static char[][] getBoxedName(char[] token) {
-		return
-			token == BYTE    ? JAVA_LANG_BYTE :
-			token == SHORT   ? JAVA_LANG_SHORT :
-			token == CHAR    ? JAVA_LANG_CHARACTER :
-			token == INT     ? JAVA_LANG_INTEGER :
-			token == LONG    ? JAVA_LANG_LONG :
-			token == FLOAT   ? JAVA_LANG_FLOAT :
-			token == DOUBLE  ? JAVA_LANG_DOUBLE :
-			token == BOOLEAN ? JAVA_LANG_BOOLEAN : null;
-	}
-	private void checkAndCreateImplicitHashCode(ProblemReporter problemReporter) {
-		if (null != getMethodByName(TypeConstants.HASHCODE))
-			return;
-		MethodDeclaration md = createMethodDeclaration(TypeConstants.HASHCODE, TypeReference.baseTypeReference(TypeIds.T_int, 0));
-		MarkerAnnotation overrideAnnotation = new MarkerAnnotation(new SingleTypeReference(TypeConstants.JAVA_LANG_OVERRIDE[2], 0), 0);
-		md.annotations = new Annotation[] { overrideAnnotation };
-
-		List<Expression> initVals = new ArrayList<>();
-		if (this.args != null) {
-			for (Argument arg : this.args) {
-				if (RecordDeclaration.disallowedComponentNames.contains(new String(arg.name)))
-					continue;
-				FieldReference fr = new FieldReference(arg.name, -1);
-				fr.receiver = new ThisReference(-1, -1);
-				Expression receiver = null;
-				if (arg.type instanceof ArrayTypeReference) {
-					MessageSend arraysHashCode = new MessageSend();
-					arraysHashCode.selector = HASHCODE;
-					arraysHashCode.receiver =
-							new QualifiedNameReference(JAVA_UTIL_ARRAYS,
-							this.default_long_pos, -1, -1);
-					arraysHashCode.arguments = new Expression[] { fr};
-					initVals.add(arraysHashCode);
-					continue;
-				} else if (arg.type.isBaseTypeReference()) {
-					QualifiedNameReference boxReference = new QualifiedNameReference(
-							RecordDeclaration.getBoxedName(arg.type.getLastToken()),
-							this.default_long_pos, -1, -1);
-					MessageSend m = new MessageSend();
-					m.receiver = boxReference;
-					m.selector = TypeConstants.VALUEOF;  // Integer.valueOf(int)
-					m.arguments = new Expression[] { fr };
-					receiver = m;
-				} else {
-					receiver = fr; //this.field
-				}
-				MessageSend messageSend = new MessageSend();
-				messageSend.receiver = receiver;
-				messageSend.selector = HASHCODE;
-				initVals.add(messageSend);
-			}
-		}
-		ArrayInitializer ai = new ArrayInitializer();
-		ai.expressions = initVals.toArray(new Expression[0]);
-		ArrayAllocationExpression aae = new ArrayAllocationExpression();
-		aae.dimensions = new Expression[1];
-		aae.dimensions[0] = null;
-		aae.initializer = ai;
-		aae.type = new SingleTypeReference(INT, -1);
-		MessageSend arraysHashCode = new MessageSend();
-		arraysHashCode.selector = HASHCODE;
-		arraysHashCode.receiver =
-				new QualifiedNameReference(JAVA_UTIL_ARRAYS,
-				this.default_long_pos, -1, -1);
-		arraysHashCode.arguments = new Expression[] { aae };
-		md.statements = new Statement[] { new ReturnStatement(arraysHashCode, -1, -1) };
-		md.isImplicit = true;
-	}
-	private AbstractMethodDeclaration getMethodByName(char[] name1) {
-		AbstractMethodDeclaration[] ams = getMethod(name1);
-		for (AbstractMethodDeclaration amd : ams) {
-			Argument[] args1 = amd.arguments;
-			if (args1 == null || args1.length == 0)
-				return amd; // explicit method exists, no need to create an implicit one.
-		}
-		return null;
-	}
-	private void checkAndCreateImplicitequals(ProblemReporter problemReporter) {
-		AbstractMethodDeclaration[] ams = getMethod(TypeConstants.EQUALS);
-		for (AbstractMethodDeclaration amd : ams) {
-			Argument[] args1 = amd.arguments;
-			if (args1 == null || args1.length != 1)
-				continue;
-			char[][] typeRef = args1[0].type != null ? args1[0].type.getTypeName() : null;
-			if (typeRef == null)
-				continue;
-			if (CharOperation.equals(typeRef, JAVA_LANG_OBJECT)) {
-				return; // explicit method exists, no need to create an implicit one.
-			}
-		}
-		// In case of just object, we can never be sure - so create one implicit method 
-		// and at resolution time, remove the implicit one if there is a conflict.
-		// so, at this point we create one anyway.
-		MethodDeclaration md = createMethodDeclaration(TypeConstants.EQUALS, TypeReference.baseTypeReference(TypeIds.T_boolean, 0));
-		MarkerAnnotation overrideAnnotation = new MarkerAnnotation(new SingleTypeReference(TypeConstants.JAVA_LANG_OVERRIDE[2], 0), 0);
-		md.annotations = new Annotation[] { overrideAnnotation };
-		TypeReference objectTypeReference = new QualifiedTypeReference(JAVA_LANG_OBJECT, new long[] {0L, 0L, 0L});
-		char[] objName = new char[] {'o','b','j'};
-		md.arguments = new Argument[] { new Argument(objName, 0, objectTypeReference, 0)};
-
-		List<Statement> stmts = new ArrayList<>();
-		// if (!(obj instanceof recordName))
-		//    return false;
-		InstanceOfExpression ioe = new InstanceOfExpression(new SingleNameReference(objName, 0), new SingleTypeReference(this.name, 0L));
-		Expression condition = new UnaryExpression(ioe, OperatorIds.NOT);
-		Statement thenStatement = new ReturnStatement(new FalseLiteral(-1, -1), -1, -1);
-		IfStatement ifStatement = new IfStatement(condition, thenStatement, -1, -1);
-		stmts.add(ifStatement);
-
-		// recordType o = (recordType) obj;
-		LocalDeclaration ld = new LocalDeclaration(new char[] {'o'}, -1, -1);
-		ld.type = new SingleTypeReference(this.name, -1);
-		ld.initialization = new CastExpression(new SingleNameReference(objName, -1), new SingleTypeReference(this.name, 0L));
-		stmts.add(ld);
-
-		// check each field - ref javadoc of java.lang.Record#equals
-		/*
-		 * Impl Spec: The implicitly provided implementation returns true if and only if the argument is an
-		 * instance of the same record type as this object, and each component of this record is equal to the
-		 * corresponding component of the argument, according to java.util.Objects.equals(Object, Object) for
-		 * components whose types are reference types, and according to the semantics of the equals method on
-		 * the corresponding primitive wrapper type.
-		 */
-		if (this.args != null) {
-			for (Argument arg : this.args) {
-				if (RecordDeclaration.disallowedComponentNames.contains(new String(arg.name)))
-					continue;
-				FieldReference fr = new FieldReference(arg.name, -1);
-				fr.receiver = new ThisReference(-1, -1);
-				char [][] qfrName = new char[][] { {'o'}, arg.name };
-				long [] qfrPos = {-1, -1};
-				QualifiedNameReference ofr = new QualifiedNameReference(qfrName, qfrPos, -1, -1);
-				if (arg.type.isBaseTypeReference()) {
-					condition = new EqualExpression(fr, ofr, OperatorIds.NOT_EQUAL);
-				} else {
-					MessageSend messageSend = new MessageSend();
-					messageSend.selector = TypeConstants.EQUALS;
-					messageSend.arguments = new Expression[] {fr, ofr};
-					messageSend.receiver = new QualifiedNameReference(JAVA_UTIL_OBJECTS, new long[] {-1, -1, -1}, -1, -1);
-					condition = new UnaryExpression(messageSend, OperatorIds.NOT);
-				}
-				thenStatement = new ReturnStatement(new FalseLiteral(-1, -1), -1, -1);
-				ifStatement = new IfStatement(condition, thenStatement, -1, -1);
-				stmts.add(ifStatement);
-			}
-		}
-		stmts.add(new ReturnStatement(new TrueLiteral(-1, -1), -1, -1));
-		md.statements = stmts.toArray(new Statement[0]);
-		md.isImplicit = true;
-	}
-	private MethodDeclaration createMethodDeclaration(char[] name1, TypeReference returnType) {
-		MethodDeclaration m = new MethodDeclaration(this.compilationResult);
-		m.selector = name1;
-		m.modifiers = ClassFileConstants.AccPublic;
-
-		m.returnType = returnType;
-
-		if (this.methods == null) { // Where is the constructor?
-			this.methods = new AbstractMethodDeclaration[] { m };
-		} else {
-			AbstractMethodDeclaration[] newMethods;
-			System.arraycopy(
-				this.methods,
-				0,
-				newMethods = new AbstractMethodDeclaration[this.methods.length + 1],
-				1,
-				this.methods.length);
-			newMethods[0] = m;
-			this.methods = newMethods;
-		}
-		m.bits |= ASTNode.IsImplicit;
-		return m;
 	}
 }

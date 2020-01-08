@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 
 public class CompactConstructorDeclaration extends ConstructorDeclaration {
 
-	public boolean isImplicit;
 	public RecordDeclaration recordDeclaration;
 	
 	public CompactConstructorDeclaration(CompilationResult compilationResult) {
@@ -35,12 +34,6 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 	}
 	@Override
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
-		if (this.isImplicit && this.constructorCall == null) {
-			this.constructorCall = SuperReference.implicitSuperConstructorCall();
-			this.constructorCall.sourceStart = this.sourceStart;
-			this.constructorCall.sourceEnd = this.sourceEnd;
-			return;
-		}
 		parser.parse(this, unit, false);
 		ASTVisitor visitor = new ASTVisitor() {
 			@Override
@@ -63,8 +56,7 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 				return false;
 			}
 		};
-		if (!this.isImplicit)
-			unit.traverse(visitor, unit.scope);
+		unit.traverse(visitor, unit.scope);
 	}
 	@Override
 	protected void checkAndGenerateFieldAssignment(FlowContext flowContext, FlowInfo flowInfo, FieldBinding field) {

@@ -46,7 +46,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -164,6 +163,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public int headerOffset;
 	public Map<TypeBinding, Boolean> innerClassesBindings;
 	public List bootstrapMethods = null;
+	public List<TypeBinding> recordBootstrapMethods = null;
 	public int methodCount;
 	public int methodCountOffset;
 	// pool managment
@@ -424,9 +424,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 			attributesNumber += generateHierarchyInconsistentAttribute();
 		}
-		// Functional expression and lambda bootstrap methods
-		if (this.bootstrapMethods != null && !this.bootstrapMethods.isEmpty()) {
-			attributesNumber += generateBootstrapMethods(this.bootstrapMethods);
+		// Functional expression, lambda bootstrap methods and record bootstrap methods
+		if ((this.bootstrapMethods != null && !this.bootstrapMethods.isEmpty()) ||
+				(this.recordBootstrapMethods != null && !this.recordBootstrapMethods.isEmpty())) {
+			attributesNumber += generateBootstrapMethods(this.bootstrapMethods, this.recordBootstrapMethods);
 		}
 		// Inner class attribute
 		int numberOfInnerClasses = this.innerClassesBindings == null ? 0 : this.innerClassesBindings.size();
@@ -1102,6 +1103,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 						case SyntheticMethodBinding.SerializableMethodReference:
 							// Nothing to be done
 							break;
+						case SyntheticMethodBinding.RecordOverrideEquals:
+						case SyntheticMethodBinding.RecordOverrideHashCode:
+						case SyntheticMethodBinding.RecordOverrideToString:
+							addSyntheticRecordOverrideMethods(syntheticMethod, syntheticMethod.purpose);
+							break;
 					}
 				}
 				emittedSyntheticsCount = currentSyntheticsCount;
@@ -1130,6 +1136,48 @@ public class ClassFile implements TypeConstants, TypeIds {
 				}
 			} while (restart);
 		}
+	}
+
+	private void addSyntheticRecordOverrideMethods(SyntheticMethodBinding methodBinding, int purpose) {
+		if (this.recordBootstrapMethods == null)
+			this.recordBootstrapMethods = new ArrayList<>(3);
+		if (!this.recordBootstrapMethods.contains(methodBinding.declaringClass))
+			this.recordBootstrapMethods.add(methodBinding.declaringClass);
+		int index = this.bootstrapMethods != null ? this.bootstrapMethods.size() +
+				this.recordBootstrapMethods.size() - 1 : 0;
+		generateMethodInfoHeader(methodBinding);
+		int methodAttributeOffset = this.contentsOffset;
+		// this will add exception attribute, synthetic attribute, deprecated attribute,...
+		int attributeNumber = generateMethodInfoAttributes(methodBinding);
+		// Code attribute
+		int codeAttributeOffset = this.contentsOffset;
+		attributeNumber++; // add code attribute
+		generateCodeAttributeHeader();
+		this.codeStream.init(this);
+		switch (purpose) {
+			case SyntheticMethodBinding.RecordOverrideEquals:
+				this.codeStream.generateSyntheticBodyForRecordEquals(methodBinding, index);
+				break;
+			case SyntheticMethodBinding.RecordOverrideHashCode:
+				this.codeStream.generateSyntheticBodyForRecordHashCode(methodBinding, index);
+				break;
+			case SyntheticMethodBinding.RecordOverrideToString:
+				this.codeStream.generateSyntheticBodyForRecordToString(methodBinding, index);
+				break;
+			default:
+				break;
+		}
+		completeCodeAttributeForSyntheticMethod(
+			methodBinding,
+			codeAttributeOffset,
+			((SourceTypeBinding) methodBinding.declaringClass)
+				.scope
+				.referenceCompilationUnit()
+				.compilationResult
+				.getLineSeparatorPositions());
+		// update the number of attributes
+		this.contents[methodAttributeOffset++] = (byte) (attributeNumber >> 8);
+		this.contents[methodAttributeOffset] = (byte) attributeNumber;
 	}
 
 	public void addSyntheticArrayConstructor(SyntheticMethodBinding methodBinding) {
@@ -2814,12 +2862,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (record == null || !record.isRecord())
 			return 0;
 		int localContentsOffset = this.contentsOffset;
-		List<FieldBinding> recordComponents = this.referenceBinding.getRecordComponents();
+		FieldBinding[] recordComponents = this.referenceBinding.getRecordComponents();
 		if (recordComponents == null)
 			return 0;
 		// could be an empty record also, account for zero components as well.
 		
-		int numberOfRecordComponents = recordComponents.size() ;
+		int numberOfRecordComponents = recordComponents.length;
 
 		int exSize = 8 + 2 * numberOfRecordComponents;
 		if (exSize + localContentsOffset >= this.contents.length) {
@@ -2843,7 +2891,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) numberOfRecordComponents;
 		this.contentsOffset = localContentsOffset;
 		for (int i = 0; i < numberOfRecordComponents; i++) {
-			addComponentInfo(recordComponents.get(i));
+			addComponentInfo(recordComponents[i]);
 		}
 		int attrLength = this.contentsOffset - base;
 		this.contents[attrLengthOffset++] = (byte) (attrLength >> 24);
@@ -3469,7 +3517,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return 1;
 	}
 
-	private int generateBootstrapMethods(List functionalExpressionList) {
+	private int generateBootstrapMethods(List functionalExpressionList, List<TypeBinding> recordBootstrapMethods2) {
 		/* See JVM spec 4.7.21
 		   The BootstrapMethods attribute has the following format:
 		   BootstrapMethods_attribute {
@@ -3486,13 +3534,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		ReferenceBinding methodHandlesLookup = this.referenceBinding.scope.getJavaLangInvokeMethodHandlesLookup();
 		if (methodHandlesLookup == null) return 0; // skip bootstrap section, class path problem already reported, just avoid NPE.
 		recordInnerClasses(methodHandlesLookup); // Should be done, it's what javac does also
-		ReferenceBinding javaLangInvokeLambdaMetafactory = this.referenceBinding.scope.getJavaLangInvokeLambdaMetafactory(); 
-		
-		// Depending on the complexity of the expression it may be necessary to use the altMetafactory() rather than the metafactory()
-		int indexForMetaFactory = 0;
-		int indexForAltMetaFactory = 0;
 
-		int numberOfBootstraps = functionalExpressionList.size();
+		int nfunctionalExpressions = functionalExpressionList != null ? functionalExpressionList.size() : 0;
+		int nRecordBootStraps = recordBootstrapMethods2 != null ? recordBootstrapMethods2.size() : 0;
+		int numberOfBootstraps = nfunctionalExpressions + nRecordBootStraps;
 		int localContentsOffset = this.contentsOffset;
 		// Generate the boot strap attribute - since we are only making lambdas and
 		// functional expressions, we know the size ahead of time - this less general
@@ -3511,8 +3556,35 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// leave space for attribute_length and remember where to insert it
 		int attributeLengthPosition = localContentsOffset;
 		localContentsOffset += 4;
+
 		this.contents[localContentsOffset++] = (byte) (numberOfBootstraps >> 8);
 		this.contents[localContentsOffset++] = (byte) numberOfBootstraps;
+
+		if (nfunctionalExpressions > 0)
+			localContentsOffset = generateLambdaMetaFactoryBootStrapMethods(functionalExpressionList,
+					localContentsOffset, contentsEntries);
+		if (nRecordBootStraps > 0)
+			localContentsOffset = generateObjectMethodsBootStrapMethods(recordBootstrapMethods2, localContentsOffset,
+					contentsEntries);
+
+		int attributeLength = localContentsOffset - attributeLengthPosition - 4;
+		this.contents[attributeLengthPosition++] = (byte) (attributeLength >> 24);
+		this.contents[attributeLengthPosition++] = (byte) (attributeLength >> 16);
+		this.contents[attributeLengthPosition++] = (byte) (attributeLength >> 8);
+		this.contents[attributeLengthPosition++] = (byte) attributeLength;
+		this.contentsOffset = localContentsOffset;
+		return 1;
+	}
+
+	private int generateLambdaMetaFactoryBootStrapMethods(List functionalExpressionList,
+			int localContentsOffset, final int contentsEntries) {
+		ReferenceBinding javaLangInvokeLambdaMetafactory = this.referenceBinding.scope.getJavaLangInvokeLambdaMetafactory(); 
+		int numberOfBootstraps = functionalExpressionList.size();
+		
+		// Depending on the complexity of the expression it may be necessary to use the altMetafactory() rather than the metafactory()
+		int indexForMetaFactory = 0;
+		int indexForAltMetaFactory = 0;
+
 		for (int i = 0; i < numberOfBootstraps; i++) {
 			FunctionalExpression functional = (FunctionalExpression) functionalExpressionList.get(i);
 			MethodBinding [] bridges = functional.getRequiredBridges();
@@ -3625,14 +3697,68 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.contents[localContentsOffset++] = (byte) methodTypeIndex;				
 			}
 		}
+		return localContentsOffset;
+	}
+	private int generateObjectMethodsBootStrapMethods(List<TypeBinding> recordList,
+			int localContentsOffset, final int contentsEntries) {
+		ReferenceBinding javaLangRuntimeObjectMethods = this.referenceBinding.scope.getJavaLangRuntimeObjectMethods(); 
+		int numberOfBootstraps = recordList.size();
+		int indexForObjectMethodBootStrap = 0;
+		for (int i = 0; i < numberOfBootstraps; i++) {
+			if (contentsEntries + localContentsOffset >= this.contents.length) {
+				resizeContents(contentsEntries);
+			}
+			if (indexForObjectMethodBootStrap == 0) {
+				indexForObjectMethodBootStrap = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangRuntimeObjectMethods, 
+						ConstantPool.BOOTSTRAP, ConstantPool.JAVA_LANG_RUNTIME_OBJECTMETHOD_BOOTSTRAP_SIGNATURE, false);
+			}
+			this.contents[localContentsOffset++] = (byte) (indexForObjectMethodBootStrap >> 8);
+			this.contents[localContentsOffset++] = (byte) indexForObjectMethodBootStrap;
+			
+			// u2 num_bootstrap_arguments
+			int numArgsLocation = localContentsOffset;
+			localContentsOffset += 2;
+			
+			TypeBinding type = recordList.get(i);
+			assert type.isRecord(); // sanity check
+			int recordIndex = this.constantPool.literalIndexForType(type.constantPoolName());
+			this.contents[localContentsOffset++] = (byte) (recordIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) recordIndex;
 
-		int attributeLength = localContentsOffset - attributeLengthPosition - 4;
-		this.contents[attributeLengthPosition++] = (byte) (attributeLength >> 24);
-		this.contents[attributeLengthPosition++] = (byte) (attributeLength >> 16);
-		this.contents[attributeLengthPosition++] = (byte) (attributeLength >> 8);
-		this.contents[attributeLengthPosition++] = (byte) attributeLength;
-		this.contentsOffset = localContentsOffset;
-		return 1;
+			assert type instanceof SourceTypeBinding;
+			SourceTypeBinding sourceType = (SourceTypeBinding) type;
+			FieldBinding[] recordComponents = sourceType.getRecordComponents();
+			
+			int numArgs = 2 + recordComponents.length;
+			this.contents[numArgsLocation++] = (byte) (numArgs >> 8);
+			this.contents[numArgsLocation] = (byte) numArgs;
+
+			String names = 
+				Arrays.stream(recordComponents)
+				.map(f -> new String(f.name))
+				.reduce((s1, s2) -> { return s1 + ";" + s2;}) //$NON-NLS-1$
+				.orElse(Util.EMPTY_STRING);
+			int namesIndex = this.constantPool.literalIndex(names);
+			this.contents[localContentsOffset++] = (byte) (namesIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) namesIndex;
+
+			List<MethodBinding> getters = new ArrayList<>();
+			for (FieldBinding field : recordComponents) {
+				MethodBinding[] candidates =  sourceType.getMethods(field.name);
+				for (MethodBinding candidate : candidates) {
+					if (candidate.parameters == null || candidate.parameters.length == 0) {
+						getters.add(candidate);
+						break;
+					}
+				}
+			}
+			for (MethodBinding getter : getters) {
+				int getterIndex = this.constantPool.literalIndexForMethodHandle(getter);
+				this.contents[localContentsOffset++] = (byte) (getterIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) getterIndex;
+			}
+		}
+		return localContentsOffset;
 	}
 	private int generateLineNumberAttribute() {
 		int localContentsOffset = this.contentsOffset;
