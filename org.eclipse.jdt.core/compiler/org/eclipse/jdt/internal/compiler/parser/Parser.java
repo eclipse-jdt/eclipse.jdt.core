@@ -2669,6 +2669,7 @@ protected void consumeClassHeaderName1() {
 	// we want to keep the beginning position but get rid of the end position
 	// it is only used for the ClassLiteralAccess positions.
 	typeDecl.declarationSourceStart = this.intStack[this.intPtr--];
+	typeDecl.restrictedIdentifierStart = typeDecl.declarationSourceStart;
 	this.intPtr--; // remove the end position of the class token
 
 	typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
+ * Copyright (c) 2019, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -94,6 +94,27 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 */
 	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY =
 		internalBodyDeclarationPropertyFactory(RecordDeclaration.class);
+
+	/**
+	 * A character index into the original restricted identifier source string,
+	 * or <code>-1</code> if no restricted identifier source position information is available
+	 * for this node; <code>-1</code> by default.
+	 */
+	private int restrictedIdentifierStartPosition = -1;
+
+	public void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {
+		if (restrictedIdentifierStartPosition < 0) {
+			throw new IllegalArgumentException();
+		}
+		// restrictedIdentifierStartPosition is not considered a structural property
+		// but we protect it nevertheless
+		checkModifiable();
+		this.restrictedIdentifierStartPosition= restrictedIdentifierStartPosition;
+	}
+
+	public int getRestrictedIdentifierStartPosition() {
+		return this.restrictedIdentifierStartPosition;
+	}
 
 	/**
 	 * A list of property descriptors (element type:
@@ -270,6 +291,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	@Override
 	ASTNode clone0(AST target) {
 		RecordDeclaration result = new RecordDeclaration(target);
+		result.restrictedIdentifierStartPosition = getRestrictedIdentifierStartPosition();
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setJavadoc(
 			(Javadoc) ASTNode.copySubtree(target, getJavadoc()));
