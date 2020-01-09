@@ -10624,7 +10624,7 @@ public void testBug545715() {
 	    customOptions,
 	    new String[] {"--enable-preview"});
 }
-public void testBug548418_001a() {
+public void _testBug548418_001a() {
 	if (!checkPreviewAllowed())
 		return;
 	Map options = getCompilerOptions();

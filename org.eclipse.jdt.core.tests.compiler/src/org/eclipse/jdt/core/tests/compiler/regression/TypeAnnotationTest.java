@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 IBM Corporation and others.
+ * Copyright (c) 2011, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -595,6 +599,16 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 	
 	public void test015_classExtends_interfaces_reflection() throws Exception {
+		String javaVersion = System.getProperty("java.version");
+		int index = javaVersion.indexOf('.');
+		if (index != -1) {
+			javaVersion = javaVersion.substring(0, index);
+		} else {
+			index = javaVersion.indexOf('-');
+			if (index != -1)
+				javaVersion = javaVersion.substring(0, index);
+		}
+		int v = Integer.parseInt(javaVersion);
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -639,7 +653,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"  class java.lang.Object:no annotations\n" + 
 		"Annotations on superinterfaces of X\n" + 
 		"  interface I:@A(id=Hello, World!) \n" + 
-		"  interface J:@C(value=i)");
+		"  interface J:@C(" + (v < 14 ? "value=" : "") + "i)");
 	}
 
 	public void test016_classExtends() throws Exception {
@@ -6589,6 +6603,16 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			customOptions);		
 	}
 	public void testBug485386() {
+		String javaVersion = System.getProperty("java.version");
+		int index = javaVersion.indexOf('.');
+		if (index != -1) {
+			javaVersion = javaVersion.substring(0, index);
+		} else {
+			index = javaVersion.indexOf('-');
+			if (index != -1)
+				javaVersion = javaVersion.substring(0, index);
+		}
+		int v = Integer.parseInt(javaVersion);
 		runConformTest(
 			new String[] {
 				"Test.java",
@@ -6621,7 +6645,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"  }\n" + 
 				"}\n"
 			},
-			"@TestAnn1(value=" + decorateAnnotationValueLiteral("1") + ")");
+			"@TestAnn1(" + (v < 14 ? "value=" : "") + decorateAnnotationValueLiteral("1") + ")");
 	}
 	public void testBug492322readFromClass() {
 		runConformTest(

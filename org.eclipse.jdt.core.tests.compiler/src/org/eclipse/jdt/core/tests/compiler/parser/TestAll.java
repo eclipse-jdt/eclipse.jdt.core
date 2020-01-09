@@ -236,7 +236,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_14) != 0) {
 		ArrayList tests_14 = (ArrayList)testClasses.clone();
-		tests_14.addAll(tests_14);
+		tests_14.addAll(TEST_CLASSES_1_5);
 		tests_14.add(ParserTest1_7.class);
 		tests_14.add(LambdaExpressionSyntaxTest.class);
 		tests_14.add(ReferenceExpressionSyntaxTest.class);
