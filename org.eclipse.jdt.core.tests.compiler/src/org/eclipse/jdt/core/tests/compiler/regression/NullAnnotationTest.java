@@ -10624,11 +10624,8 @@ public void testBug545715() {
 	    customOptions,
 	    new String[] {"--enable-preview"});
 }
-public void _testBug548418_001a() {
-	if (!checkPreviewAllowed())
-		return;
-	Map options = getCompilerOptions();
-	setPreviewOptions(options);
+public void testBug548418_001a() {
+	if (this.complianceLevel < ClassFileConstants.JDK14) return;
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10661,30 +10658,16 @@ public void _testBug548418_001a() {
 			"	}\n"+
 			"}\n"
 				},
-		options,
 		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	x = null;\n" + 
-		"	    ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 13)\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
 		"	break x;\n" + 
 		"	^^^^^^^^\n" + 
-		"The label x is missing\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 15)\n" + 
-		"	default -> null;\n" + 
-		"	           ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
+		"Breaking out of switch expressions not permitted\n" + 
 		"----------\n"
 	);
 }
 public void testBug548418_001b() {
-	if (!checkPreviewAllowed())
-		return;
-	Map options = getCompilerOptions();
-	setPreviewOptions(options);
+	if (this.complianceLevel < ClassFileConstants.JDK14) return;
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10717,7 +10700,6 @@ public void testBug548418_001b() {
 			"	}\n"+
 			"}\n"
 				},
-		options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	x = null;\n" + 
@@ -10731,20 +10713,8 @@ public void testBug548418_001b() {
 		"----------\n"
 	);
 }
-
-private void setPreviewOptions(Map options) {
-	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14); 
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
-}
 public void testBug548418_002a() {
-	if (!checkPreviewAllowed())
-		return;
-	Map options = getCompilerOptions();
-	setPreviewOptions(options);
+	if (this.complianceLevel < ClassFileConstants.JDK14) return;
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10764,7 +10734,6 @@ public void testBug548418_002a() {
 			"		}\n" +
 			"}\n"
 				},
-		options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	break \"hello\";\n" + 
@@ -10784,10 +10753,7 @@ public void testBug548418_002a() {
 	);
 }
 public void testBug548418_002b() {
-	if (!checkPreviewAllowed())
-		return;
-	Map options = getCompilerOptions();
-	setPreviewOptions(options);
+	if (this.complianceLevel < ClassFileConstants.JDK14) return;
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10807,7 +10773,6 @@ public void testBug548418_002b() {
 			"		}\n" +
 			"}\n"
 				},
-		options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	Zork();\n" + 
