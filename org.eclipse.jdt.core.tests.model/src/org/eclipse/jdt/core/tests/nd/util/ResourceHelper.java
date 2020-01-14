@@ -508,8 +508,6 @@ public class ResourceHelper {
 				builder.append(buffer, 0, read);
 			}
 			return builder.toString();
-		} finally {
-			stream.close();
 		}
 	}
 
