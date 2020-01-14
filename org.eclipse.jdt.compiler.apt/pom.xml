@@ -120,16 +120,23 @@
 						  <addMavenDescriptor>false</addMavenDescriptor>
 						</archive>
 			            <target>
+			              <path id="ecj.id">
+			                  <fileset dir="${basedir}/../org.eclipse.jdt.core/target/">
+			                      <include name="org.eclipse.jdt.core-*-SNAPSHOT-batch-compiler.jar"/>
+			                  </fileset>
+			              </path> 
+
+			              <property name="ecj.file" refid="ecj.id"/>
 			              <exec dir="${basedir}/../org.eclipse.jdt.core/target/" executable="curl">
 			                   <arg value="--output"/>
-			                   <arg value="org.eclipse.jdt.core-3.20.0-SNAPSHOT-batch-compiler.jar"/>
+			                   <arg value="${ecj.file}"/>
 			                   <arg value="--form"/>
-			                   <arg value="file=@org.eclipse.jdt.core-3.20.0-SNAPSHOT-batch-compiler.jar"/>
+			                   <arg value="file=@${ecj.file}"/>
 			                   <arg value="--silent"/>
 			                   <arg value="--show-error"/>
 			                   <arg value="--fail"/>
 			                   <arg value="http://build.eclipse.org:31338/sign"/>
-			              </exec>                
+			              </exec>
 			            </target>
 			          </configuration>
 			          <goals>

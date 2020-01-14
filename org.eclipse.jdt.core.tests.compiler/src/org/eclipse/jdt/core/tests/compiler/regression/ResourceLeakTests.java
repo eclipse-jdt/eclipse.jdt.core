@@ -57,7 +57,7 @@ private static final String APACHE_DBUTILS_CONTENT = "package org.apache.commons
 	"}\n";
 
 static {
-//	TESTS_NAMES = new String[] { "testBug542707_002" };
+//	TESTS_NAMES = new String[] { "testBug463320" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -3092,7 +3092,12 @@ public void testBug368709a() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 18)\n" +
+		"1. ERROR in X.java (at line 15)\n" + 
+		"	return wc.open(getObjectId(), type).openStream();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 18)\n" + 
 		"	return new ObjectStream.Filter(type, size, in);\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Potential resource leak: \'in\' may not be closed at this location\n" +
@@ -4219,13 +4224,13 @@ public void testBug395977() {
 		null);
 }
 
-// Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
-// variant with named local class - don't accept as a secure resource wrapper
+//Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
+//variant with named local class - accept as a secure resource wrapper since no close method
 public void testBug395977_1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runLeakTest(
+	runConformTest(
 		new String[] {
 			"WriterTest.java",
 			"import java.io.*;\n" + 
@@ -4275,8 +4280,68 @@ public void testBug395977_1() {
 			"   }\n" + 
 			"}"
 		},
+		"",
+		options);
+}
+//Bug 395977 - Resource leak warning behavior possibly incorrect for anonymous inner class
+//variant with named local class - don't accept as a secure resource wrapper since close() method exist
+public void testBug395977_1a() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"WriterTest.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class WriterTest implements Runnable\n" + 
+			"{\n" + 
+			"   private BufferedWriter m_Writer;\n" + 
+			"   \n" + 
+			"   public void run()\n" + 
+			"   {\n" + 
+			"      try\n" + 
+			"      {\n" + 
+			"         initializeWriter();\n" + 
+			"         \n" + 
+			"         m_Writer.write(\"string\");\n" + 
+			"         m_Writer.newLine();\n" + 
+			"         \n" + 
+			"         closeWriter();\n" + 
+			"      }\n" + 
+			"      catch (IOException ioe)\n" + 
+			"      {\n" + 
+			"         ioe.printStackTrace();\n" + 
+			"      }\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private void initializeWriter()\n" + 
+			"      throws UnsupportedEncodingException, FileNotFoundException\n" + 
+			"   {\n" + 
+			"      class MyBufferedWriter extends BufferedWriter\n" + 
+			"      {\n" +
+			"         MyBufferedWriter(OutputStreamWriter writer) { super(writer); }\n" +
+			"         /**\n" + 
+			"          * Writes an LF character on all platforms, to avoid constantly flipping the line terminator style.\n" + 
+			"          */\n" + 
+			"         public void newLine() throws IOException\n" + 
+			"         {\n" + 
+			"            write('\\n');\n" + 
+			"         }\n" +
+			"         public void close() {}\n" + 
+			"      };" +
+			"      m_Writer = new MyBufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"));\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private void closeWriter()\n" + 
+			"      throws IOException\n" + 
+			"   {\n" + 
+			"      m_Writer.close();\n" + 
+			"   }\n" + 
+			"}"
+		},
 		"----------\n" + 
-		"1. ERROR in WriterTest.java (at line 37)\n" + 
+		"1. ERROR in WriterTest.java (at line 38)\n" + 
 		"	};      m_Writer = new MyBufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"));\n" + 
 		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
@@ -5363,7 +5428,8 @@ public void testBug473317() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // using diamond
 	Map<String, String> compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, JavaCore.IGNORE);
-	runLeakTest(
+	Runner runner = new Runner();
+	runner.testFiles =
 		new String[] {
 			"AutoCloseableEnhancedForTest.java",
 			"import java.util.Iterator;\n" + 
@@ -5427,7 +5493,8 @@ public void testBug473317() {
 			"      }\n" + 
 			"   }\n" + 
 			"}\n"
-		},
+		};
+	runner.expectedCompilerLog =
 		"----------\n" + 
 		"1. WARNING in AutoCloseableEnhancedForTest.java (at line 44)\n" + 
 		"	for (Object value : new MyIterable<>())\n" + 
@@ -5438,8 +5505,9 @@ public void testBug473317() {
 		"	MyIterable<Object> iterable = new MyIterable<>();\n" + 
 		"	                   ^^^^^^^^\n" + 
 		"Resource leak: \'iterable\' is never closed\n" + 
-		"----------\n",
-		compilerOptions);
+		"----------\n";
+	runner.customOptions = compilerOptions;
+	runner.runWarningTest(); // javac warns about exception thrown from close() method
 }
 public void testBug541705() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses diamond
@@ -5706,5 +5774,634 @@ public void testBug486506() {
 		"Potential resource leak: \'lineStream\' may not be closed at this location\n" +
 		"----------\n",
 		options);
+}
+public void testBug463320() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"Try17.java",
+			"import java.util.zip.*;\n" +
+			"import java.io.*;\n" +
+			"public class Try17 {\n" + 
+			"    void potential() throws IOException {\n" + 
+			"        String name= getZipFile().getName();\n" + 
+			"        System.out.println(name);\n" + 
+			"    }\n" + 
+			"    void definite() throws IOException {\n" + 
+			"        String name= new ZipFile(\"bla.jar\").getName();\n" + 
+			"        System.out.println(name);\n" + 
+			"    }\n" +
+			"	 void withLocal() throws IOException {\n" +
+			"		 ZipFile zipFile = getZipFile();\n" +
+			"        String name= zipFile.getName();\n" + 
+			"        System.out.println(name);\n" + 
+			"	 }\n" + 
+			"\n" + 
+			"    ZipFile getZipFile() throws IOException {\n" + 
+			"        return new ZipFile(\"bla.jar\");\n" + 
+			"    }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in Try17.java (at line 5)\n" + 
+		"	String name= getZipFile().getName();\n" + 
+		"	             ^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n" + 
+		"2. ERROR in Try17.java (at line 9)\n" + 
+		"	String name= new ZipFile(\"bla.jar\").getName();\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"2. ERROR in Try17.java (at line 13)\n" + 
+		"	ZipFile zipFile = getZipFile();\n" + 
+		"	        ^^^^^^^\n" + 
+		"Potential resource leak: \'zipFile\' may not be closed\n" + 
+		"----------\n",
+		options);
+}
+public void testBug463320_comment8() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // required version of java.nio.file.*
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"Try17.java",
+			"import java.io.*;\n" +
+			"import java.nio.file.*;\n" +
+			"import java.net.*;\n" +
+			"public class Try17 {\n" + 
+			"   public InputStream openInputStream(URI uri) {\n" + 
+			"		try {\n" + 
+			"			System.out.println(FileSystems.getFileSystem(uri));\n" + 
+			"			return Files.newInputStream(Paths.get(uri));\n" + 
+			"		} catch (FileSystemNotFoundException e) {\n" + 
+			"			throw new IllegalArgumentException(e);\n" + 
+			"		} catch (IOException e) {\n" + 
+			"			throw new IllegalStateException(e);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public InputStream delegateGet(URI uri) {\n" +
+			"		return openInputStream(uri);\n" + // no problem here!
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in Try17.java (at line 7)\n" + 
+		"	System.out.println(FileSystems.getFileSystem(uri));\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value from line 7>\' may not be closed\n" + 
+		"----------\n",
+		options);
+}
+public void testBug558574() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses varargs signatures
+
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"public class X {\n" +
+			"	void m1() throws FileNotFoundException {\n" +
+			"		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(\"/tmp/out\")));\n" +
+			"		pw.printf(\"%d\", 42).close();\n" +
+			"	}\n" +
+			"	void m2(PrintWriter pw) throws FileNotFoundException {\n" +
+			"		pw.printf(\"%d\", 42).append(\"end\").close();\n" +
+			"	}\n" +
+			"	void m3() throws FileNotFoundException {\n" +
+			"		new PrintWriter(new OutputStreamWriter(new FileOutputStream(\"/tmp/out\")))\n" +
+			"			.format(\"%d\", 42)\n" +
+			"			.append(\"end\")\n" +
+			"			.close();\n" +
+			"	}\n" +
+			"	void m4(PrintWriter pw) throws FileNotFoundException {\n" +
+			"		pw.printf(\"%d\", 42).append(\"end\");\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"",
+		options);
+}
+public void testBug463320_comment19() {
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+
+	runConformTest(
+		new String[] {
+			"Try17.java",
+			"import java.util.zip.*;\n" +
+			"import java.io.*;\n" +
+			"public class Try17 {\n" + 
+			"	void withLocal() throws IOException {\n" +
+			"		ZipFile zipFile = null;\n" +
+			"		if (zipFile != null)" +
+			"			zipFile = getZipFile();\n" + // not reachable
+			"		String name= zipFile.getName();\n" + 
+			"		System.out.println(name);\n" + 
+			"	 }\n" + 
+			"\n" + 
+			"    ZipFile getZipFile() throws IOException {\n" + 
+			"        return new ZipFile(\"bla.jar\");\n" + 
+			"    }\n" + 
+			"}"
+		},
+		options);
+}
+public void testBug552521() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
+
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	runLeakTest(
+		new String[] {
+			"EclipseBug552521getChannel.java",
+			"import java.io.File;\n" + 
+			"import java.io.FileInputStream;\n" + 
+			"import java.io.FileOutputStream;\n" + 
+			"import java.nio.channels.FileChannel;\n" + 
+			"\n" + 
+			"public class EclipseBug552521getChannel {\n" + 
+			"\n" + 
+			"	@SuppressWarnings(\"unused\")\n" + 
+			"	public void copyFile(final File srcFile, final File dstFile) throws Exception {\n" + 
+			"		/*\n" + 
+			"		 * TODO Eclipse Setting: Window/Preferences/Java/Compiler/Errors-Warnings/\n" + 
+			"		 * Resource not managed via try-with-resource = Ignore (default)\n" + 
+			"		 */\n" + 
+			"        try (\n" + 
+			"        		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"        		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 17
+			"        		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok\n" + 
+			"        		)\n" + 
+			"        {\n" + 
+			"    		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        if (srcFile.isFile()) { // \"if\" (resolved at runtime) -> Warning suppressed\n" + 
+			"            try (\n" + 
+			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 28
+			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!\n" + 
+			"            		)\n" + 
+			"            {\n" + 
+			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"            }\n" + 
+			"        } else { // \"else\" (resolved at runtime) -> Warning suppressed\n" + 
+			"            try (\n" + 
+			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 38
+			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!\n" + 
+			"            		)\n" + 
+			"            {\n" + 
+			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        if (true) { // Dummy \"if\" (= constant true) -> Warning\n" + 
+			"            try (\n" + 
+			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 50
+			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok\n" + 
+			"            		)\n" + 
+			"            {\n" + 
+			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"            }\n" + 
+			"        } else { // Dummy \"else\" (= constant false) -> Warning suppressed\n" + 
+			"            try (\n" + 
+			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 60
+			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!\n" + 
+			"            		)\n" + 
+			"            {\n" + 
+			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        if (false) { // Dummy \"if\" (= constant false) -> Warning suppressed\n" + 
+			"            try (\n" + 
+			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 72
+			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  FIXME Warning missing!\n" + 
+			"            		)\n" + 
+			"            {\n" + 
+			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"            }\n" + 
+			"        } else { // Dummy \"else\" (= constant true) -> Warning\n" + 
+			"            try (\n" + 
+			"            		final FileInputStream srcStream  = new FileInputStream (srcFile);\n" + 
+			"            		final FileChannel     srcChannel =                      srcStream.getChannel();\n" + 
+			"    				final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + // line 82
+			"            		//                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok\n" + 
+			"            		)\n" + 
+			"            {\n" + 
+			"        		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"        /*\n" + 
+			"         * Following test-case differs from all the above as follows:\n" + 
+			"         * FileInputStream is unassigned, instead of FileOutputStream\n" + 
+			"         */\n" + 
+			"        try (\n" + 
+			"        		final FileChannel      srcChannel = new FileInputStream (srcFile) .getChannel();\n" + // line 94
+			"        		//                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  TODO Warning ok\n" + 
+			"        		final FileOutputStream dstStream  = new FileOutputStream(srcFile);\n" + 
+			"				final FileChannel      dstChannel =                      dstStream.getChannel();\n" + 
+			"        		)\n" + 
+			"        {\n" + 
+			"    		srcChannel.transferTo(0, srcChannel.size(), dstChannel);\n" + 
+			"        }\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in EclipseBug552521getChannel.java (at line 17)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"2. ERROR in EclipseBug552521getChannel.java (at line 28)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"3. ERROR in EclipseBug552521getChannel.java (at line 38)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"4. ERROR in EclipseBug552521getChannel.java (at line 50)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"5. ERROR in EclipseBug552521getChannel.java (at line 60)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"6. ERROR in EclipseBug552521getChannel.java (at line 72)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"7. ERROR in EclipseBug552521getChannel.java (at line 82)\n" + 
+		"	final FileChannel     dstChannel = new FileOutputStream(dstFile) .getChannel();\n" + 
+		"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"8. ERROR in EclipseBug552521getChannel.java (at line 94)\n" + 
+		"	final FileChannel      srcChannel = new FileInputStream (srcFile) .getChannel();\n" + 
+		"	                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n",
+		options);
+}
+public void testBug552521_comment14() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach
+
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"import java.util.*;\n" +
+			"public class X {\n" +
+			"	List<String> process(InputStream is) throws IOException {\n" +
+			"		is.close();\n" +
+			"		return Collections.emptyList();\n" +
+			"	}\n" +
+			"	void test(String fileName) throws IOException {\n" +
+			"		for (String string : process(new FileInputStream(fileName))) {\n" + 
+			"			System.out.println(string);\n" + 
+			"		}\n" +
+			"	}\n" +
+			"	void test2(String fileName) throws IOException {\n" +
+			"		for (String string : process(new FileInputStream(fileName)))\n" + 
+			"			System.out.println(string);\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 9)\n" + 
+		"	for (String string : process(new FileInputStream(fileName))) {\n" + 
+		"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	for (String string : process(new FileInputStream(fileName)))\n" + 
+		"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n",
+		options);
+}
+public void testBug552521_comment14b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach
+
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"public class X {\n" +
+			"	boolean check(InputStream is) throws IOException {\n" +
+			"		is.close();\n" +
+			"		return true;\n" +
+			"	}\n" +
+			"	void test1(String fileName) throws IOException {\n" +
+			"		while (check(new FileInputStream(fileName)))\n" + 
+			"			System.out.println(\"while\");\n" + 
+			"	}\n" +
+			"	void test2(String fileName) throws IOException {\n" +
+			"		do {\n" +
+			"			System.out.println(\"while\");\n" + 
+			"		} while (check(new FileInputStream(fileName)));\n" + 
+			"	}\n" +
+			"	void test3(String fileName) throws IOException {\n" +
+			"		for (int i=0;check(new FileInputStream(fileName));i++)\n" + 
+			"			System.out.println(i);\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	while (check(new FileInputStream(fileName)))\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	} while (check(new FileInputStream(fileName)));\n" + 
+		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 17)\n" + 
+		"	for (int i=0;check(new FileInputStream(fileName));i++)\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" + 
+		"----------\n",
+		options);
+}
+public void testBug519740() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
+
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"Snippet.java",
+			"class Snippet {\n" + 
+			"  static void foo() throws Exception {\n" + 
+			"    try (java.util.Scanner scanner = new java.util.Scanner(new java.io.FileInputStream(\"abc\"))) {\n" + 
+			"      while (scanner.hasNext()) \n" + 
+			"        if (scanner.hasNextInt())\n" + 
+			"          throw new RuntimeException();  /* Potential resource leak: 'scanner' may not be closed at this location */\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		options);
+}
+public void testBug552441() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses try-with-resources
+
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.io.BufferedOutputStream;\n" + 
+			"import java.io.FileOutputStream;\n" + 
+			"import java.io.IOException;\n" + 
+			"import java.io.OutputStream;\n" + 
+			"import java.util.concurrent.atomic.AtomicLong;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"    public static class CountingBufferedOutputStream extends BufferedOutputStream {\n" + 
+			"        private final AtomicLong bytesWritten;\n" + 
+			"\n" + 
+			"        public CountingBufferedOutputStream(OutputStream out, AtomicLong bytesWritten) throws IOException {\n" + 
+			"            super(out);\n" + 
+			"            this.bytesWritten = bytesWritten;\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        @Override\n" + 
+			"        public void write(byte[] b) throws IOException {\n" + 
+			"            super.write(b);\n" + 
+			"            bytesWritten.addAndGet(b.length);\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        @Override\n" + 
+			"        public void write(byte[] b, int off, int len) throws IOException {\n" + 
+			"            super.write(b, off, len);\n" + 
+			"            bytesWritten.addAndGet(len);\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        @Override\n" + 
+			"        public synchronized void write(int b) throws IOException {\n" + 
+			"            super.write(b);\n" + 
+			"            bytesWritten.incrementAndGet();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static void test(String[] args) throws IOException {\n" + 
+			"        AtomicLong uncompressedBytesOut = new AtomicLong();\n" + 
+			"        int val = 0;\n" + 
+			"        try (CountingBufferedOutputStream out = new CountingBufferedOutputStream(\n" + 
+			"                new FileOutputStream(\"outputfile\"), uncompressedBytesOut)) {\n" + 
+			"\n" + 
+			"            for (int i = 0; i < 1; i++) {\n" + 
+			"                if (val > 2) {\n" + 
+			"                    throw new RuntimeException(\"X\");\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"            if (val > 2) {\n" + 
+			"                throw new RuntimeException(\"Y\");\n" + 
+			"            }\n" + 
+			"            throw new RuntimeException(\"Z\");\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		options);
+}
+public void testBug400523() {
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+
+	runConformTest(
+		new String[] {
+			"LeakWarning.java",
+			"import java.sql.Connection;\n" + 
+			"import java.sql.PreparedStatement;\n" + 
+			"import java.sql.ResultSet;\n" + 
+			"import java.sql.SQLException;\n" + 
+			"\n" + 
+			"public class LeakWarning {\n" + 
+			"	String value = null;\n" + 
+			"	\n" + 
+			"    public void setValue(Connection conn)\n" + 
+			"	{        \n" + 
+			"        PreparedStatement stmt = null;\n" + 
+			"        ResultSet rs = null;\n" + 
+			"        try {            \n" + 
+			"            stmt = conn.prepareStatement(\"SELECT 'value'\");  /* marked as potential resource leak */\n" + 
+			"            rs = stmt.executeQuery();                        /* marked as potential resource leak */\n" + 
+			"            if (rs.next()) value = rs.getString(1);\n" + 
+			"        } catch(SQLException e) {\n" + 
+			"        }\n" + 
+			"        finally {\n" + 
+			"        	if (null != rs)   try { rs.close();   } catch (SQLException e) {} finally { rs = null;   }\n" + 
+			"        	if (null != stmt) try { stmt.close(); } catch (SQLException e) {} finally { stmt = null; }\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public void setValueReturn(Connection conn)\n" + 
+			"	{        \n" + 
+			"        PreparedStatement stmt = null;\n" + 
+			"        ResultSet rs = null;\n" + 
+			"        try {            \n" + 
+			"            stmt = conn.prepareStatement(\"SELECT 'value'\");\n" + 
+			"            rs = stmt.executeQuery();\n" + 
+			"            if (rs.next()) value = rs.getString(1);\n" + 
+			"        } catch(SQLException e) {\n" + 
+			"        }\n" + 
+			"        finally {\n" + 
+			"        	if (null != rs)   try { rs.close();   } catch (SQLException e) {} finally { rs = null;   }\n" + 
+			"        	if (null != stmt) try { stmt.close(); } catch (SQLException e) {} finally { stmt = null; }\n" + 
+			"        }\n" + 
+			"        return; /* no warning now */\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		options);
+}
+public void testBug527761() {
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"class BAOSWrapper extends java.io.ByteArrayOutputStream {}\n" +
+			"public class X {\n" +
+			"	public static void warningCauser() {\n" + 
+			"		BAOSWrapper baos = new BAOSWrapper();\n" + 
+			"		//WARNING HAS BEEN CAUSED\n" + 
+			"		baos.write(0);\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		options);
+}
+public void testBug527761_otherClose() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses generics
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	String xSource =
+			"public class X {\n" +
+			"	public static void warningCauser() {\n" + 
+			"		BAOSWrapper<String> baos = new BAOSWrapper<String>();\n" + 
+			"		//WARNING HAS BEEN CAUSED\n" + 
+			"		baos.write(0);\n" + 
+			"	}\n" +
+			"}\n";
+	runConformTest(
+		new String[] {
+			"BAOSWrapper.java",
+			"class BAOSWrapper<T> extends java.io.ByteArrayOutputStream {\n" +
+			"	public void close(java.util.List<?> l) {}\n" + // not relevant, param challenges treatment of unresolved types
+			"}\n",
+			"X.java",
+			xSource
+		},
+		options);
+	// consume BAOSWrapper from .class:
+	runConformTest(false,
+			new String[] { "X.java", xSource },
+			"", "", "", null);
+}
+public void testBug527761_neg() {
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"class BAOSWrapper extends java.io.ByteArrayOutputStream {\n" +
+			"	public void close() {}\n" + // indicates that resource could be relevant
+			"}\n" +
+			"public class X {\n" +
+			"	public static void warningCauser() {\n" + 
+			"		BAOSWrapper baos = new BAOSWrapper();\n" + 
+			"		//WARNING HAS BEEN CAUSED\n" + 
+			"		baos.write(0);\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	BAOSWrapper baos = new BAOSWrapper();\n" + 
+		"	            ^^^^\n" + 
+		"Resource leak: \'baos\' is never closed\n" + 
+		"----------\n",
+		options);
+}
+// regression caused by Bug 527761
+public void testBug558759() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses generics
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	String ySource =
+		"public class Y {\n" +
+		"	class YInner extends X<I> {}\n" +
+		"}\n";
+	runConformTest(
+		new String[] {
+			"I.java",
+			"import java.io.Closeable;\n" +
+			"public interface I extends Closeable {\n" +
+			"	interface Location {}\n" +
+			"	void m(Location l);\n" +
+			"}\n",
+			"X0.java",
+			"public abstract class X0<T extends I> implements I {\n" +
+			"	public void close() {}\n" +
+			"}\n",
+			"X.java",
+			"public class X<T extends I> extends X0<T> implements I {\n" +
+			"	public void m(Location l) {}\n" +
+			"}\n",
+			"Y.java",
+			ySource
+		},
+		options);
+	runConformTest(false,
+			new String[] { "Y.java", ySource },
+			"", "", "", null);
 }
 }

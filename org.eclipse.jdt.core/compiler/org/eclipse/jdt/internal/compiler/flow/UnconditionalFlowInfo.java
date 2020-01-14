@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1930,11 +1930,9 @@ public UnconditionalFlowInfo mergedWith(UnconditionalFlowInfo otherInits) {
 		}
 		// refine null bits requirements
 		if (!otherHasNulls) {
-		  if (resetLimit < mergeLimit) {
-			resetLimit = mergeLimit;
-		  }
 		  copyLimit = 0; // no need to carry inexisting nulls
 		  mergeLimit = 0;
+		  resetLimit = 0;
 		}
 		if (!thisHadNulls) {
 		  resetLimit = 0; // no need to reset anything

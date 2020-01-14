@@ -172,8 +172,8 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(TypeDeclaration node) {
-		if (node.getName().getStartPosition() == -1)
-			return true; // this is a fake type created by parsing in class body mode
+		if (this.tm.isFake(node))
+			return true;
 
 		handleToken(node.getName(), TokenNameIdentifier, true, false);
 

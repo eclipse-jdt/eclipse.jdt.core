@@ -6058,7 +6058,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 	private TypeBinding getNewTypeBinding(char[] typeConstantPoolName, Scope scope) {
 		char[] typeName = typeConstantPoolName;
-		if (isLikelyLocalTypeName(typeName)) {
+		if (this.innerClassesBindings != null && isLikelyLocalTypeName(typeName)) {
 			// find local type in innerClassesBindings:
 			Set<TypeBinding> innerTypeBindings = this.innerClassesBindings.keySet();
 			for (TypeBinding binding : innerTypeBindings) {

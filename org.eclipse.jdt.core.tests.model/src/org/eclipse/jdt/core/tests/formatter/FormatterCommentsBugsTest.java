@@ -1002,9 +1002,9 @@ public void testBug232768_Javadoc03() throws JavaModelException {
 		"public class C {\n" +
 		"	\n" +
 		"        /**\n" +
-		"	 * a b c d .\n" +
-		"	 */\n" +
-		"	void m1  (   )   {\n" +
+		"		 * a b c d .\n" +
+		"		 */\n" +
+		"		void m1  (   )   {\n" +
 		"	\n" +
 		"        }     \n" +
 		"\n" +
@@ -1099,8 +1099,8 @@ public void testBug232768_Javadoc06() throws JavaModelException {
 		"   public     class			C{    \n" +
 		"	\n" +
 		"        /**\n" +
-		"	 * a b c d .\n" +
-		"	 */\n" +
+		"		 * a b c d .\n" +
+		"		 */\n" +
 		"        void		m1  (   )   {\n" +
 		"	\n" +
 		"        }     \n" +
@@ -1195,9 +1195,9 @@ public void testBug232768_Block03() throws JavaModelException {
 		"public class D {\n" +
 		"	\n" +
 		"        /*\n" +
-		"	 * a b c d .\n" +
-		"	 */\n" +
-		"	void m2  (   )   {\n" +
+		"		 * a b c d .\n" +
+		"		 */\n" +
+		"		void m2  (   )   {\n" +
 		"	\n" +
 		"        }     \n" +
 		"\n" +
@@ -1292,8 +1292,8 @@ public void testBug232768_Block06() throws JavaModelException {
 		"   public     class			D{    \n" +
 		"	\n" +
 		"        /*\n" +
-		"	 * a b c d .\n" +
-		"	 */\n" +
+		"		 * a b c d .\n" +
+		"		 */\n" +
 		"        void		m2  (   )   {\n" +
 		"	\n" +
 		"        }     \n" +
@@ -1362,9 +1362,9 @@ public void testBug232768_Line03() throws JavaModelException {
 		"\n" +
 		"        void            m3()         { // this        is a bug\n" +
 		"\n" +
-		"	}\n" +
+		"		}\n" +
 		"\n" +
-		"}"
+		"	}"
 	);
 }
 public void testBug232768_Line04() throws JavaModelException {
@@ -1449,7 +1449,7 @@ public void testBug232768_Line07() throws JavaModelException {
 		"	\n" +
 		"\n" +
 		"        void            m3()         {     \n" +
-		"		// this is a bug\n" +
+		"			// this is a bug\n" +
 		"\n" +
 		"        }\n" +
 		"   \n" +
@@ -1567,11 +1567,11 @@ public void testBug233011() throws JavaModelException {
 		"\n" +
 		"public class E01 {\n" +
 		"        /**\n" +
-		"	 * Javadoc comment\n" +
-		"	 */\n" +
+		"		 * Javadoc comment\n" +
+		"		 */\n" +
 		"        /*\n" +
-		"	 * block comment\n" +
-		"	 */\n" +
+		"		 * block comment\n" +
+		"		 */\n" +
 		"        // single line comment\n" +
 		"}"
 	);
@@ -6042,7 +6042,7 @@ public void testBug280255() throws JavaModelException {
 		"			{\n" + 
 		"\n" + 
 		"\n" + 
-		"			return;\n" + 
+		"				return;\n" + 
 		"			}\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -6072,7 +6072,7 @@ public void testBug280255b() throws JavaModelException {
 		"			{\r\n" + 
 		"\r\n" + 
 		"\r\n" + 
-		"			return;\r\n" + 
+		"				return;\r\n" + 
 		"			}\r\n" + 
 		"		}\r\n" + 
 		"	}\r\n" + 

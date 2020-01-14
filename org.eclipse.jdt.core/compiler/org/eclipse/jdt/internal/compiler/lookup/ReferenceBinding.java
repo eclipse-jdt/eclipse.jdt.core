@@ -2068,7 +2068,7 @@ public FieldBinding[] unResolvedFields() {
  * If a type - known to be a Closeable - is mentioned in one of our white lists
  * answer the typeBit for the white list (BitWrapperCloseable or BitResourceFreeCloseable).
  */
-protected int applyCloseableClassWhitelists() {
+protected int applyCloseableClassWhitelists(CompilerOptions options) {
 	switch (this.compoundName.length) {
 		case 3:
 			if (CharOperation.equals(TypeConstants.JAVA, this.compoundName[0])) {
@@ -2106,10 +2106,27 @@ protected int applyCloseableClassWhitelists() {
 	for (int i = 0; i < l; i++) {
 		if (CharOperation.equals(this.compoundName, TypeConstants.OTHER_WRAPPER_CLOSEABLES[i]))
 			return TypeIds.BitWrapperCloseable;
-	}	
+	}
+	if (options.analyseResourceLeaks) {
+		ReferenceBinding mySuper = this.superclass();
+		if (mySuper != null && mySuper.id != TypeIds.T_JavaLangObject) {
+			if (hasMethodWithNumArgs(TypeConstants.CLOSE, 0))
+				return 0; // close methods indicates: class may need more closing than super
+			return mySuper.applyCloseableClassWhitelists(options);
+		}
+	}
 	return 0;
 }
 
+protected boolean hasMethodWithNumArgs(char[] selector, int numArgs) {
+	for (MethodBinding methodBinding : unResolvedMethods()) {
+		if (CharOperation.equals(methodBinding.selector, TypeConstants.CLOSE)
+				&& methodBinding.parameters.length == numArgs) {
+			return true;
+		}
+	}
+	return false;
+}
 
 /*
  * If a type - known to be a Closeable - is mentioned in one of our white lists

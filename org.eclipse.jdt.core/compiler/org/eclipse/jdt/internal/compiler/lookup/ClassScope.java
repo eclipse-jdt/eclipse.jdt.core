@@ -1019,7 +1019,7 @@ public class ClassScope extends Scope {
 				sourceType.typeBits |= (superclass.typeBits & TypeIds.InheritableBits);
 				// further analysis against white lists for the unlikely case we are compiling java.io.*:
 				if ((sourceType.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0)
-					sourceType.typeBits |= sourceType.applyCloseableClassWhitelists();
+					sourceType.typeBits |= sourceType.applyCloseableClassWhitelists(this.compilerOptions());
 				return true;
 			}
 		}

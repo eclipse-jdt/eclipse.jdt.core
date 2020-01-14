@@ -1745,8 +1745,8 @@ public void testBug252556a() {
 		"public class Test {\n" + 
 		"\n" + 
 		"int foo() {\n" + 
-		"		return 0;\n" + 
-		"	}\n" + 
+		"	return 0;\n" + 
+		"}\n" + 
 		"void bar(){}\n" + 
 		"}\n"
 	);
@@ -1765,8 +1765,8 @@ public void testBug252556b() {
 		"public class Test {\n" + 
 		"\n" + 
 		"int foo() {\n" + 
-		"		return 0;\n" + 
-		"	}\n" + 
+		"	return 0;\n" + 
+		"}\n" + 
 		"void bar(){}\n" + 
 		"}\n"
 	);
@@ -13052,6 +13052,36 @@ public void testBug220713() {
 		"							new Object[] {\n" + 
 		"											null,\n" + 
 		"							});\n" + 
+		"	}\n" + 
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/558421 [formatter] Generate getter/setter creates unnecessary blank line
+ */
+public void testBug() {
+	this.formatterPrefs.blank_lines_after_last_class_body_declaration = 1;
+	String source =
+		"public int getA() {\n" + 
+		"	return a;\n" + 
+		"}";
+	formatSource(source, source, CodeFormatter.K_CLASS_BODY_DECLARATIONS);
+}
+/**
+ * https://bugs.eclipse.org/250656 - [formatter] Formatting selection destroys correct indentation
+ */
+public void testBug250656() {
+	this.formatterPrefs.page_width = 50;
+	formatSource(
+		"class C {\n" + 
+		"	void f() {\n" + 
+		"		doSomething(aaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbb\n" + 
+		"[#				+ ccccccccccccccccccc);#]\n" + 
+		"	}\n" + 
+		"}",
+		"class C {\n" + 
+		"	void f() {\n" + 
+		"		doSomething(aaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbb\n" + 
+		"				+ ccccccccccccccccccc);\n" + 
 		"	}\n" + 
 		"}");
 }

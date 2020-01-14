@@ -101,7 +101,7 @@ public static AnnotationBinding[] addStandardAnnotations(AnnotationBinding[] rec
 }
 
 private static AnnotationBinding buildMarkerAnnotationForMemberType(char[][] compoundName, ModuleBinding module, LookupEnvironment env) {
-	ReferenceBinding type = env.getResolvedType(compoundName, module, null);
+	ReferenceBinding type = env.getResolvedType(compoundName, module, null, false);
 	// since this is a member type name using '$' the return binding is a
 	// problem reference binding with reason ProblemReasons.InternalNameProvided
 	if (!type.isValidBinding()) {
@@ -111,7 +111,7 @@ private static AnnotationBinding buildMarkerAnnotationForMemberType(char[][] com
 }
 
 private static AnnotationBinding buildMarkerAnnotation(char[][] compoundName, ModuleBinding module, LookupEnvironment env) {
-	ReferenceBinding type = env.getResolvedType(compoundName, module, null);
+	ReferenceBinding type = env.getResolvedType(compoundName, module, null, false);
 	return env.createAnnotation(type, Binding.NO_ELEMENT_VALUE_PAIRS);
 }
 

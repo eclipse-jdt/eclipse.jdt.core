@@ -8830,4 +8830,35 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
             },
 			"SUCCESS");
 	}
+	public void test558844() {
+		this.runConformTest(
+            new String[] {
+        		"X.java",
+        		"public class X {\n" + 
+        		"	\n" + 
+        		"	public static void main( String[] args ) {\n" + 
+        		"		System.out.println(new X().getText());\n" + 
+        		"	}\n" + 
+        		"\n" + 
+        		"	public String getText() {\n" + 
+        		"		Long lValue1 = getValue1();\n" + 
+        		"		Long lValue2 = getValue2();\n" + 
+        		"		return ( isValue1() ? \"\" : ( lValue1 == null ? \"\" : lValue1.toString() ) + \"-\" ) + ( lValue2 == null ? \"\" : lValue2.toString() );\n" + 
+        		"	}\n" + 
+        		"\n" + 
+        		"	private Long getValue1() {\n" + 
+        		"		return Long.valueOf( 1 );\n" + 
+        		"	}\n" + 
+        		"\n" + 
+        		"	private Long getValue2() {\n" + 
+        		"		return Long.valueOf( 1 );\n" + 
+        		"	}\n" + 
+        		"\n" + 
+        		"	private boolean isValue1() {\n" + 
+        		"		return false;\n" + 
+        		"	}\n" + 
+        		"}",
+            },
+			"1-1");
+	}
 }

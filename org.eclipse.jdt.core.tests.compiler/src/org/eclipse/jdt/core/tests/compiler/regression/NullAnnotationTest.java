@@ -1290,44 +1290,44 @@ public void test_parameter_specification_inheritance_014() {
 		"----------\n" +
 		"1. ERROR in p1\\Y.java (at line 2)\n" +
 		"	public class Y extends X implements IY {\n" +
-		"	             ^\n" +
+		"	                       ^\n" +
 		"The method getString1(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
 		"----------\n" +
 		"2. ERROR in p1\\Y.java (at line 2)\n" +
 		"	public class Y extends X implements IY {\n" +
-		"	             ^\n" +
+		"	                       ^\n" +
 		"The method getString2(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
 		"----------\n" +
 		"3. ERROR in p1\\Y.java (at line 2)\n" +
 		"	public class Y extends X implements IY {\n" +
-		"	             ^\n" +
+		"	                       ^\n" +
 		"The method getString5(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
 		"----------\n" +
 		"4. ERROR in p1\\Y.java (at line 2)\n" +
 		"	public class Y extends X implements IY {\n" +
-		"	             ^\n" +
+		"	                       ^\n" +
 		"The method getString3(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" +
 		"----------\n"
 		: // at 1.8 we show null type annotations in the message:
 		"----------\n" + 
 		"1. ERROR in p1\\Y.java (at line 2)\n" + 
 		"	public class Y extends X implements IY {\n" + 
-		"	             ^\n" + 
+		"	                       ^\n" + 
 		"The method @Nullable String getString1(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"2. ERROR in p1\\Y.java (at line 2)\n" + 
 		"	public class Y extends X implements IY {\n" + 
-		"	             ^\n" + 
+		"	                       ^\n" + 
 		"The method String getString2(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"3. ERROR in p1\\Y.java (at line 2)\n" + 
 		"	public class Y extends X implements IY {\n" + 
-		"	             ^\n" + 
+		"	                       ^\n" + 
 		"The method getString5(@NonNull String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"4. ERROR in p1\\Y.java (at line 2)\n" + 
 		"	public class Y extends X implements IY {\n" + 
-		"	             ^\n" + 
+		"	                       ^\n" + 
 		"The method getString3(String) from X cannot implement the corresponding method from IY due to incompatible nullness constraints\n" + 
 		"----------\n"));
 }
@@ -1415,8 +1415,8 @@ public void test_parameter_specification_inheritance_017() {
 		"----------\n" + 
 		"1. WARNING in XSub.java (at line 1)\n" + 
 		"	public class XSub extends X implements IX {\n" + 
-		"	             ^^^^\n" + 
-		"Missing non-null annotation: inherited method from IX specifies this parameter as @NonNull\n" + 
+		"	                          ^\n" + 
+		"Parameter 1 of method foo(String) lacks a @NonNull annotation as specified in type IX\n" + 
 		"----------\n");
 }
 
@@ -6127,24 +6127,24 @@ public void testBug388281_06() {
 		"----------\n" + 
 		"1. ERROR in ctest\\C.java (at line 2)\n" + 
 		"	public class C extends c.C2 implements i2.I2A {\n" + 
-		"	             ^\n" + 
+		"	                       ^^^^\n" + 
 		"The method m2(Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"2. ERROR in ctest\\C.java (at line 2)\n" + 
 		"	public class C extends c.C2 implements i2.I2A {\n" + 
-		"	             ^\n" + 
+		"	                       ^^^^\n" + 
 		"The method m1(Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
 		"----------\n"
 		: // at 1.8 we show null type annotations:
 		"----------\n" + 
 		"1. ERROR in ctest\\C.java (at line 2)\n" + 
 		"	public class C extends c.C2 implements i2.I2A {\n" + 
-		"	             ^\n" + 
+		"	                       ^^^^\n" + 
 		"The method m2(@NonNull Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"2. ERROR in ctest\\C.java (at line 2)\n" + 
 		"	public class C extends c.C2 implements i2.I2A {\n" + 
-		"	             ^\n" + 
+		"	                       ^^^^\n" + 
 		"The method m1(@NonNull Object) from C2 cannot implement the corresponding method from I2A due to incompatible nullness constraints\n" + 
 		"----------\n"),
 		libs,		
@@ -9142,24 +9142,24 @@ public void testBug502214() {
 		"----------\n" + 
 		"1. ERROR in test\\X.java (at line 22)\n" + 
 		"	class Y extends A implements I {\n" + 
-		"	      ^\n" + 
+		"	                ^\n" + 
 		"The method m2() from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"2. ERROR in test\\X.java (at line 22)\n" + 
 		"	class Y extends A implements I {\n" + 
-		"	      ^\n" + 
+		"	                ^\n" + 
 		"The method m1(Object) from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
 		"----------\n"		
 		:
 		"----------\n" + 
 		"1. ERROR in test\\X.java (at line 22)\n" + 
 		"	class Y extends A implements I {\n" + 
-		"	      ^\n" + 
+		"	                ^\n" + 
 		"The method @Nullable String m2() from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
 		"----------\n" + 
 		"2. ERROR in test\\X.java (at line 22)\n" + 
 		"	class Y extends A implements I {\n" + 
-		"	      ^\n" + 
+		"	                ^\n" + 
 		"The method m1(Object) from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
 		"----------\n"
 		)
@@ -10929,5 +10929,140 @@ public void testBug481931_binary() {
 			"----------\n";
 	runner.javacTestOptions = Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
+}
+public void testBug459397() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"NonNullBug.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"public class NonNullBug {\n" + 
+			"	public static final String PACKid_$metamodel$ = null;\n" + 
+			"	public static final String PACKid_http_c_s_s_www_eclipse_org_s_qvt_s_examples_s_0_1_s_SimpleRDBMS = null;\n" + 
+			"	public static final String PACKid_http_c_s_s_www_eclipse_org_s_qvt_s_examples_s_0_1_s_UMLtoRDBMS = null;\n" + 
+			"	public static final String PACKid_http_c_s_s_www_eclipse_org_s_qvt_s_examples_s_0_1_s_simpleUML = null;\n" + 
+			"	public static final String CLSSid_Association = null;\n" + 
+			"	public static final String CLSSid_AssociationToForeignKey = null;\n" + 
+			"	public static final String CLSSid_Attribute = null;\n" + 
+			"	public static final String CLSSid_AttributeToColumn = null;\n" + 
+			"	public static final String CLSSid_Class = null;\n" + 
+			"	public static final String CLSSid_ClassToTable = null;\n" + 
+			"	public static final String CLSSid_Class_0 = null;\n" + 
+			"	public static final String CLSSid_Classifier = null;\n" + 
+			"	public static final String CLSSid_Column = null;\n" + 
+			"	public static final String CLSSid_ForeignKey = null;\n" + 
+			"	public static final String CLSSid_FromAttribute = null;\n" + 
+			"	public static final String CLSSid_Key = null;\n" + 
+			"	public static final String CLSSid_NonLeafAttribute = null;\n" + 
+			"	public static final String CLSSid_Package = null;\n" + 
+			"	public static final String CLSSid_PackageElement = null;\n" + 
+			"	public static final String CLSSid_PackageToSchema = null;\n" + 
+			"	public static final String CLSSid_PrimitiveDataType = null;\n" + 
+			"	public static final String CLSSid_PrimitiveToName = null;\n" + 
+			"	public static final String CLSSid_Schema = null;\n" + 
+			"	public static final String CLSSid_Table = null;\n" + 
+			"	public static final String STR_2 = \"2\";\n" + 
+			"	public static final String STR_BOOLEAN = \"BOOLEAN\";\n" + 
+			"	public static final String STR_Boolean = \"Boolean\";\n" + 
+			"	public static final String STR_Integer = \"Integer\";\n" + 
+			"	public static final String STR_NUMBER = \"NUMBER\";\n" + 
+			"	public static final String STR_String = \"String\";\n" + 
+			"	public static final String STR_VARCHAR = \"VARCHAR\";\n" + 
+			"	public static final String STR__ = \"_\";\n" + 
+			"	public static final String STR__pk = \"_pk\";\n" + 
+			"	public static final String STR__tid = \"_tid\";\n" + 
+			"	public static final String STR_base = \"base\";\n" + 
+			"	public static final String STR_persistent = \"persistent\";\n" + 
+			"	public static final String STR_primary = \"primary\";\n" + 
+			"	public static final String BAG_CLSSid_AttributeToColumn = null;\n" + 
+			"	public static final String BAG_CLSSid_FromAttribute = null;\n" + 
+			"	public static final String ORD_CLSSid_AssociationToForeignKey = null;\n" + 
+			"	public static final String ORD_CLSSid_Attribute = null;\n" + 
+			"	public static final String ORD_CLSSid_Column = null;\n" + 
+			"	public static final String ORD_CLSSid_ForeignKey = null;\n" + 
+			"	public static final String ORD_CLSSid_Key = null;\n" + 
+			"	public static final String ORD_CLSSid_PackageElement = null;\n" + 
+			"	public static final String SET_CLSSid_Association = null;\n" + 
+			"	public static final String SET_CLSSid_Attribute = null;\n" + 
+			"	public static final String SET_CLSSid_AttributeToColumn = null;\n" + 
+			"	public static final String SET_CLSSid_Class = null;\n" + 
+			"	public static final String SET_CLSSid_ClassToTable = null;\n" + 
+			"	public static final String SET_CLSSid_FromAttribute = null;\n" + 
+			"	public static final String SET_CLSSid_NonLeafAttribute = null;\n" + 
+			"	public static final String SET_CLSSid_Package = null;\n" + 
+			"	public static final String SET_CLSSid_PrimitiveToName = null;\n" + 
+			"\n" + 
+			"	protected final String OPPOSITE_OF_ClassToTable_table = null;\n" + 
+			"	protected final String OPPOSITE_OF_ClassToTable_umlClass = null;\n" + 
+			"	protected final String OPPOSITE_OF_FromAttribute_attribute = null;\n" + 
+			"	protected final String OPPOSITE_OF_PrimitiveToName_primitive = null;\n" + 
+			"\n" + 
+			"	@SuppressWarnings(\"unused\")\n" + 
+			"	private static final String[] classIndex2classId = new String[] {};\n" + 
+			"	@SuppressWarnings(\"unused\")\n" + 
+			"	private final static int[][] classIndex2allClassIndexes = new int[][] {};\n" + 
+			"\n" + 
+			"	protected String x(final @NonNull Exception a, final @NonNull String p_4, final @Nullable String p2s_9) throws Exception {\n" + 
+			"		final @Nullable Throwable destination = a.getCause();\n" + 
+			"		final @Nullable Throwable dc = a.getCause();\n" + 
+			"		if (dc == null) {\n" + 
+			"			throw new Exception();\n" + 
+			"		}\n" + 
+			"		try {\n" + 
+			"			if (dc instanceof Exception) {\n" + 
+			"				throw (Exception) dc;\n" + 
+			"			}\n" + 
+			"			boolean eq_2 = (destination != null) ? destination.equals(dc) : (dc == null);\n" + 
+			"		} catch (Exception e) {\n" + 
+			"		}\n" + 
+			"		boolean ne = (destination != null) ? !destination.equals(dc) : (dc != null);\n" + 
+			"		return dc.toString();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in NonNullBug.java (at line 80)\n" + 
+		"	boolean eq_2 = (destination != null) ? destination.equals(dc) : (dc == null);\n" + 
+		"	                                                                 ^^\n" + 
+		"Null comparison always yields false: The variable dc cannot be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in NonNullBug.java (at line 83)\n" + 
+		"	boolean ne = (destination != null) ? !destination.equals(dc) : (dc != null);\n" + 
+		"	                                                                ^^\n" + 
+		"Redundant null check: The variable dc cannot be null at this location\n" + 
+		"----------\n");
+}
+public void testBug466477() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"SuperI.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public interface SuperI {\n" + 
+			"  void testNN(@NonNull String s);\n" + 
+			"  void testNu(@Nullable String s);\n" + 
+			"}\n",
+			"Base.java",
+			"public class Base {\n" + 
+			"  public void testNN(String s) { }\n" + 
+			"  public void testNu(String s) { }\n" + 
+			"}\n",
+			"Custom.java",
+			"public class Custom extends Base implements SuperI {\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in Custom.java (at line 1)\n" + 
+		"	public class Custom extends Base implements SuperI {\n" + 
+		"	                            ^^^^\n" + 
+		"The method testNu(String) from Base cannot implement the corresponding method from SuperI due to incompatible nullness constraints\n" + 
+		"----------\n" + 
+		"2. WARNING in Custom.java (at line 1)\n" + 
+		"	public class Custom extends Base implements SuperI {\n" + 
+		"	                            ^^^^\n" + 
+		"Parameter 1 of method testNN(String) lacks a @NonNull annotation as specified in type SuperI\n" + 
+		"----------\n");
 }
 }

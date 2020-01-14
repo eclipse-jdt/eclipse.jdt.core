@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.formatter.Token.WrapMode;
 import org.eclipse.jdt.internal.formatter.Token.WrapPolicy;
 import org.eclipse.jdt.internal.formatter.TokenManager;
 import org.eclipse.jdt.internal.formatter.TokenTraverser;
+import org.eclipse.jface.text.IRegion;
 
 public class WrapExecutor {
 
@@ -148,7 +149,7 @@ public class WrapExecutor {
 			if (token.hasNLSTag())
 				this.isNLSTagInLine = true;
 
-			if (token.isWrappable()) {
+			if (token.isWrappable() && isInsideFormatRegion(token)) {
 				WrapPolicy wrapPolicy = token.getWrapPolicy();
 				if (wrapPolicy.wrapMode == WrapMode.TOP_PRIORITY && getLineBreaksBefore() == 0
 						&& index > this.currentTopPriorityGroupEnd) {
@@ -408,12 +409,14 @@ public class WrapExecutor {
 
 	final TokenManager tm;
 	final DefaultCodeFormatterOptions options;
+	final List<IRegion> regions;
 
 	private final WrapInfo wrapInfoTemp = new WrapInfo();
 
-	public WrapExecutor(TokenManager tokenManager, DefaultCodeFormatterOptions options) {
+	public WrapExecutor(TokenManager tokenManager, DefaultCodeFormatterOptions options, List<IRegion> regions) {
 		this.tm = tokenManager;
 		this.options = options;
+		this.regions = regions;
 		this.lineAnalyzer = new LineAnalyzer(tokenManager, options);
 	}
 
@@ -542,7 +545,8 @@ public class WrapExecutor {
 			if (!token.isWrappable()
 					|| (activeTopPriorityWrap >= 0 && i != activeTopPriorityWrap)
 					|| policiesTried.contains(wrapPolicy)
-					|| wrapPolicy.structureDepth >= depthLimit)
+					|| wrapPolicy.structureDepth >= depthLimit
+					|| !isInsideFormatRegion(token))
 				continue;
 			policiesTried.add(wrapPolicy);
 
@@ -672,6 +676,11 @@ public class WrapExecutor {
 			result[i++] = item;
 		}
 		return result;
+	}
+
+	boolean isInsideFormatRegion(Token token) {
+		int pos = token.originalStart;
+		return this.regions.stream().anyMatch(r -> pos >= r.getOffset() && pos < r.getOffset() + r.getLength());
 	}
 
 	int getWrapIndent(Token token) {

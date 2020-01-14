@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -123,7 +123,7 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 				environment.problemReporter.isClassPathCorrect(
 					this.compoundName,
 					environment.root.unitBeingCompleted,
-					environment.missingClassFileLocation);
+					environment.missingClassFileLocation, false);
 			}
 			// create a proxy for the missing BinaryType
 			targetType = environment.createMissingType(null, this.compoundName);

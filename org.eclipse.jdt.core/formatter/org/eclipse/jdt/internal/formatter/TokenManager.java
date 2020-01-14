@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.internal.formatter.Token.WrapMode;
 import org.eclipse.jdt.internal.formatter.linewrap.CommentWrapExecutor;
@@ -410,6 +411,11 @@ public class TokenManager implements Iterable<Token> {
 				return true;
 		}
 		return false;
+	}
+
+	public boolean isFake(TypeDeclaration node) {
+		// might be a fake type created by parsing in class body mode
+		return node.getName().getStartPosition() == -1;
 	}
 
 	public void addNLSAlignIndex(int index, int align) {

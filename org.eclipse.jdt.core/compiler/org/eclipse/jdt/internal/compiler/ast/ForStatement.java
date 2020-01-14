@@ -237,6 +237,7 @@ public class ForStatement extends Statement {
 			}
 		}
 		this.mergedInitStateIndex = currentScope.methodScope().recordInitializationStates(mergedInfo);
+		this.scope.checkUnclosedCloseables(mergedInfo, loopingContext, null, null);
 		return mergedInfo;
 	}
 

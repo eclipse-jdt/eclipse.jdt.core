@@ -47,6 +47,7 @@ public interface TypeConstants {
 	char[] JAVAX = "javax".toCharArray(); //$NON-NLS-1$
 	char[] LANG = "lang".toCharArray(); //$NON-NLS-1$
 	char[] IO = "io".toCharArray(); //$NON-NLS-1$
+	char[] NIO = "nio".toCharArray(); //$NON-NLS-1$
 	char[] UTIL = "util".toCharArray(); //$NON-NLS-1$
 	char[] ZIP = "zip".toCharArray(); //$NON-NLS-1$
 	char[] ANNOTATION = "annotation".toCharArray(); //$NON-NLS-1$
@@ -322,7 +323,27 @@ public interface TypeConstants {
 		"LongStream".toCharArray(), //$NON-NLS-1$
 		"IntStream".toCharArray() //$NON-NLS-1$
 	};
-	
+
+	// closeable classes containing one or more 'fluent' methods (returning 'this'):
+	char[] CHANNELS = "channels".toCharArray(); //$NON-NLS-1$
+	char[][][] FLUENT_RESOURCE_CLASSES = {
+		new char[][] {JAVA, IO, "CharArrayWriter".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, IO, "Console".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, IO, "PrintStream".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, IO, "PrintWriter".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, IO, "StringWriter".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, IO, "Writer".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, NIO, CHANNELS, "AsynchronousFileChannel".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, NIO, CHANNELS, "AsynchronousServerSocketChannel".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, NIO, CHANNELS, "FileChannel".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, NIO, CHANNELS, "NetworkChannel".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, NIO, CHANNELS, "SeekableByteChannel".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, NIO, CHANNELS, "SelectableChannel".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, NIO, CHANNELS, "Selector".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, NIO, CHANNELS, "ServerSocketChannel".toCharArray() }, //$NON-NLS-1$
+		new char[][] {JAVA, UTIL, "Formatter".toCharArray() } //$NON-NLS-1$
+	};
+
 	// different assertion utilities:
 	char[] ASSERT_CLASS = "Assert".toCharArray(); //$NON-NLS-1$
 	char[][] ORG_ECLIPSE_CORE_RUNTIME_ASSERT = new char[][] { ORG, ECLIPSE, CORE, RUNTIME, ASSERT_CLASS };

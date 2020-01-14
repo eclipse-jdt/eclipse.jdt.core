@@ -632,6 +632,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InheritedIncompatibleReturnType", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("InheritedMethodHidesEnclosingName", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("InheritedMethodReducesVisibility", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("InheritedParameterLackingNonNullAnnotation", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("InheritedTypeHidesEnclosingName", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InitializerMustCompleteNormally", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InstanceFieldDuringConstructorInvocation", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -814,6 +815,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("MissingEnumDefaultCase", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MissingNonNullByDefaultAnnotationOnPackage", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MissingNonNullByDefaultAnnotationOnType", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("MissingNullAnnotationImplicitlyUsed", new ProblemAttributes(CategorizedProblem.CAT_BUILDPATH));
 		expectedProblemAttributes.put("MissingOverrideAnnotation", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("MissingOverrideAnnotationForInterfaceMethodImplementation", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("MissingRequiresTransitiveForTypeInAPI", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -1640,6 +1642,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InheritedIncompatibleReturnType", SKIP);
 		expectedProblemAttributes.put("InheritedMethodHidesEnclosingName", SKIP);
 		expectedProblemAttributes.put("InheritedMethodReducesVisibility", SKIP);
+		expectedProblemAttributes.put("InheritedParameterLackingNonNullAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED));
 		expectedProblemAttributes.put("InheritedTypeHidesEnclosingName", SKIP);
 		expectedProblemAttributes.put("InitializerMustCompleteNormally", SKIP);
 		expectedProblemAttributes.put("InstanceFieldDuringConstructorInvocation", SKIP);
@@ -1825,6 +1828,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("MissingEnumDefaultCase", new ProblemAttributes(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE));
 		expectedProblemAttributes.put("MissingNonNullByDefaultAnnotationOnPackage", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION));
 		expectedProblemAttributes.put("MissingNonNullByDefaultAnnotationOnType", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION));
+		expectedProblemAttributes.put("MissingNullAnnotationImplicitlyUsed", SKIP);
 		expectedProblemAttributes.put("MissingOverrideAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION));
 		expectedProblemAttributes.put("MissingOverrideAnnotationForInterfaceMethodImplementation", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_OVERRIDE_ANNOTATION));
 		expectedProblemAttributes.put("MissingRequiresTransitiveForTypeInAPI", new ProblemAttributes(JavaCore.COMPILER_PB_API_LEAKS));

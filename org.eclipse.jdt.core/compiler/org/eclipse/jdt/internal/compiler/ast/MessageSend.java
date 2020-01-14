@@ -143,6 +143,7 @@ public class MessageSend extends Expression implements IPolyExpression, Invocati
 	public TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 	public boolean argumentsHaveErrors = false;
 	
+	public FakedTrackingVariable closeTracker;
 
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -242,6 +243,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		//               checkExceptionHandlers; consider protecting there instead of here;
 		//               NullReferenceTest#test0510
 	}
+	// after having analysed exceptions above start tracking newly allocated resource:
+	if (analyseResources && FakedTrackingVariable.isAnyCloseable(this.resolvedType))
+		flowInfo = FakedTrackingVariable.analyseCloseableAcquisition(currentScope, flowInfo, this);
+
 	manageSyntheticAccessIfNecessary(currentScope, flowInfo);
 	// account for pot. exceptions thrown by method execution
 	flowContext.recordAbruptExit();

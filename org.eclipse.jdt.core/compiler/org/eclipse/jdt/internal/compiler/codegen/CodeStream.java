@@ -6059,12 +6059,12 @@ public void multianewarray(
 	this.bCodeStream[this.classFileOffset++] = (byte) dimensions;
 }
 
-// We didn't call it new, because there is a conflit with the new keyword
+// We didn't call it new, because there is a conflict with the new keyword
 public void new_(TypeBinding typeBinding) {
 	this.new_(null, typeBinding);
 }
 
-// We didn't call it new, because there is a conflit with the new keyword
+// We didn't call it new, because there is a conflict with the new keyword
 public void new_(TypeReference typeReference, TypeBinding typeBinding) {
 	this.countLabels = 0;
 	this.stackDepth++;

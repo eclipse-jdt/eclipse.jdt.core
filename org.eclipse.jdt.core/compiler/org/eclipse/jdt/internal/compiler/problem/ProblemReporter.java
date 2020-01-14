@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -483,6 +483,7 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.NonNullTypeVariableFromLegacyInvocation;
 
 		case IProblem.ParameterLackingNonNullAnnotation:
+		case IProblem.InheritedParameterLackingNonNullAnnotation:
 			return CompilerOptions.NonnullParameterAnnotationDropped;
 
 		case IProblem.RequiredNonNullButProvidedPotentialNull:
@@ -817,6 +818,7 @@ public static int getProblemCategory(int severity, int problemID) {
 		case IProblem.IsClassPathCorrect :
 		case IProblem.CorruptedSignature :
 		case IProblem.UndefinedModuleAddReads :
+		case IProblem.MissingNullAnnotationImplicitlyUsed :
 			return CategorizedProblem.CAT_BUILDPATH;
 		case IProblem.ProblemNotAnalysed :
 			return CategorizedProblem.CAT_UNNECESSARY_CODE;
@@ -5037,7 +5039,7 @@ public void illegalTypeAnnotationsInStaticMemberAccess(Annotation first, Annotat
 			first.sourceStart,
 			last.sourceEnd);
 }
-public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location) {
+public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location, boolean implicitAnnotationUse) {
 	// ProblemReporter is not designed to be reentrant. Just in case, we discovered a build path problem while we are already 
 	// in the midst of reporting some other problem, save and restore reference context thereby mimicking a stack.
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=442755.
@@ -5058,7 +5060,7 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 	}
 	try {
 		this.handle(
-				IProblem.IsClassPathCorrect,
+				implicitAnnotationUse ? IProblem.MissingNullAnnotationImplicitlyUsed : IProblem.IsClassPathCorrect,
 				arguments,
 				arguments,
 				start,
@@ -9895,7 +9897,8 @@ public void redundantSpecificationOfTypeArguments(ASTNode location, TypeBinding[
 }
 public void potentiallyUnclosedCloseable(FakedTrackingVariable trackVar, ASTNode location) {
 	String[] args = { trackVar.nameForReporting(location, this.referenceContext) };
-	if (location == null) {
+	if (location == null || trackVar.acquisition != null) {
+		// if acquisition is set, the problem is not location specific
 		this.handle(
 			IProblem.PotentiallyUnclosedCloseable,
 			args,
@@ -10095,20 +10098,26 @@ public void parameterLackingNullableAnnotation(Argument argument, ReferenceBindi
 		argument.type.sourceEnd);
 }
 public void parameterLackingNonnullAnnotation(Argument argument, ReferenceBinding declaringClass, char[][] inheritedAnnotationName) {
-	int sourceStart = 0, sourceEnd = 0;
-	if (argument != null) {
-		sourceStart = argument.type.sourceStart;
-		sourceEnd = argument.type.sourceEnd;
-	} else if (this.referenceContext instanceof TypeDeclaration) {
-		sourceStart = ((TypeDeclaration) this.referenceContext).sourceStart;
-		sourceEnd =   ((TypeDeclaration) this.referenceContext).sourceEnd;
-	}
 	this.handle(
 		IProblem.ParameterLackingNonNullAnnotation, 
 		new String[] { new String(declaringClass.readableName()), CharOperation.toString(inheritedAnnotationName)},
 		new String[] { new String(declaringClass.shortReadableName()), new String(inheritedAnnotationName[inheritedAnnotationName.length-1])},
-		sourceStart,
-		sourceEnd);
+		argument.type.sourceStart,
+		argument.type.sourceEnd);
+}
+public void inheritedParameterLackingNonnullAnnotation(MethodBinding currentMethod, int paramRank, ReferenceBinding specificationType,
+		ASTNode location, char[][] annotationName) {
+	this.handle(IProblem.InheritedParameterLackingNonNullAnnotation,
+		new String[] {
+			String.valueOf(paramRank), new String(currentMethod.readableName()),
+			new String(specificationType.readableName()), CharOperation.toString(annotationName)
+		},
+		new String[] {
+			String.valueOf(paramRank), new String(currentMethod.shortReadableName()),
+			new String(specificationType.shortReadableName()), new String(annotationName[annotationName.length-1])
+		},
+		location.sourceStart, location.sourceEnd
+		);
 }
 public void illegalParameterRedefinition(Argument argument, ReferenceBinding declaringClass, TypeBinding inheritedParameter) {
 	int sourceStart = argument.type.sourceStart;
@@ -10266,8 +10275,14 @@ public void expressionPotentialNullReference(ASTNode location) {
 public void cannotImplementIncompatibleNullness(ReferenceContext context, MethodBinding currentMethod, MethodBinding inheritedMethod, boolean showReturn) {
 	int sourceStart = 0, sourceEnd = 0;
 	if (context instanceof TypeDeclaration) {
-		sourceStart = ((TypeDeclaration) context).sourceStart;
-		sourceEnd =   ((TypeDeclaration) context).sourceEnd;
+		TypeDeclaration type = (TypeDeclaration) context;
+		if (type.superclass != null) {
+			sourceStart = type.superclass.sourceStart;
+			sourceEnd =   type.superclass.sourceEnd;
+		} else {
+			sourceStart = type.sourceStart;
+			sourceEnd =   type.sourceEnd;
+		}
 	}
 	String[] problemArguments = {
 			showReturn 
