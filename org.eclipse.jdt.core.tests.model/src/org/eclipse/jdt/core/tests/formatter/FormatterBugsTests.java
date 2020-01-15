@@ -13085,4 +13085,25 @@ public void testBug250656() {
 		"	}\n" + 
 		"}");
 }
+/**
+ * https://bugs.eclipse.org/559006 - [formatter] Wrong indentation in region after wrapped line
+ */
+public void testBug559006() {
+	this.formatterPrefs.page_width = 50;
+	formatSource(
+		"class C {\n" + 
+		"	void f() {\n" + 
+		"		doSomething(aaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbb,\n" + 
+		"				+ ccccccccccccccccccc);\n" + 
+		"[#		doSomethingElse();#]\n" + 
+		"	}\n" + 
+		"}",
+		"class C {\n" + 
+		"	void f() {\n" + 
+		"		doSomething(aaaaaaaaaaaaaaaaaa, bbbbbbbbbbbbb,\n" + 
+		"				+ ccccccccccccccccccc);\n" + 
+		"		doSomethingElse();\n" + 
+		"	}\n" + 
+		"}");
+}
 }
