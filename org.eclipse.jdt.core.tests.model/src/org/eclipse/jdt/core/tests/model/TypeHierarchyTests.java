@@ -3262,4 +3262,62 @@ public void testBug425111() throws Exception {
 		if (javaProject1 != null) deleteProject(javaProject1);
 	}
 }
+public void testBug559210() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB", "lib"}, "bin", "1.7");
+		createFolder("/P/src/java/io");
+		createFile(
+				"/P/src/java/io/Closeable.java",
+				"pakage java.io;\n" +
+				"public interface Closeable { void close(); }\n");
+		createFile(
+				"/P/src/java/io/InputStream.java",
+				"pakage java.io;\n" +
+				"public abstract class InputStream implements Closeable { }\n");
+
+		createFolder("/P/src/p");
+		createFile(
+			"/P/src/p/ReferenceInputStream.java",
+			"pakage p;\n" +
+			"public class ReferenceInputStream extends java.io.InputStream {\n" +
+			"	private final File reference;\n" + 
+			"\n" + 
+			"	public ReferenceInputStream(File reference) {\n" + 
+			"		this.reference = reference;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	/* This method should not be called.\n" + 
+			"	 */\n" + 
+			"	@Override\n" + 
+			"	public int read() throws IOException {\n" + 
+			"		throw new IOException();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public File getReference() {\n" + 
+			"		return reference;\n" + 
+			"	}\n" + 
+			"}"
+		);
+		createFile(
+			"/P/src/p/Storage.java",
+			"pakage p;\n" +
+			"import p.ReferenceInputStream;\n" +
+			"public class Storage {\n" +
+			"\n" + 
+			"	public ReferenceInputStream stream;\n" + 
+			"}"
+		);
+		getProject("P").build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForAutoBuild();
+		ITypeHierarchy hierarchy = getCompilationUnit("/P/src/p/Storage.java").getTypes()[0].newSupertypeHierarchy(null);
+		assertHierarchyEquals(
+			"Focus: Storage [in Storage.java [in p [in src [in P]]]]\n" + 
+			"Super types:\n" + 
+			"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" + 
+			"Sub types:\n",
+			hierarchy);
+	} finally {
+		deleteProject("P");
+	}
+}
 }
