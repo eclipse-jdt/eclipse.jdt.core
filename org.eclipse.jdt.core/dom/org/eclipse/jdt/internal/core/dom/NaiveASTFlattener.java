@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1336,7 +1336,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		this.buffer.append("{");//$NON-NLS-1$
 		if (!node.bodyDeclarations().isEmpty()) {
-			this.buffer.append("; ");//$NON-NLS-1$
+			this.buffer.append("\n");//$NON-NLS-1$
 			for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
 				BodyDeclaration d = (BodyDeclaration) it.next();
 				d.accept(this);
