@@ -1105,7 +1105,7 @@ RecordDeclaration ::= RecordHeaderPart RecordBody
 /:$readableName RecordDeclaration:/
 /:$compliance 14:/
 
-RecordHeaderPart ::= RecordHeaderName RecordHeader InterfaceTypeListopt 
+RecordHeaderPart ::= RecordHeaderName RecordHeader ClassHeaderImplementsopt 
 /.$putCase consumeRecordHeaderPart(); $break ./
 /:$readableName RecordHeaderPart:/
 /:$compliance 14:/
@@ -1121,12 +1121,6 @@ RecordHeaderName -> RecordHeaderName1
 RecordHeaderName1 ::= Modifiersopt RestrictedIdentifierrecord 'Identifier'
 /.$putCase consumeRecordHeaderName1(); $break ./
 /:$readableName RecordHeaderName:/
-/:$compliance 14:/
-
-InterfaceTypeListopt ::= $empty
-/.$putcase consumeInterfaceTypeListopt(); $break ./
-InterfaceTypeListopt -> InterfaceTypeList
-/:$readableName InterfaceTypeListopt:/
 /:$compliance 14:/
 
 RecordComponentHeaderRightParen ::= ')'

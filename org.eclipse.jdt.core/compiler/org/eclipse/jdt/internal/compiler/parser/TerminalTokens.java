@@ -41,7 +41,7 @@ public interface TerminalTokens {
 							TokenNameCOMMENT_BLOCK = 1002,
 							TokenNameCOMMENT_JAVADOC = 1003;
 
-	int TokenNameIdentifier = 21,
+	int TokenNameIdentifier = 22,
 							TokenNameabstract = 52,
 							TokenNameassert = 78,
 							TokenNameboolean = 101,
@@ -139,7 +139,7 @@ public interface TerminalTokens {
 							TokenNameNOT = 64,
 							TokenNameREMAINDER = 9,
 							TokenNameXOR = 24,
-							TokenNameAND = 22,
+							TokenNameAND = 21,
 							TokenNameMULTIPLY = 8,
 							TokenNameOR = 28,
 							TokenNameTWIDDLE = 65,

@@ -341,7 +341,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, char myChar) I {\n"+
+						"record Point(int myInt, char myChar) implements I {\n"+
 						"  public int myInt(){\n"+
 						"     return this.myInt;\n" +
 						"  }\n"+
@@ -359,7 +359,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, char myChar) I {\n"+
+						"record Point(int myInt, char myChar) implements I {\n"+
 						"}\n" +
 						"interface I {}\n"
 				},
@@ -374,7 +374,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, char myChar) I {\n"+
+						"record Point(int myInt, char myChar) implements I {\n"+
 						"  public Point(int myInt, char myChar){\n"+
 						"     this.myInt = myInt;\n" +
 						"     this.myChar = myChar;\n" +
@@ -393,7 +393,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, char myChar) I {\n"+
+						"record Point(int myInt, char myChar) implements I {\n"+
 						"  public Point(int myInt, char myChar){\n"+
 						"  }\n"+
 						"}\n" +
@@ -420,7 +420,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, char myChar) I {\n"+
+						"record Point(int myInt, char myChar) implements I {\n"+
 						"  private Point {\n"+
 						"     this.myInt = myInt;\n" +
 						"     this.myChar = myChar;\n" +
@@ -444,7 +444,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, char myChar) I {\n"+
+						"record Point(int myInt, char myChar) implements I {\n"+
 						"  protected Point {\n"+
 						"     this.myInt = myInt;\n" +
 						"     this.myChar = myChar;\n" +
@@ -468,7 +468,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, char myChar) I {\n"+
+						"record Point(int myInt, char myChar) implements I {\n"+
 						"  public Point {\n"+
 						"     this.myInt = myInt;\n" +
 						"     this.myChar = myChar;\n" +
@@ -487,7 +487,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, char myChar) I {\n"+
+						"record Point(int myInt, char myChar) implements I {\n"+
 						"  public Point {\n"+
 						"     this.myInt = myInt;\n" +
 						"     this.myChar = myChar;\n" +
@@ -512,7 +512,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int finalize) I {\n"+
+						"record Point(int myInt, int finalize) implements I {\n"+
 						"  public Point {\n"+
 						"     this.myInt = myInt;\n" +
 						"  }\n"+
@@ -521,7 +521,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int myInt, int finalize) I {\n" + 
+			"	record Point(int myInt, int finalize) implements I {\n" + 
 			"	                            ^^^^^^^^\n" + 
 			"Illegal component name finalize in record Point;\n" + 
 			"----------\n");
@@ -535,7 +535,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int finalize, int myZ) I {\n"+
+						"record Point(int myInt, int finalize, int myZ) implements I {\n"+
 						"  public Point {\n"+
 						"     this.myInt = myInt;\n" +
 						"     this.myZ = myZ;\n" +
@@ -545,7 +545,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int myInt, int finalize, int myZ) I {\n" + 
+			"	record Point(int myInt, int finalize, int myZ) implements I {\n" + 
 			"	                            ^^^^^^^^\n" + 
 			"Illegal component name finalize in record Point;\n" + 
 			"----------\n");
@@ -559,7 +559,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int myZ, int myZ) I {\n"+
+						"record Point(int myInt, int myZ, int myZ) implements I {\n"+
 						"  public Point {\n"+
 						"     this.myInt = myInt;\n" +
 						"     this.myZ = myZ;\n" +
@@ -569,7 +569,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int myInt, int myZ, int myZ) I {\n" + 
+			"	record Point(int myInt, int myZ, int myZ) implements I {\n" + 
 			"	                                     ^^^\n" + 
 			"Duplicate component myZ in record\n" + 
 			"----------\n");
@@ -583,7 +583,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int myInt, int myInt, int myZ) I {\n"+
+						"record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n"+
 						"  public Point {\n"+
 						"     this.myInt = myInt;\n" +
 						"     this.myZ = myZ;\n" +
@@ -593,12 +593,12 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 				},
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int myInt, int myInt, int myInt, int myZ) I {\n" + 
+			"	record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n" + 
 			"	                            ^^^^^\n" + 
 			"Duplicate component myInt in record\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
-			"	record Point(int myInt, int myInt, int myInt, int myZ) I {\n" + 
+			"	record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n" + 
 			"	                                       ^^^^^\n" + 
 			"Duplicate component myInt in record\n" + 
 			"----------\n");
@@ -612,7 +612,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int myZ) I {\n"+
+						"record Point(int myInt, int myZ) implements I {\n"+
 						"  static final int z;\n"+
 						"  public Point {\n"+
 						"     this.myInt = myInt;\n" +
@@ -637,7 +637,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int myZ) I {\n"+
+						"record Point(int myInt, int myZ) implements I {\n"+
 						"  int z;\n"+
 						"  public Point {\n"+
 						"     this.myInt = myInt;\n" +
@@ -662,7 +662,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int myZ) I {\n"+
+						"record Point(int myInt, int myZ) implements I {\n"+
 						"  public Point {\n"+
 						"     this.myInt = myInt;\n" +
 						"     this.myZ = myZ;\n" +
@@ -687,7 +687,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int myZ) I {\n"+
+						"record Point(int myInt, int myZ) implements I {\n"+
 						"  {\n"+
 						"     System.out.println(0);\n" +
 						"  }\n"+
@@ -712,7 +712,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int myZ) I {\n"+
+						"record Point(int myInt, int myZ) implements I {\n"+
 						"  static {\n"+
 						"     System.out.println(0);\n" +
 						"  }\n"+
@@ -917,7 +917,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int myZ) I {\n"+
+						"record Point(int myInt, int myZ) implements I {\n"+
 						"  public char myInt() {;\n" +
 						"     return 'c';\n" +
 						"  }\n"+
@@ -943,7 +943,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(Integer myInt, int myZ) I {\n"+
+						"record Point(Integer myInt, int myZ) implements I {\n"+
 						"  public java.lang.Integer myInt() {;\n" +
 						"     return this.myInt;\n" +
 						"  }\n"+
@@ -961,7 +961,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int myZ) I {\n"+
+						"record Point(int myInt, int myZ) implements I {\n"+
 						"  public <T> int myInt() {;\n" +
 						"     return this.myInt;\n" +
 						"  }\n"+
@@ -984,7 +984,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int myZ) I {\n"+
+						"record Point(int myInt, int myZ) implements I {\n"+
 						"  private int myInt() {;\n" +
 						"     return this.myInt;\n" +
 						"  }\n"+
@@ -1015,7 +1015,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int myZ) I {\n"+
+						"record Point(int myInt, int myZ) implements I {\n"+
 						"  public int myInt() throws IOException {;\n" +
 						"     return this.myInt;\n" +
 						"  }\n"+
@@ -1038,7 +1038,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(Integer myInt, int myZ) I {\n"+
+						"record Point(Integer myInt, int myZ) implements I {\n"+
 						"  public Point(Integer myInt, int myZ) {\n" +
 						"     this.myInt = 0;\n" +
 						"     this.myZ = 0;\n" +
@@ -1057,7 +1057,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(Integer myInt, int myZ) I {\n"+
+						"record Point(Integer myInt, int myZ) implements I {\n"+
 						"  public Point(Integer myInt, int myZ) {\n" +
 						"     this.myInt = 0;\n" +
 						"  }\n"+
@@ -1080,7 +1080,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(Integer myInt, int myZ) I {\n"+
+						"record Point(Integer myInt, int myZ) implements I {\n"+
 						"  public Point {\n" +
 						"     this.myInt = 0;\n" +
 						"     this.myZ = 0;\n" +
@@ -1113,7 +1113,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(Integer myInt, int myZ) I {\n"+
+						"record Point(Integer myInt, int myZ) implements I {\n"+
 						"  Point(Integer myInt, int myZ) {\n" +
 						"     this.myInt = 0;\n" +
 						"     this.myZ = 0;\n" +
@@ -1137,7 +1137,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(Integer myInt, int myZ) I {\n"+
+						"record Point(Integer myInt, int myZ) implements I {\n"+
 						"  public <T> Point(Integer myInt, int myZ) {\n" +
 						"     this.myInt = 0;\n" +
 						"     this.myZ = 0;\n" +
@@ -1161,7 +1161,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(Integer myInt, int myZ) I {\n"+
+						"record Point(Integer myInt, int myZ) implements I {\n"+
 						"  public Point(Integer myInt, int myZ) throws Exception {\n" +
 						"     this.myInt = 0;\n" +
 						"     this.myZ = 0;\n" +
@@ -1185,7 +1185,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(Integer myInt, int myZ) I {\n"+
+						"record Point(Integer myInt, int myZ) implements I {\n"+
 						"  public Point(Integer myInt, int myZ) {\n" +
 						"     this.myInt = 0;\n" +
 						"     this.myZ = 0;\n" +
@@ -1210,7 +1210,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(Integer myInt, int myZ) I {\n"+
+						"record Point(Integer myInt, int myZ) implements I {\n"+
 						"  public Point(Integer myInt, int myZ) {\n" +
 						"     this.myInt = 0;\n" +
 						"     this.myZ = 0;\n" +
@@ -1237,7 +1237,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(Integer myInt, int myZ) I {\n"+
+						"record Point(Integer myInt, int myZ) implements I {\n"+
 						"  public Point(Integer myInt, int myZ) {\n" +
 						"     super();\n" +
 						"     this.myInt = 0;\n" +
@@ -1262,7 +1262,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(Integer myInt, int myZ) I {\n"+
+						"record Point(Integer myInt, int myZ) implements I {\n"+
 						"  public Point(Integer myInt, int myZ) {\n" +
 						"     this.Point(0);\n" +
 						"     this.myInt = 0;\n" +
@@ -1298,7 +1298,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(Integer myInt, int myZ) I {\n"+
+						"record Point(Integer myInt, int myZ) implements I {\n"+
 						"  public Point {\n" +
 						"     super();\n" +
 						"     this.myInt = 0;\n" +
@@ -1360,7 +1360,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"     System.out.println(0);\n" +
 						"  }\n"+
 						"}\n"+
-						"record Point(int myInt, int myZ) I {\n"+
+						"record Point(int myInt, int myZ) implements I {\n"+
 						"  public static int myInt() {;\n" +
 						"     return 0;\n" +
 						"  }\n"+
@@ -1383,7 +1383,7 @@ public void testBug553153_01() {
 				"     System.out.println(0);\n" +
 				"  }\n"+
 				"}\n"+
-				"record Point(int myInt, char myChar) I {\n"+
+				"record Point(int myInt, char myChar) implements I {\n"+
 				"  public Point {\n"+
 				"     this.myInt = myInt;\n" +
 				"  }\n"+
@@ -1401,7 +1401,7 @@ public void testBug553153_01() {
 				"     System.out.println(0);\n"+
 				"  }\n"+
 				"}\n"+
-				"record Point(int myInt, char myChar) I {\n"+
+				"record Point(int myInt, char myChar) implements I {\n"+
 				"  public Point {\n"+
 				"	this.myInt = myInt;\n" +
 				"	if (this.myInt > 0)  // conditional assignment\n" +
@@ -1426,7 +1426,7 @@ public void testBug553153_003() {
 			"     System.out.println(0);\n" +
 			"  }\n"+
 			"}\n"+
-			"record Point(int myInt, char myChar) I {\n"+
+			"record Point(int myInt, char myChar) implements I {\n"+
 			"  static int f;\n"+
 			"  public Point {\n"+
 			"     this.myInt = myInt;\n" +
@@ -1445,7 +1445,7 @@ public void testBug553153_004() {
 			"     System.out.println(0);\n"+
 			"  }\n"+
 			"}\n"+
-			"record Point(int myInt, char myChar) I {\n"+
+			"record Point(int myInt, char myChar) implements I {\n"+
 			"  public Point(int myInt, char myChar) {\n"+
 			"	this.myInt = myInt;\n" +
 			"  }\n"+
