@@ -1079,7 +1079,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		} else if (isModule) {
 			// skip - process under module attribute
 		} else if (classFileReader.isClass()) {
-			buffer.append("class "); //$NON-NLS-1$
+			if (CharOperation.equals(classFileReader.getSuperclassName(), TypeConstants.CharArray_JAVA_LANG_RECORD_SLASH)) {
+				buffer.append("record "); //$NON-NLS-1$
+			}
+			else {
+				buffer.append("class "); //$NON-NLS-1$
+			}
 		} else {
 			if (isAnnotation) {
 				buffer.append("@"); //$NON-NLS-1$

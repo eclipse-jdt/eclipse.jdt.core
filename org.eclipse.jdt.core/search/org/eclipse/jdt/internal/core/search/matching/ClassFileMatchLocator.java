@@ -511,7 +511,7 @@ boolean matchTypeDeclaration(TypeDeclarationPattern pattern, Object binaryInfo, 
 	int kind  = TypeDeclaration.kind(type.getModifiers());
 	switch (pattern.typeSuffix) {
 		case CLASS_SUFFIX:
-			return kind == TypeDeclaration.CLASS_DECL;
+			return kind == TypeDeclaration.CLASS_DECL || kind == TypeDeclaration.RECORD_DECL;
 		case INTERFACE_SUFFIX:
 			return kind == TypeDeclaration.INTERFACE_DECL;
 		case ENUM_SUFFIX:

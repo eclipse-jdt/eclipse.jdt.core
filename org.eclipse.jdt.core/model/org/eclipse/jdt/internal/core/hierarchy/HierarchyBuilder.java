@@ -181,6 +181,7 @@ public abstract class HierarchyBuilder {
 				break;
 			case TypeDeclaration.INTERFACE_DECL :
 			case TypeDeclaration.ANNOTATION_TYPE_DECL :
+			case TypeDeclaration.RECORD_DECL :	
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663
 				if (this.hierarchy.typeToSuperInterfaces.get(typeHandle) == null)
 					this.hierarchy.addInterface(typeHandle);
@@ -245,6 +246,9 @@ public abstract class HierarchyBuilder {
 				break;
 			case TypeDeclaration.ENUM_DECL :
 				flag = NameLookup.ACCEPT_ENUMS;
+				break;
+			case TypeDeclaration.RECORD_DECL :
+				flag = NameLookup.ACCEPT_RECORDS;
 				break;
 			default:
 				//case IGenericType.ANNOTATION :

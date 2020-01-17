@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2125,6 +2125,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
+					javaProject.setOptions(options);
+				} else if ("14".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
 					javaProject.setOptions(options);
 				}
 				result[0] = javaProject;

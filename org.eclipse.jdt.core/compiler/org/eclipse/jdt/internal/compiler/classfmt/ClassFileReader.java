@@ -40,8 +40,10 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -300,6 +302,9 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 		// field this.superclassName. null is fine.
 		if (superclassNameIndex != 0) {
 			this.superclassName = getConstantClassNameAt(superclassNameIndex);
+			if (CharOperation.equals(this.superclassName, TypeConstants.CharArray_JAVA_LANG_RECORD_SLASH)) {
+				this.accessFlags |= ExtraCompilerModifiers.AccRecord;
+			}
 		}
 
 		// Read the interfaces, use exception handlers to catch bad format

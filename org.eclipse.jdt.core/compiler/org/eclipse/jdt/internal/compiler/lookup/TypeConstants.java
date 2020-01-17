@@ -69,6 +69,7 @@ public interface TypeConstants {
 	char[] CharArray_JAVA_LANG_OBJECT = "java.lang.Object".toCharArray(); //$NON-NLS-1$
 	char[] CharArray_JAVA_LANG_ENUM = "java.lang.Enum".toCharArray(); //$NON-NLS-1$
 	char[] CharArray_JAVA_LANG_RECORD = "java.lang.Record".toCharArray(); //$NON-NLS-1$
+	char[] CharArray_JAVA_LANG_RECORD_SLASH = "java/lang/Record".toCharArray(); //$NON-NLS-1$
 	char[] CharArray_JAVA_LANG_ANNOTATION_ANNOTATION = "java.lang.annotation.Annotation".toCharArray(); //$NON-NLS-1$
 	char[] CharArray_JAVA_IO_OBJECTINPUTSTREAM = "java.io.ObjectInputStream".toCharArray(); //$NON-NLS-1$
 	char[] CharArray_JAVA_IO_OBJECTOUTPUTSTREAM = "java.io.ObjectOutputStream".toCharArray(); //$NON-NLS-1$

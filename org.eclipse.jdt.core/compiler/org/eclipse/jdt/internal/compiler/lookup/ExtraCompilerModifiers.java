@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -40,6 +44,7 @@ public interface ExtraCompilerModifiers { // modifier constant
 	final int AccAlternateModifierProblem = ASTNode.Bit23;
 	final int AccModifierProblem = ASTNode.Bit24;
 	final int AccSemicolonBody = ASTNode.Bit25;
+	final int AccRecord = ASTNode.Bit25;
 	final int AccUnresolved = ASTNode.Bit26;
 	final int AccBlankFinal = ASTNode.Bit27; // for blank final variables
 	final int AccIsDefaultConstructor = ASTNode.Bit27; // for default constructor

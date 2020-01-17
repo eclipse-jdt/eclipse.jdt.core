@@ -301,6 +301,9 @@ public String toString() {
 		case TypeDeclaration.ENUM_DECL :
 			buffer.append("enum "); //$NON-NLS-1$
 			break;
+		case TypeDeclaration.RECORD_DECL :
+			buffer.append("record "); //$NON-NLS-1$
+			break;
 	}
 	if (this.name != null) {
 		buffer.append(this.name);

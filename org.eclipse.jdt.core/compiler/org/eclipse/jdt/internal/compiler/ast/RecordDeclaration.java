@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -49,10 +50,11 @@ public class RecordDeclaration extends TypeDeclaration {
 	}
 	public RecordDeclaration(CompilationResult compilationResult) {
 		super(compilationResult);
+		this.modifiers |= ExtraCompilerModifiers.AccRecord;
 	}
 	public RecordDeclaration(TypeDeclaration t) {
 		super(t.compilationResult);
-		this.modifiers = t.modifiers;
+		this.modifiers = t.modifiers | ExtraCompilerModifiers.AccRecord;
 		this.modifiersSourceStart = t.modifiersSourceStart;
 		this.annotations = t.annotations;
 		this.name = t.name;

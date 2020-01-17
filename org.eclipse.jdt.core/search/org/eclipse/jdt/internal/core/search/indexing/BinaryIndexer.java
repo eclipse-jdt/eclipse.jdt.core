@@ -732,6 +732,10 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 				case TypeDeclaration.ANNOTATION_TYPE_DECL :
 					addAnnotationTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, false);
 					break;
+				case TypeDeclaration.RECORD_DECL :
+					superclass = replace('/', '.', reader.getSuperclassName());
+					addClassDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces, typeParameterSignatures, false);
+					break;
 			}
 
 			// Look for references in class annotations
