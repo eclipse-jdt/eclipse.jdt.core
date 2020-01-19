@@ -6408,7 +6408,9 @@ public void testBug559119() {
 	runLeakWarningTest(
 		new String[] {
 			"Sequencer.java",
-			"interface Sequencer extends AutoCloseable {}\n",
+			"interface Sequencer extends AutoCloseable {\n" +
+			"	void close(); // no exception\n" +
+			"}\n",
 			"SequencerControl.java",
 			"public abstract class SequencerControl {\n" +
 			"	public abstract Sequencer getSequencer();\n" + 
