@@ -69,6 +69,7 @@ import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.ModuleDirective;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -279,13 +280,22 @@ public class LineBreaksPreparator extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(RecordDeclaration node) {
+		handleBracedCode(node, node.getName(), this.options.brace_position_for_record_declaration,
+				this.options.indent_body_declarations_compare_to_record_header);
+		handleBodyDeclarations(node.bodyDeclarations());
+		return true;
+	}
+
+	@Override
 	public boolean visit(MethodDeclaration node) {
 		this.declarationModifierVisited = false;
 		if (node.getBody() == null)
 			return true;
 
-		String bracePosition = node.isConstructor() ? this.options.brace_position_for_constructor_declaration
-				: this.options.brace_position_for_method_declaration;
+		String bracePosition = node.isCompactConstructor() ? this.options.brace_position_for_record_constructor
+				: node.isConstructor() ? this.options.brace_position_for_constructor_declaration
+						: this.options.brace_position_for_method_declaration;
 		handleBracedCode(node.getBody(), null, bracePosition, this.options.indent_statements_compare_to_body,
 				this.options.blank_lines_at_beginning_of_method_body, this.options.blank_lines_at_end_of_method_body);
 

@@ -85,6 +85,7 @@ import org.eclipse.jdt.core.dom.OpensDirective;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ProvidesDirective;
 import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
@@ -322,11 +323,37 @@ public class WrapPreparator extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(MethodDeclaration node) {
+	public boolean visit(RecordDeclaration node) {
 		int lParen = this.tm.firstIndexAfter(node.getName(), TokenNameLPAREN);
-		int rParen = node.getBody() == null ? this.tm.lastIndexIn(node, TokenNameRPAREN)
-				: this.tm.firstIndexBefore(node.getBody(), TokenNameRPAREN);
-		handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_method_declaration);
+		List<SingleVariableDeclaration> components = node.recordComponents();
+		int rParen = this.tm.firstIndexAfter(
+				components.isEmpty() ? node.getName() : components.get(components.size() - 1), TokenNameRPAREN);
+		handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_record_declaration);
+
+		if (!components.isEmpty()) {
+			int wrappingOption = this.options.alignment_for_record_components;
+			this.wrapGroupEnd = this.tm.lastIndexIn(components.get(components.size() - 1), -1);
+			handleArguments(components, wrappingOption);
+		}
+
+		List<Type> superInterfaceTypes = node.superInterfaceTypes();
+		if (!superInterfaceTypes.isEmpty()) {
+			this.wrapParentIndex = this.tm.lastIndexIn(node.getName(), -1);
+			this.wrapIndexes.add(this.tm.firstIndexBefore(superInterfaceTypes.get(0), TokenNameimplements));
+			prepareElementsList(superInterfaceTypes, TokenNameCOMMA, -1);
+			handleWrap(this.options.alignment_for_superinterfaces_in_record_declaration, PREFERRED);
+		}
+		return true;
+	}
+
+	@Override
+	public boolean visit(MethodDeclaration node) {
+		if (!node.isCompactConstructor()) {
+			int lParen = this.tm.firstIndexAfter(node.getName(), TokenNameLPAREN);
+			int rParen = node.getBody() == null ? this.tm.lastIndexIn(node, TokenNameRPAREN)
+					: this.tm.firstIndexBefore(node.getBody(), TokenNameRPAREN);
+			handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_method_declaration);
+		}
 
 		List<SingleVariableDeclaration> parameters = node.parameters();
 		Type receiverType = node.getReceiverType();
@@ -346,7 +373,7 @@ public class WrapPreparator extends ASTVisitor {
 					? this.options.alignment_for_throws_clause_in_constructor_declaration
 					: this.options.alignment_for_throws_clause_in_method_declaration;
 			if ((wrappingOption & Alignment.M_INDENT_ON_COLUMN) == 0)
-				this.wrapParentIndex = lParen;
+				this.wrapParentIndex = this.tm.firstIndexAfter(node.getName(), TokenNameLPAREN);
 			prepareElementsList(exceptionTypes, TokenNameCOMMA, TokenNameRPAREN);
 			// instead of the first exception type, wrap the "throws" token
 			this.wrapIndexes.set(0, this.tm.firstIndexBefore(exceptionTypes.get(0), TokenNamethrows));

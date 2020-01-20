@@ -142,8 +142,8 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		addProperty(MODIFIERS2_PROPERTY, propertyList);
 		addProperty(NAME_PROPERTY, propertyList);
 		addProperty(TYPE_PARAMETERS_PROPERTY, propertyList);
-		addProperty(SUPER_INTERFACE_TYPES_PROPERTY, propertyList);
 		addProperty(RECORD_COMPONENTS_PROPERTY, propertyList);
+		addProperty(SUPER_INTERFACE_TYPES_PROPERTY, propertyList);
 		addProperty(BODY_DECLARATIONS_PROPERTY, propertyList);
 
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);

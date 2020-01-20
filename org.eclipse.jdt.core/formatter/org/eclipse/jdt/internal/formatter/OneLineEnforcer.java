@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.ThrowStatement;
@@ -86,6 +87,12 @@ public class OneLineEnforcer extends ASTVisitor {
 	}
 
 	@Override
+	public void endVisit(RecordDeclaration node) {
+		tryKeepOnOneLine(node, node.getName(), node.bodyDeclarations(),
+				this.options.keep_record_declaration_on_one_line);
+	}
+
+	@Override
 	public void endVisit(AnonymousClassDeclaration node) {
 		if (node.getParent() instanceof EnumConstantDeclaration) {
 			tryKeepOnOneLine(node, null, node.bodyDeclarations(),
@@ -104,9 +111,10 @@ public class OneLineEnforcer extends ASTVisitor {
 			return; // this is a fake block created by parsing in statements mode
 		String oneLineOption;
 		if (parent instanceof MethodDeclaration) {
-			oneLineOption = this.options.keep_method_body_on_one_line;
+			MethodDeclaration method = (MethodDeclaration) parent;
+			oneLineOption = method.isCompactConstructor() ? this.options.keep_record_constructor_on_one_line
+					: this.options.keep_method_body_on_one_line;
 			if (this.options.keep_simple_getter_setter_on_one_line) {
-				MethodDeclaration method = (MethodDeclaration) parent;
 				String name = method.getName().getIdentifier();
 				Type returnType = method.getReturnType2();
 				boolean returnsVoid = returnType instanceof PrimitiveType
