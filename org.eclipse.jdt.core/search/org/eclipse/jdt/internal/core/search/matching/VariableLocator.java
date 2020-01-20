@@ -59,6 +59,11 @@ public int match(Reference node, MatchingNodeSet nodeSet) { // interested in Nam
 		: IMPOSSIBLE_MATCH;
 }
 protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean writeOnlyAccess) {
+	if(node instanceof FieldReference) {
+		//for the local variable in the constructor of record matching component's name
+		if (matchesName(this.pattern.name, ((FieldReference) node).token))
+			return nodeSet.addMatch(node, POSSIBLE_MATCH);
+	}
 	if (node instanceof NameReference) {
 		if (this.pattern.name == null) {
 			return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);

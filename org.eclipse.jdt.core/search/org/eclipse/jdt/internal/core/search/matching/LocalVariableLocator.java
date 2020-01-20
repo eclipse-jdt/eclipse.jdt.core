@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.core.LocalVariable;
 
@@ -65,6 +66,14 @@ protected void matchReportReference(ASTNode reference, IJavaElement element, Bin
 		this.match = locator.newDeclarationMatch(element, null, accuracy, offset, length);
 		locator.report(this.match);
 		return;
+	} else if (reference instanceof FieldReference) { // for record's component in constructor
+		FieldReference fieldReference = (FieldReference) reference;
+		long position = fieldReference.nameSourcePosition;
+		int start = (int) (position >>> 32);
+		int end = (int) position;
+		this.match = locator.newFieldReferenceMatch(element, null, elementBinding, accuracy, start, end-start+1, fieldReference);
+		locator.report(this.match);
+		return;
 	}
 	if (offset >= 0) {
 		this.match = locator.newLocalVariableReferenceMatch(element, accuracy, offset, length, reference);
@@ -95,14 +104,42 @@ public int resolveLevel(ASTNode possiblelMatchingNode) {
 			return resolveLevel((NameReference) possiblelMatchingNode);
 	if (possiblelMatchingNode instanceof LocalDeclaration)
 		return matchLocalVariable(((LocalDeclaration) possiblelMatchingNode).binding, true);
+	if(possiblelMatchingNode instanceof FieldReference ) {
+		//for the local variable in the constructor of record matching component's name
+		FieldBinding binding = ((FieldReference)possiblelMatchingNode).binding;
+		if (binding.isRecordComponent())
+			return matchField(binding, true);
+	}
 	return IMPOSSIBLE_MATCH;
 }
 @Override
 public int resolveLevel(Binding binding) {
 	if (binding == null) return INACCURATE_MATCH;
+	// for record's component local variable matching component name
+	if(binding instanceof FieldBinding && ((FieldBinding) binding).isRecordComponent()) {
+		return matchField(binding, true);
+	}
+	if(binding instanceof LocalVariableBinding) {
+		if ( ((LocalVariableBinding)binding).declaringScope.referenceContext() instanceof CompactConstructorDeclaration) {
+			//update with binding
+			if( this.pattern instanceof FieldPattern) {
+				return matchField(binding, true);
+			}
+		}
+	}
 	if (!(binding instanceof LocalVariableBinding)) return IMPOSSIBLE_MATCH;
 
 	return matchLocalVariable((LocalVariableBinding) binding, true);
+}
+private int matchField(Binding binding, boolean matchName) {
+	if (binding == null) return INACCURATE_MATCH;
+	if(binding instanceof FieldBinding) {
+		if (! ((FieldBinding)binding).declaringClass.isRecord())
+			return IMPOSSIBLE_MATCH;
+	}
+	if (matchName && matchesName(this.pattern.name, binding.readableName()))
+		return ACCURATE_MATCH;
+	return IMPOSSIBLE_MATCH;
 }
 protected int resolveLevel(NameReference nameRef) {
 	return resolveLevel(nameRef.binding);

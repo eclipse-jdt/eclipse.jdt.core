@@ -334,6 +334,20 @@ protected void consumeConstructorHeaderName() {
 		rememberCategories();
 	}
 }
+
+@Override
+protected void consumeCompactConstructorHeaderName() {
+	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
+	int selectorSourceEnd = (int) selectorSourcePositions;
+	int currentAstPtr = this.astPtr;
+	super.consumeCompactConstructorHeaderName();
+	if (this.astPtr > currentAstPtr) { // if ast node was pushed on the ast stack
+		this.sourceEnds.put(this.astStack[this.astPtr], selectorSourceEnd);
+		rememberCategories();
+	}
+}
+
+
 @Override
 protected void consumeConstructorHeaderNameWithTypeParameters() {
 	long selectorSourcePositions = this.identifierPositionStack[this.identifierPtr];
