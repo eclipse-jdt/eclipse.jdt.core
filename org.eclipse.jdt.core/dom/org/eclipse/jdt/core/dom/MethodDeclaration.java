@@ -96,7 +96,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	
 	/**
 	 * The "compact constructor" structural property of record node type (type: {@link Boolean}).
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public static final SimplePropertyDescriptor COMPACT_CONSTRUCTOR_PROPERTY =
 		new SimplePropertyDescriptor(MethodDeclaration.class, "compactConstructor", boolean.class, OPTIONAL); //$NON-NLS-1$

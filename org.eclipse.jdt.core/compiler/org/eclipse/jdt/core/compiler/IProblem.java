@@ -2220,84 +2220,84 @@ void setSourceStart(int sourceStart);
 	int SwitchExpressionsYieldTypeDeclarationWarning = Internal + 1717;
 	/** @since 3.20 BETA_JAVA14 */
 	int SwitchExpressionsYieldTypeDeclarationError = Internal + 1718;
-	/** @since 3.20 BETA_JAVA14 */
+	/** @since 3.21 BETA_JAVA14*/
 	int MultiConstantCaseLabelsNotSupported = Syntax + 1719;
-	/** @since 3.20 BETA_JAVA14 */
+	/** @since 3.21 BETA_JAVA14*/
 	int ArrowInCaseStatementsNotSupported = Syntax + 1720;
-	/** @since 3.20 BETA_JAVA14 */
+	/** @since 3.21 BETA_JAVA14*/
 	int SwitchExpressionsNotSupported = Syntax + 1721;
-	/** @since 3.20 BETA_JAVA14 */
+	/** @since 3.21 BETA_JAVA14*/
 	int SwitchExpressionsBreakOutOfSwitchExpression  = Syntax + 1722;
-	/** @since 3.20 BETA_JAVA14 */
+	/** @since 3.21 BETA_JAVA14*/
 	int SwitchExpressionsContinueOutOfSwitchExpression  = Syntax + 1723;
 	/* records - begin */
 
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordIllegalModifierAbstractForRecord = PreviewRelated + 1731;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * JLS 14 Sec 8.10.1
 	 * it is always a compile-time error for a record header to declare a record component with the name
 	 * finalize, getClass, hashCode, notify, notifyAll, or toString. */
 	int RecordIllegalComponentNameInRecord = PreviewRelated + 1732;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordNonStaticFieldDeclarationInRecord = PreviewRelated + 1733;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordAccessorMethodHasThrowsClause = PreviewRelated + 1734;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordCanonicalConstructorHasThrowsClause = PreviewRelated + 1735;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordCanonicalConstructorShouldBePublic = PreviewRelated + 1736;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordMultipleCanonicalConstructors = PreviewRelated + 1737;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordCompactConstructorHasReturnStatement = PreviewRelated + 1738;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordDuplicateComponent = PreviewRelated + 1739;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordIllegalNativeModifierInRecord = PreviewRelated + 1740;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordInstanceInitializerBlockInRecord = PreviewRelated + 1741;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordIsAReservedTypeName = PreviewRelated + 1742;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordIllegalAccessorReturnType = PreviewRelated + 1743;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordAccessorMethodShouldNotBeGeneric = PreviewRelated + 1744;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordAccessorMethodShouldBePublic = PreviewRelated + 1745;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordCanonicalConstructorShouldNotBeGeneric = PreviewRelated + 1746;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordCanonicalConstructorHasReturnStatement = PreviewRelated + 1747;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordCanonicalConstructorHasExplicitConstructorCall = PreviewRelated + 1748;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordCompactConstructorHasExplicitConstructorCall = PreviewRelated + 1749;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordNestedRecordInherentlyStatic = PreviewRelated + 1750;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordAccessorMethodShouldNotBeStatic= PreviewRelated + 1751;
-	/** @since 3.20 BETA_JAVA14
+	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordCannotExtendRecord= PreviewRelated + 1752;
 	/* records - end */

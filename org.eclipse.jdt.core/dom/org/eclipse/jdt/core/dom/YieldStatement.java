@@ -68,7 +68,7 @@ public class YieldStatement extends Statement {
 
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
@@ -157,7 +157,7 @@ public class YieldStatement extends Statement {
 	 *
 	 * @return the expression, or <code>null</code> if there is none
 	 * @exception UnsupportedOperationException if this operation is used below JLS14
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public Expression getExpression() {
 		unsupportedBelow14();
@@ -174,7 +174,7 @@ public class YieldStatement extends Statement {
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used below JLS14
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public void setExpression(Expression expression) {
 		unsupportedBelow14();
@@ -190,7 +190,7 @@ public class YieldStatement extends Statement {
 	 *
 	 * @return isImplicit <code>true</code> or <code>false</code>
 	 * @exception UnsupportedOperationException if this operation is used below JLS14
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public boolean isImplicit() {
 		unsupportedBelow14();
