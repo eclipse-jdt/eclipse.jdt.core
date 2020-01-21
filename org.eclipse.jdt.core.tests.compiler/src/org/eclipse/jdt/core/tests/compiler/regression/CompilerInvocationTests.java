@@ -1246,6 +1246,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("RecordNestedRecordInherentlyStatic", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordAccessorMethodShouldNotBeStatic", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordCannotExtendRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordComponentCannotBeVoid", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2259,6 +2260,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("RecordNestedRecordInherentlyStatic", SKIP);
 	    expectedProblemAttributes.put("RecordAccessorMethodShouldNotBeStatic", SKIP);
 	    expectedProblemAttributes.put("RecordCannotExtendRecord", SKIP);
+	    expectedProblemAttributes.put("RecordComponentCannotBeVoid", SKIP);
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {

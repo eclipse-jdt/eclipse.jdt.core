@@ -10807,8 +10807,6 @@ protected void consumeRecordComponentHeaderRightParen() {
 				length);
 		rd.setArgs(args);
 		convertToFields(rd, args);
-	} else {
-		rd.setArgs(ASTNode.NO_ARGUMENTS);
 	}
 	rd.bodyStart = this.rParenPos+1;
 	this.listLength = 0; // reset this.listLength after having read all parameters
@@ -10833,6 +10831,10 @@ private void convertToFields(RecordDeclaration rd, Argument[] args) {
 		}
 		if (argsSet.contains(argName)) {
 			// flag the error at the place where duplicate params of methods would have been flagged.
+			continue;
+		}
+		if (arg.type.getLastToken() == TypeConstants.VOID) {
+			problemReporter().recordComponentCannotBeVoid(rd, arg);
 			continue;
 		}
 		argsSet.add(argName);

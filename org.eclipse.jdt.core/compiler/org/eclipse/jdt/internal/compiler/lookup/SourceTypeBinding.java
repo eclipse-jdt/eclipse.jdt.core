@@ -74,6 +74,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
@@ -2227,7 +2228,12 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 			if (parameterType == null) {
 				foundArgProblem = true;
 			} else if (parameterType == TypeBinding.VOID) {
-				methodDecl.scope.problemReporter().argumentTypeCannotBeVoid(methodDecl, arg);
+				if (this.isRecordDeclaration && 
+						methodDecl instanceof ConstructorDeclaration && 
+						((methodDecl.bits & ASTNode.IsImplicit) != 0)) {
+					// do nothing - already raised for record component.
+				} else
+					methodDecl.scope.problemReporter().argumentTypeCannotBeVoid(methodDecl, arg);
 				foundArgProblem = true;
 			} else {
 				if ((parameterType.tagBits & TagBits.HasMissingType) != 0) {
@@ -2926,14 +2932,18 @@ public FieldBinding[] getRecordComponents() {
 public void computeRecordComponents() {
 	if (!this.isRecordDeclaration || this.recordComponents != null)
 		return;
-	List<String> recordComponentNames = Arrays.stream(((RecordDeclaration) this.scope.referenceContext).getArgs())
-			.map(arg -> new String(arg.name))
-			.collect(Collectors.toList());
+	Argument[] recComps = ((RecordDeclaration) this.scope.referenceContext).getArgs();
 	List<FieldBinding> list = new ArrayList<>();
-	for (String rc : recordComponentNames) {
-		for (FieldBinding f : this.fields) {
-			if (rc.equals(new String(f.name))) {
-				list.add(f);
+	if (recComps != null && recComps.length > 0 && this.fields != null) {
+		List<String> recordComponentNames = new ArrayList<>(0);
+		recordComponentNames = Arrays.stream(recComps)
+				.map(arg -> new String(arg.name))
+				.collect(Collectors.toList());
+		for (String rc : recordComponentNames) {
+			for (FieldBinding f : this.fields) {
+				if (rc.equals(new String(f.name))) {
+					list.add(f);
+				}
 			}
 		}
 	}

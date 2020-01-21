@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug550750_037" };
+//		TESTS_NAMES = new String[] { "testBug559281" };
 	}
 	
 	public static Class<?> testClass() {
@@ -1773,5 +1773,36 @@ public void testBug553567_002() {
 					"}\n"
 			},
 		"0");
+}
+public void testBug559281_001() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"record X(void k) {}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	record X(void k) {}\n" +
+			"	       ^^^^^^^^^\n" +
+			"void is an invalid type for the component k of a record\n" +
+			"----------\n");
+}
+public void testBug559281_002() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"record X(int clone, int wait) {}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	record X(int clone, int wait) {}\n" +
+			"	             ^^^^^\n" +
+			"Illegal component name clone in record X;\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	record X(int clone, int wait) {}\n" +
+			"	                        ^^^^\n" +
+			"Illegal component name wait in record X;\n" +
+			"----------\n");
 }
 }

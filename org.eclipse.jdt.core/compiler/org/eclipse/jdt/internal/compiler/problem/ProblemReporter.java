@@ -11395,6 +11395,8 @@ public void switchExpressionsContinueOutOfSwitchExpression(ASTNode statement) {
 		statement.sourceEnd);
 }
 public void illegalModifierAbstractForRecord(SourceTypeBinding type) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(
 		IProblem.RecordIllegalModifierAbstractForRecord,
@@ -11404,6 +11406,8 @@ public void illegalModifierAbstractForRecord(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void recordNonStaticFieldDeclarationInRecord(FieldDeclaration field) {
+	if (!this.options.enablePreviewFeatures)
+		return;
 	this.handle(
 		IProblem.RecordNonStaticFieldDeclarationInRecord,
 		new String[] { new String(field.name) },
@@ -11622,5 +11626,16 @@ public void recordCannotExtendRecord(SourceTypeBinding type, TypeReference super
 		new String[] {superTypeShortName, name},
 		superclass.sourceStart,
 		superclass.sourceEnd);
+}
+public void recordComponentCannotBeVoid(ASTNode recordDecl, Argument arg) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	String[] arguments = new String[] { new String(arg.name) };
+	this.handle(
+		IProblem.RecordComponentCannotBeVoid,
+		arguments,
+		arguments,
+		recordDecl.sourceStart,
+		recordDecl.sourceEnd);
 }
 }

@@ -17,9 +17,11 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
@@ -36,12 +38,14 @@ public class RecordDeclaration extends TypeDeclaration {
 	public static Set<String> disallowedComponentNames;
 	static {
 		disallowedComponentNames = new HashSet<>(6);
+		disallowedComponentNames.add("clone"); //$NON-NLS-1$
 		disallowedComponentNames.add("finalize"); //$NON-NLS-1$
 		disallowedComponentNames.add("getClass"); //$NON-NLS-1$
 		disallowedComponentNames.add("hashCode"); //$NON-NLS-1$
 		disallowedComponentNames.add("notify");   //$NON-NLS-1$
 		disallowedComponentNames.add("notifyAll");//$NON-NLS-1$
 		disallowedComponentNames.add("toString"); //$NON-NLS-1$
+		disallowedComponentNames.add("wait"); //$NON-NLS-1$
 	}
 	public RecordDeclaration(CompilationResult compilationResult) {
 		super(compilationResult);
@@ -147,15 +151,23 @@ public class RecordDeclaration extends TypeDeclaration {
 		/* The body of the implicitly declared canonical constructor initializes each field corresponding
 		 * to a record component with the corresponding formal parameter in the order that they appear
 		 * in the record component list.*/
-		int l = this.args.length;
-		Statement[] statements = new Statement[l];
-		for (int i = 0; i < l; ++i) {
-			Argument arg = this.args[i];
-			FieldReference lhs = new FieldReference(arg.name, 0);
-			lhs.receiver = ThisReference.implicitThis();
-			statements[i] =  new Assignment(lhs, new SingleNameReference(arg.name, 0), 0);
+		List<Statement> statements = new ArrayList<>();
+		int l = this.args != null ? this.args.length : 0;
+		if (l > 0 && this.fields != null) {
+			List<String> fNames = Arrays.stream(this.fields)
+					.filter(f -> f.isARecordComponent)
+					.map(f ->new String(f.name))
+					.collect(Collectors.toList());
+			for (int i = 0; i < l; ++i) {
+				Argument arg = this.args[i];
+				if (!fNames.contains(new String(arg.name)))
+					continue;
+				FieldReference lhs = new FieldReference(arg.name, 0);
+				lhs.receiver = ThisReference.implicitThis();
+				statements.add(new Assignment(lhs, new SingleNameReference(arg.name, 0), 0));
+			}
 		}
-		constructor.statements = statements;
+		constructor.statements = statements.toArray(new Statement[0]);
 
 		//adding the constructor in the methods list: rank is not critical since bindings will be sorted
 		if (needToInsert) {

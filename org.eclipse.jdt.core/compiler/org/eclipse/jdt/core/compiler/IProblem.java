@@ -2300,6 +2300,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordCannotExtendRecord= PreviewRelated + 1752;
+	/** @since 3.21 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordComponentCannotBeVoid= PreviewRelated + 1753;
 	/* records - end */
 	/* Java14 errors - end */
 	}
