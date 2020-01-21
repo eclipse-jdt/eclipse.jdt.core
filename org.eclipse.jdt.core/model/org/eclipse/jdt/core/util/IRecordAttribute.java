@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
+ * Copyright (c) 2019, 2020 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,7 @@ package org.eclipse.jdt.core.util;
  * Description of record components attribute as described in the JVM
  * specifications.
  *
- * @since 3.20 BETA_JAVA14 
+ * @since 3.21 BETA_JAVA14
  */
 public interface IRecordAttribute extends IClassFileAttribute {
 
