@@ -73,7 +73,8 @@ public class RecordDeclaration extends TypeDeclaration {
 		this.typeParameters = t.typeParameters;
 		this.sourceStart = t.sourceStart;
 		this.sourceEnd = t.sourceEnd;
-}
+		this.restrictedIdentifierStart = t.restrictedIdentifierStart;
+	}
 	public ConstructorDeclaration getConstructor(Parser parser) {
 		if (this.methods != null) {
 			for (int i = this.methods.length; --i >= 0;) {
