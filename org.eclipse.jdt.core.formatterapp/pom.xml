@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2012, 2020 Eclipse Foundation and others.
+  All rights reserved. This program and the accompanying materials
+  are made available under the terms of the Eclipse Distribution License v1.0
+  which accompanies this distribution, and is available at
+  http://www.eclipse.org/org/documents/edl-v10.php
+ 
+  Contributors:
+     Igor Fedorenko - initial implementation
+     Jonah Graham - copied from org.eclipse.jdt.apt.core/pom.xml
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>eclipse.jdt.core</artifactId>
+    <groupId>eclipse.jdt.core</groupId>
+    <version>4.15.0-SNAPSHOT</version>
+  </parent>
+  <groupId>org.eclipse.jdt</groupId>
+  <artifactId>org.eclipse.jdt.core.formatterapp</artifactId>
+  <version>1.0.0-SNAPSHOT</version>
+  <packaging>eclipse-plugin</packaging>
+  <properties>
+    <skipAPIAnalysis>true</skipAPIAnalysis>
+  </properties>
+</project>

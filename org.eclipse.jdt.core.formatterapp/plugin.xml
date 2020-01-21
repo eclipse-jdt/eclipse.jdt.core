@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+<!-- =================================================================================== -->
+<!-- Extension: Java Code Formatter                                                      -->
+<!-- =================================================================================== -->
+<extension
+      id="org.eclipse.jdt.core.JavaCodeFormatter"
+      point="org.eclipse.core.runtime.applications">
+        <application>
+          <run class="org.eclipse.jdt.core.formatterapp.CodeFormatterApplicationWrapper" />
+        </application>
+</extension>
+
+</plugin>

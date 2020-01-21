@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -24632,10 +24632,10 @@ public void testBug351444() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + 25) + "}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + 25) + "}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), " + (R_DEFAULT + 25) + "}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + 25) + "}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}",
 				requestor.getResults());
 		assertEquals(true,
 			requestor.canUseDiamond(0));
@@ -24675,10 +24675,10 @@ public void testBug351444a() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + 25) + "}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + 25) + "}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), " + (R_DEFAULT + 25) + "}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + 25) + "}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}",
 				requestor.getResults());
 		assertEquals(false,
 			requestor.canUseDiamond(1));
@@ -24721,10 +24721,10 @@ public void testBug351444b() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + 25) + "}\n" +
-				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, " + (R_DEFAULT + 25) + "}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), " + (R_DEFAULT + 25) + "}\n" +
-				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, " + (R_DEFAULT + 25) + "}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}",
 				requestor.getResults());
 		assertEquals(true,
 			requestor.canUseDiamond(0));
@@ -24767,10 +24767,10 @@ public void testBug351444c() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + 25) + "}\n" +
-				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, " + (R_DEFAULT + 25) + "}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), " + (R_DEFAULT + 25) + "}\n" +
-				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, " + (R_DEFAULT + 25) + "}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 25) + "}",
 				requestor.getResults());
 		assertEquals(false,
 			requestor.canUseDiamond(1));

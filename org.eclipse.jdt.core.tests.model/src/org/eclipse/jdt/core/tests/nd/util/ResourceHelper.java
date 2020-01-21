@@ -498,10 +498,9 @@ public class ResourceHelper {
 	 */
 	public static String getContents(IPath fullPath) throws IOException {
 		FileInputStream stream = new FileInputStream(fullPath.toFile());
-		try {
+		try (Reader reader = new BufferedReader(new InputStreamReader(stream, Charset.defaultCharset()))){
 			// Avoid using java.nio.channels.FileChannel,
 			// see http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4715154
-			Reader reader = new BufferedReader(new InputStreamReader(stream, Charset.defaultCharset()));
 			StringBuilder builder = new StringBuilder();
 			char[] buffer = new char[8192];
 			int read;
@@ -509,8 +508,6 @@ public class ResourceHelper {
 				builder.append(buffer, 0, read);
 			}
 			return builder.toString();
-		} finally {
-			stream.close();
 		}
 	}
 
