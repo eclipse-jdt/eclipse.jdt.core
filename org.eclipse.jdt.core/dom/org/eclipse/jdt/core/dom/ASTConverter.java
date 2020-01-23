@@ -252,14 +252,10 @@ class ASTConverter {
 			int nextDeclarationType = -1;
 			if (fieldsIndex < fieldsLength) {
 				nextFieldDeclaration = fields[fieldsIndex];
-				if (!nextFieldDeclaration.isARecordComponent) {
-					if (nextFieldDeclaration.declarationSourceStart < position) {
+				if (nextFieldDeclaration.declarationSourceStart < position) {
 						position = nextFieldDeclaration.declarationSourceStart;
 						nextDeclarationType = 0; // FIELD
-					}
-			  } else { 
-				  fieldsIndex++;
-			  }
+				}
 				 
 			}
 			if (methodsIndex < methodsLength) {
@@ -609,15 +605,18 @@ class ASTConverter {
 		setModifiers(methodDecl, methodDeclaration);
 		boolean isConstructor = methodDeclaration.isConstructor();
 		methodDecl.setConstructor(isConstructor);
-		if (DOMASTUtil.isRecordDeclarationSupported(this.ast)) {
-			methodDecl.setCompactConstructor(methodDeclaration instanceof CompactConstructorDeclaration);
-		}
 		final SimpleName methodName = new SimpleName(this.ast);
 		methodName.internalSetIdentifier(new String(methodDeclaration.selector));
 		int start = methodDeclaration.sourceStart;
-		int end = retrieveIdentifierEndPosition(start, methodDeclaration.sourceEnd);
-		if (end < start)
-			end = start + methodDeclaration.selector.length;// naive recovery with method name
+		int end;
+		if (DOMASTUtil.isRecordDeclarationSupported(this.ast) && methodDeclaration instanceof CompactConstructorDeclaration) {
+			methodDecl.setCompactConstructor(true);
+			end = start + methodDeclaration.selector.length -1;
+		}else {
+			 end = retrieveIdentifierEndPosition(start, methodDeclaration.sourceEnd);
+			if (end < start)
+				end = start + methodDeclaration.selector.length;// naive recovery with method name
+		}
 		methodName.setSourceRange(start, end - start + 1);
 		methodDecl.setName(methodName);
 		org.eclipse.jdt.internal.compiler.ast.TypeReference[] thrownExceptions = methodDeclaration.thrownExceptions;
@@ -3523,8 +3522,9 @@ class ASTConverter {
 			recordNodes(variableDeclarationFragment, fieldDecl);
 			variableDeclarationFragment.resolveBinding();
 		}
-		if (!fieldDecl.isARecordComponent)
-		fieldDeclaration.setSourceRange(fieldDecl.declarationSourceStart, fieldDecl.declarationEnd - fieldDecl.declarationSourceStart + 1);
+		if (!fieldDecl.isARecordComponent) {
+			fieldDeclaration.setSourceRange(fieldDecl.declarationSourceStart, fieldDecl.declarationEnd - fieldDecl.declarationSourceStart + 1);
+		}
 		Type type = convertType(fieldDecl.type);
 		setTypeForField(fieldDeclaration, type, variableDeclarationFragment.getExtraDimensions());
 		setModifiers(fieldDeclaration, fieldDecl);

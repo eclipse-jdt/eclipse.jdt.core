@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 
 /**
  * Internal AST visitor for serializing an AST in a quick and dirty fashion.
@@ -973,7 +974,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 				this.buffer.append(">");//$NON-NLS-1$
 			}
 		}
-		if (!node.isConstructor()) {
+		if (!node.isConstructor()){
 			if (node.getAST().apiLevel() == JLS2) {
 				getReturnType(node).accept(this);
 			} else {
@@ -987,31 +988,33 @@ public class NaiveASTFlattener extends ASTVisitor {
 			this.buffer.append(" ");//$NON-NLS-1$
 		}
 		node.getName().accept(this);
-		this.buffer.append("(");//$NON-NLS-1$
-		if (node.getAST().apiLevel() >= JLS8) {
-			Type receiverType = node.getReceiverType();
-			if (receiverType != null) {
-				receiverType.accept(this);
-				this.buffer.append(' ');
-				SimpleName qualifier = node.getReceiverQualifier();
-				if (qualifier != null) {
-					qualifier.accept(this);
-					this.buffer.append('.');
-				}
-				this.buffer.append("this"); //$NON-NLS-1$
-				if (node.parameters().size() > 0) {
-					this.buffer.append(',');
+		if (!(DOMASTUtil.isRecordDeclarationSupported(node.getAST()) && node.isCompactConstructor())) {
+			this.buffer.append("(");//$NON-NLS-1$
+			if (node.getAST().apiLevel() >= JLS8) {
+				Type receiverType = node.getReceiverType();
+				if (receiverType != null) {
+					receiverType.accept(this);
+					this.buffer.append(' ');
+					SimpleName qualifier = node.getReceiverQualifier();
+					if (qualifier != null) {
+						qualifier.accept(this);
+						this.buffer.append('.');
+					}
+					this.buffer.append("this"); //$NON-NLS-1$
+					if (node.parameters().size() > 0) {
+						this.buffer.append(',');
+					}
 				}
 			}
-		}
-		for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
-			SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
-			v.accept(this);
-			if (it.hasNext()) {
-				this.buffer.append(",");//$NON-NLS-1$
+			for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
+				SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
+				v.accept(this);
+				if (it.hasNext()) {
+					this.buffer.append(",");//$NON-NLS-1$
+				}
 			}
+			this.buffer.append(")");//$NON-NLS-1$
 		}
-		this.buffer.append(")");//$NON-NLS-1$
 		int size = node.getExtraDimensions();
 		if (node.getAST().apiLevel() >= JLS8) {
 			List dimensions = node.extraDimensions();

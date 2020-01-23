@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 
 @SuppressWarnings("rawtypes")
 public class ASTRewriteFlattener extends ASTVisitor {
@@ -702,27 +703,29 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			this.result.append(' ');
 		}
 		getChildNode(node, MethodDeclaration.NAME_PROPERTY).accept(this);
-		this.result.append('(');
-		// receiver parameter
-		if (node.getAST().apiLevel() >= JLS8_INTERNAL) {
-			ASTNode receiverType = getChildNode(node, MethodDeclaration.RECEIVER_TYPE_PROPERTY);
-			if (receiverType != null) {
-				receiverType.accept(this);
-				this.result.append(' ');
-				ASTNode qualifier = getChildNode(node, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY);
-				if (qualifier != null) {
-					qualifier.accept(this);
-					this.result.append('.');
-				}
-				this.result.append("this"); //$NON-NLS-1$
-				if (getChildList(node, MethodDeclaration.PARAMETERS_PROPERTY).size() > 0) {
-					this.result.append(',');
+		if (!(DOMASTUtil.isRecordDeclarationSupported(node.getAST()) && getBooleanAttribute(node, MethodDeclaration.COMPACT_CONSTRUCTOR_PROPERTY))) {
+			this.result.append('(');
+			// receiver parameter
+			if (node.getAST().apiLevel() >= JLS8_INTERNAL) {
+				ASTNode receiverType = getChildNode(node, MethodDeclaration.RECEIVER_TYPE_PROPERTY);
+				if (receiverType != null) {
+					receiverType.accept(this);
+					this.result.append(' ');
+					ASTNode qualifier = getChildNode(node, MethodDeclaration.RECEIVER_QUALIFIER_PROPERTY);
+					if (qualifier != null) {
+						qualifier.accept(this);
+						this.result.append('.');
+					}
+					this.result.append("this"); //$NON-NLS-1$
+					if (getChildList(node, MethodDeclaration.PARAMETERS_PROPERTY).size() > 0) {
+						this.result.append(',');
+					}
 				}
 			}
+		
+			visitList(node, MethodDeclaration.PARAMETERS_PROPERTY, String.valueOf(','));
+			this.result.append(')');
 		}
-	
-		visitList(node, MethodDeclaration.PARAMETERS_PROPERTY, String.valueOf(','));
-		this.result.append(')');
 		visitExtraDimensions(node, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 
 		ChildListPropertyDescriptor exceptionsProperty = node.getAST().apiLevel() <	JLS8_INTERNAL ? 
