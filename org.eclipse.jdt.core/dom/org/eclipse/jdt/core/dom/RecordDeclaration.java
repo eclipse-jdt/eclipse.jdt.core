@@ -60,7 +60,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		internalJavadocPropertyFactory(RecordDeclaration.class);
 
 	/**
-	 * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}) (added in JLS3 API).
+	 * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}).
 	 * @since 3.21 BETA_JAVA
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY =
@@ -75,25 +75,32 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 
 	
 	/**
-	 * The "superInterfaceTypes" structural property of this node type (element type: {@link Type}) (added in JLS3 API).
+	 * The "superInterfaceTypes" structural property of this node type (element type: {@link Type}).
 	 * @since 3.21 BETA_JAVA
 	 */
 	public static final ChildListPropertyDescriptor SUPER_INTERFACE_TYPES_PROPERTY =
 		new ChildListPropertyDescriptor(RecordDeclaration.class, "superInterfaceTypes", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "typeParameters" structural property of this node type (element type: {@link TypeParameter}) (added in JLS3 API).
+	 * The "typeParameters" structural property of this node type (element type: {@link TypeParameter}).
 	 * @since 3.21 BETA_JAVA
 	 */
 	public static final ChildListPropertyDescriptor TYPE_PARAMETERS_PROPERTY =
 		new ChildListPropertyDescriptor(RecordDeclaration.class, "typeParameters", TypeParameter.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "bodyDeclarations" structural property of this node type (element type: {@link BodyDeclaration}) (added in JLS3 API).
+	 * The "bodyDeclarations" structural property of this node type (element type: {@link BodyDeclaration}).
 	 * @since 3.21 BETA_JAVA
 	 */
 	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY =
 		internalBodyDeclarationPropertyFactory(RecordDeclaration.class);
+	
+	/**
+	 * The "recordComponents" structural property of this node type (element type: {@link SingleVariableDeclaration}).
+	 * @since 3.21 BETA_JAVA
+	 */
+	public static final ChildListPropertyDescriptor RECORD_COMPONENTS_PROPERTY =
+		new ChildListPropertyDescriptor(RecordDeclaration.class, "recordComponents", SingleVariableDeclaration.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A character index into the original restricted identifier source string,
@@ -134,6 +141,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		addProperty(TYPE_PARAMETERS_PROPERTY, propertyList);
 		addProperty(SUPER_INTERFACE_TYPES_PROPERTY, propertyList);
 		addProperty(BODY_DECLARATIONS_PROPERTY, propertyList);
+		addProperty(RECORD_COMPONENTS_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
@@ -174,20 +182,28 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * The type parameters (element type: {@link TypeParameter}).
-	 * Null in JLS2. Added in JLS3; defaults to an empty list
-	 * (see constructor).
+	 * defaults to an empty list
 	 * @since 3.21 BETA_JAVA
 	 */
-	private ASTNode.NodeList typeParameters = null;
+	private ASTNode.NodeList typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
 
 
 	/**
 	 * The superinterface types (element type: {@link Type}).
-	 * Null in JLS2. Added in JLS3; defaults to an empty list
+	 * defaults to an empty list
 	 * (see constructor).
 	 * @since 3.21 BETA_JAVA
 	 */
-	private ASTNode.NodeList superInterfaceTypes = null;
+	private ASTNode.NodeList superInterfaceTypes =  new ASTNode.NodeList(SUPER_INTERFACE_TYPES_PROPERTY);
+	
+	/**
+	 * The parameters (element type: {@link SingleVariableDeclaration}).
+	 * defaults to an empty list
+	 * (see constructor).
+	 * @since 3.21 BETA_JAVA
+	 */
+	private ASTNode.NodeList recordComponents = new ASTNode.NodeList(RECORD_COMPONENTS_PROPERTY);
+	
 
 	/**
 	 * Creates a new AST node for a type declaration owned by the given
@@ -209,8 +225,6 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		super(ast);
 		supportedOnlyIn14();
 		unsupportedWithoutPreviewError();
-		this.typeParameters = new ASTNode.NodeList(TYPE_PARAMETERS_PROPERTY);
-		this.superInterfaceTypes = new ASTNode.NodeList(SUPER_INTERFACE_TYPES_PROPERTY);
 	}
 
 	@Override
@@ -259,6 +273,9 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		if (property == BODY_DECLARATIONS_PROPERTY) {
 			return bodyDeclarations();
 		}
+		if (property == RECORD_COMPONENTS_PROPERTY) {
+			return recordComponents();
+		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
 	}
@@ -303,6 +320,8 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 				ASTNode.copySubtrees(target, superInterfaceTypes()));
 		result.bodyDeclarations().addAll(
 			ASTNode.copySubtrees(target, bodyDeclarations()));
+		result.recordComponents().addAll(
+				ASTNode.copySubtrees(target, recordComponents()));
 		return result;
 	}
 
@@ -323,6 +342,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 			acceptChildren(visitor, this.typeParameters);
 			acceptChildren(visitor, this.superInterfaceTypes);
 			acceptChildren(visitor, this.bodyDeclarations);
+			acceptChildren(visitor, this.recordComponents);
 		}
 		visitor.endVisit(this);
 	}
@@ -352,6 +372,17 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 */
 	public List superInterfaceTypes() {
 		return this.superInterfaceTypes;
+	}
+	
+	/**
+	 * Returns the live ordered list of recordComponents of record declaration.
+	 *
+	 * @return the live list of  recordComponents
+	 *    (element type: {@link SingleVariableDeclaration})
+	 * @since 3.21 BETA_JAVA
+	 */
+	public List recordComponents() {
+		return this.recordComponents;
 	}
 
 	/**
@@ -454,7 +485,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 
 	@Override
 	int memSize() {
-		return super.memSize() + 6 * 4;
+		return super.memSize() + 8 * 4;
 	}
 
 	@Override
@@ -465,6 +496,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 			+ (this.typeName == null ? 0 : getName().treeSize())
 			+ (this.typeParameters == null ? 0 : this.typeParameters.listSize())
 			+ (this.superInterfaceTypes == null ? 0 : this.superInterfaceTypes.listSize())
+			+ (this.recordComponents == null ? 0 : this.recordComponents.listSize())
 			+ this.bodyDeclarations.listSize();
 	}
 

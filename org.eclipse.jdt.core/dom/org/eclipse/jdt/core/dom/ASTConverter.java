@@ -3475,21 +3475,27 @@ class ASTConverter {
 		setModifiers(recordDeclaration, typeDeclaration);
 		final SimpleName typeName = new SimpleName(this.ast);
 		typeName.internalSetIdentifier(new String(typeDeclaration.name));
-		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
+		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.name.length);
 		recordDeclaration.setName(typeName);
 		recordDeclaration.setSourceRange(typeDeclaration.declarationSourceStart, typeDeclaration.bodyEnd - typeDeclaration.declarationSourceStart + 1);
 		recordDeclaration.setRestrictedIdentifierStartPosition(typeDeclaration.restrictedIdentifierStart);
 		
 		org.eclipse.jdt.internal.compiler.ast.TypeReference[] superInterfaces = typeDeclaration.superInterfaces;
 		if (superInterfaces != null) {
-			for (int index = 0, length = superInterfaces.length; index < length; index++) {
-				recordDeclaration.superInterfaceTypes().add(convertType(superInterfaces[index]));
+			for (TypeReference superInterface : superInterfaces) {
+				recordDeclaration.superInterfaceTypes().add(convertType(superInterface));
 			}
 		}
 		org.eclipse.jdt.internal.compiler.ast.TypeParameter[] typeParameters = typeDeclaration.typeParameters;
 		if (typeParameters != null) {
-			for (int index = 0, length = typeParameters.length; index < length; index++) {
-				recordDeclaration.typeParameters().add(convert(typeParameters[index]));
+			for (org.eclipse.jdt.internal.compiler.ast.TypeParameter typeParameter : typeParameters) {
+				recordDeclaration.typeParameters().add(convert(typeParameter));
+			}
+		}
+		Argument[] args = ((org.eclipse.jdt.internal.compiler.ast.RecordDeclaration)typeDeclaration).getArgs();
+		if (args != null) {
+			for (Argument arg : args) {
+				recordDeclaration.recordComponents().add(convert(arg));
 			}
 		}
 		buildBodyDeclarations(typeDeclaration, recordDeclaration, false);

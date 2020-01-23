@@ -1334,6 +1334,17 @@ public class NaiveASTFlattener extends ASTVisitor {
 			}
 			this.buffer.append(">");//$NON-NLS-1$
 		}
+		
+		this.buffer.append("(");//$NON-NLS-1$
+		for (Iterator it = node.recordComponents().iterator(); it.hasNext(); ) {
+			SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
+			v.accept(this);
+			if (it.hasNext()) {
+				this.buffer.append(",");//$NON-NLS-1$
+			}
+		}
+		this.buffer.append(")");//$NON-NLS-1$
+		
 		this.buffer.append("{");//$NON-NLS-1$
 		if (!node.bodyDeclarations().isEmpty()) {
 			this.buffer.append("\n");//$NON-NLS-1$

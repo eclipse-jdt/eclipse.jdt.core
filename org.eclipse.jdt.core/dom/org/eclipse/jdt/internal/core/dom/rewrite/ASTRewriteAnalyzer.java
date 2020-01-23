@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2265,6 +2265,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			pos= rewriteNodeList(node, superInterfaceProperty, pos, keyword, ", "); //$NON-NLS-1$
 		}
 
+		pos= rewriteNodeList(node, RecordDeclaration.RECORD_COMPONENTS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$ 
 		// type members
 		// startPos : find position after left brace of type, be aware that bracket might be missing
 		int startIndent= getIndent(node.getStartPosition()) + 1;

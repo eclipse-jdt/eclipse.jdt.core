@@ -1994,9 +1994,8 @@ public class ASTMatcher {
 				&& safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.superInterfaceTypes(), o.superInterfaceTypes())
 				&& safeSubtreeMatch(node.typeParameters(), o.typeParameters())
-				&& safeSubtreeListMatch(
-					node.bodyDeclarations(),
-					o.bodyDeclarations()));
+				&& safeSubtreeListMatch(node.bodyDeclarations(), o.bodyDeclarations())
+				&& safeSubtreeMatch(node.recordComponents(), o.recordComponents()));
 	}
 	
 	/**
