@@ -45,7 +45,7 @@ import java.util.List;
  * character of the "}" token following the body declarations.
  * </p>
  *
- * @since 3.20 BETA_JAVA
+ * @since 3.21 BETA_JAVA
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noreference This class is not intended to be referenced by clients as it is a part of Java preview feature.
  */
@@ -54,21 +54,21 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 
 	/**
 	 * The "javadoc" structural property of this node type (child type: {@link Javadoc}).
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public static final ChildPropertyDescriptor JAVADOC_PROPERTY =
 		internalJavadocPropertyFactory(RecordDeclaration.class);
 
 	/**
 	 * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}) (added in JLS3 API).
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS2_PROPERTY =
 		internalModifiers2PropertyFactory(RecordDeclaration.class);
 
 	/**
 	 * The "name" structural property of this node type (child type: {@link SimpleName}).
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
 		internalNamePropertyFactory(RecordDeclaration.class);
@@ -76,21 +76,21 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	
 	/**
 	 * The "superInterfaceTypes" structural property of this node type (element type: {@link Type}) (added in JLS3 API).
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public static final ChildListPropertyDescriptor SUPER_INTERFACE_TYPES_PROPERTY =
 		new ChildListPropertyDescriptor(RecordDeclaration.class, "superInterfaceTypes", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "typeParameters" structural property of this node type (element type: {@link TypeParameter}) (added in JLS3 API).
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public static final ChildListPropertyDescriptor TYPE_PARAMETERS_PROPERTY =
 		new ChildListPropertyDescriptor(RecordDeclaration.class, "typeParameters", TypeParameter.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "bodyDeclarations" structural property of this node type (element type: {@link BodyDeclaration}) (added in JLS3 API).
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY =
 		internalBodyDeclarationPropertyFactory(RecordDeclaration.class);
@@ -120,7 +120,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
@@ -147,7 +147,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return propertyDescriptors(apiLevel, false);
@@ -163,7 +163,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
 		if (apiLevel == AST.JLS14_INTERNAL && previewEnabled) {
@@ -176,7 +176,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * The type parameters (element type: {@link TypeParameter}).
 	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	private ASTNode.NodeList typeParameters = null;
 
@@ -185,7 +185,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 * The superinterface types (element type: {@link Type}).
 	 * Null in JLS2. Added in JLS3; defaults to an empty list
 	 * (see constructor).
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	private ASTNode.NodeList superInterfaceTypes = null;
 
@@ -333,7 +333,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 *
 	 * @return the live list of type parameters
 	 *    (element type: {@link TypeParameter})
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public List typeParameters() {
 		return this.typeParameters;
@@ -348,7 +348,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 *
 	 * @return the live list of interface types
 	 *    (element type: {@link Type})
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public List superInterfaceTypes() {
 		return this.superInterfaceTypes;

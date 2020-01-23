@@ -344,7 +344,7 @@ public final class AST {
 	/**
 	 * Internal synonym for {@link #JLS14}. Use to alleviate
 	 * deprecation warnings once JLS14 is deprecated
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	static final int JLS14_INTERNAL = JLS14;
 
@@ -3644,7 +3644,7 @@ public final class AST {
 	/**
 	 * 
 	 * @return If previewEnabled flag is set to <code>true</true>, return <code>true</code> else <code>false</code>
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public boolean isPreviewEnabledSet() {

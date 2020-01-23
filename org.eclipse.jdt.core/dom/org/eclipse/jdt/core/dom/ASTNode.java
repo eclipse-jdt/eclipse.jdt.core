@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -986,7 +986,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>RecordDeclaration</code>.
 	 * @see RecordDeclaration
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	public static final int RECORD_DECLARATION = 103;
 	
@@ -2160,7 +2160,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is used below JLS14
-	 * @since 3.20 BETA_JAVA
+	 * @since 3.21 BETA_JAVA
 	 */
 	final void unsupportedBelow14() {
 		if (this.ast.apiLevel < AST.JLS14_INTERNAL) {
