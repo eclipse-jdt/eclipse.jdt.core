@@ -2303,6 +2303,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordComponentCannotBeVoid= PreviewRelated + 1753;
+	/** @since 3.21 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordIllegalVararg= PreviewRelated + 1754;
 	/* records - end */
 	/* Java14 errors - end */
 	}

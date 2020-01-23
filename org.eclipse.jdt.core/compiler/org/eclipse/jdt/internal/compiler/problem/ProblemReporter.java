@@ -11638,4 +11638,13 @@ public void recordComponentCannotBeVoid(ASTNode recordDecl, Argument arg) {
 		recordDecl.sourceStart,
 		recordDecl.sourceEnd);
 }
+public void recordIllegalVararg(Argument argType, RecordDeclaration recordDecl) {
+	String[] arguments = new String[] {CharOperation.toString(argType.type.getTypeName()), new String(recordDecl.name)};
+	this.handle(
+		IProblem.RecordIllegalVararg,
+		arguments,
+		arguments,
+		argType.sourceStart,
+		argType.sourceEnd);
+}
 }

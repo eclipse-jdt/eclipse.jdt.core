@@ -7224,7 +7224,7 @@ protected void consumeRule(int act) {
 		    consumeRecordComponentsopt();  
 			break;
  
-    case 328 : if (DEBUG) { System.out.println("RecordComponents ::= RecordComponents COMMA..."); }  //$NON-NLS-1$
+    case 327 : if (DEBUG) { System.out.println("RecordComponents ::= RecordComponents COMMA..."); }  //$NON-NLS-1$
 		    consumeRecordComponents();  
 			break;
  
@@ -10837,6 +10837,9 @@ private void convertToFields(RecordDeclaration rd, Argument[] args) {
 			problemReporter().recordComponentCannotBeVoid(rd, arg);
 			continue;
 		}
+		if (arg.isVarArgs() && i < max - 1)
+			problemReporter().recordIllegalVararg(arg, rd);
+
 		argsSet.add(argName);
 		FieldDeclaration f = fields[nFields++] = createFieldDeclaration(arg.name, arg.sourceStart, arg.sourceEnd);
 		f.bits = arg.bits;
@@ -10944,7 +10947,7 @@ protected void consumeRecordComponent(boolean isVarArgs) {
 		if (extendedDimensions == 0) {
 			type.sourceEnd = endOfEllipsis;
 		}
-//		type.bits |= ASTNode.IsVarArgs; // set isVarArgs
+		type.bits |= ASTNode.IsVarArgs; // set isVarArgs
 	}
 	int modifierPositions = this.intStack[this.intPtr--];
 	Argument arg;

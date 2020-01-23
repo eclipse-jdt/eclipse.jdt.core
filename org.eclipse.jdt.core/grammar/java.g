@@ -1137,7 +1137,6 @@ RecordHeader ::= '(' RecordComponentsopt RecordComponentHeaderRightParen
 RecordComponentsopt ::= $empty
 /.$putCase consumeRecordComponentsopt(); $break ./
 RecordComponentsopt -> RecordComponents
-RecordComponentsopt -> VariableArityRecordComponent
 /:$readableName RecordComponentsopt:/
 /:$compliance 14:/
 
@@ -1147,6 +1146,7 @@ RecordComponents ::= RecordComponents ',' RecordComponent
 /:$readableName RecordComponents:/
 /:$compliance 14:/
 
+RecordComponent -> VariableArityRecordComponent
 RecordComponent ::= Modifiersopt Type VariableDeclaratorId
 /.$putCase consumeRecordComponent(false); $break ./
 /:$readableName RecordComponent:/

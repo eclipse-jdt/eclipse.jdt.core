@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug559281" };
+//		TESTS_NAMES = new String[] { "testBug559448" };
 	}
 	
 	public static Class<?> testClass() {
@@ -1803,6 +1803,68 @@ public void testBug559281_002() {
 			"	record X(int clone, int wait) {}\n" +
 			"	                        ^^^^\n" +
 			"Illegal component name wait in record X;\n" +
+			"----------\n");
+}
+public void testBug559448_001() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"class X {\n"+
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n"+
+					"record Point(int x, int... y){\n"+
+					"}\n"
+			},
+		"0");
+}
+public void testBug559448_002() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"class X {\n"+
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n"+
+					"record Point(int... x, int y){\n"+
+					"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	record Point(int... x, int y){\n" + 
+			"	                    ^\n" + 
+			"The variable argument type int of the record Point must be the last parameter\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	record Point(int... x, int y){\n" + 
+			"	                    ^\n" + 
+			"The variable argument type int of the method Point must be the last parameter\n" + 
+			"----------\n");
+}
+public void testBug559448_003() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"class X {\n"+
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n"+
+					"record Point(int... x, int... y){\n"+
+					"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	record Point(int... x, int... y){\n" + 
+			"	                    ^\n" + 
+			"The variable argument type int of the record Point must be the last parameter\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 6)\n" + 
+			"	record Point(int... x, int... y){\n" + 
+			"	                    ^\n" + 
+			"The variable argument type int of the method Point must be the last parameter\n" + 
 			"----------\n");
 }
 }
