@@ -3263,7 +3263,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. INFO in X.java (at line 9)\n" + 
 			"	X<String> x = new Y();\n" + 
 			"	              ^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type '@NonNull Y' needs unchecked conversion to conform to 'X<String>', corresponding supertype is 'X<@NonNull String>'\n" + 
+			"Unsafe null type conversion (type annotations): The value of type '@NonNull Y' is made accessible using the less-annotated type 'X<String>', corresponding supertype is 'X<@NonNull String>'\n" + 
 			"----------\n");
 	}
 
@@ -3679,7 +3679,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"2. INFO in X.java (at line 7)\n" + 
 			"	@NonNull String @NonNull [][] s2 = new @NonNull String [] @NonNull [] { null, { null} }; // problem at both nulls\n" + 
 			"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'@NonNull String [] @NonNull[]\' needs unchecked conversion to conform to \'@NonNull String @NonNull[] []\'\n" + 
+			"Unsafe null type conversion (type annotations): The value of type \'@NonNull String [] @NonNull[]\' is made accessible using the less-annotated type \'@NonNull String @NonNull[] []\'\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 7)\n" + 
 			"	@NonNull String @NonNull [][] s2 = new @NonNull String [] @NonNull [] { null, { null} }; // problem at both nulls\n" + 
@@ -3715,7 +3715,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	@NonNull String [][] @NonNull [] s = new @NonNull String []@NonNull [][] { null, { {null}, null/*ok*/ } };\n" + 
 			"	                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'@NonNull String [] @NonNull[] []\' needs unchecked conversion to conform to \'@NonNull String [] [] @NonNull[]\'\n" + 
+			"Unsafe null type conversion (type annotations): The value of type \'@NonNull String [] @NonNull[] []\' is made accessible using the less-annotated type \'@NonNull String [] [] @NonNull[]\'\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 6)\n" + 
 			"	@NonNull String [][] @NonNull [] s = new @NonNull String []@NonNull [][] { null, { {null}, null/*ok*/ } };\n" + 
@@ -6640,7 +6640,7 @@ public void testBug439298_comment3() {
 		"1. INFO in Extract.java (at line 9)\n" + 
 		"	return new R<@NonNull A>(null);\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Null type safety (type annotations): The expression of type '@NonNull R<@NonNull A>' needs unchecked conversion to conform to 'R<A>'\n" + 
+		"Unsafe null type conversion (type annotations): The value of type '@NonNull R<@NonNull A>' is made accessible using the less-annotated type 'R<A>'\n" + 
 		"----------\n");
 }
 public void testBug439298_comment4() {
@@ -17868,7 +17868,7 @@ public void testBug482242_simple() {
 		"1. ERROR in Test.java (at line 9)\n" + 
 		"	dangerous(l);\n" + 
 		"	          ^\n" + 
-		"Null type safety (type annotations): The expression of type \'List<@NonNull String>\' needs unchecked conversion to conform to \'List<String>\'\n" + 
+		"Unsafe null type conversion (type annotations): The value of type \'List<@NonNull String>\' is made accessible using the less-annotated type \'List<String>\'\n" + 
 		"----------\n");
 }
 public void testBug482242_intermediate() {
@@ -17906,7 +17906,7 @@ public void testBug482242_intermediate() {
 		"2. ERROR in Test.java (at line 13)\n" + 
 		"	insert(list, string); // (2)\n" + 
 		"	       ^^^^\n" + 
-		"Null type safety (type annotations): The expression of type \'List<@NonNull String>\' needs unchecked conversion to conform to \'List<? super String>\'\n" + 
+		"Unsafe null type conversion (type annotations): The value of type \'List<@NonNull String>\' is made accessible using the less-annotated type \'List<? super String>\'\n" + 
 		"----------\n");
 }
 public void testBug482242_annotatedTypeVariable() {

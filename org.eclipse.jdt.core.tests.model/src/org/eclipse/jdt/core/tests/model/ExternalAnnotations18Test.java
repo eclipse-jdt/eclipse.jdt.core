@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2017 GK Software AG, and others.
+ * Copyright (c) 2014, 2020 GK Software AG, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2638,8 +2638,8 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			IProblem[] problems = reconciled.getProblems();
 			assertProblems(problems, 
 					new String[] {
-						"Pb(955) Null type safety (type annotations): The expression of type 'Collector<@NonNull String,capture#of ?,Set<@NonNull String>>' " +
-						"needs unchecked conversion to conform to 'Collector<? super String,Object,Set<@NonNull String>>'",
+						"Pb(983) Unsafe null type conversion (type annotations): The value of type 'Collector<@NonNull String,capture#of ?,Set<@NonNull String>>' " +
+						"is made accessible using the less-annotated type 'Collector<? super String,Object,Set<@NonNull String>>'",
 					},
 					new int[] {11},
 					new int[] { ProblemSeverities.Warning });
@@ -2648,7 +2648,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Markers after full build", 
-					"Null type safety (type annotations): The expression of type 'Collector<@NonNull String,capture#of ?,Set<@NonNull String>>' needs unchecked conversion to conform to 'Collector<? super String,Object,Set<@NonNull String>>'",
+					"Unsafe null type conversion (type annotations): The value of type 'Collector<@NonNull String,capture#of ?,Set<@NonNull String>>' is made accessible using the less-annotated type 'Collector<? super String,Object,Set<@NonNull String>>'",
 					markers);
 			int[] severities = new int[] { IMarker.SEVERITY_WARNING };
 			for (int i = 0; i < markers.length; i++) {
