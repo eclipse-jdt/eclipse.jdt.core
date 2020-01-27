@@ -244,14 +244,16 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 		Argument recordComponent = getRecordComponent();
 		if (recordComponent != null) {
 			/* JLS 14 Records Sec 8.10.3 */
-			if (TypeBinding.notEquals(this.returnType.resolvedType, recordComponent.type.resolvedType))
+			if (this.returnType != null && TypeBinding.notEquals(this.returnType.resolvedType, recordComponent.type.resolvedType))
 				this.scope.problemReporter().recordIllegalAccessorReturnType(this.returnType, recordComponent.type.resolvedType);
 			if (this.typeParameters != null)
 				this.scope.problemReporter().recordAccessorMethodShouldNotBeGeneric(this);
-			if ((this.binding.modifiers & ClassFileConstants.AccPublic) == 0)
-				this.scope.problemReporter().recordAccessorMethodShouldBePublic(this);
-			if ((this.binding.modifiers & ClassFileConstants.AccStatic) != 0)
-				this.scope.problemReporter().recordAccessorMethodShouldNotBeStatic(this);
+			if (this.binding != null) {
+				if ((this.binding.modifiers & ClassFileConstants.AccPublic) == 0)
+					this.scope.problemReporter().recordAccessorMethodShouldBePublic(this);
+				if ((this.binding.modifiers & ClassFileConstants.AccStatic) != 0)
+					this.scope.problemReporter().recordAccessorMethodShouldNotBeStatic(this);
+			}
 			if (this.thrownExceptions != null)
 				this.scope.problemReporter().recordAccessorMethodHasThrowsClause(this);
 		}

@@ -1867,4 +1867,38 @@ public void testBug559448_003() {
 			"The variable argument type int of the method Point must be the last parameter\n" + 
 			"----------\n");
 }
+public void testBug559574_001() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"record X(int x, int XX3) {\n"+
+					"       public XX3  {}\n"+
+					"       public XX3(int x, int y, int z) {\n"+
+					"               this.x = x;\n"+
+					"               this.y = y;\n"+
+					"       }\n"+
+					"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 2)\n" + 
+			"	public XX3  {}\n" + 
+			"	       ^^\n" + 
+			"Return type for the method is missing\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	public XX3(int x, int y, int z) {\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Return type for the method is missing\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 3)\n" + 
+			"	public XX3(int x, int y, int z) {\n" + 
+			"	               ^\n" + 
+			"The parameter x is hiding a field from type X\n" + 
+			"----------\n" + 
+			"4. ERROR in X.java (at line 5)\n" + 
+			"	this.y = y;\n" + 
+			"	     ^\n" + 
+			"y cannot be resolved or is not a field\n" + 
+			"----------\n");
+}
 }
