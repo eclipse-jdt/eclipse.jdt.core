@@ -10844,6 +10844,7 @@ private void convertToFields(RecordDeclaration rd, Argument[] args) {
 		FieldDeclaration f = fields[nFields++] = createFieldDeclaration(arg.name, arg.sourceStart, arg.sourceEnd);
 		f.bits = arg.bits;
 		f.declarationSourceStart = arg.declarationSourceStart;
+		f.declarationEnd = arg.declarationEnd;
 		f.declarationSourceEnd = arg.declarationSourceEnd;
 		f.endPart1Position = arg.sourceEnd; //TODO BETA_JAVA14 - recheck
 		f.endPart2Position = arg.declarationSourceEnd;

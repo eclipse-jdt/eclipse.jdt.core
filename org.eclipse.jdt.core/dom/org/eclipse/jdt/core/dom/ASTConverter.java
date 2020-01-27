@@ -3522,9 +3522,7 @@ class ASTConverter {
 			recordNodes(variableDeclarationFragment, fieldDecl);
 			variableDeclarationFragment.resolveBinding();
 		}
-		if (!fieldDecl.isARecordComponent) {
-			fieldDeclaration.setSourceRange(fieldDecl.declarationSourceStart, fieldDecl.declarationEnd - fieldDecl.declarationSourceStart + 1);
-		}
+		fieldDeclaration.setSourceRange(fieldDecl.declarationSourceStart, fieldDecl.declarationEnd - fieldDecl.declarationSourceStart + 1);
 		Type type = convertType(fieldDecl.type);
 		setTypeForField(fieldDeclaration, type, variableDeclarationFragment.getExtraDimensions());
 		setModifiers(fieldDeclaration, fieldDecl);
