@@ -203,6 +203,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IsCapturedOuterLocal = Bit20;
 
 	// for statements
+//	public static final int IsImplicit = Bit11; // record declaration
 	public static final int IsReachable = Bit32;
 	public static final int LabelUsed = Bit7;
 	public static final int DocumentedFallthrough = Bit30; // switch statement
@@ -261,7 +262,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for constructor declaration
 	public static final int IsDefaultConstructor = Bit8;
 	public static final int IsCanonicalConstructor = Bit10; // record declaration
-	public static final int IsImplicit = Bit11; // record declaration
+	public static final int IsImplicit = Bit11; // record declaration / generated statements in compact constructor
 
 	// for compilation unit
 	public static final int HasAllMethodBodies = Bit5;

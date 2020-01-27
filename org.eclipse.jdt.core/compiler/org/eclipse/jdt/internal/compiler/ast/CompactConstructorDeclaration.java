@@ -77,6 +77,7 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 		Assignment assignment = new Assignment(lhs, new SingleNameReference(field.name, 0), 0);
 		assignment.resolveType(this.scope);
 		assignment.analyseCode(this.scope, flowContext, flowInfo);
+		assignment.bits |= ASTNode.IsImplicit;
 		assert flowInfo.isDefinitelyAssigned(field);
 		Statement[] stmts = this.statements;
 		if (this.statements == null) {
