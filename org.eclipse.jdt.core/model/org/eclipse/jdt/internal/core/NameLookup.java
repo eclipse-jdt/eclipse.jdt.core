@@ -7,7 +7,11 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - contribution for bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
@@ -177,7 +181,7 @@ public class NameLookup implements SuffixConstants {
 	 * Accept flag for specifying enums.
 	 */
 	public static final int ACCEPT_ENUMS = ASTNode.Bit4;
-	
+
 	/**
 	 * Accept flag for specifying records.
 	 * @noreference This field is not intended to be referenced by clients.

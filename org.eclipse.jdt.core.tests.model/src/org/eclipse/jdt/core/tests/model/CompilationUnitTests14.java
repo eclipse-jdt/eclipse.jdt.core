@@ -11,7 +11,7 @@
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -93,7 +93,7 @@ public void setUpSuite() throws Exception {
 		"}\n" +
 		"@interface /*c*/ Annot {\n" +
 		"  String field();\n" +
-		"}\n" + 
+		"}\n" +
 		"record Record() {}"
 	);
 	this.testProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
@@ -148,7 +148,7 @@ public void testGetTypes() throws JavaModelException {
 		String[][] formalTypeParameters = new String[][] {
 			new String[0], new String[0], new String[] {"E"}, new String[0], new String[] {"E"}, new String[0], new String[0], new String[0]
 		};
-	
+
 		assertEquals("Wrong number of types returned", typeNames.length, types.length);
 		for (int i = 0; i < types.length; i++) {
 			assertEquals("Incorrect name for the " + i + " type", typeNames[i], types[i].getElementName());

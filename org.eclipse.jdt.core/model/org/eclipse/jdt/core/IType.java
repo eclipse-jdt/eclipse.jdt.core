@@ -917,7 +917,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	boolean isRecord() throws JavaModelException;
-	
+
 	/**
 	 * Returns whether this type represents an interface.
 	 * <p>

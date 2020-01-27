@@ -1079,7 +1079,7 @@ public StringBuffer printHeader(int indent, StringBuffer output) {
 		switch (kind(this.modifiers)) {
 			case TypeDeclaration.CLASS_DECL :
 			case TypeDeclaration.ENUM_DECL :
-			case TypeDeclaration.RECORD_DECL :	
+			case TypeDeclaration.RECORD_DECL :
 				output.append(" implements "); //$NON-NLS-1$
 				break;
 			case TypeDeclaration.INTERFACE_DECL :
