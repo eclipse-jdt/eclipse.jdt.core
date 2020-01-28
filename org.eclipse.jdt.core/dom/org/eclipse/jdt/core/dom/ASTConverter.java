@@ -741,10 +741,11 @@ class ASTConverter {
 				}
 				int statementsLength = statements == null ? 0 : statements.length;
 				for (int i = 0; i < statementsLength; i++) {
-					if (statements[i] instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
+					org.eclipse.jdt.internal.compiler.ast.Statement astStatement = statements[i];
+					if (astStatement instanceof org.eclipse.jdt.internal.compiler.ast.LocalDeclaration) {
 						checkAndAddMultipleLocalDeclaration(statements, i, block.statements());
-					} else {
-						final Statement statement = convert(statements[i]);
+					} else if ((astStatement.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsImplicit) == 0 ){ // Don't convert Implicit statements
+						final Statement statement = convert(astStatement);
 						if (statement != null) {
 							block.statements().add(statement);
 						}
