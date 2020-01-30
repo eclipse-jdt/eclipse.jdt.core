@@ -1951,13 +1951,6 @@ public void disallowedTargetForAnnotation(Annotation annotation) {
 		annotation.sourceStart,
 		annotation.sourceEnd);
 }
-public void explitAnnotationTargetRequired(Annotation annotation) {
-	this.handle(IProblem.ExplicitAnnotationTargetRequired,
-			NoArgument,
-			NoArgument,
-			annotation.sourceStart,
-			annotation.sourceEnd);
-}
 public void polymorphicMethodNotBelow17(ASTNode node) {
 	this.handle(
 			IProblem.PolymorphicMethodNotBelow17,

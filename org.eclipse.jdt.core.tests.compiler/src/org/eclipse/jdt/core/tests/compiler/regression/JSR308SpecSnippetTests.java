@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 IBM Corporation and others.
+ * Copyright (c) 2011, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -888,11 +888,10 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$Y.class", "Y", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test018() throws Exception {
-		this.runNegativeTest(
+		// was negative prior to https://bugs.openjdk.java.net/browse/JDK-8231435
+		this.runConformTest(
 			new String[] {
 				"X.java",
-				"import java.lang.annotation.*;\n" +
-				"import static java.lang.annotation.ElementType.*;  \n" +
 				"@interface Receiver {}\n" +
 				"class Document {}\n" +
 				"interface I {\n" +
@@ -905,17 +904,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"	}\n" +
 				"}\n",
 		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
-		"	void foo(@Receiver X this) {}\n" + 
-		"	         ^^^^^^^^^\n" + 
-		"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
-		"	Y(@Receiver X X.this, boolean b) { }\n" + 
-		"	  ^^^^^^^^^\n" + 
-		"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-		"----------\n");
+		"");
 	}
 	public void test019() throws Exception {
 		this.runConformTest(

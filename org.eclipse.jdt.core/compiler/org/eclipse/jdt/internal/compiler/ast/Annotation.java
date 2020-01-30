@@ -767,12 +767,11 @@ public abstract class Annotation extends Expression {
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
 
-		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) == 0) { // explicit target required for JSR308 style annotations.
-			return false;
-		}
-		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
-			return false;
-		}
+		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) != 0) {
+			if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
+				return false;
+			}
+		} // else: no-@Target always applicable
 
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
 			return true; // by default the retention is CLASS
@@ -787,12 +786,11 @@ public abstract class Annotation extends Expression {
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits();
 
-		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) == 0) { // explicit target required for JSR308 style annotations.
-			return false;
-		}
-		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
-			return false;
-		}
+		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) != 0) {
+			if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
+				return false;
+			}
+		} // else: no-@Target always applicable
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
 			return false; // by default the retention is CLASS
 
@@ -1250,12 +1248,7 @@ public abstract class Annotation extends Expression {
 
 		long metaTagBits = annotationType.getAnnotationTagBits(); // could be forward reference
 		if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) {
-			// does not specify any target restriction - all locations supported in Java 7 and before are possible
-			// TBD - revisit for modules - as per 9.6.4.1, annotation without target is applicable for module declaration
-			// which is listed as a declaration context, but javac does not allow this
-			if (kind == Binding.TYPE_PARAMETER || kind == Binding.TYPE_USE) {
-				scope.problemReporter().explitAnnotationTargetRequired(annotation);
-			}
+			// does not specify any target restriction - all locations are possible
 			return AnnotationTargetAllowed.YES;
 		}
 

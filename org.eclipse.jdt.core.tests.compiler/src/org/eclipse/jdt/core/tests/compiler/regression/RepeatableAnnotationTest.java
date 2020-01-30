@@ -1451,29 +1451,15 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"	                                 ^^\n" + 
 			"The type TC is deprecated\n" + 
 			"----------\n" + 
-			"2. ERROR in T.java (at line 5)\n" + 
-			"	interface I<@T(1) @T(2) K> {\n" + 
-			"	            ^^\n" + 
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-			"----------\n" + 
-			"3. WARNING in T.java (at line 5)\n" + 
+			"2. WARNING in T.java (at line 5)\n" + 
 			"	interface I<@T(1) @T(2) K> {\n" + 
 			"	            ^^\n" + 
 			"The type TC is deprecated\n" + 
-			"----------\n" + 
-			"4. ERROR in T.java (at line 5)\n" + 
-			"	interface I<@T(1) @T(2) K> {\n" + 
-			"	            ^^\n" + 
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-			"----------\n" + 
-			"5. ERROR in T.java (at line 5)\n" + 
-			"	interface I<@T(1) @T(2) K> {\n" + 
-			"	                  ^^\n" + 
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
 			"----------\n");
 	}
 	public void testDeprecation2() { // verify that deprecation warning does not show up when the deprecated element is used in the same file defining it.
-		this.runNegativeTest(
+		// was negative prior to https://bugs.openjdk.java.net/browse/JDK-8231435
+		this.runConformTest(
 			new String[] {
 				"T.java",
 				"@Deprecated\n" +
@@ -1487,22 +1473,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"interface I<@T(1) @T(2) K> {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in T.java (at line 9)\n" + 
-			"	interface I<@T(1) @T(2) K> {\n" + 
-			"	            ^^\n" + 
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-			"----------\n" + 
-			"2. ERROR in T.java (at line 9)\n" + 
-			"	interface I<@T(1) @T(2) K> {\n" + 
-			"	            ^^\n" + 
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-			"----------\n" + 
-			"3. ERROR in T.java (at line 9)\n" + 
-			"	interface I<@T(1) @T(2) K> {\n" + 
-			"	                  ^^\n" + 
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-			"----------\n");
+			"");
 	}	
 	
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains

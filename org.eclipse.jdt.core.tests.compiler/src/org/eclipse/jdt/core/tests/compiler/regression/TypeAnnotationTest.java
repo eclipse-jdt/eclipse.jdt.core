@@ -4236,6 +4236,71 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+
+	// as of https://bugs.openjdk.java.net/browse/JDK-8231435 no-@Target annotations are legal also in TYPE_USE/TYPE_PARAMETER position
+	public void test083_multiuseAnnotations() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface Annot {\n" + 
+				"	int value() default 0;\n" + 
+				"}\n" + 
+				"public class X<@Annot(1) T> {\n" + 
+				"	java.lang. @Annot(2)String f;\n" + 
+				"	public void foo(String @Annot(3)[] args) {\n" + 
+				"	}\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  // Field descriptor #6 Ljava/lang/String;\n" + 
+				"  java.lang.String f;\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" +
+				"      #8 @Annot(\n" + 
+				"        #9 value=(int) 2 (constant type)\n" +  // <-2- 
+				"        target type = 0x13 FIELD\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #12 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  public X();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [14]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 4]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X<T>\n" + 
+				"  \n" + 
+				"  // Method descriptor #23 ([Ljava/lang/String;)V\n" + 
+				"  // Stack: 0, Locals: 2\n" + 
+				"  public void foo(java.lang.String[] args);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 1] local: args index: 1 type: java.lang.String[]\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X<T>\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #8 @Annot(\n" + 
+				"        #9 value=(int) 3 (constant type)\n" +  // <-3-
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"      )\n" + 
+				"\n" + 
+				"  RuntimeInvisibleTypeAnnotations: \n" + 
+				"    #8 @Annot(\n" + 
+				"      #9 value=(int) 1 (constant type)\n" +  // <-1-
+				"      target type = 0x0 CLASS_TYPE_PARAMETER\n" + 
+				"      type parameter index = 0\n" + 
+				"    )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
 	
 	public void test100_pqtr() throws Exception { // PQTR (ParameterizedQualifiedTypeReference)
 		this.runConformTest(
