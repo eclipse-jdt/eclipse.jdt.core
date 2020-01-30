@@ -10060,4 +10060,29 @@ public void testBug508834_comment0() {
 			};
 		runner.runConformTest();
 	}
+	public void testBug559677() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"MyClass.java",
+			"public class MyClass {\n" + 
+			"	private void myRun() {\n" + 
+			"	}\n" + 
+			"	private void myMethod(final Runnable r) {\n" + 
+			"	}\n" + 
+			"	public void test() {\n" + 
+			"		// second opening brace causes endless loop while saving\n" + 
+			"		myMethod((this::myRun);\n" + 
+			"	}\n" + 
+			"}\n"
+		};
+		runner.performStatementsRecovery = true;
+		runner.expectedCompilerLog =
+			"----------\n" + 
+			"1. ERROR in MyClass.java (at line 8)\n" + 
+			"	myMethod((this::myRun);\n" + 
+			"	                     ^\n" + 
+			"Syntax error, insert \")\" to complete Expression\n" + 
+			"----------\n";
+		runner.runNegativeTest();
+	}
 }
