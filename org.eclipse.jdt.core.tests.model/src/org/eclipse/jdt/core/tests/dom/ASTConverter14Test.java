@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
+ * Copyright (c) 2019, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -21,6 +21,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
@@ -56,6 +57,11 @@ public class ASTConverter14Test extends ConverterTestSetup {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getAST14(), false);
+		if (this.ast.apiLevel() == AST.JLS14 ) {
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
+		}
 	}
 
 	public ASTConverter14Test(String name) {
@@ -605,41 +611,137 @@ public class ASTConverter14Test extends ConverterTestSetup {
 		assertEquals("wrong line number", 9, compilationUnit.getLineNumber(node.getStartPosition()));
 	}
 	
-		public void _test0011() throws CoreException {
-			// saw NPE in SwitchExpression.resolveType(SwitchExpression.java:423)
-			if (!isJRE14) {
-				System.err.println("Test "+getName()+" requires a JRE 14");
-				return;
-			}
-			String source =
-				"public class Switch {\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		foo(Day.TUESDAY);\n" + 
-				"	}\n" + 
-				"\n" + 
-				"	private static void foo(Day day) {\n" + 
-				"		switch (day) {\n" + 
-				"		case SUNDAY, MONDAY, FRIDAY -> System.out.println(6);\n" + 
-				"		case TUESDAY -> System.out.println(7);\n" + 
-				"		case THURSDAY, SATURDAY -> System.out.println(8);\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"}\n" + 
-				"\n" + 
-				"enum Day {\n" + 
-				"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" + 
-				"}\n";
-			this.workingCopy = getWorkingCopy("/Converter14/src/Switch.java", true/*resolve*/);
-			try {
-			buildAST(
-					source,
-					this.workingCopy);
-			} catch(UnsupportedOperationException e) {
-				fail("Should not throw UnsupportedOperationException");
-			} catch(AssertionFailedError e) {
-				e.printStackTrace();
-				return;
-			}
-
+	public void _test0011() throws CoreException {
+		// saw NPE in SwitchExpression.resolveType(SwitchExpression.java:423)
+		if (!isJRE14) {
+			System.err.println("Test "+getName()+" requires a JRE 14");
+			return;
 		}
+		String source =
+			"public class Switch {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo(Day.TUESDAY);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static void foo(Day day) {\n" + 
+			"		switch (day) {\n" + 
+			"		case SUNDAY, MONDAY, FRIDAY -> System.out.println(6);\n" + 
+			"		case TUESDAY -> System.out.println(7);\n" + 
+			"		case THURSDAY, SATURDAY -> System.out.println(8);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"enum Day {\n" + 
+			"	MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;\n" + 
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter14/src/Switch.java", true/*resolve*/);
+		try {
+		buildAST(
+				source,
+				this.workingCopy);
+		} catch(UnsupportedOperationException e) {
+			fail("Should not throw UnsupportedOperationException");
+		} catch(AssertionFailedError e) {
+			e.printStackTrace();
+			return;
+		}
+
+	}
+		
+	public void testRecord001() throws CoreException {
+		if (!isJRE14) {
+			System.err.println("Test "+getName()+" requires a JRE 14");
+			return;
+		}
+		String contents =
+			"public record X() {\n" + 
+			"		public X {\n" + 
+			"			System.out.println(\"no error\");\n" +
+			"		}\n" + 
+			"\n" + 
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	
+	public void testRecord002() throws CoreException {
+		if (!isJRE14) {
+			System.err.println("Test "+getName()+" requires a JRE 14");
+			return;
+		}
+		String contents =
+			"public record X(int param1, int param2) {\n" + 
+			"		public X {\n" + 
+			"			if (param1 > 5) {\n" + 
+			"				System.out.println(\"error\");\n" +
+			"			}\n" +
+			"		}\n" + 
+			"\n" + 
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	
+	public void testRecord003() throws CoreException {
+		if (!isJRE14) {
+			System.err.println("Test "+getName()+" requires a JRE 14");
+			return;
+		}
+		String contents =
+			"public record X(int param1, int param2) {\n" + 
+			"		public X {\n" + 
+			"			if (param1 > 5) {\n" + 
+			"				System.out.println(\"error\");\n" +
+			"			}\n" +
+			"		}\n" + 
+			"\n" + 
+			"		public X(int a) {\n" + 
+			"			this.param1 = 6;\n" + 
+			"			this.param2 = 16;\n" + 
+			"			a = 6;\n" + 
+			"		}\n" + 
+			"}\n";
+		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/*resolve*/);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(
+				contents,
+				this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
 }

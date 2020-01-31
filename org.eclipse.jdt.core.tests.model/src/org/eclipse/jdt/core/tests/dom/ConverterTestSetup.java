@@ -204,7 +204,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			}
 		} else if ("14".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("CONVERTER_JCL14_LIB") == null) {
-				setupExternalJCL("converterJclMin13");
+				setupExternalJCL("converterJclMin14");
 				JavaCore.setClasspathVariables(
 						new String[] {"CONVERTER_JCL14_LIB", "CONVERTER_JCL14_SRC", "CONVERTER_JCL14_SRCROOT"},
 						new IPath[] {getConverterJCLPath("14"), getConverterJCLSourcePath("14"), getConverterJCLRootSourcePath()},
