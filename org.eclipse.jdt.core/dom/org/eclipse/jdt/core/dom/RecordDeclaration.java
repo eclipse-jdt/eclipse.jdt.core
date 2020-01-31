@@ -318,10 +318,10 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 				ASTNode.copySubtrees(target, typeParameters()));
 		result.superInterfaceTypes().addAll(
 				ASTNode.copySubtrees(target, superInterfaceTypes()));
-		result.bodyDeclarations().addAll(
-			ASTNode.copySubtrees(target, bodyDeclarations()));
 		result.recordComponents().addAll(
 				ASTNode.copySubtrees(target, recordComponents()));
+		result.bodyDeclarations().addAll(
+			ASTNode.copySubtrees(target, bodyDeclarations()));
 		return result;
 	}
 
@@ -341,8 +341,8 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 			acceptChild(visitor, getName());
 			acceptChildren(visitor, this.typeParameters);
 			acceptChildren(visitor, this.superInterfaceTypes);
-			acceptChildren(visitor, this.bodyDeclarations);
 			acceptChildren(visitor, this.recordComponents);
+			acceptChildren(visitor, this.bodyDeclarations);
 		}
 		visitor.endVisit(this);
 	}

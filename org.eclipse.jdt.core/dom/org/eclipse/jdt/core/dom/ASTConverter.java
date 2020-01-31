@@ -252,9 +252,13 @@ class ASTConverter {
 			int nextDeclarationType = -1;
 			if (fieldsIndex < fieldsLength) {
 				nextFieldDeclaration = fields[fieldsIndex];
-				if (nextFieldDeclaration.declarationSourceStart < position) {
-						position = nextFieldDeclaration.declarationSourceStart;
-						nextDeclarationType = 0; // FIELD
+				if (!nextFieldDeclaration.isARecordComponent) {
+					if (nextFieldDeclaration.declarationSourceStart < position) {
+							position = nextFieldDeclaration.declarationSourceStart;
+							nextDeclarationType = 0; // FIELD
+					}
+				} else {
+					fieldsIndex++;
 				}
 				 
 			}
