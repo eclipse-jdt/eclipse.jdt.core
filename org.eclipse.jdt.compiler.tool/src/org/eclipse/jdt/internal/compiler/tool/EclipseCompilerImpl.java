@@ -753,7 +753,11 @@ public class EclipseCompilerImpl extends Main {
 					@Override
 					public JavaFileObject getSource() {
 						if (problem instanceof DefaultProblem) {
-							File f = new File(new String(((DefaultProblem) problem).getOriginatingFileName()));
+							char[] originatingName = ((DefaultProblem) problem).getOriginatingFileName();
+							if (originatingName == null) {
+								return null;
+							}
+							File f = new File(new String(originatingName));
 							if (f.exists()) {
 								Charset charset = (EclipseCompilerImpl.this.fileManager instanceof EclipseFileManager) ?
 														((EclipseFileManager) EclipseCompilerImpl.this.fileManager).charset : Charset.defaultCharset();
