@@ -3236,7 +3236,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	public void testBug416180() {
-		runConformTestWithLibs(
+		runWarningTestWithLibs(
+			true,
 			new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.NonNull;\n" + 
@@ -4984,6 +4985,7 @@ public void testDefault05_custom() {
 		"	       ^^^^^\n" + 
 		"The @NonNull field field may not have been initialized\n" + 
 		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
 
@@ -5029,6 +5031,7 @@ public void testDefault05_custom2() {
 		"	       ^^^^^\n" + 
 		"The @NonNull field field may not have been initialized\n" + 
 		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
 
@@ -5305,6 +5308,7 @@ public void testDefault04_bin() {
 		"	          ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
 		"----------\n";
+	runner.javacTestOptions = JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 	runner.runNegativeTest();
 }
 
@@ -6620,7 +6624,8 @@ public void testBug439298_comment2() {
 		"");
 }
 public void testBug439298_comment3() {
-	runConformTestWithLibs(
+	runWarningTestWithLibs(
+		true,
 		new String[] {
 			"Extract.java",
 			"import org.eclipse.jdt.annotation.*;\n" + 
@@ -17742,7 +17747,8 @@ public void testBug536555() {
 	runner.runWarningTest();
 }
 public void testBug540264() {
-	runNegativeTestWithLibs(
+	runNegativeTest(
+		true,
 		new String[] {
 			"example/Example.java",
 			"package example;\n" +
@@ -17754,7 +17760,8 @@ public void testBug540264() {
 			"    }\n" +
 			"}\n" +
 			"",
-		}, 
+		},
+		this.LIBS,
 		getCompilerOptions(),
 		"----------\n" + 
 		"1. ERROR in example\\Example.java (at line 5)\n" + 
@@ -17771,7 +17778,8 @@ public void testBug540264() {
 		"	for (X.Y<Z> entry : x) {\n" + 
 		"	                    ^\n" + 
 		"x cannot be resolved to a variable\n" + 
-		"----------\n"
+		"----------\n",
+		JavacTestOptions.DEFAULT
 	);
 }
 public void testBug542707_1() {
