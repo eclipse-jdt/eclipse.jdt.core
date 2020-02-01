@@ -109,9 +109,10 @@ public class EclipseCompilerImpl extends Main {
 		} finally {
 			cleanup();
 		}
-		if (this.globalErrorsCount == 0)
-			return true;
-		return false;
+		if (this.failOnWarning && this.globalWarningsCount > 0) {
+			return false;
+		}
+		return this.globalErrorsCount == 0;
 	}
 
 	private void cleanup() {
