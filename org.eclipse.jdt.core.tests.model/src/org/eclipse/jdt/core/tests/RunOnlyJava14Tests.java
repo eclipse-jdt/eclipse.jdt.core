@@ -19,52 +19,41 @@ package org.eclipse.jdt.core.tests;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs14RecordTests;
-import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class RunAllJava14Tests extends TestCase {
+public class RunOnlyJava14Tests extends TestCase {
 	
-	public RunAllJava14Tests(String name) {
+	public RunOnlyJava14Tests(String name) {
 		super(name);
 	}
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
-			JavaSearchBugs14RecordTests.class
-
+				JavaSearchBugs14RecordTests.class
 		};
 	}
 	
 	public static Class[] getConverterTestClasses() {
 		return new Class[] {
-			
+				
 		};
 	}
-
-	public static Class[] getCompilerClasses() {
-		return new Class[] {
-			
-		};
-	}
-
 	public static Test suite() {
-		TestSuite ts = new TestSuite(RunAllJava14Tests.class.getName());
+		TestSuite ts = new TestSuite(RunOnlyJava14Tests.class.getName());
 
 		Class[] testClasses = getAllTestClasses();
 		addTestsToSuite(ts, testClasses);
 		testClasses = getConverterTestClasses();
+		ConverterTestSetup.TEST_SUITES = new ArrayList(Arrays.asList(testClasses));
 		addTestsToSuite(ts, testClasses);
-
-		AbstractCompilerTest.setpossibleComplianceLevels(AbstractCompilerTest.F_14);
-		addTestsToSuite(ts, getCompilerClasses());
-		// ComplianceDiagnoseTest is already added to the test suite through getTestSuite
-		ts.addTest(org.eclipse.jdt.core.tests.compiler.parser.TestAll.getTestSuite(false));
 		return ts;
 	}
 	public static void addTestsToSuite(TestSuite suite, Class[] testClasses) {
