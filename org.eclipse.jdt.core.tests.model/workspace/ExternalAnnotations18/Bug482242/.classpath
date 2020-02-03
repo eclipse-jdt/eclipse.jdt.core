@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="var" path="JCL18_LIB">
+		<attributes>
+			<attribute name="annotationpath" value="annots"/>
+		</attributes>
+	</classpathentry> 
+	<classpathentry kind="output" path="bin"/>
+</classpath>

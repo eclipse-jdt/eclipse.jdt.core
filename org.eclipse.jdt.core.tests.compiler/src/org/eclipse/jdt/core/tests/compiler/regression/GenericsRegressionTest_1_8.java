@@ -10041,4 +10041,48 @@ public void testBug508834_comment0() {
 		runner.runConformTest(); // don't use pre-compiled p/X$1.class
 	}
 
+	public void testBug559449() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"	class $$$ {}\n" +
+				"	<S> void m() {\n" +
+				"		Runnable r = () -> {\n" +
+				"			$$$ ddd = new $$$();\n" +
+				"			if (ddd != null)\n" +
+				"				System.out.println(ddd);\n" +
+				"		};\n" +
+				"		r.run();\n" +
+				"	}\n" +
+				"}\n"
+			};
+		runner.runConformTest();
+	}
+	public void testBug559677() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"MyClass.java",
+			"public class MyClass {\n" + 
+			"	private void myRun() {\n" + 
+			"	}\n" + 
+			"	private void myMethod(final Runnable r) {\n" + 
+			"	}\n" + 
+			"	public void test() {\n" + 
+			"		// second opening brace causes endless loop while saving\n" + 
+			"		myMethod((this::myRun);\n" + 
+			"	}\n" + 
+			"}\n"
+		};
+		runner.performStatementsRecovery = true;
+		runner.expectedCompilerLog =
+			"----------\n" + 
+			"1. ERROR in MyClass.java (at line 8)\n" + 
+			"	myMethod((this::myRun);\n" + 
+			"	                     ^\n" + 
+			"Syntax error, insert \")\" to complete Expression\n" + 
+			"----------\n";
+		runner.runNegativeTest();
+	}
 }
