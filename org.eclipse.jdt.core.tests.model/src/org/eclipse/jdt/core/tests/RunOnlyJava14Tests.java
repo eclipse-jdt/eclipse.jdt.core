@@ -24,6 +24,7 @@ import java.util.Arrays;
 
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs14RecordTests;
+import org.eclipse.jdt.core.tests.model.JavaSearchBugs14SwitchExpressionTests;
 
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -37,7 +38,7 @@ public class RunOnlyJava14Tests extends TestCase {
 	}
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
-				JavaSearchBugs14RecordTests.class
+				JavaSearchBugs14RecordTests.class,JavaSearchBugs14SwitchExpressionTests.class
 		};
 	}
 	
