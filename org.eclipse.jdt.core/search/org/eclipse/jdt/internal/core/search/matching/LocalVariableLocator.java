@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.SourceField;
 
 public class LocalVariableLocator extends VariableLocator {
 
@@ -135,6 +136,14 @@ private int matchField(Binding binding, boolean matchName) {
 	if (binding == null) return INACCURATE_MATCH;
 	if(binding instanceof FieldBinding) {
 		if (! ((FieldBinding)binding).declaringClass.isRecord())
+			return IMPOSSIBLE_MATCH;
+	}
+	if(this.pattern instanceof LocalVariablePattern) {
+		LocalVariablePattern lvp = (LocalVariablePattern)this.pattern;
+		LocalVariable localVariable = lvp.localVariable;
+		IJavaElement parent = localVariable.getParent() ;
+		// if the parent is not sourceField, skip
+		if(!(parent instanceof SourceField))
 			return IMPOSSIBLE_MATCH;
 	}
 	if (matchName && matchesName(this.pattern.name, binding.readableName()))

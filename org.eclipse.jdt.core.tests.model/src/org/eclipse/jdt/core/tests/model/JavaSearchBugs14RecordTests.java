@@ -846,5 +846,32 @@ public void testBug558812_26() throws CoreException {
 	boolean record = ((ResolvedSourceType)elements[0]).isRecord();
 	assertTrue(record);	
 	}
+//selection  - select parameter in normal constructor matching component name
+public void testBug558812_27() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"public record X(int a) {\n" +
+			"public X {  \n"+
+			"	this.a = a; \n"+
+			"	}\n"+
+			"public X(int/*here*/a, int b) { // select the a here\n"+
+			"this.a = a;\n"+
+			"}\n"+
+			"}\n"
+			);
+
+	String str = this.workingCopies[0].getSource();
+	String selection =  "/*here*/a";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	assertTrue(elements.length ==1);
+	assertTrue(elements[0] instanceof LocalVariable);
+	search(elements[0], REFERENCES, EXACT_RULE);
+	assertSearchResults(
+			"src/X.java X(int, int) [a] EXACT_MATCH");
+
+}
 
 }
