@@ -87,6 +87,13 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	 */
 	public static final ChildListPropertyDescriptor TYPE_PARAMETERS_PROPERTY =
 		new ChildListPropertyDescriptor(RecordDeclaration.class, "typeParameters", TypeParameter.class, NO_CYCLE_RISK); //$NON-NLS-1$
+	
+	/**
+	 * The "recordComponents" structural property of this node type (element type: {@link SingleVariableDeclaration}).
+	 * @since 3.21 BETA_JAVA
+	 */
+	public static final ChildListPropertyDescriptor RECORD_COMPONENTS_PROPERTY =
+		new ChildListPropertyDescriptor(RecordDeclaration.class, "recordComponents", SingleVariableDeclaration.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "bodyDeclarations" structural property of this node type (element type: {@link BodyDeclaration}).
@@ -95,12 +102,6 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	public static final ChildListPropertyDescriptor BODY_DECLARATIONS_PROPERTY =
 		internalBodyDeclarationPropertyFactory(RecordDeclaration.class);
 	
-	/**
-	 * The "recordComponents" structural property of this node type (element type: {@link SingleVariableDeclaration}).
-	 * @since 3.21 BETA_JAVA
-	 */
-	public static final ChildListPropertyDescriptor RECORD_COMPONENTS_PROPERTY =
-		new ChildListPropertyDescriptor(RecordDeclaration.class, "recordComponents", SingleVariableDeclaration.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A character index into the original restricted identifier source string,
@@ -140,8 +141,9 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		addProperty(NAME_PROPERTY, propertyList);
 		addProperty(TYPE_PARAMETERS_PROPERTY, propertyList);
 		addProperty(SUPER_INTERFACE_TYPES_PROPERTY, propertyList);
-		addProperty(BODY_DECLARATIONS_PROPERTY, propertyList);
 		addProperty(RECORD_COMPONENTS_PROPERTY, propertyList);
+		addProperty(BODY_DECLARATIONS_PROPERTY, propertyList);
+
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
@@ -270,11 +272,11 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 		if (property == SUPER_INTERFACE_TYPES_PROPERTY) {
 			return superInterfaceTypes();
 		}
-		if (property == BODY_DECLARATIONS_PROPERTY) {
-			return bodyDeclarations();
-		}
 		if (property == RECORD_COMPONENTS_PROPERTY) {
 			return recordComponents();
+		}
+		if (property == BODY_DECLARATIONS_PROPERTY) {
+			return bodyDeclarations();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);

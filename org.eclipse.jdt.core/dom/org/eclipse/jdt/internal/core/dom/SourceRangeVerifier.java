@@ -19,7 +19,10 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayCreation;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.StructuralPropertyDescriptor;
+import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 
 @SuppressWarnings("rawtypes")
 public class SourceRangeVerifier extends ASTVisitor {
@@ -87,6 +90,11 @@ public class SourceRangeVerifier extends ASTVisitor {
 		if ((parent.getFlags() & (ASTNode.RECOVERED | ASTNode.MALFORMED)) != 0
 				|| (child.getFlags() & (ASTNode.RECOVERED | ASTNode.MALFORMED)) != 0)
 			return false; 
+		if (DOMASTUtil.isRecordDeclarationSupported(child.getAST()) && child instanceof SingleVariableDeclaration) {
+			if (previous != null && previous instanceof MethodDeclaration && ((MethodDeclaration)previous).isCompactConstructor()) {
+				return true; // For compact constructors, do not validate for parameters
+			}
+		}
 		
 		int parentStart = parent.getStartPosition();
 		int parentEnd = parentStart + parent.getLength();
