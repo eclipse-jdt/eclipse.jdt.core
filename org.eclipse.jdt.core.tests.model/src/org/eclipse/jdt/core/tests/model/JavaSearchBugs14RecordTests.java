@@ -13,6 +13,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -26,7 +27,11 @@ import org.eclipse.jdt.core.search.ReferenceMatch;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.ResolvedSourceField;
+import org.eclipse.jdt.internal.core.ResolvedSourceType;
+import org.eclipse.jdt.internal.core.SourceMethod;
+import org.eclipse.jdt.internal.core.SourceType;
 
 import junit.framework.Test;
 
@@ -811,5 +816,35 @@ public void testBug558812_25() throws CoreException {
 			"src/X.java void Point.method() [comp_] EXACT_MATCH");
 
 }
+
+//selection  - select record in another file
+public void testBug558812_26() throws CoreException {
+
+	IJavaProject project1 = createJavaProject("JavaSearchBugs14", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "14");
+	Map<String, String> options = project1.getOptions(false);
+	options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
+	project1.setOptions(options);
+	project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	project1.open(null);
+	createFolder("/JavaSearchBugs14/src/pack11");
+	String fileContent = "package pack11;\n" +
+			"public record X11() {\n" +
+			"}\n";
+	String fileContent2 = "package pack11;\n" +
+			"public class X12  {\n" +
+			"/*here*/X11 p =null;\n"+
+			"}\n";
+
+	createFile("/JavaSearchBugs14/src/pack11/X11.java", fileContent);
+	createFile("/JavaSearchBugs14/src/pack11/X12.java",fileContent2);
+	ICompilationUnit unit = getCompilationUnit("/JavaSearchBugs14/src/pack11/X12.java");
+	String x11 = "/*here*/X11";
+	int start = fileContent2.indexOf(x11);
+	IJavaElement[] elements = unit.codeSelect(start, x11.length());
+	assertTrue(elements.length ==1);
+	assertTrue(elements[0] instanceof ResolvedSourceType);
+	boolean record = ((ResolvedSourceType)elements[0]).isRecord();
+	assertTrue(record);	
+	}
 
 }
