@@ -51,12 +51,12 @@ public class InstanceofExpression extends Expression {
 		new ChildPropertyDescriptor(InstanceofExpression.class, "rightOperand", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "parameter" structural property of this node type (child type: {@link SingleVariableDeclaration}) (added in JLS14 API).
+	 * The "patternVariable" structural property of this node type (child type: {@link SingleVariableDeclaration}) (added in JLS14 API).
 	 * @noreference This property is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @since 3.21
 	 */
-	public static final ChildPropertyDescriptor PARAMETER_PROPERTY =
-		new ChildPropertyDescriptor(InstanceofExpression.class, "parameter", SingleVariableDeclaration.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildPropertyDescriptor PATTERN_VARIABLE_PROPERTY =
+		new ChildPropertyDescriptor(InstanceofExpression.class, "patternVariable", SingleVariableDeclaration.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
@@ -81,7 +81,7 @@ public class InstanceofExpression extends Expression {
 		createPropertyList(InstanceofExpression.class, properyList);
 		addProperty(LEFT_OPERAND_PROPERTY, properyList);
 		addProperty(RIGHT_OPERAND_PROPERTY, properyList);
-		addProperty(PARAMETER_PROPERTY, properyList);
+		addProperty(PATTERN_VARIABLE_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS_14 = reapPropertyList(properyList);
 	}
 
@@ -131,9 +131,9 @@ public class InstanceofExpression extends Expression {
 	private Type rightOperand = null;
 	
 	/**
-	 * The parameter declaration.
+	 * The patternVariable declaration.
 	 */
-	private SingleVariableDeclaration parameter = null;
+	private SingleVariableDeclaration patternVariable = null;
 
 	/**
 	 * Creates a new AST node for an instanceof expression owned by the given
@@ -174,11 +174,11 @@ public class InstanceofExpression extends Expression {
 				return null;
 			}
 		}
-		if (property == PARAMETER_PROPERTY) {
+		if (property == PATTERN_VARIABLE_PROPERTY) {
 			if (get) {
-				return getParameter();
+				return getPatternVariable();
 			} else {
-				setParameter((SingleVariableDeclaration) child);
+				setPatternVariable((SingleVariableDeclaration) child);
 				return null;
 			}
 		}
@@ -198,7 +198,7 @@ public class InstanceofExpression extends Expression {
 		result.setLeftOperand((Expression) getLeftOperand().clone(target));
 		result.setRightOperand((Type) getRightOperand().clone(target));
 		if (DOMASTUtil.isInstanceofExpressionPatternSupported(target)) {
-			result.setParameter((SingleVariableDeclaration) getParameter().clone(target));
+			result.setPatternVariable((SingleVariableDeclaration) getPatternVariable().clone(target));
 		}
 		return result;
 	}
@@ -217,7 +217,7 @@ public class InstanceofExpression extends Expression {
 			acceptChild(visitor, getLeftOperand());
 			acceptChild(visitor, getRightOperand());
 			if (DOMASTUtil.isInstanceofExpressionPatternSupported(this.ast)) {
-				acceptChild(visitor, getParameter());
+				acceptChild(visitor, getPatternVariable());
 			}
 		}
 		visitor.endVisit(this);
@@ -304,40 +304,40 @@ public class InstanceofExpression extends Expression {
 	}
 
 	/**
-	 * Returns the parameter of this instanceof expression.
+	 * Returns the patternVariable of this instanceof expression.
 	 *
-	 * @return the parameter node
-	  * @exception UnsupportedOperationException if this operation is used other than JLS14
+	 * @return the patternVariable node
+	 * @exception UnsupportedOperationException if this operation is used other than JLS14
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
 	 */
-	public SingleVariableDeclaration getParameter() {
+	public SingleVariableDeclaration getPatternVariable() {
 		supportedOnlyIn14();
 		unsupportedWithoutPreviewError();
-		return this.parameter;
+		return this.patternVariable;
 	}
 
 	/**
-	 * Sets the parameter of this instanceof expression.
+	 * Sets the patternVariable of this instanceof expression.
 	 *
-	 * @param referenceParameter the right operand node
+	 * @param referencePatternVariable the right operand node
 	 * @exception IllegalArgumentException if:
 	 * @exception UnsupportedOperationException if this operation is used other than JLS14
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
 	 */
-	public void setParameter(SingleVariableDeclaration referenceParameter) {
+	public void setPatternVariable(SingleVariableDeclaration referencePatternVariable) {
 		supportedOnlyIn14();
 		unsupportedWithoutPreviewError();
-		if (referenceParameter == null) {
+		if (referencePatternVariable == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.parameter;
-		preReplaceChild(oldChild, referenceParameter, PARAMETER_PROPERTY);
-		this.parameter = referenceParameter;
-		postReplaceChild(oldChild, referenceParameter, PARAMETER_PROPERTY);
+		ASTNode oldChild = this.patternVariable;
+		preReplaceChild(oldChild, referencePatternVariable, PATTERN_VARIABLE_PROPERTY);
+		this.patternVariable = referencePatternVariable;
+		postReplaceChild(oldChild, referencePatternVariable, PATTERN_VARIABLE_PROPERTY);
 	}
 	@Override
 	int memSize() {
@@ -351,6 +351,6 @@ public class InstanceofExpression extends Expression {
 			memSize()
 			+ (this.leftOperand == null ? 0 : getLeftOperand().treeSize())
 			+ (this.rightOperand == null ? 0 : getRightOperand().treeSize())
-			+ (this.parameter == null ? 0 : getParameter().treeSize());
+			+ (this.patternVariable == null ? 0 : getPatternVariable().treeSize());
 	}
 }

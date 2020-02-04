@@ -55,6 +55,8 @@ public InstanceOfExpression(Expression expression, LocalDeclaration local) {
 	this.elementVariable = local;
 	this.type = this.elementVariable.type;
 	this.bits |= INSTANCEOF << OperatorSHIFT;
+	this.elementVariable.sourceStart = local.sourceStart;
+	this.elementVariable.sourceEnd = local.sourceEnd;
 	this.sourceStart = expression.sourceStart;
 	this.sourceEnd = local.declarationSourceEnd;
 }

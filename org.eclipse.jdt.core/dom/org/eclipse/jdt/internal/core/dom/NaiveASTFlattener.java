@@ -864,7 +864,11 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(InstanceofExpression node) {
 		node.getLeftOperand().accept(this);
 		this.buffer.append(" instanceof ");//$NON-NLS-1$
-		node.getRightOperand().accept(this);
+		if (DOMASTUtil.isInstanceofExpressionPatternSupported(node.getAST()) && node.getPatternVariable()!= null) {
+			node.getPatternVariable().accept(this);
+		} else {
+			node.getRightOperand().accept(this);
+		}
 		return false;
 	}
 

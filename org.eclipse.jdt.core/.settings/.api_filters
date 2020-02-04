@@ -147,7 +147,7 @@
         <filter comment="For Java 14" id="336658481">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.dom.InstanceofExpression"/>
-                <message_argument value="PARAMETER_PROPERTY"/>
+                <message_argument value="PATTERN_VARIABLE_PROPERTY"/>
             </message_arguments>
         </filter>
     </resource>

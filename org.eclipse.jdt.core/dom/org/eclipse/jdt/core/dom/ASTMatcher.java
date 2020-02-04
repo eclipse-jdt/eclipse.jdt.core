@@ -1188,7 +1188,7 @@ public class ASTMatcher {
 		return 
 			safeSubtreeMatch(node.getLeftOperand(), o.getLeftOperand())
 			&& safeSubtreeMatch(node.getRightOperand(), o.getRightOperand()) 
-			&& ((DOMASTUtil.isInstanceofExpressionPatternSupported(node.getAST())) ? safeSubtreeMatch(node.getParameter(), o.getParameter())
+			&& ((DOMASTUtil.isInstanceofExpressionPatternSupported(node.getAST())) ? safeSubtreeMatch(node.getPatternVariable(), o.getPatternVariable())
 					: true);
 	}
 
