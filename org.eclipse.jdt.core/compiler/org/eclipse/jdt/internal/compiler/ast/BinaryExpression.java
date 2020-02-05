@@ -1812,16 +1812,6 @@ public void initializePatternVariables(BlockScope scope, CodeStream codeStream) 
 	this.right.initializePatternVariables(scope, codeStream);
 }
 @Override
-public void resolvePatternVariable(BlockScope scope, boolean trueFalse) {
-	this.left.resolvePatternVariable(scope, trueFalse);
-	this.right.resolvePatternVariable(scope, trueFalse);
-}
-@Override
-public void generatePatternVariable(BlockScope currentScope, CodeStream codeStream) {
-	this.left.generatePatternVariable(currentScope, codeStream);
-	this.right.generatePatternVariable(currentScope, codeStream);
-}
-@Override
 public TypeBinding resolveType(BlockScope scope) {
 	// keep implementation in sync with CombinedBinaryExpression#resolveType
 	// and nonRecursiveResolveTypeUpwards
@@ -1929,6 +1919,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	// compute the constant when valid
 	computeConstant(scope, leftTypeID, rightTypeID);
+	this.bits |= (this.left.bits | this.right.bits) & ASTNode.HasInstancePatternExpression;
 	return this.resolvedType;
 }
 

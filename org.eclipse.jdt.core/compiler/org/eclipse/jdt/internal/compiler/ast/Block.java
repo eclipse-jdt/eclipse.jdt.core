@@ -90,8 +90,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (this.statements != null) {
 		for (Statement stmt : this.statements) {
 			stmt.generateCode(this.scope, codeStream);
-			if ((stmt.bits & ASTNode.HasInstancePatternExpression) != 0)
-				stmt.exitPatternVariableScope(codeStream);
 		}
 	} // for local variable debug attributes
 	if (this.scope != currentScope) { // was really associated with its own scope
@@ -134,12 +132,7 @@ public void resolve(BlockScope upperScope) {
 				: new BlockScope(upperScope, this.explicitDeclarations);
 		for (int i = 0, length = this.statements.length; i < length; i++) {
 			final Statement stmt = this.statements[i];
-			stmt.lookForPatternVariables(this.scope);
-			if ((stmt.bits & ASTNode.HasInstancePatternExpression) == 0) {
-				stmt.resolve(this.scope);
-			} else {
-				stmt.resolve(stmt.patternScope);
-			}
+			stmt.resolve(this.scope);
 		}
 	}
 }

@@ -63,9 +63,6 @@ public InstanceOfExpression(Expression expression, LocalDeclaration local) {
 
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	if (this.elementVariable != null) {
-		flowInfo.markAsDefinitelyAssigned(this.elementVariable.binding);
-	}
 	LocalVariableBinding local = this.expression.localVariableBinding();
 	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo).
@@ -74,6 +71,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		initsWhenTrue.markAsComparedEqualToNonNull(local);
 		flowContext.recordUsingNullReference(currentScope, local,
 				this.expression, FlowContext.CAN_ONLY_NULL | FlowContext.IN_INSTANCEOF, flowInfo);
+		if (this.elementVariable != null) {
+			if (this.elementVariable.duplicateCheckObligation != null) {
+				this.elementVariable.duplicateCheckObligation.accept(flowInfo);
+			}
+			initsWhenTrue.markAsDefinitelyAssigned(this.elementVariable.binding);
+		}
 		// no impact upon enclosing try context
 		return FlowInfo.conditional(initsWhenTrue, flowInfo.copy());
 	}
@@ -85,28 +88,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	return this.expression.analyseCode(currentScope, flowContext, flowInfo).
 			unconditionalInits();
-}
-@Override
-public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
-	super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
-	generatePatternVariable(currentScope, codeStream);
-//	if (this.elementVariable != null) {
-//		int position = codeStream.position;
-//		codeStream.load(this.expression.localVariableBinding());
-//		codeStream.checkcast(this.type, this.type.resolvedType, position);
-//		codeStream.store(this.elementVariable.binding, false);
-//		codeStream.recordPositionsFrom(position, this.sourceEnd);
-//	}
-}
-@Override
-public void generatePatternVariable(BlockScope currentScope, CodeStream codeStream) {
-//	if (this.elementVariable != null) {
-//		int position = codeStream.position;
-//		codeStream.load(this.expression.localVariableBinding());
-//		codeStream.checkcast(this.type, this.type.resolvedType, position);
-//		codeStream.store(this.elementVariable.binding, false);
-//		codeStream.recordPositionsFrom(position, this.sourceEnd);
-//	}
 }
 /**
  * Code generation for instanceOfExpression
@@ -161,33 +142,25 @@ public void initializePatternVariables(BlockScope currentScope, CodeStream codeS
 			this.isInitialized = true;
 			codeStream.aconst_null();
 			codeStream.store(this.elementVariable.binding, false);
-//			int position = codeStream.position;
-//			codeStream.addVisibleLocalVariable(this.elementVariable.binding);
-//			this.elementVariable.binding.recordInitializationStartPC(position);
 		}
 		int position = codeStream.position;
 		codeStream.addVisibleLocalVariable(this.elementVariable.binding);
 		this.elementVariable.binding.recordInitializationStartPC(position);
 	}
-	//generatePatternVariable(currentScope, codeStream);
 }
-@Override
-public void resolvePatternVariable(BlockScope scope, boolean inScope) {
-	if (!inScope) return;
+public void resolvePatternVariable(BlockScope scope) {
 	if (this.elementVariable != null && this.elementVariable.binding == null) {
-		this.patternScope = scope;
-		this.elementVariable.resolve(scope);
+		this.elementVariable.resolve(scope, true);
+		this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccPatterVariable;
 		// Why cant this be done in the constructor?
 		this.type = this.elementVariable.type;
+		this.bits |= ASTNode.HasInstancePatternExpression;
 	}
 }
 @Override
 public TypeBinding resolveType(BlockScope scope) {
-//	resolvePatternVariable(scope, scope);
 	this.constant = Constant.NotAConstant;
-	if (this.type == null && this.elementVariable != null) {
-		this.type = this.elementVariable.type;
-	}
+	resolvePatternVariable(scope);
 	TypeBinding checkedType = this.type.resolveType(scope, true /* check bounds*/);
 	if (this.expression instanceof CastExpression) {
 		((CastExpression) this.expression).setInstanceofType(checkedType); // for cast expression we need to know instanceof type to not tag unnecessary when needed

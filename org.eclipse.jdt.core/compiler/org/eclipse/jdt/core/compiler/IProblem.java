@@ -2315,5 +2315,9 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature error */
 	int RecordIllegalVararg= PreviewRelated + 1754;
 	/* records - end */
+	/* instanceof pattern: */
+	/** @since 3.21 BETA_JAVA14
+	 * @noreference preview feature error */
+	int PatternVariableNotInScope = PreviewRelated + 1760;
 	/* Java14 errors - end */
 	}

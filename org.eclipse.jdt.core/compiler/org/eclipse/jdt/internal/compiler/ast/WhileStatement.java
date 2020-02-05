@@ -194,6 +194,7 @@ public class WhileStatement extends Statement {
 		if ((this.bits & IsReachable) == 0) {
 			return;
 		}
+		// TODO: Do this at the appropriate point only
 		this.condition.initializePatternVariables(currentScope, codeStream);
 		int pc = codeStream.position;
 		Constant cst = this.condition.optimizedBooleanConstant();
@@ -236,7 +237,6 @@ public class WhileStatement extends Statement {
 		// generate the action
 		BranchLabel actionLabel = new BranchLabel(codeStream);
 		if (this.action != null) {
-			this.condition.generatePatternVariable(currentScope, codeStream);
 			actionLabel.tagBits |= BranchLabel.USED;
 			// Required to fix 1PR0XVS: LFRE:WINNT - Compiler: variable table for method appears incorrect
 			if (this.condIfTrueInitStateIndex != -1) {
@@ -275,42 +275,11 @@ public class WhileStatement extends Statement {
 	}
 
 	@Override
-	public void lookForPatternVariables(BlockScope scope) {
-		this.condition.traverse(new ASTVisitor() {
-			@Override
-			public boolean visit(
-		    		InstanceOfExpression instanceOfExpression,
-		    		BlockScope sc) {
-				if (instanceOfExpression.elementVariable != null) {
-					WhileStatement.this.bits |= ASTNode.HasInstancePatternExpression;
-				}
-				return false; // mission finished, exit
-			}
-		}, scope);
-		this.patternScope = new BlockScope(scope);
-	}
-
-	@Override
 	public void resolve(BlockScope scope) {
-		boolean hasPatternVariable = (this.bits & ASTNode.HasInstancePatternExpression) != 0;
-	 	BlockScope trueScope = null;
-	 	BlockScope falseScope = null;
-	 	if (hasPatternVariable) {
-	 		trueScope = this.patternScope;
-	 	 	this.condition.resolvePatternVariable(trueScope, true);
-	 	}
-		TypeBinding type = this.condition.resolveTypeExpecting(hasPatternVariable ? trueScope : scope, TypeBinding.BOOLEAN);
+		TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 		this.condition.computeConversion(scope, type, type);
-		if (this.action != null) {
-			if (hasPatternVariable) {
-				if (this.action.doesNotCompleteNormally()) {
-					falseScope = (BlockScope) scope.parent;
-				}
-			}
-			this.action.resolve(hasPatternVariable ? trueScope : scope);
-			if (falseScope != null)
-				this.condition.resolvePatternVariable(falseScope, false);
-		}
+		if (this.action != null)
+			this.action.resolve(scope);
 	}
 
 	@Override

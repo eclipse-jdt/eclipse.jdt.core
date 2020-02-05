@@ -451,9 +451,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 
 	@Override
 	public void initializePatternVariables(BlockScope scope, CodeStream codeStream) {
-		this.condition.initializePatternVariables(this.patternScope, codeStream);
-		this.valueIfTrue.initializePatternVariables(this.patternScope, codeStream);
-		this.valueIfFalse.initializePatternVariables(this.patternScope, codeStream);
+		this.condition.initializePatternVariables(scope, codeStream);
+		this.valueIfTrue.initializePatternVariables(scope, codeStream);
+		this.valueIfFalse.initializePatternVariables(scope, codeStream);
 	}
 
 	@Override
@@ -475,7 +475,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		
 		if (this.constant != Constant.NotAConstant) {
 			this.constant = Constant.NotAConstant;
-			this.condition.resolvePatternVariable(scope, true);
 			TypeBinding conditionType = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 			this.condition.computeConversion(scope, TypeBinding.BOOLEAN, conditionType);
 

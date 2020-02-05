@@ -224,16 +224,6 @@ public FlowInfo analyseCode(
 	}
 
 	@Override
-	public void resolvePatternVariable(BlockScope scope, boolean trueFalse) {
-		if ((((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT)) {
-			this.expression.resolvePatternVariable(scope, !trueFalse);
-		}
-	}
-	@Override
-	public void generatePatternVariable(BlockScope currentScope, CodeStream codeStream) {
-		this.expression.generatePatternVariable(currentScope, codeStream);
-	}
-	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 		boolean expressionIsCast;
 		if ((expressionIsCast = this.expression instanceof CastExpression) == true) this.expression.bits |= DisableUnnecessaryCastCheck; // will check later on

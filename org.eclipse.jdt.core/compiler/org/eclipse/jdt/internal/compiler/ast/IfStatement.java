@@ -202,10 +202,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		}
 		// generate then statement
 		this.thenStatement.generateCode(currentScope, codeStream);
-		boolean hasPatternVariable = (this.bits & ASTNode.HasInstancePatternExpression) != 0;
-		if (hasPatternVariable) {
-			this.exitPatternVariableScope(codeStream);
-		}
 		// jump around the else statement
 		if (hasElsePart) {
 			if ((this.bits & ASTNode.ThenExit) == 0) {
@@ -279,62 +275,13 @@ public StringBuffer printStatement(int indent, StringBuffer output) {
 	return output;
 }
 @Override
-public void lookForPatternVariables(BlockScope scope) {
-	this.condition.traverse(new ASTVisitor() {
-		@Override
-		public boolean visit(
-	    		InstanceOfExpression instanceOfExpression,
-	    		BlockScope sc) {
-			if (instanceOfExpression.elementVariable != null) {
-				IfStatement.this.bits |= ASTNode.HasInstancePatternExpression;
-				IfStatement.this.patternScope = new BlockScope(scope);
-			}
-			return false; // mission finished, exit
-		}
-	}, scope);
-}
-@Override
-public void resolve(BlockScope outerScope) {
-	boolean hasPatternVariable = (this.bits & ASTNode.HasInstancePatternExpression) != 0;
- 	BlockScope trueScope = null;
- 	if (hasPatternVariable) {
- 		trueScope = this.patternScope;
- 				//new BlockScope((BlockScope) outerScope.parent);
- 	 	this.condition.resolvePatternVariable(trueScope, true);
- 	}
-	TypeBinding type = this.condition.resolveTypeExpecting(hasPatternVariable ? trueScope : outerScope, TypeBinding.BOOLEAN);
- 	this.condition.computeConversion(hasPatternVariable ? trueScope : outerScope, type, type);
-	if (this.thenStatement != null) {
-		this.thenStatement.resolve(hasPatternVariable ? trueScope : outerScope);
-	}
-	if (hasPatternVariable) {
-		BlockScope falseScope = null;
-		if (this.thenStatement.doesNotCompleteNormally()) {
-			falseScope = (BlockScope) outerScope.parent;
-		} else {
-			falseScope = new BlockScope((BlockScope) outerScope.parent);
-		}
-		this.condition.resolvePatternVariable(falseScope, false);
-		outerScope = falseScope;
-	}
-	if (this.elseStatement != null) {
-		this.elseStatement.traverse(new ASTVisitor() {
-			@Override
-			public boolean visit(
-		    		InstanceOfExpression instanceOfExpression,
-		    		BlockScope sc) {
-				if (instanceOfExpression.elementVariable != null) {
-					IfStatement.this.elseStatement.bits |= ASTNode.HasInstancePatternExpression;
-				}
-				return false;
-			}
-		}, outerScope);
-		if ((this.elseStatement.bits & ASTNode.HasInstancePatternExpression) != 0) {
-			this.elseStatement.patternScope = new BlockScope(outerScope);
-			this.elseStatement.resolve(this.elseStatement.patternScope);
-		} else
-			this.elseStatement.resolve(outerScope);
-	}
+public void resolve(BlockScope scope) {
+	TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+	this.condition.computeConversion(scope, type, type);
+	if (this.thenStatement != null)
+		this.thenStatement.resolve(scope);
+	if (this.elseStatement != null)
+		this.elseStatement.resolve(scope);
 }
 
 @Override

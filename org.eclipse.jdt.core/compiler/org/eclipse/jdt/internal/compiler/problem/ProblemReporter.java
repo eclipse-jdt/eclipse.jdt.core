@@ -2102,12 +2102,20 @@ public void duplicateInitializationOfBlankFinalField(FieldBinding field, Referen
 }
 public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[] { new String(local.readableName())};
-	this.handle(
-		IProblem.DuplicateFinalLocalInitialization,
-		arguments,
-		arguments,
-		nodeSourceStart(local, location),
-		nodeSourceEnd(local, location));
+	if ((local.modifiers & ExtraCompilerModifiers.AccPatterVariable) == 0) {
+		this.handle(
+			IProblem.DuplicateFinalLocalInitialization,
+			arguments,
+			arguments,
+			nodeSourceStart(local, location),
+			nodeSourceEnd(local, location));
+	} else {
+		this.handle(IProblem.PatternVariableNotInScope,
+			arguments,
+			arguments,
+			nodeSourceStart(local, location),
+			nodeSourceEnd(local, location));
+	}
 }
 public void duplicateMethodInType(AbstractMethodDeclaration methodDecl, boolean equalParameters, int severity) {
     MethodBinding method = methodDecl.binding;
@@ -8716,14 +8724,25 @@ public void uninitializedNonNullField(FieldBinding field, ASTNode location) {
 		nodeSourceEnd(field, location));
 }
 public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode location, Scope scope) {
-	binding.markAsUninitializedIn(scope);
-	String[] arguments = new String[] {new String(binding.readableName())};
-	this.handle(
-		methodHasMissingSwitchDefault() ? IProblem.UninitializedLocalVariableHintMissingDefault : IProblem.UninitializedLocalVariable,
-		arguments,
-		arguments,
-		nodeSourceStart(binding, location),
-		nodeSourceEnd(binding, location));
+	if ((binding.modifiers & ExtraCompilerModifiers.AccPatterVariable) == 0) {
+		binding.markAsUninitializedIn(scope);
+		String[] arguments = new String[] {new String(binding.readableName())};
+		this.handle(
+				methodHasMissingSwitchDefault() ? IProblem.UninitializedLocalVariableHintMissingDefault : IProblem.UninitializedLocalVariable,
+						arguments,
+						arguments,
+						nodeSourceStart(binding, location),
+						nodeSourceEnd(binding, location));
+	} else {
+		String[] arguments = new String[] {new String(binding.readableName())};
+		this.handle(
+				IProblem.PatternVariableNotInScope,
+						arguments,
+						arguments,
+						nodeSourceStart(binding, location),
+						nodeSourceEnd(binding, location));
+		
+	}
 }
 private boolean methodHasMissingSwitchDefault() {
 	MethodScope methodScope = null;

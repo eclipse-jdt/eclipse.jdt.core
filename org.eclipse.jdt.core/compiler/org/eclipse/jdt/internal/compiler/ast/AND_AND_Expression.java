@@ -282,7 +282,6 @@ public class AND_AND_Expression extends BinaryExpression {
 	 */
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
-		resolvePatternVariable(scope, true);
 		TypeBinding result = super.resolveType(scope);
 		// check whether comparing identical expressions
 		Binding leftDirect = Expression.getDirectBinding(this.left);
