@@ -862,14 +862,16 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append("enum ");//$NON-NLS-1$
 		getChildNode(node, RecordDeclaration.NAME_PROPERTY).accept(this);
 		this.result.append(' ');
-		visitList(node, RecordDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, String.valueOf(','), "implements ", Util.EMPTY_STRING); //$NON-NLS-1$
-		this.result.append(' ');
+		
 		visitList(node, RecordDeclaration.TYPE_PARAMETERS_PROPERTY, String.valueOf(','), String.valueOf('<'), String.valueOf('>'));
 		
 		this.result.append('(');
 		visitList(node, RecordDeclaration.RECORD_COMPONENTS_PROPERTY, String.valueOf(','));
 		this.result.append(')');
-		
+
+		this.result.append(' ');
+		visitList(node, RecordDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, String.valueOf(','), "implements ", Util.EMPTY_STRING); //$NON-NLS-1$
+
 		this.result.append('{');
 		visitList(node, RecordDeclaration.BODY_DECLARATIONS_PROPERTY, Util.EMPTY_STRING, String.valueOf(';'), Util.EMPTY_STRING);
 		this.result.append('}');

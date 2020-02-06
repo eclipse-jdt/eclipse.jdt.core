@@ -2254,6 +2254,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		pos= rewriteOptionalTypeParameters(node, RecordDeclaration.TYPE_PARAMETERS_PROPERTY, pos, Util.EMPTY_STRING, false, true); 
 
+		pos= rewriteNodeList(node, RecordDeclaration.RECORD_COMPONENTS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$ 
+		
 		// extended interfaces
 		ChildListPropertyDescriptor superInterfaceProperty= RecordDeclaration.SUPER_INTERFACE_TYPES_PROPERTY;
 
@@ -2265,7 +2267,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			pos= rewriteNodeList(node, superInterfaceProperty, pos, keyword, ", "); //$NON-NLS-1$
 		}
 
-		pos= rewriteNodeList(node, RecordDeclaration.RECORD_COMPONENTS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$ 
 		// type members
 		// startPos : find position after left brace of type, be aware that bracket might be missing
 		int startIndent= getIndent(node.getStartPosition()) + 1;
