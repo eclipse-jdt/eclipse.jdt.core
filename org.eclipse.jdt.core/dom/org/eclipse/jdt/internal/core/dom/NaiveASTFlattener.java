@@ -1315,17 +1315,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append("record ");//$NON-NLS-1$
 		node.getName().accept(this);
 		this.buffer.append(" ");//$NON-NLS-1$
-		if (!node.superInterfaceTypes().isEmpty()) {
-			this.buffer.append("implements ");//$NON-NLS-1$
-			for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext(); ) {
-				Type t = (Type) it.next();
-				t.accept(this);
-				if (it.hasNext()) {
-					this.buffer.append(", ");//$NON-NLS-1$
-				}
-			}
-			this.buffer.append(" ");//$NON-NLS-1$
-		}
+		
 		if (!node.typeParameters().isEmpty()) {
 			this.buffer.append("<");//$NON-NLS-1$
 			for (Iterator it = node.typeParameters().iterator(); it.hasNext(); ) {
@@ -1337,7 +1327,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 			}
 			this.buffer.append(">");//$NON-NLS-1$
 		}
-		
+		this.buffer.append(" ");//$NON-NLS-1$
 		this.buffer.append("(");//$NON-NLS-1$
 		for (Iterator it = node.recordComponents().iterator(); it.hasNext(); ) {
 			SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
@@ -1347,7 +1337,17 @@ public class NaiveASTFlattener extends ASTVisitor {
 			}
 		}
 		this.buffer.append(")");//$NON-NLS-1$
-		
+		if (!node.superInterfaceTypes().isEmpty()) {
+			this.buffer.append(" implements ");//$NON-NLS-1$
+			for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext(); ) {
+				Type t = (Type) it.next();
+				t.accept(this);
+				if (it.hasNext()) {
+					this.buffer.append(", ");//$NON-NLS-1$
+				}
+			}
+			this.buffer.append(" ");//$NON-NLS-1$
+		}
 		this.buffer.append("{");//$NON-NLS-1$
 		if (!node.bodyDeclarations().isEmpty()) {
 			this.buffer.append("\n");//$NON-NLS-1$
