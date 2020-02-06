@@ -141,7 +141,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	abstract record Point(int x, int y){\n" + 
-			"	                ^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                ^^^^^\n" + 
 			"Illegal modifier for the record Point; abstract not allowed\n" + 
 			"----------\n");
 	}
@@ -176,7 +176,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	final final record Point(int x, int y){\n" + 
-			"	                   ^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                   ^^^^^\n" + 
 			"Duplicate modifier for the type Point\n" + 
 			"----------\n");
 	}
@@ -204,7 +204,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	public public record X(int x, int y){\n" + 
-			"	                     ^^^^^^^^^^^^^^^\n" + 
+			"	                     ^\n" + 
 			"Duplicate modifier for the type X\n" + 
 			"----------\n");
 	}
@@ -1330,7 +1330,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		"----------\n" +
 		"1. ERROR in X.java (at line 3)\n" + 
 		"	record Point(int myInt, char myChar) {}\n" + 
-		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	       ^^^^^\n" + 
 		"Nested Record is (implicitly) static and hence enclosing type should be static\n" + 
 		"----------\n");
 	}
@@ -1783,7 +1783,7 @@ public void testBug559281_001() {
 			"----------\n" +
 			"1. ERROR in X.java (at line 1)\n" +
 			"	record X(void k) {}\n" +
-			"	       ^^^^^^^^^\n" +
+			"	       ^\n" +
 			"void is an invalid type for the component k of a record\n" +
 			"----------\n");
 }

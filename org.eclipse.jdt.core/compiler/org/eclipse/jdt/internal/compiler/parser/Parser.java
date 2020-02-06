@@ -10796,7 +10796,7 @@ protected void consumeRecordComponentHeaderRightParen() {
 	TypeDeclaration td = (TypeDeclaration) this.astStack[this.astPtr];
 	RecordDeclaration rd = new RecordDeclaration(td);
 	this.astStack[this.astPtr] = rd;
-	rd.sourceEnd = 	this.rParenPos;
+//	rd.sourceEnd = 	this.rParenPos;
 	if (length != 0) {
 		Argument[] args = new Argument[length];
 		System.arraycopy(
