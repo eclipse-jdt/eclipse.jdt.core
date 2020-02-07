@@ -76,7 +76,6 @@ public abstract class AbstractMethodDeclaration
 	public int bodyStart;
 	public int bodyEnd = -1;
 	public CompilationResult compilationResult;
-	protected boolean isImplicit; // used in Java 14 Records
 
 	AbstractMethodDeclaration(CompilationResult compilationResult){
 		this.compilationResult = compilationResult;
@@ -466,10 +465,6 @@ public abstract class AbstractMethodDeclaration
 		if (this.binding != null)
 			return this.binding.isStatic();
 		return (this.modifiers & ClassFileConstants.AccStatic) != 0;
-	}
-
-	public boolean isImplicit() {
-		return this.isImplicit;
 	}
 
 	/**

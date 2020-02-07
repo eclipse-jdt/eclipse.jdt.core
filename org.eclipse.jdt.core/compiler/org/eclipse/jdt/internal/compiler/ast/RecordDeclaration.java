@@ -261,7 +261,7 @@ public class RecordDeclaration extends TypeDeclaration {
 				if (this.methods[i] != null) {
 					output.append('\n');
 					AbstractMethodDeclaration amd = this.methods[i];
-					if (amd instanceof MethodDeclaration && ((MethodDeclaration) amd).isImplicit)
+					if (amd instanceof MethodDeclaration && (amd.bits & ASTNode.IsImplicit) != 0)
 						output.append("/* Implicit */\n"); //$NON-NLS-1$// TODO BETA_JAVA14: Move this to MD?
 					amd.print(indent + 1, output);
 				}

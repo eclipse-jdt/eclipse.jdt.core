@@ -264,7 +264,7 @@ class ASTConverter {
 			}
 			if (methodsIndex < methodsLength) {
 				nextMethodDeclaration = methods[methodsIndex];
-				if (!nextMethodDeclaration.isImplicit()) {
+				if ((nextMethodDeclaration.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsImplicit) == 0) {
 					if (nextMethodDeclaration.declarationSourceStart < position) {
 						position = nextMethodDeclaration.declarationSourceStart;
 						nextDeclarationType = 1; // METHOD
