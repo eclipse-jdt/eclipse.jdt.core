@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter.Prefix;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore.CopyPlaceholderData;
 import org.eclipse.jdt.internal.core.dom.rewrite.NodeInfoStore.StringPlaceholderData;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInfo;
+import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 import org.eclipse.text.edits.CopySourceEdit;
 import org.eclipse.text.edits.CopyTargetEdit;
 import org.eclipse.text.edits.DeleteEdit;
@@ -3090,7 +3091,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		rewriteRequiredNode(node, InstanceofExpression.LEFT_OPERAND_PROPERTY);
 		ensureSpaceAfterReplace(node, InstanceofExpression.LEFT_OPERAND_PROPERTY);
-		rewriteRequiredNode(node, InstanceofExpression.RIGHT_OPERAND_PROPERTY);
+		if (DOMASTUtil.isInstanceofExpressionPatternSupported(node.getAST()) && node.getPatternVariable()!= null) {
+			rewriteRequiredNode(node, InstanceofExpression.PATTERN_VARIABLE_PROPERTY);
+		} else {
+			rewriteRequiredNode(node, InstanceofExpression.RIGHT_OPERAND_PROPERTY);
+		}
 		return false;
 	}
 
