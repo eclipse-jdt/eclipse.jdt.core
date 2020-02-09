@@ -16,6 +16,8 @@
  *								Bug 467482 - TYPE_USE null annotations: Incorrect "Redundant null check"-warning
  *								Bug 473713 - [1.8][null] Type mismatch: cannot convert from @NonNull A1 to @NonNull A1
  *								Bug 467430 - TYPE_USE Null Annotations: Confusing error message with known null value
+ *     Pierre-Yves B. <pyvesdev@gmail.com> - Contribution for
+ *                              Bug 559618 - No compiler warning for import from same package
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1343,7 +1345,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"p/X1.java",
 					"package p;\n" +
 					"import java.util.Map;\n" +
-					"import p.List;\n" +
 					"import org.eclipse.jdt.annotation.*;\n" +
 					"import static java.lang.annotation.ElementType.*;\n" +
 					"import java.lang.annotation.*;\n" +

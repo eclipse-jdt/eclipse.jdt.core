@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -11,6 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - contribution for bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
+ *     Pierre-Yves B. <pyvesdev@gmail.com> - Contribution for bug 559618 - No compiler warning for import from same package
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -2697,6 +2698,94 @@ public void testBug526615() throws CoreException {
 		assertEquals("Start of type A", 15, rangeA.getOffset());
 	} finally {
 		deleteFolder("/P/src/test1");
+	}
+}
+public void testBug559618_1() throws CoreException {
+	try {
+			createFile("/P/src/p/C.java",
+					"package p;\n" +
+					"public class C{};\n");
+
+			createFile("/P/src/p/D.java",
+					"package p;\n" +
+					"import p.C;\n" +
+					"public class D {\n" +
+					"  C getC() {\n" +
+					"    return null;\n" +
+					"  }\n" +
+					"}\n");
+			ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
+
+			ASTParser parser = ASTParser.newParser(AST_INTERNAL_LATEST);
+			parser.setProject(this.testProject);
+			parser.setSource(cuD);
+			parser.setResolveBindings(true);
+			org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+			IProblem[] problems = cuAST.getProblems();
+			assertEquals("Should have 1 problem", 1, problems.length);
+			assertEquals("Should have only an unused warning", "The import p.C is never used", problems[0].getMessage());
+	} finally {
+			deleteFile("/P/src/p/C.java");
+			deleteFile("/P/src/p/D.java");
+	}
+}
+public void testBug559618_2() throws CoreException { // Same as testBug559618_1, but with wildcard import.
+	try {
+			createFile("/P/src/p/C.java",
+					"package p;\n" +
+					"public class C{};\n");
+			
+			createFile("/P/src/p/D.java",
+					"package p;\n" +
+					"import p.*;\n" +
+					"public class D {\n" +
+					"  C getC() {\n" +
+					"    return null;\n" +
+					"  }\n" +
+					"}\n");
+			ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
+			
+			ASTParser parser = ASTParser.newParser(AST_INTERNAL_LATEST);
+			parser.setProject(this.testProject);
+			parser.setSource(cuD);
+			parser.setResolveBindings(true);
+			org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+			IProblem[] problems = cuAST.getProblems();
+			assertEquals("Should have 1 problem", 1, problems.length);
+			assertEquals("Should have only an unused warning", "The import p is never used", problems[0].getMessage());
+	} finally {
+			deleteFile("/P/src/p/C.java");
+			deleteFile("/P/src/p/D.java");
+	}
+}
+public void testBug559618_3() throws CoreException { // Nested class imports must not be flagged as unused.
+	try {
+		createFile("/P/src/p/C.java",
+				"package p;\n" +
+				"public class C{\n" +
+				"  public class C1{};\n" +
+				"};\n");
+		
+		createFile("/P/src/p/D.java",
+				"package p;\n" +
+				"import p.C.C1;\n" +
+				"public class D {\n" +
+				"  C1 getC1() {\n" +
+				"    return null;\n" +
+				"  }\n" +
+				"}\n");
+		ICompilationUnit cuD = getCompilationUnit("/P/src/p/D.java");
+		
+		ASTParser parser = ASTParser.newParser(AST_INTERNAL_LATEST);
+		parser.setProject(this.testProject);
+		parser.setSource(cuD);
+		parser.setResolveBindings(true);
+		org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+		IProblem[] problems = cuAST.getProblems();
+		assertEquals("Should have no problems", 0, problems.length);
+	} finally {
+		deleteFile("/P/src/p/C.java");
+		deleteFile("/P/src/p/D.java");
 	}
 }
 }
