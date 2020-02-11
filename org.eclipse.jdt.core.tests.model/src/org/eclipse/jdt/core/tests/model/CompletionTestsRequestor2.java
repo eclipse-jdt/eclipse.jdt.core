@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2018 IBM Corporation and others.
+ * Copyright (c) 2004, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -204,6 +204,11 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				if ((locationType & CompletionContext.TL_CONSTRUCTOR_START) != 0) {
 					if (!first) buffer.append(',');
 					buffer.append("CONSTRUCTOR_START"); //$NON-NLS-1$
+					first = false;
+				}
+				if ((locationType & CompletionContext.TL_IN_IMPORT) != 0) {
+					if (!first) buffer.append(',');
+					buffer.append("IN_IMPORT"); //$NON-NLS-1$
 					first = false;
 				}
 				buffer.append('}');

@@ -14615,5 +14615,17 @@ public void test536983() throws JavaModelException {
 	assertTrue(!requestor.getResults().equals(""));
 	assertTrue(requestor.getResults().contains("toString("));
 }
+public void testBug15589() throws JavaModelException {
+	CompletionResult result = complete(
+            "/Completion/src3/bug15589/Test.java",
+            "package bug15589;\n" +
+            "import java.util.Coll;\n" +
+            "public class Test {\n" +
+            "}\n",
+            "import java.util.Coll");
 
+    assertResults(
+            "Collection[TYPE_REF]{Collection, java.util, Ljava.util.Collection;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+            result.proposals);
+}
 }

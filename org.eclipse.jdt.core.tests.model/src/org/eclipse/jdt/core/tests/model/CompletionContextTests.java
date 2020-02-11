@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2249,7 +2249,7 @@ public void test0081() throws JavaModelException {
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null\n"+
-		"completion token location=UNKNOWN",
+		"completion token location={IN_IMPORT}",
 		result.context);
 }
 public void test0082() throws JavaModelException {
@@ -2275,7 +2275,7 @@ public void test0082() throws JavaModelException {
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null\n"+
-		"completion token location=UNKNOWN",
+		"completion token location={IN_IMPORT}",
 		result.context);
 }
 public void test0083() throws JavaModelException {
@@ -2301,7 +2301,7 @@ public void test0083() throws JavaModelException {
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null\n"+
-		"completion token location=UNKNOWN",
+		"completion token location={IN_IMPORT}",
 		result.context);
 }
 public void test0084() throws JavaModelException {
@@ -2327,7 +2327,7 @@ public void test0084() throws JavaModelException {
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null\n"+
-		"completion token location=UNKNOWN",
+		"completion token location={IN_IMPORT}",
 		result.context);
 }
 public void test0085() throws JavaModelException {
@@ -2353,7 +2353,7 @@ public void test0085() throws JavaModelException {
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null\n"+
-		"completion token location=UNKNOWN",
+		"completion token location={IN_IMPORT}",
 		result.context);
 }
 public void test0086() throws JavaModelException {
@@ -2379,7 +2379,7 @@ public void test0086() throws JavaModelException {
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null\n"+
-		"completion token location=UNKNOWN",
+		"completion token location={IN_IMPORT}",
 		result.context);
 }
 public void test0087() throws JavaModelException {
@@ -2405,7 +2405,7 @@ public void test0087() throws JavaModelException {
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null\n"+
-		"completion token location=UNKNOWN",
+		"completion token location={IN_IMPORT}",
 		result.context);
 }
 public void test0088() throws JavaModelException {
@@ -2431,7 +2431,7 @@ public void test0088() throws JavaModelException {
 		"completion token kind=TOKEN_KIND_NAME\n" +
 		"expectedTypesSignatures=null\n" +
 		"expectedTypesKeys=null\n"+
-		"completion token location=UNKNOWN",
+		"completion token location={IN_IMPORT}",
 		result.context);
 }
 public void test0089() throws JavaModelException {
