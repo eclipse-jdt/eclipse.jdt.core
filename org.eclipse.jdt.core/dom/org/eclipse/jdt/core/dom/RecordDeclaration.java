@@ -28,10 +28,12 @@ import java.util.List;
  * <pre>
  * RecordDeclaration:
  *     [ Javadoc ] { ExtendedModifier } <b>record</b> Identifier
- *     [ <b>&lt;</b> TypeParameter <b>&gt;</b> ]
- *         [ Type { <b>,</b> Type } ]
- *         [ <b>;</b> { RecordBodyDeclaration | <b>;</b> } ]
- *         <b>}</b>
+ *     		[ <b>&lt;</b> TypeParameter <b>&gt;</b> ]
+ *     		<b>(</b>
+ *          	[ FormalParameter { <b>,</b> FormalParameter } ]
+ *        	<b>)</b> { Dimension }
+ *     		[ <b>implements</b> Type { <b>,</b> Type } ]
+ *         	[ <b>;</b> { RecordBodyDeclaration | <b>;</b> } ]
  * </pre>
  * The {@link #bodyDeclarations()} list holds the class body declarations
  * that appear after the semicolon.

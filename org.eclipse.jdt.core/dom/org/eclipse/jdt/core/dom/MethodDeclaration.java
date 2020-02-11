@@ -42,6 +42,10 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  *        <b>)</b> { Dimension }
  *        [ <b>throws</b> Type { <b>,</b> Type } ]
  *        ( Block | <b>;</b> )
+ * CompactConstructorDeclaration:
+ *    [ Javadoc ] ExtendedModifier { ExtendedModifier}
+ *        Identifier
+ *        ( Block | <b>;</b> )
  * </pre>
  * <p>
  * The ReceiverParameter is represented as: <code>Type [ SimpleName <b>.</b> ] <b>this</b></code><br>
@@ -57,6 +61,7 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  * parameters), or the first character of the identifier (constructor,
  * no modifiers). The source range extends through the last character of the
  * ";" token (if no body), or the last character of the block (if body).
+ * The compact constructor must be declared public. (jls-8.10.5)
  * </p>
  *
  * @since 2.0
