@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug559448" };
+//		TESTS_NAMES = new String[] { "testBug559992" };
 	}
 	
 	public static Class<?> testClass() {
@@ -1186,7 +1186,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"  }\n"+
 						"}\n"+
 						"record Point(Integer myInt, int myZ) implements I {\n"+
-						"  public Point(Integer myInt, int myZ) {\n" +
+						"  public Point {\n" +
 						"     this.myInt = 0;\n" +
 						"     this.myZ = 0;\n" +
 						"     return;\n" +
@@ -1900,5 +1900,37 @@ public void testBug559574_001() {
 			"	     ^\n" + 
 			"y cannot be resolved or is not a field\n" + 
 			"----------\n");
+}
+public void testBug559992_001() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"record R() {\n"+
+					"  public R throws Exception {\n" +
+					"  }\n"+
+					"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public R throws Exception {\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Throws clause not allowed for canonical constructor R\n" + 
+		"----------\n");
+}
+public void testBug559992_002() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"record R() {\n"+
+					"  public R() throws Exception {\n" +
+					"  }\n"+
+					"}\n"
+			},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	public R() throws Exception {\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Throws clause not allowed for canonical constructor R\n" + 
+		"----------\n");
 }
 }

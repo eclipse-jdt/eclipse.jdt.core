@@ -74,6 +74,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.CompactConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -81,7 +82,6 @@ import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.RecordDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
-import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -1694,6 +1694,33 @@ private int getImplicitCanonicalConstructor() {
 	}
 	return -1;
 }
+private MethodBinding[] checkAndGetExplicitCanonicalConstructors() {
+	List<MethodBinding> ec = new ArrayList<>();
+	if (!this.isRecordDeclaration)
+		return ec.toArray(new MethodBinding[0]);
+
+	FieldBinding[] recComps = this.getRecordComponents();
+	int nRecordComponents = recComps.length;
+	if (this.methods != null && this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
+		for (MethodBinding method : this.methods) {
+			if (!method.isConstructor() || (method.tagBits & TagBits.isImplicit) != 0
+					|| method.parameters.length != nRecordComponents)
+				continue;
+			boolean isEC = true;
+			for (int j = 0; j < nRecordComponents; ++j) {
+				if (TypeBinding.notEquals(method.parameters[j], recComps[j].type)) {
+					isEC = false;
+					break;
+				}
+			}
+			if (isEC) {
+				ec.add(method);
+				checkRecordCanonicalConstructor(method);
+			}
+		}
+	}
+	return ec.toArray(new MethodBinding[0]);
+}
 private int getImplicitMethod(char[] name) {
 	if (this.methods != null && this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
 		for (int i = 0, l = this.methods.length; i < l; ++i) {
@@ -1755,6 +1782,7 @@ public MethodBinding[] methods() {
 		boolean complyTo15OrAbove = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		boolean compliance16 = this.scope.compilerOptions().complianceLevel == ClassFileConstants.JDK1_6;
 		int recordCanonIndex = getImplicitCanonicalConstructor();
+		checkAndGetExplicitCanonicalConstructors();
 		int recordEqualsIndex = getImplicitMethod(TypeConstants.EQUALS);
 
 		for (int i = 0, length = this.methods.length; i < length; i++) {
@@ -1866,7 +1894,6 @@ public MethodBinding[] methods() {
 					failed++;
 					MethodBinding explicitCanonicalConstructor = recordCanonIndex == i ? this.methods[j] : this.methods[i];
 					methodDecl = explicitCanonicalConstructor.sourceMethod();
-					checkRecordCanonicalConstructor(methodDecl, explicitCanonicalConstructor);
 					recordCanonIndex = -1; // reset;
 					continue;
 				}
@@ -1961,8 +1988,8 @@ public MethodBinding[] methods() {
 	return this.methods;
 }
 
-private void checkRecordCanonicalConstructor(AbstractMethodDeclaration methodDecl,
-		MethodBinding explicitCanonicalConstructor) {
+private void checkRecordCanonicalConstructor(MethodBinding explicitCanonicalConstructor) {
+	AbstractMethodDeclaration methodDecl = explicitCanonicalConstructor.sourceMethod();
 	if (!explicitCanonicalConstructor.isPublic())
 		this.scope.problemReporter().recordCanonicalConstructorNotPublic(methodDecl);
 	TypeParameter[] typeParameters = methodDecl.typeParameters();
@@ -1971,6 +1998,8 @@ private void checkRecordCanonicalConstructor(AbstractMethodDeclaration methodDec
 	if (explicitCanonicalConstructor.thrownExceptions != null && explicitCanonicalConstructor.thrownExceptions.length > 0)
 		this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(methodDecl);
 	explicitCanonicalConstructor.tagBits |= TagBits.IsCanonicalConstructor;
+	if (methodDecl instanceof CompactConstructorDeclaration)
+		return;
 	ASTVisitor visitor = new ASTVisitor() {
 		@Override
 		public boolean visit(ExplicitConstructorCall explicitConstructorCall, BlockScope skope) {
@@ -1984,11 +2013,6 @@ private void checkRecordCanonicalConstructor(AbstractMethodDeclaration methodDec
 		}
 		@Override
 		public boolean visit(LambdaExpression lambda, BlockScope skope) {
-			return false;
-		}
-		@Override
-		public boolean visit(ReturnStatement returnStatement, BlockScope skope) {
-			skope.problemReporter().recordCompactConstructorHasReturnStatement(returnStatement);
 			return false;
 		}
 	};
