@@ -306,7 +306,7 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 
 	@Override
 	final int getNodeType0() {
-		return TYPE_DECLARATION;
+		return RECORD_DECLARATION;
 	}
 
 	@Override
