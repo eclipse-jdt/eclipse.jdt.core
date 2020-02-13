@@ -16,12 +16,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 
@@ -35,28 +32,6 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 	@Override
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		parser.parse(this, unit, false);
-		ASTVisitor visitor = new ASTVisitor() {
-			@Override
-			public boolean visit(ExplicitConstructorCall explicitConstructorCall, BlockScope skope) {
-				if (explicitConstructorCall.accessMode != ExplicitConstructorCall.ImplicitSuper)
-					skope.problemReporter().recordCompactConstructorHasExplicitConstructorCall(explicitConstructorCall);
-				return false;
-			}
-			@Override
-			public boolean visit(MethodDeclaration methodDeclaration, ClassScope skope) {
-				return false;
-			}
-			@Override
-			public boolean visit(LambdaExpression lambda, BlockScope skope) {
-				return false;
-			}
-			@Override
-			public boolean visit(ReturnStatement returnStatement, BlockScope skope) {
-				parser.problemReporter().recordCompactConstructorHasReturnStatement(returnStatement);
-				return false;
-			}
-		};
-		unit.traverse(visitor, unit.scope);
 	}
 	@Override
 	protected void checkAndGenerateFieldAssignment(FlowContext flowContext, FlowInfo flowInfo, FieldBinding field) {

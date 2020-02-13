@@ -82,6 +82,7 @@ import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.RecordDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
+import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -1989,6 +1990,7 @@ public MethodBinding[] methods() {
 }
 
 private void checkRecordCanonicalConstructor(MethodBinding explicitCanonicalConstructor) {
+	
 	AbstractMethodDeclaration methodDecl = explicitCanonicalConstructor.sourceMethod();
 	if (!explicitCanonicalConstructor.isPublic())
 		this.scope.problemReporter().recordCanonicalConstructorNotPublic(methodDecl);
@@ -1998,13 +2000,16 @@ private void checkRecordCanonicalConstructor(MethodBinding explicitCanonicalCons
 	if (explicitCanonicalConstructor.thrownExceptions != null && explicitCanonicalConstructor.thrownExceptions.length > 0)
 		this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(methodDecl);
 	explicitCanonicalConstructor.tagBits |= TagBits.IsCanonicalConstructor;
-	if (methodDecl instanceof CompactConstructorDeclaration)
-		return;
 	ASTVisitor visitor = new ASTVisitor() {
+		boolean isInsideCCD = methodDecl instanceof CompactConstructorDeclaration;
 		@Override
 		public boolean visit(ExplicitConstructorCall explicitConstructorCall, BlockScope skope) {
-			if (explicitConstructorCall.accessMode != ExplicitConstructorCall.ImplicitSuper)
-				skope.problemReporter().recordCanonicalConstructorHasExplicitConstructorCall(explicitConstructorCall);
+			if (explicitConstructorCall.accessMode != ExplicitConstructorCall.ImplicitSuper) {
+				if (this.isInsideCCD)
+					skope.problemReporter().recordCompactConstructorHasExplicitConstructorCall(explicitConstructorCall);
+				else
+					skope.problemReporter().recordCanonicalConstructorHasExplicitConstructorCall(explicitConstructorCall);
+			}
 			return false;
 		}
 		@Override
@@ -2014,6 +2019,14 @@ private void checkRecordCanonicalConstructor(MethodBinding explicitCanonicalCons
 		@Override
 		public boolean visit(LambdaExpression lambda, BlockScope skope) {
 			return false;
+		}
+		@Override
+		public boolean visit(ReturnStatement returnStatement, BlockScope skope) {
+			if (this.isInsideCCD) {
+				skope.problemReporter().recordCompactConstructorHasReturnStatement(returnStatement);
+				return false;
+			}
+			return true;
 		}
 	};
 	methodDecl.traverse(visitor, this.scope);
