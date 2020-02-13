@@ -766,7 +766,7 @@ public static final boolean subWordMatch(char[] pattern, char[] name) {
 
 /**
  * Answers all the regions in a given name matching a subword pattern.
- * </p><p>
+ * <p>
  * Each of these regions is made of its starting index and its length in the given
  * name. They are all concatenated in a single array of <code>int</code>
  * which therefore always has an even length.
@@ -776,13 +776,16 @@ public static final boolean subWordMatch(char[] pattern, char[] name) {
  * then <code>start1+length1</code> will always be smaller than
  * <code>start2</code>.
  * </p><p>
- * <pre>
  * Examples:
- * <ol><li>  pattern = "linkedmap"
- *  name = LinkedHashMap
- *  result:  { 0, 6, 10, 3 } </li>
- * </ol></pre>
- *</p>
+ * <ol>
+ * <li><pre>
+ *    pattern = "linkedmap"
+ *    name = LinkedHashMap
+ *    result:  { 0, 6, 10, 3 }
+ * </pre></li>
+ * </ol>
+ * </p>
+ *
  * @see CharOperation#subWordMatch(char[], char[])
  * 	for more details on the subword behavior
  *
