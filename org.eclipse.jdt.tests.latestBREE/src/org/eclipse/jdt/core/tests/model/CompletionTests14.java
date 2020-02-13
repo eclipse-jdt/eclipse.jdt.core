@@ -308,4 +308,58 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						requestor.getResults());
 	} 
 	
+	public void test0014() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"/**\n" +
+				" * \n" +
+				" * @par \n" +
+				" *\n"+
+				" */\n" +
+				"public record Point()  {\n" + 
+				"}");
+	
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "par";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"",
+						requestor.getResults());
+		
+	
+	}
+	
+	
+	public void test0015() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"/**\n" +
+				" * \n" +
+				" * @par \n" +
+				" *\n"+
+				" */\n" +
+				"public record Point(int a)  {\n" + 
+				"}");
+	
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "par";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"param[JAVADOC_BLOCK_TAG]{@param, null, null, param, null, 38}",
+						requestor.getResults());
+		
+	
+	}
+	
+	
 }
