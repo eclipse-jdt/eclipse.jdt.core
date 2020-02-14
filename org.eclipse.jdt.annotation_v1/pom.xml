@@ -24,4 +24,28 @@
   <properties>
     <skipAPIAnalysis>true</skipAPIAnalysis>
   </properties>
+  <build>
+    <plugins>
+      <plugin>
+       <groupId>org.eclipse.tycho.extras</groupId>
+       <artifactId>tycho-p2-extras-plugin</artifactId>
+       <version>${tycho.version}</version>
+       <executions>
+         <execution> <!-- Checks versions are properly bumped from one stream to the other -->
+           <id>compare-attached-artifacts-with-release</id>
+           <goals>
+             <goal>compare-version-with-baselines</goal>
+           </goals>
+           <configuration>
+             <skip>true</skip>
+             <baselines>
+               <baseline>${previous-release.baseline}</baseline>
+             </baselines>
+             <comparator>zip</comparator>
+           </configuration>
+         </execution>
+       </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
