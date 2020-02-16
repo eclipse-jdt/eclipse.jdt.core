@@ -136,6 +136,43 @@ public class PackageTests extends BuilderTests {
 		expectingNoProblems();
 	}
 
+	public void testNoFolderProblem2() throws JavaModelException {
+		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath src = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		IPath src2 = env.addPackageFragmentRoot(projectPath, "src2");
+
+		// create folder & contained non-java file (which don't establish package p.A!):
+		env.addFolder(src, "p/A"); //$NON-NLS-1$
+		env.addFile(src, "p/A/some.properties", //$NON-NLS-1$
+			"name=Some\n" //$NON-NLS-1$
+		);
+
+		env.addClass(src2, "p", "A", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p;\n"+ //$NON-NLS-1$
+			"public class A {}" //$NON-NLS-1$
+		);
+
+		IPath project2Path = env.addProject("Project2");
+		env.addExternalJars(project2Path, Util.getJavaClassLibs());
+		env.removePackageFragmentRoot(project2Path, ""); //$NON-NLS-1$
+		IPath srcP2 = env.addPackageFragmentRoot(project2Path, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+		env.addRequiredProject(project2Path, projectPath, false);
+
+		env.addClass(srcP2, "q", "Main",
+			"package q;\n" +
+			"import p.A;\n" +
+			"public class Main {\n" +
+			"	A field;\n" +
+			"}\n");
+
+		fullBuild();
+		expectingNoProblems();
+	}
+
 	public void testNestedPackageProblem() throws JavaModelException {
 		IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());

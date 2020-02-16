@@ -219,12 +219,18 @@ public boolean isPackage(String qualifiedPackageName, String moduleName) {
 	}
 	String[] list = directoryList(qualifiedPackageName);
 	if (list != null) {
+		// 1. search files here:
 		for (String entry : list) {
 			String entryLC = entry.toLowerCase();
 			if (entryLC.endsWith(SuffixConstants.SUFFIX_STRING_class) || entryLC.endsWith(SuffixConstants.SUFFIX_STRING_java))
 				return true;
-			if (entryLC.indexOf('.') == -1)
-				return isPackage(qualifiedPackageName+'/'+entry, null/*already checked*/);
+		}
+		// 2. recurse into sub directories
+		for (String entry : list) {
+			if (entry.indexOf('.') == -1) { // no plain files without '.' are returned by directoryList()
+				if (isPackage(qualifiedPackageName+'/'+entry, null/*already checked*/))
+					return true;
+			}
 		}
 	}
 	return false;
