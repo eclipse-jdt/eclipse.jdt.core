@@ -326,7 +326,7 @@ public class MessagerProc extends AbstractProcessor {
 		_messager.printMessage(Kind.ERROR, "Error on element java.lang.String", _element2);
 		_messager.printMessage(Kind.WARNING, "Warning on method foo", _methodElement);
 		_messager.printMessage(Kind.NOTE, "Note for field j", _variableElement);
-		_messager.printMessage(Kind.WARNING, "Error on parameter of D.methodDvoid", _parameterElement);
+		_messager.printMessage(Kind.WARNING, "Warning on parameter of D.methodDvoid", _parameterElement);
 		return true;
 	}
 }

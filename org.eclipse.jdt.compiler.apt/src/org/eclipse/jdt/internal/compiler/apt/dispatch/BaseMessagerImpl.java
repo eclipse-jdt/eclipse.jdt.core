@@ -188,8 +188,11 @@ public class BaseMessagerImpl {
 			case ERROR :
 				severity = ProblemSeverities.Error;
 				break;
+			case NOTE :
+			case OTHER:
+				severity = ProblemSeverities.Info;
+				break;
 			default :
-				// There is no "INFO" equivalent in JDT
 				severity = ProblemSeverities.Warning;
 				break;
 		}

@@ -18,8 +18,11 @@ package org.eclipse.jdt.compiler.apt.tests;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
@@ -36,30 +39,27 @@ import junit.framework.TestCase;
 public class MessagerTests extends TestCase {
 
 	public final class DiagnosticReport<S> implements DiagnosticListener<S> {
-		public int count;
 		public StringBuffer buffer;
-		private List<Diagnostic<? extends S>> errors = new ArrayList<>();
+		private List<Diagnostic<? extends S>> diagnostics = new ArrayList<>();
 		DiagnosticReport() {
-			this.count = 0;
 			this.buffer = new StringBuffer();
 		}
 		@Override
 		public void report(Diagnostic<? extends S> diagnostic) {
-			if (diagnostic.getKind() ==  Diagnostic.Kind.ERROR) {
-				errors.add(diagnostic);
-				count++;
-				buffer.append(diagnostic.getMessage(Locale.getDefault()));
-				buffer.append("\n");
-			}
+			diagnostics.add(diagnostic);
+			buffer.append(diagnostic.getMessage(Locale.getDefault()));
+			buffer.append("\n");
 		}
-		public Diagnostic<? extends S> getErrorAt(int index) {
-			return errors.get(index);
+		public List<Diagnostic<? extends S>> get(Diagnostic.Kind first, Diagnostic.Kind... rest) {
+			Set<Diagnostic.Kind> wanted = EnumSet.of(first, rest);
+			return diagnostics.stream().filter(d -> wanted.contains(d.getKind())).collect(Collectors.toList());
 		}
 		@Override
 		public String toString() {
 			return this.buffer.toString();
 		}
 	}
+	
 	// See corresponding usages in the MessagerProc class
 	private static final String MESSAGERPROCNAME = "org.eclipse.jdt.compiler.apt.tests.processors.messager.MessagerProc";
 
@@ -83,7 +83,7 @@ public class MessagerTests extends TestCase {
 		internalTestMessager(compiler, diagnosticListener);
 		// surprisingly enough javac 1.7 only reports 3 errors
 		// javac 1.6 reports 4 errors as expected
-		assertTrue("Wrong number of reported errors", diagnosticListener.count >= 3);
+		assertTrue("Wrong number of reported errors", diagnosticListener.get(Diagnostic.Kind.ERROR).size() >= 3);
 	}
 
 	/**
@@ -94,9 +94,13 @@ public class MessagerTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<JavaFileObject>();
 		internalTestMessager(compiler, diagnosticListener);
-		assertEquals("Wrong number of reported errors", 5, diagnosticListener.count);
-		@SuppressWarnings("unchecked")
-		Diagnostic<JavaFileObject> diag = (Diagnostic<JavaFileObject>) diagnosticListener.getErrorAt(2);
+		List<Diagnostic<? extends JavaFileObject>> infos = diagnosticListener.get(Diagnostic.Kind.NOTE);
+		assertEquals("Wrong number of reported infos", 2, infos.size());
+		List<Diagnostic<? extends JavaFileObject>> warnings = diagnosticListener.get(Diagnostic.Kind.WARNING, Diagnostic.Kind.MANDATORY_WARNING);
+		assertEquals("Wrong number of reported warnings", 2, warnings.size());
+		List<Diagnostic<? extends JavaFileObject>> errors = diagnosticListener.get(Diagnostic.Kind.ERROR);
+		assertEquals("Wrong number of reported errors", 5, errors.size());
+		Diagnostic<? extends JavaFileObject> diag = errors.get(2);
 		JavaFileObject fileObject = diag.getSource();
 		CharSequence content = fileObject.getCharContent(true);
 		String marker = content.subSequence((int) diag.getStartPosition(), (int) diag.getEndPosition() + 1).toString();
@@ -106,7 +110,6 @@ public class MessagerTests extends TestCase {
 	/**
 	 * Attempt to report errors on various elements.
 	 * @throws IOException
-	 * @return the outputted errors, if the test succeeded enough to generate them
 	 */
 	private void internalTestMessager(JavaCompiler compiler, DiagnosticListener<? super JavaFileObject> diagnosticListener) throws IOException {
 		System.clearProperty(MESSAGERPROCNAME);
