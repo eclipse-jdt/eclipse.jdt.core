@@ -770,12 +770,12 @@ public static final boolean subWordMatch(char[] pattern, char[] name) {
  * Each of these regions is made of its starting index and its length in the given
  * name. They are all concatenated in a single array of <code>int</code>
  * which therefore always has an even length.
- * </p><p>
+ * <p>
  * Note that each region is disjointed from the following one.<br>
  * E.g. if the regions are <code>{ start1, length1, start2, length2 }</code>,
  * then <code>start1+length1</code> will always be smaller than
  * <code>start2</code>.
- * </p><p>
+ * <p>
  * Examples:
  * <ol>
  * <li><pre>
@@ -784,7 +784,6 @@ public static final boolean subWordMatch(char[] pattern, char[] name) {
  *    result:  { 0, 6, 10, 3 }
  * </pre></li>
  * </ol>
- * </p>
  *
  * @see CharOperation#subWordMatch(char[], char[])
  * 	for more details on the subword behavior
