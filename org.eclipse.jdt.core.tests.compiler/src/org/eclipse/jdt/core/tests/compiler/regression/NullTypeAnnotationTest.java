@@ -17995,4 +17995,71 @@ public void testBug482242_boundedWildcard() {
 		"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'capture#of ? super @Nullable String\'\n" + 
 		"----------\n");
 }
+public void testBug560213source() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.classLibraries = this.LIBS;
+	runner.testFiles = new String[] {
+		"nullEnumSort/MyEnum.java",
+		"package nullEnumSort;\n" + 
+		"\n" + 
+		"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+		"\n" + 
+		"@NonNullByDefault\n" + 
+		"enum MyEnum {\n" + 
+		"    x\n" + 
+		"}\n",
+		"nullEnumSort/EnumProblem.java",
+		"package nullEnumSort;\n" + 
+		"\n" + 
+		"import java.util.Collections;\n" + 
+		"import java.util.List;\n" + 
+		"\n" + 
+		"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+		"\n" + 
+		"@NonNullByDefault\n" + 
+		"public class EnumProblem {\n" + 
+		"    void f(List<MyEnum> list) {\n" + 
+		"        Collections.sort(list);\n" + 
+		"    }\n" + 
+		"\n}"
+	};
+	runner.runConformTest();
+}
+public void testBug560213binary() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.testFiles = new String[] {
+		"nullEnumSort/MyEnum.java",
+		"package nullEnumSort;\n" + 
+		"\n" + 
+		"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+		"\n" + 
+		"@NonNullByDefault\n" + 
+		"enum MyEnum {\n" + 
+		"    x\n" + 
+		"}\n"
+	};
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles = new String[] {
+		"nullEnumSort/EnumProblem.java",
+		"package nullEnumSort;\n" + 
+		"\n" + 
+		"import java.util.Collections;\n" + 
+		"import java.util.List;\n" + 
+		"\n" + 
+		"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+		"\n" + 
+		"@NonNullByDefault\n" + 
+		"public class EnumProblem {\n" + 
+		"    void f(List<MyEnum> list) {\n" + 
+		"        Collections.sort(list);\n" + 
+		"    }\n" + 
+		"\n}"
+	};
+	runner.runConformTest();
+}
 }
