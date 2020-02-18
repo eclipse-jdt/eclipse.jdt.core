@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2017 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2020 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,11 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - fix for 342598
@@ -47,6 +51,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
@@ -312,6 +317,7 @@ public class Factory {
 			case ANNOTATION_TYPE :
 			case INTERFACE :
 			case CLASS :
+			case RECORD :
 				// for type
 				decodeModifiers(result, modifiers, new int[] {
 					ClassFileConstants.AccPublic,
@@ -347,6 +353,9 @@ public class Factory {
 			return null;
 		switch (binding.kind()) {
 		case Binding.FIELD:
+			if (((FieldBinding) binding).isRecordComponent()) {
+				return new RecordComponentElementImpl(_env, (FieldBinding) binding);
+			}
 		case Binding.LOCAL:
 		case Binding.VARIABLE:
 			return new VariableElementImpl(_env, (VariableBinding) binding);

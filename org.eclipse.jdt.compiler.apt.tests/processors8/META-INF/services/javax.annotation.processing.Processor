@@ -3,3 +3,4 @@ org.eclipse.jdt.compiler.apt.tests.processors.elements.Java9ElementProcessor
 org.eclipse.jdt.compiler.apt.tests.processors.elements.Java11ElementProcessor
 org.eclipse.jdt.compiler.apt.tests.processors.elements.Java12ElementProcessor
 org.eclipse.jdt.compiler.apt.tests.processors.elements.Java13ElementProcessor
+org.eclipse.jdt.compiler.apt.tests.processors.elements.Java14ElementProcessor

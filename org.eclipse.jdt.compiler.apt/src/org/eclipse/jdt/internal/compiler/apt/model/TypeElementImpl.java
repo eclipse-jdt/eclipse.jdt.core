@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2017 IBM Corporation and others.
+ * Copyright (c) 2005, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -29,6 +33,7 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.Name;
 import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.PackageElement;
+import javax.lang.model.element.RecordComponentElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.TypeParameterElement;
 import javax.lang.model.element.VariableElement;
@@ -155,9 +160,14 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		}
 		for (FieldBinding field : binding.fields()) {
 			// TODO no field should be excluded according to the JLS
-			if (!field.isSynthetic()) {
-				 VariableElement variable = new VariableElementImpl(_env, field);
-				 enclosed.add(variable);
+			if (binding.isRecord()) {
+				RecordComponentElement rec = new RecordComponentElementImpl(_env, field);
+				enclosed.add(rec);
+			} else {
+				if (!field.isSynthetic()) {
+					VariableElement variable = new VariableElementImpl(_env, field);
+					enclosed.add(variable);
+				}
 			}
 		}
 		for (ReferenceBinding memberType : binding.memberTypes()) {
@@ -169,6 +179,25 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 
 		return Collections.unmodifiableList(enclosed);
 	}
+
+	@Override
+    public List<? extends RecordComponentElement> getRecordComponents() {
+		if (_binding instanceof SourceTypeBinding) {
+			SourceTypeBinding binding = (SourceTypeBinding) _binding;
+			FieldBinding[] components = ((SourceTypeBinding) _binding).getRecordComponents();
+			List<RecordComponentElement> enclosed = new ArrayList<>(components.length);
+			for (FieldBinding field : binding.fields()) {
+				if (!field.isSynthetic()) {
+					 RecordComponentElement variable = new RecordComponentElementImpl(_env, field);
+					 enclosed.add(variable);
+				}
+			}
+			Collections.sort(enclosed, new SourceLocationComparator());
+			return Collections.unmodifiableList(enclosed);
+		}
+		// TODO: Add code for BinaryTypeBinding, which, as of now doesn't seem to contain components
+		return Collections.emptyList();
+    }
 
 	@Override
 	public Element getEnclosingElement() {
@@ -221,6 +250,9 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		// The order of these comparisons is important: e.g., enum is subset of class
 		if (refBinding.isEnum()) {
 			return ElementKind.ENUM;
+		}
+		else if (refBinding.isRecord()) {
+			return ElementKind.RECORD;
 		}
 		else if (refBinding.isAnnotationType()) {
 			return ElementKind.ANNOTATION_TYPE;
