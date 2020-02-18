@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 public class BatchFilerImpl implements Filer {
 
 	protected final BaseAnnotationProcessorManager _dispatchManager;
-	protected final BaseProcessingEnvImpl _env;
+	protected final BatchProcessingEnvImpl _env;
 	protected final JavaFileManager _fileManager;
 	protected final HashSet<URI> _createdFiles;
 
