@@ -17,10 +17,15 @@ package org.eclipse.jdt.compiler.apt.tests;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import javax.tools.Diagnostic;
 import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
 import javax.tools.ToolProvider;
+
+import org.eclipse.jdt.compiler.apt.tests.BatchTestUtils.DiagnosticReport;
 
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -123,10 +128,50 @@ public class BatchDispatchTests extends TestCase {
 	 * Read annotation values and generate a class using Eclipse compiler
 	 * @throws IOException
 	 */
-	public void _testCompilerOneClassWithEclipseCompiler() throws IOException {
+	public void testCompilerOneClassWithEclipseCompiler() throws IOException {
 		// Eclipse compiler
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestGenerateClass(compiler);
+	}
+
+	public void testWarningsWithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWarnings(compiler, 1, "-warn:+unused");
+	}
+
+	public void testNoWarningsWithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWarnings(compiler, 0, "-warn:+unused", "-nowarn");
+	}
+
+	public void testUnusedWarningWithEclipseCompiler() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWarnings(compiler, 1, "-nowarn", "-warn:+unused");
+	}
+
+	private void internalTestWarnings(JavaCompiler compiler, int numberOfWarnings, String... extraOptions) throws IOException {
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "dispatch");
+		File inputFile = BatchTestUtils.copyResource("targets/dispatch/WarnGenClass.java", targetFolder);
+		assertNotNull("No input file", inputFile);
+
+		List<String> options = new ArrayList<String>();
+		if (extraOptions != null) {
+			options.addAll(Arrays.asList(extraOptions));
+		}
+		DiagnosticReport<JavaFileObject> diagnostics = BatchTestUtils.compileOneClass(compiler, options, inputFile);
+
+		// check that the gen-src and class files were generated
+ 		File genSrcFile = TestUtils.concatPath(BatchTestUtils.getGenFolderName(), "gen", "WarnGen.java");
+ 		assertTrue("generated src file does not exist", genSrcFile.exists());
+
+ 		File classFile = TestUtils.concatPath(BatchTestUtils.getBinFolderName(), "targets", "dispatch", "WarnGenClass.class");
+ 		assertTrue("ordinary src file was not compiled", classFile.exists());
+
+ 		File genClassFile = TestUtils.concatPath(BatchTestUtils.getBinFolderName(), "gen", "WarnGen.class");
+ 		assertTrue("generated src file was not compiled", genClassFile.exists());
+
+ 		assertEquals("Wrong number of warnings", numberOfWarnings,
+ 				diagnostics.get(Diagnostic.Kind.WARNING, Diagnostic.Kind.MANDATORY_WARNING).size());
 	}
 
 	/**

@@ -662,7 +662,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				int infos = 0;
 				for (int i = 0; i < count; i++) {
 					CategorizedProblem problem = problems.get(i);
-					if (problem != null) {
+					if (!this.main.isIgnored(problem)) {
 						currentMain.globalProblemsCount++;
 						logExtraProblem(problem, localProblemCount, currentMain.globalProblemsCount);
 						localProblemCount++;
@@ -683,7 +683,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						startLoggingExtraProblems(count);
 						for (int i = 0; i < count; i++) {
 							CategorizedProblem problem = problems.get(i);
-							if (problem!= null) {
+							if (!this.main.isIgnored(problem)) {
 								if (problem.getID() != IProblem.Task) {
 									logXmlExtraProblem(problem, localProblemCount, currentMain.globalProblemsCount);
 								}
@@ -3409,6 +3409,9 @@ protected void enableAll(int severity) {
 		}
 	}
 	this.options.put(CompilerOptions.OPTION_TaskTags, Util.EMPTY_STRING);
+	if (newValue != null) {
+		this.options.remove(newValue);
+	}
 }
 protected void disableAll(int severity) {
 	String checkedValue = null;
@@ -3428,6 +3431,9 @@ protected void disableAll(int severity) {
 		if (entry.getValue().equals(checkedValue)) {
 			this.options.put(entry.getKey(), CompilerOptions.IGNORE);
 		}
+	}
+	if (checkedValue != null) {
+		this.options.put(checkedValue, CompilerOptions.IGNORE);
 	}
 	if (severity == ProblemSeverities.Warning) {
 		disableAll(ProblemSeverities.Info);
@@ -3867,6 +3873,26 @@ protected ArrayList<FileSystem.Classpath> handleExtdirs(ArrayList<String> extdir
 	}
 
 	return FileSystem.EMPTY_CLASSPATH;
+}
+
+protected boolean isIgnored(IProblem problem) {
+	if (problem == null) {
+		return true;
+	}
+	if (problem.isError()) {
+		return false;
+	}
+	String key = problem.isInfo() ? CompilerOptions.INFO : CompilerOptions.WARNING;
+	if (CompilerOptions.IGNORE.equals(this.options.get(key))) {
+		return true;
+	}
+	if (this.ignoreOptionalProblemsFromFolders != null) {
+		char[] fileName = problem.getOriginatingFileName();
+		if (fileName != null) {
+			return shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName);
+		}
+	}
+	return false;
 }
 
 /*

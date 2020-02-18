@@ -700,7 +700,7 @@ public class EclipseCompilerImpl extends Main {
 		for (@SuppressWarnings("rawtypes")
 			Iterator iterator = this.extraProblems.iterator(); iterator.hasNext(); ) {
 			final CategorizedProblem problem = (CategorizedProblem) iterator.next();
-			if (this.diagnosticListener != null) {
+			if (this.diagnosticListener != null && !isIgnored(problem)) {
 				Diagnostic<JavaFileObject> diagnostic = new Diagnostic<JavaFileObject>() {
 					@Override
 					public String getCode() {
@@ -844,6 +844,11 @@ public class EclipseCompilerImpl extends Main {
 		@Override
 		public boolean isWarning() {
 			return this.original.isWarning();
+		}
+
+		@Override
+		public boolean isInfo() {
+			return this.original.isInfo();
 		}
 
 		@Override
