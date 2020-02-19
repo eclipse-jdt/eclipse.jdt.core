@@ -170,7 +170,7 @@ public class Java14ElementProcessor extends BaseProcessor {
 		List<RecordComponentElement> recordComponentsIn = ElementFilter.recordComponentsIn(enclosedElements);
 		int size = recordComponentsIn.size();
 		assertEquals("incorrect no of record components", 1, size);
-		Element element = enclosedElements.get(0);
+		Element element = recordComponentsIn.get(0);
 		assertEquals("Incorrect kind of element", ElementKind.RECORD_COMPONENT, element.getKind());
 		RecordComponentElement recordComponent = (RecordComponentElement) element;
 		assertEquals("Incorrect name for record component", "comp_", recordComponent.getSimpleName().toString());
@@ -212,7 +212,7 @@ public class Java14ElementProcessor extends BaseProcessor {
 		List<RecordComponentElement> recordComponentsIn = ElementFilter.recordComponentsIn(enclosedElements);
 		int size = recordComponentsIn.size();
 		assertEquals("incorrect no of record components", 1, size);
-		Element element = enclosedElements.get(0);
+		Element element = recordComponentsIn.get(0);
 		assertEquals("Incorrect kind of element", ElementKind.RECORD_COMPONENT, element.getKind());
 		RecordComponentElement recordComponent = (RecordComponentElement) element;
 		
