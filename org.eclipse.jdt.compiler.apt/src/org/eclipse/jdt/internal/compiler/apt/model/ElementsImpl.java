@@ -347,6 +347,7 @@ public class ElementsImpl implements Elements {
 			case CLASS :
 			case ENUM :
 			case INTERFACE :
+			case RECORD :
 				TypeElementImpl typeElementImpl = (TypeElementImpl) e;
 				ReferenceBinding referenceBinding = (ReferenceBinding)typeElementImpl._binding;
 				if (referenceBinding instanceof SourceTypeBinding) {
@@ -377,6 +378,7 @@ public class ElementsImpl implements Elements {
 					referenceContext = sourceMethod;
 				}
 				break;
+			case RECORD_COMPONENT :
 			case ENUM_CONSTANT :
 			case FIELD :
 				VariableElementImpl variableElementImpl = (VariableElementImpl) e;
@@ -582,6 +584,7 @@ public class ElementsImpl implements Elements {
 			case CLASS :
 			case ENUM :
 			case INTERFACE :
+			case RECORD :
 				TypeElementImpl typeElementImpl = (TypeElementImpl) type;
 				ReferenceBinding referenceBinding = (ReferenceBinding)typeElementImpl._binding;
 				return (PackageElement) _env.getFactory().newElement(referenceBinding.fPackage);
@@ -594,6 +597,7 @@ public class ElementsImpl implements Elements {
 				return (PackageElement) _env.getFactory().newElement(methodBinding.declaringClass.fPackage);
 			case ENUM_CONSTANT :
 			case FIELD :
+			case RECORD_COMPONENT :
 				VariableElementImpl variableElementImpl = (VariableElementImpl) type;
 				FieldBinding fieldBinding = (FieldBinding) variableElementImpl._binding;
 				return (PackageElement) _env.getFactory().newElement(fieldBinding.declaringClass.fPackage);

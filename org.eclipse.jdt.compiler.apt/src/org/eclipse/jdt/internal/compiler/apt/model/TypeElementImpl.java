@@ -89,6 +89,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 				case INTERFACE :
 				case CLASS :
 				case ENUM :
+				case RECORD :
 					TypeElementImpl typeElementImpl = (TypeElementImpl) e;
 					Binding typeBinding = typeElementImpl._binding;
 					if (typeBinding instanceof SourceTypeBinding) {
@@ -108,6 +109,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 					break;
 				case ENUM_CONSTANT :
 				case FIELD :
+				case RECORD_COMPONENT :
 					VariableElementImpl variableElementImpl = (VariableElementImpl) e;
 					binding = variableElementImpl._binding;
 					if (binding instanceof FieldBinding) {
@@ -160,14 +162,16 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		}
 		for (FieldBinding field : binding.fields()) {
 			// TODO no field should be excluded according to the JLS
-			if (binding.isRecord()) {
+			if (!field.isSynthetic()) {
+				 VariableElement variable = new VariableElementImpl(_env, field);
+				 enclosed.add(variable);
+			}
+		}
+		if (binding.isRecord() && binding instanceof SourceTypeBinding) {
+			SourceTypeBinding sourceBinding = (SourceTypeBinding) binding;
+			for (FieldBinding field : sourceBinding.getRecordComponents()) {
 				RecordComponentElement rec = new RecordComponentElementImpl(_env, field);
 				enclosed.add(rec);
-			} else {
-				if (!field.isSynthetic()) {
-					VariableElement variable = new VariableElementImpl(_env, field);
-					enclosed.add(variable);
-				}
 			}
 		}
 		for (ReferenceBinding memberType : binding.memberTypes()) {

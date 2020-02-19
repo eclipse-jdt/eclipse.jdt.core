@@ -70,6 +70,14 @@ public class Java14ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords4", null, "records", true);
 	}
+	public void testRecords5() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords5", null, "records", true);
+	}
+	public void testRecords5Javac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords5", null, "records", true);
+	}
 
 	protected void internalTestWithPreview(JavaCompiler compiler, String processor, String compliance,
 			String testMethod, String testClass, String resourceArea, boolean preview) throws IOException {
@@ -97,7 +105,7 @@ public class Java14ElementsTests extends TestCase {
 		}
 		if (preview) 
 			options.add("--enable-preview");
-		BatchTestUtils.compileInModuleMode(compiler, options, processor, targetFolder, null, true, true);
+		BatchTestUtils.compileInModuleMode(compiler, options, processor, targetFolder, null, true, false);
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
 		assertEquals("succeeded", System.getProperty(processor));

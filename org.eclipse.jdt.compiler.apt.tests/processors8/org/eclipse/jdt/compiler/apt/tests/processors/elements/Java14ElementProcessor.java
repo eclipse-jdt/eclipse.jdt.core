@@ -18,13 +18,18 @@
 
 package org.eclipse.jdt.compiler.apt.tests.processors.elements;
 
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -42,7 +47,9 @@ import javax.lang.model.element.ModuleElement;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.RecordComponentElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.TypeKind;
 import javax.lang.model.util.ElementFilter;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
@@ -191,7 +198,6 @@ public class Java14ElementProcessor extends BaseProcessor {
 	 */
 	public void testRecords4() {
 		Set<? extends Element> elements = roundEnv.getRootElements();
-		System.out.println(elements);
 		TypeElement record = null;
 		for (Element element : elements) {
 			if ("Point".equals(element.getSimpleName().toString())) {
@@ -216,7 +222,58 @@ public class Java14ElementProcessor extends BaseProcessor {
 	 * Test for getAccessor of a record component
 	 */
 	public void testRecords5() {
-		// This is not yet implemented.
+		Map<String, TypeKind> expRecComps = new HashMap<>();
+		expRecComps.put("x", TypeKind.INT);
+		expRecComps.put("i", TypeKind.DECLARED);
+		expRecComps.put( "r", TypeKind.DECLARED);
+		expRecComps.put("t", TypeKind.DECLARED);
+		
+        Map<String, TypeKind> fields = new HashMap<>();
+		
+        fields.put("s", TypeKind.DECLARED);
+        fields.put("d", TypeKind.DOUBLE);
+        fields.put("c", TypeKind.DECLARED);
+
+        Map<String, TypeKind> expFields = new HashMap<>(expRecComps);
+        expFields.putAll(fields);
+
+		String[] arr = new String[] {"x", "i", "r", "r", "foo", "bar",
+                "equals", "hashCode", "toString"};
+
+		List<String> expMethodNames = Arrays.asList(arr);
+
+        Element recordElement = _elementUtils.getTypeElement("records.Record2");
+        List<? extends Element> recordElements = recordElement.getEnclosedElements();
+        List<VariableElement> actFields = ElementFilter.fieldsIn(recordElements);
+        List<RecordComponentElement> actRecComps = ElementFilter.recordComponentsIn(recordElements);
+        List<ExecutableElement> methods = ElementFilter.methodsIn(recordElements);
+        //checking the size
+        assertEquals("expected enclosed fields size mismatch", expFields.size(), actFields.size());
+        
+        //checking for types for the given field Names.
+        for (VariableElement actField : actFields) {
+            String key = actField.getSimpleName().toString();
+            if (expFields.get(key) != actField.asType().getKind()) {
+            	assertEquals("expected enclosed fields mismatch", expFields.get(key), actField.asType().getKind());
+            }
+        }
+        //checking recComp  size
+        assertEquals("expected enclosed Record Components size mismatch", expRecComps.size(), actRecComps.size());
+        //checking for types for the given record component name.
+        for (RecordComponentElement actRecComp : actRecComps) {
+            String key = actRecComp.getSimpleName().toString();
+            assertEquals("expected enclosed Record Components mismatch", expRecComps.get(key), actRecComp.asType().getKind());
+        }
+
+        List<String> actualMethodNames = methods.stream().map((m) -> m.getSimpleName().toString()).collect(Collectors.toList());
+
+        //checking the size
+        assertEquals("expected enclosed Record Components size mismatch", expMethodNames.size(), actualMethodNames.size());
+        //check the method names.
+        if (!actualMethodNames.containsAll(expMethodNames)) {
+        	fail(" expected enclosed methods mismatch - expected at least : " + expMethodNames + " " +
+                    "actual : " + actualMethodNames);
+        }
 	}
 
 	@Override
