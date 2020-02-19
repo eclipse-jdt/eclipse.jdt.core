@@ -142,7 +142,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	abstract record Point(int x, int y){\n" + 
 			"	                ^^^^^\n" + 
-			"Illegal modifier for the record Point; abstract not allowed\n" + 
+			"Illegal modifier for the record Point; only public, static, final and strictfp are permitted\n" + 
 			"----------\n");
 	}
 	/* A record declaration is implicitly final. It is permitted for the declaration of
@@ -1460,18 +1460,23 @@ public void testBug553153_004() {
 	"----------\n");
 }
 public void testBug558069_001() {
-	runConformTest(
-		new String[] {
-			"X.java",
-			"public class X {\n"+
-			"  public static void main(String[] args){\n"+
-			"     System.out.println(0);\n" +
-			"  }\n"+
-			"}\n"+
-			"private record Point(){\n"+
-			"}\n"
-		},
-	 "0");
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n"+
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n"+
+					"private record Point(){\n"+
+					"}\n",
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 6)\n" + 
+			"	private record Point(){\n" + 
+			"	               ^^^^^\n" + 
+			"Illegal modifier for the record Point; only public, static, final and strictfp are permitted\n" + 
+			"----------\n");
 }
 public void testBug558069_002() {
 	runConformTest(
@@ -1931,6 +1936,78 @@ public void testBug559992_002() {
 		"	public R() throws Exception {\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Throws clause not allowed for canonical constructor R\n" + 
+		"----------\n");
+}
+public void testBug560256_001() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"+
+			"final protected record Point(int x, int y){\n"+
+		"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	final protected record Point(int x, int y){\n" + 
+		"	                       ^^^^^\n" + 
+		"Illegal modifier for the record Point; only public, static, final and strictfp are permitted\n" + 
+		"----------\n");
+}
+public void testBug560256_002() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  public static void main(String[] args){\n"+
+			"     System.out.println(0);\n" +
+			"  }\n"+
+			"}\n"+
+			"native record Point(int x, int y){\n"+
+		"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	native record Point(int x, int y){\n" + 
+		"	              ^^^^^\n" + 
+		"Illegal modifier for the record Point; only public, static, final and strictfp are permitted\n" + 
+		"----------\n");
+}
+public void testBug560256_003() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  class Inner {\n"+
+			"	  record Point(int x, int y){}\n"+
+			"  }\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	record Point(int x, int y){}\n" + 
+		"	       ^^^^^\n" + 
+		"Nested Record is (implicitly) static and hence enclosing type should be static\n" + 
+		"----------\n");
+}
+public void testBug560256_004() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  static class Inner {\n"+
+			"	  native record Point(int x, int y){}\n"+
+			"  }\n" +
+			"}",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	native record Point(int x, int y){}\n" + 
+		"	              ^^^^^\n" + 
+		"Illegal modifier for the record Point; only public, private, protected, static, final and strictfp are permitted\n" + 
 		"----------\n");
 }
 }

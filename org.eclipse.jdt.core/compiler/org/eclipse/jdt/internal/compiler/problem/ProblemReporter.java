@@ -11415,12 +11415,23 @@ public void switchExpressionsContinueOutOfSwitchExpression(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
-public void illegalModifierAbstractForRecord(SourceTypeBinding type) {
+public void illegalModifierForInnerRecord(SourceTypeBinding type) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(
-		IProblem.RecordIllegalModifierAbstractForRecord,
+		IProblem.RecordIllegalModifierForInnerRecord,
+		arguments,
+		arguments,
+		type.sourceStart(),
+		type.sourceEnd());
+}
+public void illegalModifierForRecord(SourceTypeBinding type) {
+	if (!this.options.enablePreviewFeatures)
+		return;
+	String[] arguments = new String[] {new String(type.sourceName())};
+	this.handle(
+		IProblem.RecordIllegalModifierForRecord,
 		arguments,
 		arguments,
 		type.sourceStart(),
@@ -11494,7 +11505,7 @@ public void recordDuplicateComponent(Argument arg) {
 		arg.sourceStart,
 		arg.sourceEnd);
 }
-public void RecordIllegalNativeModifierInRecord(AbstractMethodDeclaration method) {
+public void recordIllegalNativeModifierInRecord(AbstractMethodDeclaration method) {
 	if (!this.options.enablePreviewFeatures)
 		return;
 	this.handle(

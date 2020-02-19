@@ -11217,7 +11217,7 @@ private void checkForRecordMemberErrors(RecordDeclaration recordDecl, int nCreat
 		for (int i = 0; i < recordDecl.methods.length; i++) {
 			AbstractMethodDeclaration method = recordDecl.methods[i];
 			if ((method.modifiers & ClassFileConstants.AccNative) != 0) {
-				problemReporter().RecordIllegalNativeModifierInRecord(method);
+				problemReporter().recordIllegalNativeModifierInRecord(method);
 			}
 		}
 	}

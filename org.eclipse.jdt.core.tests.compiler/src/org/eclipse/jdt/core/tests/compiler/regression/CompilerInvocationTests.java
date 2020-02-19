@@ -1227,7 +1227,8 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("SwitchExpressionsNotSupported", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 	    expectedProblemAttributes.put("SwitchExpressionsBreakOutOfSwitchExpression", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 	    expectedProblemAttributes.put("SwitchExpressionsContinueOutOfSwitchExpression", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
-	    expectedProblemAttributes.put("RecordIllegalModifierAbstractForRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordIllegalModifierForRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("RecordIllegalModifierForInnerRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordIllegalComponentNameInRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordNonStaticFieldDeclarationInRecord", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("RecordAccessorMethodHasThrowsClause", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
@@ -2245,7 +2246,8 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("SwitchExpressionsNotSupported", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsBreakOutOfSwitchExpression", SKIP);
 	    expectedProblemAttributes.put("SwitchExpressionsContinueOutOfSwitchExpression", SKIP);
-	    expectedProblemAttributes.put("RecordIllegalModifierAbstractForRecord", SKIP);
+	    expectedProblemAttributes.put("RecordIllegalModifierForRecord", SKIP);
+	    expectedProblemAttributes.put("RecordIllegalModifierForInnerRecord", SKIP);
 	    expectedProblemAttributes.put("RecordIllegalComponentNameInRecord", SKIP);
 	    expectedProblemAttributes.put("RecordNonStaticFieldDeclarationInRecord", SKIP);
 	    expectedProblemAttributes.put("RecordAccessorMethodHasThrowsClause", SKIP);

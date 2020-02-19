@@ -2242,7 +2242,10 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
-	int RecordIllegalModifierAbstractForRecord = PreviewRelated + 1731;
+	int RecordIllegalModifierForInnerRecord = PreviewRelated + 1730;
+	/** @since 3.21 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordIllegalModifierForRecord = PreviewRelated + 1731;
 	/** @since 3.21 BETA_JAVA14
 	 * JLS 14 Sec 8.10.1
 	 * it is always a compile-time error for a record header to declare a record component with the name

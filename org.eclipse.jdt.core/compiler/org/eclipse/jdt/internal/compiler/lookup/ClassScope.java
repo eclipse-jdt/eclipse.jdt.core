@@ -666,11 +666,17 @@ public class ClassScope extends Scope {
 				}
 			}
 		} else if (sourceType.isRecord()) {
-			// JLS 14 8.10 : It is a compile-time error if a record declaration has the modifier abstract.
-			if ((realModifiers & ClassFileConstants.AccAbstract) != 0) {
-				problemReporter().illegalModifierAbstractForRecord(sourceType);
+			if (isMemberType) {
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+					problemReporter().illegalModifierForInnerRecord(sourceType);
+			} else {
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+					problemReporter().illegalModifierForRecord(sourceType);
 			}
-			// TODO: BETA_JAVA14
+			// JLS 14 8.10 : It is a compile-time error if a record declaration has the modifier abstract.
+			
 			/* Section 8.10 http://cr.openjdk.java.net/~gbierman/8222777/8222777-20190823/specs/records-jls.html#jls-8.10
 			 * It is a compile-time error if a record declaration has the modifier abstract.
 			 * 
