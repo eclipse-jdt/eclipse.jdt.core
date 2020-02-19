@@ -1554,4 +1554,39 @@ public void testSubword2() {
 	assertEquals("Unexpected regions length", 4, regions.length);
 	assertEquals("Unexpected matching regions", "[add]Enlist[List]ener", printRegions(name, regions));
 }
+public void testSubword_backtrack() {
+	String name = "addListListener";
+	int[] regions = SearchPattern.getMatchingRegions("addlisten", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", "[add]List[Listen]er", printRegions(name, regions));
+}
+public void testSubword_backtrackAndFail() {
+	String name = "addListString";
+	int[] regions = SearchPattern.getMatchingRegions("addlisten", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", null, printRegions(name, regions));
+}
+public void testSubword_backtrackTwice() {
+	String name = "addListListenListener";
+	int[] regions = SearchPattern.getMatchingRegions("addlistener", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", "[add]ListListen[Listener]", printRegions(name, regions));
+}
+public void testSubword_backtrackWithin() {
+	String name = "addListListenerWordTest";
+	int[] regions = SearchPattern.getMatchingRegions("addlistentest", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", "[add]List[Listen]erWord[Test]", printRegions(name, regions));
+}
+public void testSubword_backtrackWithinAndFail() {
+	String name = "addListListenerWordTest";
+	int[] regions = SearchPattern.getMatchingRegions("addlistentestnotfound", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", null, printRegions(name, regions));
+}
+public void testSubword_backtrackStart() {
+	String name = "listListener";
+	int[] regions = SearchPattern.getMatchingRegions("listener", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", "list[Listener]", printRegions(name, regions));
+}
+public void testSubword_backtrackStartAndFail() {
+	String name = "listString";
+	int[] regions = SearchPattern.getMatchingRegions("listener", name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected matching regions", null, printRegions(name, regions));
+}
 }
