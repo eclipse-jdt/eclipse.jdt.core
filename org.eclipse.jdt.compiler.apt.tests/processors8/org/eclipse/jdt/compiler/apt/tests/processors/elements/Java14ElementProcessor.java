@@ -130,6 +130,12 @@ public class Java14ElementProcessor extends BaseProcessor {
 
 	public void testAll() throws AssertionFailedError, IOException {
 		testPreviewFlagTrue();
+		testRecords1();
+		testRecords2();
+		testRecords3();
+		testRecords4();
+		testRecords5();
+		testRecords6();
 	}
 
 	public void testPreviewFlagTrue() throws IOException {
@@ -218,9 +224,6 @@ public class Java14ElementProcessor extends BaseProcessor {
 		
 		verifyAnnotations(recordComponent, new String[]{"@MyAnnot()"});
 	}
-	/*
-	 * Test for getAccessor of a record component
-	 */
 	public void testRecords5() {
 		Map<String, TypeKind> expRecComps = new HashMap<>();
 		expRecComps.put("x", TypeKind.INT);
@@ -274,6 +277,47 @@ public class Java14ElementProcessor extends BaseProcessor {
         	fail(" expected enclosed methods mismatch - expected at least : " + expMethodNames + " " +
                     "actual : " + actualMethodNames);
         }
+	}
+	public void testRecords6() {
+		TypeElement recordElement = _elementUtils.getTypeElement("records.Record2");
+		final List<? extends Element> members = _elementUtils.getAllMembers(recordElement);
+		final List<? extends Element> enclosedElements = recordElement.getEnclosedElements();
+
+		final HashSet<? extends Element> enclosedElementsSet = new HashSet<Element>(recordElement.getEnclosedElements());
+
+		List<ExecutableElement> constructors = ElementFilter.constructorsIn(enclosedElements);
+		List<ExecutableElement> methods = ElementFilter.methodsIn(enclosedElements);
+		List<VariableElement> fields = ElementFilter.fieldsIn(enclosedElements);
+
+		Set<ExecutableElement> constructorsSet = ElementFilter.constructorsIn(enclosedElementsSet);
+		Set<ExecutableElement> methodsSet = ElementFilter.methodsIn(enclosedElementsSet);
+		Set<VariableElement> fieldsSet = ElementFilter.fieldsIn(enclosedElementsSet);
+
+		assertTrue("Constructors must be within all members", members.containsAll(constructors));
+		assertTrue("Constructors must be within enclosed elements", enclosedElements.containsAll(constructors));
+		assertEquals("Overloaded versions of ElementFilter.constructorsIn() must return equal results",
+				new HashSet<Element>(constructors), constructorsSet);
+
+		assertTrue("Methods must be within all members", members.containsAll(methods));
+		assertTrue("Methods must be within enclosed elements", enclosedElements.containsAll(methods));
+		assertEquals("Overloaded versions of ElementFilter.methodsIn() must return equal results",
+				new HashSet<Element>(methods), methodsSet);
+
+		assertTrue("Fields must be within all members", members.containsAll(fields));
+		assertTrue("Fields must be within enclosed elements", enclosedElements.containsAll(fields));
+		assertEquals("Overloaded versions of ElementFilter.fieldsIn() must return equal results", new HashSet<Element>(fields), fieldsSet);
+	}
+	public void testRecords7() {
+		TypeElement recordElement = _elementUtils.getTypeElement("records.Record2");
+		final List<? extends Element> members = _elementUtils.getAllMembers(recordElement);
+		final List<? extends Element> enclosedElements = recordElement.getEnclosedElements();
+		List<RecordComponentElement> records = ElementFilter.recordComponentsIn(enclosedElements);
+		for (RecordComponentElement record : records) {
+			ExecutableElement method = record.getAccessor();
+			assertTrue("Accessor method not found", members.contains(method));
+			assertTrue("Accessor method not found", enclosedElements.contains(method));
+			assertEquals("Accessor method name incorrect", record.getSimpleName().toString(), method.getSimpleName().toString());
+		}
 	}
 
 	@Override

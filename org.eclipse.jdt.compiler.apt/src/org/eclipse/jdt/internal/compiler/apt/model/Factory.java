@@ -51,7 +51,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ElementValuePair;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
-import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
@@ -353,9 +352,6 @@ public class Factory {
 			return null;
 		switch (binding.kind()) {
 		case Binding.FIELD:
-			if (((FieldBinding) binding).isRecordComponent()) {
-				return new RecordComponentElementImpl(_env, (FieldBinding) binding);
-			}
 		case Binding.LOCAL:
 		case Binding.VARIABLE:
 			return new VariableElementImpl(_env, (VariableBinding) binding);

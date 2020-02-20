@@ -78,6 +78,22 @@ public class Java14ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords5", null, "records", true);
 	}
+	public void testRecords6() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords6", null, "records", true);
+	}
+	public void testRecords6Javac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords6", null, "records", true);
+	}
+	public void testRecords7() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords7", null, "records", true);
+	}
+	public void testRecords7Javac() throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithPreview(compiler, MODULE_PROC, "14", "testRecords7", null, "records", true);
+	}
 
 	protected void internalTestWithPreview(JavaCompiler compiler, String processor, String compliance,
 			String testMethod, String testClass, String resourceArea, boolean preview) throws IOException {

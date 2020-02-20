@@ -24,6 +24,9 @@ import javax.lang.model.element.RecordComponentElement;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 
 public class RecordComponentElementImpl extends VariableElementImpl implements RecordComponentElement {
 
@@ -38,7 +41,12 @@ public class RecordComponentElementImpl extends VariableElementImpl implements R
 
 	@Override
 	public ExecutableElement getAccessor() {
-		// TODO: Looks like no direct way of accessing the synthetic directly from the field binding.
+		FieldBinding field = (FieldBinding) this._binding;
+		ReferenceBinding binding = field.declaringClass;
+		if (binding instanceof SourceTypeBinding) {
+			MethodBinding accessor = ((SourceTypeBinding) binding).getRecordComponentAccessor(field.name);
+			return new ExecutableElementImpl(_env, accessor);
+		}
 		return null;
 	}
 }
