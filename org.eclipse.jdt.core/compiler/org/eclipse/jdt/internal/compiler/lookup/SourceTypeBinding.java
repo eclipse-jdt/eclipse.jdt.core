@@ -137,6 +137,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 
 	private boolean isRecordDeclaration = false;
 	private FieldBinding[] recordComponents; // cache
+	private MethodBinding[] recordComponentAccessors = null; // hash maybe an overkill
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
 	this.fPackage = fPackage;
@@ -888,25 +889,30 @@ public List<MethodBinding> checkAndAddSyntheticRecordComponentAccessors(MethodBi
 	 * unless a public method with the same signature is explicitly declared in the body of the declaration of R.
 	 */
 
-	List<String> missingNames = Arrays.stream(this.fields) // initialize with all the record components
+	List<String> componentNames = Arrays.stream(this.fields) // initialize with all the record components
 			.filter(f -> f.isRecordComponent())
 			.map(f -> new String(f.name))
 			.collect(Collectors.toList());
 
+	List<MethodBinding> accessors = new ArrayList<>();
 	if (this.methods != null) {
-		List<String> candidates =
-			Arrays.stream(methodBindings)
-			.filter(m -> m.selector != null && m.selector.length > 0)
-			.filter(m -> missingNames.contains(new String(m.selector)))
-			.filter(m -> m.parameters == null || m.parameters.length == 0)
+		accessors = Arrays.stream(methodBindings)
+				.filter(m -> m.selector != null && m.selector.length > 0)
+				.filter(m -> componentNames.contains(new String(m.selector)))
+				.filter(m -> m.parameters == null || m.parameters.length == 0)
+				.collect(Collectors.toList());
+
+		List<String> candidates = accessors.stream()
 			.map(m -> new String(m.selector))
 			.collect(Collectors.toList());
-		missingNames.removeAll(candidates);
+		componentNames.removeAll(candidates);
 	}
-	int missingCount = missingNames.size();
+	int missingCount = componentNames.size();
 	for (int i = 0; i < missingCount; ++i) {
-		implicitMethods.add(addSyntheticRecordComponentAccessor(missingNames.get(i).toCharArray(), i));
+		implicitMethods.add(addSyntheticRecordComponentAccessor(componentNames.get(i).toCharArray(), i));
 	}
+	accessors.addAll(implicitMethods);
+	this.recordComponentAccessors = accessors.toArray(new MethodBinding[0]);
 	return implicitMethods;
 }
 /* Add a new synthetic component accessor for the recordtype. Selector should be identical to component name.
@@ -2965,6 +2971,23 @@ public List<String> getNestMembers() {
  * should be called only after a called to fields() */
 public FieldBinding[] getRecordComponents() {
 	return this.recordComponents;
+}
+/**
+ * Get the accessor method given the record component name
+ * @param name name of the record component
+ * @return the method binding of the accessor if found, else null
+ */
+public MethodBinding getRecordComponentAccessor(char[] name) {
+	MethodBinding accessor = null;
+	if (this.recordComponentAccessors != null) {
+		for (MethodBinding m : this.recordComponentAccessors) {
+			if (CharOperation.equals(m.selector, name)) {
+				accessor = m;
+				break;
+			}
+		}
+	}
+	return accessor;
 }
 public void computeRecordComponents() {
 	if (!this.isRecordDeclaration || this.recordComponents != null)
