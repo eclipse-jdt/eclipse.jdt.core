@@ -399,6 +399,11 @@ class RecoveredTypeBinding implements ITypeBinding {
 	public boolean isEnum() {
 		return false;
 	}
+	
+	@Override
+	public boolean isRecord() {
+		return false;
+	}
 
 	@Override
 	public boolean isFromSource() {

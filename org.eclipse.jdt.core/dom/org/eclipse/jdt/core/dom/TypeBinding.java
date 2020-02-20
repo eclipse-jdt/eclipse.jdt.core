@@ -1092,6 +1092,11 @@ class TypeBinding implements ITypeBinding {
 	public boolean isEnum() {
 		return this.binding.isEnum();
 	}
+	
+	@Override
+	public boolean isRecord() {
+		return this.binding.isRecord();
+	}
 
 	@Override
 	public boolean isEqualTo(IBinding other) {
