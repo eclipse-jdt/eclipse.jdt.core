@@ -1,7 +1,7 @@
 package records;
 import java.math.BigInteger;
 
-public record Record2(int x, BigInteger i, Record3 r, Test t) {
+public strictfp record Record2(int x, BigInteger i, Record3 r, Test t) {
 	void foo() {}
 	public void bar() {}
 	private static String s;

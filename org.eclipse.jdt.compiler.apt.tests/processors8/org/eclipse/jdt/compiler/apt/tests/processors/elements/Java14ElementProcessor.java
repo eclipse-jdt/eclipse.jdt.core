@@ -188,7 +188,7 @@ public class Java14ElementProcessor extends BaseProcessor {
 		assertEquals("Elements should be same", record, enclosingElement);
 	}
 	/*
-	 * Test that the implicit modifiers are set for a record
+	 * Test that the implicit modifiers are set for a record and its methods
 	 */
 	public void testRecords3() {
 		Set<? extends Element> elements = roundEnv.getRootElements();
@@ -202,6 +202,70 @@ public class Java14ElementProcessor extends BaseProcessor {
 		Set<Modifier> modifiers = record.getModifiers();
 		assertTrue("record should be public", modifiers.contains(Modifier.PUBLIC));
 		assertTrue("record should be final", modifiers.contains(Modifier.FINAL));
+		List<? extends Element> enclosedElements = record.getEnclosedElements();
+		List<ExecutableElement> methods = ElementFilter.methodsIn(enclosedElements);
+		ExecutableElement equalsMethod = null;
+		ExecutableElement toSMethod = null;
+		ExecutableElement hashMethod = null;
+		for (ExecutableElement executableElement : methods) {
+			if (executableElement.getSimpleName().toString().equals("equals")) {
+				equalsMethod = executableElement;
+			} else if (executableElement.getSimpleName().toString().equals("hashCode")) {
+				hashMethod = executableElement;
+			} else if (executableElement.getSimpleName().toString().equals("toString")) {
+				toSMethod = executableElement;
+			}
+		}
+
+		modifiers = equalsMethod.getModifiers();
+		assertTrue("should be public", modifiers.contains(Modifier.PUBLIC));
+		assertFalse("should not be final", modifiers.contains(Modifier.FINAL));
+		modifiers = toSMethod.getModifiers();
+		assertTrue("should be public", modifiers.contains(Modifier.PUBLIC));
+		assertFalse("should not be final", modifiers.contains(Modifier.FINAL));
+		modifiers = hashMethod.getModifiers();
+		assertTrue("should be public", modifiers.contains(Modifier.PUBLIC));
+		assertFalse("should not be final", modifiers.contains(Modifier.FINAL));
+	}
+	public void testRecords3a() {
+		Set<? extends Element> elements = roundEnv.getRootElements();
+		TypeElement record = null;
+		for (Element element : elements) {
+			if ("Record2".equals(element.getSimpleName().toString())) {
+				record = (TypeElement) element;
+			}
+		}
+		assertNotNull("TypeElement for record should not be null", record);
+		Set<Modifier> modifiers = record.getModifiers();
+		assertTrue("record should be public", modifiers.contains(Modifier.PUBLIC));
+		assertTrue("record should be final", modifiers.contains(Modifier.FINAL));
+		List<? extends Element> enclosedElements = record.getEnclosedElements();
+		List<ExecutableElement> methods = ElementFilter.methodsIn(enclosedElements);
+		ExecutableElement equalsMethod = null;
+		ExecutableElement toSMethod = null;
+		ExecutableElement hashMethod = null;
+		for (ExecutableElement executableElement : methods) {
+			if (executableElement.getSimpleName().toString().equals("equals")) {
+				equalsMethod = executableElement;
+			} else if (executableElement.getSimpleName().toString().equals("hashCode")) {
+				hashMethod = executableElement;
+			} else if (executableElement.getSimpleName().toString().equals("toString")) {
+				toSMethod = executableElement;
+			}
+		}
+		modifiers = equalsMethod.getModifiers();
+		assertTrue("should be public", modifiers.contains(Modifier.PUBLIC));
+		assertTrue("should be final", modifiers.contains(Modifier.FINAL));
+		assertTrue("should be strictfp", modifiers.contains(Modifier.STRICTFP));
+		modifiers = toSMethod.getModifiers();
+		assertTrue("should be public", modifiers.contains(Modifier.PUBLIC));
+		assertTrue("should be strictfp", modifiers.contains(Modifier.STRICTFP));
+		assertFalse("should not be final", modifiers.contains(Modifier.FINAL));
+		modifiers = hashMethod.getModifiers();
+		assertTrue("should be public", modifiers.contains(Modifier.PUBLIC));
+		assertTrue("should be final", modifiers.contains(Modifier.FINAL));
+		assertTrue("should be strictfp", modifiers.contains(Modifier.STRICTFP));
+		
 	}
 	/*
 	 * Test for annotations on record and record components
