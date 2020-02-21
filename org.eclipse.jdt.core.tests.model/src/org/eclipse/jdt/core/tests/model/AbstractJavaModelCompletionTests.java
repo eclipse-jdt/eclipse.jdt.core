@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -164,6 +164,7 @@ public void setUpSuite() throws Exception {
 	this.oldOptions = JavaCore.getOptions();
 	Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 	options.put(JavaCore.CODEASSIST_SUBSTRING_MATCH, JavaCore.DISABLED);
+	options.put(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.DISABLED);
 	JavaCore.setOptions(options);
 	waitUntilIndexesReady();
 }

@@ -20,6 +20,8 @@
  *								Bug 467482 - TYPE_USE null annotations: Incorrect "Redundant null check"-warning
  *								Bug 473713 - [1.8][null] Type mismatch: cannot convert from @NonNull A1 to @NonNull A1
  *								Bug 467430 - TYPE_USE Null Annotations: Confusing error message with known null value
+ *     Pierre-Yves B. <pyvesdev@gmail.com> - Contribution for
+ *                              Bug 559618 - No compiler warning for import from same package
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1347,7 +1349,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"p/X1.java",
 					"package p;\n" +
 					"import java.util.Map;\n" +
-					"import p.List;\n" +
 					"import org.eclipse.jdt.annotation.*;\n" +
 					"import static java.lang.annotation.ElementType.*;\n" +
 					"import java.lang.annotation.*;\n" +
@@ -17997,5 +17998,72 @@ public void testBug482242_boundedWildcard() {
 		"	      ^\n" + 
 		"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'capture#of ? super @Nullable String\'\n" + 
 		"----------\n");
+}
+public void testBug560213source() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.classLibraries = this.LIBS;
+	runner.testFiles = new String[] {
+		"nullEnumSort/MyEnum.java",
+		"package nullEnumSort;\n" + 
+		"\n" + 
+		"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+		"\n" + 
+		"@NonNullByDefault\n" + 
+		"enum MyEnum {\n" + 
+		"    x\n" + 
+		"}\n",
+		"nullEnumSort/EnumProblem.java",
+		"package nullEnumSort;\n" + 
+		"\n" + 
+		"import java.util.Collections;\n" + 
+		"import java.util.List;\n" + 
+		"\n" + 
+		"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+		"\n" + 
+		"@NonNullByDefault\n" + 
+		"public class EnumProblem {\n" + 
+		"    void f(List<MyEnum> list) {\n" + 
+		"        Collections.sort(list);\n" + 
+		"    }\n" + 
+		"\n}"
+	};
+	runner.runConformTest();
+}
+public void testBug560213binary() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.testFiles = new String[] {
+		"nullEnumSort/MyEnum.java",
+		"package nullEnumSort;\n" + 
+		"\n" + 
+		"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+		"\n" + 
+		"@NonNullByDefault\n" + 
+		"enum MyEnum {\n" + 
+		"    x\n" + 
+		"}\n"
+	};
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+
+	runner.shouldFlushOutputDirectory = false;
+	runner.testFiles = new String[] {
+		"nullEnumSort/EnumProblem.java",
+		"package nullEnumSort;\n" + 
+		"\n" + 
+		"import java.util.Collections;\n" + 
+		"import java.util.List;\n" + 
+		"\n" + 
+		"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+		"\n" + 
+		"@NonNullByDefault\n" + 
+		"public class EnumProblem {\n" + 
+		"    void f(List<MyEnum> list) {\n" + 
+		"        Collections.sort(list);\n" + 
+		"    }\n" + 
+		"\n}"
+	};
+	runner.runConformTest();
 }
 }

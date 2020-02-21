@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.compiler.tool.tests
-Bundle-Version: 1.2.550.qualifier
+Bundle-Version: 1.2.600.qualifier
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
@@ -15,4 +15,6 @@ Require-Bundle: org.eclipse.jdt.core;bundle-version="3.2.2",
 Export-Package: org.eclipse.jdt.compiler.tool.tests
 Import-Package: org.eclipse.jdt.internal.compiler.tool
 Eclipse-BundleShape: dir
+Bundle-ClassPath: .,
+ lib/java14api.jar
 Automatic-Module-Name: org.eclipse.jdt.compiler.tool.tests

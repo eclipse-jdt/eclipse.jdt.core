@@ -1,6 +1,5 @@
 package targets.bug407841;
 
-import targets.bug407841.ModuleLegacy;
 import org.eclipse.jdt.apt.pluggable.tests.annotations.Module;
 
 @Module(key=ModuleCore.KEY)

@@ -12,6 +12,7 @@
  *    eclipse@cafewalter.com 			- initial API and implementation
  *    Harry Terkelsen <het@google.com> 	- Contribution for Bug 437414 - Annotation processing is broken when build is batched
  *    Fabian Steeg <steeg@hbz-nrw.de> - Pass automatically provided options to Java 6 processors - https://bugs.eclipse.org/341298
+ *    Pierre-Yves B. <pyvesdev@gmail.com> - Contribution for bug 559618 - No compiler warning for import from same package
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.pluggable.tests;
@@ -215,7 +216,7 @@ public class BuilderTests extends TestBase
 			fullBuild();
 			expectingNoProblems();
 			assertEquals("Elements should have been processed", 0, BugsProc.getUnprocessedElements());
-			assertEquals("Elements should have been processed", 3, BugsProc.getNumRounds());
+			assertEquals("Elements should have been processed", 4, BugsProc.getNumRounds());
 		} finally {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = old;
 		}

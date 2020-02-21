@@ -6336,7 +6336,7 @@ public void testCompletionImportedType6() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"AClass2[TYPE_REF]{test.p.AClass2;, test.p, Ltest.p.AClass2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"AClass2[TYPE_REF]{test.p.AClass2, test.p, Ltest.p.AClass2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 

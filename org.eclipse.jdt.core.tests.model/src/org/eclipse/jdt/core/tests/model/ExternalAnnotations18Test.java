@@ -10,6 +10,7 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Pierre-Yves B. <pyvesdev@gmail.com> - Contributions for bug 559618 - No compiler warning for import from same package
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -2101,7 +2102,6 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"\n" + 
 				"import libs.Lib1;\n" + 
 				"import libs.Lib2;\n" + 
-				"import tests.Lib3;\n" + 
 				"\n" + 
 				"public class Test1 {\n" + 
 				"	@NonNull String test1(Lib1<@NonNull String> lib) {\n" + 
@@ -2119,7 +2119,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		assertProblems(reconciled.getProblems(), new String[] {
 				"Pb(980) Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'Lib1<@NonNull String>'. Type 'Lib1<T>' doesn't seem to be designed with null type annotations in mind",
 				"Pb(980) Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'Lib2<@NonNull String>'. Type 'Lib2<T>' doesn't seem to be designed with null type annotations in mind",
-		}, new int[] { 10, 13 }, new int[] { ProblemSeverities.Warning, ProblemSeverities.Info } );
+		}, new int[] { 9, 12 }, new int[] { ProblemSeverities.Warning, ProblemSeverities.Info } );
 	}
 
 	public void testBug490343() throws Exception {

@@ -3454,6 +3454,10 @@ public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, Meth
 						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(isImplicitThisReceiver && codegenBinding.isStatic()))
 						&& codegenBinding.declaringClass.id != TypeIds.T_JavaLangObject) // no change for Object methods
 					|| !codegenBinding.declaringClass.canBeSeenBy(currentScope)) {
+				TypeBinding erasedReceiverType = actualReceiverType.erasure();
+				if (erasedReceiverType.isIntersectionType18()) {
+					actualReceiverType = erasedReceiverType; // need to peel the intersecting types below
+				}
 				if (actualReceiverType.isIntersectionType18()) {
 					TypeBinding[] intersectingTypes = ((IntersectionTypeBinding18)actualReceiverType).getIntersectingTypes();
 					for(int i = 0; i < intersectingTypes.length; i++) {
@@ -3463,7 +3467,7 @@ public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, Meth
 						}
 					}
 				} else {
-					constantPoolDeclaringClass = actualReceiverType.erasure();
+					constantPoolDeclaringClass = erasedReceiverType;
 				}
 			}
 		}				

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1542,5 +1542,16 @@ public void test0329() {
 	assertEquals("Unexpected regions length", 2, regions.length);
 	assertEquals("Unexpected matching regions", "chec[k]Background", printRegions(name, regions));
 }
-
+public void testSubword1() {
+	String name = "LinkedHashMap";
+	int[] regions = SearchPattern.getMatchingRegions("linkedmap",  name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected regions length", 4, regions.length);
+	assertEquals("Unexpected matching regions", "[Linked]Hash[Map]", printRegions(name, regions));
+}
+public void testSubword2() {
+	String name = "addEnlistListener";
+	int[] regions = SearchPattern.getMatchingRegions("addlist",  name, SearchPattern.R_SUBWORD_MATCH);
+	assertEquals("Unexpected regions length", 4, regions.length);
+	assertEquals("Unexpected matching regions", "[add]Enlist[List]ener", printRegions(name, regions));
+}
 }
