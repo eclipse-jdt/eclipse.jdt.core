@@ -408,7 +408,9 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 	Argument[] argTypes = method.arguments;
 	int argLength = argTypes == null ? 0 : argTypes.length;
 	if (argLength > 0) {
-		Argument argument = argTypes[--argLength];
+		Argument argument = argTypes[argLength - 1];
+		method.binding.parameterNames = new char[argLength][];
+		method.binding.parameterNames[--argLength] = argument.name;
 		if (argument.isVarArgs() && sourceLevel >= ClassFileConstants.JDK1_5)
 			method.binding.modifiers |= ClassFileConstants.AccVarargs;
 		if (CharOperation.equals(argument.name, ConstantPool.This)) {
@@ -416,6 +418,7 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 		}
 		while (--argLength >= 0) {
 			argument = argTypes[argLength];
+			method.binding.parameterNames[argLength] = argument.name;
 			if (argument.isVarArgs() && sourceLevel >= ClassFileConstants.JDK1_5)
 				problemReporter().illegalVararg(argument, method);
 			if (CharOperation.equals(argument.name, ConstantPool.This)) {
@@ -434,8 +437,8 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 
 	TypeParameter[] typeParameters = method.typeParameters();
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, If they exist at all, process type parameters irrespective of source level.
-    if (typeParameters == null || typeParameters.length == 0) {
-	    method.binding.typeVariables = Binding.NO_TYPE_VARIABLES;
+	if (typeParameters == null || typeParameters.length == 0) {
+		method.binding.typeVariables = Binding.NO_TYPE_VARIABLES;
 	} else {
 		method.binding.typeVariables = createTypeVariables(typeParameters, method.binding);
 		method.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
