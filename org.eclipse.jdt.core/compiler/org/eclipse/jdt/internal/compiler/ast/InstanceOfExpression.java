@@ -80,6 +80,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		// no impact upon enclosing try context
 		return FlowInfo.conditional(initsWhenTrue, flowInfo.copy());
 	}
+	if (this.expression instanceof Reference && this.elementVariable != null) {
+		//FieldBinding field = ((Reference)this.expression).lastFieldBinding();
+		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo).
+				unconditionalInits();
+		FlowInfo initsWhenTrue = flowInfo.copy();
+		initsWhenTrue.markAsDefinitelyAssigned(this.elementVariable.binding);
+		return FlowInfo.conditional(initsWhenTrue, flowInfo.copy());
+	}
 	if (this.expression instanceof Reference && currentScope.compilerOptions().enableSyntacticNullAnalysisForFields) {
 		FieldBinding field = ((Reference)this.expression).lastFieldBinding();
 		if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
@@ -107,15 +115,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		BranchLabel actionLabel = new BranchLabel(codeStream);
 		codeStream.dup();
 		codeStream.ifeq(actionLabel);
-		// Kludge
-		if (this.expression instanceof ArrayReference) {
-			ArrayReference array = (ArrayReference) this.expression;
-			codeStream.load(array.receiver.localVariableBinding());
-			array.position.generateCode(currentScope, codeStream, true);
-			codeStream.arrayAt(array.resolvedType.id);
-		} else {
-			codeStream.load(this.expression.localVariableBinding());
-		}
+		this.expression.generateCode(currentScope, codeStream, true);
 		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
 		codeStream.store(this.elementVariable.binding, false);
 		codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
@@ -151,11 +151,15 @@ public void initializePatternVariables(BlockScope currentScope, CodeStream codeS
 public void resolvePatternVariable(BlockScope scope) {
 	if (this.elementVariable != null && this.elementVariable.binding == null) {
 		this.elementVariable.resolve(scope, true);
-		this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccPatterVariable;
+		this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+		this.elementVariable.binding.useFlag = LocalVariableBinding.USED;
 		// Why cant this be done in the constructor?
 		this.type = this.elementVariable.type;
-		this.bits |= ASTNode.HasInstancePatternExpression;
 	}
+}
+@Override
+public boolean containsPatternVariable() {
+	return this.elementVariable != null;
 }
 @Override
 public TypeBinding resolveType(BlockScope scope) {
@@ -179,6 +183,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	} else if (checkedType.isValidBinding()) {
 		// if not a valid binding, an error has already been reported for unresolved type
 		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
+				|| checkedType.isBaseType()
 				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null)) {
 			scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
 		}

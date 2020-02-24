@@ -307,7 +307,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			boolean localExists = existingVariable instanceof LocalVariableBinding;
 			if (localExists && isPatternVariable
-					&& (((LocalVariableBinding) existingVariable).modifiers & ExtraCompilerModifiers.AccPatterVariable) != 0)
+					&& (((LocalVariableBinding) existingVariable).modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0)
 			{
 				this.duplicateCheckObligation = (flowInfo) -> {
 					if (flowInfo.isDefinitelyAssigned((LocalVariableBinding) existingVariable)) {
@@ -351,11 +351,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			// create a binding from the specified type
 			this.binding = new LocalVariableBinding(this, variableType, this.modifiers, false /*isArgument*/);
 		}
-		if ((this.bits & ASTNode.HasInstancePatternExpression) == 0) {
-			scope.addLocalVariable(this.binding);
-		} else {
-			((BlockScope)scope.parent).addLocalVariable(this.binding);
-		}
+		scope.addLocalVariable(this.binding);
 		this.binding.setConstant(Constant.NotAConstant);
 		// allow to recursivelly target the binding....
 		// the correct constant is harmed if correctly computed at the end of this method

@@ -143,6 +143,30 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
+	public void test003a() {
+		Map<String, String> options = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X3.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X3 {\n" +
+						"  public void foo(Number num) {\n" +
+						"		if (num instanceof int) {\n" +
+						"		}\n " +
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X3.java (at line 4)\n" + 
+				"	if (num instanceof int) {\n" + 
+				"	    ^^^^^^^^^^^^^^^^^^\n" + 
+				"Incompatible conditional operand types Number and int\n" + 
+				"----------\n",
+				"",
+				null,
+				true,
+				options);
+	}
 	public void test004() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1021,6 +1045,93 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				"one\non\no",
 				options);
 	}
+	public void test022a() {
+		Map<String, String> options = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X22a.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X22a {\n" +
+						"  public static void main(String[] o) {\n" +
+						"		foo(\"one\");\n" + 
+						"	}\n" +
+						"  public static void foo(Object o) {\n" +
+						"		do {\n" + 
+						"			o = s.substring(0, s.length() - 1);\n" +
+						"			System.out.println(s);\n" +
+						"		} while ((o instanceof String s) && s.length() > 0);\n" + 
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X22a.java (at line 8)\n" + 
+				"	o = s.substring(0, s.length() - 1);\n" + 
+				"	    ^\n" + 
+				"The pattern variable s is not in scope in this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X22a.java (at line 8)\n" + 
+				"	o = s.substring(0, s.length() - 1);\n" + 
+				"	                   ^\n" + 
+				"The pattern variable s is not in scope in this location\n" + 
+				"----------\n" + 
+				"3. ERROR in X22a.java (at line 9)\n" + 
+				"	System.out.println(s);\n" + 
+				"	                   ^\n" + 
+				"The pattern variable s is not in scope in this location\n" + 
+				"----------\n",
+				null, 
+				true,
+				options);
+	}
+	public void test022b() {
+		Map<String, String> options = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X22b.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X22b {\n" +
+						"  public static void main(String[] o) {\n" +
+						"		foo(\"one\");\n" + 
+						"	}\n" +
+						"  public static void foo(Object o) {\n" +
+						"		do {\n" + 
+						"			// nothing\n" +
+						"		} while ((o instanceof String s));\n" + 
+						"		System.out.println(s);\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X22b.java (at line 10)\n" + 
+				"	System.out.println(s);\n" + 
+				"	                   ^\n" + 
+				"The pattern variable s is not in scope in this location\n" + 
+				"----------\n",
+				null, 
+				true,
+				options);
+	}
+	public void test022c() {
+		Map<String, String> options = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X22c.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X22c {\n" +
+						"  public static void main(String[] o) {\n" +
+						"		foo(\"one\");\n" + 
+						"	}\n" +
+						"  public static void foo(Object o) {\n" +
+						"		do {\n" + 
+						"			// nothing\n" +
+						"		} while (!(o instanceof String s));\n" + 
+						"		System.out.println(s);\n" +
+						"	}\n" +
+						"}\n",
+				},
+				"one",
+				options);
+	}
 	/* Test pattern expressions in a while statement with break
 	 */
 	public void test023() {
@@ -1057,8 +1168,6 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				true,
 				options);
 	}
-	/* Test pattern expressions in a while statement with no break
-	 */
 	public void test023a() {
 		Map<String, String> options = getCompilerOptions(true);
 		runNegativeTest(
@@ -1066,6 +1175,42 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 						"X23a.java",
 						"@SuppressWarnings(\"preview\")\n" +
 						"public class X23a {\n" +
+						"  public static void main(String[] o) {\n" +
+						"		foo(\"one\");\n" + 
+						"	}\n" +
+						"  public static void foo(Object o) {\n" +
+						"		do {\n" + 
+						"			System.out.println(s);\n" +
+						"			break;\n" +
+						"		} while (!(o instanceof String s) && s.length() > 0);\n" + 
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X23a.java (at line 8)\n" + 
+				"	System.out.println(s);\n" + 
+				"	                   ^\n" + 
+				"The pattern variable s is not in scope in this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X23a.java (at line 10)\n" + 
+				"	} while (!(o instanceof String s) && s.length() > 0);\n" + 
+				"	                                     ^\n" + 
+				"The pattern variable s is not in scope in this location\n" + 
+				"----------\n",
+				"",
+				null,
+				true,
+				options);
+	}
+	/* Test pattern expressions in a while statement with no break
+	 */
+	public void test023b() {
+		Map<String, String> options = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X23b.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X23b {\n" +
 						"  public static void main(String[] o) {\n" +
 						"		foo(\"one\");\n" + 
 						"	}\n" +
@@ -1078,14 +1223,49 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 						"}\n",
 				},
 				"----------\n" + 
-				"1. ERROR in X23a.java (at line 7)\n" + 
+				"1. ERROR in X23b.java (at line 7)\n" + 
 				"	while (!(o instanceof String s) && s.length() > 0) {\n" + 
 				"	                                   ^\n" + 
 				"The pattern variable s is not in scope in this location\n" + 
 				"----------\n" + 
-				"2. ERROR in X23a.java (at line 8)\n" + 
+				"2. ERROR in X23b.java (at line 8)\n" + 
 				"	System.out.println(s);\n" + 
 				"	                   ^\n" + 
+				"The pattern variable s is not in scope in this location\n" + 
+				"----------\n",
+				"",
+				null,
+				true,
+				options);
+	}
+	// Same as above but with do while
+	public void test023c() {
+		Map<String, String> options = getCompilerOptions(true);
+		runNegativeTest(
+				new String[] {
+						"X23c.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X23c {\n" +
+						"  public static void main(String[] o) {\n" +
+						"		foo(\"one\");\n" + 
+						"	}\n" +
+						"  public static void foo(Object o) {\n" +
+						"		do {\n" + 
+						"			System.out.println(s);\n" +
+						"			//break;\n" +
+						"		}while (!(o instanceof String s) && s.length() > 0);\n" + 
+						"	}\n" +
+						"}\n",
+				},
+				"----------\n" + 
+				"1. ERROR in X23c.java (at line 8)\n" + 
+				"	System.out.println(s);\n" + 
+				"	                   ^\n" + 
+				"The pattern variable s is not in scope in this location\n" + 
+				"----------\n" + 
+				"2. ERROR in X23c.java (at line 10)\n" + 
+				"	}while (!(o instanceof String s) && s.length() > 0);\n" + 
+				"	                                    ^\n" + 
 				"The pattern variable s is not in scope in this location\n" + 
 				"----------\n",
 				"",
@@ -1537,5 +1717,178 @@ public class PatternMatching14Test extends AbstractRegressionTest {
 				},
 				"one",
 				getCompilerOptions(true));
+	}
+	public void test040() {
+		runConformTest(
+				new String[] {
+						"X40.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X40 {\n" + 
+						"	String a;\n" + 
+						"    Object o1 = \"x\";\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"        System.out.println(new X40().foo());\n" + 
+						"    }\n" + 
+						"    public String foo() {\n" + 
+						"        String res = \"\";\n" + 
+						"    	 Object o2 = \"x\";\n" + 
+						"        if (o1 instanceof String s) { \n" + 
+						"            res = \"then_\" + s;\n" + 
+						"        } else {\n" + 
+						"            res = \"else_\";\n" +
+						"        }\n" + 
+						"        return res;\n" + 
+						"    }\n" + 
+						"}\n",
+				},
+				"then_x",
+				getCompilerOptions(true));
+	}
+	public void test041() {
+		runConformTest(
+				new String[] {
+						"X41.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X41 {\n" + 
+						"	String a;\n" + 
+						"    Object o1 = \"x\";\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"        System.out.println(new X41().foo());\n" + 
+						"    }\n" + 
+						"    public String foo() {\n" + 
+						"        String res = \"\";\n" + 
+						"        Object o2 = \"x\";\n" + 
+						"        if ( !(o1 instanceof String s) || !o1.equals(s) ) { \n" + 
+						"            res = \"then_\";\n" + 
+						"        } else {\n" + 
+						"            res = \"else_\" + s;\n" + 
+						"        }\n" + 
+						"        return res;\n" + 
+						"    }\n" + 
+						"}\n",
+				},
+				"else_x",
+				getCompilerOptions(true));
+	}
+	public void test042() {
+		runConformTest(
+				new String[] {
+						"X42.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X42 {\n" + 
+						"	 String a;\n" + 
+						"    Object o1 = \"x\";\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"        System.out.println(new X42().foo());\n" + 
+						"    }\n" + 
+						"    public String foo() {\n" + 
+						"        String res = \"\";\n" + 
+						"        Object o2 = o1;\n" + 
+						"        if ( !(o1 instanceof String s) || !o1.equals(s) ) { \n" + 
+						"            res = \"then_\";\n" + 
+						"        } else {\n" + 
+						"            res = \"else_\" + s;\n" + 
+						"        }\n" + 
+						"        return res;\n" + 
+						"    }\n" + 
+						"}\n",
+				},
+				"else_x",
+				getCompilerOptions(true));
+	}
+	public void _test043() {
+		runConformTest(
+				new String[] {
+						"X43.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X43 {\n" + 
+						"	 public static void main(String argv[]) {\n" + 
+						"		System.out.println(new X43().foo(\"foo\", \"test\"));\n" + 
+						"	}\n" + 
+						"	public boolean foo(Object obj, String s) {\n" + 
+						"		class Inner {\n" + 
+						"			public boolean foo(Object obj) {\n" + 
+						"				if (obj instanceof String s) {\n" + 
+						"					// x is shadowed now\n" + 
+						"					if (!\"foo\".equals(s))\n" + 
+						"						return false;\n" + 
+						"				}\n" + 
+						"				// x is not shadowed\n" + 
+						"				return \"test\".equals(s);\n" + 
+						"			}\n" + 
+						"		}\n" + 
+						"		return new Inner().foo(obj);\n" + 
+						"	}\n" + 
+						"}\n",
+				},
+				"else_x",
+				getCompilerOptions(true));
+	}
+	public void test044() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+				new String[] {
+						"X44.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"class Inner<T> {\n" + 
+						"    public boolean foo(Object obj) {\n" + 
+						"        if (obj instanceof Inner<?> p) {\n" + 
+						"            return true;\n" + 
+						"        }\n" + 
+						"        return false;\n" + 
+						"    }\n" + 
+						"} \n" + 
+						"public class X44  {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	Inner<String> param = new Inner<>();\n" + 
+						"    	System.out.println(new Inner<String>().foo(param));\n" + 
+						"    }\n" + 
+						"}\n",
+				},
+				"true",
+				compilerOptions);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
+	}
+	public void test045() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+				new String[] {
+						"X45.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X45 {\n" + 
+						"    String s = \"test\";\n" + 
+						"    boolean result = s instanceof String s1;\n" +
+						"	 public static void main(String argv[]) {\n" + 
+						"    	System.out.println(\"true\");\n" + 
+						"    }\n" + 
+						"}\n",
+				},
+				"true",
+				compilerOptions);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
+	}
+	public void test046() {
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		String old = compilerOptions.get(CompilerOptions.OPTION_PreserveUnusedLocal);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
+		runConformTest(
+				new String[] {
+						"X46.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class X46 {\n" + 
+						"    String s = \"test\";\n" + 
+						"    boolean result = (s instanceof String s1 && s1 != null);\n" +
+						"	 public static void main(String argv[]) {\n" + 
+						"    	System.out.println(\"true\");\n" + 
+						"    }\n" + 
+						"}\n",
+				},
+				"true",
+				compilerOptions);
+		compilerOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, old);
 	}
 }

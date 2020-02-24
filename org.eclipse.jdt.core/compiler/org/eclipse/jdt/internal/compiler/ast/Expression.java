@@ -781,6 +781,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 public void initializePatternVariables(BlockScope scope, CodeStream codeStream) {
 	// Nothing by default
 }
+public boolean containsPatternVariable() {
+	return false;
+}
 /**
  * Default generation of a boolean value
  * @param currentScope

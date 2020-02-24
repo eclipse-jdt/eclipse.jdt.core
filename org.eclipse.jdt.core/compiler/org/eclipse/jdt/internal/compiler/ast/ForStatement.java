@@ -265,7 +265,7 @@ public class ForStatement extends Statement {
 				this.initializations[i].generateCode(this.scope, codeStream);
 			}
 		}
-		if (this.condition != null && (this.condition.bits & ASTNode.HasInstancePatternExpression) != 0) {
+		if (this.condition != null && this.condition.containsPatternVariable()) {
 			this.condition.initializePatternVariables(currentScope, codeStream);
 		}
 		Constant cst = this.condition == null ? null : this.condition.optimizedBooleanConstant();

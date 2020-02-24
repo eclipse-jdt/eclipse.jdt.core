@@ -194,8 +194,9 @@ public class WhileStatement extends Statement {
 		if ((this.bits & IsReachable) == 0) {
 			return;
 		}
-		// TODO: Do this at the appropriate point only
-		this.condition.initializePatternVariables(currentScope, codeStream);
+		if (this.condition != null && this.condition.containsPatternVariable()) {
+			this.condition.initializePatternVariables(currentScope, codeStream);
+		}
 		int pc = codeStream.position;
 		Constant cst = this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;

@@ -1812,6 +1812,10 @@ public void initializePatternVariables(BlockScope scope, CodeStream codeStream) 
 	this.right.initializePatternVariables(scope, codeStream);
 }
 @Override
+public boolean containsPatternVariable() {
+	return this.left.containsPatternVariable() || this.right.containsPatternVariable();
+}
+@Override
 public TypeBinding resolveType(BlockScope scope) {
 	// keep implementation in sync with CombinedBinaryExpression#resolveType
 	// and nonRecursiveResolveTypeUpwards
@@ -1919,7 +1923,6 @@ public TypeBinding resolveType(BlockScope scope) {
 	}
 	// compute the constant when valid
 	computeConstant(scope, leftTypeID, rightTypeID);
-	this.bits |= (this.left.bits | this.right.bits) & ASTNode.HasInstancePatternExpression;
 	return this.resolvedType;
 }
 

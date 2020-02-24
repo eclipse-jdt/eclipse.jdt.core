@@ -2102,7 +2102,7 @@ public void duplicateInitializationOfBlankFinalField(FieldBinding field, Referen
 }
 public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTNode location) {
 	String[] arguments = new String[] { new String(local.readableName())};
-	if ((local.modifiers & ExtraCompilerModifiers.AccPatterVariable) == 0) {
+	if ((local.modifiers & ExtraCompilerModifiers.AccPatternVariable) == 0) {
 		this.handle(
 			IProblem.DuplicateFinalLocalInitialization,
 			arguments,
@@ -8724,7 +8724,7 @@ public void uninitializedNonNullField(FieldBinding field, ASTNode location) {
 		nodeSourceEnd(field, location));
 }
 public void uninitializedLocalVariable(LocalVariableBinding binding, ASTNode location, Scope scope) {
-	if ((binding.modifiers & ExtraCompilerModifiers.AccPatterVariable) == 0) {
+	if ((binding.modifiers & ExtraCompilerModifiers.AccPatternVariable) == 0) {
 		binding.markAsUninitializedIn(scope);
 		String[] arguments = new String[] {new String(binding.readableName())};
 		this.handle(
