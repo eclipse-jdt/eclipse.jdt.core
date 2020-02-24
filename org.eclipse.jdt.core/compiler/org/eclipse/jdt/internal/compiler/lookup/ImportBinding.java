@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -39,6 +39,13 @@ public final int kind() {
 }
 public boolean isStatic() {
 	return this.reference != null && this.reference.isStatic();
+}
+public char[] getSimpleName() {
+	if (this.reference != null) {
+		return this.reference.getSimpleName();
+	} else {
+		return this.compoundName[this.compoundName.length - 1];
+	}
 }
 @Override
 public char[] readableName() {

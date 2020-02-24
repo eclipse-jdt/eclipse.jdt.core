@@ -413,13 +413,13 @@ void faultInImports() {
 	// single imports change from being just types to types or fields
 	nextImport : for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
-		char[][] compoundName = importReference.tokens;
+		char[][] compoundName = importReference.getImportName();
 
 		// skip duplicates or imports of the current package
 		for (int j = 0; j < this.importPtr; j++) {
 			ImportBinding resolved = this.tempImports[j];
 			if (resolved.onDemand == ((importReference.bits & ASTNode.OnDemand) != 0) && resolved.isStatic() == importReference.isStatic()) {
-				if (CharOperation.equals(compoundName, resolved.compoundName)) {
+				if (CharOperation.equals(compoundName, resolved.compoundName) && CharOperation.equals(importReference.getSimpleName(), resolved.getSimpleName())) {
 					problemReporter().unusedImport(importReference); // since skipped, must be reported now
 					continue nextImport;
 				}
@@ -513,7 +513,7 @@ void faultInImports() {
 	for (int i = 0; i < length; i++) {
 		ImportBinding binding = this.imports[i];
 		if (!binding.onDemand && binding.resolvedImport instanceof ReferenceBinding || binding instanceof ImportConflictBinding)
-			this.typeOrPackageCache.put(binding.compoundName[binding.compoundName.length - 1], binding);
+			this.typeOrPackageCache.put(binding.getSimpleName(), binding);
 	}
 	this.skipCachingImports = this.environment.suppressImportErrors && unresolvedFound;
 }
@@ -993,7 +993,7 @@ private int checkAndRecordImportBinding(
 			conflictingType = null;
 	}
 	// collisions between an imported static field & a type should be checked according to spec... but currently not by javac
-	final char[] name = compoundName[compoundName.length - 1];
+	final char[] name = importReference.getSimpleName();
 	if (importBinding instanceof ReferenceBinding || conflictingType != null) {
 		ReferenceBinding referenceBinding = conflictingType == null ? (ReferenceBinding) importBinding : conflictingType;
 		ReferenceBinding typeToCheck = referenceBinding.problemId() == ProblemReasons.Ambiguous
@@ -1039,7 +1039,7 @@ private int checkAndRecordImportBinding(
 				for (int j = 0; j < this.importPtr; j++) {
 					ImportBinding resolved = this.tempImports[j];
 					if (resolved.isStatic() && resolved.resolvedImport instanceof ReferenceBinding && importBinding != resolved.resolvedImport) {
-						if (CharOperation.equals(name, resolved.compoundName[resolved.compoundName.length - 1])) {
+						if (CharOperation.equals(compoundName[compoundName.length - 1], resolved.compoundName[resolved.compoundName.length - 1])) {
 							ReferenceBinding type = (ReferenceBinding) resolved.resolvedImport;
 							resolved.resolvedImport = new ProblemReferenceBinding(new char[][] { name }, type, ProblemReasons.Ambiguous);
 							return -1;
