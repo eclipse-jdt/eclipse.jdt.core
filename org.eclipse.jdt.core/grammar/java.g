@@ -552,6 +552,7 @@ Header -> PackageDeclaration
 Header -> ClassHeader
 Header -> InterfaceHeader
 Header -> EnumHeader
+Header -> RecordHeaderPart
 Header -> AnnotationTypeDeclarationHeader
 Header -> StaticInitializer
 Header -> RecoveryMethodHeader
