@@ -874,4 +874,26 @@ public void testBug558812_27() throws CoreException {
 
 }
 
+public void testBug558812_028() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"public record Point(int comp) { \n" +
+			 "public void method ( ) {	  \n"+
+			 "/*here*/comp(); \n"+
+			 "} \n"+
+			"}\n"
+			);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "/*here*/comp";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	assertTrue(elements.length ==1);
+	assertTrue(!(elements[0] instanceof SourceType));
+	assertTrue((elements[0] instanceof ResolvedSourceField));
+
+}
+
 }
