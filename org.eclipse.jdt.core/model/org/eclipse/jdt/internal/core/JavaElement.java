@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -606,11 +606,13 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			}
 			if (info == null) { // a source ref element could not be opened
 				// close the buffer that was opened for the openable parent
-			    // close only the openable's buffer (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=62854)
-			    Openable openable = (Openable) getOpenable();
-			    if (newElements.containsKey(openable)) {
-			        openable.closeBuffer();
-			    }
+				Openable openable = (Openable) getOpenable();
+				// Bug 62854: close only the openable's buffer
+				if (newElements.containsKey(openable)
+						// Bug 526116: do not close current working copy, which can impact save actions
+						&& !(openable instanceof ICompilationUnit && ((ICompilationUnit) openable).isWorkingCopy())) {
+					openable.closeBuffer();
+				}
 				throw newNotPresentException();
 			}
 			if (!hadTemporaryCache) {
