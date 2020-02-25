@@ -2116,7 +2116,7 @@ private boolean checkRecoveredType() {
 	}
 	return false;
 }
-private void classHeaderExtendsOrImplements(boolean isInterface) {
+private void classHeaderExtendsOrImplements(boolean isInterface, boolean isRecord) {
 	if (this.currentElement != null
 			&& this.currentToken == TokenNameIdentifier
 			&& this.cursorLocation+1 >= this.scanner.startPosition
@@ -2136,8 +2136,10 @@ private void classHeaderExtendsOrImplements(boolean isInterface) {
 
 
 					if(type.superInterfaces == null) {
-						if(type.superclass == null) {
-							keywords[count++] = Keywords.EXTENDS;
+						if(!isRecord) {
+							if(type.superclass == null) {
+								keywords[count++] = Keywords.EXTENDS;
+							}
 						}
 						keywords[count++] = Keywords.IMPLEMENTS;
 					}
@@ -2431,7 +2433,18 @@ protected void consumeClassHeaderName1() {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
 	}
-	classHeaderExtendsOrImplements(false);
+	classHeaderExtendsOrImplements(false,false);
+}
+
+@Override
+protected void consumeRecordHeaderPart() {
+	super.consumeRecordHeaderPart();
+	this.hasUnusedModifiers = false;
+	if (this.pendingAnnotation != null) {
+		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
+		this.pendingAnnotation = null;
+	}
+	classHeaderExtendsOrImplements(false,true);
 }
 
 @Override
@@ -3153,7 +3166,7 @@ protected void consumeInterfaceHeaderName1() {
 		this.pendingAnnotation.potentialAnnotatedNode = this.astStack[this.astPtr];
 		this.pendingAnnotation = null;
 	}
-	classHeaderExtendsOrImplements(true);
+	classHeaderExtendsOrImplements(true, false);
 }
 @Override
 protected void consumeInterfaceHeaderExtends() {
@@ -4505,7 +4518,7 @@ protected void consumeTypeHeaderNameWithTypeParameters() {
 	super.consumeTypeHeaderNameWithTypeParameters();
 
 	TypeDeclaration typeDecl = (TypeDeclaration)this.astStack[this.astPtr];
-	classHeaderExtendsOrImplements((typeDecl.modifiers & ClassFileConstants.AccInterface) != 0);
+	classHeaderExtendsOrImplements((typeDecl.modifiers & ClassFileConstants.AccInterface) != 0, false);
 }
 @Override
 protected void consumeTypeImportOnDemandDeclarationName() {
