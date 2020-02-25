@@ -477,6 +477,8 @@ public class SyntheticMethodBinding extends MethodBinding {
 		assert declaringSourceType.isRecord();
 		this.declaringClass = declaringSourceType;
 		this.modifiers = ClassFileConstants.AccPublic;
+		if (this.declaringClass.isStrictfp())
+				this.modifiers |= ClassFileConstants.AccStrictfp;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 	    this.selector = selector;
 	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
@@ -485,10 +487,12 @@ public class SyntheticMethodBinding extends MethodBinding {
 		    this.parameters = Binding.NO_PARAMETERS;
 		    this.purpose = SyntheticMethodBinding.RecordOverrideToString;
 		} else if (selector == TypeConstants.HASHCODE) {
+			this.modifiers |= ClassFileConstants.AccFinal;
 			this.returnType = TypeBinding.INT;
 		    this.parameters = Binding.NO_PARAMETERS;
 		    this.purpose = SyntheticMethodBinding.RecordOverrideHashCode;
 		} else if (selector == TypeConstants.EQUALS) {
+			this.modifiers |= ClassFileConstants.AccFinal;
 			this.returnType = TypeBinding.BOOLEAN;
 		    this.parameters = new TypeBinding[] {declaringSourceType.scope.getJavaLangObject()};
 		    this.purpose = SyntheticMethodBinding.RecordOverrideEquals;
