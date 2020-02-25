@@ -7,7 +7,11 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -636,12 +640,32 @@ protected void acceptSourceMethod(
 
 	// if no matches, nothing to report
 	if (this.elementIndex == -1) {
-		// no match was actually found, but a method was originally given -> default constructor
-		addElement(type);
-		if(SelectionEngine.DEBUG){
-			System.out.print("SELECTION - accept type("); //$NON-NLS-1$
-			System.out.print(type.toString());
-			System.out.println(")"); //$NON-NLS-1$
+		try {
+			if (type.isRecord()) {
+				IField field= type.getField(name);
+				if (field != null) {
+					 if (!Flags.isStatic(field.getFlags())) {
+						// no match was actually found, but a method was originally given -> default accessor
+						 addElement(field);
+						 if(SelectionEngine.DEBUG){
+								System.out.print("SELECTION - accept field("); //$NON-NLS-1$
+								System.out.print(field.toString());
+								System.out.println(")"); //$NON-NLS-1$
+						 }
+					 }
+				}
+			}
+		} catch (JavaModelException e) {
+			// Do Nothing			
+		}
+		if (this.elementIndex == -1) {
+			// no match was actually found, but a method was originally given -> default constructor
+			addElement(type);
+			if(SelectionEngine.DEBUG){
+				System.out.print("SELECTION - accept type("); //$NON-NLS-1$
+				System.out.print(type.toString());
+				System.out.println(")"); //$NON-NLS-1$
+			}
 		}
 		return;
 	}
