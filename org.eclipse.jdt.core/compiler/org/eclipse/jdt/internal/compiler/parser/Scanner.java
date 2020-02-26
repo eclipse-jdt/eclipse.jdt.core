@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5230,6 +5230,28 @@ int disambiguatedRestrictedIdentifierrecord(int restrictedIdentifierToken) {
 	return disambiguaterecordWithLookAhead() ?
 			restrictedIdentifierToken : TokenNameIdentifier;
 }
+private int getNextTokenAfterTypeParameterHeader() {
+	int count = 1;
+	try {
+		int token;
+		while ((token = this.vanguardScanner.getNextToken()) != TokenNameEOF) {
+			if (token == TokenNameLESS)
+				++count;
+			if (token == TokenNameGREATER)
+				--count;
+			if (count == 0)
+				return this.vanguardScanner.getNextToken();
+		}
+	} catch (InvalidInputException e) {
+		if (e.getMessage().equals(INVALID_CHAR_IN_STRING)) {
+			//Ignore
+		} else {
+			// Shouldn't happen, but log the error
+			e.printStackTrace();
+		}
+	}
+	return TokenNameEOF;
+}
 private boolean disambiguaterecordWithLookAhead() {
 	getVanguardParser();
 	this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1);
@@ -5237,6 +5259,7 @@ private boolean disambiguaterecordWithLookAhead() {
 		int lookAhead1 = this.vanguardScanner.getNextToken();
 		if (lookAhead1 == TokenNameIdentifier) {
 			int lookAhead2 = this.vanguardScanner.getNextToken();
+			lookAhead2 = lookAhead2 == TokenNameLESS ? getNextTokenAfterTypeParameterHeader() : lookAhead2;
 			return lookAhead2 == TokenNameLPAREN;
 		}
 	} catch (InvalidInputException e) {

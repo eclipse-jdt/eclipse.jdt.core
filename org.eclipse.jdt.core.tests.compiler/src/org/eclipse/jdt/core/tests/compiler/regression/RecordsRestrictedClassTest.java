@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug559992" };
+//		TESTS_NAMES = new String[] { "testBug560531" };
 	}
 	
 	public static Class<?> testClass() {
@@ -2009,5 +2009,33 @@ public void testBug560256_004() {
 		"	              ^^^^^\n" + 
 		"Illegal modifier for the record Point; only public, private, protected, static, final and strictfp are permitted\n" + 
 		"----------\n");
+}
+public void testBug560531_001() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"class X {\n"+
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n"+
+					"record Point<T>(T t){\n"+
+					"}\n"
+			},
+		"0");
+}
+public void testBug560531_002() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"class X {\n"+
+					"  public static void main(String[] args){\n"+
+					"     System.out.println(0);\n" +
+					"  }\n"+
+					"}\n"+
+					"record R <T extends Integer, S extends String> (int x, T t, S s){\n"+
+					"}\n"
+			},
+		"0");
 }
 }
