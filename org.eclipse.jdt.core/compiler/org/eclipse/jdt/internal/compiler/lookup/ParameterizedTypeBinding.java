@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2018 IBM Corporation and others.
+ * Copyright (c) 2005, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -866,6 +866,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (erasure instanceof ReferenceBinding)
 			return ((ReferenceBinding) erasure).hasTypeBit(bit);
 		return false;
+	}
+
+	@Override
+	protected boolean hasMethodWithNumArgs(char[] selector, int numArgs) {
+		return this.type.hasMethodWithNumArgs(selector, numArgs);
 	}
 
 	/**

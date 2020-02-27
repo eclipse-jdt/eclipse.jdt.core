@@ -6455,4 +6455,30 @@ public void testBug559119() {
 		"----------\n",
 		options);
 }
+public void testBug560610() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses enum
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	runConformTest(
+		new String[] {
+			"A.java",
+			"import java.util.EnumSet;\n" +
+			"public abstract class A<T> extends B<T> implements C<D> {\n" +
+			"	void m(EnumSet<EN> en) {}\n" + // unResolvedMethods() when a is seen as a PTB causes bogus resolving of this method
+			"}\n",
+			"B.java",
+			"public abstract class B<U> implements AutoCloseable {}\n", // this causes A to be seen as a resource requiring closer inspection
+			"C.java",
+			"public interface C<T> {}\n", // just so we can read D as a type argument during hierarchy connecting for A
+			"D.java",
+			"public abstract class D extends A<String> {}\n", // extends A causes searching A for a close method, A seen as a PTB
+			"EN.java",
+			"public enum EN {\n" + // when we find this via ahead-of-time resolveTypesFor("m()") we don't yet have a superclass
+			"	One, Two;\n" + 
+			"}\n"
+		},
+		"",
+		options);
+}
 }
