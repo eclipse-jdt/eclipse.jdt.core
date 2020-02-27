@@ -158,6 +158,10 @@ public class Java14ElementProcessor extends BaseProcessor {
 		assertNotNull("TypeElement for record should not be null", record);
 		assertEquals("Name for record should not be null", "records.Point", record.getQualifiedName().toString());
 		assertEquals("Incorrect element kind", ElementKind.RECORD, record.getKind());
+		List<? extends RecordComponentElement> recordComponents = record.getRecordComponents();
+		// Test that in the first round, we don't get an NPE
+		assertNotNull("recordComponents Should not be null", recordComponents);
+		assertEquals("recordComponents Should not be null", 1, recordComponents.size());
 	}
 	/*
 	 * Test for presence of record component in a record element

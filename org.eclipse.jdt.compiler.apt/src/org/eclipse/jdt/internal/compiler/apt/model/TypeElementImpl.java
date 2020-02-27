@@ -188,8 +188,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
     public List<? extends RecordComponentElement> getRecordComponents() {
 		if (_binding instanceof SourceTypeBinding) {
 			SourceTypeBinding binding = (SourceTypeBinding) _binding;
-			FieldBinding[] components = ((SourceTypeBinding) _binding).getRecordComponents();
-			List<RecordComponentElement> enclosed = new ArrayList<>(components.length);
+			List<RecordComponentElement> enclosed = new ArrayList<>();
 			for (FieldBinding field : binding.fields()) {
 				if (!field.isSynthetic()) {
 					 RecordComponentElement variable = new RecordComponentElementImpl(_env, field);
