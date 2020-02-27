@@ -142,7 +142,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	abstract record Point(int x, int y){\n" + 
 			"	                ^^^^^\n" + 
-			"Illegal modifier for the record Point; only public, static, final and strictfp are permitted\n" + 
+			"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" + 
 			"----------\n");
 	}
 	/* A record declaration is implicitly final. It is permitted for the declaration of
@@ -1475,7 +1475,7 @@ public void testBug558069_001() {
 			"1. ERROR in X.java (at line 6)\n" + 
 			"	private record Point(){\n" + 
 			"	               ^^^^^\n" + 
-			"Illegal modifier for the record Point; only public, static, final and strictfp are permitted\n" + 
+			"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" + 
 			"----------\n");
 }
 public void testBug558069_002() {
@@ -1954,7 +1954,7 @@ public void testBug560256_001() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	final protected record Point(int x, int y){\n" + 
 		"	                       ^^^^^\n" + 
-		"Illegal modifier for the record Point; only public, static, final and strictfp are permitted\n" + 
+		"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" + 
 		"----------\n");
 }
 public void testBug560256_002() {
@@ -1973,7 +1973,7 @@ public void testBug560256_002() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	native record Point(int x, int y){\n" + 
 		"	              ^^^^^\n" + 
-		"Illegal modifier for the record Point; only public, static, final and strictfp are permitted\n" + 
+		"Illegal modifier for the record Point; only public, final and strictfp are permitted\n" + 
 		"----------\n");
 }
 public void testBug560256_003() {
