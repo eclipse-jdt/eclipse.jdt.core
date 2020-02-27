@@ -1413,6 +1413,7 @@ public final class CompletionEngine
 		
 		if (this.options.checkDeprecation && (modifiers & ClassFileConstants.AccDeprecated) != 0) return;
 		if (this.assistNodeIsExtendedType && (modifiers & ClassFileConstants.AccFinal) != 0) return;
+		if (this.assistNodeIsExtendedType && (modifiers & ExtraCompilerModifiers.AccRecord) != 0) return;
 
 		if (this.options.checkVisibility) {
 			if((modifiers & ClassFileConstants.AccPublic) == 0) {
@@ -11165,6 +11166,7 @@ public final class CompletionEngine
 				typesFound.add(sourceType);
 
 				if (this.assistNodeIsExtendedType && sourceType.isFinal()) continue next;
+				if (this.assistNodeIsExtendedType && sourceType.isRecord()) continue next;
 				if (this.assistNodeIsInterfaceExcludingAnnotation && sourceType.isAnnotationType()) continue next;
 				if(this.assistNodeIsClass) {
 					if(!sourceType.isClass()) continue next;

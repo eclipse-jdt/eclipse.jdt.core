@@ -34,6 +34,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		} else {
 			setUpProjectCompliance(COMPLETION_PROJECT, "14");
 		}
+		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		super.setUpSuite();
 	}
 	public static Test suite() {
@@ -46,9 +47,6 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"public record Point() imple {\n" + 
 				"}");
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -60,9 +58,6 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						requestor.getResults());
 		
 		
-	} finally {
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-	}
 		
 	}
 	public void test002() throws JavaModelException {
@@ -95,9 +90,6 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"public record Point<U>() imple {\n" + 
 				"}");
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -107,10 +99,8 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		assertResults(
 				"implements[KEYWORD]{implements, null, null, implements, null, 49}",
 						requestor.getResults());
-		}
-		finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
+		
+		
 	}
 	public void test004() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -119,9 +109,6 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"public record Point<U>() exte {\n" + 
 				"}");
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -131,10 +118,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		assertResults(
 				"",
 						requestor.getResults());
-		}
-		finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
+		
 	}
 	
 	public void test005() throws JavaModelException {
@@ -144,9 +128,6 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"public record Point<U extends Thread>() imple {\n" + 
 				"}");
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -156,10 +137,8 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		assertResults(
 				"implements[KEYWORD]{implements, null, null, implements, null, 49}",
 						requestor.getResults());
-		}
-		finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
+		
+		
 	}
 	public void test006() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -167,10 +146,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"/Completion/src/Point.java",
 				"public record Point<U extends Thread>() /*here*/exte {\n" + 
 				"}");
-		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -180,10 +156,6 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		assertResults(
 				"",
 						requestor.getResults());
-		}
-		finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
 		
 	}
 	
@@ -194,9 +166,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"public record Point(int comp) imple {\n" + 
 				"}");
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -208,9 +178,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						requestor.getResults());
 		
 		
-	} finally {
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-	}
+	
 		
 	}
 	public void test008() throws JavaModelException {
@@ -219,10 +187,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"/Completion/src/Point.java",
 				"public record Point(int comp) exte {\n" + 
 				"}");
-		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "exte";
@@ -231,9 +196,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		assertResults(
 				"",
 						requestor.getResults());
-		}finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
+
 	}
 	
 	public void test009() throws JavaModelException {
@@ -243,9 +206,8 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"public record Point<U>(int comp) imple {\n" + 
 				"}");
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+
+		
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -255,10 +217,8 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		assertResults(
 				"implements[KEYWORD]{implements, null, null, implements, null, 49}",
 						requestor.getResults());
-		}
-		finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
+		
+		
 	}
 	public void test0010() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -267,9 +227,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"public record Point<U>(int comp) exte {\n" + 
 				"}");
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -279,10 +237,8 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		assertResults(
 				"",
 						requestor.getResults());
-		}
-		finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
+		
+	
 	}
 	
 	public void test011() throws JavaModelException {
@@ -315,10 +271,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"/Completion/src/Point.java",
 				"public record Point<U extends Thread>(int comp) /*here*/exte {\n" + 
 				"}");
-		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
-		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
-		try {
-		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -328,10 +281,31 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		assertResults(
 				"",
 						requestor.getResults());
-		}
-		finally {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
-		}
+	
 		
 	}
+	public void test013() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/mypack1/rrr.java",
+				"package mypack1;\n" +
+				"public record rrr() {\n" +
+				"}");
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/mypack1/MyClass.java",
+				"package mypack1;\n" +
+				"public class MyClass extends /*here*/rr {\n" +
+				"}");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "/*here*/rr";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"",
+						requestor.getResults());
+	} 
+	
 }
