@@ -579,14 +579,10 @@ void write(DataOutputStream out) throws IOException {
 			out.writeUTF(jrt.zipFilename);
 			writeRestriction(jrt.accessRuleSet, out);
 			out.writeUTF(jrt.externalAnnotationPath != null ? jrt.externalAnnotationPath : ""); //$NON-NLS-1$
-			out.writeUTF(""); //$NON-NLS-1$
-		} else {
-			ClasspathJrtWithReleaseOption jrt = (ClasspathJrtWithReleaseOption) c;
-			out.writeByte(EXTERNAL_JAR);
-			out.writeUTF(jrt.zipFilename);
-			writeRestriction(jrt.accessRuleSet, out);
-			out.writeUTF(jrt.externalAnnotationPath != null ? jrt.externalAnnotationPath : ""); //$NON-NLS-1$
-			out.writeUTF(jrt.release);
+			if (jrt instanceof ClasspathJrtWithReleaseOption)
+				out.writeUTF(((ClasspathJrtWithReleaseOption) jrt).release);
+			else
+				out.writeUTF(""); //$NON-NLS-1$
 		}
 		char[] patchName = c.patchModuleName == null ? CharOperation.NO_CHAR : c.patchModuleName.toCharArray();
 		writeName(patchName, out);
@@ -698,14 +694,10 @@ void write(DataOutputStream out) throws IOException {
 				out.writeUTF(jrt.zipFilename);
 				writeRestriction(jrt.accessRuleSet, out);
 				out.writeUTF(jrt.externalAnnotationPath != null ? jrt.externalAnnotationPath : ""); //$NON-NLS-1$
-				out.writeUTF(""); //$NON-NLS-1$
-			} else {
-				ClasspathJrtWithReleaseOption jrt = (ClasspathJrtWithReleaseOption) c;
-				out.writeByte(EXTERNAL_JAR);
-				out.writeUTF(jrt.zipFilename);
-				writeRestriction(jrt.accessRuleSet, out);
-				out.writeUTF(jrt.externalAnnotationPath != null ? jrt.externalAnnotationPath : ""); //$NON-NLS-1$
-				out.writeUTF(jrt.release);
+				if (jrt instanceof ClasspathJrtWithReleaseOption)
+					out.writeUTF(((ClasspathJrtWithReleaseOption) jrt).release);
+				else
+					out.writeUTF(""); //$NON-NLS-1$
 			}
 		}
 
