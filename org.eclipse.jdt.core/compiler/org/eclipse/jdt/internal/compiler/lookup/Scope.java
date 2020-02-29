@@ -60,6 +60,7 @@
  *                          	Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *     Pierre-Yves B. <pyvesdev@gmail.com> - Contributions for
  *                              Bug 559618 - No compiler warning for import from same package
+ *                              Bug 560630 - No warning on unused import on class from same package
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -3444,7 +3445,7 @@ public abstract class Scope {
 							if (resolvedImport == null) continue nextImport;
 							if (resolvedImport instanceof TypeBinding) {
 								ImportReference importReference = importBinding.reference;
-								if (importReference != null)
+								if (importReference != null && !isUnnecessarySamePackageImport(importBinding.resolvedImport, unitScope))
 									importReference.bits |= ASTNode.Used;
 								return resolvedImport; // already know its visible
 							}
