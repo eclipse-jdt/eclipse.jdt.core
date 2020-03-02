@@ -32,6 +32,7 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -9965,7 +9966,7 @@ public void testBug466562() {
 		"2. ERROR in x\\C.java (at line 8)\n" + 
 		"	@NonNull Object x = t; // error, should warn?\n" + 
 		"	                    ^\n" + 
-		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'T1 extends @Nullable Number\'\n" + 
+		"Null type safety: required \'@NonNull\' but this expression has type \'T1\', a free type variable that may represent a \'@Nullable\' type\n" + 
 		"----------\n" + 
 		"3. ERROR in x\\C.java (at line 10)\n" + 
 		"	return t.toString(); // legal???\n" + 
@@ -18065,5 +18066,84 @@ public void testBug560213binary() {
 		"\n}"
 	};
 	runner.runConformTest();
+}
+public void testBug560310() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.testFiles =
+		new String[] {
+			"confusing/Confusing.java",
+			"package confusing;\n" + 
+			"\n" + 
+			"import java.util.ArrayList;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"\n" + 
+			"public abstract class Confusing {\n" + 
+			"    abstract int unannotated(ArrayList<String> list);\n" + 
+			"\n" + 
+			"    @NonNullByDefault\n" + 
+			"    public void f(boolean x) {\n" + 
+			"        ArrayList<String> list = x ? null : new ArrayList<>();\n" + 
+			"\n" + 
+			"        while (true) {\n" + 
+			"            unannotated(list);\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		};
+	runner.classLibraries = this.LIBS;
+	runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
+	runner.expectedCompilerLog =
+		"----------\n" + 
+		"1. INFO in confusing\\Confusing.java (at line 15)\n" + 
+		"	unannotated(list);\n" + 
+		"	            ^^^^\n" + 
+		"Unsafe null type conversion (type annotations): The value of type \'ArrayList<@NonNull String>\' is made accessible using the less-annotated type \'ArrayList<String>\'\n" + 
+		"----------\n";
+	runner.runWarningTest();
+}
+public void testBug560310try_finally() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.testFiles =
+		new String[] {
+			"confusing/Confusing.java",
+			"package confusing;\n" + 
+			"\n" + 
+			"import java.util.ArrayList;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"\n" + 
+			"public abstract class Confusing {\n" + 
+			"    abstract int unannotated(ArrayList<String> list);\n" + 
+			"\n" + 
+			"    @NonNullByDefault\n" + 
+			"    public void f(boolean x) {\n" + 
+			"        ArrayList<String> list = x ? null : new ArrayList<>();\n" + 
+			"\n" + 
+			"        try {\n" + 
+			"            unannotated(list);\n" +
+			"        } finally {\n" +
+			"            unannotated(list);\n" +
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		};
+	runner.classLibraries = this.LIBS;
+	runner.javacTestOptions = Excuse.EclipseHasSomeMoreWarnings;
+	runner.expectedCompilerLog =
+		"----------\n" + 
+		"1. INFO in confusing\\Confusing.java (at line 15)\n" + 
+		"	unannotated(list);\n" + 
+		"	            ^^^^\n" + 
+		"Unsafe null type conversion (type annotations): The value of type \'ArrayList<@NonNull String>\' is made accessible using the less-annotated type \'ArrayList<String>\'\n" + 
+		"----------\n" + 
+		"2. INFO in confusing\\Confusing.java (at line 17)\n" + 
+		"	unannotated(list);\n" + 
+		"	            ^^^^\n" + 
+		"Unsafe null type conversion (type annotations): The value of type \'ArrayList<@NonNull String>\' is made accessible using the less-annotated type \'ArrayList<String>\'\n" + 
+		"----------\n";
+	runner.runWarningTest();
 }
 }

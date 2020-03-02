@@ -103,7 +103,6 @@ public class EclipseCompilerImpl extends Main {
 			return false;
 		} catch (RuntimeException e) { // internal compiler failure
 			this.diagnosticListener.report(new ExceptionDiagnostic(e));
-			e.printStackTrace();
 			this.logger.logException(e);
 			return false;
 		} finally {

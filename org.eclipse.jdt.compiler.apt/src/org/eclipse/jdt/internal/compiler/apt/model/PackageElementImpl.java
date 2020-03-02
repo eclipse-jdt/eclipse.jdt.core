@@ -59,7 +59,7 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 	{
 		PackageBinding packageBinding = (PackageBinding) this._binding;
 		char[][] compoundName = CharOperation.arrayConcat(packageBinding.compoundName, TypeConstants.PACKAGE_INFO_NAME);
-		ReferenceBinding type = this._env.getLookupEnvironment().getType(compoundName);
+		ReferenceBinding type = packageBinding.environment.getType(compoundName);
 		AnnotationBinding[] annotations = null;
 		if (type != null && type.isValidBinding()) {
 			annotations = type.getAnnotations();
