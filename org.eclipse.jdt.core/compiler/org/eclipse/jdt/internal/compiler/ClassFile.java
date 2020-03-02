@@ -3721,7 +3721,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 			
 			TypeBinding type = recordList.get(i);
 			assert type.isRecord(); // sanity check
-			int recordIndex = this.constantPool.literalIndexForType(type.constantPoolName());
+			char[] recordName = type.constantPoolName();
+			int recordIndex = this.constantPool.literalIndexForType(recordName);
 			this.contents[localContentsOffset++] = (byte) (recordIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) recordIndex;
 
@@ -3742,20 +3743,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localContentsOffset++] = (byte) (namesIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) namesIndex;
 
-			List<MethodBinding> getters = new ArrayList<>();
 			for (FieldBinding field : recordComponents) {
-				MethodBinding[] candidates =  sourceType.getMethods(field.name);
-				for (MethodBinding candidate : candidates) {
-					if (candidate.parameters == null || candidate.parameters.length == 0) {
-						getters.add(candidate);
-						break;
-					}
-				}
-			}
-			for (MethodBinding getter : getters) {
-				int getterIndex = this.constantPool.literalIndexForMethodHandle(getter);
-				this.contents[localContentsOffset++] = (byte) (getterIndex >> 8);
-				this.contents[localContentsOffset++] = (byte) getterIndex;
+				int methodHandleIndex = this.constantPool.literalIndexForMethodHandleFieldRef(
+						ClassFileConstants.MethodHandleRefKindGetField, 
+						recordName, field.name, field.type.signature());
+
+				this.contents[localContentsOffset++] = (byte) (methodHandleIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) methodHandleIndex;
 			}
 		}
 		return localContentsOffset;

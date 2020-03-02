@@ -886,6 +886,24 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 
 		return index;
 	}
+	public int literalIndexForMethodHandleFieldRef(int referenceKind, char[] declaringClass, char[] name, char[] signature) {
+		assert referenceKind == MethodHandleRefKindGetField;
+		int indexForField = literalIndexForField(declaringClass, name, signature);
+
+		int index = this.currentIndex++;
+		int length = this.offsets.length;
+		if (length <= index) {
+			// resize
+			System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
+		}
+		
+		this.offsets[index] = this.currentOffset;
+		writeU1(MethodHandleTag);
+		writeU1(referenceKind);
+		writeU2(indexForField);
+
+		return index;
+	}
 	public int literalIndexForMethodType(char[] descriptor) {
 		int signatureIndex = literalIndex(descriptor);
 

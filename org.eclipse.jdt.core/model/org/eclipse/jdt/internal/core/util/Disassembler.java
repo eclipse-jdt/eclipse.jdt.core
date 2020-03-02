@@ -1905,6 +1905,12 @@ public class Disassembler extends ClassFileBytesDisassembler {
 					ConstantPoolEntry2 constantPoolEntry2 = (ConstantPoolEntry2) constantPoolEntry;
 					StringBuilder builder = new StringBuilder(10);
 					switch(constantPoolEntry2.getReferenceKind()) {
+						case IConstantPoolConstant.METHOD_TYPE_REF_GetField:
+							builder.append("REF_getField "); //$NON-NLS-1$
+							constantPoolEntry = (ConstantPoolEntry) constantPool.decodeEntry(constantPoolEntry2.getReferenceIndex());
+							builder.append(Messages.bind("{0}:{1}", fieldDescription(constantPoolEntry))); //$NON-NLS-1$
+							arguments[i] =  builder.toString();
+							break;
 						case IConstantPoolConstant.METHOD_TYPE_REF_InvokeStatic:
 							builder.append("invokestatic "); //$NON-NLS-1$
 							//$FALL-THROUGH$
@@ -1919,9 +1925,20 @@ public class Disassembler extends ClassFileBytesDisassembler {
 				case IConstantPoolConstant.CONSTANT_MethodType:
 					arguments[i] = new String(((ConstantPoolEntry2) constantPoolEntry).getMethodDescriptor());
 					break;
+				case IConstantPoolConstant.CONSTANT_Class:
+					arguments[i] = new String(constantPoolEntry.getClassInfoName());
+					break;
+				case IConstantPoolConstant.CONSTANT_String:
+					arguments[i] = constantPoolEntry.getStringValue();
+					break;
 			}
 		}
 		return arguments;
+	}
+
+	private String[] fieldDescription(IConstantPoolEntry constantPoolEntry) {
+		return new String[] { new String(constantPoolEntry.getFieldName()),
+				new String(constantPoolEntry.getFieldDescriptor())};
 	}
 
 	private String[] methodDescription(IConstantPoolEntry constantPoolEntry) {

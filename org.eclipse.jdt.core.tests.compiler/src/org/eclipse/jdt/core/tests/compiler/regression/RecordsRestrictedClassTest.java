@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug560531" };
+//		TESTS_NAMES = new String[] { "testBug560569_001" };
 	}
 	
 	public static Class<?> testClass() {
@@ -2037,5 +2037,42 @@ public void testBug560531_002() {
 					"}\n"
 			},
 		"0");
+}
+public void testBug560569_001() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface Rentable { int year(); }\n"+
+			"record Car(String model, int year) implements Rentable {\n"+
+			"  public Car {\n"+
+			"  }\n"+
+			"  public String toString() {\n"+
+			"    return model + \" \" + year;\n"+
+			"  }\n"+
+			"}\n"+
+			"record Camel(int year) implements Rentable { }\n"+
+			"\n"+
+			"class X {\n"+
+			"       String model;\n"+
+			"       int year;\n"+
+			"       public String toString() {\n"+
+			"          return model + \" \" + year;\n"+
+			"       }\n"+
+			"       public static void main(String[] args) {\n"+
+			"               Car car = new Car(\"Maruti\", 2000);\n"+
+			"               System.out.println(car.hashCode() != 0);\n"+
+			"       }\n"+
+			"}\n"
+		},
+	 "true");
+	String expectedOutput = 
+			"Bootstrap methods:\n" + 
+			"  0 : # 68 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;\n" + 
+			"	Method arguments:\n" + 
+			"		#1 Car\n" + 
+			"		#69 model;year\n" + 
+			"		#71 REF_getField model:Ljava/lang/String;\n" + 
+			"		#72 REF_getField year:I\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
 }
 }
