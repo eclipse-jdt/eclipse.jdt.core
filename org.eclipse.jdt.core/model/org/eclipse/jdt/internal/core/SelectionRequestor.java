@@ -656,7 +656,7 @@ protected void acceptSourceMethod(
 				}
 			}
 		} catch (JavaModelException e) {
-			// Do Nothing			
+			// Do Nothing
 		}
 		if (this.elementIndex == -1) {
 			// no match was actually found, but a method was originally given -> default constructor
