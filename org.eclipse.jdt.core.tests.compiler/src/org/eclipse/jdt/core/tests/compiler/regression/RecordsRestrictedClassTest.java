@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug560569_001" };
+//		TESTS_NAMES = new String[] { "testBug560496" };
 	}
 	
 	public static Class<?> testClass() {
@@ -2074,5 +2074,37 @@ public void testBug560569_001() throws Exception {
 			"		#71 REF_getField model:Ljava/lang/String;\n" + 
 			"		#72 REF_getField year:I\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug560496_001() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"record R () {} \n"+
+			"class X {\n"+
+			"       public static void main(String[] args) {\n"+
+			"               System.out.println(new R().hashCode());\n"+
+			"       }\n"+
+			"}\n"
+		},
+	 "0");
+	String expectedOutput = 
+			"public final int hashCode();\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug560496_002() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"strictfp record R () {} \n"+
+			"class X {\n"+
+			"       public static void main(String[] args) {\n"+
+			"               System.out.println(new R().hashCode());\n"+
+			"       }\n"+
+			"}\n"
+		},
+	 "0");
+	String expectedOutput = 
+			"public final strictfp int hashCode();\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 }
