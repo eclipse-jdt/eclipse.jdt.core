@@ -3743,6 +3743,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localContentsOffset++] = (byte) (namesIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) namesIndex;
 
+			if (recordComponents.length * 2 + localContentsOffset >= this.contents.length) {
+				resizeContents(recordComponents.length * 2);
+			}
 			for (FieldBinding field : recordComponents) {
 				int methodHandleIndex = this.constantPool.literalIndexForMethodHandleFieldRef(
 						ClassFileConstants.MethodHandleRefKindGetField, 
