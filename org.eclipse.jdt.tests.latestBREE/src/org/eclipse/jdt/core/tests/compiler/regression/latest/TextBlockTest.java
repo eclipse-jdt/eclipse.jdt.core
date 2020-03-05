@@ -1138,13 +1138,14 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"public class C {\n" + 
 						"    public static void main(String argv[]) {\n" + 
 						"    	 String textBlock = \"\"\"\n" + 
-						"\f" + 
-						"\"\"\";\n" + 
+						"\n" + 
+						"\"\"\";\n" + 
+						"    	 System.out.print(textBlock);\n" + 
 						"    	 System.out.print(compare(textBlock));\n" + 
 						"    }\n" + 
 						"    private static boolean compare(String textBlock) {\n" + 
 						"    	 char LF  = (char) 0x000A;\n" + 
-						"        String str = \"\" + LF + '\\u0015' + \"\";\n" + 
+						"        String str = \"\" + '\\u0015' + LF + \"\";\n" + 
 						"        return textBlock.equals(str.stripIndent());\n" + 
 						"    }\n" + 
 						"}"
@@ -1321,6 +1322,29 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"}"
 				}, 
 				"26",
+				getCompilerOptions(),
+				new String[] {"--enable-preview"});
+	}
+	public void testCompliances_12() {
+		runConformTest(
+				new String[] {
+						"C.java",
+						"@SuppressWarnings(\"preview\")\n" +
+						"public class C {\n" + 
+						"    public static void main(String argv[]) {\n" + 
+						"    	String textBlock = \"\"\"\n" + 
+						"\r\n" + 
+						"    			aa\"\"\";\n" + 
+						"    	 System.out.print(compare(textBlock));\n" + 
+						"    }\n" + 
+						"    private static boolean compare(String textBlock) {\n" + 
+						"    	char LF  = (char) 0x000A;\n" + 
+						"        String str = \"\" + LF + \"aa\";\n" + 
+						"        return textBlock.equals(str);\n" + 
+						"    }\n" + 
+						"}"
+				}, 
+				"true",
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
 	}

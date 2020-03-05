@@ -630,6 +630,7 @@ public char[] getCurrentTextBlock() {
 			all = new char[0];
 		}
 	}
+	all = normalize(all);
 	// 2. Split into lines. Consider both \n and \r as line separators
 	char[][] lines = CharOperation.splitOn('\n', all);
 	int size = lines.length;
@@ -723,6 +724,29 @@ private int replaceEscapedChar(StringBuilder result, char[] line, int start, int
 	}
 	result.append(c);
 	return ++position;
+}
+private char[] normalize(char[] content) {
+	StringBuilder result = new StringBuilder();
+	boolean isCR = false;
+	for (char c : content) {
+		switch (c) {
+			case '\r':
+				result.append(c);
+				isCR = true;
+				break;
+			case '\n':
+				if (!isCR) {
+					result.append(c);
+				}
+				isCR = false;
+				break;
+			default:
+				result.append(c);
+				isCR = false;
+				break;
+		}
+	}
+	return result.toString().toCharArray();
 }
 // This method is for handling the left over escaped characters during the first
 // scanning (scanForStringLiteral). Admittedly this goes over the text block 
