@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2019 IBM Corporation and others.
+ * Copyright (c) 2016, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1620,6 +1620,28 @@ public void testBug548888() throws Exception {
 
 		String expected = "List[TYPE_REF]{java.util.List, java.util, Ljava.util.List;, null, 53}";
 		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+	}
+}
+public void testBug560606() throws CoreException {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL19_LIB", "org.eclipse.jdt.core.tests.model.TEST_CONTAINER"}, "bin", "9");
+	try  {
+		project1.open(null);
+		createFile("/Completion9_1/src/module-info.java",
+				"module first {}\n");
+
+		CompletionResult result = complete(
+	            "/Completion9_1/src/bug560606/Test.java",
+	            "package bug560606;\n" +
+	            "import java.util.Coll;\n" +
+	            "public class Test {\n" +
+	            "}\n",
+	            "import java.util.Coll");
+
+	    assertResults(
+	            "Collection[TYPE_REF]{Collection, java.util, Ljava.util.Collection;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED)+"}",
+	            result.proposals);
 	} finally {
 		deleteProject(project1);
 	}

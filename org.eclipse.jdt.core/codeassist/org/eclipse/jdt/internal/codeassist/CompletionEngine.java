@@ -1667,13 +1667,22 @@ public final class CompletionEngine
 	}
 	
 	private char[] appendUnlessNextToken(char[] completionName, char[] suffix, int nextToken) {
-		this.parser.scanner.resetTo(this.endPosition, Integer.MAX_VALUE);
+		if (this.source == null)
+			return CharOperation.concat(completionName, suffix);
+
+		AssistParser assistParser = getParser();
+		Object parserState = assistParser.becomeSimpleParser();
+
+		assistParser.scanner.setSource(this.source);
+		assistParser.scanner.resetTo(this.endPosition, Integer.MAX_VALUE);
 		try {
-			if (this.parser.scanner.getNextToken() != nextToken) {
+			if (assistParser.scanner.getNextToken() != nextToken) {
 				return CharOperation.concat(completionName, suffix);
 			}
 		} catch (InvalidInputException e) {
 			// ignore
+		} finally {
+			assistParser.restoreAssistParser(parserState);
 		}
 		return completionName;
 	}
@@ -2059,7 +2068,8 @@ public final class CompletionEngine
 			this.actualCompletionPosition = completionPosition - 1;
 			this.offset = pos;
 			this.typeRoot = root;
-			
+			this.source = sourceUnit.getContents();
+
 			this.checkCancel();
 			
 			// for now until we can change the UI.
@@ -2259,7 +2269,6 @@ public final class CompletionEngine
 						this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 
 						if ((this.unitScope = parsedUnit.scope) != null) {
-							this.source = sourceUnit.getContents();
 							this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							parsedUnit.scope.faultInTypes();
 							parseBlockStatements(parsedUnit, this.actualCompletionPosition);
