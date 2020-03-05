@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug560798" };
+//		TESTS_NAMES = new String[] { "testBug560770_001" };
 	}
 	
 	public static Class<?> testClass() {
@@ -2230,5 +2230,25 @@ public void testBug560798_005() throws Exception {
 			"}\n"
 		},
 	 "true");
+}
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public void testBug560770_001() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.ERROR);
+	this.runNegativeTest(
+	new String[] {
+			"X.java",
+			"record R() {}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	record R() {}\n" + 
+		"	       ^\n" + 
+		"You are using a preview language feature that may or may not be supported in a future release\n" + 
+		"----------\n",
+		null,
+		true,
+		options
+	);
 }
 }

@@ -10752,6 +10752,13 @@ protected void consumeRecordDeclaration() {
 
 	RecordDeclaration rd = (RecordDeclaration) this.astStack[this.astPtr];
 
+	if (!this.options.enablePreviewFeatures){
+		problemReporter().previewFeatureNotEnabled(rd.sourceStart, rd.sourceEnd, "Records"); //$NON-NLS-1$
+	} else {
+		if (this.options.isAnyEnabled(IrritantSet.PREVIEW)) {
+			problemReporter().previewFeatureUsed(rd.sourceStart, rd.sourceEnd);
+		}
+	}
 	//convert constructor that do not have the type's name into methods
 	ConstructorDeclaration cd = rd.getConstructor(this);
 	if (cd == null) {
