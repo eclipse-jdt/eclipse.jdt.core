@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2019 IBM Corporation and others.
+ * Copyright (c) 2004, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -49,6 +49,7 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
 import org.eclipse.jdt.internal.core.util.RecordedParsingInformation;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -230,21 +231,7 @@ public class ASTParser {
 	 * declared on {@link AST}
 	 */
 	ASTParser(int level) {
-		switch(level) {
-			case AST.JLS2_INTERNAL:
-			case AST.JLS3_INTERNAL:
-			case AST.JLS4_INTERNAL:
-			case AST.JLS8_INTERNAL:
-			case AST.JLS9_INTERNAL:
-			case AST.JLS10_INTERNAL:
-			case AST.JLS11_INTERNAL:
-			case AST.JLS12_INTERNAL:
-			case AST.JLS13_INTERNAL:
-			case AST.JLS14_INTERNAL:
-				break;
-			default:
-				throw new IllegalArgumentException();
-		}
+		DOMASTUtil.checkASTLevel(level);
 		this.apiLevel = level;
 		initializeDefaults();
 	}

@@ -100,5 +100,24 @@ public class DOMASTUtil {
 	public static boolean isInstanceofExpressionPatternSupported(int apiLevel, boolean previewEnabled) {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.INSTANCEOF_EXPRESSION);
 	}
+	
+	@SuppressWarnings("deprecation")
+	public static void checkASTLevel(int level) {
+		switch (level) {
+	        case AST.JLS2 :
+	        case AST.JLS3 :
+	        case AST.JLS4 :
+	        case AST.JLS8 :
+	        case AST.JLS9 :
+	        case AST.JLS10 :
+	        case AST.JLS11 :
+	        case AST.JLS12 :
+	        case AST.JLS13 :
+	        case AST.JLS14 :
+	        	return;
+		}
+		throw new IllegalArgumentException();
+		
+	}
 
 }

@@ -33,6 +33,7 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 
 // testing
 
@@ -8947,6 +8948,20 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			assertEquals("node type " + nodeType + " missing in ASTNode", -1, nodeType);
 		}
 		assertEquals("node types missing in test", Collections.EMPTY_SET, declaredNodeTypes);
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void testASTLevels() throws Exception {
+		int[] apilLevels = {AST.JLS2, AST.JLS3, AST.JLS4, AST.JLS8, AST.JLS9, AST.JLS10, AST.JLS11, AST.JLS12, AST.JLS13, AST.JLS14};
+		for (int level : apilLevels) {
+			try {
+				DOMASTUtil.checkASTLevel(level);
+			} catch (IllegalArgumentException e) {
+				throw new AssertionFailedError("missing support for AST level: " + level);
+			}
+		}
+		
+		
 	}
 }
 
