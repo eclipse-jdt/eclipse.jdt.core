@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug560797" };
+//		TESTS_NAMES = new String[] { "testBug560798" };
 	}
 	
 	public static Class<?> testClass() {
@@ -2140,5 +2140,95 @@ public void testBug560797_002() throws Exception {
 	String expectedOutput = 
 			"public strictfp int x();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug560798_001() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.Target;\n"+
+			"import java.lang.annotation.ElementType;\n"+
+			"@Target({ElementType.PARAMETER})\n"+
+			"@interface MyAnnot {}\n"+
+			"record R(@MyAnnot()  int i, int j) {}\n" +
+			"class X {\n"+
+			"       public static void main(String[] args) {\n"+
+			"           System.out.println(new R(100, 200).hashCode() != 0);\n"+
+			"       }\n"+
+			"}\n"
+		},
+	 "true");
+}
+public void testBug560798_002() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.Target;\n"+
+			"import java.lang.annotation.ElementType;\n"+
+			"@Target({ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.LOCAL_VARIABLE,\n" + 
+			"	ElementType.MODULE, ElementType.PACKAGE, ElementType.TYPE, ElementType.TYPE_PARAMETER}})\n"+
+			"@interface MyAnnot {}\n"+
+			"record R(@MyAnnot()  int i, int j) {}\n" +
+			"class X {\n"+
+			"       public static void main(String[] args) {\n"+
+			"       }\n"+
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	ElementType.MODULE, ElementType.PACKAGE, ElementType.TYPE, ElementType.TYPE_PARAMETER}})\n" + 
+		"	                                                                                      ^\n" + 
+		"Syntax error on token \"}\", delete this token\n" + 
+		"----------\n");
+}
+public void testBug560798_003() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.Target;\n"+
+			"import java.lang.annotation.ElementType;\n"+
+			"@Target({ElementType.METHOD})\n"+
+			"@interface MyAnnot {}\n"+
+			"record R(@MyAnnot()  int i, int j) {}\n" +
+			"class X {\n"+
+			"       public static void main(String[] args) {\n"+
+			"           System.out.println(new R(100, 200).hashCode() != 0);\n"+
+			"       }\n"+
+			"}\n"
+		},
+	 "true");
+}
+public void testBug560798_004() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.Target;\n"+
+			"import java.lang.annotation.ElementType;\n"+
+			"@Target({ElementType.RECORD_COMPONENT})\n"+
+			"@interface MyAnnot {}\n"+
+			"record R(@MyAnnot()  int i, int j) {}\n" +
+			"class X {\n"+
+			"       public static void main(String[] args) {\n"+
+			"           System.out.println(new R(100, 200).hashCode() != 0);\n"+
+			"       }\n"+
+			"}\n"
+		},
+	 "true");
+}
+public void testBug560798_005() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.annotation.Target;\n"+
+			"import java.lang.annotation.ElementType;\n"+
+			"@Target({ElementType.TYPE_USE})\n"+
+			"@interface MyAnnot {}\n"+
+			"record R(@MyAnnot()  int i, int j) {}\n" +
+			"class X {\n"+
+			"       public static void main(String[] args) {\n"+
+			"           System.out.println(new R(100, 200).hashCode() != 0);\n"+
+			"       }\n"+
+			"}\n"
+		},
+	 "true");
 }
 }

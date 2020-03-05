@@ -1183,9 +1183,12 @@ public abstract class Annotation extends Expression {
 			case Binding.FIELD :
 				if ((metaTagBits & TagBits.AnnotationForField) != 0) {
 					return AnnotationTargetAllowed.YES;
-				} else if ((metaTagBits & TagBits.AnnotationForRecordComponent) != 0) {
-					FieldBinding sourceField = (FieldBinding) recipient;
-					return sourceField.isRecordComponent() ? AnnotationTargetAllowed.YES : AnnotationTargetAllowed.NO;
+				} else if (((FieldBinding) recipient).isRecordComponent()){
+					long recordComponentMask = TagBits.AnnotationForRecordComponent |
+							TagBits.AnnotationForMethod |
+							TagBits.AnnotationForParameter |
+							TagBits.AnnotationForTypeUse;
+					return (metaTagBits & recordComponentMask) != 0 ? AnnotationTargetAllowed.YES : AnnotationTargetAllowed.NO;
 				} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
 					FieldBinding sourceField = (FieldBinding) recipient;
 					SourceTypeBinding sourceType = (SourceTypeBinding) sourceField.declaringClass;
