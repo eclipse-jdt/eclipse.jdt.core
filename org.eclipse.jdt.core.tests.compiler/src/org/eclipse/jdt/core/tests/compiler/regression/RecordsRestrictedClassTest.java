@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug560496" };
+//		TESTS_NAMES = new String[] { "testBug560797" };
 	}
 	
 	public static Class<?> testClass() {
@@ -2105,6 +2105,40 @@ public void testBug560496_002() throws Exception {
 	 "0");
 	String expectedOutput = 
 			"public final strictfp int hashCode();\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug560797_001() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"strictfp record R (int x, int y) {} \n"+
+			"class X {\n"+
+			"       public static void main(String[] args) {\n"+
+			"               System.out.println(new R(100, 200).hashCode() != 0);\n"+
+			"       }\n"+
+			"}\n"
+		},
+	 "true");
+	String expectedOutput = 
+			"public strictfp int x();\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
+}
+public void testBug560797_002() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"strictfp record R (int x, int y) { \n"+
+			"public int x() { return this.x;}\n"+
+			"}\n"+
+			"class X {\n"+
+			"       public static void main(String[] args) {\n"+
+			"               System.out.println(new R(100, 200).hashCode() != 0);\n"+
+			"       }\n"+
+			"}\n"
+		},
+	 "true");
+	String expectedOutput = 
+			"public strictfp int x();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 }
