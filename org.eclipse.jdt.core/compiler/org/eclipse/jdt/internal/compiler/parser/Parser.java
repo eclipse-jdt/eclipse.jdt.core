@@ -2650,8 +2650,7 @@ protected void consumeClassHeaderImplements() {
 		this.lastCheckPoint = typeDecl.bodyStart;
 	}
 }
-protected void consumeClassHeaderName1() {
-	// ClassHeaderName1 ::= Modifiersopt 'class' 'Identifier'
+private void consumeClassOrRecordHeaderName1(boolean isRecord) {
 	TypeDeclaration typeDecl = new TypeDeclaration(this.compilationUnit.compilationResult);
 	if (this.nestedMethod[this.nestedType] == 0) {
 		if (this.nestedType != 0) {
@@ -2703,6 +2702,9 @@ protected void consumeClassHeaderName1() {
 			length);
 	}
 	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
+	if (isRecord) {
+		typeDecl = new RecordDeclaration(typeDecl);
+	}
 	pushOnAstStack(typeDecl);
 
 	this.listLength = 0; // will be updated when reading super-interfaces
@@ -2715,6 +2717,10 @@ protected void consumeClassHeaderName1() {
 	// javadoc
 	typeDecl.javadoc = this.javadoc;
 	this.javadoc = null;
+}
+protected void consumeClassHeaderName1() {
+	// ClassHeaderName1 ::= Modifiersopt 'class' 'Identifier'
+	consumeClassOrRecordHeaderName1(false);
 }
 protected void consumeClassInstanceCreationExpression() {
 	// ClassInstanceCreationExpression ::= 'new' ClassType '(' ArgumentListopt ')' ClassBodyopt
@@ -10793,15 +10799,13 @@ protected void consumeRecordHeaderNameWithTypeParameters() {
 }
 protected void consumeRecordHeaderName1() {
 	// Modifiersopt RestrictedIdentifierrecord 'Identifier'
-	consumeClassHeaderName1();
-	// do the actual record creation at consumeRecordComponentHeaderRightParen
+	consumeClassOrRecordHeaderName1(true);
 }
 protected void consumeRecordComponentHeaderRightParen() {
 	// RecordComponentHeaderRightParen ::= ')'
 	int length = this.astLengthStack[this.astLengthPtr--];
 	this.astPtr -= length;
-	TypeDeclaration td = (TypeDeclaration) this.astStack[this.astPtr];
-	RecordDeclaration rd = new RecordDeclaration(td);
+	RecordDeclaration rd = (RecordDeclaration) this.astStack[this.astPtr];
 	this.astStack[this.astPtr] = rd;
 //	rd.sourceEnd = 	this.rParenPos;
 	if (length != 0) {

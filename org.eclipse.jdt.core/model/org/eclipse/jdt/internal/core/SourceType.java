@@ -933,7 +933,9 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 		}
 	} else {
 		try {
-			if (isEnum()) {
+			if (isRecord()) {
+				buffer.append("record "); //$NON-NLS-1$
+			} else if (isEnum()) {
 				buffer.append("enum "); //$NON-NLS-1$
 			} else if (isAnnotation()) {
 				buffer.append("@interface "); //$NON-NLS-1$

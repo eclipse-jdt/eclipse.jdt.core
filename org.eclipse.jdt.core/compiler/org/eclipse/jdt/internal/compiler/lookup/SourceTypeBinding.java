@@ -1789,6 +1789,7 @@ public MethodBinding[] methods() {
 		boolean complyTo15OrAbove = this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5;
 		boolean compliance16 = this.scope.compilerOptions().complianceLevel == ClassFileConstants.JDK1_6;
 		int recordCanonIndex = getImplicitCanonicalConstructor();
+		computeRecordComponents();
 		checkAndGetExplicitCanonicalConstructors();
 		int recordEqualsIndex = getImplicitMethod(TypeConstants.EQUALS);
 
@@ -2793,7 +2794,8 @@ public String toString() {
 	if (isStatic() && isNestedType()) buffer.append("static "); //$NON-NLS-1$
 	if (isFinal()) buffer.append("final "); //$NON-NLS-1$
 
-	if (isEnum()) buffer.append("enum "); //$NON-NLS-1$
+	if (isRecord()) buffer.append("record "); //$NON-NLS-1$
+	else if (isEnum()) buffer.append("enum "); //$NON-NLS-1$
 	else if (isAnnotationType()) buffer.append("@interface "); //$NON-NLS-1$
 	else if (isClass()) buffer.append("class "); //$NON-NLS-1$
 	else buffer.append("interface "); //$NON-NLS-1$

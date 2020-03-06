@@ -2178,6 +2178,11 @@ public void testBug560798_002() {
 		"	ElementType.MODULE, ElementType.PACKAGE, ElementType.TYPE, ElementType.TYPE_PARAMETER}})\n" + 
 		"	                                                                                      ^\n" + 
 		"Syntax error on token \"}\", delete this token\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	record R(@MyAnnot()  int i, int j) {}\n" + 
+		"	         ^^^^^^^^\n" + 
+		"The annotation @MyAnnot is disallowed for this location\n" + 
 		"----------\n");
 }
 public void testBug560798_003() throws Exception {
