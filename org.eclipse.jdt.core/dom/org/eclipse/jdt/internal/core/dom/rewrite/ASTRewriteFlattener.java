@@ -863,7 +863,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			javadoc.accept(this);
 		}
 		visitList(node, RecordDeclaration.MODIFIERS2_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
-		this.result.append("enum ");//$NON-NLS-1$
+		this.result.append("record ");//$NON-NLS-1$
 		getChildNode(node, RecordDeclaration.NAME_PROPERTY).accept(this);
 		this.result.append(' ');
 		
