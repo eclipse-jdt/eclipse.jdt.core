@@ -5986,6 +5986,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (this.bootstrapMethods != null) {
 			this.bootstrapMethods.clear();
 		}
+		if (this.recordBootstrapMethods != null) {
+			this.recordBootstrapMethods.clear();
+		}
 		this.missingTypes = null;
 		this.visitedTypes = null;
 	}
