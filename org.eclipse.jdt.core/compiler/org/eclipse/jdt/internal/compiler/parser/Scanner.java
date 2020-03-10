@@ -716,15 +716,6 @@ public char[] getCurrentTextBlock() {
 	this.rawStart = -1;
 	return result.toString().toCharArray();
 }
-private int replaceEscapedChar(StringBuilder result, char[] line, int start, int end, int position, int lastPointer, char c) {
-	if (lastPointer == 0) {
-		result.append(CharOperation.subarray(line, start, position));
-	} else {
-		result.append(CharOperation.subarray(line, lastPointer + 1, position));
-	}
-	result.append(c);
-	return ++position;
-}
 private char[] normalize(char[] content) {
 	StringBuilder result = new StringBuilder();
 	boolean isCR = false;
@@ -757,26 +748,82 @@ private boolean getLineContent(StringBuilder result, char[] line, int start, int
 	for(int i = start; i < end; i++) {
 		char c = line[i];
 		if (c == '\\') {
-			if ( i < end) {
-				switch (line[i+1]) {
+			if (i < end) {
+				if (lastPointer + 1 == i) {
+					lastPointer = i+1;
+				} else {
+					result.append(CharOperation.subarray(line, lastPointer == 0 ? start : lastPointer+1, i));
+				}
+				switch (line[++i]) {
 					case '\\' :
-						lastPointer = replaceEscapedChar(result, line, start, end, i, lastPointer, '\\');
-						if (i+1 == end)
+						result.append('\\');
+						if (i == end)
 							merge = false;
-						i = lastPointer;
+						//i = lastPointer;
+						lastPointer = i;
 						break;
 					case 's' :
-						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, ' ');
+						result.append(' ');
+						lastPointer = i;
 						break;
 					case 'n' :
-						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, '\n');
+						result.append('\n');
+						lastPointer = i;
 						break;
 					case 'r' :
-						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, '\r');
+						result.append('\r');
+						lastPointer = i;
 						break;
 					case 'f' :
-						lastPointer = i = replaceEscapedChar(result, line, start, end, i, lastPointer, '\f');
+						result.append('\f');
+						lastPointer = i;
 						break;
+					default :
+						// Direct copy from scanEscapeCharacter
+						int pos = i;
+						char ch = line[pos];
+						int number = ScannerHelper.getHexadecimalValue(ch);
+						if (number >= 0 && number <= 7) {
+							boolean zeroToThreeNot = number > 3;
+							try {
+								if (ScannerHelper.isDigit(ch = line[++pos])) {
+									int digit = ScannerHelper.getHexadecimalValue(ch);
+									if (digit >= 0 && digit <= 7) {
+										number = (number * 8) + digit;
+										if (ScannerHelper.isDigit(ch = line[++pos])) {
+											if (zeroToThreeNot) {
+												// has read \NotZeroToThree OctalDigit Digit --> ignore last character
+											} else {
+												digit = ScannerHelper.getHexadecimalValue(ch);
+												if (digit >= 0 && digit <= 7){ // has read \ZeroToThree OctalDigit OctalDigit
+													number = (number * 8) + digit;
+												} else {
+													// has read \ZeroToThree OctalDigit NonOctalDigit --> ignore last character
+												}
+											}
+										} else { 
+											// has read \OctalDigit NonDigit--> ignore last character
+										}
+									} else { 
+										// has read \OctalDigit NonOctalDigit--> ignore last character
+									}
+								} else { 
+									// has read \OctalDigit --> ignore last character
+								}
+							} catch (InvalidInputException e) {
+								// Unlikely as this has already been processed in scanForStringLiteral()
+							}
+							if (number < 255) {
+								ch = (char) number;
+								//replaceEscapedChar(result, line, start, end, i, lastPointer, ch);
+							}
+							result.append(ch);
+							lastPointer = i = pos -1;
+						} else {
+							// Dealing with just '\'
+							result.append(c);
+							lastPointer = --i;
+						}
 				}
 			}
 		} 
@@ -2071,18 +2118,31 @@ private int scanForStringLiteral() throws InvalidInputException {
 								this.withoutUnicodePtr --;
 								this.currentCharacter = this.source[this.currentPosition++];
 							}
+							int oldPos = this.currentPosition - 1;
 							scanEscapeCharacter();
-							if (this.currentCharacter == ' ') {
-								if (this.withoutUnicodePtr == 0) {
-									unicodeInitializeBuffer(this.currentPosition - this.startPosition);
-								}
-								// Kludge, retain the '\' and also
-								// when scanEscapeCharacters reads space in form of \040 and
-								// set the next character to 's'
-								// so, we get an escaped scape, i.e. \s, which will later be 
-								// replaced by space
-								unicodeStore('\\');
-								this.currentCharacter = 's';
+							switch (this.currentCharacter) {
+								case ' ':
+									if (this.withoutUnicodePtr == 0) {
+										unicodeInitializeBuffer(this.currentPosition - this.startPosition);
+									}
+									// Kludge, retain the '\' and also
+									// when scanEscapeCharacter reads space in form of \040 and
+									// set the next character to 's'
+									// so, we get an escaped scape, i.e. \s, which will later be 
+									// replaced by space
+									unicodeStore('\\');
+									this.currentCharacter = 's';
+									break;
+								case '\r':
+								case '\n':
+									if (this.withoutUnicodePtr == 0) {
+										unicodeInitializeBuffer(this.currentPosition - this.startPosition);
+									}
+									unicodeStore('\\');
+									this.currentPosition = oldPos;
+									this.currentCharacter = this.source[this.currentPosition];
+									break outer;
+									
 							}
 					}
 					if (this.withoutUnicodePtr != 0) {
@@ -3254,7 +3314,6 @@ private ScanContext getScanContext(int begin) {
 	ScanContextDetector parser = new ScanContextDetector(options);
 	return parser.getScanContext(this.source, begin - 1);
 }
-
 protected final void scanEscapeCharacter() throws InvalidInputException {
 	// the string with "\\u" is a legal string of two chars \ and u
 	//thus we use a direct access to the source (for regular cases).
