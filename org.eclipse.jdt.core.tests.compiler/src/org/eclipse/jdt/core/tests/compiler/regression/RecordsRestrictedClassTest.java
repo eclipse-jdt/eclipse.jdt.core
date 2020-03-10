@@ -33,7 +33,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug560770_001" };
+//		TESTS_NAMES = new String[] { "testBug560798_002" };
 	}
 	
 	public static Class<?> testClass() {
@@ -2165,7 +2165,7 @@ public void testBug560798_002() {
 			"import java.lang.annotation.Target;\n"+
 			"import java.lang.annotation.ElementType;\n"+
 			"@Target({ElementType.ANNOTATION_TYPE, ElementType.CONSTRUCTOR, ElementType.LOCAL_VARIABLE,\n" + 
-			"	ElementType.MODULE, ElementType.PACKAGE, ElementType.TYPE, ElementType.TYPE_PARAMETER}})\n"+
+			"	ElementType.MODULE, ElementType.PACKAGE, ElementType.TYPE, ElementType.TYPE_PARAMETER})\n"+
 			"@interface MyAnnot {}\n"+
 			"record R(@MyAnnot()  int i, int j) {}\n" +
 			"class X {\n"+
@@ -2174,12 +2174,7 @@ public void testBug560798_002() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in X.java (at line 4)\n" + 
-		"	ElementType.MODULE, ElementType.PACKAGE, ElementType.TYPE, ElementType.TYPE_PARAMETER}})\n" + 
-		"	                                                                                      ^\n" + 
-		"Syntax error on token \"}\", delete this token\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 6)\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
 		"	record R(@MyAnnot()  int i, int j) {}\n" + 
 		"	         ^^^^^^^^\n" + 
 		"The annotation @MyAnnot is disallowed for this location\n" + 
