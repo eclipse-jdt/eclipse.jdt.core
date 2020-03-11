@@ -36,6 +36,7 @@ public class RecordDeclaration extends TypeDeclaration {
 
 	private Argument[] args;
 	public int nRecordComponents;
+	public boolean isLocalRecord;
 	public static Set<String> disallowedComponentNames;
 	static {
 		disallowedComponentNames = new HashSet<>(6);
@@ -148,9 +149,12 @@ public class RecordDeclaration extends TypeDeclaration {
 			constructor.sourceEnd = constructor.bodyEnd =  this.sourceStart - 1;
 
 		//the super call inside the constructor
-		// needExplicitConstructorCall is ignored for RecordDeclaration.
-
-		/* The body of the implicitly declared canonical constructor initializes each field corresponding
+		if (needExplicitConstructorCall) {
+			constructor.constructorCall = SuperReference.implicitSuperConstructorCall();
+			constructor.constructorCall.sourceStart = this.sourceStart;
+			constructor.constructorCall.sourceEnd = this.sourceEnd;
+		}
+	/* The body of the implicitly declared canonical constructor initializes each field corresponding
 		 * to a record component with the corresponding formal parameter in the order that they appear
 		 * in the record component list.*/
 		List<Statement> statements = new ArrayList<>();

@@ -1095,6 +1095,7 @@ InterfaceMemberDeclaration -> ClassDeclaration
 InterfaceMemberDeclaration -> InterfaceDeclaration
 InterfaceMemberDeclaration -> EnumDeclaration
 InterfaceMemberDeclaration -> AnnotationTypeDeclaration
+InterfaceMemberDeclaration -> RecordDeclaration
 /:$readableName InterfaceMemberDeclaration:/
 
 -----------------------------------------------
@@ -1282,6 +1283,7 @@ BlockStatement -> LocalVariableDeclarationStatement
 BlockStatement -> Statement
 --1.1 feature
 BlockStatement -> ClassDeclaration
+BlockStatement -> RecordDeclaration
 BlockStatement ::= InterfaceDeclaration
 /.$putCase consumeInvalidInterfaceDeclaration(); $break ./
 /:$readableName BlockStatement:/

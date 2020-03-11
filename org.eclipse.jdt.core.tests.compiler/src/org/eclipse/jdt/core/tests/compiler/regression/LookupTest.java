@@ -455,20 +455,15 @@ public void test013() {
 			"}"
 		},
 		"----------\n" +
-		"1. ERROR in p1\\A.java (at line 9)\n" +
-		"	public class aClass implements B, B.C {			\n" +
-		"	             ^^^^^^\n" +
-		"The type A.aClass must implement the inherited abstract method A.B.C.anotherMethod(int)\n" +
-		"----------\n" +
-		"2. ERROR in p1\\A.java (at line 11)\n" +
-		"	public void anotherMethod(int A) {};	\n" +
-		"	                         ^\n" +
-		"Syntax error on token \"(\", ; expected\n" +
-		"----------\n" +
-		"3. ERROR in p1\\A.java (at line 11)\n" +
-		"	public void anotherMethod(int A) {};	\n" +
-		"	                               ^\n" +
-		"Syntax error on token \")\", ; expected\n" +
+		"1. ERROR in p1\\A.java (at line 9)\n" + 
+		"	public class aClass implements B, B.C {			\n" + 
+		"	             ^^^^^^\n" + 
+		"The type A.aClass must implement the inherited abstract method A.B.C.anotherMethod(int)\n" + 
+		"----------\n" + 
+		"2. ERROR in p1\\A.java (at line 11)\n" + 
+		"	public void anotherMethod(int A) {};	\n" + 
+		"	       ^^^^\n" + 
+		"Syntax error on token \"void\", record expected\n" + 
 		"----------\n"
 	);
 }

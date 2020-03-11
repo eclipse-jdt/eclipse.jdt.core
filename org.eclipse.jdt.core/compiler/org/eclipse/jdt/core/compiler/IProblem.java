@@ -2317,6 +2317,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.21 BETA_JAVA14
 	 * @noreference preview feature error */
 	int RecordIllegalVararg= PreviewRelated + 1754;
+	/** @since 3.21 BETA_JAVA14
+	 * @noreference preview feature error */
+	int RecordStaticReferenceToOuterLocalVariable= PreviewRelated + 1755;
 	/* records - end */
 	/* instanceof pattern: */
 	/** @since 3.21 BETA_JAVA14

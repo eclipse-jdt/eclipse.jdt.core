@@ -1028,6 +1028,12 @@ public TypeBinding resolveType(BlockScope scope) {
 							if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) // for 8, defer till effective finality could be ascertained.
 								scope.problemReporter().cannotReferToNonFinalOuterLocal((LocalVariableBinding)variable, this);
 						}
+						if (this.actualReceiverType.isRecord() && this.actualReceiverType.isLocalType()) {// JLS 14 Sec 14.3
+							if ((variable.modifiers & ClassFileConstants.AccStatic) == 0 &&
+									(this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
+								scope.problemReporter().recordStaticReferenceToOuterLocalVariable((LocalVariableBinding)variable, this);
+							}
+						}
 						variableType = variable.type;
 						this.constant = (this.bits & ASTNode.IsStrictlyAssigned) == 0 ? variable.constant(scope) : Constant.NotAConstant;
 					} else {

@@ -11689,4 +11689,13 @@ public void recordIllegalVararg(Argument argType, RecordDeclaration recordDecl) 
 		argType.sourceStart,
 		argType.sourceEnd);
 }
+public void recordStaticReferenceToOuterLocalVariable(LocalVariableBinding local, ASTNode node) {
+	String[] arguments = new String[] {new String(local.readableName())};
+	this.handle(
+		IProblem.RecordStaticReferenceToOuterLocalVariable,
+		arguments,
+		arguments,
+		node.sourceStart,
+		node.sourceEnd);
+}
 }

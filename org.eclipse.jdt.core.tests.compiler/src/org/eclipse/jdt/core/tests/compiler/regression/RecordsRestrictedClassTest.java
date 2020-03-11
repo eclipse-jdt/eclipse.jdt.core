@@ -2251,4 +2251,130 @@ public void testBug560770_001() {
 		options
 	);
 }
+public void testBug560893_001() {
+	runConformTest(
+			new String[] {
+				"X.java",
+				"interface I{\n"+
+				"record R(int x, int y) {}\n"+
+				"}\n" +
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"           System.out.println(0);\n"+
+				"       }\n"+
+				"}\n"
+			},
+		 "0");
+}
+public void testBug560893_002() {
+	runConformTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"           record R(int x, int y) {}\n"+
+				"           System.out.println(0);\n"+
+				"       }\n"+
+				"}\n"
+			},
+		 "0");
+}
+public void testBug560893_003() {
+	runConformTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"           record R(int x, int y) {}\n"+
+				"           R r =  new R(100,200);\n"+
+				"           System.out.println(r.x());\n"+
+				"       }\n"+
+				"}\n"
+			},
+		 "100");
+}
+public void testBug560893_004() {
+	runConformTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"           record R(int x, int y) {\n"+
+				"               static int i;\n"+
+				"       	}\n"+
+				"           R r =  new R(100,200);\n"+
+				"           System.out.println(r.x());\n"+
+				"       }\n"+
+				"}\n"
+			},
+		 "100");
+}
+public void testBug560893_005() {
+	runConformTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"           record R(int x, int y) {\n"+
+				"               static int i;\n"+
+				"               public void ff() {\n"+
+				"                	int jj;\n"+
+				"       		}\n"+
+				"               static int ii;\n"+
+				"       	}\n"+
+				"           R r =  new R(100,200);\n"+
+				"           System.out.println(r.x());\n"+
+				"       }\n"+
+				"}\n"
+			},
+		 "100");
+}
+public void testBug560893_006() {
+	runConformTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"       public static void main(String[] args) {\n"+
+				"           static record R(int x, int y) {}\n"+
+				"           R r =  new R(100,200);\n"+
+				"           System.out.println(r.x());\n"+
+				"       }\n"+
+				"}\n"
+			},
+		 "100");
+}
+public void testBug560893_007() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"    static int si;\n"+
+			"    int nsi;\n"+
+			"\n"+
+			"    void m() {\n"+
+			"        int li;\n"+
+			"\n"+
+			"        record R(int r) {\n"+
+			"            void print() {\n"+
+			"                System.out.println(li);  // error, local variable\n"+
+			"                System.out.println(nsi); // error, non-static member\n"+
+			"                System.out.println(si);  // ok, static member of enclosing class\n"+
+			"            }\n"+
+			"        }\n"+
+			"        R r = new R(10);\n"+
+			"    }\n"+
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	System.out.println(li);  // error, local variable\n" + 
+		"	                   ^^\n" + 
+		"Cannot make a static reference to the non-static variable li from a local record\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	System.out.println(nsi); // error, non-static member\n" + 
+		"	                   ^^^\n" + 
+		"Cannot make a static reference to the non-static field nsi\n" + 
+		"----------\n");
+}
 }

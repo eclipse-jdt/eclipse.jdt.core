@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -684,8 +688,7 @@ public void test05() {
 		"  }\n" +
 		"  void foo() {\n" +
 		"    System.out.println();\n" +
-		"    new baz() {\n" +
-		"    };\n" +
+		"    void baz;\n" + 
 		"  }\n" +
 		"  void bar() {\n" +
 		"  }\n" +
@@ -7043,13 +7046,7 @@ public void test117() {
 			"        super();\n" +
 			"      }\n" +
 			"    }\n" +
-			"    new foo2() {\n" +
-			"    };\n" +
-			"    class Z<T> {\n" +
-			"      Z() {\n" +
-			"        super();\n" +
-			"      }\n" +
-			"    }\n" +
+			"    void foo2;\n" +
 			"  }\n" +
 			"}\n";
 
@@ -7128,13 +7125,7 @@ public void test117_2() {
 		"        super();\n" +
 		"      }\n" +
 		"    }\n" +
-		"    new foo2() {\n" +
-		"    };\n" +
-		"    class Z {\n" +
-		"      Z() {\n" +
-		"        super();\n" +
-		"      }\n" +
-		"    }\n" +
+		"    void foo2;\n" +
 		"  }\n" +
 		"}\n";
 
