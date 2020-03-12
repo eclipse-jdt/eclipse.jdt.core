@@ -10164,4 +10164,25 @@ public void testBug508834_comment0() {
 			"Jane <jane@example.com>\n" + 
 			"Joe <joe@example.com>");
 	}
+	public void testBug560566() {
+		runNegativeTest(
+			new String[] {
+				"Tester.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.stream.Collectors;\n" + 
+				"import java.util.stream.Stream;\n" + 
+				"\n" + 
+				"public class Tester {\n" + 
+				"    {\n" + 
+				"        Stream.empty().collect(Collectors.toList(ArrayList::new));\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" + 
+			"1. ERROR in Tester.java (at line 7)\n" + 
+			"	Stream.empty().collect(Collectors.toList(ArrayList::new));\n" + 
+			"	                                  ^^^^^^\n" + 
+			"The method toList() in the type Collectors is not applicable for the arguments (ArrayList::new)\n" + 
+			"----------\n");
+	}
 }

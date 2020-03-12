@@ -550,6 +550,8 @@ public class InferenceContext18 {
 			for (int i = 0; i < arguments.length; i++) {
 				Expression argument = arguments[i];
 				TypeBinding parameter = getParameter(method.parameters, i, method.isVarargs());
+				if (parameter == null)
+					return ReductionResult.FALSE;
 				parameter = substitution.substitute(substitution, parameter); 
 				ReductionResult result = addJDK_8153748ConstraintsFromExpression(argument, parameter, method, substitution);
 				if (result == ReductionResult.FALSE)
