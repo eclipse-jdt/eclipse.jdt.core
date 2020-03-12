@@ -251,7 +251,7 @@ void computeLocalVariablePositions(int ilocal, int initOffset, CodeStream codeSt
 			// check if variable is actually used, and may force it to be preserved
 			boolean generateCurrentLocalVar = (local.useFlag > LocalVariableBinding.UNUSED && local.constant() == Constant.NotAConstant);
 
-			// do not report fake used variable
+			// do not report most fake used variable
 			if (local.useFlag == LocalVariableBinding.UNUSED
 				&& (local.declaration != null) // unused (and non secret) local
 				&& ((local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0)) { // declaration is reachable
@@ -262,6 +262,8 @@ void computeLocalVariablePositions(int ilocal, int initOffset, CodeStream codeSt
 				else {
 					problemReporter().unusedLocalVariable(local.declaration);
 				}
+			} else if (local.useFlag == LocalVariableBinding.FAKE_USED && (local.tagBits & TagBits.IsResource) != 0) {
+				problemReporter().unusedLocalVariable(local.declaration);
 			}
 
 			// could be optimized out, but does need to preserve unread variables ?

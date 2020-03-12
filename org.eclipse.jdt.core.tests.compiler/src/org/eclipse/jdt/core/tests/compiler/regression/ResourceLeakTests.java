@@ -6486,6 +6486,7 @@ public void testBug560671() {
 	Map options = getCompilerOptions(); 
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 	runConformTest(
 		new String[] {
 			"X.java",

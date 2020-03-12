@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2018 IBM Corporation and others.
+ * Copyright (c) 2011, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -4319,6 +4319,31 @@ public void testBug467230() {
 			"	at Test.f(Test.java:19)\n" + 
 			"	at Test.main(Test.java:14)\n",
 			null);
+}
+public void testBug560733() {
+	Runner runner = new Runner();
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	runner.customOptions = options;
+	runner.testFiles = new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"public class X {\n" +
+			"	void method() throws IOException {\n" + 
+			"		try(InputStream in = getClass().getResourceAsStream(\"file\")) {\n" + 
+			"       	System.out.println(\"in is never used.\");\n" + 
+			"   	}\n" + 
+			"	}\n" +
+			"}\n"
+		};
+	runner.expectedCompilerLog =
+			"----------\n" + 
+			"1. WARNING in X.java (at line 4)\n" + 
+			"	try(InputStream in = getClass().getResourceAsStream(\"file\")) {\n" + 
+			"	                ^^\n" + 
+			"The value of the local variable in is not used\n" + 
+			"----------\n";
+	runner.runWarningTest();
 }
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;

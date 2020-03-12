@@ -163,7 +163,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				resolvedType = ((Expression) resource).resolvedType;
 			}
 			if (localVariableBinding != null) {
-				localVariableBinding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
+				localVariableBinding.useFlag = LocalVariableBinding.FAKE_USED; // Is implicitly used anyways (technically -- may still be "unneeded")
 				if (localVariableBinding.closeTracker != null) {
 					// this was false alarm, we don't need to track the resource
 					localVariableBinding.closeTracker.withdraw();
