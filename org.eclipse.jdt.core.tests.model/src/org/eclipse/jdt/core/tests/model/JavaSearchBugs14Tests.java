@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.core.SourceType;
 
 import junit.framework.Test;
 
-public class JavaSearchBugs14RecordTests extends AbstractJavaSearchTests {
+public class JavaSearchBugs14Tests extends AbstractJavaSearchTests {
 
 	static {
 //	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
@@ -45,12 +45,12 @@ public class JavaSearchBugs14RecordTests extends AbstractJavaSearchTests {
 //		TESTS_NAMES = new String[] {"testBug542559_001"};
 }
 
-public JavaSearchBugs14RecordTests(String name) {
+public JavaSearchBugs14Tests(String name) {
 	super(name);
 	this.endChar = "";
 }
 public static Test suite() {
-	return buildModelTestSuite(JavaSearchBugs14RecordTests.class, BYTECODE_DECLARATION_ORDER);
+	return buildModelTestSuite(JavaSearchBugs14Tests.class, BYTECODE_DECLARATION_ORDER);
 }
 class TestCollector extends JavaSearchResultCollector {
 	public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
@@ -894,6 +894,130 @@ public void testBug560486_028() throws CoreException {
 	assertTrue(elements.length ==1);
 	assertTrue(!(elements[0] instanceof SourceType));
 	assertTrue((elements[0] instanceof SourceField));
+
+}
+
+//Bug 561048 code selection
+public void testBug561048_029() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"public class cl {\n"+
+		"public cl() {\n"+
+		"	method1();\n"+
+		"}\n"+		
+	"private void method1() {\n"+
+	"	String y= this.toString();\n"+
+	"	if (y instanceof String /*here*/yz) {\n"+
+	"	      System.out.println(yz.toLowerCase());\n"+
+	"	      System.out.println(yz.charAt(0));\n"+
+	"	}\n"+
+	"}\n"+
+	"}\n"
+			);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "/*here*/yz";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	assertTrue(elements.length ==1);
+	assertTrue((elements[0] instanceof LocalVariable));
+
+}
+
+public void testBug561048_030() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"public class cl {\n"+
+		"public cl() {\n"+
+		"	method1();\n"+
+		"}\n"+		
+	"private void method1() {\n"+
+	"	String y= this.toString();\n"+
+	"	if (y instanceof String /*here*/yz) {\n"+
+	"	      System.out.println(yz.toLowerCase());\n"+
+	"	}\n"+
+	"}\n"+
+	"}\n"
+			);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "/*here*/yz";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	assertTrue(elements.length ==1);
+	assertTrue((elements[0] instanceof LocalVariable));
+	search(elements[0], REFERENCES, EXACT_RULE);
+	assertSearchResults(
+			"src/X.java void cl.method1() [yz] EXACT_MATCH");
+
+}
+
+public void testBug561048_031() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"public class cl {\n"+
+		"public cl() {\n"+
+		"	method1();\n"+
+		"}\n"+		
+	"private void method1() {\n"+
+	"	String y= this.toString();\n"+
+	"	if (y instanceof String /*here*/yz) {\n"+
+	"	      System.out.println(yz.toLowerCase());\n"+
+	"	      System.out.println(yz.charAt(0));\n"+
+	"	}\n"+
+	"}\n"+
+	"}\n"
+			);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "/*here*/yz";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	assertTrue(elements.length ==1);
+	assertTrue((elements[0] instanceof LocalVariable));
+	search(elements[0], REFERENCES, EXACT_RULE);
+	assertSearchResults(
+			"src/X.java void cl.method1() [yz] EXACT_MATCH\n" + 
+			"src/X.java void cl.method1() [yz] EXACT_MATCH");
+
+}
+
+// mix Instance of pattern variable  and record
+public void testBug561048_032() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"public record cl() {\n"+
+		"public cl{\n"+
+		"	method1();\n"+
+		"}\n"+		
+	"private void method1() {\n"+
+	"	String y= this.toString();\n"+
+	"	if (y instanceof String /*here*/yz) {\n"+
+	"	      System.out.println(yz.toLowerCase());\n"+
+	"	      System.out.println(yz.charAt(0));\n"+
+	"	}\n"+
+	"}\n"+
+	"}\n"
+			);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "/*here*/yz";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	assertTrue(elements.length ==1);
+	assertTrue((elements[0] instanceof LocalVariable));
+	search(elements[0], REFERENCES, EXACT_RULE);
+	assertSearchResults(
+			"src/X.java void cl.method1() [yz] EXACT_MATCH\n" + 
+			"src/X.java void cl.method1() [yz] EXACT_MATCH");
 
 }
 
