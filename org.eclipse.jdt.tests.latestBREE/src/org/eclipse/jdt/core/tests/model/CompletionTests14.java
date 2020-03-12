@@ -360,6 +360,28 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		
 	
 	}
+	public void testBug560781() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Point.java",
+				"public record  Point(int comp_) { \n" +
+						"}\n"+
+				"class MyClass extends /*here*/Poin	\n" 	
+				);
+	
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "/*here*/Poin";
+		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"",
+						requestor.getResults());
+		
+	
+	}
 	
 	
 }
