@@ -6481,4 +6481,45 @@ public void testBug560610() {
 		"",
 		options);
 }
+public void testBug560671() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // uses t-w-r
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Scanner;\n" +
+			"public class X {\n" +
+			"	void m(String source) {\n" + 
+			"		try (Scanner s = new Scanner(source).useDelimiter(\"foobar\")) {\n" + 
+			"			System.out.println(s.next());\n" + 
+			"		}\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		options);
+}
+public void testBug560671b() {
+	Map options = getCompilerOptions(); 
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.Scanner;\n" +
+			"public class X {\n" +
+			"	void m(String source) throws java.io.IOException {\n" +
+			"		Scanner s = null;" + 
+			"		try {\n" +
+			"			s = new Scanner(source).useDelimiter(\"foobar\");\n" + 
+			"			System.out.println(s.next());\n" + 
+			"		} finally {\n" +
+			"			if (s != null) s.close();\n" +
+			"		}\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		options);
+}
 }
