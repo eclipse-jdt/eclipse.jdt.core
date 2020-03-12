@@ -2785,7 +2785,7 @@ public final class JavaCore extends Plugin {
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.codeComplete.subwordMatch"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
-	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * <dt>Default:</dt><dd><code>"enabled"</code></dd>
 	 * </dl>
 	 * @since 3.21
 	 * @category CodeAssistOptionID
