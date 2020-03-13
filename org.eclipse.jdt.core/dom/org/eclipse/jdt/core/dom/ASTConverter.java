@@ -2149,10 +2149,11 @@ class ASTConverter {
 		instanceOfExpression.setRightOperand(convertType);
 		int startPosition = leftExpression.getStartPosition();
 		int sourceEnd = convertType.getStartPosition() + convertType.getLength() - 1;
-		instanceOfExpression.setSourceRange(startPosition, sourceEnd - startPosition + 1);
 		if (DOMASTUtil.isInstanceofExpressionPatternSupported(this.ast) && expression.elementVariable != null) {
 			instanceOfExpression.setPatternVariable(convertToSingleVariableDeclaration(expression.elementVariable));
+			sourceEnd= expression.elementVariable.sourceEnd;
 		}
+		instanceOfExpression.setSourceRange(startPosition, sourceEnd - startPosition + 1);
 		return instanceOfExpression;
 	}
 
