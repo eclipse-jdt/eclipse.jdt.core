@@ -213,6 +213,11 @@ public class Javadoc extends ASTNode {
 		// @param tags
 		int paramTagsSize = this.paramReferences == null ? 0 : this.paramReferences.length;
 		for (int i = 0; i < paramTagsSize; i++) {
+			if(scope.referenceContext instanceof RecordDeclaration) {			
+				RecordDeclaration rd = (RecordDeclaration)scope.referenceContext;
+				if(  rd.nRecordComponents > 0)
+					break;
+			}
 			JavadocSingleNameReference param = this.paramReferences[i];
 			scope.problemReporter().javadocUnexpectedTag(param.tagSourceStart, param.tagSourceEnd);
 		}
