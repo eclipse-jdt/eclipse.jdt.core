@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2020 IBM Corporation and others.
+ * Copyright (c) 2020 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.tests.compiler.regression.latest;
+package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +24,16 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-@SuppressWarnings("preview")
+/**
+ * This is almost a copy of the one in org.eclipse.jdt.tests.latestBREE.
+ * The other one also includes tests that are coded using the latest language
+ * features and API. However, the bundle is not yet setup to run with the build
+ * hence this is a temporary arrangement to keep the tests being run. The recommended 
+ * strategy is to keep this one updated and when the time comes, move this over 
+ * to the other bundle after synch-up of tests from both.
+ * @author jay
+ *
+ */
 public class TextBlockTest extends AbstractRegressionTest {
 
 	static {
@@ -489,33 +498,6 @@ public class TextBlockTest extends AbstractRegressionTest {
 				new String[] {"--enable-preview"});
 	}
 	/*
-	 * positive - html code with indentation with empty lines
-	 * output compared with String API
-	 */
-	public void test016b() {
-		String text = "<html>\n" + 
-					"    <body>\n" + 
-					"      <p>Hello, world</p>\n" + 
-					"    </body>\n" + 
-					"  </html>";
-		runConformTest(
-				new String[] {
-						"X.java",
-						"public class X {\n" +
-						"	static String html = \"\"\"\n" + 
-						text + "\\n" +
-						"\"\"\";\n" +
-						"	public static void main(String[] args) {\n" +
-						"		System.out.println(html);\n" +
-						"	}\n" +
-						"}\n"
-				},
-				text.stripIndent().translateEscapes(),
-				null,
-				new String[] {"--enable-preview"});
-			
-	}
-	/*
 	 * positive - html code with indentation with \r as terminator
 	 */
 	public void test016c() {
@@ -682,50 +664,6 @@ public class TextBlockTest extends AbstractRegressionTest {
 				null,
 				new String[] {"--enable-preview"});
 	}
-	/*
-	 * positive - escaped '\', compare with String::translateEscapes
-	 */
-	public void test022() {
-		String text = "abc\\\\def";
-		runConformTest(
-				new String[] {
-						"X.java",
-						"public class X {\n" +
-						"	public static String textb = \"\"\"\n" + 
-						text + 
-						"\"\"\";\n" +
-						"	public static void main(String[] args) {\n" +
-						"		System.out.print(textb);\n" +
-						"	}\n" +
-						"}\n"
-				},
-				text.translateEscapes(),
-				null,
-				new String[] {"--enable-preview"});
-	}
-	/*
-	 * positive - escaped """, compare output with 
-	 * 							String::translateEscapes
-	 * 							String::stripIndent
-	 */
-	public void test023() {
-		String text = "abc\\\"\"\"def\"  ";
-		runConformTest(
-				new String[] {
-						"X.java",
-						"public class X {\n" +
-						"	public static String textb = \"\"\"\n" + 
-						text + 
-						"\"\"\";\n" +
-						"	public static void main(String[] args) {\n" +
-						"		System.out.println(textb);\n" +
-						"	}\n" +
-						"}\n"
-				},
-				text.translateEscapes().stripIndent(),
-				null,
-				new String[] {"--enable-preview"});
-	}
 	public void test024() {
 		runConformTest(
 				new String[] {
@@ -769,17 +707,14 @@ public class TextBlockTest extends AbstractRegressionTest {
 	public void test025() {
 		runNegativeTest(
 				new String[] {
-						"""
-						X.java""",
-						"""
-						public class X {
-							public static String textb = \"""
-									abc\\def\""";
-							public static void main(String[] args) {
-								System.out.println(textb);
-							}
-						}
-						"""
+						"X.java",
+						"public class X {\n" + 
+						"		public static String textb = \"\"\"\n" +
+						"			abc\\def\"\"\";\n" +
+						"		public static void main(String[] args) {\n" + 
+						"			System.out.println(textb);\n" + 
+						"		}\n" + 
+						"	}"
 				}, 
 				"----------\n" + 
 				"1. ERROR in X.java (at line 2)\n" + 
@@ -792,26 +727,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 				true,
 				getCompilerOptions());
 	}
-	public void test026() {
-		String text = "abc\\\\def";
-		runConformTest(
-				new String[] {
-						"""
-						X.java""",
-						"""
-						public class X {
-							public static String textb = \"""
-									abc\\\\def\""";
-							public static void main(String[] args) {
-								System.out.println(textb);
-							}
-						}
-						"""
-				}, 
-				text.translateEscapes(),
-				getCompilerOptions(),
-				new String[] {"--enable-preview"});
-	}
+	
 	public void test027() {
 		runConformTest(
 				new String[] {

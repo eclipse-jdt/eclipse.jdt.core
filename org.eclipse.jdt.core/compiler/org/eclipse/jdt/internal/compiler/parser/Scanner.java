@@ -580,9 +580,6 @@ public char[] getCurrentTokenSourceString() {
 	return result;
 }
 protected final boolean scanForTextBlockBeginning() {
-	if (this.activeParser != null && !this.activeParser.isParsingJava14()) {
-		return false;
-	}
 	try {
 		// Don't change the position and current character unless we are certain
 		// to be dealing with a text block. For producing all errors like before

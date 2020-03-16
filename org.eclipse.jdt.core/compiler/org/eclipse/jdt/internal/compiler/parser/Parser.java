@@ -9765,7 +9765,7 @@ protected void consumeStaticOnly() {
 }
 protected void consumeTextBlock() {
 	if (!this.parsingJava14Plus) {
-		problemReporter().previewFeatureNotSupported(this.scanner.startPosition, this.scanner.currentPosition - 1, "Text Blocks", CompilerOptions.VERSION_13); //$NON-NLS-1$
+		problemReporter().previewFeatureNotSupported(this.scanner.startPosition, this.scanner.currentPosition - 1, "Text Blocks", CompilerOptions.VERSION_14); //$NON-NLS-1$
 	} else if (!this.options.enablePreviewFeatures){
 		problemReporter().previewFeatureNotEnabled(this.scanner.startPosition, this.scanner.currentPosition - 1, "Text Blocks"); //$NON-NLS-1$
 	} else {
