@@ -92,7 +92,9 @@ public class JavadocTestForRecord extends JavadocTest {
 		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_Release, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14); // FIXME
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return options;
@@ -106,6 +108,23 @@ public class JavadocTestForRecord extends JavadocTest {
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("14"));
+	}
+
+	@Override
+	protected void runConformTest(String[] testFiles, String expectedOutput) {
+		runConformTest(testFiles, expectedOutput, getCompilerOptions());
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map customOptions) {
+		Runner runner = new Runner();
+		runner.testFiles = testFiles;
+		runner.expectedOutputString = expectedOutput;
+		runner.vmArguments = new String[] { "--enable-preview" };
+		runner.customOptions = customOptions;
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("14");
+		runner.runConformTest();
 	}
 
 	protected void setUp() throws Exception {
@@ -134,6 +153,14 @@ public class JavadocTestForRecord extends JavadocTest {
 				"----------\n" + "1. ERROR in X.java (at line 5)\n" + "	public void foo() {\n" + "	            ^^^^^\n"
 						+ "Javadoc: Missing comment for public declaration\n" + "----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	}
+
+	public void test003() {
+		runConformTest(new String[] { "X.java",
+				"		/**  \n" + "		 *   \n" + "		 */  \n" + "public record X() {\n" + "		/**  \n"
+						+ "		 *   @param args \n" + "		 */  \n" + "  public static void main(String[] args){\n"
+						+ "     System.out.println(0);\n" + "  }\n" + "}" },
+				"0");
 	}
 
 }
