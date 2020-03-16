@@ -3643,7 +3643,7 @@ public final class AST {
 	
 	/**
 	 * 
-	 * @return If previewEnabled flag is set to <code>true</true>, return <code>true</code> else <code>false</code>
+	 * @return If previewEnabled flag is set to <code>true</code>, return <code>true</code> else <code>false</code>
 	 * @since 3.21 BETA_JAVA
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
