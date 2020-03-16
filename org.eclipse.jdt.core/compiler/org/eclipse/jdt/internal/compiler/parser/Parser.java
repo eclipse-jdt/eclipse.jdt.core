@@ -3125,7 +3125,7 @@ private void populateCompactConstructor(CompactConstructorDeclaration ccd) {
 	//highlight starts at the selector starts
 	ccd.sourceStart = (int) (selectorSource >>> 32);
 	pushOnAstStack(ccd);
-	ccd.sourceEnd = ccd.sourceStart + 1; // no lParen for compact constructor
+	ccd.sourceEnd = ccd.sourceStart + ccd.selector.length - 1; // no lParen for compact constructor
 	ccd.bodyStart = ccd.sourceStart + ccd.selector.length;
 	this.listLength = 0; // initialize this.listLength before reading parameters/throws
 

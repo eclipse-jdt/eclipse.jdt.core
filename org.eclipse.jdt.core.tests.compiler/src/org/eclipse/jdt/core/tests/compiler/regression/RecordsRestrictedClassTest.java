@@ -431,7 +431,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	private Point {\n" + 
-			"	        ^^\n" + 
+			"	        ^^^^^\n" + 
 			"The canonical constructor Point of a record declaration must be declared public.\n" + 
 			"----------\n");
 	}
@@ -455,7 +455,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	protected Point {\n" + 
-			"	          ^^\n" + 
+			"	          ^^^^^\n" + 
 			"The canonical constructor Point of a record declaration must be declared public.\n" + 
 			"----------\n");
 	}
@@ -1095,7 +1095,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	public Point {\n" + 
-			"	       ^^\n" + 
+			"	       ^^^^^\n" + 
 			"Duplicate method Point(Integer, int) in type Point\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
@@ -1413,7 +1413,7 @@ public void testBug553153_01() {
 		"----------\n" +
 		"1. ERROR in X.java (at line 7)\n" +
 		"	public Point {\n" + 
-		"	       ^^\n" + 
+		"	       ^^^^^\n" + 
 		"The blank final field myChar may not have been initialized\n" +
 		"----------\n");
 }
@@ -1887,7 +1887,7 @@ public void testBug559574_001() {
 			"----------\n" +
 			"1. ERROR in X.java (at line 2)\n" + 
 			"	public XX3  {}\n" + 
-			"	       ^^\n" + 
+			"	       ^^^\n" + 
 			"Return type for the method is missing\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
