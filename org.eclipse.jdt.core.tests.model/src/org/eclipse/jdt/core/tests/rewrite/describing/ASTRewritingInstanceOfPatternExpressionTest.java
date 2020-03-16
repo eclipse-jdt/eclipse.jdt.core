@@ -62,7 +62,7 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 		}
 	}
 	 	
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void test001() throws Exception {
 		if (this.apiLevel != 14) {
 			System.err.println("Test "+getName()+" requires a JRE 14");
