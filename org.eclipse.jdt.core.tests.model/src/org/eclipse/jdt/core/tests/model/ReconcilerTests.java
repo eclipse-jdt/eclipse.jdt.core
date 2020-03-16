@@ -5964,9 +5964,9 @@ public void testBug534865() throws CoreException, IOException {
 	}
 }
 public void testBug559774() throws CoreException, IOException, InterruptedException {
+	if (!isJRE14) return;
 	IJavaProject project14 = null;
 	try {
-		//project14 = createJavaProject("Reconciler14", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin");
 		project14 = createJava14Project("Reconciler14", new String[] {"src"});
 		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
 		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
