@@ -3188,7 +3188,7 @@ public void generateSyntheticBodyForRecordHashCode(SyntheticMethodBinding method
 	aload_0();
 	String sig = new String(methodBinding.signature());
 	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
-	invokeDynamic(index, methodBinding.parameters.length, 4, methodBinding.selector, sig.toCharArray());
+	invokeDynamic(index, methodBinding.parameters.length, 1, methodBinding.selector, sig.toCharArray());
 	ireturn();
 }
 public void generateSyntheticBodyForRecordToString(SyntheticMethodBinding methodBinding, int index) {
@@ -3196,7 +3196,7 @@ public void generateSyntheticBodyForRecordToString(SyntheticMethodBinding method
 	aload_0();
 	String sig = new String(methodBinding.signature());
 	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
-	invokeDynamic(index, methodBinding.parameters.length, 8, methodBinding.selector, sig.toCharArray());
+	invokeDynamic(index, methodBinding.parameters.length, 1, methodBinding.selector, sig.toCharArray());
 	areturn();
 }
 
