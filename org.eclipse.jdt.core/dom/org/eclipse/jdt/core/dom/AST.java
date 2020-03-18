@@ -333,14 +333,14 @@ public final class AST {
 	 * up to and including Java SE 14(aka JDK 14).
 	 * </p>
 	 *
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 */
 	public static final int JLS14 = 14;
 	
 	/**
 	 * Internal synonym for {@link #JLS14}. Use to alleviate
 	 * deprecation warnings once JLS14 is deprecated
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 */
 	static final int JLS14_INTERNAL = JLS14;
 
@@ -3640,7 +3640,7 @@ public final class AST {
 	/**
 	 * 
 	 * @return If previewEnabled flag is set to <code>true</code>, return <code>true</code> else <code>false</code>
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public boolean isPreviewEnabledSet() {

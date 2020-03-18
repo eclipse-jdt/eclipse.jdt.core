@@ -1353,7 +1353,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public boolean visit(RecordDeclaration node) {
@@ -2771,7 +2771,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public void endVisit(RecordDeclaration node) {

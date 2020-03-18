@@ -1979,7 +1979,7 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 */
 	public boolean match(RecordDeclaration node, Object other) {
 		if (!(other instanceof RecordDeclaration)) {

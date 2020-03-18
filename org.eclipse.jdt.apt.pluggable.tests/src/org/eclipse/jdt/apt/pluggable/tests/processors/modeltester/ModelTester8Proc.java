@@ -53,7 +53,7 @@ import org.eclipse.jdt.apt.pluggable.tests.annotations.ModelTest8Trigger;
  * The clients invoking this must ensure that this is invoked only with JRE 1.8 and above,
  * like it's done in {@link ModelTests#testMethodParameters}.
  *
- * @since 3.9 BETA_JAVA8
+ * @since 3.9
  */
 @SupportedAnnotationTypes( { "org.eclipse.jdt.apt.pluggable.tests.annotations.ModelTest8Trigger" })
 @SupportedOptions( {})

@@ -30,7 +30,7 @@ public class DOMASTUtil {
 	 * @return <code>true</code> if the given <code>AST</code> supports the provided <code>nodeType</code> else
 	 *         <code>false</code>
 	 * @see ASTNode#getNodeType()
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 */
 	private static boolean isNodeTypeSupportedinAST(AST ast, int nodeType) {
 		return isNodeTypeSupportedinAST(ast.apiLevel(), ast.isPreviewEnabledSet(), nodeType);
@@ -50,7 +50,7 @@ public class DOMASTUtil {
 	 * @return <code>true</code> if the given <code>AST</code> supports the provided <code>nodeType</code> else
 	 *         <code>false</code>
 	 * @see ASTNode#getNodeType()
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 */
 	private static boolean isNodeTypeSupportedinAST(int apiLevel, boolean previewEnabled, int nodeType) {
 		switch (nodeType) {

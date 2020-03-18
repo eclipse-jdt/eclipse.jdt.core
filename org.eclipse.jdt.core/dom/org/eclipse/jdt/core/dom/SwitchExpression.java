@@ -72,7 +72,7 @@ public class SwitchExpression extends Expression {
 	 * <code>AST.JLS*</code> constants
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
@@ -171,7 +171,7 @@ public class SwitchExpression extends Expression {
 	 * Returns the expression of this switch statement.
 	 *
 	 * @return the expression node
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 */
 	public Expression getExpression() {
 		if (this.expression == null) {
@@ -197,7 +197,7 @@ public class SwitchExpression extends Expression {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 */
 	public void setExpression(Expression expression) {
 		if (expression == null) {
@@ -216,7 +216,7 @@ public class SwitchExpression extends Expression {
 	 *
 	 * @return the live list of statement nodes
 	 *    (element type: {@link Statement})
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 */
 	public List statements() {
 		return this.statements;

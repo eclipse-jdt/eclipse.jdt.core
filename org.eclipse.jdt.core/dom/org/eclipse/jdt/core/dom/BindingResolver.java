@@ -889,7 +889,7 @@ class BindingResolver {
 	 * @param type the record declaration of interest
 	 * @return the binding for the given record declaration, or <code>null</code>
 	 *    if no binding is available
-	 * @since 3.21 BETA_JAVA
+	 * @since 3.21
 	 */
 	ITypeBinding resolveType(RecordDeclaration type) {
 		return null;
