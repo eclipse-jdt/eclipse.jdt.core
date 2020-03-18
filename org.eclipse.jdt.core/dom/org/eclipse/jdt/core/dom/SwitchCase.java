@@ -253,7 +253,7 @@ public class SwitchCase extends Statement {
 	 *  @return the list of expression nodes
 	 *    (element type: {@link Expression})
 	 * @exception UnsupportedOperationException if this operation is used below JLS14
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public List expressions() {
 		if (this.expressions == null) {
@@ -290,7 +290,7 @@ public class SwitchCase extends Statement {
 
 	 * @param switchLabeledRule <code>true</code> or <code>false</code>
 	 * @exception UnsupportedOperationException if this operation is used below JLS14
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public void setSwitchLabeledRule(boolean switchLabeledRule) {
 		unsupportedBelow14();
@@ -305,7 +305,7 @@ public class SwitchCase extends Statement {
 	 *
 	 * @return switchLabeledRule <code>true</code> or <code>false</code>
 	 * @exception UnsupportedOperationException if this operation is used below JLS14
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public boolean isSwitchLabeledRule() {
 		unsupportedBelow14();

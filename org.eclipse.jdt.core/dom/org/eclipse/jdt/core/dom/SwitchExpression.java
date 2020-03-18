@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
+ * Copyright (c) 2019, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -30,21 +30,21 @@ import java.util.List;
  * <code>SwitchCase</code> nodes are treated as a kind of
  * <code>Statement</code>.
  *
- * @since 3.18
+ * @since 3.22
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SwitchExpression extends Expression {
 
 	/**
 	 * The "expression" structural property of this node type (child type: {@link Expression}).
-	 * @since 3.16
+	 * @since 3.22
 	 */
 	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY =
 		new ChildPropertyDescriptor(SwitchExpression.class, "expression", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "statements" structural property of this node type (element type: {@link Statement}).
-	 * @since 3.16
+	 * @since 3.22
 	 */
 	public static final ChildListPropertyDescriptor STATEMENTS_PROPERTY =
 		new ChildListPropertyDescriptor(SwitchExpression.class, "statements", Statement.class, CYCLE_RISK); //$NON-NLS-1$
@@ -72,7 +72,7 @@ public class SwitchExpression extends Expression {
 	 * <code>AST.JLS*</code> constants
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
@@ -171,7 +171,7 @@ public class SwitchExpression extends Expression {
 	 * Returns the expression of this switch statement.
 	 *
 	 * @return the expression node
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public Expression getExpression() {
 		if (this.expression == null) {
@@ -197,7 +197,7 @@ public class SwitchExpression extends Expression {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public void setExpression(Expression expression) {
 		if (expression == null) {
@@ -216,7 +216,7 @@ public class SwitchExpression extends Expression {
 	 *
 	 * @return the live list of statement nodes
 	 *    (element type: {@link Statement})
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public List statements() {
 		return this.statements;

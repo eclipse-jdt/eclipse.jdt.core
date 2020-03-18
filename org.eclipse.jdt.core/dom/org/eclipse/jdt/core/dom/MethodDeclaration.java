@@ -97,7 +97,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	
 	/**
 	 * The "compact constructor" structural property of record node type (type: {@link Boolean}).
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final SimplePropertyDescriptor COMPACT_CONSTRUCTOR_PROPERTY =
 		new SimplePropertyDescriptor(MethodDeclaration.class, "compactConstructor", boolean.class, OPTIONAL); //$NON-NLS-1$
@@ -218,7 +218,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	private static final List PROPERTY_DESCRIPTORS_9_0;
 
@@ -307,7 +307,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
 		if (apiLevel == AST.JLS2_INTERNAL) {
@@ -727,7 +727,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *
 	 * @return <code>true</code> if this is a compact constructor declaration in a record,
 	 *    and <code>false</code> if this is a method declaration
-	 * @since 3.21
+	 * @since 3.22
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @exception UnsupportedOperationException if this operation is not used in JLS14
 	 * @exception UnsupportedOperationException if this operation is used with previewEnabled flag as false 
@@ -744,7 +744,7 @@ public class MethodDeclaration extends BodyDeclaration {
 	 *
 	 * @param isCompactConstructor <code>true</code> for a constructor declaration,
 	 *    and <code>false</code> for a method declaration
-	 * @since 3.21
+	 * @since 3.22
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @exception UnsupportedOperationException if this operation is not used in JLS14
 	 * @exception UnsupportedOperationException if this operation is used with previewEnabled flag as false 

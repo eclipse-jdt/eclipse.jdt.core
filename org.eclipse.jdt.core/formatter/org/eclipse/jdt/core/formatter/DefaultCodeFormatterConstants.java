@@ -451,7 +451,7 @@ public class DefaultCodeFormatterConstants {
 	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
 	 * </pre>
 	 * @see #createAlignmentValue(boolean, int, int)
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_ALIGNMENT_FOR_RECORD_COMPONENTS = JavaCore.PLUGIN_ID + ".formatter.alignment_for_record_components";	 //$NON-NLS-1$
 	/**
@@ -506,7 +506,7 @@ public class DefaultCodeFormatterConstants {
 	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
 	 * </pre>
 	 * @see #createAlignmentValue(boolean, int, int)
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_RECORD_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_superinterfaces_in_record_declaration";	 //$NON-NLS-1$
 	/**
@@ -957,7 +957,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see #NEXT_LINE
 	 * @see #NEXT_LINE_SHIFTED
 	 * @see #NEXT_LINE_ON_WRAP
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_BRACE_POSITION_FOR_RECORD_CONSTRUCTOR = JavaCore.PLUGIN_ID + ".formatter.brace_position_for_record_constructor";	//$NON-NLS-1$
 	/**
@@ -971,7 +971,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see #NEXT_LINE
 	 * @see #NEXT_LINE_SHIFTED
 	 * @see #NEXT_LINE_ON_WRAP
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_BRACE_POSITION_FOR_RECORD_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.brace_position_for_record_declaration";	//$NON-NLS-1$
 	/**
@@ -1078,7 +1078,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see #SEPARATE_LINES_IF_WRAPPED
 	 * @see #SEPARATE_LINES
 	 * @see #PRESERVE_POSITIONS
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_PARENTHESES_POSITIONS_IN_RECORD_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.parentheses_positions_in_record_declaration";	//$NON-NLS-1$
 
@@ -1881,7 +1881,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see #TRUE
 	 * @see #FALSE
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_RECORD_HEADER = JavaCore.PLUGIN_ID + ".formatter.indent_body_declarations_compare_to_record_header";	//$NON-NLS-1$
 	/**
@@ -2821,7 +2821,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_RECORD_COMPONENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_record_components";	//$NON-NLS-1$
 	/**
@@ -3097,7 +3097,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_RECORD_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_opening_paren_in_record_declaration"; //$NON-NLS-1$
 	/**
@@ -3606,7 +3606,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_RECORD_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_closing_paren_in_record_declaration";	//$NON-NLS-1$
 	/**
@@ -3930,7 +3930,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_RECORD_COMPONENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_record_components";	//$NON-NLS-1$
 	/**
@@ -4146,7 +4146,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_RECORD_CONSTRUCTOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_opening_brace_in_record_constructor";	//$NON-NLS-1$
 	/**
@@ -4158,7 +4158,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_RECORD_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_opening_brace_in_record_declaration";	//$NON-NLS-1$
 	/**
@@ -4350,7 +4350,7 @@ public class DefaultCodeFormatterConstants {
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_RECORD_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_opening_paren_in_record_declaration"; //$NON-NLS-1$
 	/**
@@ -4907,7 +4907,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see #ONE_LINE_IF_SINGLE_ITEM
 	 * @see #ONE_LINE_ALWAYS
 	 * @see #ONE_LINE_PRESERVE
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_KEEP_RECORD_DECLARATION_ON_ONE_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_record_declaration_on_one_line"; //$NON-NLS-1$
 	/**
@@ -4923,7 +4923,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see #ONE_LINE_IF_SINGLE_ITEM
 	 * @see #ONE_LINE_ALWAYS
 	 * @see #ONE_LINE_PRESERVE
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final String FORMATTER_KEEP_RECORD_CONSTRUCTOR_ON_ONE_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_record_constructor_on_one_line"; //$NON-NLS-1$
 

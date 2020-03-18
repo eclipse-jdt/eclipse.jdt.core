@@ -16,7 +16,7 @@ package org.eclipse.jdt.core.util;
  * Description of record components attribute as described in the JVM
  * specifications.
  *
- * @since 3.21
+ * @since 3.22
  */
 public interface IRecordAttribute extends IClassFileAttribute {
 

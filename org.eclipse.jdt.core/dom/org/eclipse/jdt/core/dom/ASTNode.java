@@ -982,7 +982,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>RecordDeclaration</code>.
 	 * @see RecordDeclaration
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final int RECORD_DECLARATION = 103;
 	
@@ -2156,7 +2156,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is used below JLS14
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	final void unsupportedBelow14() {
 		if (this.ast.apiLevel < AST.JLS14_INTERNAL) {

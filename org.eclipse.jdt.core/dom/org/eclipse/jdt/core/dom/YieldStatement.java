@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
+ * Copyright (c) 2019, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -25,7 +25,7 @@ import java.util.List;
  *		<b>Yield</b> <b>{ Identifier/Expression }</b>
  * </pre>
  *
- * @since 3.20
+ * @since 3.22
  */
 @SuppressWarnings("rawtypes")
 public class YieldStatement extends Statement {
@@ -64,7 +64,7 @@ public class YieldStatement extends Statement {
 
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static List propertyDescriptors(int apiLevel) {
 		return PROPERTY_DESCRIPTORS;
@@ -153,7 +153,7 @@ public class YieldStatement extends Statement {
 	 *
 	 * @return the expression, or <code>null</code> if there is none
 	 * @exception UnsupportedOperationException if this operation is used below JLS14
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public Expression getExpression() {
 		unsupportedBelow14();
@@ -170,7 +170,7 @@ public class YieldStatement extends Statement {
 	 * <li>the node already has a parent</li>
 	 * </ul>
 	 * @exception UnsupportedOperationException if this operation is used below JLS14
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public void setExpression(Expression expression) {
 		unsupportedBelow14();
@@ -186,7 +186,7 @@ public class YieldStatement extends Statement {
 	 *
 	 * @return isImplicit <code>true</code> or <code>false</code>
 	 * @exception UnsupportedOperationException if this operation is used below JLS14
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public boolean isImplicit() {
 		unsupportedBelow14();

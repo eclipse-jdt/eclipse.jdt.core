@@ -889,7 +889,7 @@ class BindingResolver {
 	 * @param type the record declaration of interest
 	 * @return the binding for the given record declaration, or <code>null</code>
 	 *    if no binding is available
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	ITypeBinding resolveType(RecordDeclaration type) {
 		return null;

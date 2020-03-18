@@ -333,14 +333,14 @@ public final class AST {
 	 * up to and including Java SE 14(aka JDK 14).
 	 * </p>
 	 *
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final int JLS14 = 14;
 	
 	/**
 	 * Internal synonym for {@link #JLS14}. Use to alleviate
 	 * deprecation warnings once JLS14 is deprecated
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	static final int JLS14_INTERNAL = JLS14;
 

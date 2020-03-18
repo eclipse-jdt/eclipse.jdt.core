@@ -49,7 +49,7 @@ public class InstanceofExpression extends Expression {
 	/**
 	 * The "patternVariable" structural property of this node type (child type: {@link SingleVariableDeclaration}) (added in JLS14 API).
 	 * @noreference This property is not intended to be referenced by clients as it is a part of Java preview feature.
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static final ChildPropertyDescriptor PATTERN_VARIABLE_PROPERTY =
 		new ChildPropertyDescriptor(InstanceofExpression.class, "patternVariable", SingleVariableDeclaration.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
@@ -106,7 +106,7 @@ public class InstanceofExpression extends Expression {
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @since 3.21
+	 * @since 3.22
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
 		if (DOMASTUtil.isInstanceofExpressionPatternSupported(apiLevel, previewEnabled)) {
