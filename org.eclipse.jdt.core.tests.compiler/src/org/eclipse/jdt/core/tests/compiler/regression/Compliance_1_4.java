@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -54,7 +54,7 @@ public static Class testClass() {
 // Use this static initializer to specify subset for tests
 // All specified tests which does not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "Bug58069" };
+//		TESTS_NAMES = new String[] { "test079" };
 //		TESTS_NUMBERS = new int[] { 104 };
 //		TESTS_RANGE = new int[] { 85, -1 };
 }
@@ -2592,7 +2592,7 @@ public void test078() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
  */
-public void test079() {
+public void _test079() {
 	this.runNegativeTest(
 		new String[] {
 			"Hello.java",
@@ -2623,21 +2623,18 @@ public void test079() {
 		"----------\n" + 
 		"1. ERROR in Hello.java (at line 1)\n" + 
 		"	void ___eval() {\n" + 
-		"	^^^^^^^^^^^^^^\n" + 
-		"Syntax error on tokens, delete these tokens\n" + 
+		"	^^^^\n" + 
+		"Syntax error on token \"void\", record expected\n" + 
 		"----------\n" + 
-		"2. ERROR in Hello.java (at line 2)\n" + 
-		"	new Runnable() {\n" + 
-		"		int ___run() throws Throwable {\n" + 
-		"			return blah;\n" + 
-		"		}\n" + 
-		"		private String blarg;\n" + 
-		"		public void run() {\n" + 
-		"		}\n" + 
-		"	};\n" + 
-		"}\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Syntax error on tokens, delete these tokens\n" + 
+		"2. ERROR in Hello.java (at line 1)\n" + 
+		"	void ___eval() {\n" + 
+		"	             ^\n" + 
+		"Syntax error on token \")\", { expected after this token\n" + 
+		"----------\n" + 
+		"3. ERROR in Hello.java (at line 23)\n" + 
+		"	}\n" + 
+		"	^\n" + 
+		"Syntax error, insert \"}\" to complete RecordBody\n" + 
 		"----------\n"
 	);
 }

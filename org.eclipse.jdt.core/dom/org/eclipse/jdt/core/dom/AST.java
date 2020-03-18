@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -321,9 +321,32 @@ public final class AST {
 	 */
 	static final int JLS13_INTERNAL = JLS13;
 
+	/**
+	 * Constant for indicating the AST API that handles JLS14.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 14 Edition (JLS14).
+	 * JLS14 is a superset of all earlier versions of the
+	 * Java language, and the JLS14 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 14(aka JDK 14).
+	 * </p>
+	 *
+	 * @since 3.21
+	 */
+	public static final int JLS14 = 14;
+	
+	/**
+	 * Internal synonym for {@link #JLS14}. Use to alleviate
+	 * deprecation warnings once JLS14 is deprecated
+	 * @since 3.21
+	 */
+	static final int JLS14_INTERNAL = JLS14;
+
 	@SuppressWarnings("unused")
 	/* Used for Java doc only*/
-	private static final int JLS_Latest = JLS13;
+	private static final int JLS_Latest = JLS14;
 	
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
@@ -791,6 +814,7 @@ public final class AST {
 	int apiLevel;
 
 	private boolean previewEnabled;
+
 	/**
 	 * Tag bit value. This represents internal state of the tree.
 	 */
@@ -1001,6 +1025,21 @@ public final class AST {
 						true/*taskCaseSensitive*/,
 						previewEnabled);
 				break;
+			case JLS14_INTERNAL :
+				this.apiLevel = level;
+				// initialize a scanner
+				compliance = ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_14);
+				this.scanner = new Scanner(
+						true /*comment*/,
+						true /*whitespace*/,
+						false /*nls*/,
+						compliance /*sourceLevel*/,
+						compliance /*complianceLevel*/,
+						null/*taskTag*/,
+						null/*taskPriorities*/,
+						true/*taskCaseSensitive*/,
+						previewEnabled);
+				break;
 			default:
 				throw new IllegalArgumentException("Unsupported JLS level"); //$NON-NLS-1$
 		}
@@ -1079,6 +1118,7 @@ public final class AST {
         t.put(JavaCore.VERSION_11, ClassFileConstants.JDK11);
         t.put(JavaCore.VERSION_12, ClassFileConstants.JDK12);
         t.put(JavaCore.VERSION_13, ClassFileConstants.JDK13);
+        t.put(JavaCore.VERSION_14, ClassFileConstants.JDK14);
         return Collections.unmodifiableMap(t);
 	}
 	private static Map<String, Integer> getApiLevelMapTable() {
@@ -1096,6 +1136,7 @@ public final class AST {
         t.put(JavaCore.VERSION_11, JLS11_INTERNAL);
         t.put(JavaCore.VERSION_12, JLS12_INTERNAL);
         t.put(JavaCore.VERSION_13, JLS13_INTERNAL);
+        t.put(JavaCore.VERSION_14, JLS14_INTERNAL);
         return Collections.unmodifiableMap(t);
 	}
 	/**
@@ -3594,6 +3635,17 @@ public final class AST {
 	  	throw new UnsupportedOperationException("Operation not supported in JLS2 AST"); //$NON-NLS-1$
 	  }
 	}
+	
+	
+	/**
+	 * 
+	 * @return If previewEnabled flag is set to <code>true</code>, return <code>true</code> else <code>false</code>
+	 * @since 3.21
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public boolean isPreviewEnabledSet() {
+		return this.previewEnabled;
+	}
 
 	/**
 	 * 
@@ -3601,8 +3653,8 @@ public final class AST {
 	 * @since 3.19
 	 */
 	public boolean isPreviewEnabled() {
-		if (this.apiLevel == AST.JLS13_INTERNAL && this.previewEnabled) {
-			return true;
+		if (this.apiLevel == AST.JLS_Latest && this.previewEnabled) {
+				return true;
 		}
 		return false;
 	}

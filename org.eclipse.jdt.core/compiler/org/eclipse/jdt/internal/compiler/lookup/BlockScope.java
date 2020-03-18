@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -134,7 +134,6 @@ public final void addLocalType(TypeDeclaration localType) {
 		methodScope = methodScope.enclosingMethodScope();
 	}
 }
-
 /* Insert a local variable into a given scope, updating its position
  * and checking there are not too many locals or arguments allocated.
  */
@@ -419,7 +418,7 @@ public LocalDeclaration[] findLocalVariableDeclarations(int position) {
 		} else {
 			// consider variable first
 			LocalVariableBinding local = this.locals[ilocal]; // if no local at all, will be locals[ilocal]==null
-			if (local != null) {
+			if (local != null && (local.modifiers & ExtraCompilerModifiers.AccPatternVariable) == 0) {
 				LocalDeclaration localDecl = local.declaration;
 				if (localDecl != null) {
 					if (localDecl.declarationSourceStart <= position) {
@@ -447,9 +446,20 @@ public LocalDeclaration[] findLocalVariableDeclarations(int position) {
 public LocalVariableBinding findVariable(char[] variableName) {
 	int varLength = variableName.length;
 	for (int i = this.localIndex-1; i >= 0; i--) { // lookup backward to reach latest additions first
-		LocalVariableBinding local;
+		LocalVariableBinding local = this.locals[i];
+		if ((local.modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0)
+			continue;
 		char[] localName;
-		if ((localName = (local = this.locals[i]).name).length == varLength && CharOperation.equals(localName, variableName))
+		if ((localName = local.name).length == varLength && CharOperation.equals(localName, variableName))
+			return local;
+	}
+	// Look at the pattern variables now
+	for (int i = this.localIndex-1; i >= 0; i--) { // lookup backward to reach latest additions first
+		LocalVariableBinding local = this.locals[i];
+		if ((local.modifiers & ExtraCompilerModifiers.AccPatternVariable) == 0)
+			continue;
+		char[] localName;
+		if ((localName = local.name).length == varLength && CharOperation.equals(localName, variableName))
 			return local;
 	}
 	return null;

@@ -205,6 +205,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			FieldBinding[] fields = this.binding.declaringClass.fields();
 			for (int i = 0, count = fields.length; i < count; i++) {
 				FieldBinding field = fields[i];
+				checkAndGenerateFieldAssignment(initializerFlowContext, flowInfo, field);
 				if (!field.isStatic() && !flowInfo.isDefinitelyAssigned(field)) {
 					if (field.isFinal()) {
 						this.scope.problemReporter().uninitializedBlankFinalField(
@@ -234,6 +235,9 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 	}
 }
 
+protected void checkAndGenerateFieldAssignment(FlowContext flowContext, FlowInfo flowInfo, FieldBinding field) {
+	return;
+}
 boolean isValueProvidedUsingAnnotation(FieldDeclaration fieldDecl) {
 	// a member field annotated with @Inject is considered to be initialized by the injector 
 	if (fieldDecl.annotations != null) {
@@ -566,7 +570,8 @@ public StringBuffer printBody(int indent, StringBuffer output) {
 public void resolveJavadoc() {
 	if (this.binding == null || this.javadoc != null) {
 		super.resolveJavadoc();
-	} else if ((this.bits & ASTNode.IsDefaultConstructor) == 0) {
+	} else if ((this.bits & ASTNode.IsDefaultConstructor) == 0 ) {
+		if((this.bits & ASTNode.IsImplicit) != 0 ) return;
 		if (this.binding.declaringClass != null && !this.binding.declaringClass.isLocalType()) {
 			// Set javadoc visibility
 			int javadocVisibility = this.binding.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;

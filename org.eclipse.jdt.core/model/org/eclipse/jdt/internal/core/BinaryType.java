@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -704,6 +704,16 @@ public boolean isEnum() throws JavaModelException {
 	return TypeDeclaration.kind(info.getModifiers()) == TypeDeclaration.ENUM_DECL;
 }
 
+/**
+ * @see IType#isRecord()
+ * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+ */
+@Override
+public boolean isRecord() throws JavaModelException {
+	IBinaryType info = (IBinaryType) getElementInfo();
+	return TypeDeclaration.kind(info.getModifiers()) == TypeDeclaration.RECORD_DECL;
+}
+
 @Override
 public boolean isInterface() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
@@ -952,7 +962,9 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 		toStringName(buffer);
 	} else {
 		try {
-			if (isAnnotation()) {
+			if (isRecord()) {
+				buffer.append("record "); //$NON-NLS-1$
+			} else if (isAnnotation()) {
 				buffer.append("@interface "); //$NON-NLS-1$
 			} else if (isEnum()) {
 				buffer.append("enum "); //$NON-NLS-1$

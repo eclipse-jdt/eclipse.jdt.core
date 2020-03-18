@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,7 +27,7 @@ public class ComplianceDiagnoseTest extends AbstractRegressionTest {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...
 static {
-//	TESTS_NAMES = new String[] { "testBug531714" };
+//	TESTS_NAMES = new String[] { "test0042" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 21, 50 };
 }
@@ -1937,7 +1937,8 @@ public void test0041() {
 		expected15ProblemLog
 	);
 }
-public void test0042() {
+//TODO:  Enable after Bug 552769  is fixed
+public void _test0042() {
 	String[] testFiles = new String[] {
 		"X.java",
 		"void ___eval() {\n" +
@@ -1985,9 +1986,11 @@ public void test0042() {
 			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Syntax error on tokens, delete these tokens\n" + 
 			"----------\n";
+	@SuppressWarnings("unused")
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
+	@SuppressWarnings("unused")
 	String expected15ProblemLog =
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\n" + 
@@ -2032,11 +2035,28 @@ public void test0042() {
 			"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" + 
 			"----------\n";
 
+	String expected_Java14_ProblemLog =
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	void ___eval() {\n" + 
+			"	^^^^\n" + 
+			"Syntax error on token \"void\", record expected\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 1)\n" + 
+			"	void ___eval() {\n" + 
+			"	             ^\n" + 
+			"Syntax error on token \")\", { expected after this token\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 23)\n" + 
+			"	}\n" + 
+			"	^\n" + 
+			"Syntax error, insert \"}\" to complete RecordBody\n" + 
+			"----------\n";
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemLog,
-		expected14ProblemLog,
-		expected15ProblemLog
+		expected_Java14_ProblemLog,
+		expected_Java14_ProblemLog,
+		expected_Java14_ProblemLog
 	);
 }
 /*
@@ -2473,15 +2493,10 @@ public void test0052() {
 
 	String expected15ProblemLog =
 		"----------\n" +
-		"1. ERROR in X.java (at line 5)\n" +
-		"	void foo2() {\n" +
-		"	^^^^\n" +
-		"Syntax error on token \"void\", new expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 6)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error, insert \";\" to complete Statement\n" +
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	void foo2() {\n" + 
+		"	^^^^\n" + 
+		"Syntax error on token \"void\", record expected\n" + 
 		"----------\n";
 
 	runComplianceParserTest(
@@ -3549,22 +3564,22 @@ public void testBug531714_001() {
 			"			default -> 3;\n" + 
 			"		};\n" + 
 			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The preview feature Switch Expressions is only available with source level 13 and above\n" + 
+			"Switch Expressions are supported from Java 14 onwards only\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 4)\n" + 
 			"	case 0 -> i * 0;\n" + 
 			"	^^^^^^\n" + 
-			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"Arrow in case statement supported from Java 14 onwards only\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 5)\n" + 
 			"	case 1 -> 2;\n" + 
 			"	^^^^^^\n" + 
-			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"Arrow in case statement supported from Java 14 onwards only\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 6)\n" + 
 			"	default -> 3;\n" + 
 			"	^^^^^^^\n" + 
-			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"Arrow in case statement supported from Java 14 onwards only\n" + 
 			"----------\n";
 
 	runComplianceParserTest(
@@ -3601,17 +3616,17 @@ public void testBug531714_002() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	case 0 -> i * 0;\n" + 
 			"	^^^^^^\n" + 
-			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"Arrow in case statement supported from Java 14 onwards only\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	case 1 -> 2;\n" + 
 			"	^^^^^^\n" + 
-			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"Arrow in case statement supported from Java 14 onwards only\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 6)\n" + 
 			"	default -> 3;\n" + 
 			"	^^^^^^^\n" + 
-			"The preview feature Case Labels with \'->\' is only available with source level 13 and above\n" + 
+			"Arrow in case statement supported from Java 14 onwards only\n" + 
 			"----------\n";
 
 	runComplianceParserTest(

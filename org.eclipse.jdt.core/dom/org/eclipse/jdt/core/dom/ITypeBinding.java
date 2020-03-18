@@ -803,6 +803,15 @@ public interface ITypeBinding extends IBinding {
 	public boolean isEnum();
 
 	/**
+	 * Returns whether this type binding represents a record type.
+	 *
+	 * @return <code>true</code> if this object represents a record type,
+	 *    and <code>false</code> otherwise
+	 * @noreference
+	 */
+	public boolean isRecord();
+
+	/**
 	 * Returns whether this type binding originated in source code.
 	 * Returns <code>false</code> for all primitive types, the null type,
 	 * array types, and for all classes, interfaces, enums, annotation

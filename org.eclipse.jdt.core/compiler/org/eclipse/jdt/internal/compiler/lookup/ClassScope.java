@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;import org.eclipse.jdt.internal.compiler.ast.RecordDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -104,6 +104,12 @@ public class ClassScope extends Scope {
 					problemReporter().cannotExtendEnum(anonymousType, typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
 					anonymousType.setSuperClass(getJavaLangObject());
+				} else if (supertype.erasure().id == TypeIds.T_JavaLangRecord) {
+					if (!(this.referenceContext instanceof RecordDeclaration)) {
+						problemReporter().recordCannotExtendRecord(anonymousType, typeReference, supertype);
+						anonymousType.tagBits |= TagBits.HierarchyHasProblems;
+						anonymousType.setSuperClass(getJavaLangObject());
+					}
 				} else if (supertype.isFinal()) {
 					problemReporter().anonymousClassCannotExtendFinalClass(typeReference, supertype);
 					anonymousType.tagBits |= TagBits.HierarchyHasProblems;
@@ -321,7 +327,7 @@ public class ClassScope extends Scope {
 		if (sourceType.areMethodsInitialized()) return;
 
 		boolean isEnum = TypeDeclaration.kind(this.referenceContext.modifiers) == TypeDeclaration.ENUM_DECL;
-		if (this.referenceContext.methods == null && !isEnum) {
+		if (this.referenceContext.methods == null && !(isEnum || sourceType.isRecord())) {
 			this.referenceContext.binding.setMethods(Binding.NO_METHODS);
 			return;
 		}
@@ -373,6 +379,11 @@ public class ClassScope extends Scope {
 			}
 			if (hasAbstractMethods)
 				problemReporter().abstractMethodInConcreteClass(sourceType);
+		}
+		if (sourceType.isRecord()) {
+			assert this.referenceContext instanceof RecordDeclaration;
+			methodBindings = sourceType.checkAndAddSyntheticRecordMethods(methodBindings, count);
+			count = methodBindings.length;
 		}
 		if (count != methodBindings.length)
 			System.arraycopy(methodBindings, 0, methodBindings = new MethodBinding[count], 0, count);
@@ -458,6 +469,10 @@ public class ClassScope extends Scope {
 	private void checkAndSetModifiers() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		int modifiers = sourceType.modifiers;
+		if (sourceType.isRecord()) {
+			/* JLS 14 Records Sec 8.10 - A record declaration is implicitly final. */
+			modifiers |= ClassFileConstants.AccFinal;
+		}
 		if ((modifiers & ExtraCompilerModifiers.AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForType(sourceType);
 		ReferenceBinding enclosingType = sourceType.enclosingType();
@@ -476,6 +491,9 @@ public class ClassScope extends Scope {
 					modifiers |= ClassFileConstants.AccStatic;
 			} else if (sourceType.isInterface()) {
 				modifiers |= ClassFileConstants.AccStatic; // 8.5.1
+			} else if (sourceType.isRecord()) {
+				/* JLS 14 Records Sec 8.10 A nested record type is implicitly static */
+				modifiers |= ClassFileConstants.AccStatic;
 			}
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
@@ -643,6 +661,37 @@ public class ClassScope extends Scope {
 					modifiers |= ClassFileConstants.AccFinal;
 				}
 			}
+		} else if (sourceType.isRecord()) {
+			if (isMemberType) {
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+					problemReporter().illegalModifierForInnerRecord(sourceType);
+			} else if (sourceType.isLocalType()) {
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp | ClassFileConstants.AccStatic);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+					problemReporter().illegalModifierForLocalClass(sourceType);
+			} else {
+				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic |  ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
+					problemReporter().illegalModifierForRecord(sourceType);
+			}
+			// JLS 14 8.10 : It is a compile-time error if a record declaration has the modifier abstract.
+			
+			/* Section 8.10 http://cr.openjdk.java.net/~gbierman/8222777/8222777-20190823/specs/records-jls.html#jls-8.10
+			 * It is a compile-time error if a record declaration has the modifier abstract.
+			 * 
+			 * A record declaration is implicitly final. It is permitted for the declaration of a record type
+			 * to redundantly specify the final modifier.
+			 * 
+			 * A nested record type is implicitly static. It is permitted for the declaration of a nested record
+			 * type to redundantly specify the static modifier.
+			 * 
+			 * This implies that it is impossible to declare a record type in the body of an inner class (8.1.3),
+			 * because an inner class cannot have static members except for constant variables.
+			 * 
+			 * It is a compile-time error if the same keyword appears more than once as a modifier for a record declaration,
+			 * or if a record declaration has more than one of the access modifiers public, protected, and private (6.6).
+			 */
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
@@ -698,8 +747,11 @@ public class ClassScope extends Scope {
 				if (enclosingType.isInterface())
 					modifiers |= ClassFileConstants.AccStatic;
 			} else if (!enclosingType.isStatic()) {
-				// error the enclosing type of a static field must be static or a top-level type
-				problemReporter().illegalStaticModifierForMemberType(sourceType);
+				if (sourceType.isRecord())
+					problemReporter().recordNestedRecordInherentlyStatic(sourceType);
+				else
+					// error the enclosing type of a static field must be static or a top-level type
+					problemReporter().illegalStaticModifierForMemberType(sourceType);
 			}
 		}
 
@@ -963,6 +1015,12 @@ public class ClassScope extends Scope {
 				problemReporter().superTypeCannotUseWildcard(sourceType, superclassRef, superclass);
 			} else if (superclass.erasure().id == TypeIds.T_JavaLangEnum) {
 				problemReporter().cannotExtendEnum(sourceType, superclassRef, superclass);
+			} else if (superclass.erasure().id == TypeIds.T_JavaLangRecord) {
+				if (!(this.referenceContext instanceof RecordDeclaration)) {
+					problemReporter().recordCannotExtendRecord(sourceType, superclassRef, superclass);
+				} else {
+					return connectRecordSuperclass();
+				}
 			} else if ((superclass.tagBits & TagBits.HierarchyHasProblems) != 0
 					|| !superclassRef.resolvedType.isValidBinding()) {
 				sourceType.setSuperClass(superclass);
@@ -979,7 +1037,7 @@ public class ClassScope extends Scope {
 			}
 		}
 		sourceType.tagBits |= TagBits.HierarchyHasProblems;
-		sourceType.setSuperClass(getJavaLangObject());
+		sourceType.setSuperClass(sourceType.isRecord() ? getJavaLangRecord() : getJavaLangObject());
 		if ((sourceType.superclass.tagBits & TagBits.BeginHierarchyCheck) == 0)
 			detectHierarchyCycle(sourceType, sourceType.superclass, null);
 		return false; // reported some error against the source type
@@ -1022,6 +1080,16 @@ public class ClassScope extends Scope {
 		return !foundCycle;
 	}
 
+	private boolean connectRecordSuperclass() {
+		SourceTypeBinding sourceType = this.referenceContext.binding;
+		ReferenceBinding rootRecordType = getJavaLangRecord();
+		sourceType.setSuperClass(rootRecordType);
+		if ((rootRecordType.tagBits & TagBits.HasMissingType) != 0) {
+			sourceType.tagBits |= TagBits.HierarchyHasProblems; // mark missing supertpye
+			return false;
+		}
+		return !detectHierarchyCycle(sourceType, rootRecordType, null);
+	}
 	/*
 		Our current belief based on available JCK 1.3 tests is:
 			inherited member types are visible as a potential superclass.

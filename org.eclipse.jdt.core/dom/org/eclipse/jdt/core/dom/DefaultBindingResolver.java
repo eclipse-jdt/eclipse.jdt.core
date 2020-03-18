@@ -1676,6 +1676,27 @@ class DefaultBindingResolver extends BindingResolver {
 		}
 		return null;
 	}
+	
+	@Override
+	ITypeBinding resolveType(RecordDeclaration type) {
+		final Object node = this.newAstToOldAst.get(type);
+		if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
+			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
+			ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
+			if (typeBinding == null) {
+				return null;
+			}
+			this.bindingsToAstNodes.put(typeBinding, type);
+			String key = typeBinding.getKey();
+			if (key != null) {
+				this.bindingTables.bindingKeysToBindings.put(key, typeBinding);
+			}
+			return typeBinding;
+		}
+		return null;
+	}
+	
+	
 
 	@Override
 	synchronized ITypeBinding resolveType(Type type) {

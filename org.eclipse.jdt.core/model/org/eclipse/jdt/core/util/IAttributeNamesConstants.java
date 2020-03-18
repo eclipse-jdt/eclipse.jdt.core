@@ -202,5 +202,11 @@ public interface IAttributeNamesConstants {
 	 * @since 3.16
 	 */
 	char[] NEST_MEMBERS = "NestMembers".toCharArray(); //$NON-NLS-1$
+	/**
+	 * "Record" attribute (JVMS 14 - preview).
+	 * @since 3.21
+	 */
+	char[] 	RECORD = "Record".toCharArray(); //$NON-NLS-1$
+
 
 }

@@ -45,6 +45,7 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.VANILLA_CO
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
@@ -59,6 +60,12 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 public class LocalDeclaration extends AbstractVariableDeclaration {
 
 	public LocalVariableBinding binding;
+
+	/**
+	 * For pattern variable, resolve() may store here an obligation to be checked when we have
+	 * a flow info that tells us whether a potential duplicates is in fact in scope.
+	 */
+	Consumer<FlowInfo> duplicateCheckObligation;
 
 	public LocalDeclaration(
 		char[] name,
@@ -257,7 +264,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	
 	@Override
 	public void resolve(BlockScope scope) {
-
+		resolve(scope, false);
+	}
+	public void resolve(BlockScope scope, boolean isPatternVariable) {
 		// prescan NNBD
 		handleNonNullByDefault(scope, this.annotations, this);
 
@@ -296,13 +305,23 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
-			boolean localExists = existingVariable instanceof LocalVariableBinding; 
-			if (localExists && (this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope() && this.hiddenVariableDepth == 0) {
-					scope.problemReporter().lambdaRedeclaresLocal(this);
-			} else if (localExists && this.hiddenVariableDepth == 0) {
-					scope.problemReporter().redefineLocal(this);
+			boolean localExists = existingVariable instanceof LocalVariableBinding;
+			if (localExists && isPatternVariable
+					&& (((LocalVariableBinding) existingVariable).modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0)
+			{
+				this.duplicateCheckObligation = (flowInfo) -> {
+					if (flowInfo.isDefinitelyAssigned((LocalVariableBinding) existingVariable)) {
+						scope.problemReporter().redefineLocal(this);
+					}
+				};
 			} else {
-				scope.problemReporter().localVariableHiding(this, existingVariable, false);
+				if (localExists && (this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope() && this.hiddenVariableDepth == 0) {
+					scope.problemReporter().lambdaRedeclaresLocal(this);
+				} else if (localExists && this.hiddenVariableDepth == 0) {
+					scope.problemReporter().redefineLocal(this);
+				} else {
+					scope.problemReporter().localVariableHiding(this, existingVariable, false);
+				}
 			}
 		}
 

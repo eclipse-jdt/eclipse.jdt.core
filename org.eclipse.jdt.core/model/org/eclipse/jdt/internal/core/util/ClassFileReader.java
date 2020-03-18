@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.util.IInnerClassesAttribute;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.core.util.INestMembersAttribute;
+import org.eclipse.jdt.core.util.IRecordAttribute;
 import org.eclipse.jdt.core.util.ISourceAttribute;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -59,6 +60,7 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	private ISourceAttribute sourceFileAttribute;
 	private char[] superclassName;
 	private int superclassNameIndex;
+	private IRecordAttribute recordAttribute;
 
 	/**
 	 * Constructor for ClassFileReader.
@@ -309,6 +311,9 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 						} else if (equals(attributeName, IAttributeNamesConstants.NEST_MEMBERS)) {
 							this.nestMembersAttribute = new NestMembersAttribute(classFileBytes, this.constantPool, readOffset);
 							this.attributes[attributesIndex++] = this.nestMembersAttribute;
+						} else if (equals(attributeName, IAttributeNamesConstants.RECORD)) {
+							this.recordAttribute = new RecordAttribute(classFileBytes, this.constantPool, readOffset);
+							this.attributes[attributesIndex++] = this.recordAttribute;
 						} else {
 							this.attributes[attributesIndex++] = new ClassFileAttribute(classFileBytes, this.constantPool, readOffset);
 						}
@@ -508,5 +513,9 @@ public class ClassFileReader extends ClassFileStruct implements IClassFileReader
 	}
 	private boolean isModule() {
 		return (getAccessFlags() & IModifierConstants.ACC_MODULE) != 0;
+	}
+	@Override
+	public IRecordAttribute getRecordAttribute() {
+		return this.recordAttribute;
 	}
 }

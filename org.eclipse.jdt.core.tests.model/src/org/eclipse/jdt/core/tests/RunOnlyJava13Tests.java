@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.eclipse.jdt.core.tests.compiler.regression.SwitchExpressionsYieldTest;
-import org.eclipse.jdt.core.tests.dom.ASTConverter13Test;
+import org.eclipse.jdt.core.tests.dom.ASTConverter14Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs13Tests;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingTest;
@@ -43,7 +43,7 @@ public class RunOnlyJava13Tests extends TestCase {
 	
 	public static Class[] getConverterTestClasses() {
 		return new Class[] {
-				ASTConverter13Test.class,
+				ASTConverter14Test.class,
 				ASTRewritingTest.class,
 		};
 	}

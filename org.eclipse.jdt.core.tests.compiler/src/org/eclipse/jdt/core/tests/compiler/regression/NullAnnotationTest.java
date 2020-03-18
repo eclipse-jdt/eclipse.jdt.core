@@ -10407,7 +10407,7 @@ public void testBug542707_001() {
 		"1. ERROR in X.java (at line 0)\n" + 
 		"	import java.io.IOException;\n" + 
 		"	^\n" + 
-		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 		"----------\n"
 	);
 }
@@ -10448,7 +10448,7 @@ public void testBug542707_002() {
 		"1. ERROR in X.java (at line 0)\n" + 
 		"	import org.eclipse.jdt.annotation.*;\n" + 
 		"	^\n" + 
-		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+		"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 		"----------\n"
 	);
 }
@@ -10474,7 +10474,7 @@ public void testBug542707_003() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog = this.complianceLevel == ClassFileConstants.JDK13 ?
+	runner.expectedCompilerLog = checkPreviewAllowed() ?
 			"----------\n" + 
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	default -> i == 3 ? maybe() : \"\";\n" + 
@@ -10485,7 +10485,7 @@ public void testBug542707_003() {
 			"1. ERROR in X.java (at line 0)\n" + 
 			"	import org.eclipse.jdt.annotation.*;\n" + 
 			"	^\n" + 
-			"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 			"----------\n";
 	runner.runNegativeTest();
 }
@@ -10545,7 +10545,7 @@ public void testBug542707_005() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog = this.complianceLevel == ClassFileConstants.JDK13 ?
+	runner.expectedCompilerLog = checkPreviewAllowed() ?
 			"----------\n" + 
 			"1. ERROR in X.java (at line 5)\n" + 
 			"	return switch(day) {\n" + 
@@ -10556,7 +10556,7 @@ public void testBug542707_005() {
 			"1. ERROR in X.java (at line 0)\n" + 
 			"	import org.eclipse.jdt.annotation.*;\n" + 
 			"	^\n" + 
-			"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 			"----------\n";
 	runner.runNegativeTest();
 }
@@ -10582,7 +10582,7 @@ public void testBug542707_006() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog = this.complianceLevel == ClassFileConstants.JDK13 ?
+	runner.expectedCompilerLog = checkPreviewAllowed() ?
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	return switch(day) {\n" + 
@@ -10593,12 +10593,12 @@ public void testBug542707_006() {
 			"1. ERROR in X.java (at line 0)\n" + 
 			"	enum SomeDays { Mon, Wed, Fri }\n" + 
 			"	^\n" + 
-			"Preview features enabled at an invalid source release level 12, preview can be enabled only at source level 13\n" + 
+			"Preview features enabled at an invalid source release level "+CompilerOptions.versionFromJdkLevel(this.complianceLevel)+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 			"----------\n";
 	runner.runNegativeTest();
 }
 public void testBug545715() {
-	if (this.complianceLevel < ClassFileConstants.JDK13) return; // switch expression
+	if (!checkPreviewAllowed()) return; // switch expression
 	Map<String, String>  customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
@@ -10621,15 +10621,7 @@ public void testBug545715() {
 	    new String[] {"--enable-preview"});
 }
 public void testBug548418_001a() {
-	if (this.complianceLevel < ClassFileConstants.JDK13)
-		return;
-	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	if (this.complianceLevel < ClassFileConstants.JDK14) return;
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10662,35 +10654,16 @@ public void testBug548418_001a() {
 			"	}\n"+
 			"}\n"
 				},
-		options,
 		"----------\n" + 
-		"1. ERROR in X.java (at line 12)\n" + 
-		"	x = null;\n" + 
-		"	    ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 13)\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
 		"	break x;\n" + 
 		"	^^^^^^^^\n" + 
-		"The label x is missing\n" + 
-		"----------\n" + 
-		"3. ERROR in X.java (at line 15)\n" + 
-		"	default -> null;\n" + 
-		"	           ^^^^\n" + 
-		"Null type mismatch: required \'@NonNull X\' but the provided value is null\n" + 
+		"Breaking out of switch expressions not permitted\n" + 
 		"----------\n"
 	);
 }
 public void testBug548418_001b() {
-	if (this.complianceLevel < ClassFileConstants.JDK13)
-		return;
-	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	if (this.complianceLevel < ClassFileConstants.JDK14) return;
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10723,7 +10696,6 @@ public void testBug548418_001b() {
 			"	}\n"+
 			"}\n"
 				},
-		options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 12)\n" + 
 		"	x = null;\n" + 
@@ -10738,15 +10710,7 @@ public void testBug548418_001b() {
 	);
 }
 public void testBug548418_002a() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
-		return;
-	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	if (this.complianceLevel < ClassFileConstants.JDK14) return;
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10766,7 +10730,6 @@ public void testBug548418_002a() {
 			"		}\n" +
 			"}\n"
 				},
-		options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 7)\n" + 
 		"	break \"hello\";\n" + 
@@ -10786,15 +10749,7 @@ public void testBug548418_002a() {
 	);
 }
 public void testBug548418_002b() {
-	if (this.complianceLevel != ClassFileConstants.JDK13)
-		return;
-	Map options = getCompilerOptions();
-	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); 
-	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
-	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-	options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+	if (this.complianceLevel < ClassFileConstants.JDK14) return;
 	runNegativeTestWithLibs(
 			new String[] {
 			"X.java",
@@ -10814,7 +10769,6 @@ public void testBug548418_002b() {
 			"		}\n" +
 			"}\n"
 				},
-		options,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	Zork();\n" + 

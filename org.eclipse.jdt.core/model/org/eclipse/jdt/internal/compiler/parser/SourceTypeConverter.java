@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -475,8 +475,13 @@ public class SourceTypeConverter extends TypeConverter {
 		SourceTypeElementInfo typeInfo = (SourceTypeElementInfo) typeHandle.getElementInfo();
 		if (typeInfo.isAnonymousMember())
 			throw new AnonymousMemberFound();
-		/* create type declaration - can be member type */
+		/* create type/record declaration - can be member type */
 		TypeDeclaration type = new TypeDeclaration(compilationResult);
+		if ((TypeDeclaration.kind(typeInfo.getModifiers()) == TypeDeclaration.RECORD_DECL)) {
+			// The first choice constructor that takes CompilationResult as arg is not setting all the fields
+			// Hence, use the one that does
+			type = new RecordDeclaration(type);
+		}
 		if (typeInfo.getEnclosingType() == null) {
 			if (typeHandle.isAnonymous()) {
 				type.name = CharOperation.NO_CHAR;

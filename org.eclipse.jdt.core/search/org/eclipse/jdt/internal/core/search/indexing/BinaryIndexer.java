@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -160,6 +160,13 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 				addTypeReference(compoundName[compoundName.length-1]);
 			}
 			addFieldReference(TypeConstants.UPPER_MODULE);
+		}
+		if ((bits & TagBits.AnnotationForRecordComponent) != 0) {
+			if (compoundName == null) {
+				compoundName = TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE;
+				addTypeReference(compoundName[compoundName.length-1]);
+			}
+			addFieldReference(TypeConstants.UPPER_RECORD_COMPONENT);
 		}
 	}
 	private void addBinaryRetentionAnnotation(long bits) {
@@ -720,6 +727,10 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 					break;
 				case TypeDeclaration.ANNOTATION_TYPE_DECL :
 					addAnnotationTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, false);
+					break;
+				case TypeDeclaration.RECORD_DECL :
+					superclass = replace('/', '.', reader.getSuperclassName());
+					addClassDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces, typeParameterSignatures, false);
 					break;
 			}
 

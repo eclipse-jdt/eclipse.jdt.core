@@ -128,7 +128,7 @@ public void resolve(BlockScope scope) {
 	}
 	if (this.switchExpression != null || this.isImplicit) {
 		if (this.switchExpression == null && this.isImplicit && !this.expression.statementExpression()) {
-			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK12 && scope.compilerOptions().enablePreviewFeatures) {
+			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
 				/* JLS 13 14.11.2
 				Switch labeled rules in switch statements differ from those in switch expressions (15.28).
 				In switch statements they must be switch labeled statement expressions, ... */
@@ -137,12 +137,8 @@ public void resolve(BlockScope scope) {
 			}
 		}
 	} else {
-		if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK13) {
-			if (scope.compilerOptions().enablePreviewFeatures) {
-				scope.problemReporter().switchExpressionsYieldOutsideSwitchExpression(this);
-			} else {
-				scope.problemReporter().switchExpressionsYieldIllegalStatement(this);
-			}
+		if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
+			scope.problemReporter().switchExpressionsYieldOutsideSwitchExpression(this);
 		}
 	}
 	this.expression.resolveType(scope);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1802,6 +1802,15 @@ public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output
 	return this.right.printExpression(0, output);
 }
 
+@Override
+public void initializePatternVariables(BlockScope scope, CodeStream codeStream) {
+	this.left.initializePatternVariables(scope, codeStream);
+	this.right.initializePatternVariables(scope, codeStream);
+}
+@Override
+public boolean containsPatternVariable() {
+	return this.left.containsPatternVariable() || this.right.containsPatternVariable();
+}
 @Override
 public TypeBinding resolveType(BlockScope scope) {
 	// keep implementation in sync with CombinedBinaryExpression#resolveType

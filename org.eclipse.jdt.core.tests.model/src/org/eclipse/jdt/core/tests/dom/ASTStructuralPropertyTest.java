@@ -356,7 +356,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 	}
 
 	public void testNodeClassForType() {
-		Set classes = new HashSet(100);
+		Set classes = new HashSet(103);
 		// make sure node types are contiguous starting at 0
 		int hi = 0;
 		for (int nodeType = 1; nodeType < 110; nodeType++) {
@@ -372,7 +372,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 				// oops - guess that's not valid
 			}
 		}
-		assertEquals("Wrong last known type", 102, hi); // last known one
+		assertEquals("Wrong last known type", 103, hi); // last known one
 		assertEquals("Wrong number of distinct types",  hi, classes.size()); // all classes are distinct
 	}
 }

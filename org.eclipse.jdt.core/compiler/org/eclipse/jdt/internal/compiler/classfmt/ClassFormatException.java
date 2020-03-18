@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -45,6 +45,7 @@ public class ClassFormatException extends Exception {
 	public static final int ErrIncorrectInterfaceMethods = 26;
 	public static final int ErrInvalidMethodName = 27;
 	public static final int ErrInvalidMethodSignature = 28;
+	public static final int ErrBadComponentInfo = 29;
 
 	private static final long serialVersionUID = 6667458511042774540L; // backward compatible
 

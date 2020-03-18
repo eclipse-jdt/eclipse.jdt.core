@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -1972,7 +1972,6 @@ public void generateEmulationForMethod(Scope scope, MethodBinding methodBinding)
 	iconst_1();
 	invokeAccessibleObjectSetAccessible();
 }
-
 /**
  * Generates the sequence of instructions which will perform the conversion of the expression
  * on the stack into a different type (e.g. long l = someInt; --> i2l must be inserted).
@@ -3170,6 +3169,31 @@ public void generateSyntheticOuterArgumentValues(BlockScope currentScope, Refere
 			generateOuterAccess(emulationPath, invocationSite, targetVariable, currentScope);
 		}
 	}
+}
+public void generateSyntheticBodyForRecordEquals(SyntheticMethodBinding methodBinding, int index) {
+	initializeMaxLocals(methodBinding);
+	aload_0();
+	aload_1();
+	String sig = new String(methodBinding.signature());
+	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
+	invokeDynamic(index, methodBinding.parameters.length, 1, methodBinding.selector, sig.toCharArray());
+	ireturn();
+}
+public void generateSyntheticBodyForRecordHashCode(SyntheticMethodBinding methodBinding, int index) {
+	initializeMaxLocals(methodBinding);
+	aload_0();
+	String sig = new String(methodBinding.signature());
+	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
+	invokeDynamic(index, methodBinding.parameters.length, 1, methodBinding.selector, sig.toCharArray());
+	ireturn();
+}
+public void generateSyntheticBodyForRecordToString(SyntheticMethodBinding methodBinding, int index) {
+	initializeMaxLocals(methodBinding);
+	aload_0();
+	String sig = new String(methodBinding.signature());
+	sig = sig.substring(0, 1)+ new String(methodBinding.declaringClass.signature()) + sig.substring(1);
+	invokeDynamic(index, methodBinding.parameters.length, 1, methodBinding.selector, sig.toCharArray());
+	areturn();
 }
 
 public void generateUnboxingConversion(int unboxedTypeID) {

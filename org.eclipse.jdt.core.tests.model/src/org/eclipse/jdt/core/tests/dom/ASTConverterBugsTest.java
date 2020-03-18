@@ -811,66 +811,40 @@ public void testBug218824a() throws JavaModelException {
 			"}\n");
 
 	assertASTResult(
-			"===== AST =====\n" +
-			"package a;\n" +
-			"public class X {\n" +
-			"  public void takeParam(  int i){\n" +
-			"  }\n" +
-			"  void test(){\n" +
-			"    char c=\'a\';\n" +
-			"    public void takeParam;\n" +
-			"    int i;\n" +
-			"    new test(){\n" +
-			"      char c=\'a\';\n" +
-			"{\n" +
-			"        takeParam((int)c);\n" +
-			"      }\n" +
-			"      [*1*]void takeParam(){\n" +
-			"      }[*1*]\n" +
-			"    }\n" +
-			";\n" +
-			"  }\n" +
-			"}\n" +
-			"\n" +
-			"===== Details =====\n" +
-			"1:METHOD_DECLARATION,[447,10],,MALFORMED,[null]\n" +
-			"===== Problems =====\n" +
-			"1. ERROR in /Converter15/src/a/X.java (at line 9)\n" +
-			"	public void takeParam(int i) {\n" +
-			"	            ^^^^^^^^^\n" +
-			"void is an invalid type for the variable takeParam\n" +
-			"2. ERROR in /Converter15/src/a/X.java (at line 9)\n" +
-			"	public void takeParam(int i) {\n" +
-			"	                     ^\n" +
-			"Syntax error on token \"(\", ; expected\n" +
-			"3. ERROR in /Converter15/src/a/X.java (at line 9)\n" +
-			"	public void takeParam(int i) {\n" +
-			"	                           ^\n" +
-			"Syntax error on token \")\", ; expected\n" +
-			"4. ERROR in /Converter15/src/a/X.java (at line 13)\n" +
-			"	void test() {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"void\", new expected\n" +
-			"5. ERROR in /Converter15/src/a/X.java (at line 13)\n" +
-			"	void test() {\n" +
-			"	     ^^^^\n" +
-			"test cannot be resolved to a type\n" +
-			"6. ERROR in /Converter15/src/a/X.java (at line 14)\n" +
-			"	char c = \'a\';\n" +
-			"	            ^\n" +
-			"Syntax error on token \";\", { expected after this token\n" +
-			"7. ERROR in /Converter15/src/a/X.java (at line 16)\n" +
-			"	}takeParam((int) c);\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete ClassBody\n" +
-			"8. ERROR in /Converter15/src/a/X.java (at line 16)\n" +
-			"	}takeParam((int) c);\n" +
-			"	^\n" +
-			"Syntax error, insert \";\" to complete Statement\n" + 
-			"9. ERROR in /Converter15/src/a/X.java (at line 16)\n" + 
+			"===== AST =====\n" + 
+			"package a;\n" + 
+			"public class X {\n" + 
+			"  public void takeParam(  int i){\n" + 
+			"  }\n" + 
+			"  void test(){\n" + 
+			"    char c=\'a\';\n" + 
+			"    public void takeParam;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"\n" + 
+			"===== Details =====\n" + 
+			"1:No corresponding node\n" + 
+			"===== Problems =====\n" + 
+			"1. ERROR in /Converter15/src/a/X.java (at line 9)\n" + 
+			"	public void takeParam(int i) {\n" + 
+			"	       ^^^^\n" + 
+			"Syntax error on token \"void\", record expected\n" + 
+			"2. ERROR in /Converter15/src/a/X.java (at line 9)\n" + 
+			"	public void takeParam(int i) {\n" + 
+			"	            ^^^^^^^^^\n" + 
+			"void is an invalid type for the variable takeParam\n" + 
+			"3. ERROR in /Converter15/src/a/X.java (at line 13)\n" + 
+			"	void test() {\n" + 
+			"	^^^^\n" + 
+			"Syntax error on token \"void\", record expected\n" + 
+			"4. ERROR in /Converter15/src/a/X.java (at line 14)\n" + 
+			"	char c = \'a\';\n" + 
+			"	            ^\n" + 
+			"Syntax error on token \";\", { expected after this token\n" + 
+			"5. ERROR in /Converter15/src/a/X.java (at line 16)\n" + 
 			"	}takeParam((int) c);\n" + 
-			"	 ^^^^^^^^^^\n" + 
-			"Return type for the method is missing\n",
+			"	^\n" + 
+			"Syntax error, insert \"}\" to complete RecordBody\n",
 			result);
 }
 /**

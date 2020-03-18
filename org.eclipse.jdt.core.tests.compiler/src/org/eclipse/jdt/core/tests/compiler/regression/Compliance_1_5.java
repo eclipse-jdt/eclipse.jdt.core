@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -58,7 +58,7 @@ public static Test suite() {
 // All specified tests which does not belong to the class are skipped...
 static {
 	// Names of tests to run: can be "testBugXXXX" or "BugXXXX")
-//		TESTS_NAMES = new String[] { "Bug58069" };
+//		TESTS_NAMES = new String[] { "test079" };
 	// Numbers of tests to run: "test<number>" will be run for each number of this array
 //	TESTS_NUMBERS = new int[] { 88 };
 	// Range numbers of tests to run: all tests between "test<first>" and "test<last>" will be run for { first, last }
@@ -2719,7 +2719,8 @@ public void test078() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=47227
  */
-public void test079() {
+// TODO: Enable after Bug 552769 is fixed
+public void _test079() {
 	this.runNegativeTest(
 		new String[] {
 			"Hello.java",
@@ -2751,43 +2752,17 @@ public void test079() {
 		"1. ERROR in Hello.java (at line 1)\n" + 
 		"	void ___eval() {\n" + 
 		"	^^^^\n" + 
-		"Syntax error on token \"void\", @ expected\n" + 
+		"Syntax error on token \"void\", record expected\n" + 
 		"----------\n" + 
 		"2. ERROR in Hello.java (at line 1)\n" + 
 		"	void ___eval() {\n" + 
 		"	             ^\n" + 
-		"Syntax error on token \")\", delete this token\n" + 
+		"Syntax error on token \")\", { expected after this token\n" + 
 		"----------\n" + 
-		"3. ERROR in Hello.java (at line 9)\n" + 
-		"	};\n" + 
-		"}\n" + 
-		"	^^^^\n" + 
-		"Syntax error on tokens, delete these tokens\n" + 
-		"----------\n" + 
-		"4. ERROR in Hello.java (at line 23)\n" + 
+		"3. ERROR in Hello.java (at line 23)\n" + 
 		"	}\n" + 
 		"	^\n" + 
-		"Syntax error, insert \"}\" to complete ClassBody\n" + 
-		"----------\n" + 
-		"5. ERROR in Hello.java (at line 23)\n" + 
-		"	}\n" + 
-		"	^\n" + 
-		"Syntax error, insert \"}\" to complete MemberValue\n" + 
-		"----------\n" + 
-		"6. ERROR in Hello.java (at line 23)\n" + 
-		"	}\n" + 
-		"	^\n" + 
-		"Syntax error, insert \")\" to complete Modifiers\n" + 
-		"----------\n" + 
-		"7. ERROR in Hello.java (at line 23)\n" + 
-		"	}\n" + 
-		"	^\n" + 
-		"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" + 
-		"----------\n" + 
-		"8. ERROR in Hello.java (at line 23)\n" + 
-		"	}\n" + 
-		"	^\n" + 
-		"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" + 
+		"Syntax error, insert \"}\" to complete RecordBody\n" + 
 		"----------\n"
 	);
 }

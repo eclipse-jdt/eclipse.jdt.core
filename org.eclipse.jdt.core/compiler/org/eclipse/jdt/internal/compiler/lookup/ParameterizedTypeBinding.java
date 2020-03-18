@@ -1519,7 +1519,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			if (isStatic() && isNestedType()) buffer.append("static "); //$NON-NLS-1$
 			if (isFinal()) buffer.append("final "); //$NON-NLS-1$
 
-			if (isEnum()) buffer.append("enum "); //$NON-NLS-1$
+			if (isRecord()) buffer.append("record "); //$NON-NLS-1$
+			else if (isEnum()) buffer.append("enum "); //$NON-NLS-1$
 			else if (isAnnotationType()) buffer.append("@interface "); //$NON-NLS-1$
 			else if (isClass()) buffer.append("class "); //$NON-NLS-1$
 			else buffer.append("interface "); //$NON-NLS-1$

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -72,13 +72,15 @@ public class SyntheticMethodBinding extends MethodBinding {
      * Is never directly materialized in bytecode
      */
     public static final int SerializableMethodReference = 18;
+    public static final int RecordOverrideToString = 19;
+    public static final int RecordOverrideHashCode = 20;
+    public static final int RecordOverrideEquals = 21;
     
 	public int sourceStart = 0; // start position of the matching declaration
 	public int index; // used for sorting access methods in the class file
 	public int fakePaddedParameters = 0; // added in synthetic constructor to avoid name clash.
 
 	public SyntheticMethodBinding(FieldBinding targetField, boolean isReadAccess, boolean isSuperAccess, ReferenceBinding declaringClass) {
-
 		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccStatic | ClassFileConstants.AccSynthetic;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
@@ -151,7 +153,6 @@ public class SyntheticMethodBinding extends MethodBinding {
 				setSelector(CharOperation.concat(TypeConstants.SYNTHETIC_ACCESS_METHOD_PREFIX, String.valueOf(++methodId).toCharArray()));
 			}
 		} while (needRename);
-
 		// retrieve sourceStart position for the target field for line number attributes
 		FieldDeclaration[] fieldDecls = declaringSourceType.scope.referenceContext.fields;
 		if (fieldDecls != null) {
@@ -440,6 +441,63 @@ public class SyntheticMethodBinding extends MethodBinding {
 		this.index = methodId;
 	}
 
+	public SyntheticMethodBinding(ReferenceBinding declaringClass, FieldBinding targetField, int index) {
+		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
+		assert declaringSourceType.isRecord();
+		this.declaringClass = declaringSourceType;
+		this.modifiers = ClassFileConstants.AccPublic;
+		if (this.declaringClass.isStrictfp())
+			this.modifiers |= ClassFileConstants.AccStrictfp;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+		this.parameters = Binding.NO_PARAMETERS;
+		this.returnType = targetField.type;
+		this.selector = targetField.name;
+		this.targetReadField = targetField;
+		this.purpose = SyntheticMethodBinding.FieldReadAccess;
+		this.thrownExceptions = Binding.NO_EXCEPTIONS;
+		this.declaringClass = declaringSourceType;
+		this.setTypeAnnotations(targetField.getAnnotations());
+		this.index = index;
+
+		// retrieve sourceStart position for the target field for line number attributes
+		FieldDeclaration[] fieldDecls = declaringSourceType.scope.referenceContext.fields;
+		if (fieldDecls != null) {
+			for (int i = 0, max = fieldDecls.length; i < max; i++) {
+				if (fieldDecls[i].binding == targetField) {
+					this.sourceStart = fieldDecls[i].sourceStart;
+					return;
+				}
+			}
+		}
+		this.sourceStart = declaringSourceType.scope.referenceContext.sourceStart;
+	}
+	public SyntheticMethodBinding(ReferenceBinding declaringClass, char[] selector, int index) {
+		SourceTypeBinding declaringSourceType = (SourceTypeBinding) declaringClass;
+		assert declaringSourceType.isRecord();
+		this.declaringClass = declaringSourceType;
+		this.modifiers = ClassFileConstants.AccPublic;
+		if (this.declaringClass.isStrictfp())
+				this.modifiers |= ClassFileConstants.AccStrictfp;
+		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
+	    this.selector = selector;
+	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
+		if (selector == TypeConstants.TOSTRING) {
+			this.returnType = declaringSourceType.scope.getJavaLangString();
+		    this.parameters = Binding.NO_PARAMETERS;
+		    this.purpose = SyntheticMethodBinding.RecordOverrideToString;
+		} else if (selector == TypeConstants.HASHCODE) {
+			this.modifiers |= ClassFileConstants.AccFinal;
+			this.returnType = TypeBinding.INT;
+		    this.parameters = Binding.NO_PARAMETERS;
+		    this.purpose = SyntheticMethodBinding.RecordOverrideHashCode;
+		} else if (selector == TypeConstants.EQUALS) {
+			this.modifiers |= ClassFileConstants.AccFinal;
+			this.returnType = TypeBinding.BOOLEAN;
+		    this.parameters = new TypeBinding[] {declaringSourceType.scope.getJavaLangObject()};
+		    this.purpose = SyntheticMethodBinding.RecordOverrideEquals;
+		}
+		this.index = index;
+	}
 	/**
 	 * An constructor accessor is a constructor with an extra argument (declaringClass), in case of
 	 * collision with an existing constructor, then add again an extra argument (declaringClass again).

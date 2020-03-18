@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -702,6 +702,8 @@ public void computeId() {
 				case 'R' :
 					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_RUNTIMEEXCEPTION[2]))
 						this.id = 	TypeIds.T_JavaLangRuntimeException;
+					if (CharOperation.equals(typeName, TypeConstants.JAVA_LANG_RECORD[2]))
+						this.id = TypeIds.T_JavaLangRecord;
 					break;
 				case 'S' :
 					switch (typeName.length) {
@@ -2114,7 +2116,7 @@ protected int applyCloseableClassWhitelists(CompilerOptions options) {
 
 protected boolean hasMethodWithNumArgs(char[] selector, int numArgs) {
 	for (MethodBinding methodBinding : unResolvedMethods()) {
-		if (CharOperation.equals(methodBinding.selector, TypeConstants.CLOSE)
+		if (CharOperation.equals(methodBinding.selector, selector)
 				&& methodBinding.parameters.length == numArgs) {
 			return true;
 		}

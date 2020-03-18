@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -55,6 +55,7 @@ public class FieldDeclaration extends AbstractVariableDeclaration {
 
 	public int endPart1Position;
 	public int endPart2Position;
+	public boolean isARecordComponent; // used in record components
 
 public FieldDeclaration() {
 	// for subtypes or conversion
@@ -72,7 +73,8 @@ public FieldDeclaration(	char[] name, int sourceStart, int sourceEnd) {
 public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowContext, FlowInfo flowInfo) {
 	if (this.binding != null && !this.binding.isUsed() && this.binding.isOrEnclosedByPrivateType()) {
 		if (!initializationScope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
-			initializationScope.problemReporter().unusedPrivateField(this);
+			if (!this.isARecordComponent) // record component used by implicit methods
+				initializationScope.problemReporter().unusedPrivateField(this);
 		}
 	}
 	// cannot define static non-constant field inside nested class
@@ -136,6 +138,19 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		} else {
 			codeStream.fieldAccess(Opcodes.OPC_putfield, this.binding, null /* default declaringClass */);
 		}
+	}
+	// The fields escape CodeStream#exitUserScope(), and as a result end PC wouldn't be set.
+	// Set this explicitly (unlike a local declaration)
+	if (this.initialization != null && this.initialization.containsPatternVariable()) {
+		this.initialization.traverse(new ASTVisitor() {
+			@Override
+			public boolean visit(
+		    		InstanceOfExpression instanceOfExpression,
+		    		BlockScope scope) {
+				instanceOfExpression.elementVariable.binding.recordInitializationEndPC(codeStream.position);
+				return true;
+			}
+		}, currentScope);
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 }

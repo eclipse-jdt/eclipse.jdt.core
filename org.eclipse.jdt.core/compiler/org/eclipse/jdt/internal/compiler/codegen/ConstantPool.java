@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -306,6 +306,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] AddSuppressedSignature = "(Ljava/lang/Throwable;)V".toCharArray(); //$NON-NLS-1$
 	public static final char[] Clone = "clone".toCharArray(); //$NON-NLS-1$
 	public static final char[] CloneSignature = "()Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
+	public static final char[] BOOTSTRAP = "bootstrap".toCharArray(); //$NON-NLS-1$
+	public static final char[] JAVA_LANG_RUNTIME_OBJECTMETHOD_BOOTSTRAP_SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	
 	/**
 	 * ConstantPool constructor comment.
@@ -877,6 +879,24 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		writeU1(MethodHandleTag);
 		writeU1(referenceKind);
 		writeU2(indexForMethod);
+
+		return index;
+	}
+	public int literalIndexForMethodHandleFieldRef(int referenceKind, char[] declaringClass, char[] name, char[] signature) {
+		assert referenceKind == MethodHandleRefKindGetField;
+		int indexForField = literalIndexForField(declaringClass, name, signature);
+
+		int index = this.currentIndex++;
+		int length = this.offsets.length;
+		if (length <= index) {
+			// resize
+			System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
+		}
+		
+		this.offsets[index] = this.currentOffset;
+		writeU1(MethodHandleTag);
+		writeU1(referenceKind);
+		writeU2(indexForField);
 
 		return index;
 	}

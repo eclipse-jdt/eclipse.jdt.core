@@ -1,5 +1,5 @@
 /*******************************************************************************
- *  * Copyright (c) 2000, 2017 IBM Corporation and others.
+ *  * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -143,6 +143,10 @@ private void checkAndSetModifiersForConstructor(MethodBinding methodBinding) {
 	} else if ((((AbstractMethodDeclaration) this.referenceContext).modifiers & ClassFileConstants.AccStrictfp) != 0) {
 		// must check the parse node explicitly
 		problemReporter().illegalModifierForMethod((AbstractMethodDeclaration) this.referenceContext);
+	} else if (this.referenceContext instanceof CompactConstructorDeclaration) {
+		if ((((AbstractMethodDeclaration) this.referenceContext).modifiers & ClassFileConstants.AccPublic) == 0) {
+			problemReporter().recordCanonicalConstructorNotPublic((AbstractMethodDeclaration) this.referenceContext);
+		}
 	}
 
 	// check for incompatible modifiers in the visibility bits, isolate the visibility bits
@@ -427,7 +431,14 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 		method.binding.typeVariables = createTypeVariables(typeParameters, method.binding);
 		method.binding.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 	}
+    checkAndSetRecordCanonicalConsAndMethods(method);
 	return method.binding;
+}
+private void checkAndSetRecordCanonicalConsAndMethods(AbstractMethodDeclaration am) {
+	if (am.binding != null && (am.bits & ASTNode.IsImplicit) != 0) {
+		am.binding.tagBits |= TagBits.isImplicit;
+		am.binding.tagBits |= (am.bits & ASTNode.IsCanonicalConstructor) != 0 ? TagBits.IsCanonicalConstructor : 0;
+	}
 }
 
 /**

@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - contribution for bug 337868 - [compiler][model] incomplete support for package-info.java when using SearchableEnvironment
@@ -179,6 +179,13 @@ public class NameLookup implements SuffixConstants {
 	public static final int ACCEPT_ENUMS = ASTNode.Bit4;
 
 	/**
+	 * Accept flag for specifying records.
+	 * @noreference This field is not intended to be referenced by clients.
+	 * TODO Clients should add code if any special treatment is needed.
+	 */
+	public static final int ACCEPT_RECORDS = ASTNode.Bit25;
+
+	/**
 	 * Accept flag for specifying annotations.
 	 */
 	public static final int ACCEPT_ANNOTATIONS = ASTNode.Bit5;
@@ -186,7 +193,7 @@ public class NameLookup implements SuffixConstants {
 	/*
 	 * Accept flag for all kinds of types
 	 */
-	public static final int ACCEPT_ALL = ACCEPT_CLASSES | ACCEPT_INTERFACES | ACCEPT_ENUMS | ACCEPT_ANNOTATIONS;
+	public static final int ACCEPT_ALL = ACCEPT_CLASSES | ACCEPT_INTERFACES | ACCEPT_ENUMS | ACCEPT_ANNOTATIONS | ACCEPT_RECORDS;
 
 	public static boolean VERBOSE = false;
 
@@ -374,11 +381,13 @@ public class NameLookup implements SuffixConstants {
 					: TypeDeclaration.kind(((IBinaryType) ((BinaryType) type).getElementInfo()).getModifiers());
 			switch (kind) {
 				case TypeDeclaration.CLASS_DECL :
-					return (acceptFlags & ACCEPT_CLASSES) != 0;
+					return (acceptFlags & (ACCEPT_CLASSES | ACCEPT_RECORDS)) != 0;
 				case TypeDeclaration.INTERFACE_DECL :
 					return (acceptFlags & ACCEPT_INTERFACES) != 0;
 				case TypeDeclaration.ENUM_DECL :
 					return (acceptFlags & ACCEPT_ENUMS) != 0;
+				case TypeDeclaration.RECORD_DECL :
+					return (acceptFlags & ACCEPT_RECORDS) != 0;
 				default:
 					//case IGenericType.ANNOTATION_TYPE :
 					return (acceptFlags & ACCEPT_ANNOTATIONS) != 0;
@@ -953,6 +962,7 @@ public class NameLookup implements SuffixConstants {
 	 * @see #ACCEPT_INTERFACES
 	 * @see #ACCEPT_ENUMS
 	 * @see #ACCEPT_ANNOTATIONS
+	 * @see #ACCEPT_RECORDS
 	 */
 	public IType findType(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, boolean waitForIndices, boolean considerSecondaryTypes) {
 		if (pkg == null)
@@ -988,6 +998,7 @@ public class NameLookup implements SuffixConstants {
 	 * @see #ACCEPT_INTERFACES
 	 * @see #ACCEPT_ENUMS
 	 * @see #ACCEPT_ANNOTATIONS
+	 * @see #ACCEPT_RECORDS
 	 */
 	public IType findType(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags) {
 		if (pkg == null) return null;
@@ -1013,6 +1024,7 @@ public class NameLookup implements SuffixConstants {
 	 * @see #ACCEPT_INTERFACES
 	 * @see #ACCEPT_ENUMS
 	 * @see #ACCEPT_ANNOTATIONS
+	 * @see #ACCEPT_RECORDS
 	 */
 	public IType findType(String name, boolean partialMatch, int acceptFlags) {
 		NameLookup.Answer answer = findType(name, partialMatch, acceptFlags, false/*don't check restrictions*/);
@@ -1322,6 +1334,7 @@ public class NameLookup implements SuffixConstants {
 	 * @see #ACCEPT_INTERFACES
 	 * @see #ACCEPT_ENUMS
 	 * @see #ACCEPT_ANNOTATIONS
+	 * @see #ACCEPT_RECORDS
 	 */
 	public void seekTypes(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor, boolean considerSecondaryTypes) {
 /*		if (VERBOSE) {

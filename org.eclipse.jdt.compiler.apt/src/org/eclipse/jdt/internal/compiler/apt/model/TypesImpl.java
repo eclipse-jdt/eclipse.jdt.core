@@ -138,6 +138,7 @@ public class TypesImpl implements Types {
 			break;
 		case FIELD:
 		case ENUM_CONSTANT:
+		case RECORD_COMPONENT:
 			typeMirror = findMemberInHierarchy(referenceBinding, elementImpl._binding, new MemberInTypeFinder() {
 				@Override
 				public TypeMirror find(ReferenceBinding typeBinding, Binding memberBinding) {
@@ -159,7 +160,7 @@ public class TypesImpl implements Types {
 		case ANNOTATION_TYPE:
 		case INTERFACE:
 		case CLASS:
-
+		case RECORD:
 			typeMirror = findMemberInHierarchy(referenceBinding, elementImpl._binding, new MemberInTypeFinder() {
 				@Override
 				public TypeMirror find(ReferenceBinding typeBinding, Binding memberBinding) {

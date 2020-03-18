@@ -160,7 +160,7 @@ public class SwitchStatement extends Expression {
 						fallThroughState = CASE;
 					} else {
 						if (!(this instanceof SwitchExpression) &&
-							currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK13 &&
+							currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK14 &&
 							statement instanceof YieldStatement &&
 							((YieldStatement) statement).isImplicit) {
 							YieldStatement y = (YieldStatement) statement;

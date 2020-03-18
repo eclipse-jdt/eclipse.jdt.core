@@ -197,6 +197,27 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	}
 
 	@Override
+	public Argument getRecordComponent() {
+		if (this.arguments != null && this.arguments.length != 0)
+			return null;
+		ClassScope skope = this.scope.classScope();
+		if (!(skope.referenceContext instanceof RecordDeclaration))
+			return null;
+		RecordDeclaration rd = (RecordDeclaration) skope.referenceContext;
+		Argument[] args = rd.getArgs();
+		if (args == null || args.length == 0)
+			return null;
+		for (Argument arg : rd.getArgs()) {
+			if (arg == null || arg.name == null)
+				continue;
+			if (CharOperation.equals(this.selector, arg.name)) {
+				return arg;
+			}
+		}
+		return null;
+	}
+
+	@Override
 	public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 		//fill up the method body with statement
 		parser.parse(this, unit);
@@ -215,6 +236,22 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			this.bits |= (this.returnType.bits & ASTNode.HasTypeAnnotations);
 			this.returnType.resolvedType = this.binding.returnType;
 			// record the return type binding
+		}
+		Argument recordComponent = getRecordComponent();
+		if (recordComponent != null) {
+			/* JLS 14 Records Sec 8.10.3 */
+			if (this.returnType != null && TypeBinding.notEquals(this.returnType.resolvedType, recordComponent.type.resolvedType))
+				this.scope.problemReporter().recordIllegalAccessorReturnType(this.returnType, recordComponent.type.resolvedType);
+			if (this.typeParameters != null)
+				this.scope.problemReporter().recordAccessorMethodShouldNotBeGeneric(this);
+			if (this.binding != null) {
+				if ((this.binding.modifiers & ClassFileConstants.AccPublic) == 0)
+					this.scope.problemReporter().recordAccessorMethodShouldBePublic(this);
+				if ((this.binding.modifiers & ClassFileConstants.AccStatic) != 0)
+					this.scope.problemReporter().recordAccessorMethodShouldNotBeStatic(this);
+			}
+			if (this.thrownExceptions != null)
+				this.scope.problemReporter().recordAccessorMethodHasThrowsClause(this);
 		}
 		// check if method with constructor name
 		if (CharOperation.equals(this.scope.enclosingSourceType().sourceName, this.selector)) {
@@ -291,6 +328,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				if (this.selector == TypeConstants.VALUEOF) break;
 				//$FALL-THROUGH$
 			case TypeDeclaration.CLASS_DECL :
+			case TypeDeclaration.RECORD_DECL:
 				// if a method has an semicolon body and is not declared as abstract==>error
 				// native methods may have a semicolon body
 				if ((this.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0) {

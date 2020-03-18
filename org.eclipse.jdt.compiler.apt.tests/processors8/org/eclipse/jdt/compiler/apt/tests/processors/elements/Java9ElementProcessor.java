@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2019 IBM Corporation.
+ * Copyright (c) 2017, 2020 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -422,7 +422,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.EXPORTS);
-		assertEquals("incorrect no of exports", this.isJre11 ? 107 : (this.isJre10 ? 102 : 108) , filterDirective.size());
+		assertTrue("missing exports", filterDirective.size() > 100);
 		ExportsDirective pack = null;
 		for (Directive directive : filterDirective) {
 			ModuleElement.ExportsDirective exports = (ExportsDirective) directive;

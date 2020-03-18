@@ -934,7 +934,7 @@ public void testBug547113() throws CoreException {
 		this.problemRequestor.initialize(cSource.toCharArray());
 		this.workingCopy = getCompilationUnit("c/src/com/example/c/C.java").getWorkingCopy(this.wcOwner, null);
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
-		this.workingCopy.reconcile(AST_INTERNAL_JLS13, true, this.wcOwner, null);
+		this.workingCopy.reconcile(AST_INTERNAL_LATEST, true, this.wcOwner, null);
 		assertProblems("Expecting no problems",
 				"----------\n" +
 				"----------\n",

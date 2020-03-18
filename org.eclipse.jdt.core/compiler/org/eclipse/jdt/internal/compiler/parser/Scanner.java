@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -576,9 +576,6 @@ public char[] getCurrentTokenSourceString() {
 	return result;
 }
 protected final boolean scanForTextBlockBeginning() {
-	if (this.activeParser != null && !this.activeParser.isParsingJava13()) {
-		return false;
-	}
 	try {
 		// Don't change the position and current character unless we are certain
 		// to be dealing with a text block. For producing all errors like before
@@ -626,6 +623,7 @@ public char[] getCurrentTextBlock() {
 			all = new char[0];
 		}
 	}
+	all = normalize(all);
 	// 2. Split into lines. Consider both \n and \r as line separators
 	char[][] lines = CharOperation.splitOn('\n', all);
 	int size = lines.length;
@@ -637,8 +635,10 @@ public char[] getCurrentTextBlock() {
 			break;
 		}
 		char[][] sub = CharOperation.splitOn('\r', line);
-		for (char[] cs : sub) {
-			if (cs.length > 0) {
+		if (sub.length == 0) {
+			list.add(line);
+		} else {
+			for (char[] cs : sub) {
 				list.add(cs);
 			}
 		}
@@ -662,6 +662,8 @@ public char[] getCurrentTextBlock() {
 				}
 			}
 		}
+ 		// The last line with closing delimiter is part of the 
+ 		// determining line list even if empty
 		if (!blank || (i+1 == size)) {
 			if (prefix < 0 || whitespaces < prefix) {
  				prefix = whitespaces;
@@ -669,42 +671,165 @@ public char[] getCurrentTextBlock() {
 		}
 	}
 	// 3.2. Remove the common white space prefix
-	// 4. Handle escape sequences (already done while processing
+	// 4. Handle escape sequences  that are not already done in getNextToken0()
 	if (prefix == -1)
 		prefix = 0;
-	char[] result = new char[0];
+	StringBuilder result = new StringBuilder();
+	boolean newLine = false;
 	for(int i = 0; i < lines.length; i++) {
 		char[] l  = lines[i];
 		// Remove the common prefix from each line
 		// And remove all trailing whitespace
 		// Finally append the \n at the end of the line (except the last line)
 		int length = l.length;
-		int trail = length - 1;
-		for(int j = trail; j>0; j--) {
-			if (!ScannerHelper.isWhitespace(l[j])) {
-				trail = j;
+		int trail = length;
+		for(;trail > 0;) {
+			if (!ScannerHelper.isWhitespace(l[trail-1])) {
 				break;
 			}
+			trail--;
 		}
-		int newSize = (length == 0 || prefix > trail) ? 0 : (trail - prefix + 1);
-		char[] nl;
-		if (i >= (size - 1)) {
-			if (trail <= 0 || newSize == 0)
+		if (i >= (size -1)) {
+			if (newLine) result.append('\n');
+			if (trail < prefix)
 				continue;
-			nl = new char[newSize];
-			System.arraycopy(l, prefix, nl, 0, newSize); 
+			newLine = getLineContent(result, l, prefix, trail-1, false, true);
 		} else {
-			newSize += 1;
-			nl = new char[newSize];
-			nl[newSize - 1] = '\n';
-			if (newSize > 1)
-				System.arraycopy(l, prefix, nl, 0, newSize - 1);
+			if (i > 0 && newLine)
+				result.append('\n');
+			if (trail <= prefix) {
+				newLine = true;
+			} else {
+				boolean merge = length > 0 && l[length - 1] == '\\';
+				newLine = getLineContent(result, l, prefix, trail-1, merge, false);
+			}
 		}
-		result = CharOperation.concat(result, nl);
 	}
 	//	get rid of all the cached values
 	this.rawStart = -1;
-	return result;
+	return result.toString().toCharArray();
+}
+private char[] normalize(char[] content) {
+	StringBuilder result = new StringBuilder();
+	boolean isCR = false;
+	for (char c : content) {
+		switch (c) {
+			case '\r':
+				result.append(c);
+				isCR = true;
+				break;
+			case '\n':
+				if (!isCR) {
+					result.append(c);
+				}
+				isCR = false;
+				break;
+			default:
+				result.append(c);
+				isCR = false;
+				break;
+		}
+	}
+	return result.toString().toCharArray();
+}
+// This method is for handling the left over escaped characters during the first
+// scanning (scanForStringLiteral). Admittedly this goes over the text block 
+// content again char by char, but this is required in order to correctly
+// treat all the white space and line endings
+private boolean getLineContent(StringBuilder result, char[] line, int start, int end, boolean merge, boolean lastLine) {
+	int lastPointer = 0;
+	for(int i = start; i < end; i++) {
+		char c = line[i];
+		if (c == '\\') {
+			if (i < end) {
+				if (lastPointer + 1 == i) {
+					lastPointer = i+1;
+				} else {
+					result.append(CharOperation.subarray(line, lastPointer == 0 ? start : lastPointer+1, i));
+				}
+				switch (line[++i]) {
+					case '\\' :
+						result.append('\\');
+						if (i == end)
+							merge = false;
+						//i = lastPointer;
+						lastPointer = i;
+						break;
+					case 's' :
+						result.append(' ');
+						lastPointer = i;
+						break;
+					case 'n' :
+						result.append('\n');
+						lastPointer = i;
+						break;
+					case 'r' :
+						result.append('\r');
+						lastPointer = i;
+						break;
+					case 'f' :
+						result.append('\f');
+						lastPointer = i;
+						break;
+					default :
+						// Direct copy from scanEscapeCharacter
+						int pos = i;
+						char ch = line[pos];
+						int number = ScannerHelper.getHexadecimalValue(ch);
+						if (number >= 0 && number <= 7) {
+							boolean zeroToThreeNot = number > 3;
+							try {
+								if (ScannerHelper.isDigit(ch = line[++pos])) {
+									int digit = ScannerHelper.getHexadecimalValue(ch);
+									if (digit >= 0 && digit <= 7) {
+										number = (number * 8) + digit;
+										if (ScannerHelper.isDigit(ch = line[++pos])) {
+											if (zeroToThreeNot) {
+												// has read \NotZeroToThree OctalDigit Digit --> ignore last character
+											} else {
+												digit = ScannerHelper.getHexadecimalValue(ch);
+												if (digit >= 0 && digit <= 7){ // has read \ZeroToThree OctalDigit OctalDigit
+													number = (number * 8) + digit;
+												} else {
+													// has read \ZeroToThree OctalDigit NonOctalDigit --> ignore last character
+												}
+											}
+										} else { 
+											// has read \OctalDigit NonDigit--> ignore last character
+										}
+									} else { 
+										// has read \OctalDigit NonOctalDigit--> ignore last character
+									}
+								} else { 
+									// has read \OctalDigit --> ignore last character
+								}
+							} catch (InvalidInputException e) {
+								// Unlikely as this has already been processed in scanForStringLiteral()
+							}
+							if (number < 255) {
+								ch = (char) number;
+								//replaceEscapedChar(result, line, start, end, i, lastPointer, ch);
+							}
+							result.append(ch);
+							lastPointer = i = pos -1;
+						} else {
+							// Dealing with just '\'
+							result.append(c);
+							lastPointer = --i;
+						}
+				}
+			}
+		} 
+	}
+	end = merge ? end : end >= line.length ? end : end + 1;
+	char[] chars = lastPointer == 0 ? 
+			CharOperation.subarray(line, start, end) :
+				CharOperation.subarray(line, lastPointer + 1, end);
+	// The below check is because CharOperation.subarray tend to return null when the
+	// boundaries produce a zero sized char[]
+	if (chars != null)
+		result.append(chars);
+	return (!merge && !lastLine);
 }
 public final String getCurrentStringLiteral() {
 	//return the token REAL source (aka unicodes are precomputed).
@@ -1656,155 +1781,7 @@ protected int getNextToken0() throws InvalidInputException {
 					}
 					throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
 				case '"' :
-					boolean isTextBlock = false;
-					int lastQuotePos = 0;
-					try {
-						// consume next character
-						this.unicodeAsBackSlash = false;
-						boolean isUnicode = false;
-						isTextBlock = scanForTextBlockBeginning();
-						if (!isTextBlock) {
-							if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-									&& (this.source[this.currentPosition] == 'u')) {
-								getNextUnicodeChar();
-								isUnicode = true;
-							} else {
-								if (this.withoutUnicodePtr != 0) {
-									unicodeStore();
-								}
-							}
-						}
-						this.rawStart = this.currentPosition - this.startPosition;
-						int terminators = 0;
-						while (this.currentPosition <= this.eofPosition) {
-							if (this.currentCharacter == '"') {
-								if (!isTextBlock) {
-									return TerminalTokens.TokenNameStringLiteral;
-								}
-								lastQuotePos = this.currentPosition;
-								// look for text block delimiter
-								if (scanForTextBlockClose()) {
-									// Account for just the snippet being passed around
-									// If already at the EOF, bail out.
-									if (this.currentPosition + 2 < this.source.length && this.source[this.currentPosition + 2] == '"') {
-										terminators++;
-										if (terminators > 2)
-											throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
-									} else {
-										this.currentPosition += 2;
-										return TerminalTokens.TokenNameTextBlock;
-									}
-								}
-								if (this.withoutUnicodePtr != 0) {
-									unicodeStore();
-								}
-							} else {
-								terminators = 0;
-							}
-							if (!isTextBlock && (this.currentCharacter == '\n' || this.currentCharacter == '\r')) {
-								// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
-								if (isUnicode) {
-									int start = this.currentPosition;
-									for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
-										if (this.currentPosition >= this.eofPosition) {
-											this.currentPosition = start;
-											break;
-										}
-										if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
-											isUnicode = true;
-											getNextUnicodeChar();
-										} else {
-											isUnicode = false;
-										}
-										if (!isUnicode && this.currentCharacter == '\n') {
-											this.currentPosition--; // set current position on new line character
-											break;
-										}
-										if (this.currentCharacter == '\"') {
-											throw new InvalidInputException(INVALID_CHAR_IN_STRING);
-										}
-									}
-								} else {
-									this.currentPosition--; // set current position on new line character
-								}
-								throw new InvalidInputException(INVALID_CHAR_IN_STRING);
-							}
-							if (this.currentCharacter == '\\') {
-								if (this.unicodeAsBackSlash) {
-									this.withoutUnicodePtr--;
-									// consume next character
-									this.unicodeAsBackSlash = false;
-									if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
-										getNextUnicodeChar();
-										isUnicode = true;
-										this.withoutUnicodePtr--;
-									} else {
-										isUnicode = false;
-									}
-								} else {
-									if (this.withoutUnicodePtr == 0) {
-										unicodeInitializeBuffer(this.currentPosition - this.startPosition);
-									}
-									this.withoutUnicodePtr --;
-									this.currentCharacter = this.source[this.currentPosition++];
-								}
-								// we need to compute the escape character in a separate buffer
-								scanEscapeCharacter();
-								if (this.withoutUnicodePtr != 0) {
-									unicodeStore();
-								}
-							}
-							// consume next character
-							if (this.currentPosition >= this.eofPosition) {
-								break;
-							}
-							this.unicodeAsBackSlash = false;
-							if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-								&& (this.source[this.currentPosition] == 'u')) {
-								getNextUnicodeChar();
-								isUnicode = true;
-							} else {
-								isUnicode = false;
-								if (isTextBlock && this.currentCharacter == '"')
-									continue;
-								if (this.withoutUnicodePtr != 0) {
-									unicodeStore();
-								}
-							}
-						}
-						if (isTextBlock) {
-							if (lastQuotePos > 0)
-								this.currentPosition = lastQuotePos;
-							this.currentPosition = (lastQuotePos > 0) ? lastQuotePos : this.startPosition + this.rawStart;
-							throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
-						} else {
-							throw new InvalidInputException(UNTERMINATED_STRING);
-						}
-					} catch (IndexOutOfBoundsException e) {
-						if (isTextBlock) {
-							this.currentPosition = (lastQuotePos > 0) ? lastQuotePos : this.startPosition + this.rawStart;
-							throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
-						} else {
-							this.currentPosition--;
-							throw new InvalidInputException(UNTERMINATED_STRING);
-						}
-					} catch (InvalidInputException e) {
-						if (e.getMessage().equals(INVALID_ESCAPE)) {
-							// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
-							for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
-								if (this.currentPosition + lookAhead == this.eofPosition)
-									break;
-								if (this.source[this.currentPosition + lookAhead] == '\n')
-									break;
-								if (this.source[this.currentPosition + lookAhead] == '\"') {
-									this.currentPosition += lookAhead + 1;
-									break;
-								}
-							}
-
-						}
-						throw e; // rethrow
-					}
+					return scanForStringLiteral();
 				case '/' :
 					if (!this.skipComments) {
 						int test = getNextChar('/', '*');
@@ -2062,6 +2039,241 @@ protected int getNextToken0() throws InvalidInputException {
 		}
 	}
 	return TokenNameEOF;
+}
+private int scanForStringLiteral() throws InvalidInputException {
+	boolean isTextBlock = false;
+	int lastQuotePos = 0;
+
+	// consume next character
+	this.unicodeAsBackSlash = false;
+	boolean isUnicode = false;
+	isTextBlock = scanForTextBlockBeginning();
+	if (isTextBlock) {
+		try {
+			this.rawStart = this.currentPosition - this.startPosition;
+			int terminators = 0;
+			while (this.currentPosition <= this.eofPosition) {
+				if (this.currentCharacter == '"') {
+					lastQuotePos = this.currentPosition;
+					// look for text block delimiter
+					if (scanForTextBlockClose()) {
+							// Account for just the snippet being passed around
+							// If already at the EOF, bail out.
+						if (this.currentPosition + 2 < this.source.length && this.source[this.currentPosition + 2] == '"') {
+							terminators++;
+							if (terminators > 2)
+								throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
+						} else {
+							this.currentPosition += 2;
+							return TerminalTokens.TokenNameTextBlock;
+						}
+					}
+					if (this.withoutUnicodePtr != 0) {
+						unicodeStore();
+					}
+				} else {
+					terminators = 0;
+				}
+				outer: if (this.currentCharacter == '\\') {
+					switch(this.source[this.currentPosition]) {
+						case 'n' :
+						case 'r' :
+						case 'f' :
+							break outer;
+						case '\n' :
+						case '\r' :
+							this.currentCharacter = '\\';
+							this.currentPosition++;
+							break;
+						case '\\' :
+							this.currentPosition++;
+							break;
+						default :
+							if (this.unicodeAsBackSlash) {
+								this.withoutUnicodePtr--;
+								// consume next character
+								if (this.currentPosition >= this.eofPosition) {
+									break;
+								}
+								this.unicodeAsBackSlash = false;
+								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') 
+										&& (this.source[this.currentPosition] == 'u')) {
+									getNextUnicodeChar();
+									isUnicode = true;
+									this.withoutUnicodePtr--;
+								} else {
+									isUnicode = false;
+								}
+							} else {
+								if (this.withoutUnicodePtr == 0) {
+									unicodeInitializeBuffer(this.currentPosition - this.startPosition);
+								}
+								this.withoutUnicodePtr --;
+								this.currentCharacter = this.source[this.currentPosition++];
+							}
+							int oldPos = this.currentPosition - 1;
+							scanEscapeCharacter();
+							switch (this.currentCharacter) {
+								case ' ':
+									if (this.withoutUnicodePtr == 0) {
+										unicodeInitializeBuffer(this.currentPosition - this.startPosition);
+									}
+									// Kludge, retain the '\' and also
+									// when scanEscapeCharacter reads space in form of \040 and
+									// set the next character to 's'
+									// so, we get an escaped scape, i.e. \s, which will later be 
+									// replaced by space
+									unicodeStore('\\');
+									this.currentCharacter = 's';
+									break;
+								case '\r':
+								case '\n':
+									if (this.withoutUnicodePtr == 0) {
+										unicodeInitializeBuffer(this.currentPosition - this.startPosition);
+									}
+									unicodeStore('\\');
+									this.currentPosition = oldPos;
+									this.currentCharacter = this.source[this.currentPosition];
+									break outer;
+									
+							}
+					}
+					if (this.withoutUnicodePtr != 0) {
+						unicodeStore();
+					}
+				}
+				// consume next character
+				this.unicodeAsBackSlash = false;
+				if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+						&& (this.source[this.currentPosition] == 'u')) {
+					getNextUnicodeChar();
+					isUnicode = true;
+				} else {
+					isUnicode = false;
+					if (this.currentCharacter == '"'/* || skipWhitespace*/)
+						continue;
+					if (this.withoutUnicodePtr != 0) {
+						unicodeStore();
+					}
+				}
+			}
+			if (lastQuotePos > 0)
+				this.currentPosition = lastQuotePos;
+			this.currentPosition = (lastQuotePos > 0) ? lastQuotePos : this.startPosition + this.rawStart;
+			throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
+		} catch (IndexOutOfBoundsException e) {
+			this.currentPosition = (lastQuotePos > 0) ? lastQuotePos : this.startPosition + this.rawStart;
+			throw new InvalidInputException(UNTERMINATED_TEXT_BLOCK);
+		}
+	} else {
+		try {
+			// consume next character
+			this.unicodeAsBackSlash = false;
+			isUnicode = false;
+			if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+					&& (this.source[this.currentPosition] == 'u')) {
+				getNextUnicodeChar();
+				isUnicode = true;
+			} else {
+				if (this.withoutUnicodePtr != 0) {
+					unicodeStore();
+				}
+			}
+
+			while (this.currentCharacter != '"') {
+				if (this.currentPosition >= this.eofPosition) {
+					throw new InvalidInputException(UNTERMINATED_STRING);
+				}
+				/**** \r and \n are not valid in string literals ****/
+				if ((this.currentCharacter == '\n') || (this.currentCharacter == '\r')) {
+					// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
+					if (isUnicode) {
+						int start = this.currentPosition;
+						for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
+							if (this.currentPosition >= this.eofPosition) {
+								this.currentPosition = start;
+								break;
+							}
+							if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
+								isUnicode = true;
+								getNextUnicodeChar();
+							} else {
+								isUnicode = false;
+							}
+							if (!isUnicode && this.currentCharacter == '\n') {
+								this.currentPosition--; // set current position on new line character
+								break;
+							}
+							if (this.currentCharacter == '\"') {
+								throw new InvalidInputException(INVALID_CHAR_IN_STRING);
+							}
+						}
+					} else {
+						this.currentPosition--; // set current position on new line character
+					}
+					throw new InvalidInputException(INVALID_CHAR_IN_STRING);
+				}
+				if (this.currentCharacter == '\\') {
+					if (this.unicodeAsBackSlash) {
+						this.withoutUnicodePtr--;
+						// consume next character
+						this.unicodeAsBackSlash = false;
+						if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
+							getNextUnicodeChar();
+							isUnicode = true;
+							this.withoutUnicodePtr--;
+						} else {
+							isUnicode = false;
+						}
+					} else {
+						if (this.withoutUnicodePtr == 0) {
+							unicodeInitializeBuffer(this.currentPosition - this.startPosition);
+						}
+						this.withoutUnicodePtr --;
+						this.currentCharacter = this.source[this.currentPosition++];
+					}
+					// we need to compute the escape character in a separate buffer
+					scanEscapeCharacter();
+					if (this.withoutUnicodePtr != 0) {
+						unicodeStore();
+					}
+				}
+				// consume next character
+				this.unicodeAsBackSlash = false;
+				if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+						&& (this.source[this.currentPosition] == 'u')) {
+					getNextUnicodeChar();
+					isUnicode = true;
+				} else {
+					isUnicode = false;
+					if (this.withoutUnicodePtr != 0) {
+						unicodeStore();
+					}
+				}
+
+			}
+		} catch (IndexOutOfBoundsException e) {
+			this.currentPosition--;
+			throw new InvalidInputException(UNTERMINATED_STRING);
+		} catch (InvalidInputException e) {
+			if (e.getMessage().equals(INVALID_ESCAPE)) {
+				// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
+				for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
+					if (this.currentPosition + lookAhead == this.eofPosition)
+						break;
+					if (this.source[this.currentPosition + lookAhead] == '\n')
+						break;
+					if (this.source[this.currentPosition + lookAhead] == '\"') {
+						this.currentPosition += lookAhead + 1;
+						break;
+					}
+				}
+
+			}
+			throw e; // rethrow
+		}
+		return TokenNameStringLiteral;
+	}
 }
 public void getNextUnicodeChar()
 	throws InvalidInputException {
@@ -3095,7 +3307,6 @@ private ScanContext getScanContext(int begin) {
 	ScanContextDetector parser = new ScanContextDetector(options);
 	return parser.getScanContext(this.source, begin - 1);
 }
-
 protected final void scanEscapeCharacter() throws InvalidInputException {
 	// the string with "\\u" is a legal string of two chars \ and u
 	//thus we use a direct access to the source (for regular cases).
@@ -3120,6 +3331,9 @@ protected final void scanEscapeCharacter() throws InvalidInputException {
 			break;
 		case '\'' :
 			this.currentCharacter = '\'';
+			break;
+		case 's' :
+			this.currentCharacter = ' ';
 			break;
 		case '\\' :
 			this.currentCharacter = '\\';
@@ -3719,14 +3933,19 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 		case 'r' : //return requires
 			switch (length) {
 				case 6:
-					if ((data[++index] == 'e')
-						&& (data[++index] == 't')
-						&& (data[++index] == 'u')
-						&& (data[++index] == 'r')
-						&& (data[++index] == 'n')) {
-						return TokenNamereturn;
-					} else 
-						return TokenNameIdentifier;
+					if (data[++index] == 'e') {
+						if ((data[++index] == 't')
+							&& (data[++index] == 'u')
+							&& (data[++index] == 'r')
+							&& (data[++index] == 'n'))
+								return TokenNamereturn;
+						else if ((data[index] == 'c') 
+							&& (data[++index] == 'o')
+							&& (data[++index] == 'r')
+							&& (data[++index] == 'd'))
+								return disambiguatedRestrictedIdentifierrecord(TokenNameRestrictedIdentifierrecord);
+					}
+					return TokenNameIdentifier;
 				case 8:
 					if (areRestrictedModuleKeywordsActive()
 						&& (data[++index] == 'e')
@@ -4355,6 +4574,8 @@ public String toStringAction(int act) {
 			return "Identifier(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 		case TokenNameRestrictedIdentifierYield :
 			return "yield"; //$NON-NLS-1$
+		case TokenNameRestrictedIdentifierrecord :
+			return "record"; //$NON-NLS-1$
 		case TokenNameabstract :
 			return "abstract"; //$NON-NLS-1$
 		case TokenNameboolean :
@@ -4677,7 +4898,8 @@ public static boolean isKeyword(int token) {
 		case TerminalTokens.TokenNamewhile:
 			return true;
 		case TerminalTokens.TokenNameRestrictedIdentifierYield:
-			// making explicit - yield not a (restricted) keyword but restricted identifier.
+		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
+			// making explicit - not a (restricted) keyword but restricted identifier.
 			//$FALL-THROUGH$
 		default:
 			return false;
@@ -5074,6 +5296,58 @@ private boolean mayBeAtAnYieldStatement() {
 			return false;
 	}
 }
+int disambiguatedRestrictedIdentifierrecord(int restrictedIdentifierToken) {
+	// and here's the kludge
+	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierrecord)
+		return restrictedIdentifierToken;
+	if (this.sourceLevel < ClassFileConstants.JDK14 || !this.previewEnabled)
+		return TokenNameIdentifier;
+	
+	return disambiguaterecordWithLookAhead() ?
+			restrictedIdentifierToken : TokenNameIdentifier;
+}
+private int getNextTokenAfterTypeParameterHeader() {
+	int count = 1;
+	try {
+		int token;
+		while ((token = this.vanguardScanner.getNextToken()) != TokenNameEOF) {
+			if (token == TokenNameLESS)
+				++count;
+			if (token == TokenNameGREATER)
+				--count;
+			if (count == 0)
+				return this.vanguardScanner.getNextToken();
+		}
+	} catch (InvalidInputException e) {
+		if (e.getMessage().equals(INVALID_CHAR_IN_STRING)) {
+			//Ignore
+		} else {
+			// Shouldn't happen, but log the error
+			e.printStackTrace();
+		}
+	}
+	return TokenNameEOF;
+}
+private boolean disambiguaterecordWithLookAhead() {
+	getVanguardParser();
+	this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1);
+	try {
+		int lookAhead1 = this.vanguardScanner.getNextToken();
+		if (lookAhead1 == TokenNameIdentifier) {
+			int lookAhead2 = this.vanguardScanner.getNextToken();
+			lookAhead2 = lookAhead2 == TokenNameLESS ? getNextTokenAfterTypeParameterHeader() : lookAhead2;
+			return lookAhead2 == TokenNameLPAREN;
+		}
+	} catch (InvalidInputException e) {
+		if (e.getMessage().equals(INVALID_CHAR_IN_STRING)) {
+			//Ignore
+		} else {
+			// Shouldn't happen, but log the error
+			e.printStackTrace();
+		}
+	}
+	return false; // IIE event;
+}
 private boolean disambiguateYieldWithLookAhead() {
 	getVanguardParser();
 	this.vanguardScanner.resetTo(this.currentPosition, this.eofPosition - 1);
@@ -5144,7 +5418,7 @@ int disambiguatedRestrictedIdentifierYield(int restrictedIdentifierToken) {
 	// and here's the kludge
 	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierYield)
 		return restrictedIdentifierToken;
-	if (this.sourceLevel < ClassFileConstants.JDK13 || !this.previewEnabled)
+	if (this.sourceLevel < ClassFileConstants.JDK14)
 		return TokenNameIdentifier;
 
 	return mayBeAtAnYieldStatement() && disambiguateYieldWithLookAhead() ?

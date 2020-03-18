@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -261,6 +261,9 @@ public class ForStatement extends Statement {
 				this.initializations[i].generateCode(this.scope, codeStream);
 			}
 		}
+		if (this.condition != null && this.condition.containsPatternVariable()) {
+			this.condition.initializePatternVariables(currentScope, codeStream);
+		}
 		Constant cst = this.condition == null ? null : this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedFalse = cst != null && (cst != Constant.NotAConstant && cst.booleanValue() == false);
 		if (isConditionOptimizedFalse) {
@@ -328,6 +331,7 @@ public class ForStatement extends Statement {
 				}
 			}
 			// May loose some local variable initializations : affecting the local variable attributes
+			// This is causing PatternMatching14Test.test039() to fail
 			if (this.preCondInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preCondInitStateIndex);
 			}
@@ -395,7 +399,6 @@ public class ForStatement extends Statement {
 
 	@Override
 	public void resolve(BlockScope upperScope) {
-
 		// use the scope that will hold the init declarations
 		this.scope = (this.bits & ASTNode.NeededScope) != 0 ? new BlockScope(upperScope) : upperScope;
 		if (this.initializations != null)

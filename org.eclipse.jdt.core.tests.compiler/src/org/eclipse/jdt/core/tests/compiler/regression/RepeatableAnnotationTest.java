@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2016 Jesper S Moller and others.
+ * Copyright (c) 2013, 2020 Jesper S Moller and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -38,9 +38,27 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 //		TESTS_NUMBERS = new int[] { 297 };
 //		TESTS_RANGE = new int[] { 294, -1 };
 	}
-
+	boolean isJRE14 = false;
 	public RepeatableAnnotationTest(String name) {
 		super(name);
+		String javaVersion = System.getProperty("java.version");
+		int index = javaVersion.indexOf('.');
+		if (index != -1) {
+			javaVersion = javaVersion.substring(0, index);
+		} else {
+			index = javaVersion.indexOf('-');
+			if (index != -1)
+				javaVersion = javaVersion.substring(0, index);
+		}
+		this.isJRE14 = Integer.parseInt(javaVersion) >= 14;
+	}
+	private String normalizeAnnotationString(String s) {
+		if (!this.isJRE14) return s;
+		if (s.indexOf("value=") != -1) {
+			s = s.replace("value=[", "{");
+			s = s.replace("value=", "");
+		}
+		return s;
 	}
 
 	public static Test suite() {
@@ -875,7 +893,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"  }\n" +
 				"}"
 			},
-			"@Attr(value=1) @Attr(value=2)");
+			normalizeAnnotationString("@Attr(value=1) @Attr(value=2)"));
 		
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
@@ -917,10 +935,10 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"  }\n" +
 				"}"
 			},
-			"Y1: @Attr(value=1)\n" + 
+			normalizeAnnotationString("Y1: @Attr(value=1)\n" + 
 			"Y2: null\n" + 
 			"Y1: null\n" + 
-			"Y2: @AttrContainer(value=[@Attr(value=1), @Attr(value=2)])");
+			"Y2: @AttrContainer(value=[@Attr(value=1), @Attr(value=2)])"));
 		
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
@@ -1040,7 +1058,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"   }\n" +
 				"}"
 			},
-			"@Attr(value=1) @Attr(value=2) @Attr(value=3) @Attr(value=4) @Attr(value=5) @Attr(value=6)");
+			normalizeAnnotationString(
+					"@Attr(value=1) @Attr(value=2) @Attr(value=3) @Attr(value=4) @Attr(value=5) @Attr(value=6)"));
 	}
 	// Test that repeated annotations show up type parameters properly.
 	public void testTypeParameters() {
@@ -1116,7 +1135,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"}\n"
 
 			},
-			"K.getAnnotationByType(T.class): @T(value=1) @T(value=2) \n" +
+			normalizeAnnotationString("K.getAnnotationByType(T.class): @T(value=1) @T(value=2) \n" +
 			"K.getAnnotation(TC.class): @TC(value=[@T(value=1), @T(value=2)]) \n" +
 			"K.getAnnotationByType(TC.class): @TC(value=[@T(value=1), @T(value=2)]) \n" +
 			"java.lang.Object.getAnnotationByType(T.class): @T(value=3) @T(value=4) \n" +
@@ -1124,7 +1143,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"java.lang.Object.getAnnotationByType(TC.class): @TC(value=[@T(value=3), @T(value=4)]) \n" +
 			"java.lang.Comparable<?>.getAnnotationByType(T.class): @T(value=5) @T(value=6) \n" +
 			"java.lang.Comparable<?>.getAnnotation(TC.class): @TC(value=[@T(value=5), @T(value=6)]) \n" +
-			"java.lang.Comparable<?>.getAnnotationByType(TC.class): @TC(value=[@T(value=5), @T(value=6)])",
+			"java.lang.Comparable<?>.getAnnotationByType(TC.class): @TC(value=[@T(value=5), @T(value=6)])"),
 			null,
 			true,
 			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
@@ -1262,7 +1281,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"}\n"
 
 			},
-			"Class: X.class.getAnnotationByType(T.class): @T(value=1) @T(value=2) \n" +
+			normalizeAnnotationString("Class: X.class.getAnnotationByType(T.class): @T(value=1) @T(value=2) \n" +
 			"Class: X.class.getAnnotation(TC.class): @TC(value=[@T(value=1), @T(value=2)]) \n" +
 			"Class: X.class.getAnnotationByType(TC.class): @TC(value=[@T(value=1), @T(value=2)]) \n" +
 			"Type Parameter: K.getAnnotationByType(T.class): @T(value=3) @T(value=4) \n" +
@@ -1315,7 +1334,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"Exception type: .getAnnotationByType(TC.class): @TC(value=[@T(value=33), @T(value=34)]) \n" +
 			"Constructor: .getAnnotationByType(T.class): @T(value=35) @T(value=36) \n" +
 			"Constructor: .getAnnotation(TC.class): @TC(value=[@T(value=35), @T(value=36)]) \n" +
-			"Constructor: .getAnnotationByType(TC.class): @TC(value=[@T(value=35), @T(value=36)])",
+			"Constructor: .getAnnotationByType(TC.class): @TC(value=[@T(value=35), @T(value=36)])"),
 			null,
 			true,
 			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
@@ -1428,29 +1447,15 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"	                                 ^^\n" + 
 			"The type TC is deprecated\n" + 
 			"----------\n" + 
-			"2. ERROR in T.java (at line 5)\n" + 
-			"	interface I<@T(1) @T(2) K> {\n" + 
-			"	            ^^\n" + 
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-			"----------\n" + 
-			"3. WARNING in T.java (at line 5)\n" + 
+			"2. WARNING in T.java (at line 5)\n" + 
 			"	interface I<@T(1) @T(2) K> {\n" + 
 			"	            ^^\n" + 
 			"The type TC is deprecated\n" + 
-			"----------\n" + 
-			"4. ERROR in T.java (at line 5)\n" + 
-			"	interface I<@T(1) @T(2) K> {\n" + 
-			"	            ^^\n" + 
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-			"----------\n" + 
-			"5. ERROR in T.java (at line 5)\n" + 
-			"	interface I<@T(1) @T(2) K> {\n" + 
-			"	                  ^^\n" + 
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
 			"----------\n");
 	}
 	public void testDeprecation2() { // verify that deprecation warning does not show up when the deprecated element is used in the same file defining it.
-		this.runNegativeTest(
+		// was negative prior to https://bugs.openjdk.java.net/browse/JDK-8231435
+		this.runConformTest(
 			new String[] {
 				"T.java",
 				"@Deprecated\n" +
@@ -1464,22 +1469,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"interface I<@T(1) @T(2) K> {\n" +
 				"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in T.java (at line 9)\n" + 
-			"	interface I<@T(1) @T(2) K> {\n" + 
-			"	            ^^\n" + 
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-			"----------\n" + 
-			"2. ERROR in T.java (at line 9)\n" + 
-			"	interface I<@T(1) @T(2) K> {\n" + 
-			"	            ^^\n" + 
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-			"----------\n" + 
-			"3. ERROR in T.java (at line 9)\n" + 
-			"	interface I<@T(1) @T(2) K> {\n" + 
-			"	                  ^^\n" + 
-			"Annotation types that do not specify explicit target element types cannot be applied here\n" + 
-			"----------\n");
+			"");
 	}	
 	
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains

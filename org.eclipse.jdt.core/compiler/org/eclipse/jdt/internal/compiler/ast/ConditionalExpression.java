@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -446,6 +446,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	}
 
 	@Override
+	public void initializePatternVariables(BlockScope scope, CodeStream codeStream) {
+		this.condition.initializePatternVariables(scope, codeStream);
+		this.valueIfTrue.initializePatternVariables(scope, codeStream);
+		this.valueIfFalse.initializePatternVariables(scope, codeStream);
+	}
+
+	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 		// JLS3 15.25
 		LookupEnvironment env = scope.environment();
@@ -464,7 +471,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		
 		if (this.constant != Constant.NotAConstant) {
 			this.constant = Constant.NotAConstant;
-
 			TypeBinding conditionType = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 			this.condition.computeConversion(scope, TypeBinding.BOOLEAN, conditionType);
 

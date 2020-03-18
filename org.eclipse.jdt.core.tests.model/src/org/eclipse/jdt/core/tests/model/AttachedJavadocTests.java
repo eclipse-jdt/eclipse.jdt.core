@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -582,8 +582,12 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			IType type = classFile.getType();
 			IField field = type.getField("f"); //$NON-NLS-1$
 			assertNotNull(field);
-			String javadoc = field.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
-			assertNull("Should not have a javadoc", javadoc); //$NON-NLS-1$
+			try {
+				String javadoc = field.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+				assertNull("Should not have a javadoc", javadoc); //$NON-NLS-1$
+			} catch(JavaModelException e) {
+				// Ignore
+			}
 		} finally {
 			// restore classpath
 			if (savedEntries != null) {

@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -158,6 +158,8 @@ private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironm
 		arraysize++;
 	if ((bits & TagBits.AnnotationForModule) != 0)
 		arraysize++;
+	if ((bits & TagBits.AnnotationForRecordComponent) != 0)
+		arraysize++;
 	
 	Object[] value = new Object[arraysize];
 	if (arraysize > 0) {
@@ -171,6 +173,8 @@ private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironm
 			value[index++] = elementType.getField(TypeConstants.UPPER_CONSTRUCTOR, true);
 		if ((bits & TagBits.AnnotationForField) != 0)
 			value[index++] = elementType.getField(TypeConstants.UPPER_FIELD, true);
+		if ((bits & TagBits.AnnotationForRecordComponent) != 0)
+			value[index++] = elementType.getField(TypeConstants.UPPER_RECORD_COMPONENT, true);
 		if ((bits & TagBits.AnnotationForMethod) != 0)
 			value[index++] = elementType.getField(TypeConstants.UPPER_METHOD, true);
 		if ((bits & TagBits.AnnotationForPackage) != 0)

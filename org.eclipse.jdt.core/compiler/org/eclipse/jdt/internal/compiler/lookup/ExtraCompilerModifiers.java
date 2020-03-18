@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -40,6 +40,7 @@ public interface ExtraCompilerModifiers { // modifier constant
 	final int AccAlternateModifierProblem = ASTNode.Bit23;
 	final int AccModifierProblem = ASTNode.Bit24;
 	final int AccSemicolonBody = ASTNode.Bit25;
+	final int AccRecord = ASTNode.Bit25;
 	final int AccUnresolved = ASTNode.Bit26;
 	final int AccBlankFinal = ASTNode.Bit27; // for blank final variables
 	final int AccIsDefaultConstructor = ASTNode.Bit27; // for default constructor
@@ -52,4 +53,5 @@ public interface ExtraCompilerModifiers { // modifier constant
 	final int AccOverriding = ASTNode.Bit29; // record fact a method overrides another one
 	final int AccImplementing = ASTNode.Bit30; // record fact a method implements another one (it is concrete and overrides an abstract one)
 	final int AccGenericSignature = ASTNode.Bit31; // record fact a type/method/field involves generics in its signature (and need special signature attr)
+	final int AccPatternVariable = ASTNode.Bit29;
 }

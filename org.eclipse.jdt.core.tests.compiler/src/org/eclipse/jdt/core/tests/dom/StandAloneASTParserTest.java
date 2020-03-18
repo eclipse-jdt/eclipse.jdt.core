@@ -65,7 +65,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		super(name);
 	}
 	
-	private static final int AST_JLS_LATEST = AST.JLS13;
+	private static final int AST_JLS_LATEST = AST.JLS14;
 
 	public ASTNode runConversion(
 			int astLevel,
@@ -1766,8 +1766,9 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			SimpleName simpleName = (SimpleName) name;
 			assertFalse("A var", simpleName.isVar());
 	}
+	// no longer a preview feature, test is not relevant
 	@Deprecated
-	public void testBug545383_01() throws JavaModelException {
+	public void _testBug545383_01() throws JavaModelException {
 		String contents =
 				"class X {\n"+
 				"	public static int foo(int i) {\n"+
@@ -1815,11 +1816,9 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		parser.setEnvironment(null, null, null, true);
 		parser.setResolveBindings(false);
 		Map<String, String> options = getCompilerOptions();
-		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_13);
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_13);
-		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_13);
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
 		parser.setCompilerOptions(options);
 	
 		ASTNode node = parser.createAST(null);

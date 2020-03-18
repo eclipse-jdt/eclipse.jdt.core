@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.codeassist.select.SelectionJavadocParser;
 import org.eclipse.jdt.internal.codeassist.select.SelectionNodeFound;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnPackageVisibilityReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnImportReference;
+import org.eclipse.jdt.internal.codeassist.select.SelectionOnLocalName;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnPackageReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnQualifiedTypeReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnSingleTypeReference;
@@ -1435,6 +1436,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			@Override
 			public boolean visit(
 		    		LocalDeclaration localDeclaration, BlockScope scope) {
+				if(localDeclaration instanceof SelectionOnLocalName) {
+					localDeclaration.resolve(scope);		
+				}
 				if (localDeclaration.type instanceof SingleTypeReference && ((SingleTypeReference)localDeclaration.type).token == assistIdentifier) {
 					if(localDeclaration.binding != null) {
 						throw new SelectionNodeFound(localDeclaration.binding.type);

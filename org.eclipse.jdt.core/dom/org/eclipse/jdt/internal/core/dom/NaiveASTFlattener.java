@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 
 /**
  * Internal AST visitor for serializing an AST in a quick and dirty fashion.
@@ -859,7 +860,11 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(InstanceofExpression node) {
 		node.getLeftOperand().accept(this);
 		this.buffer.append(" instanceof ");//$NON-NLS-1$
-		node.getRightOperand().accept(this);
+		if (DOMASTUtil.isInstanceofExpressionPatternSupported(node.getAST()) && node.getPatternVariable()!= null) {
+			node.getPatternVariable().accept(this);
+		} else {
+			node.getRightOperand().accept(this);
+		}
 		return false;
 	}
 
@@ -969,7 +974,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 				this.buffer.append(">");//$NON-NLS-1$
 			}
 		}
-		if (!node.isConstructor()) {
+		if (!node.isConstructor()){
 			if (node.getAST().apiLevel() == JLS2) {
 				getReturnType(node).accept(this);
 			} else {
@@ -983,31 +988,33 @@ public class NaiveASTFlattener extends ASTVisitor {
 			this.buffer.append(" ");//$NON-NLS-1$
 		}
 		node.getName().accept(this);
-		this.buffer.append("(");//$NON-NLS-1$
-		if (node.getAST().apiLevel() >= JLS8) {
-			Type receiverType = node.getReceiverType();
-			if (receiverType != null) {
-				receiverType.accept(this);
-				this.buffer.append(' ');
-				SimpleName qualifier = node.getReceiverQualifier();
-				if (qualifier != null) {
-					qualifier.accept(this);
-					this.buffer.append('.');
-				}
-				this.buffer.append("this"); //$NON-NLS-1$
-				if (node.parameters().size() > 0) {
-					this.buffer.append(',');
+		if (!(DOMASTUtil.isRecordDeclarationSupported(node.getAST()) && node.isCompactConstructor())) {
+			this.buffer.append("(");//$NON-NLS-1$
+			if (node.getAST().apiLevel() >= JLS8) {
+				Type receiverType = node.getReceiverType();
+				if (receiverType != null) {
+					receiverType.accept(this);
+					this.buffer.append(' ');
+					SimpleName qualifier = node.getReceiverQualifier();
+					if (qualifier != null) {
+						qualifier.accept(this);
+						this.buffer.append('.');
+					}
+					this.buffer.append("this"); //$NON-NLS-1$
+					if (node.parameters().size() > 0) {
+						this.buffer.append(',');
+					}
 				}
 			}
-		}
-		for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
-			SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
-			v.accept(this);
-			if (it.hasNext()) {
-				this.buffer.append(",");//$NON-NLS-1$
+			for (Iterator it = node.parameters().iterator(); it.hasNext(); ) {
+				SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
+				v.accept(this);
+				if (it.hasNext()) {
+					this.buffer.append(",");//$NON-NLS-1$
+				}
 			}
+			this.buffer.append(")");//$NON-NLS-1$
 		}
-		this.buffer.append(")");//$NON-NLS-1$
 		int size = node.getExtraDimensions();
 		if (node.getAST().apiLevel() >= JLS8) {
 			List dimensions = node.extraDimensions();
@@ -1299,6 +1306,62 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(RecordDeclaration node) {
+		if (node.getJavadoc() != null) {
+			node.getJavadoc().accept(this);
+		}
+		printIndent();
+		printModifiers(node.modifiers());
+		this.buffer.append("record ");//$NON-NLS-1$
+		node.getName().accept(this);
+		this.buffer.append(" ");//$NON-NLS-1$
+		
+		if (!node.typeParameters().isEmpty()) {
+			this.buffer.append("<");//$NON-NLS-1$
+			for (Iterator it = node.typeParameters().iterator(); it.hasNext(); ) {
+				TypeParameter t = (TypeParameter) it.next();
+				t.accept(this);
+				if (it.hasNext()) {
+					this.buffer.append(",");//$NON-NLS-1$
+				}
+			}
+			this.buffer.append(">");//$NON-NLS-1$
+		}
+		this.buffer.append(" ");//$NON-NLS-1$
+		this.buffer.append("(");//$NON-NLS-1$
+		for (Iterator it = node.recordComponents().iterator(); it.hasNext(); ) {
+			SingleVariableDeclaration v = (SingleVariableDeclaration) it.next();
+			v.accept(this);
+			if (it.hasNext()) {
+				this.buffer.append(",");//$NON-NLS-1$
+			}
+		}
+		this.buffer.append(")");//$NON-NLS-1$
+		if (!node.superInterfaceTypes().isEmpty()) {
+			this.buffer.append(" implements ");//$NON-NLS-1$
+			for (Iterator it = node.superInterfaceTypes().iterator(); it.hasNext(); ) {
+				Type t = (Type) it.next();
+				t.accept(this);
+				if (it.hasNext()) {
+					this.buffer.append(", ");//$NON-NLS-1$
+				}
+			}
+			this.buffer.append(" ");//$NON-NLS-1$
+		}
+		this.buffer.append("{");//$NON-NLS-1$
+		if (!node.bodyDeclarations().isEmpty()) {
+			this.buffer.append("\n");//$NON-NLS-1$
+			for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
+				BodyDeclaration d = (BodyDeclaration) it.next();
+				d.accept(this);
+				// other body declarations include trailing punctuation
+			}
+		}
+		this.buffer.append("}\n");//$NON-NLS-1$
+		return false;
+	}
+	
+	@Override
 	public boolean visit(RequiresDirective node) {
 		printIndent();
 		this.buffer.append("requires");//$NON-NLS-1$
@@ -1487,7 +1550,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(SwitchCase node) {
-		if ((node.getAST().isPreviewEnabled())) {
+		if ((node.getAST().apiLevel() >= AST.JLS14)) {
 			if (node.isDefault()) {
 				this.buffer.append("default");//$NON-NLS-1$
 				this.buffer.append(node.isSwitchLabeledRule() ? " ->" : ":");//$NON-NLS-1$ //$NON-NLS-2$
@@ -1912,7 +1975,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	
 	@Override
 	public boolean visit(YieldStatement node) {
-		if ((node.getAST().isPreviewEnabled()) && node.isImplicit()  && node.getExpression() == null) {
+		if ((node.getAST().apiLevel() >= AST.JLS14) && node.isImplicit()  && node.getExpression() == null) {
 			return false;
 		}
 		printIndent();

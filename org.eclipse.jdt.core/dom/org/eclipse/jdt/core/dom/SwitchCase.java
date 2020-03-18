@@ -98,23 +98,7 @@ public class SwitchCase extends Statement {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		return propertyDescriptors(apiLevel, false);
-	}
-	
-	/**
-	 * Returns a list of structural property descriptors for this node type.
-	 * Clients must not modify the result.
-	 *
-	 * @param apiLevel the API level; one of the
-	 * <code>AST.JLS*</code> constants
-	 * @param previewEnabled the previewEnabled flag
-	 * @return a list of property descriptors (element type:
-	 * {@link StructuralPropertyDescriptor})
-	 * @noreference This method is not intended to be referenced by clients.
-	 * @since 3.19
-	 */
-	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
-		if (apiLevel == AST.JLS13_INTERNAL && previewEnabled) {
+		if (apiLevel >= AST.JLS14_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_13;
 		}
 		return PROPERTY_DESCRIPTORS;
@@ -152,7 +136,7 @@ public class SwitchCase extends Statement {
 	 */
 	SwitchCase(AST ast) {
 		super(ast);
-		if (ast.isPreviewEnabled()) {
+		if (ast.apiLevel >= AST.JLS14) {
 			this.expressions = new ASTNode.NodeList(EXPRESSIONS2_PROPERTY );
 		}
 	}
@@ -160,11 +144,6 @@ public class SwitchCase extends Statement {
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
-	}
-	
-	@Override
-	final List internalStructuralPropertiesForType(int apiLevel, boolean isPreviewEnabled) {
-		return propertyDescriptors(apiLevel, isPreviewEnabled);
 	}
 
 	@Override
@@ -215,7 +194,7 @@ public class SwitchCase extends Statement {
 		SwitchCase result = new SwitchCase(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.copyLeadingComment(this);
-		if (this.ast.isPreviewEnabled()) {
+		if (this.ast.apiLevel >= AST.JLS14) {
 			result.expressions().addAll(
 				ASTNode.copySubtrees(target, expressions()));
 		} else {
@@ -235,7 +214,7 @@ public class SwitchCase extends Statement {
 	void accept0(ASTVisitor visitor) {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
-			if (this.ast.isPreviewEnabled()) {
+			if (this.ast.apiLevel >= AST.JLS14) {
 				acceptChildren(visitor, this.expressions);
 			} else {
 				acceptChild(visitor, getExpression());
@@ -273,16 +252,12 @@ public class SwitchCase extends Statement {
 	 *
 	 *  @return the list of expression nodes
 	 *    (element type: {@link Expression})
-	 * @exception UnsupportedOperationException if this operation is used other than JLS13
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
-	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
-	 * @since 3.18
+	 * @exception UnsupportedOperationException if this operation is used below JLS14
+	 * @since 3.21
 	 */
 	public List expressions() {
 		if (this.expressions == null) {
-			supportedOnlyIn13();
-			unsupportedWithoutPreviewError();
+			unsupportedBelow14();
 		}
 		return this.expressions;
 	}
@@ -314,15 +289,11 @@ public class SwitchCase extends Statement {
 	 * <code>true</code> indicates "->" and <code>false</code> indicates ":".
 
 	 * @param switchLabeledRule <code>true</code> or <code>false</code>
-	 * @exception UnsupportedOperationException if this operation is used other than JLS13
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
-	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
-	 * @since 3.18
+	 * @exception UnsupportedOperationException if this operation is used below JLS14
+	 * @since 3.21
 	 */
 	public void setSwitchLabeledRule(boolean switchLabeledRule) {
-		supportedOnlyIn13();
-		unsupportedWithoutPreviewError();
+		unsupportedBelow14();
 		preValueChange(SWITCH_LABELED_RULE_PROPERTY);
 		this.switchLabeledRule = switchLabeledRule;
 		postValueChange(SWITCH_LABELED_RULE_PROPERTY);
@@ -333,15 +304,11 @@ public class SwitchCase extends Statement {
 	 *<code>true</code> indicates "->" and <code>false</code> indicates ":".
 	 *
 	 * @return switchLabeledRule <code>true</code> or <code>false</code>
-	 * @exception UnsupportedOperationException if this operation is used other than JLS13
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
-	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
-	 * @since 3.18
+	 * @exception UnsupportedOperationException if this operation is used below JLS14
+	 * @since 3.21
 	 */
 	public boolean isSwitchLabeledRule() {
-		supportedOnlyIn13();
-		unsupportedWithoutPreviewError();
+		unsupportedBelow14();
 		return this.switchLabeledRule;
 	}
 
@@ -356,7 +323,7 @@ public class SwitchCase extends Statement {
 	 *    <code>false</code> if this is a non-default switch case
 	 */
 	public boolean isDefault()  {
-		if (this.ast.isPreviewEnabled()) {
+		if (this.ast.apiLevel >= AST.JLS14) {
 			return expressions().isEmpty();
 		}
 		return getExpression() == null;

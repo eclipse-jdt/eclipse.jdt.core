@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -42,6 +42,10 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public static final int INTERFACE_DECL = 2;
 	public static final int ENUM_DECL = 3;
 	public static final int ANNOTATION_TYPE_DECL = 4;
+	/*
+	 * @noreference This field is not intended to be referenced by clients as it is a part of Java preview feature.
+	 */
+	public static final int RECORD_DECL = 5;
 
 	public int modifiers = ClassFileConstants.AccDefault;
 	public int modifiersSourceStart;
@@ -61,6 +65,7 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	public int maxFieldCount;
 	public int declarationSourceStart;
 	public int declarationSourceEnd;
+	public int restrictedIdentifierStart; // used only for records
 	public int bodyStart;
 	public int bodyEnd; // doesn't include the trailing comment if any.
 	public CompilationResult compilationResult;
@@ -783,10 +788,10 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 
 private void checkYieldUsage() {
 	long sourceLevel = this.scope.compilerOptions().sourceLevel;
-	if (sourceLevel < ClassFileConstants.JDK13 || this.name == null ||
+	if (sourceLevel < ClassFileConstants.JDK14 || this.name == null ||
 			!("yield".equals(new String(this.name)))) //$NON-NLS-1$
 		return;
-	if (sourceLevel == ClassFileConstants.JDK13 && this.scope.compilerOptions().enablePreviewFeatures) {
+	if (sourceLevel >= ClassFileConstants.JDK14) {
 		this.scope.problemReporter().switchExpressionsYieldTypeDeclarationError(this);
 	} else {
 		this.scope.problemReporter().switchExpressionsYieldTypeDeclarationWarning(this);
@@ -836,16 +841,22 @@ private char[] getValueAsChars(Expression value) {
 }
 
 public final static int kind(int flags) {
-	switch (flags & (ClassFileConstants.AccInterface|ClassFileConstants.AccAnnotation|ClassFileConstants.AccEnum)) {
+	switch (flags & (ClassFileConstants.AccInterface|ClassFileConstants.AccAnnotation|ClassFileConstants.AccEnum|ExtraCompilerModifiers.AccRecord)) {
 		case ClassFileConstants.AccInterface :
 			return TypeDeclaration.INTERFACE_DECL;
 		case ClassFileConstants.AccInterface|ClassFileConstants.AccAnnotation :
 			return TypeDeclaration.ANNOTATION_TYPE_DECL;
 		case ClassFileConstants.AccEnum :
 			return TypeDeclaration.ENUM_DECL;
+		case ExtraCompilerModifiers.AccRecord :
+			return TypeDeclaration.RECORD_DECL;
 		default :
 			return TypeDeclaration.CLASS_DECL;
 	}
+}
+
+public boolean isRecord() {
+	return false;
 }
 
 /*
@@ -1043,6 +1054,9 @@ public StringBuffer printHeader(int indent, StringBuffer output) {
 		case TypeDeclaration.ANNOTATION_TYPE_DECL :
 			output.append("@interface "); //$NON-NLS-1$
 			break;
+		case TypeDeclaration.RECORD_DECL :
+			output.append("record "); //$NON-NLS-1$
+			break;
 	}
 	output.append(this.name);
 	if (this.typeParameters != null) {
@@ -1061,6 +1075,7 @@ public StringBuffer printHeader(int indent, StringBuffer output) {
 		switch (kind(this.modifiers)) {
 			case TypeDeclaration.CLASS_DECL :
 			case TypeDeclaration.ENUM_DECL :
+			case TypeDeclaration.RECORD_DECL :
 				output.append(" implements "); //$NON-NLS-1$
 				break;
 			case TypeDeclaration.INTERFACE_DECL :
@@ -1103,6 +1118,7 @@ public void resolve() {
 				this.scope.problemReporter().varIsReservedTypeName(this);
 			}
 		}
+		RecordDeclaration.checkAndFlagRecordNameErrors(this.name, this, this.scope);
 		// resolve annotations and check @Deprecated annotation
 		long annotationTagBits = sourceType.getAnnotationTagBits();
 		if ((annotationTagBits & TagBits.AnnotationDeprecated) == 0

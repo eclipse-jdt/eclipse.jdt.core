@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2018 IBM, BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2020 IBM, BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -37,6 +37,7 @@ public class AllTests extends TestCase {
 		suite.addTestSuite(Java9ElementsTests.class);
 		suite.addTestSuite(Java11ElementsTests.class);
 		suite.addTestSuite(Java12ElementsTests.class);
+		suite.addTestSuite(Java14ElementsTests.class);
 		suite.addTestSuite(AnnotationProcessorTests.class);
 		return suite;
 	}

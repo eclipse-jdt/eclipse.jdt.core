@@ -16,5 +16,5 @@ Export-Package: org.eclipse.jdt.compiler.tool.tests
 Import-Package: org.eclipse.jdt.internal.compiler.tool
 Eclipse-BundleShape: dir
 Bundle-ClassPath: .,
- lib/java13api.jar
+ lib/java14api.jar
 Automatic-Module-Name: org.eclipse.jdt.compiler.tool.tests

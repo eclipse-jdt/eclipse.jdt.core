@@ -753,8 +753,8 @@ public void test027() {
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=239198
  */
-public void test028() {
-	String error = (this.complianceLevel == ClassFileConstants.JDK13) ?
+public void _test028() {
+	String error = (this.complianceLevel == ClassFileConstants.JDK14) ?
 			"----------\n" + 
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	Srtring bar = \"\"\"\n" + 

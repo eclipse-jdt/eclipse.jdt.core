@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2017 IBM Corporation and others.
+ * Copyright (c) 2011, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -595,6 +595,16 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	}
 	
 	public void test015_classExtends_interfaces_reflection() throws Exception {
+		String javaVersion = System.getProperty("java.version");
+		int index = javaVersion.indexOf('.');
+		if (index != -1) {
+			javaVersion = javaVersion.substring(0, index);
+		} else {
+			index = javaVersion.indexOf('-');
+			if (index != -1)
+				javaVersion = javaVersion.substring(0, index);
+		}
+		int v = Integer.parseInt(javaVersion);
 		this.runConformTest(
 			new String[] {
 				"X.java",
@@ -639,7 +649,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		"  class java.lang.Object:no annotations\n" + 
 		"Annotations on superinterfaces of X\n" + 
 		"  interface I:@A(id=Hello, World!) \n" + 
-		"  interface J:@C(value=i)");
+		"  interface J:@C(" + (v < 14 ? "value=" : "") + "i)");
 	}
 
 	public void test016_classExtends() throws Exception {
@@ -4222,6 +4232,71 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+
+	// as of https://bugs.openjdk.java.net/browse/JDK-8231435 no-@Target annotations are legal also in TYPE_USE/TYPE_PARAMETER position
+	public void test083_multiuseAnnotations() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"@interface Annot {\n" + 
+				"	int value() default 0;\n" + 
+				"}\n" + 
+				"public class X<@Annot(1) T> {\n" + 
+				"	java.lang. @Annot(2)String f;\n" + 
+				"	public void foo(String @Annot(3)[] args) {\n" + 
+				"	}\n" + 
+				"}\n",
+		},
+		"");
+		String expectedOutput =
+				"  // Field descriptor #6 Ljava/lang/String;\n" + 
+				"  java.lang.String f;\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" +
+				"      #8 @Annot(\n" + 
+				"        #9 value=(int) 2 (constant type)\n" +  // <-2- 
+				"        target type = 0x13 FIELD\n" + 
+				"      )\n" + 
+				"  \n" + 
+				"  // Method descriptor #12 ()V\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  public X();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.lang.Object() [14]\n" + 
+				"    4  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 4]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 5] local: this index: 0 type: X<T>\n" + 
+				"  \n" + 
+				"  // Method descriptor #23 ([Ljava/lang/String;)V\n" + 
+				"  // Stack: 0, Locals: 2\n" + 
+				"  public void foo(java.lang.String[] args);\n" + 
+				"    0  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 7]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" + 
+				"        [pc: 0, pc: 1] local: args index: 1 type: java.lang.String[]\n" + 
+				"      Local variable type table:\n" + 
+				"        [pc: 0, pc: 1] local: this index: 0 type: X<T>\n" + 
+				"    RuntimeInvisibleTypeAnnotations: \n" + 
+				"      #8 @Annot(\n" + 
+				"        #9 value=(int) 3 (constant type)\n" +  // <-3-
+				"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" + 
+				"        method parameter index = 0\n" + 
+				"      )\n" + 
+				"\n" + 
+				"  RuntimeInvisibleTypeAnnotations: \n" + 
+				"    #8 @Annot(\n" + 
+				"      #9 value=(int) 1 (constant type)\n" +  // <-1-
+				"      target type = 0x0 CLASS_TYPE_PARAMETER\n" + 
+				"      type parameter index = 0\n" + 
+				"    )\n" + 
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
 	
 	public void test100_pqtr() throws Exception { // PQTR (ParameterizedQualifiedTypeReference)
 		this.runConformTest(
@@ -6589,6 +6664,16 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			customOptions);		
 	}
 	public void testBug485386() {
+		String javaVersion = System.getProperty("java.version");
+		int index = javaVersion.indexOf('.');
+		if (index != -1) {
+			javaVersion = javaVersion.substring(0, index);
+		} else {
+			index = javaVersion.indexOf('-');
+			if (index != -1)
+				javaVersion = javaVersion.substring(0, index);
+		}
+		int v = Integer.parseInt(javaVersion);
 		runConformTest(
 			new String[] {
 				"Test.java",
@@ -6621,7 +6706,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"  }\n" + 
 				"}\n"
 			},
-			"@TestAnn1(value=" + decorateAnnotationValueLiteral("1") + ")");
+			"@TestAnn1(" + (v < 14 ? "value=" : "") + decorateAnnotationValueLiteral("1") + ")");
 	}
 	public void testBug492322readFromClass() {
 		runConformTest(

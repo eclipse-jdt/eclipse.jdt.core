@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -35,7 +35,8 @@ private static final long TARGET_ANNOTATION_BITS =
 	TagBits.AnnotationForField |
 	TagBits.AnnotationForConstructor |
 	TagBits.AnnotationForAnnotationType |
-	TagBits.AnnotationForModule;
+	TagBits.AnnotationForModule |
+	TagBits.AnnotationForRecordComponent;
 private static final char[] JAVA_LANG_ANNOTATION_ELEMENTTYPE = CharOperation.concatWith(TypeConstants.JAVA_LANG_ANNOTATION_ELEMENTTYPE, '.');
 public static char[] convertClassFileFormat(char[] name) {
 	return CharOperation.replaceOnCopy(name, '/', '.');
@@ -506,7 +507,7 @@ boolean matchTypeDeclaration(TypeDeclarationPattern pattern, Object binaryInfo, 
 	int kind  = TypeDeclaration.kind(type.getModifiers());
 	switch (pattern.typeSuffix) {
 		case CLASS_SUFFIX:
-			return kind == TypeDeclaration.CLASS_DECL;
+			return kind == TypeDeclaration.CLASS_DECL || kind == TypeDeclaration.RECORD_DECL;
 		case INTERFACE_SUFFIX:
 			return kind == TypeDeclaration.INTERFACE_DECL;
 		case ENUM_SUFFIX:

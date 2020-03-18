@@ -5565,7 +5565,7 @@ public void testBug541705b() {
 	runner.runConformTest();
 }
 public void testBug542707_001() {
-	if (this.complianceLevel < ClassFileConstants.JDK13) return; // uses switch expression
+	if (!checkPreviewAllowed()) return; // uses switch expression
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -5617,7 +5617,7 @@ public void testBug542707_001() {
 		options);
 }
 public void testBug542707_002() {
-	if (this.complianceLevel < ClassFileConstants.JDK13) return; // uses switch expression
+	if (this.complianceLevel < ClassFileConstants.JDK14) return; // uses switch expression
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -5675,7 +5675,7 @@ public void testBug542707_002() {
 		options);
 }
 public void testBug542707_003() {
-	if (this.complianceLevel < ClassFileConstants.JDK13) return; // uses switch expression
+	if (!checkPreviewAllowed()) return; // uses switch expression
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);

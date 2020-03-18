@@ -221,6 +221,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		tests_13.add(SelectionParserTest12.class);
 		tests_13.add(ModuleDeclarationSyntaxTest.class);
 		tests_13.add(JEP286ReservedWordTest.class);
+		//TODO:To add SwitchExpressionYieldTests here as well as master
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
@@ -228,6 +229,28 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_13), tests_13));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_14) != 0) {
+		ArrayList tests_14 = (ArrayList)testClasses.clone();
+		tests_14.addAll(TEST_CLASSES_1_5);
+		tests_14.add(ParserTest1_7.class);
+		tests_14.add(LambdaExpressionSyntaxTest.class);
+		tests_14.add(ReferenceExpressionSyntaxTest.class);
+		tests_14.add(TypeAnnotationSyntaxTest.class);
+		tests_14.add(CompletionParserTest18.class);
+		tests_14.add(SelectionParserTest18.class);
+		tests_14.add(SelectionParserTest9.class);
+		tests_14.add(SelectionParserTest10.class);
+		tests_14.add(SelectionParserTest12.class);
+		tests_14.add(ModuleDeclarationSyntaxTest.class);
+		tests_14.add(JEP286ReservedWordTest.class);
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_14), tests_14));
 	}
 	return all;
 }

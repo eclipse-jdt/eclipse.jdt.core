@@ -44,6 +44,9 @@ private void computeValue() {
 		return;
 	char digit;
 	switch (digit = this.source[2]) {
+		case 's' :
+			this.value = ' ';
+			break;
 		case 'b' :
 			this.value = '\b';
 			break;

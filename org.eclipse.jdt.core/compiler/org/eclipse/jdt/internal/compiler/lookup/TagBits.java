@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -65,6 +65,10 @@ public interface TagBits {
 	long MultiCatchParameter = ASTNode.Bit13; // local
 	long IsResource = ASTNode.Bit14; // local
 
+	// for java 14 Records Canonical constructor (preview)
+	long IsCanonicalConstructor = ASTNode.Bit12; // constructor
+	long isImplicit  = ASTNode.Bit13; // constructor and method
+	
 	// have implicit null annotations been collected (inherited(?) & default)?
 	long IsNullnessKnown = ASTNode.Bit13; // method
 
@@ -158,6 +162,8 @@ public interface TagBits {
 
 	/** From Java 9 */
 	long AnnotationTerminallyDeprecated = ASTNode.Bit63L;
+	/** From Java 14 */
+	long AnnotationForRecordComponent = ASTNode.Bit31;
 
 	long AllStandardAnnotationsMask =
 				  AnnotationTargetMASK

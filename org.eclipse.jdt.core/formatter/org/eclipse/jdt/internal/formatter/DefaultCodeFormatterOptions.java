@@ -147,9 +147,11 @@ public class DefaultCodeFormatterOptions {
 	public int alignment_for_parameterized_type_references;
 	public int alignment_for_parameters_in_constructor_declaration;
 	public int alignment_for_parameters_in_method_declaration;
+	public int alignment_for_record_components;
 	public int alignment_for_selector_in_method_invocation;
 	public int alignment_for_superclass_in_type_declaration;
 	public int alignment_for_superinterfaces_in_enum_declaration;
+	public int alignment_for_superinterfaces_in_record_declaration;
 	public int alignment_for_superinterfaces_in_type_declaration;
 	public int alignment_for_throws_clause_in_constructor_declaration;
 	public int alignment_for_throws_clause_in_method_declaration;
@@ -175,11 +177,14 @@ public class DefaultCodeFormatterOptions {
 	public String brace_position_for_lambda_body;
 	public String brace_position_for_method_declaration;
 	public String brace_position_for_type_declaration;
+	public String brace_position_for_record_constructor;
+	public String brace_position_for_record_declaration;
 	public String brace_position_for_switch;
 
 	public String parenthesis_positions_in_method_declaration;
 	public String parenthesis_positions_in_method_invocation;
 	public String parenthesis_positions_in_enum_constant_declaration;
+	public String parenthesis_positions_in_record_declaration;
 	public String parenthesis_positions_in_if_while_statement;
 	public String parenthesis_positions_in_for_statement;
 	public String parenthesis_positions_in_switch_statement;
@@ -246,6 +251,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean indent_body_declarations_compare_to_annotation_declaration_header;
 	public boolean indent_body_declarations_compare_to_enum_constant_header;
 	public boolean indent_body_declarations_compare_to_enum_declaration_header;
+	public boolean indent_body_declarations_compare_to_record_header;
 	public boolean indent_body_declarations_compare_to_type_header;
 	public boolean indent_breaks_compare_to_cases;
 	public boolean indent_empty_lines;
@@ -280,6 +286,8 @@ public class DefaultCodeFormatterOptions {
 	public String keep_enum_declaration_on_one_line;
 	public String keep_enum_constant_declaration_on_one_line;
 	public String keep_annotation_declaration_on_one_line;
+	public String keep_record_declaration_on_one_line;
+	public String keep_record_constructor_on_one_line;
 	public boolean keep_simple_getter_setter_on_one_line;
 
 	public boolean insert_space_after_and_in_type_parameter;
@@ -321,6 +329,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_after_comma_in_multiple_field_declarations;
 	public boolean insert_space_after_comma_in_multiple_local_declarations;
 	public boolean insert_space_after_comma_in_parameterized_type_reference;
+	public boolean insert_space_after_comma_in_record_components;
 	public boolean insert_space_after_comma_in_superinterfaces;
 	public boolean insert_space_after_comma_in_switch_case_expressions;
 	public boolean insert_space_after_comma_in_type_arguments;
@@ -344,6 +353,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_after_opening_paren_in_method_declaration;
 	public boolean insert_space_after_opening_paren_in_method_invocation;
 	public boolean insert_space_after_opening_paren_in_parenthesized_expression;
+	public boolean insert_space_after_opening_paren_in_record_declaration;
 	public boolean insert_space_after_opening_paren_in_switch;
 	public boolean insert_space_after_opening_paren_in_synchronized;
 	public boolean insert_space_after_opening_paren_in_try;
@@ -383,6 +393,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_before_closing_paren_in_method_declaration;
 	public boolean insert_space_before_closing_paren_in_method_invocation;
 	public boolean insert_space_before_closing_paren_in_parenthesized_expression;
+	public boolean insert_space_before_closing_paren_in_record_declaration;
 	public boolean insert_space_before_closing_paren_in_switch;
 	public boolean insert_space_before_closing_paren_in_synchronized;
 	public boolean insert_space_before_closing_paren_in_try;
@@ -409,6 +420,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_before_comma_in_multiple_field_declarations;
 	public boolean insert_space_before_comma_in_multiple_local_declarations;
 	public boolean insert_space_before_comma_in_parameterized_type_reference;
+	public boolean insert_space_before_comma_in_record_components;
 	public boolean insert_space_before_comma_in_superinterfaces;
 	public boolean insert_space_before_comma_in_switch_case_expressions;
 	public boolean insert_space_before_comma_in_type_arguments;
@@ -429,6 +441,8 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_before_opening_brace_in_enum_constant;
 	public boolean insert_space_before_opening_brace_in_enum_declaration;
 	public boolean insert_space_before_opening_brace_in_method_declaration;
+	public boolean insert_space_before_opening_brace_in_record_constructor;
+	public boolean insert_space_before_opening_brace_in_record_declaration;
 	public boolean insert_space_before_opening_brace_in_type_declaration;
 	public boolean insert_space_before_opening_bracket_in_array_allocation_expression;
 	public boolean insert_space_before_opening_bracket_in_array_reference;
@@ -442,6 +456,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_before_opening_paren_in_if;
 	public boolean insert_space_before_opening_paren_in_method_invocation;
 	public boolean insert_space_before_opening_paren_in_method_declaration;
+	public boolean insert_space_before_opening_paren_in_record_declaration;
 	public boolean insert_space_before_opening_paren_in_switch;
 	public boolean insert_space_before_opening_paren_in_try;
 	public boolean insert_space_before_opening_brace_in_switch;
@@ -505,6 +520,20 @@ public class DefaultCodeFormatterOptions {
 			DefaultCodeFormatterConstants.ONE_LINE_ALWAYS,
 			DefaultCodeFormatterConstants.ONE_LINE_PRESERVE);
 
+	private final static List<String> BRACE_POSITION_VALUES = Arrays.asList(
+			DefaultCodeFormatterConstants.END_OF_LINE,
+			DefaultCodeFormatterConstants.NEXT_LINE,
+			DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED,
+			DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP);
+
+	private final static List<String> PARENTHESIS_POSITION_VALUES = Arrays.asList(
+			DefaultCodeFormatterConstants.COMMON_LINES,
+			DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY,
+			DefaultCodeFormatterConstants.SEPARATE_LINES_IF_WRAPPED,
+			DefaultCodeFormatterConstants.SEPARATE_LINES,
+			DefaultCodeFormatterConstants.SEPARATE_LINES,
+			DefaultCodeFormatterConstants.PRESERVE_POSITIONS);
+
 	private DefaultCodeFormatterOptions() {
 		// cannot be instantiated
 	}
@@ -548,10 +577,12 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERIZED_TYPE_REFERENCES, getAlignment(this.alignment_for_parameterized_type_references));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION, getAlignment(this.alignment_for_parameters_in_constructor_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION, getAlignment(this.alignment_for_parameters_in_method_declaration));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RECORD_COMPONENTS, getAlignment(this.alignment_for_record_components));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY, getAlignment(this.alignment_for_resources_in_try));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SELECTOR_IN_METHOD_INVOCATION, getAlignment(this.alignment_for_selector_in_method_invocation));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERCLASS_IN_TYPE_DECLARATION, getAlignment(this.alignment_for_superclass_in_type_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_ENUM_DECLARATION, getAlignment(this.alignment_for_superinterfaces_in_enum_declaration));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_RECORD_DECLARATION, getAlignment(this.alignment_for_superinterfaces_in_record_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_TYPE_DECLARATION, getAlignment(this.alignment_for_superinterfaces_in_type_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_CONSTRUCTOR_DECLARATION, getAlignment(this.alignment_for_throws_clause_in_constructor_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_METHOD_DECLARATION, getAlignment(this.alignment_for_throws_clause_in_method_declaration));
@@ -574,10 +605,13 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_METHOD_DECLARATION, this.brace_position_for_method_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_TYPE_DECLARATION, this.brace_position_for_type_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_LAMBDA_BODY, this.brace_position_for_lambda_body);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_RECORD_CONSTRUCTOR, this.brace_position_for_record_constructor);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_RECORD_DECLARATION, this.brace_position_for_record_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_SWITCH, this.brace_position_for_switch);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION, this.parenthesis_positions_in_method_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION, this.parenthesis_positions_in_method_invocation);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_ENUM_CONSTANT_DECLARATION, this.parenthesis_positions_in_enum_constant_declaration);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_RECORD_DECLARATION, this.parenthesis_positions_in_record_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_IF_WHILE_STATEMENT, this.parenthesis_positions_in_if_while_statement);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_FOR_STATEMENT, this.parenthesis_positions_in_for_statement);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_SWITCH_STATEMENT, this.parenthesis_positions_in_switch_statement);
@@ -634,6 +668,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_ANNOTATION_DECLARATION_HEADER, this.indent_body_declarations_compare_to_annotation_declaration_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_ENUM_CONSTANT_HEADER, this.indent_body_declarations_compare_to_enum_constant_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_ENUM_DECLARATION_HEADER, this.indent_body_declarations_compare_to_enum_declaration_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_RECORD_HEADER, this.indent_body_declarations_compare_to_record_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_TYPE_HEADER, this.indent_body_declarations_compare_to_type_header ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_BREAKS_COMPARE_TO_CASES, this.indent_breaks_compare_to_cases ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENT_EMPTY_LINES, this.indent_empty_lines ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -665,6 +700,8 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_ENUM_DECLARATION_ON_ONE_LINE, this.keep_enum_declaration_on_one_line);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_METHOD_BODY_ON_ONE_LINE, this.keep_method_body_on_one_line);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_TYPE_DECLARATION_ON_ONE_LINE, this.keep_type_declaration_on_one_line);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_RECORD_DECLARATION_ON_ONE_LINE, this.keep_record_declaration_on_one_line);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_RECORD_CONSTRUCTOR_ON_ONE_LINE, this.keep_record_constructor_on_one_line);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_GETTER_SETTER_ON_ONE_LINE, this.keep_simple_getter_setter_on_one_line? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_LABEL, this.insert_new_line_after_label? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_AND_IN_TYPE_PARAMETER, this.insert_space_after_and_in_type_parameter? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -705,6 +742,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS, this.insert_space_after_comma_in_multiple_field_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS, this.insert_space_after_comma_in_multiple_local_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_PARAMETERIZED_TYPE_REFERENCE, this.insert_space_after_comma_in_parameterized_type_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_RECORD_COMPONENTS, this.insert_space_after_comma_in_record_components? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES, this.insert_space_after_comma_in_superinterfaces? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SWITCH_CASE_EXPRESSIONS, this.insert_space_after_comma_in_switch_case_expressions ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_TYPE_ARGUMENTS, this.insert_space_after_comma_in_type_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -728,6 +766,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_METHOD_DECLARATION, this.insert_space_after_opening_paren_in_method_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_METHOD_INVOCATION, this.insert_space_after_opening_paren_in_method_invocation? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_PARENTHESIZED_EXPRESSION, this.insert_space_after_opening_paren_in_parenthesized_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_RECORD_DECLARATION, this.insert_space_after_opening_paren_in_record_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_SWITCH, this.insert_space_after_opening_paren_in_switch? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_SYNCHRONIZED, this.insert_space_after_opening_paren_in_synchronized? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_TRY, this.insert_space_after_opening_paren_in_try? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -767,6 +806,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_METHOD_DECLARATION, this.insert_space_before_closing_paren_in_method_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_METHOD_INVOCATION, this.insert_space_before_closing_paren_in_method_invocation? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_PARENTHESIZED_EXPRESSION, this.insert_space_before_closing_paren_in_parenthesized_expression? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_RECORD_DECLARATION, this.insert_space_before_closing_paren_in_record_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_SWITCH, this.insert_space_before_closing_paren_in_switch? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_SYNCHRONIZED, this.insert_space_before_closing_paren_in_synchronized? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_TRY, this.insert_space_before_closing_paren_in_try? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -792,6 +832,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_DECLARATION_THROWS, this.insert_space_before_comma_in_method_declaration_throws? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS, this.insert_space_before_comma_in_multiple_field_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS, this.insert_space_before_comma_in_multiple_local_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_RECORD_COMPONENTS, this.insert_space_before_comma_in_record_components? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES, this.insert_space_before_comma_in_superinterfaces? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SWITCH_CASE_EXPRESSIONS, this.insert_space_before_comma_in_switch_case_expressions? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_TYPE_ARGUMENTS, this.insert_space_before_comma_in_type_arguments ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -810,6 +851,8 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ENUM_CONSTANT, this.insert_space_before_opening_brace_in_enum_constant? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_ENUM_DECLARATION, this.insert_space_before_opening_brace_in_enum_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_METHOD_DECLARATION, this.insert_space_before_opening_brace_in_method_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_RECORD_CONSTRUCTOR, this.insert_space_before_opening_brace_in_record_constructor? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_RECORD_DECLARATION, this.insert_space_before_opening_brace_in_record_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_TYPE_DECLARATION, this.insert_space_before_opening_brace_in_type_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACKET_IN_ARRAY_ALLOCATION_EXPRESSION, this.insert_space_before_opening_bracket_in_array_allocation_expression ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACKET_IN_ARRAY_REFERENCE, this.insert_space_before_opening_bracket_in_array_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -823,6 +866,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_IF, this.insert_space_before_opening_paren_in_if? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_METHOD_INVOCATION, this.insert_space_before_opening_paren_in_method_invocation? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_METHOD_DECLARATION, this.insert_space_before_opening_paren_in_method_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_RECORD_DECLARATION, this.insert_space_before_opening_paren_in_record_declaration? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_SWITCH, this.insert_space_before_opening_paren_in_switch? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_SWITCH, this.insert_space_before_opening_brace_in_switch? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_SYNCHRONIZED, this.insert_space_before_opening_paren_in_synchronized? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -1066,6 +1110,8 @@ public class DefaultCodeFormatterOptions {
 				this.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
 			}
 		}
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RECORD_COMPONENTS,
+				v -> this.alignment_for_record_components = v);
 		final Object alignmentForResourcesInTry = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY);
 		if (alignmentForResourcesInTry != null) {
 			try {
@@ -1098,6 +1144,8 @@ public class DefaultCodeFormatterOptions {
 				this.alignment_for_superinterfaces_in_enum_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
 			}
 		}
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_RECORD_DECLARATION,
+				v -> this.alignment_for_superinterfaces_in_record_declaration = v);
 		final Object alignmentForSuperinterfacesInTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_TYPE_DECLARATION);
 		if (alignmentForSuperinterfacesInTypeDeclarationOption != null) {
 			try {
@@ -1242,6 +1290,10 @@ public class DefaultCodeFormatterOptions {
 				this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 			}
 		}
+		setString(settings, DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_RECORD_CONSTRUCTOR, BRACE_POSITION_VALUES,
+				v -> this.brace_position_for_record_constructor = v);
+		setString(settings, DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_RECORD_DECLARATION, BRACE_POSITION_VALUES,
+				v -> this.brace_position_for_record_declaration = v);
 		final Object bracePositionForSwitchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_SWITCH);
 		if (bracePositionForSwitchOption != null) {
 			try {
@@ -1271,6 +1323,8 @@ public class DefaultCodeFormatterOptions {
 		if (closingParenPositionInEnumConstantDeclaration != null) {
 			this.parenthesis_positions_in_enum_constant_declaration = toString(closingParenPositionInEnumConstantDeclaration, DefaultCodeFormatterConstants.COMMON_LINES);
 		}
+		setString(settings, DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_RECORD_DECLARATION, PARENTHESIS_POSITION_VALUES,
+			v -> this.parenthesis_positions_in_record_declaration = v);
 		final Object closingParenPositionInIfWhileStatement = settings.get(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_IF_WHILE_STATEMENT);
 		if (closingParenPositionInIfWhileStatement != null) {
 			this.parenthesis_positions_in_if_while_statement = toString(closingParenPositionInIfWhileStatement, DefaultCodeFormatterConstants.COMMON_LINES);
@@ -1521,6 +1575,8 @@ public class DefaultCodeFormatterOptions {
 		if (indentStatementsCompareToBodyOption != null) {
 			this.indent_statements_compare_to_body = DefaultCodeFormatterConstants.TRUE.equals(indentStatementsCompareToBodyOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_RECORD_HEADER, DefaultCodeFormatterConstants.TRUE,
+			v -> this.indent_body_declarations_compare_to_record_header = v);
 		final Object indentBodyDeclarationsCompareToAnnotationDeclarationHeaderOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INDENT_BODY_DECLARATIONS_COMPARE_TO_ANNOTATION_DECLARATION_HEADER);
 		if (indentBodyDeclarationsCompareToAnnotationDeclarationHeaderOption != null) {
 			this.indent_body_declarations_compare_to_annotation_declaration_header = DefaultCodeFormatterConstants.TRUE.equals(indentBodyDeclarationsCompareToAnnotationDeclarationHeaderOption);
@@ -1617,6 +1673,10 @@ public class DefaultCodeFormatterOptions {
 				v -> this.keep_method_body_on_one_line = v);
 		setString(settings, DefaultCodeFormatterConstants.FORMATTER_KEEP_TYPE_DECLARATION_ON_ONE_LINE, KEEP_ON_ONE_LINE_VALUES,
 				v -> this.keep_type_declaration_on_one_line = v);
+		setString(settings, DefaultCodeFormatterConstants.FORMATTER_KEEP_RECORD_DECLARATION_ON_ONE_LINE, KEEP_ON_ONE_LINE_VALUES,
+				v -> this.keep_record_declaration_on_one_line = v);
+		setString(settings, DefaultCodeFormatterConstants.FORMATTER_KEEP_RECORD_CONSTRUCTOR_ON_ONE_LINE, KEEP_ON_ONE_LINE_VALUES,
+				v -> this.keep_record_constructor_on_one_line = v);
 		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_KEEP_SIMPLE_GETTER_SETTER_ON_ONE_LINE, DefaultCodeFormatterConstants.TRUE,
 				v -> this.keep_simple_getter_setter_on_one_line = v);
 
@@ -1758,6 +1818,8 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceAfterCommaInParameterizedTypeReferenceOption != null) {
 			this.insert_space_after_comma_in_parameterized_type_reference = JavaCore.INSERT.equals(insertSpaceAfterCommaInParameterizedTypeReferenceOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_RECORD_COMPONENTS, JavaCore.INSERT,
+				v -> this.insert_space_after_comma_in_record_components = v);
 		final Object insertSpaceAfterCommaInSuperinterfacesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES);
 		if (insertSpaceAfterCommaInSuperinterfacesOption != null) {
 			this.insert_space_after_comma_in_superinterfaces = JavaCore.INSERT.equals(insertSpaceAfterCommaInSuperinterfacesOption);
@@ -1846,6 +1908,8 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceAfterOpeningParenInParenthesizedExpressionOption != null) {
 			this.insert_space_after_opening_paren_in_parenthesized_expression = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInParenthesizedExpressionOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_RECORD_DECLARATION, JavaCore.INSERT,
+			v -> this.insert_space_after_opening_paren_in_record_declaration = v);
 		final Object insertSpaceAfterOpeningParenInSwitchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_OPENING_PAREN_IN_SWITCH);
 		if (insertSpaceAfterOpeningParenInSwitchOption != null) {
 			this.insert_space_after_opening_paren_in_switch = JavaCore.INSERT.equals(insertSpaceAfterOpeningParenInSwitchOption);
@@ -1984,6 +2048,8 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeClosingParenInParenthesizedExpressionOption != null) {
 			this.insert_space_before_closing_paren_in_parenthesized_expression = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInParenthesizedExpressionOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_RECORD_DECLARATION, JavaCore.INSERT,
+			v -> this.insert_space_before_closing_paren_in_record_declaration = v);
 		final Object insertSpaceBeforeClosingParenInSwitchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_CLOSING_PAREN_IN_SWITCH);
 		if (insertSpaceBeforeClosingParenInSwitchOption != null) {
 			this.insert_space_before_closing_paren_in_switch = JavaCore.INSERT.equals(insertSpaceBeforeClosingParenInSwitchOption);
@@ -2089,6 +2155,8 @@ public class DefaultCodeFormatterOptions {
 			this.insert_space_before_comma_in_parameterized_type_reference = JavaCore.INSERT.equals(insertSpaceBeforeCommaInParameterizedTypeReferenceOption);
 		}
 		final Object insertSpaceBeforeCommaInSuperinterfacesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES);
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_RECORD_COMPONENTS, JavaCore.INSERT,
+				v -> this.insert_space_before_comma_in_record_components = v);
 		if (insertSpaceBeforeCommaInSuperinterfacesOption != null) {
 			this.insert_space_before_comma_in_superinterfaces = JavaCore.INSERT.equals(insertSpaceBeforeCommaInSuperinterfacesOption);
 		}
@@ -2154,6 +2222,10 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeOpeningBraceInMethodDeclarationOption != null) {
 			this.insert_space_before_opening_brace_in_method_declaration = JavaCore.INSERT.equals(insertSpaceBeforeOpeningBraceInMethodDeclarationOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_RECORD_CONSTRUCTOR, JavaCore.INSERT,
+				v -> this.insert_space_before_opening_brace_in_record_constructor = v);
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_RECORD_DECLARATION, JavaCore.INSERT,
+			v -> this.insert_space_before_opening_brace_in_record_declaration = v);
 		final Object insertSpaceBeforeOpeningBraceInTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_BRACE_IN_TYPE_DECLARATION);
 		if (insertSpaceBeforeOpeningBraceInTypeDeclarationOption != null) {
 			this.insert_space_before_opening_brace_in_type_declaration = JavaCore.INSERT.equals(insertSpaceBeforeOpeningBraceInTypeDeclarationOption);
@@ -2206,6 +2278,8 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeOpeningParenInMethodDeclarationOption != null) {
 			this.insert_space_before_opening_paren_in_method_declaration = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInMethodDeclarationOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_RECORD_DECLARATION, JavaCore.INSERT,
+				v -> this.insert_space_before_opening_paren_in_record_declaration = v);
 		final Object insertSpaceBeforeOpeningParenInSwitchOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_OPENING_PAREN_IN_SWITCH);
 		if (insertSpaceBeforeOpeningParenInSwitchOption != null) {
 			this.insert_space_before_opening_paren_in_switch = JavaCore.INSERT.equals(insertSpaceBeforeOpeningParenInSwitchOption);
@@ -2829,10 +2903,12 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_parameterized_type_references = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_record_components = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_resources_in_try = Alignment.M_NEXT_PER_LINE_SPLIT;
 		this.alignment_for_selector_in_method_invocation = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_superclass_in_type_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
 		this.alignment_for_superinterfaces_in_enum_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
+		this.alignment_for_superinterfaces_in_record_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
 		this.alignment_for_superinterfaces_in_type_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
 		this.alignment_for_throws_clause_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
@@ -2855,10 +2931,13 @@ public class DefaultCodeFormatterOptions {
 		this.brace_position_for_lambda_body = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_record_constructor = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_record_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.parenthesis_positions_in_method_declaration = DefaultCodeFormatterConstants.COMMON_LINES;
 		this.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.COMMON_LINES;
 		this.parenthesis_positions_in_enum_constant_declaration = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_record_declaration = DefaultCodeFormatterConstants.COMMON_LINES;
 		this.parenthesis_positions_in_if_while_statement = DefaultCodeFormatterConstants.COMMON_LINES;
 		this.parenthesis_positions_in_for_statement = DefaultCodeFormatterConstants.COMMON_LINES;
 		this.parenthesis_positions_in_switch_statement = DefaultCodeFormatterConstants.COMMON_LINES;
@@ -2915,6 +2994,7 @@ public class DefaultCodeFormatterOptions {
 		this.indent_body_declarations_compare_to_annotation_declaration_header = true;
 		this.indent_body_declarations_compare_to_enum_constant_header = true;
 		this.indent_body_declarations_compare_to_enum_declaration_header = true;
+		this.indent_body_declarations_compare_to_record_header = true;
 		this.indent_body_declarations_compare_to_type_header = true;
 		this.indent_breaks_compare_to_cases = true;
 		this.indent_empty_lines = false;
@@ -2946,6 +3026,8 @@ public class DefaultCodeFormatterOptions {
 		this.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		this.keep_record_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		this.keep_record_constructor_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_simple_getter_setter_on_one_line = false;
 		this.insert_space_after_and_in_type_parameter = true;
 		this.insert_space_after_arrow_in_switch_case = true;
@@ -2985,6 +3067,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_comma_in_multiple_field_declarations = true;
 		this.insert_space_after_comma_in_multiple_local_declarations = true;
 		this.insert_space_after_comma_in_parameterized_type_reference = true;
+		this.insert_space_after_comma_in_record_components = true;
 		this.insert_space_after_comma_in_superinterfaces = true;
 		this.insert_space_after_comma_in_switch_case_expressions = true;
 		this.insert_space_after_comma_in_type_arguments = true;
@@ -3008,6 +3091,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_opening_paren_in_method_declaration = false;
 		this.insert_space_after_opening_paren_in_method_invocation = false;
 		this.insert_space_after_opening_paren_in_parenthesized_expression = false;
+		this.insert_space_after_opening_paren_in_record_declaration = false;
 		this.insert_space_after_opening_paren_in_switch = false;
 		this.insert_space_after_opening_paren_in_synchronized = false;
 		this.insert_space_after_opening_paren_in_try = false;
@@ -3047,6 +3131,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_closing_paren_in_method_declaration = false;
 		this.insert_space_before_closing_paren_in_method_invocation = false;
 		this.insert_space_before_closing_paren_in_parenthesized_expression = false;
+		this.insert_space_before_closing_paren_in_record_declaration = false;
 		this.insert_space_before_closing_paren_in_switch = false;
 		this.insert_space_before_closing_paren_in_synchronized = false;
 		this.insert_space_before_closing_paren_in_try = false;
@@ -3072,6 +3157,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_multiple_field_declarations = false;
 		this.insert_space_before_comma_in_multiple_local_declarations = false;
 		this.insert_space_before_comma_in_parameterized_type_reference = false;
+		this.insert_space_before_comma_in_record_components = false;
 		this.insert_space_before_comma_in_superinterfaces = false;
 		this.insert_space_before_comma_in_switch_case_expressions = false;
 		this.insert_space_before_comma_in_type_arguments = false;
@@ -3091,6 +3177,8 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_opening_brace_in_enum_constant = true;
 		this.insert_space_before_opening_brace_in_enum_declaration = true;
 		this.insert_space_before_opening_brace_in_method_declaration = true;
+		this.insert_space_before_opening_brace_in_record_constructor = true;
+		this.insert_space_before_opening_brace_in_record_declaration = true;
 		this.insert_space_before_opening_brace_in_switch = true;
 		this.insert_space_before_opening_brace_in_type_declaration = true;
 		this.insert_space_before_opening_bracket_in_array_allocation_expression = false;
@@ -3105,6 +3193,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_opening_paren_in_if = true;
 		this.insert_space_before_opening_paren_in_method_invocation = false;
 		this.insert_space_before_opening_paren_in_method_declaration = false;
+		this.insert_space_before_opening_paren_in_record_declaration = false;
 		this.insert_space_before_opening_paren_in_switch = true;
 		this.insert_space_before_opening_paren_in_synchronized = true;
 		this.insert_space_before_opening_paren_in_try = true;
@@ -3196,10 +3285,12 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_parameterized_type_references = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_record_components = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_resources_in_try = Alignment.M_NEXT_PER_LINE_SPLIT;
 		this.alignment_for_selector_in_method_invocation = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_superclass_in_type_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_superinterfaces_in_enum_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_superinterfaces_in_record_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_superinterfaces_in_type_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_throws_clause_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
@@ -3222,10 +3313,13 @@ public class DefaultCodeFormatterOptions {
 		this.brace_position_for_lambda_body = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_record_constructor = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_record_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.parenthesis_positions_in_method_declaration = DefaultCodeFormatterConstants.COMMON_LINES;
 		this.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.COMMON_LINES;
 		this.parenthesis_positions_in_enum_constant_declaration = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_record_declaration = DefaultCodeFormatterConstants.COMMON_LINES;
 		this.parenthesis_positions_in_if_while_statement = DefaultCodeFormatterConstants.COMMON_LINES;
 		this.parenthesis_positions_in_for_statement = DefaultCodeFormatterConstants.COMMON_LINES;
 		this.parenthesis_positions_in_switch_statement = DefaultCodeFormatterConstants.COMMON_LINES;
@@ -3260,6 +3354,7 @@ public class DefaultCodeFormatterOptions {
 		this.blank_lines_after_imports = 1;
 		this.blank_lines_after_package = 1;
 		this.blank_lines_before_field = 0;
+		this.blank_lines_before_first_class_body_declaration = 0;
 		this.blank_lines_after_last_class_body_declaration = 0;
 		this.blank_lines_before_imports = 1;
 		this.blank_lines_before_member_type = 1;
@@ -3281,6 +3376,7 @@ public class DefaultCodeFormatterOptions {
 		this.indent_body_declarations_compare_to_annotation_declaration_header = true;
 		this.indent_body_declarations_compare_to_enum_constant_header = true;
 		this.indent_body_declarations_compare_to_enum_declaration_header = true;
+		this.indent_body_declarations_compare_to_record_header = true;
 		this.indent_body_declarations_compare_to_type_header = true;
 		this.indent_breaks_compare_to_cases = true;
 		this.indent_empty_lines = false;
@@ -3312,6 +3408,9 @@ public class DefaultCodeFormatterOptions {
 		this.keep_enum_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_method_body_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		this.keep_record_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		this.keep_record_constructor_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		this.keep_simple_getter_setter_on_one_line = false;
 		this.insert_space_after_and_in_type_parameter = true;
 		this.insert_space_after_arrow_in_switch_case = true;
 		this.insert_space_after_arrow_in_switch_default = true;
@@ -3350,6 +3449,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_comma_in_multiple_field_declarations = true;
 		this.insert_space_after_comma_in_multiple_local_declarations = true;
 		this.insert_space_after_comma_in_parameterized_type_reference = true;
+		this.insert_space_after_comma_in_record_components = true;
 		this.insert_space_after_comma_in_superinterfaces = true;
 		this.insert_space_after_comma_in_switch_case_expressions = true;
 		this.insert_space_after_comma_in_type_arguments = true;
@@ -3373,6 +3473,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_opening_paren_in_method_declaration = false;
 		this.insert_space_after_opening_paren_in_method_invocation = false;
 		this.insert_space_after_opening_paren_in_parenthesized_expression = false;
+		this.insert_space_after_opening_paren_in_record_declaration = false;
 		this.insert_space_after_opening_paren_in_switch = false;
 		this.insert_space_after_opening_paren_in_synchronized = false;
 		this.insert_space_after_opening_paren_in_try = false;
@@ -3412,6 +3513,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_closing_paren_in_method_declaration = false;
 		this.insert_space_before_closing_paren_in_method_invocation = false;
 		this.insert_space_before_closing_paren_in_parenthesized_expression = false;
+		this.insert_space_before_closing_paren_in_record_declaration = false;
 		this.insert_space_before_closing_paren_in_switch = false;
 		this.insert_space_before_closing_paren_in_synchronized = false;
 		this.insert_space_before_closing_paren_in_try = false;
@@ -3437,6 +3539,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_multiple_field_declarations = false;
 		this.insert_space_before_comma_in_multiple_local_declarations = false;
 		this.insert_space_before_comma_in_parameterized_type_reference = false;
+		this.insert_space_before_comma_in_record_components = false;
 		this.insert_space_before_comma_in_superinterfaces = false;
 		this.insert_space_before_comma_in_switch_case_expressions = false;
 		this.insert_space_before_comma_in_type_arguments = false;
@@ -3456,6 +3559,8 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_opening_brace_in_enum_constant = true;
 		this.insert_space_before_opening_brace_in_enum_declaration = true;
 		this.insert_space_before_opening_brace_in_method_declaration = true;
+		this.insert_space_before_opening_brace_in_record_constructor = true;
+		this.insert_space_before_opening_brace_in_record_declaration = true;
 		this.insert_space_before_opening_brace_in_switch = true;
 		this.insert_space_before_opening_brace_in_type_declaration = true;
 		this.insert_space_before_opening_bracket_in_array_allocation_expression = false;
@@ -3470,6 +3575,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_opening_paren_in_if = true;
 		this.insert_space_before_opening_paren_in_method_invocation = false;
 		this.insert_space_before_opening_paren_in_method_declaration = false;
+		this.insert_space_before_opening_paren_in_record_declaration = false;
 		this.insert_space_before_opening_paren_in_switch = true;
 		this.insert_space_before_opening_paren_in_synchronized = true;
 		this.insert_space_before_opening_paren_in_try = true;

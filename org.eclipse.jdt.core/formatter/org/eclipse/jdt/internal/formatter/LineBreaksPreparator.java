@@ -31,6 +31,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamew
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
@@ -64,6 +65,7 @@ import org.eclipse.jdt.core.dom.ModuleDeclaration;
 import org.eclipse.jdt.core.dom.ModuleDirective;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -274,13 +276,22 @@ public class LineBreaksPreparator extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(RecordDeclaration node) {
+		handleBracedCode(node, node.getName(), this.options.brace_position_for_record_declaration,
+				this.options.indent_body_declarations_compare_to_record_header);
+		handleBodyDeclarations(node.bodyDeclarations());
+		return true;
+	}
+
+	@Override
 	public boolean visit(MethodDeclaration node) {
 		this.declarationModifierVisited = false;
 		if (node.getBody() == null)
 			return true;
 
-		String bracePosition = node.isConstructor() ? this.options.brace_position_for_constructor_declaration
-				: this.options.brace_position_for_method_declaration;
+		String bracePosition = node.isCompactConstructor() ? this.options.brace_position_for_record_constructor
+				: node.isConstructor() ? this.options.brace_position_for_constructor_declaration
+						: this.options.brace_position_for_method_declaration;
 		handleBracedCode(node.getBody(), null, bracePosition, this.options.indent_statements_compare_to_body,
 				this.options.blank_lines_at_beginning_of_method_body, this.options.blank_lines_at_end_of_method_body);
 
@@ -396,7 +407,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	private void doSwitchStatementsLineBreaks(List<Statement> statements) {
 		boolean arrowMode = statements.stream()
-				.anyMatch(s -> s instanceof SwitchCase && ((SwitchCase) s).isSwitchLabeledRule());
+				.anyMatch(s -> s instanceof SwitchCase && s.getAST().apiLevel() >= AST.JLS14 &&((SwitchCase) s).isSwitchLabeledRule());
 		Statement previous = null;
 		for (Statement statement : statements) {
 			boolean skip = statement instanceof Block // will add break in visit(Block) if necessary

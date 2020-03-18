@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -98,6 +98,8 @@ public class Argument extends LocalDeclaration {
 			if (localExists && this.hiddenVariableDepth == 0) {
 				if ((this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope()) {
 					scope.problemReporter().lambdaRedeclaresArgument(this);
+				} else if ((this.bits & ASTNode.IsRecordComponent) != 0) {
+					scope.problemReporter().recordDuplicateComponent(this);
 				} else {
 					scope.problemReporter().redefineArgument(this);
 				}

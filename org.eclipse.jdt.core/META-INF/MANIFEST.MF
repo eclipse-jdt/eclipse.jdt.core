@@ -3,7 +3,7 @@ Main-Class: org.eclipse.jdt.internal.compiler.batch.Main
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
 Bundle-SymbolicName: org.eclipse.jdt.core; singleton:=true
-Bundle-Version: 3.21.100.qualifier
+Bundle-Version: 3.22.0.qualifier
 Bundle-Activator: org.eclipse.jdt.core.JavaCore
 Bundle-Vendor: %providerName
 Bundle-Localization: plugin
@@ -45,6 +45,7 @@ Export-Package: org.eclipse.jdt.core,
  org.eclipse.jdt.internal.core.builder;x-friends:="org.eclipse.jdt.apt.pluggable.core,org.eclipse.pde.api.tools",
  org.eclipse.jdt.internal.core.dom;x-internal:=true,
  org.eclipse.jdt.internal.core.dom.rewrite;x-internal:=true,
+ org.eclipse.jdt.internal.core.dom.util;x-internal:=true,
  org.eclipse.jdt.internal.core.eval;x-internal:=true,
  org.eclipse.jdt.internal.core.hierarchy;x-internal:=true,
  org.eclipse.jdt.internal.core.index;x-internal:=true,

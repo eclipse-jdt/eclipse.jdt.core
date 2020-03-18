@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,6 +16,8 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 
 /**
  * Instanceof expression AST node type.
@@ -45,11 +47,25 @@ public class InstanceofExpression extends Expression {
 		new ChildPropertyDescriptor(InstanceofExpression.class, "rightOperand", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
+	 * The "patternVariable" structural property of this node type (child type: {@link SingleVariableDeclaration}) (added in JLS14 API).
+	 * @noreference This property is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @since 3.21
+	 */
+	public static final ChildPropertyDescriptor PATTERN_VARIABLE_PROPERTY =
+		new ChildPropertyDescriptor(InstanceofExpression.class, "patternVariable", SingleVariableDeclaration.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
+	
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 */
+	private static final List PROPERTY_DESCRIPTORS_14;
 
 	static {
 		List properyList = new ArrayList(3);
@@ -57,6 +73,12 @@ public class InstanceofExpression extends Expression {
 		addProperty(LEFT_OPERAND_PROPERTY, properyList);
 		addProperty(RIGHT_OPERAND_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
+		properyList = new ArrayList(4);
+		createPropertyList(InstanceofExpression.class, properyList);
+		addProperty(LEFT_OPERAND_PROPERTY, properyList);
+		addProperty(RIGHT_OPERAND_PROPERTY, properyList);
+		addProperty(PATTERN_VARIABLE_PROPERTY, properyList);
+		PROPERTY_DESCRIPTORS_14 = reapPropertyList(properyList);
 	}
 
 	/**
@@ -71,9 +93,27 @@ public class InstanceofExpression extends Expression {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		return PROPERTY_DESCRIPTORS;
+		return propertyDescriptors(apiLevel, false);
 	}
 
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 *
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.JLS*</code> constants
+	 * @param previewEnabled the previewEnabled flag
+	 * @return a list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor})
+	 * @noreference This method is not intended to be referenced by clients.
+	 * @since 3.21
+	 */
+	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
+		if (DOMASTUtil.isInstanceofExpressionPatternSupported(apiLevel, previewEnabled)) {
+			return PROPERTY_DESCRIPTORS_14;
+		}
+		return PROPERTY_DESCRIPTORS;
+	}
 	/**
 	 * The left operand; lazily initialized; defaults to an unspecified,
 	 * but legal, simple name.
@@ -85,6 +125,11 @@ public class InstanceofExpression extends Expression {
 	 * but legal, simple type.
 	 */
 	private Type rightOperand = null;
+	
+	/**
+	 * The patternVariable declaration.
+	 */
+	private SingleVariableDeclaration patternVariable = null;
 
 	/**
 	 * Creates a new AST node for an instanceof expression owned by the given
@@ -100,6 +145,11 @@ public class InstanceofExpression extends Expression {
 	@Override
 	final List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
+	}
+	
+	@Override
+	final List internalStructuralPropertiesForType(int apiLevel, boolean previewEnabled) {
+		return propertyDescriptors(apiLevel, previewEnabled);
 	}
 
 	@Override
@@ -120,6 +170,14 @@ public class InstanceofExpression extends Expression {
 				return null;
 			}
 		}
+		if (property == PATTERN_VARIABLE_PROPERTY) {
+			if (get) {
+				return getPatternVariable();
+			} else {
+				setPatternVariable((SingleVariableDeclaration) child);
+				return null;
+			}
+		}
 		// allow default implementation to flag the error
 		return super.internalGetSetChildProperty(property, get, child);
 	}
@@ -135,6 +193,9 @@ public class InstanceofExpression extends Expression {
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setLeftOperand((Expression) getLeftOperand().clone(target));
 		result.setRightOperand((Type) getRightOperand().clone(target));
+		if (DOMASTUtil.isInstanceofExpressionPatternSupported(target)) {
+			result.setPatternVariable((SingleVariableDeclaration) getPatternVariable().clone(target));
+		}
 		return result;
 	}
 
@@ -151,6 +212,9 @@ public class InstanceofExpression extends Expression {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getLeftOperand());
 			acceptChild(visitor, getRightOperand());
+			if (DOMASTUtil.isInstanceofExpressionPatternSupported(this.ast)) {
+				acceptChild(visitor, getPatternVariable());
+			}
 		}
 		visitor.endVisit(this);
 	}
@@ -235,10 +299,46 @@ public class InstanceofExpression extends Expression {
 		postReplaceChild(oldChild, referenceType, RIGHT_OPERAND_PROPERTY);
 	}
 
+	/**
+	 * Returns the patternVariable of this instanceof expression.
+	 *
+	 * @return the patternVariable node
+	 * @exception UnsupportedOperationException if this operation is used other than JLS14
+	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
+	 */
+	public SingleVariableDeclaration getPatternVariable() {
+		supportedOnlyIn14();
+		unsupportedWithoutPreviewError();
+		return this.patternVariable;
+	}
+
+	/**
+	 * Sets the patternVariable of this instanceof expression.
+	 *
+	 * @param referencePatternVariable the right operand node
+	 * @exception IllegalArgumentException if:
+	 * @exception UnsupportedOperationException if this operation is used other than JLS14
+	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @nooverride This method is not intended to be re-implemented or extended by clients as it is a part of Java preview feature.
+	 */
+	public void setPatternVariable(SingleVariableDeclaration referencePatternVariable) {
+		supportedOnlyIn14();
+		unsupportedWithoutPreviewError();
+		if (referencePatternVariable == null) {
+			throw new IllegalArgumentException();
+		}
+		ASTNode oldChild = this.patternVariable;
+		preReplaceChild(oldChild, referencePatternVariable, PATTERN_VARIABLE_PROPERTY);
+		this.patternVariable = referencePatternVariable;
+		postReplaceChild(oldChild, referencePatternVariable, PATTERN_VARIABLE_PROPERTY);
+	}
 	@Override
 	int memSize() {
 		// treat Operator as free
-		return BASE_NODE_SIZE + 2 * 4;
+		return BASE_NODE_SIZE + 3 * 4;
 	}
 
 	@Override
@@ -246,6 +346,7 @@ public class InstanceofExpression extends Expression {
 		return
 			memSize()
 			+ (this.leftOperand == null ? 0 : getLeftOperand().treeSize())
-			+ (this.rightOperand == null ? 0 : getRightOperand().treeSize());
+			+ (this.rightOperand == null ? 0 : getRightOperand().treeSize())
+			+ (this.patternVariable == null ? 0 : getPatternVariable().treeSize());
 	}
 }

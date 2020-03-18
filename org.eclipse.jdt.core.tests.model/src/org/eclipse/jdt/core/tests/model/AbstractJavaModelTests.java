@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -79,6 +79,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE11 = false;
 	protected static boolean isJRE12 = false;
 	protected static boolean isJRE13 = false;
+	protected static boolean isJRE14 = false;
 	protected static String DEFAULT_MODULES = null;
 	static {
 		String javaVersion = System.getProperty("java.version");
@@ -92,8 +93,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
-		if (jdkLevel >= ClassFileConstants.JDK13) {
-			isJRE13 = true;
+		if (jdkLevel >= ClassFileConstants.JDK14) {
+			isJRE14 = true;
 		}
 		if (jdkLevel >= ClassFileConstants.JDK12) {
 			isJRE12 = true;
@@ -157,6 +158,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * to alleviate deprecation warnings once AST.JLS13 is deprecated in future.
 	 */
 	protected static final int AST_INTERNAL_JLS13 = AST.JLS13;
+	
+	/**
+	 * Internal synonym for constant AST.JSL14
+	 * to alleviate deprecation warnings once AST.JLS14 is deprecated in future.
+	 */
+	protected static final int AST_INTERNAL_JLS14 = AST.JLS14;
 
 	/**
 	 * Internal synonym for constant AST.JSL11
@@ -169,7 +176,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Internal synonym for the latest AST level.
 	 * 
 	 */
-	protected static final int AST_INTERNAL_LATEST = AST.JLS13;
+	protected static final int AST_INTERNAL_LATEST = AST.JLS14;
 
 	public static class BasicProblemRequestor implements IProblemRequestor {
 		public void acceptProblem(IProblem problem) {}
@@ -1520,6 +1527,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected IJavaProject createJava11Project(String name, String[] srcFolders) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "11");
 	}
+	protected IJavaProject createJava14Project(String name, String[] srcFolders) throws CoreException {
+		return createJava9ProjectWithJREAttributes(name, srcFolders, null, "14");
+	}
 	protected IJavaProject createJava9ProjectWithJREAttributes(String name, String[] srcFolders, IClasspathAttribute[] attributes) throws CoreException {
 		return createJava9ProjectWithJREAttributes(name, srcFolders, attributes, "9");
 	}
@@ -2111,6 +2121,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13);
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
+					javaProject.setOptions(options);
+				} else if ("14".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
 					javaProject.setOptions(options);
 				}
 				result[0] = javaProject;
@@ -3160,7 +3176,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return this.currentProject;
 	}
 	protected IJavaProject setUpJavaProject(final String projectName, String compliance) throws CoreException, IOException {
-		return setUpJavaProject(projectName, compliance, false);
+		this.currentProject =  setUpJavaProject(projectName, compliance, false);
+		return this.currentProject;
 	}
 	protected IJavaProject setUpJavaProject(final String projectName, String compliance, boolean useFullJCL) throws CoreException, IOException {
 		// copy files in project from source workspace to target workspace
@@ -3187,7 +3204,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		javaProject.setOption(JavaCore.COMPILER_PB_FIELD_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_LOCAL_VARIABLE_HIDING, JavaCore.IGNORE);
 		javaProject.setOption(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING, JavaCore.IGNORE);
-//		javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		return javaProject;
 	}
 	protected void setUpProjectCompliance(IJavaProject javaProject, String compliance) throws JavaModelException, IOException {
@@ -3210,7 +3226,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL18_SRC"; // Use the same source
 			}
 		} else {
-			if (compliance.equals("13")) {
+			if (compliance.equals("14")) {
+				newJclLibString = "JCL14_LIB";
+				newJclSrcString = "JCL14_SRC";
+			} else if (compliance.equals("13")) {
 				newJclLibString = "JCL13_LIB";
 				newJclSrcString = "JCL13_SRC";
 			} else if (compliance.equals("12")) {
@@ -3275,11 +3294,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IPath jcl11Lib = new Path("JCL11_LIB");
 		IPath jcl12Lib = new Path("JCL12_LIB");
 		IPath jcl13Lib = new Path("JCL13_LIB");
+		IPath jcl14Lib = new Path("JCL14_LIB");
 		IPath jclFull = new Path("JCL18_FULL");
 
 		return path.equals(jclLib) || path.equals(jcl5Lib) || path.equals(jcl8Lib) || path.equals(jcl9Lib)
 				|| path.equals(jcl10Lib) ||  path.equals(jcl11Lib) || path.equals(jcl12Lib) || path.equals(jcl13Lib)
-				|| path.equals(jclFull);
+				|| path.equals(jcl14Lib) || path.equals(jclFull);
 	}
 	public void setUpJCLClasspathVariables(String compliance) throws JavaModelException, IOException {
 		setUpJCLClasspathVariables(compliance, false);
@@ -3356,6 +3376,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				JavaCore.setClasspathVariables(
 					new String[] {"JCL13_LIB", "JCL13_SRC", "JCL_SRCROOT"},
 					new IPath[] {getExternalJCLPath("13"), getExternalJCLSourcePath("13"), getExternalJCLRootSourcePath()},
+					null);
+			}
+		} else if ("14".equals(compliance)) {
+			if (JavaCore.getClasspathVariable("JCL14_LIB") == null) {
+				setupExternalJCL("jclMin14");
+				JavaCore.setClasspathVariables(
+					new String[] {"JCL14_LIB", "JCL14_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("14"), getExternalJCLSourcePath("14"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {

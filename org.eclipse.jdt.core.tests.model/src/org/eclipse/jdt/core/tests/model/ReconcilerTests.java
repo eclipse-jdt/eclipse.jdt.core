@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -79,7 +79,7 @@ public class ReconcilerTests extends ModifyingResourceTests {
 		}
 	}
 	
-	/*package*/ static final int JLS_LATEST = AST.JLS13;
+	/*package*/ static final int JLS_LATEST = AST.JLS14;
 
 	static class ReconcileParticipant extends CompilationParticipant {
 		IJavaElementDelta delta;
@@ -5957,6 +5957,74 @@ public void testBug534865() throws CoreException, IOException {
 	} finally {
 		if (project18 != null)
 			deleteProject(project18);
+	}
+}
+public void testBug559774() throws CoreException, IOException, InterruptedException {
+	if (!isJRE14) return;
+	IJavaProject project14 = null;
+	try {
+		project14 = createJava14Project("Reconciler14", new String[] {"src"});
+		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
+		project14.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		project14.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+		
+		String[] sources = new String[2];
+		char[][] sourceAsArray = new char[2][];
+		createFolder("/Reconciler14/src/p");
+		createFolder("/Reconciler14/src/q");
+		sources[0] = "package p;\n" + 
+				"public record X(int a, int b) {\n" + 
+				"	public X {\n" + 
+				"		this.a = a * 2;\n" + 
+				"	}\n" + 
+				"	public  void foo() {}\n" + 
+				"}\n" + 
+				"class Z {\n" + 
+				"	public void bar() {\n" + 
+				"		X x = new X(0,1);\n" + 
+				"		int l = x.a(); // works fine in the same file\n" + 
+				"		System.out.println(l);\n" + 
+				"	}\n" + 
+				"}";
+		createFile(
+			"/Reconciler14/src/p/X.java",
+			sources[0]
+		);
+		sourceAsArray[0] = sources[0].toCharArray();
+		sources[1] = 
+				"package q;\n" + 
+				"import p.X;\n" + 
+				"public class Y {\n" + 
+				"	public X myField; \n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		X x  = new X(0, 1);\n" + 
+				"		int l = x.a(); //Incorrect Error: The method a() is undefined for the type X\n" +
+				"		System.out.println(l);\n" + 
+				"	}\n" + 
+				"} ";
+
+		createFile(
+			"/Reconciler14/src/q/Y.java",
+			sources[1]
+		);
+		sourceAsArray[1] = sources[1].toCharArray();
+		waitUntilIndexesReady();
+		this.workingCopies = new ICompilationUnit[2];
+			// Get first working copy and verify that there's no error
+		this.problemRequestor.initialize(sourceAsArray[0]);
+		this.workingCopies[0] = getCompilationUnit("/Reconciler14/src/p/X.java").getWorkingCopy(this.wcOwner, null);
+		assertNoProblem(sourceAsArray[0], this.workingCopies[0]);
+
+		// Get second working copy and verify that there's no error
+		this.problemRequestor.initialize(sourceAsArray[1]);
+		this.workingCopies[1] = getCompilationUnit("/Reconciler14/src/q/Y.java").getWorkingCopy(this.wcOwner, null);
+		assertNoProblem(sourceAsArray[1], this.workingCopies[1]);
+		
+	} finally {
+		if (project14 != null)
+			deleteProject(project14);
 	}
 }
 }

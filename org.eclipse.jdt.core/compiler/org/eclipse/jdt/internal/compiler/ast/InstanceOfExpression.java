@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -35,6 +35,8 @@ public class InstanceOfExpression extends OperatorExpression {
 
 	public Expression expression;
 	public TypeReference type;
+	public LocalDeclaration elementVariable;
+	boolean isInitialized;
 
 public InstanceOfExpression(Expression expression, TypeReference type) {
 	this.expression = expression;
@@ -43,6 +45,16 @@ public InstanceOfExpression(Expression expression, TypeReference type) {
 	this.bits |= INSTANCEOF << OperatorSHIFT;
 	this.sourceStart = expression.sourceStart;
 	this.sourceEnd = type.sourceEnd;
+}
+public InstanceOfExpression(Expression expression, LocalDeclaration local) {
+	this.expression = expression;
+	this.elementVariable = local;
+	this.type = this.elementVariable.type;
+	this.bits |= INSTANCEOF << OperatorSHIFT;
+	this.elementVariable.sourceStart = local.sourceStart;
+	this.elementVariable.sourceEnd = local.sourceEnd;
+	this.sourceStart = expression.sourceStart;
+	this.sourceEnd = local.declarationSourceEnd;
 }
 
 @Override
@@ -55,7 +67,21 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		initsWhenTrue.markAsComparedEqualToNonNull(local);
 		flowContext.recordUsingNullReference(currentScope, local,
 				this.expression, FlowContext.CAN_ONLY_NULL | FlowContext.IN_INSTANCEOF, flowInfo);
+		if (this.elementVariable != null) {
+			if (this.elementVariable.duplicateCheckObligation != null) {
+				this.elementVariable.duplicateCheckObligation.accept(flowInfo);
+			}
+			initsWhenTrue.markAsDefinitelyAssigned(this.elementVariable.binding);
+		}
 		// no impact upon enclosing try context
+		return FlowInfo.conditional(initsWhenTrue, flowInfo.copy());
+	}
+	if (this.expression instanceof Reference && this.elementVariable != null) {
+		//FieldBinding field = ((Reference)this.expression).lastFieldBinding();
+		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo).
+				unconditionalInits();
+		FlowInfo initsWhenTrue = flowInfo.copy();
+		initsWhenTrue.markAsDefinitelyAssigned(this.elementVariable.binding);
 		return FlowInfo.conditional(initsWhenTrue, flowInfo.copy());
 	}
 	if (this.expression instanceof Reference && currentScope.compilerOptions().enableSyntacticNullAnalysisForFields) {
@@ -67,7 +93,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return this.expression.analyseCode(currentScope, flowContext, flowInfo).
 			unconditionalInits();
 }
-
 /**
  * Code generation for instanceOfExpression
  *
@@ -77,9 +102,21 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 */
 @Override
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+	initializePatternVariables(currentScope, codeStream);
+	
 	int pc = codeStream.position;
 	this.expression.generateCode(currentScope, codeStream, true);
 	codeStream.instance_of(this.type, this.type.resolvedType);
+	if (this.elementVariable != null) {
+		BranchLabel actionLabel = new BranchLabel(codeStream);
+		codeStream.dup();
+		codeStream.ifeq(actionLabel);
+		this.expression.generateCode(currentScope, codeStream, true);
+		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
+		codeStream.store(this.elementVariable.binding, false);
+		codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
+		actionLabel.place();
+	}
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);
 	} else {
@@ -91,12 +128,39 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 @Override
 public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
 	this.expression.printExpression(indent, output).append(" instanceof "); //$NON-NLS-1$
-	return this.type.print(0, output);
+	return this.elementVariable == null ? this.type.print(0, output) : this.elementVariable.printAsExpression(0, output);
 }
 
 @Override
+public void initializePatternVariables(BlockScope currentScope, CodeStream codeStream) {
+	if (this.elementVariable != null) {
+		if(!this.isInitialized) {
+			this.isInitialized = true;
+			codeStream.aconst_null();
+			codeStream.store(this.elementVariable.binding, false);
+		}
+		int position = codeStream.position;
+		codeStream.addVisibleLocalVariable(this.elementVariable.binding);
+		this.elementVariable.binding.recordInitializationStartPC(position);
+	}
+}
+public void resolvePatternVariable(BlockScope scope) {
+	if (this.elementVariable != null && this.elementVariable.binding == null) {
+		this.elementVariable.resolve(scope, true);
+		this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+		this.elementVariable.binding.useFlag = LocalVariableBinding.USED;
+		// Why cant this be done in the constructor?
+		this.type = this.elementVariable.type;
+	}
+}
+@Override
+public boolean containsPatternVariable() {
+	return this.elementVariable != null;
+}
+@Override
 public TypeBinding resolveType(BlockScope scope) {
 	this.constant = Constant.NotAConstant;
+	resolvePatternVariable(scope);
 	TypeBinding checkedType = this.type.resolveType(scope, true /* check bounds*/);
 	if (this.expression instanceof CastExpression) {
 		((CastExpression) this.expression).setInstanceofType(checkedType); // for cast expression we need to know instanceof type to not tag unnecessary when needed
@@ -115,6 +179,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	} else if (checkedType.isValidBinding()) {
 		// if not a valid binding, an error has already been reported for unresolved type
 		if ((expressionType != TypeBinding.NULL && expressionType.isBaseType()) // disallow autoboxing
+				|| checkedType.isBaseType()
 				|| !checkCastTypesCompatibility(scope, checkedType, expressionType, null)) {
 			scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
 		}
@@ -136,7 +201,11 @@ public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {
 public void traverse(ASTVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {
 		this.expression.traverse(visitor, scope);
-		this.type.traverse(visitor, scope);
+		if (this.elementVariable != null) {
+			this.elementVariable.traverse(visitor, scope);
+		} else {
+			this.type.traverse(visitor, scope);
+		}
 	}
 	visitor.endVisit(this, scope);
 }

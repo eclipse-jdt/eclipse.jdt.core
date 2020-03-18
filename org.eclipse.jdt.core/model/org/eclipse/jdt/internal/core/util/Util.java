@@ -41,6 +41,7 @@ import org.eclipse.jdt.core.dom.WildcardType;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.ICodeAttribute;
+import org.eclipse.jdt.core.util.IComponentInfo;
 import org.eclipse.jdt.core.util.IFieldInfo;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
@@ -735,6 +736,15 @@ public class Util {
 
 	public static IClassFileAttribute getAttribute(IFieldInfo fieldInfo, char[] attributeName) {
 		IClassFileAttribute[] attributes = fieldInfo.getAttributes();
+		for (int i = 0, max = attributes.length; i < max; i++) {
+			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
+				return attributes[i];
+			}
+		}
+		return null;
+	}
+	public static IClassFileAttribute getAttribute(IComponentInfo componentInfo, char[] attributeName) {
+		IClassFileAttribute[] attributes = componentInfo.getAttributes();
 		for (int i = 0, max = attributes.length; i < max; i++) {
 			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
 				return attributes[i];

@@ -14,6 +14,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -25,31 +26,31 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug550861_01" };
+//		TESTS_NAMES = new String[] { "testBug552764" };
 	}
 	
 	public static Class<?> testClass() {
 		return SwitchExpressionsYieldTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_13);
+		return buildMinimalComplianceTestSuite(testClass(), F_14);
 	}
 	public SwitchExpressionsYieldTest(String testName){
 		super(testName);
 	}
 
 	// Enables the tests to run individually
-	protected Map<String, String> getCompilerOptions() {
+	protected Map<String, String> _getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_13); // FIXME
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_13);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
 	protected void runConformTestWithJavac(String[] testFiles, String expectedOutput) {
-		runConformTest(testFiles, expectedOutput, getCompilerOptions(), new String[] {"--enable-preview"});
+		runConformTest(testFiles, expectedOutput, _getCompilerOptions(), new String[] {"--enable-preview"}, new JavacTestOptions("-source 14 --enable-preview"));
 	}
 	
 	@Override
@@ -65,12 +66,12 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runner.expectedOutputString = expectedOutput;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview("13");
+		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(JavaCore.VERSION_14);
 		runner.runConformTest();
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("13"));
+		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview(JavaCore.VERSION_14));
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, null);
@@ -86,8 +87,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		runner.expectedCompilerLog = expectedCompilerLog;
 		runner.customOptions = customOptions;
 		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview("13") :
-			JavacTestOptions.forReleaseWithPreview("13", javacAdditionalTestOptions);
+		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview(JavaCore.VERSION_14) :
+			JavacTestOptions.forReleaseWithPreview(JavaCore.VERSION_14, javacAdditionalTestOptions);
 		runner.runWarningTest();
 	}
 	public void testBug544073_000() {
@@ -127,7 +128,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						"		};\n" +
 						"		return tw;\n" +
 						"	}\n" +
-						"	public static void main(String... args) {\n" +
+						"	public static void main(String[] args) {\n" +
 						"		System.out.print(twice(3));\n" +
 						"	}\n" +
 						"}\n"
@@ -321,7 +322,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"100");
 	}
-	public void testBug544073_008() {
+	// switch expressions graduated from preview to standard and hence the following test not relevant anymore
+	public void _testBug544073_008() {
 		Map<String, String> disablePreviewOptions = getCompilerOptions();
 		disablePreviewOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		String[] testFiles = new String[] {
@@ -418,18 +420,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	case 0 -> i * 0;\n" + 
-				"	^^^^^^\n" + 
-				"Case Labels with \'->\' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"	          ^^^^^\n" + 
+				"Invalid expression as statement\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
 				"	case 1 -> 2;\n" + 
-				"	^^^^^^\n" + 
-				"Case Labels with \'->\' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"	          ^\n" + 
+				"Invalid expression as statement\n" + 
 				"----------\n" + 
 				"3. ERROR in X.java (at line 6)\n" + 
 				"	default -> 3;\n" + 
-				"	^^^^^^^\n" + 
-				"Case Labels with \'->\' is a preview feature and disabled by default. Use --enable-preview to enable\n" + 
+				"	           ^\n" + 
+				"Invalid expression as statement\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -460,11 +462,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		String expectedProblemLog =
 				"----------\n" + 
 				"1. ERROR in X.java (at line 4)\n" + 
-				"	default -> 3;\n" + 
-				"	^^^^^^^\n" + 
-				"You are using a preview language feature that may or may not be supported in a future release\n" + 
-				"----------\n" + 
-				"2. ERROR in X.java (at line 4)\n" + 
 				"	default -> 3;\n" + 
 				"	           ^\n" + 
 				"Invalid expression as statement\n" + 
@@ -531,7 +528,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"1. ERROR in X.java (at line 0)\n" + 
 					"	public class X {\n" + 
 					"	^\n" + 
-					"Preview features enabled at an invalid source release level 11, preview can be enabled only at source level 13\n" + 
+					"Preview features enabled at an invalid source release level "+CompilerOptions.VERSION_11+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" + 
 					"----------\n";
 			this.runNegativeTest(
 					testFiles,
@@ -2202,11 +2199,6 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"----------\n" + 
 				"1. WARNING in X.java (at line 5)\n" + 
 				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"You are using a preview language feature that may or may not be supported in a future release\n" + 
-				"----------\n" + 
-				"2. WARNING in X.java (at line 5)\n" + 
-				"	case \"ABC\", (false ? (String) \"c\" : (String) \"d\") : break;\n" + 
 				"	                     ^^^^^^^^^^^^\n" + 
 				"Dead code\n" + 
 				"----------\n";
@@ -2250,7 +2242,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			},
 			message);
 	}
-	public void testBug544073_073() {
+	// multi-constant case has graduated from preview to standard - this test is no longer relevant
+	public void _testBug544073_073() {
 		if (this.complianceLevel < ClassFileConstants.JDK1_8)
 			return;
 		Map<String, String> options = getCompilerOptions();
@@ -2545,10 +2538,10 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 		String expectedProblemLog =
 				"----------\n" + 
-				"1. WARNING in X.java (at line 4)\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
 				"	yield();\n" + 
 				"	^^^^^^^\n" + 
-				"yield may be disallowed in future - qualify method calls to avoid this message\n" + 
+				"restricted identifier yield not allowed here - method calls need to be qualified\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 7)\n" + 
 				"	Zork();\n" + 
@@ -2608,10 +2601,10 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	^^^^^\n" + 
 				"Syntax error on token \"yield\", AssignmentOperator expected after this token\n" + 
 				"----------\n" + 
-				"2. WARNING in X.java (at line 7)\n" + 
+				"2. ERROR in X.java (at line 7)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
-				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2661,20 +2654,20 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 		String expectedProblemLog =
 				"----------\n" + 
-				"1. WARNING in X.java (at line 3)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
 				"	yield y;\n" + 
 				"	^^^^^\n" + 
-				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	Zork();\n" + 
 				"	^^^^\n" + 
 				"The method Zork() is undefined for the type X\n" + 
 				"----------\n" + 
-				"3. WARNING in X.java (at line 7)\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
-				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2724,20 +2717,20 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 		String expectedProblemLog =
 				"----------\n" + 
-				"1. WARNING in X.java (at line 3)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
 				"	yield y = null;\n" + 
 				"	^^^^^\n" + 
-				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	Zork();\n" + 
 				"	^^^^\n" + 
 				"The method Zork() is undefined for the type X\n" + 
 				"----------\n" + 
-				"3. WARNING in X.java (at line 7)\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
-				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2784,10 +2777,10 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	^^^^\n" + 
 				"The method Zork() is undefined for the type X\n" + 
 				"----------\n" + 
-				"2. WARNING in X.java (at line 6)\n" + 
+				"2. ERROR in X.java (at line 6)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
-				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2837,20 +2830,20 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 		String expectedProblemLog =
 				"----------\n" + 
-				"1. WARNING in X.java (at line 3)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
 				"	new yield();\n" + 
 				"	    ^^^^^\n" + 
-				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	Zork();\n" + 
 				"	^^^^\n" + 
 				"The method Zork() is undefined for the type X\n" + 
 				"----------\n" + 
-				"3. WARNING in X.java (at line 7)\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
-				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -2900,20 +2893,20 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 		};
 		String expectedProblemLog =
 				"----------\n" + 
-				"1. WARNING in X.java (at line 3)\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
 				"	yield[] y;\n" + 
 				"	^^^^^^^\n" + 
-				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 4)\n" + 
 				"	Zork();\n" + 
 				"	^^^^\n" + 
 				"The method Zork() is undefined for the type X\n" + 
 				"----------\n" + 
-				"3. WARNING in X.java (at line 7)\n" + 
+				"3. ERROR in X.java (at line 7)\n" + 
 				"	class yield {\n" + 
 				"	      ^^^^^\n" + 
-				"yield may be a restricted identifier in future and may be disallowed as a type name\n" + 
+				"yield is a restricted identifier and cannot be used as type name\n" + 
 				"----------\n";
 		this.runNegativeTest(
 				testFiles,
@@ -3542,6 +3535,274 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"}"
 			},
 			"0");
+	}
+	public void testBug552764_001() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static int twice(int i) {\n" +
+				"		switch (i) {\n" +
+				"			default -> 3;\n" +
+				"		}\n" +
+				"		return 0;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.print(twice(3));\n" +
+				"	}\n" +
+				"}\n",
+		};
+
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	default -> 3;\n" + 
+				"	^^^^^^^\n" + 
+				"Arrow in case statement supported from Java 14 onwards only\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				options);
+	}
+	public void testBug552764_002() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static int twice(int i) {\n" +
+				"		return switch (i) {\n" +
+				"			default -> 3;\n" +
+				"		};\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.print(twice(3));\n" +
+				"	}\n" +
+				"}\n",
+		};
+
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 3)\n" + 
+				"	return switch (i) {\n" + 
+				"			default -> 3;\n" + 
+				"		};\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Switch Expressions are supported from Java 14 onwards only\n" + 
+				"----------\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	default -> 3;\n" + 
+				"	^^^^^^^\n" + 
+				"Arrow in case statement supported from Java 14 onwards only\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				options);
+	}
+	public void testBug552764_003() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
+		String[] testFiles = new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static int twice(int i) {\n" +
+				"		switch (i) {\n" +
+				"			case 1, 2 : break;\n" +
+				"			default : break;\n" +
+				"		}\n" +
+				"		return 0;\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.print(twice(3));\n" +
+				"	}\n" +
+				"}\n",
+		};
+
+		String expectedProblemLog =
+				"----------\n" + 
+				"1. ERROR in X.java (at line 4)\n" + 
+				"	case 1, 2 : break;\n" + 
+				"	^^^^^^^^^\n" + 
+				"Multi-constant case labels supported from Java 14 onwards only\n" + 
+				"----------\n";
+		this.runNegativeTest(
+				testFiles,
+				expectedProblemLog,
+				null,
+				true,
+				options);
+	}
+	public void testBug558067_001() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    public int foo(int i, int e) {\n"+
+				"               LABEL: while (i == 0) {\n"+
+				"            i = switch (e) {\n"+
+				"                case 0 : {\n"+
+				"                    for (;;) {\n"+
+				"                        break LABEL; // NO error flagged\n"+
+				"                    }\n"+
+				"                    yield 1;\n"+
+				"                }\n"+
+				"                default : yield 2;\n"+
+				"            };\n"+
+				"        }\n"+
+				"    return i;\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        new X().foo(0, 1);\n"+
+				"     }\n"+
+				"}\n"
+			},	"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	break LABEL; // NO error flagged\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"Breaking out of switch expressions not permitted\n" + 
+			"----------\n");
+	}
+	public void testBug558067_002() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    public int foo(int i, int e) {\n"+
+				"   TOP:System.out.println(\"hello\");\n"+
+				"          int x = switch(i) {\n"+
+				"       case 0:\n"+
+				"               LABEL: while (i == 0) {\n"+
+				"            i = switch (e) {\n"+
+				"                case 0 : {\n"+
+				"                    for (;;) {\n"+
+				"                        break LABEL;\n"+
+				"                    }\n"+
+				"                    yield 1;\n"+
+				"                }\n"+
+				"                default : yield 2;\n"+
+				"            };\n"+
+				"        }\n"+
+				"       case 2: for(;;) break TOP;\n"+
+				"       default: yield 0;\n"+
+				"       };\n"+
+				"    return i;\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        new X().foo(0, 1);\n"+
+				"     }\n"+
+				"} \n"
+			},	"----------\n" + 
+			"1. ERROR in X.java (at line 10)\n" + 
+			"	break LABEL;\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"Breaking out of switch expressions not permitted\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 17)\n" + 
+			"	case 2: for(;;) break TOP;\n" + 
+			"	                ^^^^^^^^^^\n" + 
+			"Breaking out of switch expressions not permitted\n" + 
+			"----------\n");
+	}
+	public void testBug558067_003() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    public int foo(int i, int e) {\n"+
+				"               LABEL: while (i == 0) {\n"+
+				"            i = switch (e) {\n"+
+				"                case 0 : {\n"+
+				"                    for (;;) {\n"+
+				"                        continue LABEL;\n"+
+				"                    }\n"+
+				"                    yield 1;\n"+
+				"                }\n"+
+				"                default : yield 2;\n"+
+				"            };\n"+
+				"        }\n"+
+				"    return i;\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        new X().foo(0, 1);\n"+
+				"     }\n"+
+				"}\n"
+			},	"----------\n" + 
+			"1. ERROR in X.java (at line 7)\n" + 
+			"	continue LABEL;\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Continue out of switch expressions not permitted\n" + 
+			"----------\n");
+	}
+	public void testBug558067_004() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    public int foo(int i, int e) {\n"+
+				"               LABEL: while (i == 0) {\n"+
+				"            i = switch (e) {\n"+
+				"                case 0 : {\n"+
+				"                    switch(e) {\n"+
+				"                      case 0 : {\n"+
+				"                          break LABEL;\n"+
+				"                      }\n"+
+				"                    }\n"+
+				"                    yield 1;\n"+
+				"                }\n"+
+				"                default : yield 2;\n"+
+				"            };\n"+
+				"        }\n"+
+				"    return i;\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        new X().foo(0, 1);\n"+
+				"     }\n"+
+				"}\n"
+			},	"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	break LABEL;\n" + 
+			"	^^^^^^^^^^^^\n" + 
+			"Breaking out of switch expressions not permitted\n" + 
+			"----------\n");
+	}
+	public void testBug558067_005() {
+		this.runNegativeTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"+
+				"    public int foo(int i, int e) {\n"+
+				"               LABEL: while (i == 0) {\n"+
+				"            i = switch (e) {\n"+
+				"                case 0 : {\n"+
+				"                    switch(e) {\n"+
+				"                      case 0 : {\n"+
+				"                          continue LABEL;\n"+
+				"                      }\n"+
+				"                    }\n"+
+				"                    yield 1;\n"+
+				"                }\n"+
+				"                default : yield 2;\n"+
+				"            };\n"+
+				"        }\n"+
+				"    return i;\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        new X().foo(0, 1);\n"+
+				"     }\n"+
+				"}\n"
+			},	"----------\n" + 
+			"1. ERROR in X.java (at line 8)\n" + 
+			"	continue LABEL;\n" + 
+			"	^^^^^^^^^^^^^^^\n" + 
+			"Continue out of switch expressions not permitted\n" + 
+			"----------\n");
 	}
 		public void testConversion1() {
 		runConformTestWithJavac(

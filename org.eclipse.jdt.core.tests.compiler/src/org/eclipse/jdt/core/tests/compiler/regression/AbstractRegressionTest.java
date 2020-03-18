@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2020 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -35,6 +35,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -108,10 +109,10 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		.map(e -> e.getKey() + "=" + e.getValue())
 		.toArray(String[]::new);
 
-	protected class Runner {
+	public class Runner {
 		boolean shouldFlushOutputDirectory = true;
 		// input:
-		String[] testFiles;
+		public String[] testFiles;
 		String[] dependantFiles;
 		String[] classLibraries;
 		boolean  libsOnModulePath;
@@ -131,14 +132,14 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		JavacTestOptions javacTestOptions;
 		// execution:
 		boolean forceExecution;
-		String[] vmArguments;
-		String expectedOutputString;
+		public String[] vmArguments;
+		public String expectedOutputString;
 		String expectedErrorString;
 
 		ASTVisitor visitor;
-
+		public Runner() {}
 		@SuppressWarnings("synthetic-access")
-		protected void runConformTest() {
+		public void runConformTest() {
 			runTest(this.shouldFlushOutputDirectory,
 					this.testFiles,
 					this.dependantFiles != null ? this.dependantFiles : new String[] {},
@@ -304,6 +305,8 @@ static class JavacCompiler {
 			return JavaCore.VERSION_12;
 		} else if(rawVersion.startsWith("13")) {
 			return JavaCore.VERSION_13;
+		} else if(rawVersion.startsWith("14")) {
+			return JavaCore.VERSION_14;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -442,6 +445,20 @@ static class JavacCompiler {
 				return 0100;
 			}
 			if ("13.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_14) {
+			if ("14-ea".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("14".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("14.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("14.0.2".equals(rawVersion)) {
 				return 0200;
 			}
 		}
@@ -1126,6 +1143,7 @@ protected static class JavacTestOptions {
 	public final static String MODULE_INFO_NAME = new String(TypeConstants.MODULE_INFO_NAME);
 
 	public static boolean SHIFT = false;
+	public static String PREVIEW_ALLOWED_LEVEL = JavaCore.VERSION_14;
 
 	protected static final String SOURCE_DIRECTORY = Util.getOutputDirectory()  + File.separator + "source";
 
@@ -1136,6 +1154,9 @@ protected static class JavacTestOptions {
 	protected boolean shouldSwallowCaptureId;
 	public AbstractRegressionTest(String name) {
 		super(name);
+	}
+	protected boolean checkPreviewAllowed() {
+		return this.complianceLevel == ClassFileConstants.JDK14;
 	}
 	protected void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
 		this.checkClassFile("", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
@@ -1820,7 +1841,35 @@ protected static class JavacTestOptions {
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		runConformTest(testFiles, expectedOutput, customOptions, null);
 	}
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments, Charset charset) {
+		runTest(
+				// test directory preparation
+				true /* flush output directory */,
+				testFiles /* test files */,
+				// compiler options
+				null /* no class libraries */,
+				customOptions /* no custom options */,
+				false /* do not perform statements recovery */,
+				null /* no custom requestor */,
+				// compiler results
+				false /* expecting no compiler errors */,
+				null /* do not check compiler log */,
+				// runtime options
+				false /* do not force execution */,
+				vmArguments /* no vm arguments */,
+				// runtime results
+				expectedOutput /* expected output string */,
+				null /* do not check error string */,
+				// javac options
+				JavacTestOptions.DEFAULT /* default javac test options */,
+				charset);
+	}
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments) {
+		runConformTest(testFiles, expectedOutput, customOptions, vmArguments, RUN_JAVAC ? /* javac test options */
+				new JavacTestOptions("-source 1.4") :
+					JavacTestOptions.DEFAULT);
+	}
+	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments, JavacTestOptions javacOptions) {
 		runTest(
 			// test directory preparation
 			true /* flush output directory */,
@@ -1840,7 +1889,7 @@ protected static class JavacTestOptions {
 			expectedOutput /* expected output string */,
 			null /* do not check error string */,
 			// javac options
-			JavacTestOptions.DEFAULT /* default javac test options */);
+			javacOptions);
 	}
 	protected void runConformTest(
 			String[] testFiles,
@@ -1864,7 +1913,8 @@ protected static class JavacTestOptions {
 				null,
 				null,
 				expectedSuccessOutputString,
-				JavacTestOptions.DEFAULT);
+				JavacTestOptions.DEFAULT,
+				Charset.defaultCharset());
 	}
 
 	protected void runConformTest(
@@ -2675,7 +2725,16 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			String[] classLibraries,
 			boolean shouldFlushOutputDirectory,
 			Map customOptions) {
-		runNegativeTest(testFiles, expectedCompilerLog, classLibraries, shouldFlushOutputDirectory, null, customOptions);
+		runNegativeTest(testFiles, expectedCompilerLog, classLibraries, shouldFlushOutputDirectory, null, customOptions, JavacTestOptions.DEFAULT);
+	}
+	protected void runNegativeTest(
+			String[] testFiles,
+			String expectedCompilerLog,
+			String[] classLibraries,
+			boolean shouldFlushOutputDirectory,
+			String[] vmArguments,
+			Map customOptions) {
+		runNegativeTest(testFiles, expectedCompilerLog, classLibraries, shouldFlushOutputDirectory, vmArguments, customOptions, JavacTestOptions.DEFAULT);
 	}
 	protected void runNegativeTest(
 		String[] testFiles,
@@ -2683,7 +2742,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		String[] classLibraries,
 		boolean shouldFlushOutputDirectory,
 		String[] vmArguments,
-		Map customOptions) {
+		Map customOptions,
+		JavacTestOptions javacOptions) {
 		runTest(
 	 		// test directory preparation
 			shouldFlushOutputDirectory /* should flush output directory */,
@@ -2708,7 +2768,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			null /* do not check output string */,
 			null /* do not check error string */,
 			// javac options
-			JavacTestOptions.DEFAULT /* default javac test options */);
+			javacOptions);
 	}
 	protected void runNegativeTest(
 			boolean skipJavac,
@@ -3021,7 +3081,50 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			expectedErrorString,
 			null,
 			expectedOutputString,
-			javacTestOptions);
+			javacTestOptions,
+			Charset.defaultCharset());
+	}
+	private void runTest(
+			// test directory preparation
+			boolean shouldFlushOutputDirectory,
+			String[] testFiles,
+			// compiler options
+			String[] classLibraries,
+			Map<String, String> customOptions,
+			boolean performStatementsRecovery,
+			ICompilerRequestor customRequestor,
+			// compiler results
+			boolean expectingCompilerErrors,
+			String expectedCompilerLog,
+			// runtime options
+			boolean forceExecution,
+			String[] vmArguments,
+			// runtime results
+			String expectedOutputString,
+			String expectedErrorString,
+			// javac options
+			JavacTestOptions javacTestOptions,
+			Charset charset) {
+		runTest(
+			shouldFlushOutputDirectory,
+			testFiles,
+			new String[] {},
+			classLibraries,
+			false,
+			customOptions,
+			performStatementsRecovery,
+			customRequestor,
+			expectingCompilerErrors,
+			expectedCompilerLog,
+			null, // alternate compile errors
+			forceExecution,
+			vmArguments,
+			expectedOutputString,
+			expectedErrorString,
+			null,
+			expectedOutputString,
+			javacTestOptions,
+			charset);
 	}
 	/** Call this if the compiler randomly produces different error logs. */
 	protected void runNegativeTestMultiResult(String[] testFiles, Map options, String[] alternateCompilerErrorLogs) {
@@ -3047,7 +3150,53 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			null,
 			null,
 			null,
-			JavacTestOptions.DEFAULT);
+			JavacTestOptions.DEFAULT,
+			Charset.defaultCharset());
+	}
+	private void runTest(
+			// test directory preparation
+			boolean shouldFlushOutputDirectory,
+			String[] testFiles,
+			String[] dependantFiles,
+			// compiler options
+			String[] classLibraries,
+			boolean libsOnModulePath,
+			Map<String, String> customOptions,
+			boolean performStatementsRecovery,
+			ICompilerRequestor customRequestor,
+			// compiler results
+			boolean expectingCompilerErrors,
+			String expectedCompilerLog,
+			String[] alternateCompilerLogs,
+			// runtime options
+			boolean forceExecution,
+			String[] vmArguments,
+			// runtime results
+			String expectedOutputString,
+			String expectedErrorString,
+			final ASTVisitor visitor,
+			// javac options
+			String expectedJavacOutputString,
+			JavacTestOptions javacTestOptions) {
+		runTest( shouldFlushOutputDirectory,
+				testFiles,
+				dependantFiles,
+				classLibraries,
+				libsOnModulePath,
+				customOptions,
+				performStatementsRecovery,
+				customRequestor,
+				expectingCompilerErrors,
+				expectedCompilerLog,
+				alternateCompilerLogs,
+				forceExecution,
+				vmArguments,
+				expectedOutputString,
+				expectedErrorString,
+				visitor,
+				expectedJavacOutputString,
+				javacTestOptions,
+				Charset.defaultCharset());
 	}
 // This is a worker method to support regression tests. To ease policy changes,
 // it should not be called directly, but through the runConformTest and
@@ -3145,7 +3294,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			final ASTVisitor visitor,
 			// javac options
 			String expectedJavacOutputString,
-			JavacTestOptions javacTestOptions) {
+			JavacTestOptions javacTestOptions,
+			Charset charset) {
 		// non-javac part
 		if (shouldFlushOutputDirectory)
 			Util.flushDirectoryContent(new File(OUTPUT_DIR));
@@ -3277,7 +3427,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			}
 		}
 		// javac part
-		if (RUN_JAVAC && javacTestOptions != JavacTestOptions.SKIP) {
+		if (RUN_JAVAC) {
 			runJavac(testFiles, expectingCompilerErrors, expectedCompilerLog,
 					expectedJavacOutputString, expectedErrorString, shouldFlushOutputDirectory,
 					javacTestOptions, vmArguments, classLibraries, libsOnModulePath);
@@ -3794,4 +3944,13 @@ protected void runNegativeTest(
 		}
 		return null;
 	}
+	protected Map<String, String> setPresetPreviewOptions() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_14);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_14);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_14);
+		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		return options;
+	}	
 }

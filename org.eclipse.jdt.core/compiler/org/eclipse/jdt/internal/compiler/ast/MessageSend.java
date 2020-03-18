@@ -251,11 +251,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 }
 private void yieldQualifiedCheck(BlockScope currentScope) {
 	long sourceLevel = currentScope.compilerOptions().sourceLevel;
-	if (sourceLevel < ClassFileConstants.JDK13 || !this.receiverIsImplicitThis())
+	if (sourceLevel < ClassFileConstants.JDK14 || !this.receiverIsImplicitThis())
 		return;
 	if (this.selector == null || !("yield".equals(new String(this.selector)))) //$NON-NLS-1$
 		return;
-	if (sourceLevel == ClassFileConstants.JDK13 && currentScope.compilerOptions().enablePreviewFeatures) {
+	if (sourceLevel >= ClassFileConstants.JDK14) {
 		currentScope.problemReporter().switchExpressionsYieldUnqualifiedMethodError(this);
 	} else {
 		currentScope.problemReporter().switchExpressionsYieldUnqualifiedMethodWarning(this);

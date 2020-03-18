@@ -27,5 +27,5 @@ public interface ConflictedParser {
 	 * appear as terminals in ModuleDeclaration, and are identifiers everywhere else)
 	 */
 	boolean isParsingModuleDeclaration();
-	boolean isParsingJava13();
+	boolean isParsingJava14();
 }

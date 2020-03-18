@@ -40,8 +40,10 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -80,6 +82,9 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private char[] nestHost;
 	private int nestMembersCount;
 	private char[][] nestMembers;
+	private boolean isRecord;
+	private int recordComponentsCount;
+	private ComponentInfo[] recordComponents;
 
 private static String printTypeModifiers(int modifiers) {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
@@ -297,6 +302,9 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 		// field this.superclassName. null is fine.
 		if (superclassNameIndex != 0) {
 			this.superclassName = getConstantClassNameAt(superclassNameIndex);
+			if (CharOperation.equals(this.superclassName, TypeConstants.CharArray_JAVA_LANG_RECORD_SLASH)) {
+				this.accessFlags |= ExtraCompilerModifiers.AccRecord;
+			}
 		}
 
 		// Read the interfaces, use exception handlers to catch bad format
@@ -417,7 +425,10 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 						decodeTypeAnnotations(readOffset, true);
 					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.RuntimeInvisibleTypeAnnotationsName)) {
 						decodeTypeAnnotations(readOffset, false);
+					} 	else if (CharOperation.equals(attributeName, AttributeNamesConstants.RecordClass)) {
+						decodeRecords(readOffset, attributeName);
 					}
+
 					break;
 				case 'M' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.MissingTypesName)) {
@@ -476,6 +487,23 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 			this.classFileName,
 			ClassFormatException.ErrTruncatedInput,
 			readOffset);
+	}
+}
+
+private void decodeRecords(int readOffset, char[] attributeName) {
+	if (CharOperation.equals(attributeName, AttributeNamesConstants.RecordClass)) {
+		this.isRecord = true;
+		int offset = readOffset + 6;
+		this.recordComponentsCount = u2At(offset);
+		if (this.recordComponentsCount != 0) {
+			offset += 2;
+			this.recordComponents = new ComponentInfo[this.recordComponentsCount];
+			for (int j = 0; j < this.recordComponentsCount; j++) {
+				ComponentInfo component = ComponentInfo.createComponent(this.reference, this.constantPoolOffsets, offset, this.version);
+				this.recordComponents[j] = component;
+				offset += component.sizeInBytes();
+			}
+		}
 	}
 }
 
@@ -1382,5 +1410,9 @@ public String toString() {
 	print.println(" access_flags: " + printTypeModifiers(accessFlags()) + "(" + accessFlags() + ")"); //$NON-NLS-1$ //$NON-NLS-3$ //$NON-NLS-2$
 	print.flush();
 	return out.toString();
+}
+
+public boolean isRecord() {
+	return this.isRecord;
 }
 }
