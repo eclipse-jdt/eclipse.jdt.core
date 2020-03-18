@@ -19,7 +19,7 @@ package org.eclipse.jdt.core.util;
  *
  * This interface may be implemented by clients.
  *
- * @since 3.21 BETA_JAVA14
+ * @since 3.21
  */
 public interface IComponentInfo {
 

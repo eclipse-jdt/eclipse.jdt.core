@@ -243,6 +243,7 @@ public abstract class SearchPattern {
 	 * <p>
 	 * This is implemented only for code assist and not available for normal search.
 	 *
+	 * @noreference This is not intended to be referenced by clients as it is a part of Java preview feature.
 	 * @since 3.21
 	 */
 	public static final int R_SUBWORD_MATCH = 0x0400;
