@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.dom.SwitchExpression;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TextBlock;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.YieldStatement;
@@ -674,6 +675,10 @@ public class ASTConverter14Test extends ConverterTestSetup {
 		}
 	}
 	
+	/**
+	 * Added for Bug 561193 - [14]record keyword inside method not colored correctly
+	 * @throws CoreException
+	 */
 	public void testRecord002() throws CoreException {
 		if (!isJRE14) {
 			System.err.println("Test "+getName()+" requires a JRE 14");
@@ -736,6 +741,42 @@ public class ASTConverter14Test extends ConverterTestSetup {
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit compilationUnit = (CompilationUnit) node;
 			assertProblemsSize(compilationUnit, 0);
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
+	public void testRecord004() throws CoreException {
+		if (!isJRE14) {
+			System.err.println("Test " + getName() + " requires a JRE 14");
+			return;
+		}
+		String contents = "public class X {\n" + 
+						  "	public static void main(String[] args) {\n" +
+				          "		record R(int x,int y){}\n" +
+						  "		R r = new R(100, 200);\n" +
+				          "		System.out.println(r.x());\n" +
+						  "	}\n" +
+				          "}";
+		this.workingCopy = getWorkingCopy("/Converter14/src/X.java", true/* resolve */);
+		IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
+			ASTNode node = buildAST(contents, this.workingCopy);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+			assertProblemsSize(compilationUnit, 0);
+			node = getASTNode(compilationUnit, 0, 0);
+			assertEquals("Not a method declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+			MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+			List<ASTNode> statements = methodDeclaration.getBody().statements();
+			node = statements.get(0);
+			assertEquals("Not a TypDeclaration statement", ASTNode.TYPE_DECLARATION_STATEMENT, node.getNodeType());
+			TypeDeclarationStatement tdStmt = (TypeDeclarationStatement) node;
+			node = tdStmt.getDeclaration();
+			assertEquals("Not a RecordDeclaration", ASTNode.RECORD_DECLARATION, node.getNodeType());
 		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
